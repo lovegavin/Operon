@@ -820,3 +820,52 @@ Independent oracle: statsmodels OLS+HC1 for DiD, separate TWFE dummy regression 
 Three-end: WSL 10/10; Windows 12.10 with NumPy 2.5.4, 10/10; all five CSV md5 match (did `e0118a93a14098c5b431731ba20901d8`, event `45e9a92b9666ee4045ae499fabf5c7d4`, synth `f3c0d14eabff7e8f5e566b02c71b050e`, aipw `dc59a450530b7ecad88393e0d0a0743e`, mediation `48494490f27fa97204024cd1507f3ee2`); srv SKIP (ssh alias unresolvable).
 
 Limitations: synthetic_control weights are simplex-constrained and can be unstable with collinear donors; event_study requires a never-treated group and a window covering the post period; AIPW uses in-sample propensity scores (no cross-fitting).
+
+## Batch b73 - transcript isoform and splicing panel (5 operators)
+
+**Status:** PASS on WSL and Windows; srv SKIP. **Mode:** synthetic tables (`workdir/b73_route/input`), no biological claim.
+
+Operations: `splicing_psi`, `exon_skipping`, `intron_retention`, `alternative_polyadenylation`, `isoform_quantification_em` (two-input EM over an isoform x exon compatibility matrix).
+
+### Inputs and checksums
+
+| File | sha256 |
+| --- | --- |
+| psi.csv | a2a258f0f43cbef00fbc2cfa2a6cae889f2dd71b967ffd1e58f476256a052e5b |
+| exon.csv | 3795b63b55c86a390aa57bc9dc7d7e4dbb22728b3a9a918e639b91c84f8c0326 |
+| intron.csv | 42bdba0bea83b51ded242b25e0b8743580cf991c7d63750eab8d2e604e118974 |
+| apa.csv | 93409bc2d4c8797baaa625815d551f7b9deb905d7e58ea8f0be92ac88be4fcc7 |
+| compat.csv | ab39b809ff17f5d91d1c270a2f54cd0e0fd4bfb28d8bb432d01eb49f589bc029 |
+| counts.csv | 25d514c672715670e5293ee32afe20516b61695ee0f1f8f6f3a690bda3cf2983 |
+
+### Route
+
+`PYTHONPATH=library/seed:. python scripts/run.py workdir/b73_route` - 10/10 steps complete.
+
+| Output | Key values |
+| --- | --- |
+| psi.csv | PSI 0.75 / 0.10 / 0.00 / 0.90 (Wilson 95% CI in columns) |
+| skipping.csv | exon PSI 0.75 / 0.25 / 0.50 / 0.889 / 0.0; gene-mean deltas 0.25 / -0.25 / 0 / 0.444 / -0.444 |
+| retention.csv | intron retention ratio 1.0 / 0.0 / 1.0 (length-normalised densities) |
+| apa.csv | proximal usage 0.90 / 0.50 / 0.05 (APA flag at |log2 ratio| >= 1) |
+| isoforms.csv | EM fractions 0.5714 / 0.1786 / 0.2500; expression 85.714 / 26.786 / 37.500; nll -92.7904 |
+
+### Oracle
+
+Independent SLSQP maximum likelihood on the same compatibility matrix (SciPy) plus hand formulas for PSI, exon delta, intron ratio and APA usage (`C:\Users\Public\b73_oracle.py`). Agreement: PSI exact; intron/APA exact; EM fractions |delta| <= 5e-6, expression <= 0.003 (SLSQP tolerance), nll equal to 6 decimals.
+
+### Three-end
+
+| End | Result |
+| --- | --- |
+| WSL (NumPy 2.1.3) | 10/10; md5 psi `bbde082790ad63d453f4aa9dbd4dd243`, skipping `a35f7a15cdb3bae4914df02d5190c861`, retention `85143e02054403aa92306e93c13c2391`, apa `20f0a902b32f8a8b5a27880d3ddee2df`, isoforms `95b4203af7d40f0a47d75491c2ecaa2d` |
+| Windows (D:\Operon, NumPy 2.5.4) | 10/10; the same five md5 values (all MATCH) |
+| srv | SKIP: `ssh srv` unresolvable in this environment, no remote workspace mounted |
+
+PSI intervals are rounded to 9 decimals because SciPy `beta.ppf` differs in the last bits between the two NumPy/SciPy builds; this is a formatting stabiliser, not a changed statistic.
+
+### Limitations
+
+- Tables are synthetic; the operator only implements the stated algebra.
+- EM assumes a fixed isoform x exon compatibility matrix and does not model read fractions, biases or paired-end information.
+- `alternative_polyadenylation` uses the proximal/(proximal+distal) definition and a |log2| flag; no 3' UTR annotation is inferred.
