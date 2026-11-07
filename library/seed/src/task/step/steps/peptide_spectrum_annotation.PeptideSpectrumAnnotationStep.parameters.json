@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name"
+    },
+    "peptide_dim": {
+      "type": "string",
+      "default": "peptide",
+      "title": "peptide axis"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "field axis"
+    },
+    "peak_dim": {
+      "type": "string",
+      "default": "peak",
+      "title": "peak axis"
+    },
+    "tolerance_da": {
+      "type": "number",
+      "default": 0.02,
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "title": "Fragment tolerance (Da)"
+    }
+  }
+}

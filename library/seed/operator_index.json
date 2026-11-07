@@ -5540,6 +5540,16 @@
     "status": "generated"
   },
   {
+    "id": "peptide_spectrum_annotation",
+    "kind": "operator",
+    "title": "Peptide spectrum annotation",
+    "category": "Proteomics MS",
+    "version": "1.0.0",
+    "description": "Theoretical b/y ion matching and coverage for each peptide.",
+    "doc": "src/task/step/steps/peptide_spectrum_annotation.PeptideSpectrumAnnotationStep.md",
+    "status": "authored"
+  },
+  {
     "id": "periodogram",
     "kind": "operator",
     "title": "Periodogram",
@@ -5987,6 +5997,16 @@
     "version": "1.0.0",
     "description": "Summarize Kyte-Doolittle GRAVY over 9-residue windows.",
     "doc": "src/task/step/steps/protein_gravy_window.ProteinGravyWindowStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "protein_inference",
+    "kind": "operator",
+    "title": "Protein inference",
+    "category": "Proteomics MS",
+    "version": "1.0.0",
+    "description": "Peptide evidence summarised to proteins with unique-peptide counts.",
+    "doc": "src/task/step/steps/protein_inference.ProteinInferenceStep.md",
     "status": "authored"
   },
   {
@@ -7848,6 +7868,16 @@
     "description": "Spectral embedding：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、主成分数、Affinity、Gamma、随机种子。",
     "doc": "src/task/step/steps/spectral_embedding.SpectralEmbeddingStep.md",
     "status": "generated"
+  },
+  {
+    "id": "spectrum_library_match",
+    "kind": "operator",
+    "title": "Spectrum library match",
+    "category": "Proteomics MS",
+    "version": "1.0.0",
+    "description": "Cosine score of each query spectrum against a library of spectra.",
+    "doc": "src/task/step/steps/spectrum_library_match.SpectrumLibraryMatchStep.md",
+    "status": "authored"
   },
   {
     "id": "splicing_psi",

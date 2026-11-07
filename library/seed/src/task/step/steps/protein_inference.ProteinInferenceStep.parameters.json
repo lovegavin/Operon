@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name"
+    },
+    "peptide_dim": {
+      "type": "string",
+      "default": "peptide",
+      "title": "peptide axis"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "field axis"
+    }
+  }
+}

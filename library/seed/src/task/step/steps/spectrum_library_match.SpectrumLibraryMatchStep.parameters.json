@@ -1,0 +1,40 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name"
+    },
+    "query_dim": {
+      "type": "string",
+      "default": "query",
+      "title": "query axis"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "field axis"
+    },
+    "library_dim": {
+      "type": "string",
+      "default": "library",
+      "title": "library axis"
+    },
+    "tolerance_ppm": {
+      "type": "number",
+      "default": 20.0,
+      "minimum": 0.0,
+      "maximum": 1000.0,
+      "title": "Matching tolerance (ppm)"
+    },
+    "min_score": {
+      "type": "number",
+      "default": 0.0,
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "title": "Minimum cosine"
+    }
+  }
+}
