@@ -769,3 +769,18 @@ missing-not-at-random structure.
   - completeness `37c230b3802b91cdf9ce6ca7dcecf5f1`
 - **Remote**: SKIP — `ssh srv` does not resolve on this host and no `/public/home/lihj` tree is mounted.
 - **Limitations**: overlap check is O(n^2) and intended for small annotation tables; domain coverage is the union of intervals, not the sum of lengths; architecture switches are adjacency changes in start order, not phylogenetically informed.
+
+## b68 — LC-MS feature, isotope and neutral-mass matching panel
+
+- **Data (synthetic)**: `workdir/b68_route/input/` — `profile.csv` (7 centroided peaks in two scans), `spectrum.csv` (3 peaks around the glucose [M+H]+ ion), `database.csv` (glucose, sucrose). The profile is a hand-built two-scan toy spectrum; it is not a biological measurement and is labelled `mode=synthetic` in this section.
+  - profile.csv sha256 `3ecabe2359658cb2711e7b21ea9b0f40d8d7929ebf4fd1cf3d9eb305b281c447`
+  - spectrum.csv sha256 `ea1032b4bc91b8b4b5614e068b786ca2104249d1575328c7f89eb1e9c303b029`
+  - database.csv sha256 `6cd486ceae9cadb7e00378f204e01d02ac1c2ba697e52b3c1603155a170df474`
+- **Execution**: `PYTHONPATH=$PWD/library/seed:$PWD python scripts/run.py workdir/b68_route` — 6/6 steps complete. Exports: `features.csv`, `isotopes.csv`, `matches.csv`.
+- **Values**
+  - features: two local maxima, m/z 100.1 (scan 1) and 200.1 (scan 2), both above the 100-intensity and 100-prominence thresholds.
+  - isotopes for `C6H12O6`, z=1: M0 theoretical m/z 181.070666, observed 181.0712, +2.9465 ppm; M+1 theoretical 182.074021, relative abundance 0.064894 (observed isotope ratio 0.062).
+  - match: glucose neutral mass 180.0634 gives [M+H]+ 181.070676; the observed 181.0712 feature differs by +2.8913 ppm and is the only database entry inside 50 ppm.
+- **Oracle (6/6 pass, `workdir/b68_oracle.json`)**: an independent NumPy local-maximum scan reproduces the two features exactly; `pyteomics.mass` gives the monoisotopic and M+1 m/z and the M+1/M0 abundance. Comparison tolerances are 5e-6 Da for m/z and 0.1 ppm for the match because pyteomics and the operator use different proton/electron mass conventions (the raw deltas are 1.9e-6 Da, 2.06e-6 Da and 0.066 ppm).
+- **Three-end**: WSL and Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4) both complete 6/6 and produce identical MD5: features `3202b904f52c62945088b2d54cc218bc`, isotopes `a6fee330ff111dd3c4f097f6766c0f49`, matches `23a0c662e1a3542759e1e01059133db1`. Remote srv: SKIP — `ssh srv` does not resolve and no `/public/home/lihj` tree is mounted.
+- **Limitations**: isotope rows can share one observed peak (several isotopologues fall inside the 50 ppm window); the first column of `features.csv` is the ordinal peak label, not a scan id; the isotope model ignores unresolved fine structure and uses nominal integer abundances.

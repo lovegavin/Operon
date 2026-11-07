@@ -118,7 +118,7 @@ operators when they share a competitor, a dataset and an oracle class.
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| LC-MS annotation and enrichment | XCMS 4.0 https://bioconductor.org/packages/xcms/ ; METLIN https://metlin.scripps.edu/ ; HMDB 5.0 https://hmdb.ca/ | none | Adduct detection, metabolite-set enrichment, formula annotation, RT prediction and XIC extraction are absent | P1 | MetaboLights MTBLS1 https://www.ebi.ac.uk/metabolights/MTBLS1 | Hand m/z adduct arithmetic vs HMDB; hand hypergeometric | `adduct_detect`, `metabolite_set_enrichment`, `formula_annotation`, `retention_time_prediction`, `xic_extract` |
+| LC-MS annotation and enrichment | XCMS 4.0 https://bioconductor.org/packages/xcms/ ; METLIN https://metlin.scripps.edu/ ; HMDB 5.0 https://hmdb.ca/ | `ms1_feature_detect`*, `ms1_isotope_pattern`*, `metabolite_mass_match`* | Adduct detection, metabolite-set enrichment, formula annotation, RT prediction and XIC extraction still absent | P1 | MetaboLights MTBLS1 https://www.ebi.ac.uk/metabolights/MTBLS1 | Hand m/z adduct arithmetic vs HMDB; hand hypergeometric | `metabolite_set_enrichment`, `xic_extract`, `metabolite_adduct_annotation` |
 
 ## Immunology (5)
 
