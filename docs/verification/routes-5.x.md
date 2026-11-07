@@ -566,3 +566,13 @@ for allele balance; window z uses ddof=1 and the operator's n > 2 rule.
 - Eight individuals give a very low-power QTL scan; p-values are illustrative.
 - XP-EHH and iHS need phased haplotypes and were left in the matrix as future
   work rather than approximated from genotypes.
+
+## b57 - genotype trio QC (VCF)
+
+- Data: workdir/b57_route/input/trio.vcf, synthetic trio (6 variants, father/mother/child); sha256 f1a9521639bb572f43e773b2f683d460f8c0f89b0ccc4e8edaae5a9407500387. mode=synthetic.
+- Command: PYTHONPATH=$PWD/library/seed:$PWD python scripts/run.py workdir/b57_route; 4/4 steps complete.
+- Operators: genotype_mendelian_error (per-variant error flag and dosages; info n_tested=5, n_errors=2); genotype_call_rate_qc (per-sample called fraction with pass flag at 0.9).
+- Values: errors v1=1, v6=1; v2-v4=0; v5 skipped (father missing). Call rate father 0.83333333 (pass 0), mother/child 1.0 (pass 1).
+- Oracle: independent allele-set Mendelian check plus NumPy call rate; workdir/b57_oracle.json 5/5 pass.
+- Three-end: WSL md5 6781c7da2617a3ddf81f69d11d141434 (mendelian) and 51843f2ee7947f37f4afce79bb6e6990 (call rate); Windows 12.10 md5 identical; srv SKIP (ssh srv unresolved).
+- Limits: no phasing; unique sample labels required; multiallelic VCF sites are not split.
