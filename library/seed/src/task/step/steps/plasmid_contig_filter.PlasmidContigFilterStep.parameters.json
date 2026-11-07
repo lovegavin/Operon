@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "contig"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "min_length": {
+      "type": "integer",
+      "default": 1000,
+      "minimum": 0
+    },
+    "min_depth": {
+      "type": "number",
+      "default": 5.0
+    }
+  }
+}

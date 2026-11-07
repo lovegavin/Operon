@@ -940,6 +940,16 @@
     "status": "generated"
   },
   {
+    "id": "bracken_reestimate",
+    "kind": "operator",
+    "title": "Bracken genome-length abundance",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Bracken genome-length abundance.",
+    "doc": "src/task/step/steps/bracken_reestimate.BrackenReestimateStep.md",
+    "status": "authored"
+  },
+  {
     "id": "brennan_prediger",
     "kind": "operator",
     "title": "Brennan-Prediger coefficient",
@@ -3410,6 +3420,16 @@
     "status": "generated"
   },
   {
+    "id": "humann_pathway_abundance",
+    "kind": "operator",
+    "title": "HUMAnN pathway abundance summary",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "HUMAnN pathway abundance summary.",
+    "doc": "src/task/step/steps/humann_pathway_abundance.HumannPathwayAbundanceStep.md",
+    "status": "authored"
+  },
+  {
     "id": "hurst_exponent",
     "kind": "operator",
     "title": "Hurst exponent (simple R/S)",
@@ -3828,6 +3848,16 @@
     "description": "KPSS stationarity test：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、数值字段、Regression、Lags。",
     "doc": "src/task/step/steps/kpss_test.KpssTestStep.md",
     "status": "generated"
+  },
+  {
+    "id": "kraken_kreport_parse",
+    "kind": "operator",
+    "title": "Kraken kreport rank summary",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Kraken kreport rank summary.",
+    "doc": "src/task/step/steps/kraken_kreport_parse.KrakenKreportParseStep.md",
+    "status": "authored"
   },
   {
     "id": "krippendorff_alpha",
@@ -4448,6 +4478,16 @@
     "description": "Meta-regression：接收 1 个输入，输出 Form；主要参数：Study Dim、特征维度、Effect Label、Variance Label、Moderators、分类协变量。",
     "doc": "src/task/step/steps/meta_regression.MetaRegressionStep.md",
     "status": "generated"
+  },
+  {
+    "id": "metaphlan_profile_parse",
+    "kind": "operator",
+    "title": "MetaPhlAn rank profile summary",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "MetaPhlAn rank profile summary.",
+    "doc": "src/task/step/steps/metaphlan_profile_parse.MetaphlanProfileParseStep.md",
+    "status": "authored"
   },
   {
     "id": "min_max_scale",
@@ -5448,6 +5488,16 @@
     "description": "Pivot a long 2D table into a wide matrix by two categorical columns.",
     "doc": "src/task/step/steps/pivot.PivotStep.md",
     "status": "generated"
+  },
+  {
+    "id": "plasmid_contig_filter",
+    "kind": "operator",
+    "title": "Plasmid-like contig filter",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Plasmid-like contig filter.",
+    "doc": "src/task/step/steps/plasmid_contig_filter.PlasmidContigFilterStep.md",
+    "status": "authored"
   },
   {
     "id": "pls_regression",
