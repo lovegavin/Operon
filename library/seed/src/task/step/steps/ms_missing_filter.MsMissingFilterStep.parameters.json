@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Filter proteins by missing-value fraction",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "protein_dim": {
+      "type": "string",
+      "default": "protein",
+      "title": "Protein dim"
+    },
+    "sample_dim": {
+      "type": "string",
+      "default": "sample",
+      "title": "Sample dim"
+    },
+    "max_missing_fraction": {
+      "type": "number",
+      "default": 0.5,
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "title": "Max missing fraction"
+    },
+    "output": {
+      "type": "string",
+      "default": "filtered",
+      "title": "Output"
+    }
+  }
+}

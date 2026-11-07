@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Quantile-normalize an LFQ matrix",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "protein_dim": {
+      "type": "string",
+      "default": "protein",
+      "title": "Protein dim"
+    },
+    "sample_dim": {
+      "type": "string",
+      "default": "sample",
+      "title": "Sample dim"
+    },
+    "output": {
+      "type": "string",
+      "default": "normalized",
+      "title": "Output"
+    }
+  }
+}

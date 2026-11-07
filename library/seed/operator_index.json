@@ -3990,6 +3990,26 @@
     "status": "generated"
   },
   {
+    "id": "lfq_median_normalize",
+    "kind": "operator",
+    "title": "Median-normalize an LFQ matrix",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Divide each sample column by its median and rescale to the global median of medians.",
+    "doc": "src/task/step/steps/lfq_median_normalize.LfqMedianNormalizeStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "lfq_quantile_normalize",
+    "kind": "operator",
+    "title": "Quantile-normalize an LFQ matrix",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Rank-align every sample column to the mean empirical quantile distribution.",
+    "doc": "src/task/step/steps/lfq_quantile_normalize.LfqQuantileNormalizeStep.md",
+    "status": "authored"
+  },
+  {
     "id": "liftover_intervals",
     "kind": "operator",
     "title": "liftOver intervals",
@@ -4688,6 +4708,16 @@
     "description": "MRPP chance-corrected within-group agreement with a permutation p-value.",
     "doc": "src/task/step/steps/mrpp.MrppStep.md",
     "status": "generated"
+  },
+  {
+    "id": "ms_missing_filter",
+    "kind": "operator",
+    "title": "Filter proteins by missing-value fraction",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Remove proteins whose missing fraction exceeds a threshold and report counts.",
+    "doc": "src/task/step/steps/ms_missing_filter.MsMissingFilterStep.md",
+    "status": "authored"
   },
   {
     "id": "msa_column_stats",
