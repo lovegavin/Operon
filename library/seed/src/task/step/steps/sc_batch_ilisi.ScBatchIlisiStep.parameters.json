@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Single-cell iLISI batch mixing",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name"
+    },
+    "cell_dim": {
+      "type": "string",
+      "default": "cell",
+      "title": "Cell dimension"
+    },
+    "cell2_dim": {
+      "type": "string",
+      "default": "cell2",
+      "title": "Neighbour cell dimension"
+    },
+    "batch_dim": {
+      "type": "string",
+      "default": "batch",
+      "title": "Batch dimension"
+    }
+  }
+}

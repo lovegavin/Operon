@@ -7210,6 +7210,26 @@
     "status": "generated"
   },
   {
+    "id": "sc_batch_ilisi",
+    "kind": "operator",
+    "title": "Single-cell iLISI batch mixing",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Inverse Simpson index of neighbour batch labels on a cell graph.",
+    "doc": "src/task/step/steps/sc_batch_ilisi.ScBatchIlisiStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "sc_batch_kbet",
+    "kind": "operator",
+    "title": "Single-cell kBET batch mixing",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Neighbourhood chi-square test of batch mixing on a cell graph.",
+    "doc": "src/task/step/steps/sc_batch_kbet.ScBatchKbetStep.md",
+    "status": "generated"
+  },
+  {
     "id": "sc_cluster_profile",
     "kind": "operator",
     "title": "sc_cluster_profile",
@@ -7220,6 +7240,26 @@
     "status": "generated"
   },
   {
+    "id": "sc_knn_graph",
+    "kind": "operator",
+    "title": "Single-cell kNN graph",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Build a symmetric kNN graph from a cell embedding.",
+    "doc": "src/task/step/steps/sc_knn_graph.ScKnnGraphStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_leiden_cluster",
+    "kind": "operator",
+    "title": "Leiden clustering",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Leiden community detection over a cell-cell graph.",
+    "doc": "src/task/step/steps/sc_leiden_cluster.ScLeidenClusterStep.md",
+    "status": "authored"
+  },
+  {
     "id": "sc_marker_specificity",
     "kind": "operator",
     "title": "sc_marker_specificity",
@@ -7228,6 +7268,16 @@
     "description": "Tau specificity and detection rates of genes across clusters.",
     "doc": "src/task/step/steps/sc_marker_specificity.ScMarkerSpecificityStep.md",
     "status": "generated"
+  },
+  {
+    "id": "sc_pseudobulk_de",
+    "kind": "operator",
+    "title": "Pseudo-bulk differential expression",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Aggregate cells by group and test gene-wise mean differences.",
+    "doc": "src/task/step/steps/sc_pseudobulk_de.ScPseudobulkDeStep.md",
+    "status": "authored"
   },
   {
     "id": "sc_rank_genes",

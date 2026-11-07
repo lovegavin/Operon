@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "cell_dim": {
+      "title": "Cell Dim",
+      "type": "string",
+      "default": "cell"
+    },
+    "feature_dim": {
+      "title": "Feature Dim",
+      "type": "string",
+      "default": "feature"
+    },
+    "k": {
+      "title": "K",
+      "type": "integer",
+      "default": 15,
+      "minimum": 1,
+      "maximum": 500
+    },
+    "metric": {
+      "title": "Metric",
+      "type": "string",
+      "default": "euclidean",
+      "enum": [
+        "euclidean",
+        "cosine",
+        "manhattan"
+      ]
+    },
+    "output": {
+      "title": "Output",
+      "type": "string",
+      "default": "graph"
+    }
+  }
+}

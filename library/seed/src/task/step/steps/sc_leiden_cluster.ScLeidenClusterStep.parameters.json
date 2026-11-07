@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "cell_dim": {
+      "title": "Cell Dim",
+      "type": "string",
+      "default": "cell"
+    },
+    "cell2_dim": {
+      "title": "Cell2 Dim",
+      "type": "string",
+      "default": "cell2"
+    },
+    "resolution": {
+      "title": "Resolution",
+      "type": "number",
+      "default": 1.0,
+      "minimum": 0.01,
+      "maximum": 20.0
+    },
+    "seed": {
+      "title": "Seed",
+      "type": "integer",
+      "default": 0
+    },
+    "output": {
+      "title": "Output",
+      "type": "string",
+      "default": "clusters"
+    }
+  }
+}
