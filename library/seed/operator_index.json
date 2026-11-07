@@ -3850,6 +3850,16 @@
     "status": "generated"
   },
   {
+    "id": "ligand_brics_fragments",
+    "kind": "operator",
+    "title": "Ligand BRICS fragments",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "BRICS decomposition of each molecule with fragment counts and fragment heavy-atom statistics.",
+    "doc": "src/task/step/steps/ligand_brics_fragments.LigandBricsFragmentsStep.md",
+    "status": "generated"
+  },
+  {
     "id": "ligand_contact_profile",
     "kind": "operator",
     "title": "Ligand contact profile",
@@ -3870,6 +3880,36 @@
     "status": "generated"
   },
   {
+    "id": "ligand_exact_mass",
+    "kind": "operator",
+    "title": "Ligand exact mass",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Monoisotopic, average and nominal molecular mass, formal charge and heavy-atom count per molecule.",
+    "doc": "src/task/step/steps/ligand_exact_mass.LigandExactMassStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ligand_isotope_pattern",
+    "kind": "operator",
+    "title": "Ligand isotope pattern",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Theoretical isotope envelope (m/z and relative abundance) from natural isotope abundances.",
+    "doc": "src/task/step/steps/ligand_isotope_pattern.LigandIsotopePatternStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ligand_molecular_formula",
+    "kind": "operator",
+    "title": "Ligand molecular formula",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Hill-notation molecular formula and per-element atom counts for every molecule in a SMILES form.",
+    "doc": "src/task/step/steps/ligand_molecular_formula.LigandMolecularFormulaStep.md",
+    "status": "generated"
+  },
+  {
     "id": "ligand_pdbqt_flexible",
     "kind": "operator",
     "title": "柔性配体 PDBQT 准备（扭转树）",
@@ -3887,6 +3927,16 @@
     "version": "1.0.0",
     "description": "Embed a SMILES ligand in 3D with RDKit, assign Gasteiger charges and AutoDock 4 atom types, return the atom table and optionally write a PDBQT file ready for vina_dock.",
     "doc": "src/task/step/steps/ligand_pdbqt_prepare.LigandPdbqtPrepareStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ligand_rgroup_decomposition",
+    "kind": "operator",
+    "title": "Ligand R-group decomposition",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Match molecules to a dummy-labelled scaffold and report heavy-atom counts for every R group.",
+    "doc": "src/task/step/steps/ligand_rgroup_decomposition.LigandRgroupDecompositionStep.md",
     "status": "generated"
   },
   {

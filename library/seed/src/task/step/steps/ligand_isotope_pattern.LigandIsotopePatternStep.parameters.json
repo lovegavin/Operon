@@ -1,0 +1,60 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "max_peaks": {
+      "type": "integer",
+      "default": 6,
+      "minimum": 1,
+      "maximum": 50,
+      "title": "Maximum peaks",
+      "description": "Number of isotope peaks retained per molecule; the most abundant peaks are kept and sorted by m/z.",
+      "x-ui-group": "basic",
+      "x-ui-order": 0
+    },
+    "min_relative_abundance": {
+      "type": "number",
+      "default": 0.001,
+      "minimum": 0,
+      "maximum": 1,
+      "title": "Minimum relative abundance",
+      "description": "Peaks below this fraction of the base peak are discarded before the peak cap is applied.",
+      "x-ui-group": "basic",
+      "x-ui-order": 10
+    },
+    "charge": {
+      "type": "integer",
+      "default": 1,
+      "minimum": 1,
+      "maximum": 8,
+      "title": "Charge state",
+      "description": "Positive charge z used for m/z conversion, assuming [M+zH]z+.",
+      "x-ui-group": "basic",
+      "x-ui-order": 20
+    },
+    "molecule_dim": {
+      "type": "string",
+      "default": "molecule",
+      "title": "Molecule dimension",
+      "description": "Name of the molecule axis in the input form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 30
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field dimension",
+      "description": "Name of the field axis holding encoded SMILES in the input form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 40
+    },
+    "output": {
+      "type": "string",
+      "default": "isotopes",
+      "title": "Output name",
+      "description": "Context name of the output form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 50
+    }
+  }
+}
