@@ -7610,6 +7610,36 @@
     "status": "generated"
   },
   {
+    "id": "sc_spatial_domains",
+    "kind": "operator",
+    "title": "Spatial domain assignment",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Assign spatial domains by k-means on coordinates and report neighbour purity.",
+    "doc": "src/task/step/steps/sc_spatial_domains.ScSpatialDomainsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_spatial_neighbors",
+    "kind": "operator",
+    "title": "Spatial k-nearest-neighbour graph",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Build a Gaussian-weighted spatial kNN graph from cell coordinates.",
+    "doc": "src/task/step/steps/sc_spatial_neighbors.ScSpatialNeighborsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_spatial_variable_genes",
+    "kind": "operator",
+    "title": "Spatially variable genes (Moran's I)",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Score each gene with Moran's I on a spatial kNN graph.",
+    "doc": "src/task/step/steps/sc_spatial_variable_genes.ScSpatialVariableGenesStep.md",
+    "status": "authored"
+  },
+  {
     "id": "scale_features",
     "kind": "operator",
     "title": "scale_features",
