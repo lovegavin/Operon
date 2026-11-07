@@ -9,3 +9,33 @@
 - Oracles: `C:/Users/Public/b65b_oracle.py` recomputes arm-level absolute z-scores, a Lawson-Hanson NNLS, and the anchor score from definitions; all rows agree (deconvolution max delta 1.1e-16). `tests/test_b65b.py`: 3 passed.
 - Three-end: WSL and Windows (`D:\Operon`, py 3.12, registry 995) identical md5: cnv `d26dbe008b30ca86c2772c7d0af9a141`, deconv `5e083019d8d7ab636468f54e0e4431c8`, mhc `4c4f935d0cbf45b06a306e28292a9a04`. srv SKIP: `ssh srv` unresolvable.
 - Limits: CNV score needs an arm map and uses a z-score, not a segment/allele model; deconvolution uses unregularised NNLS; MHC anchors use a binary hydrophobicity rule, not a trained binding predictor.
+
+
+## b72c — tree consensus, quartet support and root-to-tip dating
+
+Operators: `tree_consensus`, `tree_quartet_support`, `tree_dating` (Phylogenetics,
+protocol 3.7). Inputs are synthetic Newick strings, quartet expectations and tip dates.
+
+Route: `workdir/b72c_route` (6 steps, CHECK OK, 6/6 complete).
+
+Input SHA-256:
+- trees.csv `bcb23d4e7496bbee0fc8575e5b339f68b1a70f5260186026b4fbd1b9d7e9cafa`
+- quartets.csv `3beb09de5c20c2528c3a506d7285b59c4d8f678c9270580e9c675575ab7590c2`
+- dates.csv `4393456f59c11f348f7865b5b24f605eef3dd5007d6da0542d45698771090c7b`
+
+Exported values (CSV, LF):
+- cons.csv: A|B support 1.0/count 2/size 2; C|D 1.0/2/2.
+- quart.csv: A,B,C,D match 1/topo 0/expected 0; A,C,B,D 0/0/1; A,D,B,C 0/0/2; overall 0.333333333.
+- dating.csv: slope 1.0, intercept 2.0, r2 1.0, n_tips 4.
+
+Oracles: independent stdlib Newick parser and hand OLS in `C:/Users/Public/b72c_oracle.py`,
+3/3 pass (`workdir/b72c_oracle.json`); consensus clades, four-point topology and
+root-to-tip slope/intercept/r2 all exact to 1e-9.
+
+Three-end:
+- WSL: 6/6, md5 cons `3902d4739736db3b31a793b7cfd3743f`, quart `b1754f7a77ba17639dd88480fe9f761a`, dating `ad84acd3048575fdde97494163ece69c`.
+- Windows (D:\Operon, py3.12, registry 998): 6/6, same three md5 MATCH.
+- srv: SKIP, no ssh profile configured.
+
+Limitations: quartet/dating use the first tree row only; no branch supports; synthetic
+dataset; newline-normalised CSV.

@@ -142,7 +142,7 @@ operators when they share a competitor, a dataset and an oracle class.
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Tree inference and comparison | IQ-TREE 2.3.6 http://www.iqtree.org/ ; RAxML-NG 1.2 https://github.com/amkozlov/raxml-ng ; Biopython 1.88 | `phylo_distance_matrix`, `phylo_neighbor_joining`, `tree_balance`, `tree_prune_tips`, `tree_root_midpoint`, `robinson_foulds`, `phylo_bootstrap` | Molecular-clock dating, consensus tree, quartet support, parsimony and likelihood scores are absent | P0 | IQ-TREE example alignment http://www.iqtree.org/doc/Quickstart ; Biopython tutorial trees | IQ-TREE vs hand parsimony; Biopython vs hand consensus | `tree_parsimony_score` (b72), `tree_mrca` (b72), `tree_ultrametric` (b72); `tree_dating`, `tree_consensus`, `tree_quartet_support`, `tree_likelihood_score` (future) |
+| Tree inference and comparison | IQ-TREE 2.3.6 http://www.iqtree.org/ ; RAxML-NG 1.2 https://github.com/amkozlov/raxml-ng ; Biopython 1.88 | `phylo_distance_matrix`, `phylo_neighbor_joining`, `tree_balance`, `tree_prune_tips`, `tree_root_midpoint`, `robinson_foulds`, `phylo_bootstrap` | Molecular-clock dating, consensus tree, quartet support, parsimony and likelihood scores are absent | P0 | IQ-TREE example alignment http://www.iqtree.org/doc/Quickstart ; Biopython tutorial trees | IQ-TREE vs hand parsimony; Biopython vs hand consensus | `tree_parsimony_score` (b72), `tree_mrca` (b72), `tree_ultrametric` (b72); `tree_dating` (b72c), `tree_consensus` (b72c), `tree_quartet_support` (b72c); `tree_likelihood_score` (future) |
 
 ## Transcriptomics (10)
 
