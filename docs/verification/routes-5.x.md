@@ -784,3 +784,18 @@ missing-not-at-random structure.
 - **Oracle (6/6 pass, `workdir/b68_oracle.json`)**: an independent NumPy local-maximum scan reproduces the two features exactly; `pyteomics.mass` gives the monoisotopic and M+1 m/z and the M+1/M0 abundance. Comparison tolerances are 5e-6 Da for m/z and 0.1 ppm for the match because pyteomics and the operator use different proton/electron mass conventions (the raw deltas are 1.9e-6 Da, 2.06e-6 Da and 0.066 ppm).
 - **Three-end**: WSL and Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4) both complete 6/6 and produce identical MD5: features `3202b904f52c62945088b2d54cc218bc`, isotopes `a6fee330ff111dd3c4f097f6766c0f49`, matches `23a0c662e1a3542759e1e01059133db1`. Remote srv: SKIP — `ssh srv` does not resolve and no `/public/home/lihj` tree is mounted.
 - **Limitations**: isotope rows can share one observed peak (several isotopologues fall inside the 50 ppm window); the first column of `features.csv` is the ordinal peak label, not a scan id; the isotope model ignores unresolved fine structure and uses nominal integer abundances.
+
+## b63 - methylation beta / M value / DMR windows (synthetic counts)
+
+- Data: `workdir/b63_route/input/counts.csv`, 12 synthetic probes on chr22, 20 reads each,
+  sha256 `15b8be1673ed4a17c858a3c6b4386a5ff38729b4d86d952fa1eed5a042fc5447`. Synthetic (mode=synthetic); no biological conclusion.
+- Route: CsvReader -> `methylation_beta_value`, `methylation_m_value`, `dmr_window_scan` -> `export_results` (6 steps, all complete).
+- Values: probe 0 beta1=0.9 beta2=0.2 delta=0.7; probe 3 delta=0.4; M values m1=2.662965, m2=-1.765535.
+  DMR windows (600 bp, min 2 probes): 100000-100600 n=6 mean 0.45 t=5.891883; 100600-101200 n=6 mean -0.15 t=-1.963961.
+- Oracle: independent pure-Python recalculation from the CSV (beta, M, per-window mean and t) 80/80 checks pass
+  (`workdir/b63_oracle.json`).
+- Three-end: WSL and Windows (D:\Operon, py 3.12, NumPy 2.5.4) both 6/6; md5 match:
+  betas `2027d795257ff75858940754e633ae99`, mvalues `921dfdd49dd2ab0a0360e35fd753712a`,
+  dmrs `76db7910f4b1b1f0c2dd7916a2b10105`. srv SKIP (ssh srv unresolvable).
+- Limitations: beta and M use pseudocount 1 for M only; DMR test is a per-window Welch-style t statistic,
+  not a genome-wide multiple-testing procedure; no nucleosome or chromatin-state operator in this batch.
