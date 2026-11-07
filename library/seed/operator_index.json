@@ -8900,6 +8900,26 @@
     "status": "generated"
   },
   {
+    "id": "tree_mrca",
+    "kind": "operator",
+    "title": "Most recent common ancestor of two tips",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Finds the MRCA node of two tip labels in a Newick tree and reports its height and pairwise distance.",
+    "doc": "src/task/step/steps/tree_mrca.TreeMrcaStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_parsimony_score",
+    "kind": "operator",
+    "title": "Fitch parsimony score of a tree and character matrix",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Computes the Fitch parsimony score for a Newick tree and a tip-by-character matrix.",
+    "doc": "src/task/step/steps/tree_parsimony_score.TreeParsimonyScoreStep.md",
+    "status": "authored"
+  },
+  {
     "id": "tree_prune_tips",
     "kind": "operator",
     "title": "Prune tree tips",
@@ -8918,6 +8938,16 @@
     "description": "Root the tree at the midpoint of its longest tip-to-tip path. When the midpoint falls inside an edge a new root node splits that edge into two lengths whose sum is preserved.",
     "doc": "src/task/step/steps/tree_root_midpoint.TreeRootMidpointStep.md",
     "status": "generated"
+  },
+  {
+    "id": "tree_ultrametric",
+    "kind": "operator",
+    "title": "Ultrametricity check for a dated tree",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Tests whether all root-to-tip distances are equal within a tolerance.",
+    "doc": "src/task/step/steps/tree_ultrametric.TreeUltrametricStep.md",
+    "status": "authored"
   },
   {
     "id": "trnascan_se",
