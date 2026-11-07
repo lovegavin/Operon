@@ -1890,6 +1890,16 @@
     "status": "generated"
   },
   {
+    "id": "dmr_window_scan",
+    "kind": "operator",
+    "title": "Differentially methylated window scan",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Scan fixed-width windows for mean beta difference and Welch t statistic.",
+    "doc": "src/task/step/steps/dmr_window_scan.DmrWindowScanStep.md",
+    "status": "authored"
+  },
+  {
     "id": "dotplot",
     "kind": "operator",
     "title": "Dot plot",
@@ -4557,6 +4567,26 @@
     "version": "1.0.0",
     "description": "MetaPhlAn rank profile summary.",
     "doc": "src/task/step/steps/metaphlan_profile_parse.MetaphlanProfileParseStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "methylation_beta_value",
+    "kind": "operator",
+    "title": "Methylation beta values",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Compute per-probe beta values for two groups from methylated and unmethylated counts.",
+    "doc": "src/task/step/steps/methylation_beta_value.MethylationBetaValueStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "methylation_m_value",
+    "kind": "operator",
+    "title": "Methylation M values",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Compute log2 methylated/unmethylated M values for two groups.",
+    "doc": "src/task/step/steps/methylation_m_value.MethylationMValueStep.md",
     "status": "authored"
   },
   {

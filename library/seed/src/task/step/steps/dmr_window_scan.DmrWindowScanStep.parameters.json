@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "probe_dim": {
+      "type": "string",
+      "default": "probe"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "window_bp": {
+      "type": "integer",
+      "default": 1000,
+      "minimum": 1
+    },
+    "min_probes": {
+      "type": "integer",
+      "default": 3,
+      "minimum": 1
+    }
+  }
+}
