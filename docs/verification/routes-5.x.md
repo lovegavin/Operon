@@ -1097,3 +1097,13 @@ not a peak model.
 - Oracle: independent standard-library table arithmetic (6/6 pass).
 - Three ends: WSL and Windows md5 equal - taxon `56b6bbe01b2aa834f86417db52d9de53`, pathway `56b26023a0492920667b470613feb5bf`, merged `d553ef6da907fc6cbea9f18cb0e5a681`; srv SKIP (`ssh srv` unresolvable).
 - Limitation: rank collapse uses GTDB-style `d__/p__/...` prefixes; names without the requested prefix map to `unclassified`. Merge prefixes the left profile with `A:` to avoid duplicate sample names.
+
+## b75b — population-genetics and retention-time panel (synthetic)
+
+- Operators: `rt_alignment`, `selection_index`, `pedigree_inbreeding`.
+- Route: `workdir/b75b_route`, six steps (three operators and three CSV exports).
+- Data (synthetic, marked `mode=synthetic`): `rt.csv` sha256 `650dc26de4772bdad029707790305630b6453d2763d7f150e64352ea404edd72`; `sel.csv` sha256 `13804d10900863293cb553873035c7237382f04fec3f42798aa7e4686c3d29e0`; `ped.csv` sha256 `6f3c741b1b93683d09bcde3699b1a1bdf1f6f6fb08bfcbdb0a71f533dc080cd1`.
+- Results: median RT shift 0.5 and aligned RT 3.1 for `f3`; selection composite 1.44295621 and rank 1 for `v3`; inbreeding coefficient 0.125 for the double-first-cousin offspring `i5`.
+- Oracle: independent NumPy median/z-score/rank and a separate recursive kinship implementation; 6/6 checks pass (`workdir/b75b_oracle.json`), maximum delta 7.7e-10 (selection composite, tolerance 1e-6).
+- Three-end: WSL and Windows 12.10 both 6/6; CSV md5 `rt_alignment` `9cad8c093ddc60ac28c8d5a6d79ba68c`, `selection_index` `1921e21fa2d5e66ef66bd12bbb732ef5`, `inbreeding` `29d50e7772d84de9fb3821df7136059d` are identical. The SSH host `srv` remains unresolvable, so that end is SKIP.
+- Limitations: `rt_alignment` assumes a constant global shift; `selection_index` standardises each statistic independently and is a screening score, not a formal test; pedigree coefficients follow the standard recursive kinship definition and require parents ordered before offspring in the input table.
