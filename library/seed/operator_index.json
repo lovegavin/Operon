@@ -5570,6 +5570,16 @@
     "status": "generated"
   },
   {
+    "id": "pedigree_inbreeding",
+    "kind": "operator",
+    "title": "Inbreeding coefficients from a numeric pedigree",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Inbreeding coefficients from a numeric pedigree",
+    "doc": "src/task/step/steps/pedigree_inbreeding.PedigreeInbreedingStep.md",
+    "status": "authored"
+  },
+  {
     "id": "peptide_coverage",
     "kind": "operator",
     "title": "Peptide coverage",
@@ -7290,6 +7300,16 @@
     "status": "generated"
   },
   {
+    "id": "rt_alignment",
+    "kind": "operator",
+    "title": "Align retention times between runs",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Align retention times between runs",
+    "doc": "src/task/step/steps/rt_alignment.RtAlignmentStep.md",
+    "status": "authored"
+  },
+  {
     "id": "runs_test",
     "kind": "operator",
     "title": "Runs test",
@@ -7448,6 +7468,16 @@
     "description": "按标签选择样本或特征。",
     "doc": "src/task/step/steps/select.SelectStep.md",
     "status": "generated"
+  },
+  {
+    "id": "selection_index",
+    "kind": "operator",
+    "title": "Composite selection score from Fst, iHS and XP-EHH",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Composite selection score from Fst, iHS and XP-EHH",
+    "doc": "src/task/step/steps/selection_index.SelectionIndexStep.md",
+    "status": "authored"
   },
   {
     "id": "sen_slope",
