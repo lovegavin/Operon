@@ -459,3 +459,59 @@ the md5 did not match.
 - Strand statistics are uninformative for this file because ENCODE stores `.` for
   all peaks; the operator reports that fact instead of guessing.
 - Correlation is descriptive; peaks are not independent observations.
+
+## b70 - epidemic curve panel (synthetic SIR incidence)
+
+**Data.** `workdir/b70_route/input/cases.csv`, 120 daily rows (day, cases, deaths),
+sha256 `8a3d28f5e5c64349b7f2e235b16aeaeb379740be4966b33ff20866e83a4ef047`.
+The series is simulated from a closed SIR model (N = 1 000 000, beta = 0.45,
+gamma = 0.12, I0 = 100) with 2 % multiplicative noise and 2 % daily deaths. It is
+reported as `mode=synthetic`; it carries no epidemiological claim about a real
+outbreak.
+
+**Route.** `workdir/b70_route` (CsvReader -> five operators -> five CSV exports),
+`python scripts/run.py workdir/b70_route`, 10/10 steps complete in 7.4 s.
+
+| Operator | Output | Value |
+| --- | --- | --- |
+| `epidemic_growth_rate` | growth_rate_per_day | 0.26483866 |
+| | doubling_time_days | 2.61724317 |
+| | r_squared (log scale) | 0.99586155 |
+| `epidemic_r0` | r0 (generation time 5 d) | 2.32419331 |
+| `epidemic_case_fatality` | cfr | 0.02000062 |
+| | deaths / cases | 19 413 / 970 620 |
+| `epidemic_sir_fit` | beta / gamma / R0 | 0.34923955 / 0.04139811 / 8.43612222 |
+| | rmse | 816.67415372 |
+| `epidemic_seir_fit` | beta / sigma / gamma / R0 | 2.76689033 / 0.2 / 0.82503804 / 3.35365184 |
+| | rmse | 438.30127516 |
+
+The fitted SIR/SEIR parameters are a least-squares projection of a single noisy
+incidence curve; beta and gamma are not separately identifiable, so the fit does
+not recover the generating values. The operator reports the fit, not a claim
+about the true parameters.
+
+**Oracle.** `workdir/b70_oracle.json`: 16/16 checks pass. Oracle A: NumPy
+`polyfit` on the log incidence (growth, doubling, R^2), sums for CFR, and
+`beta/gamma` for R0. Oracle B: an independent `solve_ivp` SIR/SEIR fit with a
+25 x 54 grid search followed by `least_squares` (not the operator's 9-start
+optimizer). All fitted values agree to < 1e-4 in beta/gamma and < 1.0 in RMSE.
+
+**Three-end.**
+
+| End | Route | Hash comparison |
+| --- | --- | --- |
+| WSL (NumPy 2.1.3) | 10/10 complete | growth `f6cea665263959f54744cb67e343fccf`, r0 `88e0c3bb03af3c05b3fd3edfd2d74158`, cfr `759acba3fdcefcc51bbec53fbcba4fea` |
+| Windows 12.10 / NumPy 2.5.4 (D:\Operon) | 10/10 complete | growth, r0, cfr match WSL; SIR `fed6091a...` and SEIR `62543952...` differ in the last printed digits |
+| srv | SKIP | `ssh srv` is not resolvable in this environment; no `/public/home/lihj` mount |
+
+The SIR/SEIR CSV md5 differ because `solve_ivp`/`least_squares` land on a
+slightly different point of a flat optimum on the two platforms. Numerically the
+two ends agree to <= 1e-8 in beta, <= 1e-6 in R0 and <= 7e-5 in RMSE; the
+deterministic growth/R0/CFR tables are byte-identical.
+
+**Limitations.**
+
+- Synthetic data; no real epidemic is analysed.
+- One incidence curve cannot identify beta and gamma separately; use the fit for
+  short-term interpolation only.
+- The SEIR fit fixes sigma = 0.2; a free sigma would need a longer series.

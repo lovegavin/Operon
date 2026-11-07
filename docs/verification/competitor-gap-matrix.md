@@ -130,7 +130,7 @@ operators when they share a competitor, a dataset and an oracle class.
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Epidemic dynamics | R 4.4 `deSolve` https://cran.r-project.org/package=deSolve ; EpiEstim 2.2 https://cran.r-project.org/package=EpiEstim | none | R0, SIR, SEIR, growth rate and vaccine efficacy are absent | P0 | WHO measles/COVID linelists (public); synthetic outbreaks marked `mode=synthetic` | R/deSolve vs hand Euler/RK4 | `r0_estimate`, `sir_model`, `seir_model`, `epidemic_growth_rate`, `vaccine_efficacy` |
+| Epidemic dynamics | R 4.4 `deSolve` https://cran.r-project.org/package=deSolve ; EpiEstim 2.2 https://cran.r-project.org/package=EpiEstim | none | R0, SIR, SEIR, growth rate and vaccine efficacy are absent | P0 | WHO measles/COVID linelists (public); synthetic outbreaks marked `mode=synthetic` | R/deSolve vs hand Euler/RK4 | `epidemic_growth_rate`, `epidemic_r0`, `epidemic_case_fatality`, `epidemic_sir_fit`, `epidemic_seir_fit` (implemented b70) |
 
 ## Comparative genomics (5)
 
