@@ -576,3 +576,43 @@ for allele balance; window z uses ddof=1 and the operator's n > 2 rule.
 - Oracle: independent allele-set Mendelian check plus NumPy call rate; workdir/b57_oracle.json 5/5 pass.
 - Three-end: WSL md5 6781c7da2617a3ddf81f69d11d141434 (mendelian) and 51843f2ee7947f37f4afce79bb6e6990 (call rate); Windows 12.10 md5 identical; srv SKIP (ssh srv unresolved).
 - Limits: no phasing; unique sample labels required; multiallelic VCF sites are not split.
+
+
+## b58 - chr22 peak interval panel
+
+Data: ENCODE chr22 narrowPeak subset (3000 peaks) and a 4000-record chr22 GFF3
+sample spanning 16.1-50.9 Mb; both are real public coordinates.
+
+- peaks_chr22.bed sha256 `c39ece159273883681396fe5e889404f2bd42a3cd559523c89fa435221679972`
+- genes_chr22.gff3 sha256 `ed8f0a5fe0559b1470b04da66dbef6c4fb10ea7dbb4eb211f2621066f56e6f62`
+- chrom.sizes.csv sha256 `3866cd16129046387455112345cbb8caebb0187f338f4169858840caa4d94404`
+
+Route: NarrowPeakReader + Gff3Reader + CsvReader -> peak_overlap_count,
+peak_density_profile, peak_tss_distance -> export_results (CSV), 6/6 steps
+completed on WSL and Windows.
+
+| metric | value |
+| --- | --- |
+| peaks | 3000 |
+| peaks overlapping a gene | 210 (0.07) |
+| union overlap bp | 193828 |
+| mean / median absolute TSS distance | 185509.0458 / 122855 bp |
+| mean signed distance (center - TSS) | 3916.6608 bp |
+| fraction within 1 kb / 5 kb | 0.006667 / 0.019667 |
+
+Oracle: bedtools 2.31 intersect plus an independent NumPy nearest-TSS scan and
+window aggregation agreed on n_overlapping, fraction, mean/median absolute
+distance and both within-distance fractions (6/6 checks). `overlap_bp` is the
+union per peak; the raw pair-sum from `bedtools -wo` is 10 bp larger because one
+peak overlaps two gene records. The signed mean uses peak-center minus TSS with
+no strand flip, matching a direct recomputation (3916.6608).
+
+Cross-platform: Windows 12.10 / NumPy 2.5.4 produced byte-identical CSVs
+(overlap `e1521be79a76ea0e4c09f7de25099f9d`, density
+`54dec4c9222443cde7c54ed785b8fdb9`, tss
+`d9486ad13b5c3c754e6ae18f3f2d60ab`). srv SKIP: `ssh srv` is not resolvable and
+no `/public/home/lihj` mount exists.
+
+Limitations: the GFF sample contains 93 gene records after type filtering, so
+TSS distances are a sparse sample rather than a complete annotation; windows
+before 16 Mb have zero peaks because the narrowPeak subset starts there.
