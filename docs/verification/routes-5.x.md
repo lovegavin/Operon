@@ -1127,3 +1127,40 @@ not a peak model.
 - Oracle: an independent Python implementation (rank correlation from sorted ranks and a separate adjacency scan) reproduced every value and the hand calculation (1/15 inversion fraction); checks are recorded in `workdir/b71b_oracle.json`.
 - Three-end: WSL and Windows 12.10 both run 4/4; CSV md5 `order` `821d472e78e90e7bfde57c9fb7809117` and `rearr` `108a98e4cd08c9a07f3b00fdc94bad38` are identical. The SSH host `srv` is still unresolvable, so that end is SKIP.
 - Limitations: both operators assume the two gene orders are already an ortholog table (one row per shared gene); they do not detect duplications, and the rearrangement score is an adjacency summary, not a phylogenetic reconstruction.
+
+## b55 population-genetics panel (synthetic)
+
+Route `workdir/b55_route`: five CsvReader sources, five operators and five exports (10/10 steps complete).
+Synthetic genotypes/frequencies are marked `mode=synthetic`; they exercise arithmetic, not biological claims.
+Inputs (sha256):
+
+- `freq.csv` `5bbc04ccb04e06dd0c7530622cbaca9ae9c0f8977baf1f6ebea87b7564148f5f`
+- `geno.csv` `6356bab30697b20743e81aeb8ac48b05820d3b78f5ffa1a3df9c5eb4caaa5229`
+- `haps.csv` `fb0e4ecf9c2afa2d9d618227d89d55db8079366f43033faf0b13580a955f069c`
+- `ibs.csv` `76013c50d540f961af254ffea1f2ea3922b8890d8215cebb13cf0ea32f54068d`
+- `ld.csv` `958fc9acc93638cff9d295e089a9cbf9b85d1fac7591198e7233fdc06b23d67d`
+
+Observed values:
+
+| Export | Key numbers |
+| --- | --- |
+| `eps.csv` | v1 Fc 0.19047619, Ne 26.25; v2 Fc 0, Ne nan; v3 Fc 0.02285714, Ne 109.375 |
+| `blocks.csv` | block1 100-300, 3 variants, mean r2 0.5; block2 400-500, 2 variants, mean r2 0.55 |
+| `ibd.csv` | p1 and p2 each 1 segment, 200 bp, longest 200 bp |
+| `roh.csv` | s1 and s2 each 1 ROH, 200 bp, span fraction 0.5 |
+| `ihs.csv` | v2 iHS 1.181648085 (raw 0); v3 0.082065883 (raw -0.182321557); v4 -1.263713968 (raw -0.405465108); v1/v5 nan at the chromosome edges |
+
+Oracles: `C:\Users\Public\b55_oracle.py` recomputes Fc/Ne, block runs, IBD spans, ROH runs and the
+identity `raw_iHS = ln(iHH1/iHH0)` with the Python standard library only (13/13 checks, `workdir/b55_oracle.json`).
+No external population-genetics CLI (plink2/selscan) was available for these synthetic tables, so this
+remains a single independent implementation plus unit arithmetic, not a two-CLI oracle.
+
+Three ends (same commit): WSL route 10/10; Windows `D:\Operon` with Python 3.12 route 10/10 after registry
+rebuild (981 operators). Export md5 identical on both ends:
+`eps` `8451858f977e8648ca0b51c7f48147fc`, `blocks` `f87dd277de37c08ffd5bae615f7f5b64`,
+`ibd` `93277da1bc4a7d289a74b557b12f91ec`, `ihs` `dad65350028e31617210f421d43eeb63`,
+`roh` `90c7481c2b3eddc6b08e06a6fcc2da9e`. srv SKIP (no ssh profile).
+
+Limits: iHS is undefined at the first/last variant; haplotype blocks start a new block at every low-r2
+break; IBD/ROH require at least `min_variants` consecutive markers; custom `row_names` labels are lost when
+CsvReader deduplicates repeated key values, so pair/sample must stay as field columns.
