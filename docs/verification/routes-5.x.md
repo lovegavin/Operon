@@ -927,3 +927,31 @@ Limitations:
   could change tie-breaking on larger graphs.
 - Pseudobulk DE is a Welch t-test on two groups with BH correction; it does not
   model donors, covariates or zero inflation.
+
+## b66 proteomics MS: spectrum library match, ion annotation, protein inference
+
+Data (synthetic; not biological measurements):
+- qpeaks.csv sha256 36d0ba65fe1c77a60192abf7bb6e640e74126765da5cb48b12f2943e184c207a
+- lpeaks.csv sha256 3859a1bec40506a33799c8f686a1850125b81455bdd807cf57ddbcda8393af27
+- peptides.csv sha256 e43e42630a4811e2b80a972d3b9552f2f04d73779cba64f319c0abe3761b63da
+- apeaks.csv sha256 45bda9de690f482c60a63431f62e792716bd41c5098b76cc75f82d7c0b985ec4
+- evidence.csv sha256 08a9e24ec0ceee92d2913c3af5551b23dcad85025cdd97b23ec602361757a89d
+
+Route: CsvReader x5 -> spectrum_library_match, peptide_spectrum_annotation, protein_inference -> export_results (6/6 steps, 0.00 s compute).
+Command: `PYTHONPATH=library/seed:. python scripts/run.py workdir/b66_route`.
+
+Results:
+- match: query 0 cosine 1.0, 3 matched peaks, mean ppm 0, library 0; query 1 cosine 1.0, 3 matched, 6.111066 ppm, library 0.
+- annotation: peptide pep0 matched 12/12 b/y ions, coverage 1.0, mean absolute error 2.5e-06 Da.
+- proteins: protein 0 2 peptides (1 unique, 1 shared), protein 1 2 (1 unique, 1 shared), protein 2 1 (1 unique).
+
+Oracle (workdir/b66_oracle.json, 6/6 pass): independent pyteomics b/y ion masses (12/12 within 0.02 Da), explicit peptide-set arithmetic for inference, exact cosine for the identical library spectrum.
+
+Three-end (same commit): WSL and Windows (py 3.12, D:\Operon) 6/6 steps; md5 match:
+- match.csv 31d08e5315b1cde5d2d58398d5a86891
+- annotation.csv 9139ff602e25e2195c36728e705e49df
+- proteins.csv 28a3f98d12be661b8f388e586098bf18
+srv: SKIP (ssh alias srv does not resolve; no /public/home/lihj mount).
+
+Tests: tests/test_proteomics_panel_b66.py 3 passed (library cosine, 12 b/y ions, inferred peptide counts).
+Limitations: library matching compares intensities of matched peaks by nearest m/z within tolerance and does not model fragment charge states; annotation covers singly charged b/y ions only; protein inference reports counts, not parsimonious protein sets.
