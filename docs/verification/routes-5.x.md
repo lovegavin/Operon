@@ -133,3 +133,67 @@ nitrogen_rule `cdc06190eb5c10021c6615ecb3613363`.
   independent estimate and should not be reported as a separate descriptor.
 - The panel is a small, curated public-molecule panel intended for arithmetic
   verification, not a biological conclusion.
+
+## Batch b51 - protein sequence motif panel (5 operators)
+
+- Route: `workdir/b51_route`
+- Flow: `FastaReader(proteins.fasta)` to `protein_aliphatic_index`,
+  `protein_nls_motifs`, `protein_pts1_signal`, `protein_kinase_motifs`,
+  `protein_nglyc_sequons`, then five `export_results` CSV sinks.
+- Input: `workdir/b51_route/input/proteins.fasta`, 7 UniProt sequences
+  (P03070 SV40 large T, P05221 nucleoplasmin, P01308 insulin, P00698 lysozyme,
+  P42212 GFP, P02768 albumin, P08659 firefly luciferase),
+  sha256 `f5130ba902bfff78f30a15507427547fa14197242c720e322be9d4849b7a4e2f`.
+- Command (WSL): `PYTHONPATH=/home/gavin/Operon/library/seed:/home/gavin/Operon /home/gavin/bp-numpy21/bin/python scripts/run.py workdir/b51_route`
+- Result: `complete`, 10/10 steps.
+
+### Values read back
+
+| Operator | SV40 T | nucleoplasmin | insulin | lysozyme | GFP | albumin | luciferase |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| aliphatic_index | 74.93 | 62.00 | 102.91 | 81.70 | 74.87 | 77.57 | 94.65 |
+| NLS mono / bipartite / total | 3 / 0 / 3 | 2 / 1 / 3 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 | 1 / 0 / 1 | 2 / 0 / 2 |
+| PTS1 signal | 0 | 0 | 0 | 1 | 0 | 0 | 1 |
+| kinase PKA / CK2 / CDK / total | 0 / 11 / 2 / 13 | 0 / 5 / 2 / 7 | 0 / 1 / 0 / 1 | 0 / 0 / 0 / 0 | 0 / 2 / 0 / 2 | 1 / 7 / 0 / 8 | 0 / 7 / 0 / 7 |
+| N-glyc sequons | 1 | 1 | 0 | 0 | 0 | 0 | 3 |
+
+The lysozyme PTS1 hit (`...GCRL`) and the luciferase hit (`...SKL`) show that
+the column is a C-terminal motif scan, not a peroxisome predictor. The NLS
+column counts motif occurrences, so a protein can carry more than one.
+
+### Oracles
+
+| Operator | Oracle A | Oracle B | Input | Result | Tolerance | Pass |
+| --- | --- | --- | --- | --- | --- | --- |
+| protein_aliphatic_index | Biopython 1.88 `ProteinAnalysis.count_amino_acids` + Ikai 1980 | manual formula check in unit tests | 7 sequences | max abs delta < 1e-4 | 1e-4 | yes |
+| protein_nls_motifs | independent `re` scan | curated positives (SV40, nucleoplasmin) | 7 sequences | 7/7 identical | exact | yes |
+| protein_pts1_signal | independent terminal-set check | luciferase SKL positive control | 7 sequences | 7/7 identical | exact | yes |
+| protein_kinase_motifs | independent string slicing | curated motif examples in unit tests | 7 sequences | 7/7 identical | exact | yes |
+| protein_nglyc_sequons | independent overlap-aware scan | `N[^P][ST]` unit examples | 7 sequences | 7/7 identical | exact | yes |
+
+All 35 checks pass (`workdir/b51_oracle.json`). Motif definitions are literature
+consensus patterns; they are deliberately simple and are documented as scans,
+not as functional annotations.
+
+### Three-end results
+
+| End | Result | Evidence |
+| --- | --- | --- |
+| WSL (Ubuntu 24.04, bp-numpy21, NumPy 2.1.3) | PASS | 10/10 steps, values above |
+| Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4) | PASS | same five CSV files, MD5 identical to WSL |
+| srv (`/public/home/lihj/...`) | SKIP | no `srv` host in `~/.ssh/config`, no `/public/home/lihj` mount |
+
+MD5 agreement: aliphatic_index `adc5c3a215bcdd8f1fd3bd5be94d50d5`,
+kinase_motifs `f752fcbed306456e45fe080579af31ac`,
+nglyc_sequons `7ad8da7f486421d7505ce575a75cbd14`,
+nls_motifs `87aa5663d7e4c096f251603c8e390eb4`,
+pts1_signal `18399bbc2e874ec708e6f326e5b39390`.
+
+### Limitations
+
+- Motif scans use short consensus regular expressions; they can produce false
+  positives (lysozyme PTS1) and do not model species-specific import rules.
+- Aliphatic index assumes the full UniProt sequence, including signal peptides
+  and propeptides, and is sensitive to unknown residues (sanitized to X).
+- The panel is a curated public-sequence panel for arithmetic verification, not
+  a biological conclusion.
