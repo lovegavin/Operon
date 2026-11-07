@@ -3850,6 +3850,16 @@
     "status": "generated"
   },
   {
+    "id": "ligand_adduct_mz",
+    "kind": "operator",
+    "title": "Ligand adduct m/z",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Neutral monoisotopic mass and five common adduct m/z values for a Hill formula.",
+    "doc": "src/task/step/steps/ligand_adduct_mz.LigandAdductMzStep.md",
+    "status": "authored"
+  },
+  {
     "id": "ligand_brics_fragments",
     "kind": "operator",
     "title": "Ligand BRICS fragments",
@@ -3868,6 +3878,16 @@
     "description": "For every ligand atom report how many distinct receptor residues lie within a heavy-atom cutoff and the nearest contact residue.",
     "doc": "src/task/step/steps/ligand_contact_profile.LigandContactProfileStep.md",
     "status": "generated"
+  },
+  {
+    "id": "ligand_dbe",
+    "kind": "operator",
+    "title": "Ligand double-bond equivalents",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Ring-plus-double-bond equivalents and their integrality from formula element counts.",
+    "doc": "src/task/step/steps/ligand_dbe.LigandDbeStep.md",
+    "status": "authored"
   },
   {
     "id": "ligand_efficiency",
@@ -3890,6 +3910,16 @@
     "status": "generated"
   },
   {
+    "id": "ligand_formula_parse",
+    "kind": "operator",
+    "title": "Ligand formula parse",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Element counts, heavy-atom and total-atom counts parsed from a Hill molecular formula.",
+    "doc": "src/task/step/steps/ligand_formula_parse.LigandFormulaParseStep.md",
+    "status": "authored"
+  },
+  {
     "id": "ligand_isotope_pattern",
     "kind": "operator",
     "title": "Ligand isotope pattern",
@@ -3900,6 +3930,16 @@
     "status": "generated"
   },
   {
+    "id": "ligand_mass_fraction",
+    "kind": "operator",
+    "title": "Ligand element mass fraction",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Average-mass fraction of each element in a Hill formula.",
+    "doc": "src/task/step/steps/ligand_mass_fraction.LigandMassFractionStep.md",
+    "status": "authored"
+  },
+  {
     "id": "ligand_molecular_formula",
     "kind": "operator",
     "title": "Ligand molecular formula",
@@ -3908,6 +3948,16 @@
     "description": "Hill-notation molecular formula and per-element atom counts for every molecule in a SMILES form.",
     "doc": "src/task/step/steps/ligand_molecular_formula.LigandMolecularFormulaStep.md",
     "status": "generated"
+  },
+  {
+    "id": "ligand_nitrogen_rule",
+    "kind": "operator",
+    "title": "Ligand nitrogen rule",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Nominal mass and nitrogen-rule parity test for a neutral Hill formula.",
+    "doc": "src/task/step/steps/ligand_nitrogen_rule.LigandNitrogenRuleStep.md",
+    "status": "authored"
   },
   {
     "id": "ligand_pdbqt_flexible",

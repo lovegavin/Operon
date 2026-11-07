@@ -90,9 +90,9 @@ class LigandMolecularFormulaStep(Step):
                 else:
                     other += 1
             heavy = int(molecule.GetNumHeavyAtoms())
-            total = int(molecule.GetNumAtoms()) + sum(
-                int(atom.GetTotalNumHs(includeNeighbors=False)) for atom in molecule.GetAtoms()
-            )
+            hydrogen = sum(int(atom.GetTotalNumHs(includeNeighbors=False)) for atom in molecule.GetAtoms())
+            counts["H"] += hydrogen
+            total = int(molecule.GetNumAtoms()) + hydrogen
             charge = int(sum(atom.GetFormalCharge() for atom in molecule.GetAtoms()))
             formula = rdMolDescriptors.CalcMolFormula(molecule)
             formulas.append(formula)

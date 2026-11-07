@@ -67,6 +67,7 @@ def column(form, name):
 def test_formula_counts_include_hydrogens(tmp_path):
     form = run(LigandMolecularFormulaStep(), {"molecule_dim": "molecule", "field_dim": "field", "output": "formula"}, tmp_path)
     assert column(form, "C")[0] == 9
+    assert column(form, "H")[0] == 8
     assert column(form, "O")[0] == 4
     assert column(form, "heavy_atoms")[0] == 13
     assert column(form, "total_atoms")[0] == 21
