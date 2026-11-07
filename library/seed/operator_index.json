@@ -1250,6 +1250,16 @@
     "status": "generated"
   },
   {
+    "id": "chromatin_state_segmentation",
+    "kind": "operator",
+    "title": "Threshold-run chromatin segmentation",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Threshold-run chromatin segmentation",
+    "doc": "src/task/step/steps/chromatin_state_segmentation.ChromatinStateSegmentationStep.md",
+    "status": "authored"
+  },
+  {
     "id": "classification_metrics",
     "kind": "operator",
     "title": "Classification metrics",
@@ -5010,6 +5020,16 @@
     "status": "generated"
   },
   {
+    "id": "motif_scan_pwm",
+    "kind": "operator",
+    "title": "Scan sequences with a position weight matrix",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Scan sequences with a position weight matrix",
+    "doc": "src/task/step/steps/motif_scan_pwm.MotifScanPwmStep.md",
+    "status": "authored"
+  },
+  {
     "id": "mrpp",
     "kind": "operator",
     "title": "MRPP",
@@ -5530,6 +5550,16 @@
     "status": "generated"
   },
   {
+    "id": "peak_annotate",
+    "kind": "operator",
+    "title": "Annotate peaks with the nearest same-chromosome gene",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Annotate peaks with the nearest same-chromosome gene",
+    "doc": "src/task/step/steps/peak_annotate.PeakAnnotateStep.md",
+    "status": "authored"
+  },
+  {
     "id": "peak_chrom_summary",
     "kind": "operator",
     "title": "Peak chromosome concentration",
@@ -5590,6 +5620,16 @@
     "status": "authored"
   },
   {
+    "id": "peak_overlap_matrix",
+    "kind": "operator",
+    "title": "Pairwise peak overlap matrix",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Pairwise peak overlap matrix",
+    "doc": "src/task/step/steps/peak_overlap_matrix.PeakOverlapMatrixStep.md",
+    "status": "authored"
+  },
+  {
     "id": "peak_signal_stats",
     "kind": "operator",
     "title": "Peak signal and confidence summary",
@@ -5627,6 +5667,16 @@
     "version": "1.0.0",
     "description": "Summarizes peak distance to the nearest gene TSS.",
     "doc": "src/task/step/steps/peak_tss_distance.PeakTssDistanceStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "peak_tss_enrichment",
+    "kind": "operator",
+    "title": "Distance-to-TSS bin enrichment",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Distance-to-TSS bin enrichment",
+    "doc": "src/task/step/steps/peak_tss_enrichment.PeakTssEnrichmentStep.md",
     "status": "authored"
   },
   {

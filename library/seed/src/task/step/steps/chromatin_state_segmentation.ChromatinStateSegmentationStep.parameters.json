@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "output": {
+      "type": "string"
+    },
+    "pos_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "threshold": {
+      "type": "number",
+      "default": 1.0
+    },
+    "min_length": {
+      "type": "integer",
+      "default": 2
+    }
+  },
+  "additionalProperties": false
+}

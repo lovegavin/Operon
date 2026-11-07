@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "output": {
+      "type": "string"
+    },
+    "seq_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "motif_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "position_dim": {
+      "type": "string",
+      "default": "field"
+    }
+  },
+  "additionalProperties": false
+}
