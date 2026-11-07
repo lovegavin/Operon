@@ -4830,6 +4830,16 @@
     "status": "authored"
   },
   {
+    "id": "mhc_binding_motif",
+    "kind": "operator",
+    "title": "MHC anchor binding score",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Score peptide MHC-I anchors at P2 and P9.",
+    "doc": "src/task/step/steps/mhc_binding_motif.MhcBindingMotifStep.md",
+    "status": "authored"
+  },
+  {
     "id": "min_max_scale",
     "kind": "operator",
     "title": "Min-max scaling",
@@ -7558,6 +7568,26 @@
     "description": "Per-cluster mean expression and detection fraction.",
     "doc": "src/task/step/steps/sc_cluster_profile.ScClusterProfileStep.md",
     "status": "generated"
+  },
+  {
+    "id": "sc_cnv_score",
+    "kind": "operator",
+    "title": "Per-cell CNV score",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Average absolute arm-level z-score per cell.",
+    "doc": "src/task/step/steps/sc_cnv_score.ScCnvScoreStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_deconvolution",
+    "kind": "operator",
+    "title": "NNLS cell-type deconvolution",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Non-negative least squares deconvolution of bulk expression against a signature matrix.",
+    "doc": "src/task/step/steps/sc_deconvolution.ScDeconvolutionStep.md",
+    "status": "authored"
   },
   {
     "id": "sc_knn_graph",
