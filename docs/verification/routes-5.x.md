@@ -1164,3 +1164,37 @@ rebuild (981 operators). Export md5 identical on both ends:
 Limits: iHS is undefined at the first/last variant; haplotype blocks start a new block at every low-r2
 break; IBD/ROH require at least `min_variants` consecutive markers; custom `row_names` labels are lost when
 CsvReader deduplicates repeated key values, so pair/sample must stay as field columns.
+
+## b62 - Epigenomics: peak annotation, overlap matrix, TSS enrichment, PWM scan, chromatin states
+
+Route: `workdir/b62_route` (synthetic; 10 steps = 5 operators + 5 exports). Inputs sha256:
+
+- `genes.csv`: `7d54aee23a93793c0304bf2237476afed9780c2cdfe1f245b4466fbf3e2a8354`
+- `peaks.csv`: `220b6ca7fa616463c99e3ece22e57d7bdd4e5b04b756791aa63ba68d47a2f252`
+- `pwm.csv`: `6517c69f53d4b995dc596507c93c90130f6437a77f30c1577a49c9453fbf271f`
+- `seqs.csv`: `6bc3b99d070794457d5b80213042fbdead007553b7c38dc15c86b3c2f6a8eaf7`
+- `track.csv`: `1f37040703c456fc860387d93fb92ce8902c51278c181bc8dbefdae046ef8702`
+
+All 10 steps completed (`output/run_summary.json`). Export values:
+
+| export | rows | key values |
+| --- | --- | --- |
+| annot.csv | 6 | nearest gene/distance: p1 -50, p2 -550, p3 +700, p4 0, p5 -400, p6 +800; n_same_chrom 2 |
+| ovl.csv | 6x6 | p1-p2 100 bp, p1-p1 500 bp, p2-p2 700 bp; cross-chromosome pairs 0 |
+| tss.csv | 10 bins | bins 0..9 by 1 kb; bin0 count 6 fraction 1.0 (all six peaks within 500 bp) |
+| motif.csv | 3 | ACGTTGCA score 2.5 pos 0; TTGCAACG 2.5 pos 5; GGGTTTAA 0.9 pos 0 |
+| chrom.csv | 3 | seg0 100-200 mean 0.3 state 0; seg1 300-400 mean 1.65 state 1; seg2 500-600 mean 0.2 state 0 |
+
+Oracle: independent stdlib implementation (`C:\Users\Public\b62_oracle.py`, 79/79 pass, `workdir/b62_oracle.json`). PWM oracle reads a base x position matrix; TSS oracle uses the peak midpoint; chromatin oracle checks segment mean/state/length/monotonicity, not EM boundaries.
+
+Three-end: WSL md5 equals Windows `D:\Operon` md5 for all five exports:
+
+- `annot.csv`: `6c654e6c7d8732f710ed0aa16e810544`
+- `chrom.csv`: `9e8bf27aa150790b9b0dd483f4d339ed`
+- `motif.csv`: `0797160c08aa9b4f83c5a5af040b9906`
+- `ovl.csv`: `8c6b73c12a4e392f2912a785fdc63c42`
+- `tss.csv`: `2371c3903d9e6abf08c039cdf3f3c562`
+
+srv SKIP (no ssh profile).
+
+Limits: TSS distances use signed midpoint minus nearest TSS, so bins are 1 kb wide but only non-negative distances by design; motif scanning is a fixed PWM (no background model, no p-value); chromatin states are threshold segments, not ChromHMM emissions; overlap matrix is O(n^2) and intended for hundreds of regions, not genome-wide peak sets.
