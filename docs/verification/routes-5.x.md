@@ -1198,3 +1198,14 @@ Three-end: WSL md5 equals Windows `D:\Operon` md5 for all five exports:
 srv SKIP (no ssh profile).
 
 Limits: TSS distances use signed midpoint minus nearest TSS, so bins are 1 kb wide but only non-negative distances by design; motif scanning is a fixed PWM (no background model, no p-value); chromatin states are threshold segments, not ChromHMM emissions; overlap matrix is O(n^2) and intended for hundreds of regions, not genome-wide peak sets.
+
+## b63 epigenomics: nearest-peak distance, nucleosome periodicity, motif enrichment
+
+- Commit: this batch; branch `release/5.0`.
+- Inputs (sha256): `peaks.csv` `323eccc975d2455bb0b4268defd2b342169e1afd467a1c702557e65e4af03196`, `signal.csv` `972d7ae887ebc6aa15e57e7c28d52eaa718c7cfbb91685cd00c34e1c4b7456c6`, `fg.csv` `a1bf55bcd40e68379535f15e3597a1f13be23b6bfe30f9acc58ddaa9c4ef9ef6`, `bg.csv` `a94129ffa95e4b2bd6469a369385aef06433a5d3029e2363e6de1513b6237cff`. Synthetic tables (`mode=synthetic`), not biological conclusions.
+- Route `workdir/b63_route`: CsvReader -> `peak_peak_distance`, `nucleosome_positioning`, `motif_enrichment` -> three `export_results`; 6/6 steps complete.
+- Values: nearest distances p1 100 (index 1), p2 100 (0), p3 0 (3), p4 0 (2), p5 1950 (2), p6 4150 (4); period `period_bp=100`, `strength=0.666887417`, `best_lag=10`, `n_lags=11`, `step_bp=10`; motif fg 3/6, bg 1/6, fold 3, odds ratio 5, Fisher p 0.272727273.
+- Oracle: `C:/Users/Public/b63_oracle.py`, independent Python loops for nearest distances and autocorrelation plus a manual hypergeometric tail, 19/19 pass (`workdir/b63_oracle.json`); tolerance 1e-9.
+- Tests: `tests/test_b63_panel.py`, 3 passed.
+- Three-end: WSL and Windows (`D:\Operon`, py 3.12, registry 989) identical md5: near `f967b3fa0e90f6120514902e1bd1a93c`, period `362322da65dcbb364fd7a1f5692c02cb`, enrich `73edd9da769ea368508264991d44016b`. srv SKIP: `ssh srv` is not resolvable from this host.
+- Limits: nearest distance is chromosome-blind (callers must split by chromosome); periodicity is autocorrelation on a uniformly spaced track and reports only the best lag in the requested window; motif enrichment counts exact substring occurrences and uses a one-sided Fisher test.
