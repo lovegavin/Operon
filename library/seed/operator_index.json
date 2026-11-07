@@ -180,6 +180,16 @@
     "status": "generated"
   },
   {
+    "id": "alternative_polyadenylation",
+    "kind": "operator",
+    "title": "Alternative polyadenylation",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "Proximal poly(A) site usage from proximal/distal read counts.",
+    "doc": "src/task/step/steps/alternative_polyadenylation.AlternativePolyadenylationStep.md",
+    "status": "authored"
+  },
+  {
     "id": "amrfinder_plus",
     "kind": "operator",
     "title": "AMRFinderPlus resistance genes",
@@ -2450,6 +2460,16 @@
     "status": "generated"
   },
   {
+    "id": "exon_skipping",
+    "kind": "operator",
+    "title": "Exon skipping",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "Per-exon inclusion ratio and deviation from the gene mean.",
+    "doc": "src/task/step/steps/exon_skipping.ExonSkippingStep.md",
+    "status": "authored"
+  },
+  {
     "id": "explode",
     "kind": "operator",
     "title": "explode",
@@ -3750,6 +3770,16 @@
     "status": "generated"
   },
   {
+    "id": "intron_retention",
+    "kind": "operator",
+    "title": "Intron retention",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "Length-normalised intron retention ratio per intron.",
+    "doc": "src/task/step/steps/intron_retention.IntronRetentionStep.md",
+    "status": "authored"
+  },
+  {
     "id": "inverse_gaussian_regression",
     "kind": "operator",
     "title": "Inverse Gaussian regression",
@@ -3768,6 +3798,16 @@
     "description": "Inverse-probability-of-treatment weighting estimate of an average treatment effect.",
     "doc": "src/task/step/steps/iptw_effect.IptwEffectStep.md",
     "status": "generated"
+  },
+  {
+    "id": "isoform_quantification_em",
+    "kind": "operator",
+    "title": "Isoform quantification (EM)",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "EM over an isoform/exon compatibility matrix and exon read counts.",
+    "doc": "src/task/step/steps/isoform_quantification_em.IsoformQuantificationEmStep.md",
+    "status": "authored"
   },
   {
     "id": "isolation_forest",
@@ -7758,6 +7798,16 @@
     "description": "Spectral embedding：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、主成分数、Affinity、Gamma、随机种子。",
     "doc": "src/task/step/steps/spectral_embedding.SpectralEmbeddingStep.md",
     "status": "generated"
+  },
+  {
+    "id": "splicing_psi",
+    "kind": "operator",
+    "title": "Splicing PSI",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "PSI = inclusion / (inclusion + skipping) per event with a Jeffreys interval.",
+    "doc": "src/task/step/steps/splicing_psi.SplicingPsiStep.md",
+    "status": "authored"
   },
   {
     "id": "spline_regression",
