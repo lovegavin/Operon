@@ -869,3 +869,61 @@ PSI intervals are rounded to 9 decimals because SciPy `beta.ppf` differs in the 
 - Tables are synthetic; the operator only implements the stated algebra.
 - EM assumes a fixed isoform x exon compatibility matrix and does not model read fractions, biases or paired-end information.
 - `alternative_polyadenylation` uses the proximal/(proximal+distal) definition and a |log2| flag; no 3' UTR annotation is inferred.
+
+## b64 single-cell graph, clustering and batch mixing
+
+Synthetic single-cell panel. `mode=synthetic`: the tables exercise the
+implemented algebra and do not represent a biological conclusion.
+
+Inputs (all synthetic):
+
+| File | sha256 |
+| --- | --- |
+| `workdir/b64_route/input/pcs.csv` | `efc8951ebf6b1448e4a8b6bf28ed353ddefedceaec6ae2f7bd03ba8ea57bdb44` |
+| `workdir/b64_route/input/counts.csv` | `8951493ba45a4579f5111352736051d916acd373d9d37b9b08c196c3d7355841` |
+| `workdir/b64_route/input/groups.csv` | `b97b795c174326b78bd51bdd90b59e6db161fc16d6d56354ba033899946acf71` |
+| `workdir/b64_route/input/batch.csv` | `c7ffbb2d0c00678a5fde236f1d6515f436fb887bce172019cb23859f4d4664d9` |
+
+Route: `scripts/run.py workdir/b64_route` - 10/10 steps complete. Sources:
+`CsvReader` for PCs, counts, groups and batch; the graph feeds kBET, iLISI and
+Leiden clustering; counts and groups feed pseudobulk DE.
+
+Values (6 cells, 2 batches, 3 neighbours):
+
+| Step | Output |
+| --- | --- |
+| `sc_knn_graph` | 6x6 symmetric weights; self 0; 0-1 weight 0.3678794412 |
+| `sc_batch_kbet` | cell 0 chi2 0.7357588823, p 0.3910228557, reject 0; cell 1 chi2 0.5032147244, p 0.4780909956 |
+| `sc_batch_ilisi` | iLISI 1.0, normalized 0.0 for all six cells (two batches, pure neighbourhoods) |
+| `sc_leiden_cluster` | clusters 0,0,0,1,1,1; degree 0.7357588823 / 0.5032147244 / 0.1353352832 |
+| `sc_pseudobulk_de` | gene0 mean 11 / 21, log2fc 0.8744691179, Welch t -12.2474487139, BH q 0.001021 |
+
+Oracle: `workdir/b64_oracle.json` (brute-force Euclidean KNN, NetworkX Louvain
+vs Leiden, hand-computed Welch t) 5/5; `workdir/b64b_oracle.json`
+(independent chi-square and inverse-simpson recomputation from the exported
+graph) 3/3 with zero error.
+
+Three-end comparison (same commit):
+
+| End | Result |
+| --- | --- |
+| WSL, NumPy 2.1.3 | 10/10, md5 below |
+| Windows, Python 3.12 / NumPy 2.5.4 | 10/10 after installing `igraph==1.0.0` and `leidenalg==0.12.0`; md5 identical |
+| srv | SKIP: `ssh srv` does not resolve and no `/public/home/lihj` mount exists |
+
+| Export | md5 |
+| --- | --- |
+| graph | `b532e0f62d1ef6cec4474608ff040dde` |
+| kbet | `ccff2f0f53b7d7f04a4682fbafbdf9e5` |
+| ilisi | `d3094cb286bd358a5fd247c31a8c1bee` |
+| clusters | `0d1a40b4a42e51cec4b6f225120de7ce` |
+| de | `d235e59ea1be65df3245e7e34450c9a2` |
+
+Limitations:
+
+- kBET here is a per-cell weighted chi-square against the global batch
+  proportions, not the neighbourhood-sampling kBET of Buttner et al.
+- Leiden uses igraph/leidenalg with a fixed seed; platform BLAS differences
+  could change tie-breaking on larger graphs.
+- Pseudobulk DE is a Welch t-test on two groups with BH correction; it does not
+  model donors, covariates or zero inflation.
