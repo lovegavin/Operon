@@ -1030,3 +1030,60 @@ md5 `62a74abbd005cc4173db6680382a9302`, `pangenome_curve.csv`
 
 Limitations: clustering uses pairwise Jaccard on exact presence patterns; the
 pangenome curve is a fixed-seed resampling estimate, not an extrapolated model.
+
+## b68c: LC-MS adduct annotation, set enrichment and XIC extraction
+
+Three `Metabolomics` operators validate `workdir/b68c_route` on synthetic LC-MS tables
+(the data are synthetic and are not biological findings).
+
+- `metabolite_adduct_annotation` maps feature m/z to neutral mass for positive
+  [M+H]+/[M+Na]+/[M+NH4]+ or negative [M-H]- ions, then matches a neutral-mass
+  database within `ppm_tolerance` (default 10).
+- `metabolite_set_enrichment` overlaps detected metabolite ids with a set library
+  and reports a hypergeometric p-value plus Benjamini-Hochberg q-value.
+- `xic_extract` smooths an extracted-ion chromatogram, finds local maxima above
+  `min_snr`, and integrates trapezoid areas around each apex.
+
+### Inputs
+
+| file | sha256 |
+| --- | --- |
+| `features.csv` | `b11c35db487cb2b93da14c2c1e8a4b8e1223ee73ee50783c57762e789471c8c6` |
+| `database.csv` | `1a1befe1e5f67152b02a0d55d2036877595bc08fe564909fc77e3a041f95088f` |
+| `hits.csv` | `b4b7d7744f3f34b81f36da0c5b3ce3ee4c66cb50c3fd92661278e977a8dec9fa` |
+| `sets.csv` | `fa3d524714d3dd2265aaeb332cfb29eac15cf4bcd5738b307b2b44faabf631b3` |
+| `xic.csv` | `15a01c8396e09c9546b5578a5947dd46bb6e17dafdc85d0a2a570da2fc4b466d` |
+
+Command: `PYTHONPATH=$PWD/library/seed:$PWD python scripts/run.py workdir/b68c_route`.
+All 6 steps completed.
+
+### Numerical results
+
+| operator | values |
+| --- | --- |
+| `metabolite_adduct_annotation` | f1 180.0633835 Da (0.0359 ppm, [M+H]+), f2 194.0803735 Da, f3 180.063392 Da ([M+Na]+), f4 194.080382 Da, f5 unmatched |
+| `metabolite_set_enrichment` | setA size 4, overlap 3, expected 0.8, fold 3.75, p 0.01341589, q 0.04024768; setB 3/2 p 0.0877193; setC 3/0 p 1 |
+| `xic_extract` | apex rt 3.0, intensity 100, area 159, start rt 1.0, end rt 6.0, snr 7 |
+
+### Oracle
+
+`workdir/b68c_oracle.json`: 8/8 checks pass. Neutral mass compared with
+`pyteomics.mass.calculate_mass("C6H12O6")` (tolerance 1e-4 Da), the set p-value
+recomputed from binomial coefficients, and the XIC area from the trapezoid rule
+on the raw table. The oracle does not import the operators.
+
+### Three ends
+
+| end | route | md5 (adducts / enrichment / xic) |
+| --- | --- | --- |
+| WSL (NumPy 2.1.3) | 6/6 | `b3783e94abbf06ff60e4b59c12615250` / `b6b67cab8d90e8286d8d356b2df59fc1` / `762f6828cd9716d0dce6672b19e41bb1` |
+| Windows (`D:\Operon`, NumPy 2.5.4) | 6/6 | same |
+| srv | SKIP | `ssh srv` is not resolvable in this environment |
+
+### Limitations
+
+The feature table is synthetic. Adduct matching assumes one charge state and
+the configured adduct list; in-source fragments and multiply charged ions are
+out of scope. Set enrichment uses the detected metabolite count as universe
+size unless the caller overrides it. XIC integration uses a symmetric apex walk,
+not a peak model.
