@@ -58,7 +58,7 @@ def main():
         (destination / 'runtime/webview2.json').write_text(json.dumps({'source': url,
             'sha256': hashlib.sha256(bootstrapper.read_bytes()).hexdigest()}), encoding='utf-8')
     shutil.copytree(root / 'frontend/dist', destination / 'frontend')
-    for directory in ('src', 'biopipe', 'biopipe_sdk', 'library/seed'):
+    for directory in ('src', 'biopipe', 'biopipe_sdk', 'operon', 'library/seed'):
         for source in (root / directory).rglob('*'):
             if source.is_file() and source.suffix.lower() in {'.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'}:
                 copy(source, source.relative_to(root))
@@ -87,7 +87,7 @@ def main():
         # Use the shipped interpreter, never the packaging host's Python tag.
         subprocess.run([python, '-I', '-m', 'compileall', '-q', '-f',
                         '--invalidation-mode', 'unchecked-hash', '-s', str(destination),
-                        *[str(destination / p) for p in ('src', 'biopipe', 'biopipe_sdk', 'scripts', 'library/seed',
+                        *[str(destination / p) for p in ('src', 'biopipe', 'biopipe_sdk', 'operon', 'scripts', 'library/seed',
                                                        'runtime/python/Lib/operon_import_paths.py')]], check=True)
     shutil.copytree(root / 'docs', destination / 'docs')
     # Ship the small SDK examples referenced by the extension guides.
@@ -111,7 +111,7 @@ def main():
         'backendRoot': '.', 'python': 'auto', 'entryPoint': 'scripts/desktop_server.py', 'frontend': 'frontend',
         'bundledRuntime': not args.lite,
     }, indent=2) + '\n', encoding='utf-8')
-    command = 'python -m biopipe' if args.lite else '"%~dp0runtime\\python\\python.exe" -I -m biopipe'
+    command = 'python -m operon' if args.lite else '"%~dp0runtime\\python\\python.exe" -I -m operon'
     (destination / 'operon.cmd').write_text('@echo off\n' + command + ' %*\n', encoding='ascii')
     (destination / 'START_HERE.txt').write_text(f"""Operon Studio {version} - Windows x64
 
@@ -122,7 +122,7 @@ may need an internet connection. Do not move individual installed files.
 
 The operator library remains independently versioned. Existing v3/v3.5 packages,
 .biopipe workflow bundles, Python imports and MCP identifiers stay compatible.
-Use operon.cmd for the bundled CLI or runtime/python/python.exe -I -m biopipe.
+Use operon.cmd for the bundled CLI or runtime/python/python.exe -I -m operon.
 Registration and startup read metadata; scientific dependencies are checked for
 the selected execution target at Validate/Run. Missing environments or packages
 require explicit Prepare environment; conflict isolation uses the same Python

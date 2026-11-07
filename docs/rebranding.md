@@ -7,9 +7,9 @@ meaning of a saved scientific workflow or an installed operator ID.
 | Surface | Naming policy |
 | --- | --- |
 | Windows application, installer and shortcuts | Operon Studio; the distributable installer is `Operon_Setup.exe` and the workspace displays Operon |
-| Application version | 3.0.0; independent of the operator-library version |
+| Application version | 3.1.0; independent of the operator-library version |
 | Python package and source directories | Existing `biopipe`, `biopipe_sdk` and `src` imports remain valid |
-| Command-line automation | Existing `biopipe` / `python -m biopipe` remain supported; the `operon` command is the branded alias |
+| Command-line automation | Existing `biopipe` / `python -m biopipe` remain supported; `operon` and `python -m operon` are the branded aliases |
 | MCP names | Existing `biopipe_*` tools and resource identifiers remain valid |
 | HTTP routes and authentication | Existing application/agent API paths and scopes remain valid |
 | Saved formats | `biopipe.workflow`, parameter/execution sidecars, plugin IDs and implementation pins retain their wire identifiers |
@@ -19,6 +19,10 @@ meaning of a saved scientific workflow or an installed operator ID.
 Do not rename a plugin ID, Python import or JSON discriminator merely to make it
 look branded. A public identifier is an interoperability contract. The product
 name in a window is display text.
+
+New canvas exports use `.operon.zip`; older `.biopipe.zip` bundles remain importable.
+Visible worker and launcher labels use Operon. Internal storage keys, MIME types,
+Python imports and MCP tool identifiers remain unchanged.
 
 ## Installation and old data
 

@@ -14,6 +14,7 @@ from urllib.parse import urlencode
 
 from .documents import CommandError, layout
 from .bytecode import io_path
+from .engine.contracts import CommitOutcomeUnknown
 from src.web.models import Graph, SaveWorkflow
 from src.web.storage import FileLock, atomic_json
 from src.web.service import JobService, read_json
@@ -36,6 +37,7 @@ class Application:
         self.requests.mkdir(exist_ok=True)
         self.submission_guard = threading.RLock()
         self.stopping = False
+        self.engine = getattr(self.service, 'engine', None)
         self.workflows = WorkflowService(self)
         self.jobs = TaskService(self)
         self.artifacts = ArtifactService(self)
@@ -77,7 +79,30 @@ class Application:
                 'application_root': str(self.service.settings.code_root or self.service.root),
                 'environment_root': str(root()),
                 'dependency_policy': 'explicit-route-preparation',
-                'resources': self.service.resources()}
+                'resources': self.service.resources(),
+                'engine': self.engine_status()}
+
+    def engine_status(self):
+        if getattr(self.service, 'pool_remote', False):
+            return self.service._engine_status()
+        engine = getattr(self, 'engine', None)
+        if engine is None:
+            return {'available': False, 'mode': getattr(self.service.settings, 'engine_mode', 'legacy')}
+        try:
+            return engine.status()
+        except Exception as exc:  # noqa: BLE001 - report, never hide
+            return {'available': False, 'error': f'{type(exc).__name__}: {exc}'}
+
+    def events(self, after=0, *, run_id=None, limit=200):
+        """Durable lifecycle events shared by desktop, CLI and MCP adapters."""
+        if getattr(self.service, 'pool_remote', False):
+            return self.service.events(after, run_id=run_id, limit=limit)
+        engine = getattr(self, 'engine', None)
+        journal = getattr(engine, 'journal', None) if engine else None
+        if journal is None:
+            return {'events': [], 'cursor': after, 'has_more': False, 'available': False}
+        page = journal.page(after, limit=limit, run_id=run_id)
+        return {**page.to_json(), 'available': True}
 
 
 class WorkflowService:
@@ -182,8 +207,24 @@ class TaskService:
     def _launch(self, graph, *, validated=False):
         if not validated:
             self.app.readiness.require_ready(self.app.validate(graph, require_files=True))
-        return (self.app.executions.launch(graph) if self.app.executions.applies(graph)
-                else self.service.launch(graph))
+        if getattr(self.service, 'pool_remote', False) and not self.app.executions.applies(graph):
+            try:
+                return self.service.launch(graph)
+            except Exception as exc:  # noqa: BLE001 - pool authority failure is explicit
+                raise CommandError(
+                    'engine_unavailable',
+                    'The shared pool is unavailable; no local executor fallback was used',
+                    503, {'reason': f'{type(exc).__name__}: {exc}'}) from exc
+        try:
+            return (self.app.executions.launch(graph) if self.app.executions.applies(graph)
+                    else self.service.launch(graph))
+        except Exception as exc:  # noqa: BLE001 - pool authority failure is explicit
+            if getattr(self.service, 'pool_remote', False):
+                raise CommandError(
+                    'engine_unavailable',
+                    'The shared pool is unavailable; no local executor fallback was used',
+                    503, {'reason': f'{type(exc).__name__}: {exc}'}) from exc
+            raise
 
     def _prepare_submission(self, graph):
         original = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
@@ -216,6 +257,177 @@ class TaskService:
         request = {k: payload[k] for k in ('graph', 'workflow_id', 'expected_version') if k in payload}
         digest = hashlib.sha256(json.dumps(request, sort_keys=True, separators=(',', ':'), allow_nan=False).encode()).hexdigest()
         request_key = hashlib.sha256(request_id.encode()).hexdigest()
+        receipt_path = self.app.requests / (request_key + '.json')
+        if getattr(self.service, 'pool_remote', False):
+            if getattr(self.service, 'pool_client', None) is None:
+                raise CommandError(
+                    'engine_unavailable',
+                    'The shared pool address/token is invalid; no local executor fallback was used',
+                    503, {'reason': self.service.pool_error or 'invalid pool configuration'})
+            graph = self.app.workflows.graph(payload)
+            if self.app.executions.applies(Graph.model_validate(graph) if isinstance(graph, dict) else graph):
+                # The workflow journal owns orchestration; each scientific unit
+                # is submitted idempotently to its execution host's pool.
+                return self._submit_file(payload, request_id, request_key, digest)
+            prepared = self._prepare_submission(graph)
+            prepared.runtime['submission_key'] = request_key
+            try:
+                result = self.service.launch(prepared, request_id=request_id)
+            except Exception as exc:  # noqa: BLE001 - pool failure is explicit
+                code = getattr(exc, 'code', None)
+                if code == 'idempotency_conflict':
+                    raise CommandError('idempotency_conflict',
+                                       'request_id was already used for a different graph', 409) from exc
+                raise CommandError(
+                    'engine_unavailable',
+                    'The shared pool is unavailable; no local executor fallback was used',
+                    503, {'request_id': request_id,
+                          'reason': f'{type(exc).__name__}: {exc}'}) from exc
+            try:
+                atomic_json(receipt_path, {
+                    'request_id': request_id, 'digest': digest, 'state': 'submitted',
+                    'run_id': result.get('id'), 'authority': 'pool',
+                    'created_at': datetime.now(timezone.utc).isoformat()})
+            except OSError as exc:
+                # The pool submission already committed; a compatibility mirror
+                # failure must not turn it into an apparent submission failure.
+                self.service.pool_error = f'receipt mirror: {type(exc).__name__}: {exc}'
+            return result
+        journal = self._journal
+        if journal is None:
+            return self._submit_file(payload, request_id, request_key, digest)
+        # Fast path: a durable engine claim is the idempotency authority.
+        try:
+            existing = journal.request(request_key)
+        except Exception as exc:  # noqa: BLE001 - the durable outcome must be classified
+            # The request index cannot answer.  An existing legacy receipt can
+            # still be recovered safely; otherwise no new work may start.
+            if read_json(receipt_path) is not None:
+                return self._submit_file(payload, request_id, request_key, digest)
+            self.app.service.engine_error = f'{type(exc).__name__}: {exc}'
+            raise CommandError(
+                'submission_uncertain',
+                'The durable request index is unavailable; the submission outcome is unknown',
+                503, {'request_id': request_id, 'reason': f'{type(exc).__name__}: {exc}'}) from exc
+        if existing is not None:
+            return self._reuse(existing, request_id, digest, request_key)
+        graph = self.app.workflows.graph(payload)
+        prepared = self._prepare_submission(graph)
+        prepared.runtime['submission_key'] = request_key
+        try:
+            claim = journal.claim(request_key, digest, operation='submit',
+                                  receipt={'request_id': request_id})
+        except CommitOutcomeUnknown as exc:
+            # The transaction may have committed.  Probe and recover, but never
+            # launch again under an uncertain claim.
+            try:
+                existing = journal.request(request_key)
+            except Exception as probe:
+                self.app.service.engine_error = f'{type(probe).__name__}: {probe}'
+                raise CommandError(
+                    'submission_uncertain',
+                    'The submission transaction outcome is unknown and could not be verified',
+                    503, {'request_id': request_id,
+                          'reason': f'{type(exc).__name__}: {exc}',
+                          'probe': f'{type(probe).__name__}: {probe}'}) from exc
+            if existing is not None:
+                if existing.get('run_id'):
+                    return self._reuse(existing, request_id, digest, request_key)
+                if existing['state'] not in ('claimed', 'launching'):
+                    return self._reuse(existing, request_id, digest, request_key)
+                raise CommandError(
+                    'submission_uncertain',
+                    'The submission transaction outcome is unknown; inspect jobs before retrying',
+                    409, {'request_id': request_id, 'reason': str(exc)}) from exc
+            raise CommandError(
+                'submission_uncertain',
+                'The submission transaction outcome is unknown; inspect jobs before retrying',
+                409, {'request_id': request_id, 'reason': str(exc)}) from exc
+        except Exception as exc:  # noqa: BLE001 - every other rollback is definite
+            code = getattr(exc, 'code', None)
+            if code == 'idempotency_conflict':
+                raise CommandError('idempotency_conflict',
+                                   'request_id was already used for a different graph', 409) from exc
+            # The transaction rolled back before commit.  Do not fall back to a
+            # second submission path: that would create two authorities for one
+            # request while the engine is enabled.
+            self.app.service.engine_error = f'{type(exc).__name__}: {exc}'
+            raise CommandError(
+                'engine_unavailable',
+                'The durable request store is temporarily unavailable; retry the same request_id',
+                503, {'request_id': request_id, 'reason': f'{type(exc).__name__}: {exc}'}) from exc
+        if not claim.created:
+            return self._reuse(claim.record, request_id, digest, request_key)
+        # Compatibility mirror for older binaries and manual recovery.
+        path = receipt_path
+        receipt = {'request_id': request_id, 'digest': digest, 'state': 'pending',
+                   'created_at': datetime.now(timezone.utc).isoformat()}
+        atomic_json(path, receipt)
+        try:
+            result = self._launch(prepared, validated=True)
+        except Exception as error:
+            recovered = self._recover(request_key)
+            if recovered:
+                try:
+                    journal.bind(request_key, recovered['id'],
+                                 receipt={'request_id': request_id, 'digest': digest})
+                except Exception as bind_error:  # noqa: BLE001 - recovery evidence is still returned
+                    self.app.service.engine_error = f'{type(bind_error).__name__}: {bind_error}'
+                atomic_json(path, {**receipt, 'state': 'submitted', 'job_id': recovered['id']})
+                return {**recovered, 'request_id': request_id, 'reused': True}
+            try:
+                journal.fail(request_key, str(error))
+            except Exception as journal_error:  # noqa: BLE001 - the original failure is authoritative
+                self.app.service.engine_error = f'{type(journal_error).__name__}: {journal_error}'
+            atomic_json(path, {**receipt, 'state': 'pending', 'error': str(error)})
+            raise
+        try:
+            journal.bind(request_key, result['id'],
+                         receipt={'request_id': request_id, 'digest': digest})
+        except Exception as bind_error:  # noqa: BLE001 - the launched job is the durable evidence
+            # The worker is running and its submission_key is in job.json; a
+            # later retry can recover and bind it.  Do not report a false failure.
+            self.app.service.engine_error = f'{type(bind_error).__name__}: {bind_error}'
+        atomic_json(path, {**receipt, 'state': 'submitted', 'job_id': result['id']})
+        return {**result, 'request_id': request_id, 'reused': False}
+
+    @property
+    def _journal(self):
+        runtime = getattr(self.service, 'engine', None)
+        if runtime is None or getattr(runtime, 'error', None):
+            return None
+        return getattr(runtime, 'journal', None)
+
+    def _reuse(self, record, request_id, digest, request_key):
+        if record['digest'] != digest:
+            raise CommandError('idempotency_conflict', 'request_id was already used for a different graph', 409)
+        if record.get('run_id'):
+            try:
+                return {**self.details(record['run_id']), 'request_id': request_id, 'reused': True}
+            except (KeyError, CommandError):
+                pass
+        if record['state'] in ('claimed', 'launching'):
+            record = self._journal.wait(request_key, timeout=120) or record
+            if record.get('run_id'):
+                return {**self.details(record['run_id']), 'request_id': request_id, 'reused': True}
+        recovered = self._recover(request_key)
+        if recovered:
+            self._journal.bind(request_key, recovered['id'],
+                               receipt={'request_id': request_id, 'digest': digest})
+            receipt_path = self.app.requests / (request_key + '.json')
+            receipt = read_json(receipt_path, {})
+            atomic_json(receipt_path, {**receipt, 'request_id': request_id, 'digest': digest,
+                                       'state': 'submitted', 'job_id': recovered['id']})
+            return {**recovered, 'request_id': request_id, 'reused': True}
+        if record['state'] in ('claimed', 'launching', 'pending'):
+            raise CommandError('submission_uncertain',
+                               'Submission was interrupted; inspect jobs before using a new request_id', 409,
+                               {'request_id': request_id})
+        raise CommandError('submission_failed',
+                           (record.get('receipt') or {}).get('error') or
+                           'Submission failed; use a new request_id after fixing the cause')
+
+    def _submit_file(self, payload, request_id, request_key, digest, *, prepared=None):
         path = self.app.requests / (request_key + '.json')
         with FileLock(path.with_suffix('.lock'), timeout=120):
             receipt = read_json(path)
@@ -234,8 +446,9 @@ class TaskService:
                     raise CommandError('submission_uncertain', 'Submission was interrupted; inspect jobs before using a new request_id', 409,
                                        {'request_id': request_id})
                 raise CommandError('submission_failed', receipt.get('error', 'Submission failed; use a new request_id after fixing the cause'))
-            graph = self.app.workflows.graph(payload)
-            prepared = self._prepare_submission(graph)
+            if prepared is None:
+                graph = self.app.workflows.graph(payload)
+                prepared = self._prepare_submission(graph)
             prepared.runtime['submission_key'] = request_key
             receipt = {'request_id': request_id, 'digest': digest, 'state': 'pending',
                        'created_at': datetime.now(timezone.utc).isoformat()}

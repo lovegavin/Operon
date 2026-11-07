@@ -17,6 +17,9 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 
 ## Use Operon
 
+- [Shared execution pools](design/pool_service.md)
+- [Verified stage reuse and author cache declarations](stage_cache.md)
+
 - [SDK 3.7 mandatory port formats and native Reader bridge](data_formats.md)
 - [Static format inspection and explicit legacy migration](format_migration_v37.md)
 
@@ -59,6 +62,14 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 
 ## Design notes
 
+- [Next server engine: concurrent clients, resource scheduling and backpressure (proposal)](design/server_engine_next.md)
+- [Backend engine implementation plan for coding agents](design/server_engine_implementation_plan.md)
+- [Backend engine implementation status and handoff](design/server_engine_progress.md)
+- [Dedicated multi-workspace pool service](design/pool_service.md)
+- [Engine acceptance record and remaining platform gates](design/server_engine_acceptance.md)
+- [Real Linux/SSH pool acceptance runner](design/pool_linux_acceptance.md)
+- [Control-plane baseline and post-change measurements](design/server_engine_baseline.md)
+- [Engine lock and ownership order](design/engine_locking.md)
 - [Extension policy and on-demand extension](design/extension_policy.md)
 - [Hard-capability status](design/hard_capability_status.md)
 - [Minibinder and VHH design route](design/minibinder_vhh_design_route.md)

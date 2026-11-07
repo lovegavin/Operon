@@ -31,7 +31,7 @@ def source_archive(root):
                                      'scripts/run.py', 'scripts/desktop_server.py')]
     if (root / 'library/pyproject.toml').is_file():
         files += [root / 'library/pyproject.toml', root / 'library/release.json']
-    for directory in ('biopipe', 'biopipe_sdk', 'src', 'library/seed'):
+    for directory in ('biopipe', 'biopipe_sdk', 'operon', 'src', 'library/seed'):
         files += [p for p in (root / directory).rglob('*') if p.is_file()
                   and p.suffix in ('.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif', '.yaml', '.yml')
                   and '__pycache__' not in p.parts]
@@ -151,10 +151,10 @@ def provision(connection, profile, progress, cancel, root=None):
     archive = managed + '/source-' + digest[:20] + '.tar.gz'
     log = managed + '/setup-' + digest[:20] + '.log'
     progress('服务端安装日志：' + log)
-    shell.run('umask 077; printf "\\n%s\\n" ' + q('BioPipe deployment ' + digest) + ' >> ' + q(log))
+    shell.run('umask 077; printf "\\n%s\\n" ' + q('Operon deployment ' + digest) + ' >> ' + q(log))
     present = shell.run('if test -f ' + q(code + '/.source-sha') + '; then cat ' + q(code + '/.source-sha') + '; fi')
     if digest not in present:
-        progress('上传与桌面端匹配的 BioPipe 程序')
+        progress('上传与桌面端匹配的 Operon 程序')
         shell.upload(archive, data)
         # Concurrent publishers serialize extraction; published code stays immutable.
         extract = ('flock ' + q(managed + '/publish.lock') + ' bash -c ' + q(
@@ -206,7 +206,7 @@ export BIOPIPE_MAMBA={q(mamba)}
     # The lock prevents two desktops from mutating the same target environment.
     script = managed + '/install-' + uuid.uuid4().hex + '.sh'
     shell.upload(script, install.encode())
-    progress('检查并补齐 Python、BioPipe 与 Hi-C 依赖（首次可能需要数分钟）')
+    progress('检查并补齐 Python、Operon 与 Hi-C 依赖（首次可能需要数分钟）')
     # Closing SSH requests installer shutdown; an outstanding child may finish.
     command = ('umask 077; flock ' + q(managed + '/environment.lock') + ' bash ' + q(script) +
                ' >> ' + q(log) + ' 2>&1 & bp_setup_pid=$!; ' +

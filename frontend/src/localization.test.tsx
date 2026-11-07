@@ -79,6 +79,6 @@ describe('language projections', () => {
     expect(configured).toContain('&quot;operon&quot;: {');
     expect(configured).toContain('&quot;command&quot;: &quot;python&quot;');
     expect(configured).toContain('&quot;biopipe&quot;');
-    expect(configured).toContain('The Python module name is retained for compatibility');
+    expect(configured).toContain('-m operon mcp');
   });
 });

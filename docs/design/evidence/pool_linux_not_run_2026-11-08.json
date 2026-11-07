@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "status": "blocked_before_execution",
+  "checked_at": "2026-11-08T01:55:00+08:00",
+  "host": "DESKTOP-BALUKQV",
+  "reason": "Handoff materials identify an authorized gateway and a previously used Linux instance. The gateway TCP endpoints were reachable, but the recorded instance was shutdowned; starting it is a paid provider action not authorized in this task. Passwordless SSH reached the gateway and was denied because only an interactive session password was previously used; no credential is persisted in the checkout or profile.",
+  "gateway": {
+    "tcp_reachable": true,
+    "noninteractive_ssh": "denied (password required)",
+    "credential_persisted": false
+  },
+  "prior_instance": {
+    "recorded_lifecycle": "shutdowned",
+    "started_in_this_round": false
+  },
+  "not_performed": [
+    "paid instance start",
+    "private data upload",
+    "Linux multi-client test"
+  ],
+  "runner": "scripts/acceptance/pool_linux.sh",
+  "client_evidence": "scripts/acceptance/pool_client_checks.py",
+  "checklist": "docs/design/pool_linux_acceptance.md",
+  "profile_directory": "~/.biopipe/profiles"
+}

@@ -9,11 +9,13 @@ from contextlib import contextmanager
 from copy import deepcopy
 from datetime import datetime, timezone
 import hashlib
+from biopipe.engine.transport import transport_admission
 import json
 import os
 from pathlib import Path, PurePosixPath
 import platform
 import shutil
+import sys
 import threading
 import time
 import uuid
@@ -29,6 +31,8 @@ from .routes import prepare_interface, output_names, port_index
 from .service import read_json, safe_json
 from .storage import atomic_json, FileLock
 from .transfers import TransferClient, TransferCancelled
+from biopipe.engine.artifacts import ArtifactCommitter
+from biopipe.engine.resume import cache_key, eligibility, execution_graph, execution_identity, file_identity
 
 
 def now():
@@ -329,13 +333,13 @@ class ExecutionService:
         ticket = 'transfer-' + uuid.uuid4().hex
         # Includes both decoded bytes and JSON/base64 framing in this process.
         size = 6 * 1024**2
-        if size > self.service.admission.capacity:
+        if size > transport_admission(self.service).capacity:
             raise GraphError('Available host memory is too small for the bounded transfer buffers')
         allocation = {'reserved_bytes': size, 'cpu_threads': 0, 'kind': 'transport'}
         profiles = {target_key(value) for value in (origin, unit['target']) if value['kind'] == 'ssh'}
         reserved = []
         try:
-            while not self.service.admission.reserve(ticket, allocation):
+            while not transport_admission(self.service).reserve(ticket, allocation):
                 self._check(key)
                 self._progress(key, unit, {'phase': 'queued', 'current': 'Waiting for transfer memory'})
                 self.stopping.wait(.2)
@@ -346,7 +350,7 @@ class ExecutionService:
                 reserved.append(profile)
             yield ticket
         finally:
-            self.service.admission.release(ticket)
+            transport_admission(self.service).release(ticket)
             for profile in reserved:
                 try:
                     self.service.remotes.call(profile, 'transport_release', {'id': ticket})
@@ -550,9 +554,245 @@ class ExecutionService:
         config = settings(graph)
         # The destination service is already selected. Prevent a recursive SSH
         # submission and carry the user's concurrency share into host admission.
-        stage.runtime['execution'] = {'kind': 'local', 'max_parallel_tasks': config.get('max_parallel_tasks', 2)}
+        config = settings(graph)
+        stage_execution = {'kind': 'local',
+                           'max_parallel_tasks': config.get('max_parallel_tasks', 2)}
+        if 'cache' in config:
+            stage_execution['cache'] = config['cache']
+        stage.runtime['execution'] = stage_execution
         stage.runtime['execution_parent_id'] = key
         return stage
+
+    @property
+    def _cache_index_path(self):
+        return self.service.directory / 'stage-cache' / 'index.json'
+
+    def _cache_enabled(self, stage):
+        execution = stage.runtime.get('execution') or {}
+        value = execution.get('cache', stage.runtime.get('cache'))
+        return value is True or (isinstance(value, str) and value.lower() in ('true', 'verified'))
+
+    def _environment_content_fingerprint(self, stage):
+        from biopipe.engine.cache_environment import fingerprint
+        return fingerprint(self.service, stage)
+
+    def _cache_contracts(self, stage):
+        """Read explicit declarations; absence or ambiguity is a refusal, not a guess."""
+        catalog = self.catalog(stage)
+        specs = {spec['id']: spec for spec in catalog.get('operators', [])}
+        readers = list(catalog.get('readers', []))
+        reasons, contracts, nodes = [], {}, {}
+        sources = [node for node in stage.nodes if node.kind == 'source']
+        for node in stage.nodes:
+            spec = None
+            if node.kind == 'operator':
+                spec = specs.get(node.operator)
+                node_key = node.operator
+            elif node.kind == 'source':
+                path = Path(node.source.path) if node.source else None
+                suffix = path.suffix.lower() if path else ''
+                candidates = [item for item in readers if suffix in (item.get('extensions') or [])]
+                if node.source and node.source.reader:
+                    candidates = [item for item in candidates if item['id'] == node.source.reader]
+                if len(candidates) != 1:
+                    reasons.append(f'reader-not-unique:{node.id}:{suffix or "unknown"}')
+                    continue
+                spec = candidates[0]
+                node_key = spec['id']
+            else:
+                reasons.append(f'cache-contract-not-supported:{node.kind}:{node.id}')
+                continue
+            if spec is None:
+                reasons.append(f'missing-descriptor:{node.id}')
+                continue
+            contract = (spec.get('resources') or {}).get('cache')
+            if not isinstance(contract, dict):
+                reasons.append(f'missing-cache-contract:{node_key}')
+                continue
+            if contract.get('deterministic') is not True:
+                reasons.append(f'not-declared-deterministic:{node_key}')
+            if contract.get('side_effects') != 'none':
+                reasons.append(f'side-effects-not-none:{node_key}:{contract.get("side_effects")}')
+            stochastic = contract.get('stochastic')
+            if stochastic not in (False, True):
+                reasons.append(f'randomness-not-declared:{node_key}')
+                stochastic = True
+            seeds = {}
+            if stochastic:
+                seed_names = contract.get('seed_parameters') or []
+                if not seed_names:
+                    reasons.append(f'randomness-not-declared:{node_key}')
+                else:
+                    for name in seed_names:
+                        if not isinstance(name, str) or node.params.get(name) is None:
+                            reasons.append(f'randomness-not-bound:{node_key}:{name}')
+                        else:
+                            seeds[name] = node.params[name]
+            pin = (stage.plugin_lock or {}).get(node_key)
+            if isinstance(pin, dict):
+                for field in ('version', 'code_sha'):
+                    if pin.get(field) is not None and spec.get(field) is not None and \
+                            str(pin[field]) != str(spec[field]):
+                                reasons.append(f'implementation-mismatch:{node_key}:{field}')
+            contracts[node_key] = {'deterministic': contract.get('deterministic') is True,
+                                   'side_effects': contract.get('side_effects'),
+                                   'stochastic': bool(stochastic), 'seeds': seeds,
+                                   'spec_version': spec.get('version'),
+                                   'code_sha': spec.get('code_sha')}
+        if not sources:
+            reasons.append('no-source-declaration')
+        return contracts, reasons
+
+    def _cache_identity(self, stage):
+        """Stable identity plus an explainable eligibility decision."""
+        from biopipe import __version__
+        semantic = deepcopy(stage.model_dump(mode='json'))
+        inputs = []
+        for node in semantic.get('nodes', []):
+            source = node.get('source') or {}
+            path_value = source.get('path')
+            if not path_value:
+                continue
+            path = Path(path_value)
+            if not path.is_absolute():
+                path = Path(self.service.root) / path
+            if not path.is_file():
+                raise GraphError(f'Cache input is not a regular file: {path}')
+            identity = file_identity(path)
+            inputs.append({'name': path.name, 'sha256': identity['sha256'],
+                           'size': identity['size']})
+            source['path'] = 'content:' + identity['sha256']
+        runtime = semantic.setdefault('runtime', {})
+        for name in ('exchange_inputs', 'exchange_contracts', 'execution_unit_id',
+                     'execution_parent_id', 'submission_key', 'remote_request_id', 'remote_request_digest'):
+            runtime.pop(name, None)
+        semantic['base_dir'] = ''
+        parameters = {node.get('id'): node.get('params', {}) for node in semantic.get('nodes', [])
+                      if node.get('kind') == 'operator'}
+        contracts, reasons = self._cache_contracts(stage)
+        fingerprint = (self._environment_content_fingerprint(stage) if not reasons else
+                       {'verified': False, 'error': 'cache-contracts-ineligible'})
+        if not fingerprint.get('verified'):
+            reasons.append('environment-unverified:' + str(fingerprint.get('error') or 'unknown'))
+        try:
+            plugin_state = self.service.plugins.state()
+        except Exception as exc:  # noqa: BLE001 - fail closed
+            plugin_state = {}
+            reasons.append(f'plugin-state-unavailable:{type(exc).__name__}')
+        packages = sorted((str(item.get('name')), str(item.get('version')))
+                          for item in plugin_state.get('packages', []))
+        stochastic = any(value['stochastic'] for value in contracts.values())
+        side_effects = 'none' if contracts and all(
+            value['side_effects'] == 'none' for value in contracts.values()) else 'unknown'
+        identity = execution_identity(
+            graph=execution_graph(semantic), parameters=parameters,
+            execution={k: v for k, v in (stage.runtime.get('execution') or {}).items()
+                       if k not in ('cache',)},
+            implementation={'application_version': __version__, 'plugin_lock': stage.plugin_lock,
+                            'packages': packages,
+                            'package_generation': plugin_state.get('generation'),
+                            'contracts': contracts},
+            environment={'mutex_identity': self.service.environment_identity(),
+                         'content_fingerprint': fingerprint},
+            randomness=({'seed_parameters': {key: value['seeds']
+                                             for key, value in contracts.items()
+                                             if value['seeds']}}
+                        if stochastic else None))
+        identity['inputs'] = inputs
+        eligible = eligibility(
+            identity=identity,
+            stochastic=stochastic,
+            side_effects=side_effects,
+            environment_verified=bool(fingerprint.get('verified')))
+        all_reasons = list(reasons) + list(eligible.reasons)
+        decision = {'eligible': eligible.eligible and not all_reasons,
+                    'reasons': list(dict.fromkeys(all_reasons)),
+                    'stochastic': stochastic, 'side_effects': side_effects,
+                    'environment_verified': bool(fingerprint.get('verified')),
+                    'environment_digest': fingerprint.get('digest'),
+                    'contracts': contracts, 'cache_key': cache_key(**identity) if not all_reasons else None, 'checked_at': now()}
+        if not decision['eligible']:
+            return None, decision
+        return cache_key(**identity), decision
+
+    def _cache_lookup(self, key, unit, stage):
+        if unit['target']['kind'] != 'local' or not self._cache_enabled(stage):
+            return None, {'eligible': False, 'reasons': ['cache-not-enabled'], 'checked_at': now()}
+        try:
+            digest, decision = self._cache_identity(stage)
+        except Exception as exc:  # noqa: BLE001 - cache never blocks the scientific run
+            return None, {'eligible': False, 'reasons': [f'cache-identity-error:{type(exc).__name__}'],
+                          'error': str(exc), 'checked_at': now()}
+        if not digest:
+            return None, decision
+        lock = FileLock(self._cache_index_path.with_suffix('.lock'))
+        with lock:
+            index = read_json(self._cache_index_path, {}) or {}
+            entry = index.get(digest)
+            if not entry:
+                return None, {**decision, 'hit': False, 'reason': 'cache-miss'}
+            try:
+                child_details = self.service.details(entry['child_id'])
+            except (KeyError, ValueError):
+                index.pop(digest, None)
+                atomic_json(self._cache_index_path, index)
+                return None, {**decision, 'hit': False, 'reason': 'cached-child-missing'}
+            if child_details.get('status') != 'complete' or not child_details.get('logs_complete'):
+                return None, {**decision, 'hit': False, 'reason': 'cached-child-not-complete'}
+            artifact = entry.get('artifact') or {}
+            verifier = ArtifactCommitter(self.service.jobs_dir)
+            if not verifier.verify_existing(artifact).get('valid'):
+                index.pop(digest, None)
+                atomic_json(self._cache_index_path, index)
+                self._event(key, 'stage_cache_invalidated',
+                            message=f"{unit['id']} cached artifact failed verification")
+                return None, {**decision, 'hit': False, 'reason': 'cached-artifact-invalid'}
+            return ({'child_id': entry['child_id'], 'digest': digest,
+                     'unit_id': entry.get('unit_id'), 'artifact': artifact},
+                    {**decision, 'hit': True, 'reason': 'cache-hit'})
+
+    def _cache_store(self, key, unit, child, stage):
+        if unit['target']['kind'] != 'local' or not self._cache_enabled(stage):
+            return None
+        output = self.service.jobs_dir / child['id'] / 'output'
+        if not output.is_dir():
+            return None
+        files = []
+        for base, directories, names in os.walk(output):
+            directories[:] = [name for name in directories
+                              if not (Path(base) / name).is_symlink()]
+            for name in names:
+                path = Path(base) / name
+                if path.is_symlink():
+                    continue
+                files.append(path.relative_to(output).as_posix())
+        if not files:
+            return None
+        try:
+            digest, decision = self._cache_identity(stage)
+        except Exception as exc:  # noqa: BLE001 - cache never blocks the scientific run
+            return {'eligible': False, 'reasons': [f'cache-identity-error:{type(exc).__name__}'],
+                    'error': str(exc), 'checked_at': now()}
+        if not digest:
+            return decision
+        before = read_json(self.path(key) / unit['id'] / 'cache-decision.json', {})
+        if not before.get('eligible') or before.get('cache_key') != digest:
+            return {'eligible': False, 'reasons': ['execution-identity-changed-during-run']}
+        committer = ArtifactCommitter(self.service.jobs_dir)
+        receipt = committer.commit_existing(
+            attempt={'id': 'cache-' + child['id'], 'fence': 0},
+            unit={'id': unit['id'], 'run_id': key}, fence=0, source_root=output,
+            files=files, run_id=key, kind='stage-output',
+            metadata={'cache_key': digest, 'stage': unit['id'], 'execution': key})
+        lock = FileLock(self._cache_index_path.with_suffix('.lock'))
+        with lock:
+            index = read_json(self._cache_index_path, {}) or {}
+            index[digest] = {'child_id': child['id'], 'unit_id': unit['id'],
+                             'artifact': receipt, 'created_at': now()}
+            atomic_json(self._cache_index_path, index)
+        self._event(key, 'stage_cache_stored', message=f"{unit['id']} output cached",
+                    cache_key=digest, child=child['id'])
+        return {**decision, 'hit': False, 'reason': 'cache-stored'}
 
     def _stage(self, key, unit, graph, plan):
         self._check(key)
@@ -565,11 +805,32 @@ class ExecutionService:
             from .routes import expand_routes
             _, owners = expand_routes(stage, self.catalog(graph))
             atomic_json(folder / 'owners.json', owners)
+            cached, cache_decision = self._cache_lookup(key, unit, stage)
+            atomic_json(folder / 'cache-decision.json', safe_json(cache_decision))
+            with self.lock, FileLock(self.path(key) / 'job.lock'):
+                record = self._read(key)
+                record.setdefault('cache_decisions', {})[unit['id']] = cache_decision
+                atomic_json(self.path(key) / 'job.json', safe_json(record))
+            if cached:
+                cached_details = self.service.details(cached['child_id'])
+                child = {'unit_id': unit['id'], 'id': cached['child_id'],
+                         'target': unit['target'], 'status': 'complete',
+                         'cache_hit': True, 'cache_key': cached['digest']}
+                atomic_json(folder / 'result.json', safe_json(cached_details))
+                with self.lock, FileLock(self.path(key) / 'job.lock'):
+                    record = self._read(key)
+                    record['children'].append(child)
+                    record['completed_units'] = sorted(set(record['completed_units']) | {unit['id']})
+                    record['cache_hits'] = int(record.get('cache_hits', 0)) + 1
+                    atomic_json(self.path(key) / 'job.json', safe_json(record))
+                self._event(key, 'stage_cache_hit', message=f"{unit['id']} reused verified cache",
+                            child=child, cache_key=cached['digest'])
+                return
             if unit['target']['kind'] == 'local':
                 # Reconcile an interrupted response before starting a new worker.
                 prior = next((r for r in self.service.jobs.values() if r.get('graph', {}).get('runtime', {}).get('execution_unit_id') == key + unit['id']), None)
                 stage.runtime['execution_unit_id'] = key + unit['id']
-                result = self.service.details(prior['id']) if prior else self.service.launch(stage)
+                result = self.service.details(prior['id']) if prior else self.service.launch(stage, **({'request_id': hashlib.sha256((key + unit['id']).encode()).hexdigest()} if self.service.pool_remote else {}))
             else:
                 request_id = hashlib.sha256((key + unit['id']).encode()).hexdigest()[:32]
                 result = self._rpc(key, target_key(unit['target']), 'run', {'graph': stage.model_dump(mode='json'), 'request_id': request_id})
@@ -578,7 +839,9 @@ class ExecutionService:
                 record = self._read(key); record['children'].append(child)
                 atomic_json(self.path(key) / 'job.json', safe_json(record))
             self._event(key, 'stage_submitted', message=f"{unit['id']} submitted", child=child)
-        offsets = read_json(self.path(key) / unit['id'] / 'offsets.json', {})
+        folder = self.path(key) / unit['id']
+        stage = Graph.model_validate(read_json(folder / 'graph.json'))
+        offsets = read_json(folder / 'offsets.json', {})
         while True:
             self._check(key)
             result = self._child_details(key, child)
@@ -603,6 +866,13 @@ class ExecutionService:
                     if unit['id'] not in record['completed_units']:
                         record['completed_units'].append(unit['id'])
                     atomic_json(self.path(key) / 'job.json', safe_json(record))
+                cache_decision = self._cache_store(key, unit, child, stage)
+                if cache_decision is not None:
+                    atomic_json(folder / 'cache-decision.json', safe_json(cache_decision))
+                    with self.lock, FileLock(self.path(key) / 'job.lock'):
+                        record = self._read(key)
+                        record.setdefault('cache_decisions', {})[unit['id']] = cache_decision
+                        atomic_json(self.path(key) / 'job.json', safe_json(record))
                 self._event(key, 'stage_completed', message=f"{unit['id']} completed")
                 return
             self.stopping.wait(.4)
@@ -746,10 +1016,17 @@ class ExecutionService:
                 stream.seek(max(0, path.stat().st_size - 65536))
                 job['console'] = stream.read(65536).decode('utf-8', errors='replace')
         steps, artifacts, host_reports = [], [], []
+        cache_decisions = dict(job.get('cache_decisions') or {})
         spills = {'planned': 0, 'emergency': 0, 'final': 0, 'correction': 0}
         for child in job['children']:
             with FileLock(self.path(key) / 'job.lock'):
                 result = read_json(self.path(key) / child['unit_id'] / 'result.json', {})
+                try:
+                    decision = read_json(self.path(key) / child['unit_id'] / 'cache-decision.json')
+                except OSError:
+                    decision = None
+            if decision:
+                cache_decisions[child['unit_id']] = decision
             for index, step in enumerate((result.get('summary') or {}).get('steps', [])):
                 steps.append({**step, 'stage_id': child['unit_id'], 'child_index': index})
             report = result.get('report') or {}
@@ -762,6 +1039,7 @@ class ExecutionService:
                 spills[name] = spills.get(name, 0) + count
         job['summary'] = {'status': job['status'], 'steps': steps, 'n_steps': len(steps),
                           'total_elapsed': sum(step.get('elapsed', 0) for step in steps), 'error': job.get('error')}
+        job['cache_decisions'] = cache_decisions
         job['report'] = {'artifacts': artifacts, 'hosts': host_reports, 'status': job['status'],
                          'budget_bytes': max((r.get('budget_bytes', 0) for r in host_reports), default=0),
                          'managed_peak_bytes': max((r.get('managed_peak_bytes', 0) for r in host_reports), default=0),

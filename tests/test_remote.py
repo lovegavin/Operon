@@ -273,7 +273,7 @@ def test_remote_worker_survives_client_disconnect_and_keeps_logs_parameters(remo
     assert completed['status'] == 'complete', completed.get('error')
     assert completed['report'] and completed['summary']
     log = client.get('/api/jobs/'+job['id']+'/console')
-    assert log.status_code == 200 and '[BioPipe launcher]' in log.text
+    assert log.status_code == 200 and '[Operon launcher]' in log.text
     events = client.get('/api/jobs/'+job['id']+'/events')
     assert '"done": true' in events.text and 'run_finished' in events.text
     assert client.get('/api/jobs').json()[0]['remote']['profile_id'] == key

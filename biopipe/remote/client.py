@@ -93,12 +93,13 @@ class SSHConnection:
     def handshake(self, cached_info=None):
         from .protocol import VERSION
         from biopipe_sdk.protocol import PROTOCOL_VERSION
-        from .handshake import CAPABILITIES
+        from .handshake import CAPABILITIES, ENGINE_CAPABILITIES
         capabilities = list(CAPABILITIES)
         cached_info = cached_info or {}
         known = cached_info.get('handshake', {}).get('catalog_digest')
         params = {'version': 1, 'protocol_version': VERSION, 'operator_protocol': PROTOCOL_VERSION,
-                  'required_capabilities': capabilities}
+                  'required_capabilities': capabilities,
+                  'optional_capabilities': list(ENGINE_CAPABILITIES)}
         if known and cached_info.get('catalog'):
             params['known_catalog_digest'] = known
         try:
@@ -113,6 +114,10 @@ class SSHConnection:
                 handshake.get('operator_protocol') != PROTOCOL_VERSION or
                 not set(capabilities) <= set(handshake.get('capabilities', []))):
             raise RemoteError('服务端接口或能力不兼容，请安装兼容的服务端版本。', code='handshake_incompatible')
+        # Optional engine capabilities are additive.  An older server simply
+        # lacks them and the client uses the documented legacy paths.
+        info['engine_capabilities'] = sorted(set(handshake.get('engine_capabilities', [])) &
+                                             set(ENGINE_CAPABILITIES))
         if info.get('catalog_unchanged'):
             if not known or handshake.get('catalog_digest') != known or not cached_info.get('catalog'):
                 raise RemoteError('服务端清单缓存无法确认，请重新连接。', code='handshake_incompatible')
@@ -120,6 +125,9 @@ class SSHConnection:
         if not isinstance(info.get('catalog'), dict):
             raise RemoteError('服务端未提供有效算子清单。', code='handshake_incompatible')
         return info
+
+    def supports(self, capability):
+        return capability in (getattr(self, 'info', {}) or {}).get('engine_capabilities', [])
 
     @property
     def connected(self):
@@ -163,7 +171,7 @@ class SSHConnection:
                 parts = self.buffer.split(b'\n'); self.buffer = parts.pop(); self.lines.extend(parts)
                 continue
             if self.channel.closed or self.channel.exit_status_ready():
-                raise RemoteError('服务器连接已结束。请确认远端 Python 已安装本版 BioPipe。\n'+self.stderr[-2000:], code='remote_disconnected')
+                raise RemoteError('服务器连接已结束。请确认远端 Python 已安装本版 Operon。\n'+self.stderr[-2000:], code='remote_disconnected')
             time.sleep(.02)
         raise TimeoutError('服务器响应超时；任务可能仍在服务器运行，重连后查看运行记录。')
 

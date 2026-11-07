@@ -228,6 +228,16 @@ def mount_control(app, application, bridge):
         authorize(request)
         return application.executions.resources()
 
+    @app.get('/api/v1/engine')
+    def engine_status(request: Request):
+        authorize(request)
+        return application.engine_status()
+
+    @app.get('/api/v1/engine/events')
+    def engine_events(request: Request, after: int = 0, limit: int = 200):
+        authorize(request)
+        return application.events(after, limit=max(1, min(int(limit), 1000)))
+
     @app.get('/api/v1/remotes')
     def remotes(request: Request):
         authorize(request)

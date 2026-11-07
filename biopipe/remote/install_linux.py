@@ -346,7 +346,7 @@ def main():
     sys.path.insert(0, str(code))
     prefix = Path(sys.prefix).resolve()
     if sys.platform != 'linux' or not prefix.name.startswith('env-') or prefix.parent.name != 'managed-v1':
-        raise ValueError('Installer only writes to a BioPipe managed Linux environment')
+        raise ValueError('Installer only writes to a Operon managed Linux environment')
     specs, entries = requirements(code)
     environment_failures = ensure_requirements(specs, prefix / 'biopipe-requirements.txt', code / 'biopipe' / 'bundled') or {}
     # Install the SDK distribution metadata (without altering the dependency plan).
@@ -391,7 +391,7 @@ def main():
     temporary = receipt.with_suffix('.tmp')
     temporary.write_text(json.dumps(value, indent=2), encoding='utf-8')
     os.replace(temporary, receipt)
-    print('BioPipe and Hi-C environment ready', flush=True)
+    print('Operon and Hi-C environment ready', flush=True)
 
 
 if __name__ == '__main__':

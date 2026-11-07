@@ -468,3 +468,16 @@ def test_validated_wheel_pin_is_scoped_to_the_verifying_host_and_operator():
     assert targets(planner.make_plan(workflow, [local, remote])) == {'step': SSH}
     with pytest.raises(GraphError, match='pinned implementation'):
         planner.make_plan(workflow, [local])
+
+def test_independent_branch_split_is_opt_in_and_preserves_default_units():
+    nodes = [source(), operator('left'), operator('right'), operator('join')]
+    edges = [('input', 'left'), ('input', 'right'), ('left', 'join'), ('right', 'join')]
+    default = planner.make_plan(graph(nodes, edges, mode='manual'), [host()])
+    assert len(default['units']) == 1
+    assert default['units'][0]['node_ids'] == ['left', 'right', 'join']
+    split = planner.make_plan(
+        graph(nodes, edges, mode='manual', split_independent_branches=True), [host()])
+    assert [unit['node_ids'] for unit in split['units']] == [['left'], ['right'], ['join']]
+    assert split['units'][2]['depends_on'] == ['stage_1', 'stage_2']
+    with pytest.raises(GraphError, match='boolean'):
+        planner.make_plan(graph(nodes, edges, mode='manual', split_independent_branches='yes'), [host()])

@@ -121,7 +121,7 @@ def completed(studio, graph):
     assert result['status'] == 'complete', result.get('error') or result.get('console')
     assert result['logs_complete'] and result['summary']['n_steps'] == 3
     assert result['progress']['percent'] == 100
-    assert '[BioPipe launcher]' in result['console']
+    assert '[Operon launcher]' in result['console']
     return result
 
 

@@ -1281,7 +1281,7 @@ function Studio() {
                   <button
                     onClick={() => {
                       const graph = graphRef.current;
-                      void api.exportWorkflow(graph).then(blob => downloadBlob(`${graph.name.replace(/[\\/:*?"<>|]/g, "_")}.biopipe.zip`, blob)).catch(failure);
+                      void api.exportWorkflow(graph).then(blob => downloadBlob(`${graph.name.replace(/[\\/:*?"<>|]/g, "_")}.operon.zip`, blob)).catch(failure);
                       setExportOpen(false);
                     }}
                   >

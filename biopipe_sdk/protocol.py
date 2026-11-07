@@ -9,6 +9,23 @@ from .formats import DataFormats
 PROTOCOL_VERSION = 3
 
 
+class CacheContract(BaseModel):
+    """Optional resources.cache declaration; absence never implies eligibility."""
+    model_config = ConfigDict(extra='forbid', strict=True)
+    deterministic: bool
+    stochastic: bool
+    side_effects: Literal['none', 'external']
+    seed_parameters: list[str] = Field(default_factory=list)
+
+    @model_validator(mode='after')
+    def bound_randomness(self):
+        if self.stochastic and not self.seed_parameters:
+            raise ValueError('Stochastic cache contracts require seed_parameters')
+        if len(set(self.seed_parameters)) != len(self.seed_parameters) or any(not s for s in self.seed_parameters):
+            raise ValueError('seed_parameters must be unique nonempty names')
+        return self
+
+
 class Documentation(BaseModel):
     """Optional v3.1 resource metadata; Markdown bytes are stored separately."""
     model_config = ConfigDict(extra="forbid")
@@ -51,7 +68,7 @@ class Descriptor(BaseModel):
     icon_image: str | None = Field(default=None, pattern=r"^data:image/(png|jpeg|webp|gif|svg\+xml);base64,[A-Za-z0-9+/]+={0,2}$", description="SDK-generated portable image data; authors declare a relative path in icon.")
     parameters_schema: dict[str, Any]
     contracts: dict[str, Any]
-    resources: dict[str, Any]
+    resources: dict[str, Any] = Field(json_schema_extra={'properties': {'cache': CacheContract.model_json_schema()}})
     dependencies: list[str] = Field(default_factory=list, description="PEP 508 dependencies; compatible versions share the host runtime, conflicting versions use a private dependency directory and subprocess with the same Python.")
     dependency_imports: list[str] = Field(default_factory=list, description="Optional import smoke checks, run outside the UI process.")
     inputs_arity: int | Literal["*"] = 0
@@ -68,6 +85,11 @@ class Descriptor(BaseModel):
 
     @model_validator(mode='after')
     def explicit_formats_for_revision_37(self):
+        if 'cache' in self.resources:
+            cache = CacheContract.model_validate(self.resources['cache'])
+            properties = self.parameters_schema.get('properties', {})
+            if any(name not in properties for name in cache.seed_parameters):
+                raise ValueError('Cache seed_parameters must reference declared parameters')
         if self.protocol_revision == '3.7' and self.data_formats is None:
             raise ValueError('protocol_revision 3.7 requires explicit input/output data_formats')
         if self.protocol_revision == '3.7':

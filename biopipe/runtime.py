@@ -55,7 +55,7 @@ def remember_runtime(*, path=None):
         os.replace(temporary, destination)
         return True
     except OSError:
-        logging.warning("Unable to remember the BioPipe Python runtime at %s", destination, exc_info=True)
+        logging.warning("Unable to remember the Operon Python runtime at %s", destination, exc_info=True)
         return False
     finally:
         if temporary is not None:

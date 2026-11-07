@@ -56,6 +56,8 @@ def settings(graph):
         result[key] = {name: target(value) for name, value in result[key].items()}
     if "max_parallel_tasks" in result and (type(result["max_parallel_tasks"]) is not int or result["max_parallel_tasks"] < 1):
         raise GraphError("Parallel task count must be a positive integer")
+    if 'split_independent_branches' in result and type(result['split_independent_branches']) is not bool:
+        raise GraphError('split_independent_branches must be a boolean')
     ids = {node.id for node in graph.nodes}
     if set(result["node_targets"]) - ids:
         raise GraphError("Execution settings reference missing nodes")
@@ -402,18 +404,42 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False):
                 assigned[key] = min(choices[key], key=lambda dest: (cost(key, dest), dest != default, dest))
 
     units, owner = [], {}
-    for key in order:
-        if nodes[key].kind == "source":
-            continue
-        dest = assigned[key]
-        if not units or target_key(units[-1]["target"]) != dest:
-            units.append({"id": f"stage_{len(units)+1}", "node_ids": [], "target": target(info_by_key[dest]["target"]),
-                          "reason": ("Manual selection" if config["mode"] == "manual" else
-                                     "Target selection pending dependency validation; input locality and queue cost" if validation_only else
-                                     "Compatible dependencies; input locality and queue cost"),
-                          "estimated_bytes": 0, "depends_on": []})
-        unit = units[-1]; unit["node_ids"].append(key); owner[key] = unit["id"]
-        unit["estimated_bytes"] += sizes.get(key) or 0
+    split_branches = config.get('split_independent_branches', False)
+    if split_branches:
+        from biopipe.engine.dag import split_chains
+        plan_nodes = [node.id for node in graph.nodes]
+        plan_edges = [(edge.source, edge.target) for edge in graph.edges]
+        sources = {node.id for node in graph.nodes if node.kind == 'source'}
+        assigned_by_id = {node.id: assigned[node.id] for node in graph.nodes
+                          if node.id in assigned}
+        chains = split_chains(plan_nodes, plan_edges, assigned_by_id, sources=sources)
+        chain_units = {}
+        for chain in chains:
+            first = chain['node_ids'][0]
+            dest = assigned[first]
+            unit = {'id': chain['id'], 'node_ids': list(chain['node_ids']),
+                    'target': target(info_by_key[dest]['target']),
+                    'reason': 'Independent branch split; compatible dependencies and target locality',
+                    'estimated_bytes': 0, 'depends_on': list(chain['depends_on'])}
+            units.append(unit)
+            chain_units[chain['id']] = unit
+            for node in chain['node_ids']:
+                owner[node] = chain['id']
+        for node in units:
+            node['estimated_bytes'] = sum(sizes.get(name) or 0 for name in node['node_ids'])
+    else:
+        for key in order:
+            if nodes[key].kind == "source":
+                continue
+            dest = assigned[key]
+            if not units or target_key(units[-1]["target"]) != dest:
+                units.append({"id": f"stage_{len(units)+1}", "node_ids": [], "target": target(info_by_key[dest]["target"]),
+                              "reason": ("Manual selection" if config["mode"] == "manual" else
+                                         "Target selection pending dependency validation; input locality and queue cost" if validation_only else
+                                         "Compatible dependencies; input locality and queue cost"),
+                              "estimated_bytes": 0, "depends_on": []})
+            unit = units[-1]; unit["node_ids"].append(key); owner[key] = unit["id"]
+            unit["estimated_bytes"] += sizes.get(key) or 0
     transfers = []
     units_by_id = {unit['id']: unit for unit in units}
     for edge in graph.edges:

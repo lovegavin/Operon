@@ -84,6 +84,26 @@ worker checks do not substitute for the later Setup double-click gate.
 
 ## Remaining roadmap milestones
 
+The next backend design is specified in
+[Concurrent server engine](design/server_engine_next.md), including the current
+implementation gaps, ownership boundaries, delivery sequence and acceptance gates.
+The delivered subset, test evidence, measured control-plane improvement and the
+capabilities that remain opt-in or deferred are recorded in
+[Backend engine implementation status](design/server_engine_progress.md).  In
+particular, the durable request journal, durable events, bounded concurrent
+control loop, engine coordinator, real opt-in JobService coordinator takeover,
+a dedicated multi-workspace pool service with a loopback control API,
+supervisor, artifact/reference retention with existing-payload verification,
+verified cross-run stage cache, step-boundary elastic budgets, DAG branch
+scheduler and bounded channels are implemented and tested locally.  Environment
+isolation currently uses a tested interpreter-identity mutual-exclusion guard
+rather than immutable generations.  The desktop still defaults to the legacy
+scheduler; the dedicated pool service is explicit and drains the admission
+domain first.  Real Linux/SSH multi-client acceptance, MCP, production streaming
+Reader integration and packaging remain outstanding.  See
+[the pool service](design/pool_service.md) and
+[the Linux acceptance runner](design/pool_linux_acceptance.md).
+
 These items remain follow-up work rather than hidden claims of 3.0 support:
 
 - Per-node checkpoints and content-verified cross-run cache, unified scratch/IPC

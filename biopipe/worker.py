@@ -50,7 +50,7 @@ def main() -> None:
             lock = json.loads(io_path(plugin_lock).read_text(encoding="utf-8"))
             if lock.get('bundled_updates'):
                 message = 'Updated bundled source pins for this new run; historical job locks were preserved.'
-                print('[BioPipe] ' + message, flush=True)
+                print('[Operon] ' + message, flush=True)
                 run_log.event('bundled_pins_updated', message=message, updates=lock['bundled_updates'])
             load_runtime(lock, manifest)
         overrides = {key: value for key, value in (("budget_mb", args.memory_mb),

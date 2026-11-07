@@ -220,6 +220,38 @@ class ReadinessService:
         return records
 
     def validate(self, graph, structural, *, require_files=False, repair=False):
+        if not repair:
+            return self._validate(graph, structural, require_files=require_files, repair=False)
+        service = self.app.service
+        if not hasattr(service, 'environment_guard'):
+            # Lightweight adapters/tests that do not participate in the shared
+            # environment gate keep their prior behavior.  A real JobService
+            # always defines the attribute; if it is None it fails closed below.
+            return self._validate(graph, structural, require_files=require_files, repair=True)
+        guard = (service.execution_environment_guard() if hasattr(service, 'execution_environment_guard')
+                 else service.environment_guard)
+        if guard is None:
+            raise CommandError(
+                'environment_gate_unavailable',
+                'Environment repair is blocked because the maintenance gate is unavailable', 503)
+        environment = (service.environment_identity()
+                       if hasattr(service, 'environment_identity') else 'default')
+        try:
+            with guard.maintenance(owner=getattr(service, 'owner', {'pid': os.getpid()}),
+                                   kind='readiness-repair', environment=environment):
+                return self._validate(graph, structural, require_files=require_files, repair=True)
+        except CommandError:
+            raise
+        except Exception as exc:
+            code = getattr(exc, 'code', None)
+            if code == 'environment_busy':
+                raise CommandError(
+                    'environment_busy',
+                    'Environment repair is blocked while running attempts use this environment', 409,
+                    getattr(exc, 'details', None)) from exc
+            raise
+
+    def _validate(self, graph, structural, *, require_files=False, repair=False):
         service = self.app.service
         catalog = self.app.catalog_for(graph)
         plan = structural.get('execution_plan')

@@ -37,11 +37,10 @@ def create_app(settings=None):
     from biopipe.application import Application
     application = Application(settings)
     service = application.service
-    catalog = service.catalog
     imports = AssetImports(service)
     token = secrets.token_urlsafe(32)
     # Admission owns the one host snapshot. UI and workers use that same value.
-    automatic_memory_budget = service.admission.capacity or None
+    automatic_memory_budget = service.resources().get('capacity_bytes') or None
     @asynccontextmanager
     async def lifespan(app):
         bridge.publish(getattr(app.state, "instance_url", None) or settings.instance_url)
@@ -131,7 +130,8 @@ def create_app(settings=None):
         import sys
         import platform
         from .preferences import load as load_preferences
-        agent_args = ["-m", "biopipe", "--workspace", str(service.root), "--data-dir", str(service.directory), "mcp", "--allow-run"]
+        catalog = service.catalog
+        agent_args = ["-m", "operon", "--workspace", str(service.root), "--data-dir", str(service.directory), "mcp", "--allow-run"]
         return {"token": token, "catalog": catalog, "demo": service.demo,
                 "system": platform.system().lower().replace('darwin', 'macos'),
                 "automatic_memory_fraction": AUTO_BUDGET_FRACTION,
@@ -221,6 +221,7 @@ def create_app(settings=None):
     @app.get("/api/operators")
     def operators(generation: str | None = None):
         # Poll the generation without transferring/rendering the full library.
+        catalog = service.catalog
         return None if generation and generation == catalog.get('plugin_generation') else catalog
 
     @app.post("/api/validate")
@@ -272,7 +273,7 @@ def create_app(settings=None):
                         import_root = settings.root
                 except (GraphError, KeyError, TypeError):
                     pass
-            return import_manifest(payload.text, payload.base_dir, catalog, import_root,
+            return import_manifest(payload.text, payload.base_dir, service.catalog, import_root,
                                    input_roots=settings.input_roots).model_dump(mode="json")
         except yaml.YAMLError as exc:
             raise GraphError("YAML 格式有误，请检查缩进及字段。") from exc

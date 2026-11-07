@@ -23,7 +23,7 @@ def project_path(root, path, base="."):
     directory = (root / base).resolve()
     candidate = (directory / path).resolve()
     if not directory.is_relative_to(root) or not candidate.is_relative_to(root):
-        raise GraphError("文件路径必须位于当前 BioPipe 项目内；外部数据文件可通过上传添加。")
+        raise GraphError("文件路径必须位于当前 Operon 项目内；外部数据文件可通过上传添加。")
     return candidate
 
 

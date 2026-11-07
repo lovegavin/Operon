@@ -49,7 +49,7 @@ class ConnectionProfile(StrictModel):
     @model_validator(mode='after')
     def required_existing_paths(self):
         if self.environment == 'existing' and (not self.app_dir or not self.workspace or not self.python):
-            raise ValueError('Existing environments require BioPipe, Python and workspace paths')
+            raise ValueError('Existing environments require Operon, Python and workspace paths')
         return self
 
 

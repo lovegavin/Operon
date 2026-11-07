@@ -1,6 +1,7 @@
 """Server-owned jobs, reached through SSH and a private Unix socket only."""
 import argparse
 import hashlib
+from biopipe.engine.transport import transport_admission
 import json
 import os
 from pathlib import Path
@@ -10,9 +11,12 @@ import struct
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 
 from .protocol import Decoder, transmit
+from biopipe.engine.control import ControlLoop, limits_from_environment
+from biopipe.documents import CommandError
 
 
 def receive(sock, size):
@@ -66,17 +70,77 @@ class RemoteService:
                                           code_root=code, input_roots=input_roots or [Path('/')],
                                           manifest_only_registry=True),
                                   catalog_from_descriptors())
-        self.memory = {'automatic_memory_budget_bytes': self.service.admission.capacity,
+        self.memory = {'automatic_memory_budget_bytes': self.service.resources()['capacity_bytes'],
                        'automatic_memory_fraction': AUTO_BUDGET_FRACTION}
         from .handshake import ManifestHandshake
         self.handshake = ManifestHandshake(self.service, self.memory)
         from .transfers import TransferStore
         self.transfers = TransferStore(workspace/'.studio'/'transfers', resolve_input=self.transfer_path)
         self.transport_leases = {}
+        self.transport_active = {}
+        self.lease_lock = threading.RLock()
         # Generated checkpoints and verified upload groups belong to this
         # service even when external input roots were restricted by the owner.
         if workspace not in self.service.settings.input_roots:
             self.service.settings.input_roots.append(workspace)
+
+    def alive(self):
+        """Daemon liveness includes every durable responsibility, not just workers."""
+        handshake = getattr(self, 'handshake', None)
+        transfers = getattr(self, 'transfers', None)
+        with self._lease_guard():
+            leases = bool(self.transport_leases) or bool(self.transport_active)
+        return bool(self.service.processes or self.service.threads or leases or
+                    (handshake is not None and handshake.maintenance_running) or
+                    (transfers is not None and bool(getattr(transfers, 'tokens', {}))))
+
+    def _lease_guard(self):
+        # Lightweight dispatch fixtures construct RemoteService via __new__;
+        # initialize concurrency state lazily so the public method contract
+        # does not depend on the constructor.
+        if not hasattr(self, 'lease_lock'):
+            self.lease_lock = threading.RLock()
+            self.transport_active = {}
+        return self.lease_lock
+
+    def _purge_transport_leases(self):
+        now = time.monotonic()
+        expired = []
+        with self._lease_guard():
+            for key, expires in list(self.transport_leases.items()):
+                if expires < now and not self.transport_active.get(key):
+                    del self.transport_leases[key]
+                    expired.append(key)
+        for key in expired:
+            transport_admission(self.service).release(key)
+
+    def _begin_transfer(self, key):
+        """Pin a transport lease for the duration of an operation.
+
+        Timeout cleanup must never release a buffer while a transfer still owns
+        it; the active counter makes expiry conditional on no live operation.
+        """
+        with self._lease_guard():
+            self.transport_active[key] = self.transport_active.get(key, 0) + 1
+            if key not in self.transport_leases:
+                ready = transport_admission(self.service).reserve(
+                    key, {'reserved_bytes': 6 * 1024**2, 'cpu_threads': 0, 'kind': 'transport'})
+                if not ready:
+                    self.transport_active[key] -= 1
+                    if not self.transport_active[key]:
+                        del self.transport_active[key]
+                    raise ValueError('Transfer memory is unavailable; retry admission')
+            self.transport_leases[key] = time.monotonic() + 30
+
+    def _end_transfer(self, key):
+        with self._lease_guard():
+            count = self.transport_active.get(key, 0) - 1
+            if count > 0:
+                self.transport_active[key] = count
+            else:
+                self.transport_active.pop(key, None)
+            if key in self.transport_leases:
+                self.transport_leases[key] = time.monotonic() + 30
 
     def transfer_path(self, value):
         from .transfers import no_symlinks
@@ -86,6 +150,55 @@ class RemoteService:
     def graph_catalog(self, graph):
         return self.service.plugins.catalog_for(graph, self.service.base_catalog)
 
+    def _journal(self):
+        runtime = getattr(self.service, 'engine', None)
+        if runtime is None or getattr(runtime, 'error', None):
+            return None
+        return getattr(runtime, 'journal', None)
+
+    def _recover_run(self, request_id, digest):
+        """Find durable job evidence for an interrupted submission."""
+        for index, item in enumerate(self.service.jobs_dir.glob('*/job.json')):
+            if index >= 10000:
+                break
+            try:
+                record = json.loads(item.read_text(encoding='utf-8'))
+            except (OSError, ValueError):
+                continue
+            runtime = record.get('graph', {}).get('runtime', {})
+            if runtime.get('remote_request_id') != request_id:
+                continue
+            if runtime.get('remote_request_digest') != digest:
+                raise ValueError('Submission identity was already used with a different graph')
+            return self.service.details(record['id'])
+        return None
+
+    def events(self, params):
+        journal = self._journal()
+        if journal is None:
+            return {'available': False, 'events': [], 'cursor': int(params.get('after', 0) or 0),
+                    'has_more': False}
+        after = params.get('after', params.get('cursor', 0))
+        limit = params.get('limit', 200)
+        try:
+            after = max(0, int(after))
+            limit = max(1, min(int(limit), 1000))
+        except (TypeError, ValueError) as exc:
+            raise ValueError('Invalid event cursor or limit') from exc
+        page = journal.page(after, run_id=params.get('run_id'), limit=limit,
+                            max_bytes=params.get('max_bytes', 256 * 1024))
+        return {**page.to_json(), 'available': True}
+
+    def close(self):
+        self.handshake.close()
+        self.service.shutdown()
+        with self._lease_guard():
+            leases = list(self.transport_leases)
+            self.transport_leases.clear()
+            self.transport_active.clear()
+        for lease in leases:
+            transport_admission(self.service).release(lease)
+
     def path(self, value):
         path = (self.service.root / value).expanduser().resolve()
         if not any(path.is_relative_to(root.resolve()) for root in self.service.settings.input_roots):
@@ -93,14 +206,24 @@ class RemoteService:
         return path
 
     def dispatch(self, method, params):
-        for lease, expires in list(self.transport_leases.items()):
-            if expires < time.monotonic():
-                self.service.admission.release(lease)
-                del self.transport_leases[lease]
+        if method != 'transport_release':
+            self._purge_transport_leases()
         if method in ('handshake', 'bootstrap'):
             return self.handshake.response(params, legacy=method == 'bootstrap')
         if method == 'refresh_registry':
-            return self.handshake.refresh(params)
+            guard = (self.service.execution_environment_guard() if hasattr(self.service, 'execution_environment_guard') else getattr(self.service, 'environment_guard', None))
+            token = None
+            if guard is not None:
+                token = guard.begin(owner=self.service.owner, kind='registry-refresh',
+                                    environment=self.service.environment_identity())
+            try:
+                return self.handshake.refresh(params, maintenance=token)
+            except BaseException:
+                # If the background maintenance thread started, it owns the
+                # token and releases it in its finally block.
+                if token is not None and not self.handshake.maintenance_running:
+                    guard.end(token)
+                raise
         if method == 'refresh_status':
             return self.handshake.response(params, legacy=True)
         if method in ('transport_reserve', 'transport_release'):
@@ -108,24 +231,33 @@ class RemoteService:
             if not isinstance(key, str) or not __import__('re').fullmatch('transfer-[a-f0-9]{32}', key):
                 raise ValueError('Invalid transfer allocation identity')
             if method == 'transport_release':
-                self.service.admission.release(key)
-                self.transport_leases.pop(key, None)
+                with self._lease_guard():
+                    if self.transport_active.get(key):
+                        raise ValueError('A transfer still owns this allocation')
+                    self.transport_leases.pop(key, None)
+                transport_admission(self.service).release(key)
                 return {'released': True}
             # Framing/decoded buffers are bounded by the transport implementation.
-            reserved = self.service.admission.reserve(key, {'reserved_bytes': 6*1024**2, 'cpu_threads': 0, 'kind': 'transport'})
-            if reserved:
-                self.transport_leases[key] = time.monotonic() + 30
+            with self._lease_guard():
+                reserved = transport_admission(self.service).reserve(
+                    key, {'reserved_bytes': 6 * 1024**2, 'cpu_threads': 0, 'kind': 'transport'})
+                if reserved:
+                    self.transport_leases[key] = time.monotonic() + 30
             return {'reserved': reserved}
         if method.startswith('transfer_'):
             params = dict(params)
             lease = params.pop('_transport_lease', None)
             if lease:
-                if lease not in self.transport_leases:
-                    ready = self.dispatch('transport_reserve', {'id': lease})
-                    if not ready['reserved']:
-                        raise ValueError('Transfer memory is unavailable; retry admission')
-                self.transport_leases[lease] = time.monotonic() + 30
+                self._begin_transfer(lease)
+                try:
+                    return self.transfers.dispatch(method, params)
+                finally:
+                    self._end_transfer(lease)
             return self.transfers.dispatch(method, params)
+        if method == 'events':
+            return self.events(params)
+        if method == 'engine_status':
+            return self.service._engine_status()
         from src.web.models import Graph
         from src.web.service import safe_json
         from src.web.graph import compile_graph, relative_manifest
@@ -142,8 +274,17 @@ class RemoteService:
             if not isinstance(scripts, dict):
                 raise ValueError('scripts must map node IDs to frozen script declarations')
             graph = Graph.model_validate(params['graph']) if params.get('graph') else None
-            return inspect_declared_environment(service, ids, graph=graph, scripts=scripts,
-                                                repair=params.get('repair') is True)
+            guard = (service.execution_environment_guard() if hasattr(service, 'execution_environment_guard') else getattr(service, 'environment_guard', None))
+            token = None
+            if params.get('repair') is True and guard is not None:
+                token = guard.begin(owner=service.owner, kind='remote-repair',
+                                    environment=service.environment_identity())
+            try:
+                return inspect_declared_environment(service, ids, graph=graph, scripts=scripts,
+                                                    repair=params.get('repair') is True)
+            finally:
+                if token is not None:
+                    guard.end(token)
         if method == 'resources':
             return service.resources()
         if method == 'pin_compatibility':
@@ -224,12 +365,9 @@ class RemoteService:
                     raise ValueError('Invalid submission identity')
                 # Reconnect/retry must return the original job, even if the SSH
                 # response vanished after the process was spawned.
-                for item in service.jobs_dir.glob('*/job.json'):
-                    record = json.loads(item.read_text(encoding='utf-8'))
-                    if record.get('graph', {}).get('runtime', {}).get('remote_request_id') == request_id:
-                        if record['graph']['runtime'].get('remote_request_digest') != digest:
-                            raise ValueError('Submission identity was already used with a different graph')
-                        return service.details(record['id'])
+                recovered = self._recover_run(request_id, digest)
+                if recovered is not None:
+                    return recovered
                 graph.runtime['remote_request_id'] = request_id
                 graph.runtime['remote_request_digest'] = digest
                 from biopipe.readiness import required_ids, required_scripts, inspect_declared_environment
@@ -239,7 +377,58 @@ class RemoteService:
                            if item.get('status') != 'passed']
                 if missing:
                     raise ValueError('Execution dependencies are not ready: ' + ', '.join(missing))
-                return service.launch(graph)
+                if getattr(service, 'pool_remote', False):
+                    # The pool owns the durable claim. Forward the original key,
+                    # including after a lost SSH response; never scan then launch
+                    # with a new identity in a different allocator.
+                    return service.launch(graph, request_id=request_id)
+                journal = self._journal()
+                if journal is None:
+                    from .client import RemoteError
+                    raise RemoteError('The submission journal is unavailable; no job was started.',
+                                      code='engine_unavailable')
+                try:
+                    claim = journal.claim(request_id, digest, operation='run',
+                                          receipt={'request_id': request_id})
+                except Exception as exc:
+                    if getattr(exc, 'code', None) == 'idempotency_conflict':
+                        raise ValueError('Submission identity was already used with a different graph') from exc
+                    from .client import RemoteError
+                    from biopipe.engine.contracts import CommitOutcomeUnknown
+                    if isinstance(exc, CommitOutcomeUnknown):
+                        recovered = self._recover_run(request_id, digest)
+                        if recovered is not None:
+                            return recovered
+                        raise RemoteError('Submission acknowledgement was lost; retry the same request identity.',
+                                          code='submission_uncertain') from exc
+                    raise RemoteError('The submission journal is unavailable; no job was started.',
+                                      code='engine_unavailable') from exc
+                if not claim.created:
+                    record = claim.record
+                    if record.get('run_id'):
+                        return service.details(record['run_id'])
+                    if record['state'] in ('claimed', 'launching'):
+                        record = journal.wait(request_id, timeout=120) or record
+                        if record.get('run_id'):
+                            return service.details(record['run_id'])
+                    recovered = self._recover_run(request_id, digest)
+                    if recovered is not None:
+                        journal.bind(request_id, recovered['id'])
+                        return recovered
+                    raise CommandError('submission_uncertain',
+                                       'Submission was interrupted; inspect jobs before retrying', 409,
+                                       {'request_id': request_id})
+                try:
+                    result = service.launch(graph)
+                except Exception as exc:
+                    recovered = self._recover_run(request_id, digest)
+                    if recovered is not None:
+                        journal.bind(request_id, recovered['id'])
+                        return recovered
+                    journal.fail(request_id, str(exc))
+                    raise
+                journal.bind(request_id, result['id'])
+                return result
             catalog = self.graph_catalog(graph)
             if method == 'prepare':
                 return prepare_interface(freeze_graph(service.plugins.pin(graph), catalog, service.root), catalog,
@@ -335,36 +524,15 @@ def serve(workspace):
     address = socket_path(workspace)
     service = RemoteService(workspace)
     address.unlink(missing_ok=True)
+    loop = ControlLoop(service.dispatch, limits=limits_from_environment())
     with socket.socket(socket.AF_UNIX) as listener:
         listener.bind(str(address)); os.chmod(address, 0o600)
-        listener.listen(8); listener.settimeout(10)
-        last_request = time.monotonic()
+        listener.listen(64)
         try:
-            while True:
-                try: connection, _ = listener.accept()
-                except socket.timeout:
-                    if (time.monotonic()-last_request > 300 and not service.service.processes
-                            and not service.handshake.maintenance_running):
-                        break
-                    continue
-                last_request = time.monotonic()
-                with connection:
-                    connection.settimeout(90)
-                    try:
-                        request = read_message(connection)
-                        value = service.dispatch(request['method'], request.get('params', {}))
-                        response = {'ok': True, 'value': value}
-                    except Exception as exc:
-                        import traceback
-                        traceback.print_exc()
-                        response = {'ok': False, 'error': str(exc), 'code': getattr(exc, 'code', 'remote_error'),
-                                    'node_id': getattr(exc, 'node_id', None)}
-                    try: send_message(connection, response)
-                    except (BrokenPipeError, ConnectionError, OSError): pass
+            loop.serve(listener, alive=service.alive, idle_seconds=300)
         finally:
             address.unlink(missing_ok=True)
-            service.service.shutdown()
-            service.handshake.close()
+            service.close()
 
 
 class TerminalInput:

@@ -25,9 +25,17 @@ from .protocol import VERSION
 
 HANDSHAKE_VERSION = 1
 OPERATOR_PROTOCOL = 3
+# Required by every client; keeping this stable lets a new client talk to an
+# older server without failing the whole connection.
 CAPABILITIES = (
     'manifest_handshake', 'dependency_readiness', 'registry_refresh', 'jobs',
     'execution_pins', 'streaming', 'spill', 'upload', 'workflow_readiness',
+)
+# Optional capabilities negotiated separately.  A client uses the documented
+# legacy fallback when one is absent instead of treating the server as broken.
+ENGINE_CAPABILITIES = (
+    'concurrent_control', 'durable_events', 'resumable_events', 'resource_leases',
+    'engine_state', 'engine_request_ids', 'bounded_channels',
 )
 
 
@@ -54,6 +62,9 @@ def validate_request(params):
     if missing:
         raise HandshakeError('Server lacks required capabilities: ' + ', '.join(missing),
                              code='capability_missing')
+    optional = params.get('optional_capabilities', [])
+    if not isinstance(optional, list) or any(not isinstance(item, str) for item in optional):
+        raise HandshakeError('optional_capabilities must be a list of capability names')
 
 
 def daemon_request():
@@ -280,12 +291,17 @@ class ManifestHandshake:
     def response(self, params, *, legacy=False):
         if not legacy:
             validate_request(params)
-        # The dependency checker releases this lock while probing; snapshots
+        # Job/read snapshots acquire the job state lock (and the engine
+        # journal).  Read them before taking the catalog/dependency locks so
+        # the documented order is never inverted while a worker is spawning.
+        history = self.service.history()
+        resources = self.service.resources()
+        # The dependency checker releases its lock while probing; snapshots
         # stay coherent without waiting for a scan, import or installation.
         with self.lock, self.service.dependencies.lock:
-            return self._response(params, legacy=legacy)
+            return self._response(params, legacy=legacy, history=history, resources=resources)
 
-    def _response(self, params, *, legacy):
+    def _response(self, params, *, legacy, history=None, resources=None):
         self.sync()
         from biopipe import __version__
         tools = self.tool_snapshot()
@@ -294,21 +310,34 @@ class ManifestHandshake:
             'protocol_version': VERSION, 'version': __version__, 'system': platform.system().lower(),
             'python': sys.executable, 'workspace': str(self.service.root),
             'code_root': str(self.service.settings.code_root),
-            'history': self.service.history(), 'demo': self.service.demo,
-            'tools': tools, 'dependencies': dependencies, 'resources': self.service.resources(), **self.memory,
+            'history': history if history is not None else self.service.history(),
+            'demo': self.service.demo,
+            'tools': tools, 'dependencies': dependencies,
+            'resources': resources if resources is not None else self.service.resources(), **self.memory,
             'registry_refresh': deepcopy(self.maintenance),
             'handshake': {'version': HANDSHAKE_VERSION, 'server_id': self.server_id,
                           'catalog_digest': self.catalog_digest,
                           'dependency_revision': digest({'dependencies': dependencies, 'runtime_keys': self.runtime_keys}),
-                          'capabilities': list(CAPABILITIES), 'operator_protocol': OPERATOR_PROTOCOL},
+                          'capabilities': list(CAPABILITIES),
+                          'base_capabilities': list(CAPABILITIES),
+                          'engine_capabilities': list(ENGINE_CAPABILITIES),
+                          'operator_protocol': OPERATOR_PROTOCOL},
         }
+        try:
+            engine = self.service._engine_status()
+            value['engine'] = {'mode': engine.get('mode'),
+                               'available': engine.get('available'),
+                               'schema': (engine.get('journal') or {}).get('schema_version'),
+                               'capabilities': engine.get('capabilities', [])}
+        except Exception:  # noqa: BLE001 - the catalog handshake must still succeed
+            value['engine'] = {'available': False}
         unchanged = not legacy and params.get('known_catalog_digest') == self.catalog_digest
         value['catalog_unchanged'] = unchanged
         if not unchanged:
             value['catalog'] = deepcopy(self.service.catalog)
         return value
 
-    def refresh(self, params):
+    def refresh(self, params, *, maintenance=None):
         verify_all = params.get('verify_all', False)
         if type(verify_all) is not bool:
             raise ValueError('verify_all must be a boolean')
@@ -319,6 +348,7 @@ class ManifestHandshake:
             if not self.maintenance['running']:
                 self.maintenance = {'running': True, 'error': None, 'result': None}
                 self.maintenance_verify_all = verify_all
+                self.maintenance_token = maintenance
                 self.maintenance_thread = threading.Thread(target=self._refresh, args=(verify_all,),
                                                             name='biopipe-registry-refresh', daemon=True)
                 self.maintenance_thread.start()
@@ -353,6 +383,15 @@ class ManifestHandshake:
             with self.lock:
                 self.maintenance.update(running=False, error=str(exc))
         finally:
+            token = getattr(self, 'maintenance_token', None)
+            self.maintenance_token = None
+            guard = getattr(self.service, 'environment_guard', None)
+            if token is not None and guard is not None:
+                try:
+                    guard.end(token)
+                except Exception as exc:  # noqa: BLE001 - visible in maintenance state
+                    with self.lock:
+                        self.maintenance.update(running=False, error=f'gate release failed: {exc}')
             process_context.cancel = None
 
     @property

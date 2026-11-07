@@ -204,6 +204,44 @@
         },
         "resources": {
           "additionalProperties": true,
+          "properties": {
+            "cache": {
+              "additionalProperties": false,
+              "description": "Optional resources.cache declaration; absence never implies eligibility.",
+              "properties": {
+                "deterministic": {
+                  "title": "Deterministic",
+                  "type": "boolean"
+                },
+                "stochastic": {
+                  "title": "Stochastic",
+                  "type": "boolean"
+                },
+                "side_effects": {
+                  "enum": [
+                    "none",
+                    "external"
+                  ],
+                  "title": "Side Effects",
+                  "type": "string"
+                },
+                "seed_parameters": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Seed Parameters",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "deterministic",
+                "stochastic",
+                "side_effects"
+              ],
+              "title": "CacheContract",
+              "type": "object"
+            }
+          },
           "title": "Resources",
           "type": "object"
         },

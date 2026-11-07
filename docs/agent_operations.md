@@ -51,6 +51,117 @@ revisions, run permissions, streaming/spill and SSH scheduling are unchanged.
 After upgrading, restart an idle old service/desktop so adapters reach the updated
 API; do not stop a service while it has active jobs.
 
+## Backend engine diagnostics
+
+The durable backend state is readable without changing execution authority:
+
+```text
+biopipe engine status                       # pool snapshot, epoch, journal counters
+biopipe engine events --after 0 --limit 50  # resumable lifecycle events
+GET /api/v1/engine                          # same snapshot (context scope)
+GET /api/v1/engine/events?after=0&limit=50  # same cursor (context scope)
+```
+
+Event cursors are durable; keep the returned `cursor` and pass it as `after`.
+If a cursor has expired, the response sets `snapshot_required` and the caller
+must request a snapshot instead of silently skipping events.  The engine journal
+is a live index; existing `jobs get`, `jobs logs`, `artifacts` and `events`
+APIs remain the user-facing compatibility paths.  `legacy` mode keeps the
+existing allocator authoritative; do not infer that a coordinator owns
+scheduling unless the status reports `mode: coordinator` and a live owner.
+
+### Coordinator mode and environment maintenance
+
+`BIOPIPE_ENGINE_MODE=coordinator` is an explicit opt-in for a **drained**
+admission domain.  On startup it refuses to run if a legacy reservation, an
+active legacy job, another live launcher, or a legacy worker is present; it
+does not silently fall back to shadow.  Once started, one coordinator owns the
+pool, the legacy scheduler is not started, and the existing JobService worker
+and memory planner remain the scientific implementation.  Use
+`biopipe engine status` to verify `mode`, `epoch`, owner and active attempts
+before treating the service as coordinated.
+
+Dependency repair/install and plugin replacement take an exclusive environment
+marker.  A repair is rejected while any worker holds an environment lease, and
+a new worker is rejected while repair is active.  The gate is keyed by the real
+interpreter identity, so workspaces sharing one Python environment are mutually
+exclusive; only distinct interpreter/prefix environments can repair
+independently.  This is a mutual-exclusion fallback: it does not provide
+immutable environment generations or rollback.
+If `engine status` reports an environment-gate error, stop starting work and
+fix the reported path; do not delete a live gate while workers are running.
+
+### Multi-workspace pool service
+
+Use the dedicated pool service when several workspaces must share one physical
+capacity domain.  It is a separate process from the workspace application
+services and is the only allocator for that pool:
+
+```bash
+python3 -m biopipe pool serve --config /path/to/pool.json
+python3 -m biopipe pool status --address 127.0.0.1:PORT --token "$BIOPIPE_POOL_TOKEN"
+python3 -m biopipe pool submit --address ... --token ... \
+  --workspace /srv/ws-a --principal alice --request-id stable-1 --file graph.json
+python3 -m biopipe pool cancel --address ... --token ... \
+  --workspace /srv/ws-a --run-id <run>
+python3 -m biopipe pool stop-workspace --address ... --token ... \
+  --workspace /srv/ws-a
+```
+
+Each run is bound to its registered workspace root, principal, frozen graph,
+parameter JSON and plugin lock.  Closing a client session does not stop the pool
+or another workspace's work.  A token is local access control, not a
+multi-tenant security boundary; do not use one OS account as an untrusted-user
+boundary.  See [multi-workspace resource pool](design/pool_service.md).  Drain
+legacy launchers before starting the pool; older binaries that do not honor the
+admission ownership record must not be run concurrently.
+
+Ordinary desktop/CLI/MCP/API/SSH entry can use the same pool authority without a
+separate `pool submit` command.  Start the workspace application with:
+
+```text
+BIOPIPE_POOL_ADDRESS=127.0.0.1:PORT
+BIOPIPE_POOL_TOKEN=<local token>
+BIOPIPE_POOL_PRINCIPAL=<registered principal>
+BIOPIPE_ENVIRONMENT_GATE=<pool state>/environment-gate.json
+```
+
+The workspace `root`/`data_dir` must be the one registered in the pool service.
+In this mode the application has no local HostAdmission, engine coordinator or
+scheduler; launch/cancel/details/events are routed to the pool.  A pool failure
+returns `engine_unavailable` and never starts a local job.  Two clients may open
+independent sessions for one workspace; closing one session leaves the other
+client, running jobs and the pool alive.  `workspace.stop` is the separate
+explicit "stop accepting new work" action; `PoolService.shutdown` is the
+explicit pool-wide action.
+
+### Verified stage cache
+
+Cross-run stage reuse is opt-in and must be declared explicitly in a workflow:
+
+```json
+{"runtime": {"execution": {"cache": "verified"}}}
+```
+
+The cache identity includes source-file content, frozen parameters, plugin pins
+and package generation, the actual environment content fingerprint and execution
+semantics.  A hit is accepted only after the recorded output manifest is
+re-hashed; changed, missing or added files invalidate it.  The switch alone is
+only permission to attempt reuse.  Eligibility additionally requires an
+explicit `cache` contract on every operator and reader descriptor:
+
+```json
+{"cache": {"deterministic": true, "side_effects": "none",
+           "stochastic": false}}
+```
+
+A stochastic declaration must name the bound seed parameter(s); a missing seed,
+an external side effect, an unknown declaration or an unverified environment
+fails closed and records concrete reasons in `cache_decisions`.  There is no
+inference that an operator is deterministic merely from its input/output
+formats, and no blanket declaration for legacy operators.  The index is local
+to the workspace service and is not a substitute for environment generations.
+
 ## Recommended operation paths
 
 - Existing canvas: context → selected schemas → one apply transaction → undo if

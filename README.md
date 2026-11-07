@@ -30,7 +30,7 @@ AI agent through CLI or MCP. Operon itself does not supply an AI service.
 Existing `biopipe` Python modules, CLI commands, MCP tools and protocol identifiers
 remain compatible; see [rebranding and compatibility](docs/rebranding.md).
 
-The **v3.0.2 application candidate** and independently versioned **2026.11.6.1 operator library**
+The **v3.1.0 application** and independently versioned **2026.11.6.1 operator library**
 share this repository. The reference library includes **717 operators, 101 Readers, seven
 provider packages and 24 route templates**. Operators and Readers use **protocol
 v3 / SDK 3.7**, separate parameter JSON and adjacent Markdown documentation.
@@ -39,6 +39,10 @@ Operon 3.0 adds [editable workflow YAML](docs/workflow_yaml_v3.md),
 [workflow-local scripts](docs/script_operators_v3.md), [target readiness](docs/readiness.md),
 [explicit format adaptation](docs/data_formats.md), and
 [bidirectional canvas activity](docs/canvas_collaboration.md).
+Operon 3.1 adds an explicitly enabled [multi-workspace resource pool](docs/design/pool_service.md),
+durable requests/events and [verified stage reuse](docs/stage_cache.md).
+The legacy scheduler remains the default; no library update or automatic
+determinism declaration is included.
 For unattended execution, follow the [Linux server and terminal quickstart](docs/server_cli.md):
 `operon --workspace . environment check workflow.yaml`, then
 `operon --workspace . run workflow.yaml --progress --brief`.
