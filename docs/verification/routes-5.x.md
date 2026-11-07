@@ -955,3 +955,27 @@ srv: SKIP (ssh alias srv does not resolve; no /public/home/lihj mount).
 
 Tests: tests/test_proteomics_panel_b66.py 3 passed (library cosine, 12 b/y ions, inferred peptide counts).
 Limitations: library matching compares intensities of matched peaks by nearest m/z within tolerance and does not model fragment charge states; annotation covers singly charged b/y ions only; protein inference reports counts, not parsimonious protein sets.
+
+## b72 phylogenetics: Fitch parsimony, MRCA and ultrametricity
+
+Data: traits.csv sha256 from workdir/b72_oracle.json (4 taxa x 4 binary characters, synthetic).
+Tree string (route parameter): `(A:1,B:2,(C:1,D:3):1);`
+
+Route: CsvReader(traits) -> tree_parsimony_score (1 input); tree_mrca and tree_ultrametric (0 inputs) -> three export_results steps (6/6).
+Command: `PYTHONPATH=library/seed:. python scripts/run.py workdir/b72_route`.
+
+Results:
+- parsimony: score 3, 4 characters, 1 parsimony-informative site.
+- mrca(A, C): height 0 (root), tip distance 3.0, 4 descendant tips, 3 edges from root.
+- ultrametric: is_ultrametric 0, root-to-tip range 3.0, min 1.0, max 4.0, cv 0.48432210.
+
+Oracle (workdir/b72_oracle.json, 7/7 pass): dendropy 5.1.3 for MRCA height/distance and root-to-tip range; independent Fitch recursion plus the strict informative-site rule for parsimony.
+
+Three-end (same commit): WSL and Windows (py 3.12, D:\Operon) 6/6; md5 match:
+- parsimony.csv 3e86f218497b8840241120757a315857
+- mrca.csv aebe23c55c38f9728ff5b3c481078989
+- ultrametric.csv b59a0e71c12059444c1e1f40ef570766
+srv: SKIP (ssh alias srv does not resolve).
+
+Tests: tests/test_tree_panel_b72.py 3 passed.
+Limitations: the Newick parser supports rooted trees with branch lengths, unquoted labels and no support values; parsimony uses equal-cost Fitch scoring and treats missing tip states as empty sets.
