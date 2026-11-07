@@ -155,7 +155,7 @@ operators when they share a competitor, a dataset and an oracle class.
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Quasi-experimental estimators | R `mediation` 4.5 https://cran.r-project.org/package=mediation ; `did` 2.1 https://cran.r-project.org/package=did ; `Synth` 1.1 https://cran.r-project.org/package=Synth | `propensity_score`, `psm_*`, `iv_2sls`, `rdd`, `iptw_effect` | Mediation, difference-in-differences, synthetic control, doubly robust ATE and event study are absent | P0 | Card–Krueger minimum-wage panel (public replication data); California smoking panel | R `mediation`/`did` vs hand OLS algebra | `mediation_analysis`, `difference_in_differences`, `synthetic_control`, `doubly_robust_ate`, `event_study` |
+| Quasi-experimental estimators | R `mediation` 4.5 https://cran.r-project.org/package=mediation ; `did` 2.1 https://cran.r-project.org/package=did ; `Synth` 1.1 https://cran.r-project.org/package=Synth | `propensity_score`, `psm_*`, `iv_2sls`, `rdd`, `iptw_effect` | Mediation, difference-in-differences, synthetic control, doubly robust ATE and event study are absent | P0 | Card–Krueger minimum-wage panel (public replication data); California smoking panel | R `mediation`/`did` vs hand OLS algebra | implemented b75: `mediation_analysis`, `difference_in_differences`, `synthetic_control`, `doubly_robust_ate`, `event_study` |
 
 ## Rows deliberately not planned
 

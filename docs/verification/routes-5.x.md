@@ -799,3 +799,24 @@ missing-not-at-random structure.
   dmrs `76db7910f4b1b1f0c2dd7916a2b10105`. srv SKIP (ssh srv unresolvable).
 - Limitations: beta and M use pseudocount 1 for M only; DMR test is a per-window Welch-style t statistic,
   not a genome-wide multiple-testing procedure; no nucleosome or chromatin-state operator in this batch.
+
+## b75 — causal inference panel (5 operators)
+
+Synthetic panel data (mode=synthetic; parameters chosen for recovery tests, not biological claims).
+
+Inputs (sha256):
+- did.csv `cab9b2cc7421e3c48ea7efad1dfefc25cd95f8b826c983274fb2bc1b11cf16d5`
+- did_panel.csv `c2b6adbafcc913347fa693ee4ae1d257137441296700f73453c9bc9004f4105e`
+- synthetic_panel.csv `9474ca0fd070fa7335b2ef4b27bb9e03489b683a9c29cd6c579216583cc09d6f`
+- aipw.csv `55d09e0d217e6134c64514cab9c6ba075e73e5cd14b6eb89a358a84525cdf80c`
+- mediation.csv `e621f47b6b9d2cf43ae7a77dd839d1ea3781c14a90b1870e143e99addb5b4435`
+
+Operators: difference_in_differences (HC1 interaction OLS), event_study (single-pass two-way within transform, event window -5..5, never-treated controls), synthetic_control (SLSQP simplex weights), doubly_robust_ate (logistic PS + linear outcome AIPW), mediation_analysis (product of coefficients with delta SE).
+
+Route: 10/10 steps completed. Values: DiD 2.96482157; event_0 3.06341115; synthetic ATT 2.0 (pre_rmse 0, 10 pre / 6 post); AIPW 2.00652137; mediation ACME 1.38318348, direct 1.00627903.
+
+Independent oracle: statsmodels OLS+HC1 for DiD, separate TWFE dummy regression for event study, SLSQP for synthetic control, statsmodels logit AIPW, OLS mediation — 7/7 pass (AIPW tolerance 0.01 because sklearn and statsmodels PS fits differ by ~0.0015).
+
+Three-end: WSL 10/10; Windows 12.10 with NumPy 2.5.4, 10/10; all five CSV md5 match (did `e0118a93a14098c5b431731ba20901d8`, event `45e9a92b9666ee4045ae499fabf5c7d4`, synth `f3c0d14eabff7e8f5e566b02c71b050e`, aipw `dc59a450530b7ecad88393e0d0a0743e`, mediation `48494490f27fa97204024cd1507f3ee2`); srv SKIP (ssh alias unresolvable).
+
+Limitations: synthetic_control weights are simplex-constrained and can be unstable with collinear donors; event_study requires a never-treated group and a window covering the post period; AIPW uses in-sample propensity scores (no cross-fitting).
