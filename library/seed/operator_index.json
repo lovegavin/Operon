@@ -760,6 +760,16 @@
     "status": "generated"
   },
   {
+    "id": "bcr_clonotype",
+    "kind": "operator",
+    "title": "BCR clonotype grouping and expansion",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Groups BCR sequences by V gene and CDR3 amino-acid sequence and reports clone sizes.",
+    "doc": "src/task/step/steps/bcr_clonotype.BcrClonotypeStep.md",
+    "status": "authored"
+  },
+  {
     "id": "bds_test",
     "kind": "operator",
     "title": "BDS nonlinearity test",
@@ -1118,6 +1128,16 @@
     "description": "Constrained correspondence analysis of a count table.",
     "doc": "src/task/step/steps/cca.CcaStep.md",
     "status": "generated"
+  },
+  {
+    "id": "cdr3_properties",
+    "kind": "operator",
+    "title": "CDR3 amino-acid composition and properties",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Reports length, charged fraction, hydrophobic fraction, cysteine count and aromatic fraction per CDR3.",
+    "doc": "src/task/step/steps/cdr3_properties.Cdr3PropertiesStep.md",
+    "status": "authored"
   },
   {
     "id": "cell_communication",
@@ -8788,6 +8808,16 @@
     "description": "Tamhane T2 comparisons with Welch degrees of freedom and Sidak correction.",
     "doc": "src/task/step/steps/tamhane_t2.TamhaneT2Step.md",
     "status": "generated"
+  },
+  {
+    "id": "tcr_diversity",
+    "kind": "operator",
+    "title": "TCR repertoire diversity indices",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Computes observed richness, Shannon, Simpson, Chao1 and Pielou evenness from clonotype counts.",
+    "doc": "src/task/step/steps/tcr_diversity.TcrDiversityStep.md",
+    "status": "authored"
   },
   {
     "id": "theil_sen_regressor",
