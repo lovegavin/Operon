@@ -32,11 +32,11 @@ operators when they share a competitor, a dataset and an oracle class.
 | --- | ---: | ---: | --- | --- |
 | Chemistry / ligands | 24 (Docking+Ligand+ML descriptor family) | 10 | P0 | RDKit vs hand SMILES arithmetic |
 | Protein sequence properties | 40 (Sequence + Proteomics) | 10 | P0 | ExPASy ProtParam vs hand formula |
-| Structure quality | 56 | 10 | P0 | Biopython vs hand geometry |
+| Structure quality | 56 | 5 | P0 | Biopython vs hand geometry |
 | Population genetics | 15 | 14 | P0/P1 | plink2 vs hand genotype arithmetic |
 | Metagenomics | 2 (`genome_mash_distance`, `genome_kmer_similarity`) | 15 | P1/P2 | Kraken2/CheckM2/Roary CLI vs hand |
 | Genome annotation | 8 | 5 | P1 | InterProScan/Bakta TSV vs hand |
-| Epigenomics | 7 (ATAC/peak family) | 10 | P1 | MACS3/HOMER/MEME CLI vs hand |
+| Epigenomics | 7 (ATAC/peak family) | 15 | P1 | MACS3/HOMER/MEME CLI vs hand |
 | Single cell | 12 | 10 | P0/P1 | Scanpy/Squidpy vs hand matrix |
 | Proteomics MS | 10 | 10 | P0 | pyteomics vs hand spectrum math |
 | Metabolomics | 0 | 5 | P1 | hand adduct/formula arithmetic |
@@ -63,12 +63,11 @@ operators when they share a competitor, a dataset and an oracle class.
 | Localization and targeting motifs | PSORTb 3.0 https://www.psort.org/psortb/ ; UniProt annotation | `sequence_signal_peptide`, `sequence_signal_peptide_v2`, `sequence_transmembrane_topology`, `structure_glycosylation_sites` | NLS, PTS1, KDEL/ER-retention and mitochondrial presequence scoring are absent; a GPI-anchor heuristic was dropped for lack of an independent oracle | P0 | UniProt Swiss-Prot entries with curated localization (P00698, P01308, P0DTC2) | Hand motif rules from literature vs PSORTb/UniProt text | `protein_nls_motifs` (b51), `protein_pts1_signal` (b51), `protein_er_retention` (b52), `protein_mitochondrial_targeting` (b52), `protein_nuclear_export_signal` (b52) |
 | Modification and kinase motifs | NetPhos 3.1 https://services.healthtech.dtu.dk/service.php?NetPhos-3.1 ; OGPET https://services.healthtech.dtu.dk/service.php?OGPET-1.0 | `sequence_liability_scan`, `structure_glycosylation_sites` | Kinase consensus motif scoring is absent; O-GalNAc sequon prediction lacks an independent oracle | P0 | UniProt phosphosite annotations; 20 reviewed human proteins | Hand regex/consensus table vs NetPhos/OGPET | `protein_kinase_motifs` (b51), `protein_nglyc_sequons` (b51) |
 
-## Structure quality (10)
+## Structure quality (5)
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Backbone and side-chain geometry | MolProbity 4.5 http://molprobity.biochem.duke.edu/ ; Biopython 1.88 | `structure_phi_psi`, `structure_cis_peptides`, `structure_missing_residues` | Ramachandran region fractions, Dunbrack rotamer quality, omega deviation and CA bond/angle QC are absent | P0 | PDB 1MEL, 1CRN, 1UBQ https://www.rcsb.org/ | Biopython dihedral calculation vs hand vector arithmetic | `structure_ramachandran_stats`, `structure_rotamer_quality`, `structure_omega_deviation`, `structure_ca_geometry` |
-| Hydrogen bonds and water bridges | HBPLUS http://www.ebi.ac.uk/thornton-srv/software/HBPLUS/ ; PyMOL 3.0 https://pymol.org/ | `structure_md_hbond_occupancy`, `structure_md_hbond_lifetime` (MD only) | Static H-bond energy and water-mediated bridge inventory are absent | P0 | PDB 1MEL (lysozyme, 2.0 Å), 1CRN | Hand Coulomb/Lennard-Jones energy vs PyMOL `find_pairs` | `structure_hbond_energy`, `structure_water_bridges` |
+| Hydrogen bonds and water bridges | HBPLUS http://www.ebi.ac.uk/thornton-srv/software/HBPLUS/ ; PyMOL 3.0 https://pymol.org/ | `structure_md_hbond_occupancy`, `structure_md_hbond_lifetime` (MD only) | Static H-bond energy and water-mediated bridge inventory are absent | P0 | PDB 1MEL (lysozyme, 2.0 Å), 1CRN | Hand Coulomb/Lennard-Jones energy vs PyMOL `find_pairs` | `structure_water_bridges` |
 | Ligand contact energetics and pose ensembles | RDKit 2026.09.1; PoseBusters https://github.com/maabuu/posebusters | `structure_ligand_interaction_fingerprint`, `structure_ligand_burial`, `structure_ligand_pose_rmsd`, `structure_ligand_strain` | Per-contact energy decomposition, ligand-buried SASA and pose-ensemble clustering are absent | P0 | PDB 1MEL + 10 Vina-generated poses (synthetic poses explicitly marked `mode=synthetic`) | Hand distance-dependent energy vs RDKit MMFF | `structure_ligand_contact_energy`, `structure_ligand_buried_sasa`, `structure_ligand_pose_ensemble`, `structure_ligand_hbond_count` |
 
 ## Population genetics (14)
@@ -93,11 +92,11 @@ operators when they share a competitor, a dataset and an oracle class.
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | Domain and gene-model summaries | InterProScan 5.68 https://github.com/ebi-pf-team/interproscan ; Pfam 37 https://www.ebi.ac.uk/interpro/ ; Bakta 1.10 https://github.com/oschwengers/bakta ; Prokka 1.14 https://github.com/tseemann/prokka | `sequence_hmmer_domains`, `prodigal_genes`, `genome_cds_check`, `gff_feature_stats`, `annotation_gaps` | InterProScan TSV summary, Pfam architecture, annotation completeness, CDS overlap and gene-length profile are absent | P1 | E. coli K-12 GFF3 + InterProScan TSV (public EBI example); Bakta test data | InterProScan/Bakta TSV vs hand counting | `interpro_domain_summary`, `pfam_architecture`, `annotation_completeness`, `annotation_overlap_check`, `annotation_gene_length_profile` |
 
-## Epigenomics (10)
+## Epigenomics (15)
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Peak statistics and overlaps | MACS3 3.0.2 https://github.com/macs3-project/MACS ; bedtools 2.31 https://bedtools.readthedocs.io/ ; ChIPseeker 1.38 https://bioconductor.org/packages/ChIPseeker/ | `peak_merge`, `peak_nearest_gene`, `atac_peak_call`, `atac_peak_quality`, `interval_annotate` | Peak width distribution, multi-sample overlap matrix and TSS/exon/intron/UTR annotation are absent | P1 | ENCODE GM12878 peaks (local `peaks.bed`), https://www.encodeproject.org/ | MACS3/bedtools vs hand interval arithmetic | `peak_width_stats`, `peak_overlap_matrix`, `peak_annotate` |
+| Peak statistics and overlaps | MACS3 3.0.2 https://github.com/macs3-project/MACS ; bedtools 2.31 https://bedtools.readthedocs.io/ ; ChIPseeker 1.38 https://bioconductor.org/packages/ChIPseeker/ | `peak_merge`, `peak_nearest_gene`, `atac_peak_call`, `atac_peak_quality`, `interval_annotate` | Peak width distribution, summit offsets, gap/overlap statistics, strand bias, multi-sample overlap matrix and TSS/exon/intron/UTR annotation are absent | P1 | ENCODE GM12878 peaks (local `peaks.bed`), https://www.encodeproject.org/ | bedtools/pandas vs awk interval arithmetic | `peak_width_stats`, `peak_summit_offset`, `peak_gap_stats`, `peak_signal_stats` (implemented b53); `peak_quality_filter`, `peak_overlap_matrix`, `peak_annotate`, `peak_strand_bias` |
 | Motif enrichment and discovery | HOMER 5.1 http://homer.ucsd.edu/homer/ ; MEME 5.5.7 https://meme-suite.org/ | `motif_scan`, `pwm_scan`, `pwm_information` | Hypergeometric motif enrichment and EM de-novo discovery are absent | P1 | JASPAR 2024 https://jaspar.genereg.net/ ; ENCODE peak sequences | HOMER/MEME vs hand hypergeometric/planted motif | `motif_enrichment`, `motif_discovery_em` |
 | Chromatin and methylation | deepTools 3.5 https://deeptools.readthedocs.io/ ; ChromHMM 1.25 https://github.com/compbio/ChromHMM ; Bismark 0.24 https://github.com/FelixKrueger/Bismark | `atac_fragment_size`, `atac_tss_enrichment`, `bam_alignment_summary` | ChIP fingerprint, beta values, DMR calling, nucleosome periodicity and chromatin-state segmentation are absent | P1/P2 | ENCODE GM12878 BAM (local 2.5 GB `ENCFF415FEC.bam`); Bismark test BAM | deepTools/ChromHMM vs hand binning; beta = M/(M+U) by hand | `chip_fingerprint`, `methylation_beta`, `dmr_call`, `nucleosome_positioning`, `chromatin_state_segmentation` |
 

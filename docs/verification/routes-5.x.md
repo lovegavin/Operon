@@ -276,3 +276,93 @@ All 10 steps report `complete`. Selected values:
 - A GPI-anchor heuristic was implemented and then withdrawn: it gave a false
   negative on the curated GPI protein P05186 and no independent oracle was
   available. It is recorded in the gap matrix as not planned.
+
+## b53 — narrowPeak geometry panel (Epigenomics)
+
+Batch: `b53`, 4 operators, 20 August 2026 development tree (library 5.0.2 line).
+Operators: `peak_width_stats`, `peak_summit_offset`, `peak_gap_stats`, `peak_signal_stats`.
+
+### Data
+
+| item | value |
+| --- | --- |
+| source | ENCODE GM12878 narrowPeak, first 20 000 rows of the local `workdir/b8_prep/peaks.bed` (hg19) |
+| route input | `workdir/b53_route/input/peaks.narrowpeak` |
+| rows | 20 000 peaks, 10 narrowPeak columns |
+| sha256 | `dc25af7dc7579bc701d88fd8c7ae70a783c32f57ad131d51a7dd8553151ed931` |
+
+The local file is a canonical ENCODE narrowPeak subset already used by the b8 batch;
+the route reads columns chrom/start/end/name/score/strand/signal/p/q/peak with
+`NarrowPeakReader`.
+
+### Route
+
+`workdir/b53_route` — source `NarrowPeakReader` → four operators → four
+`export_results` (CSV). Command:
+
+```bash
+PYTHONPATH=/home/gavin/Operon/library/seed:/home/gavin/Operon \
+  /home/gavin/bp-numpy21/bin/python scripts/run.py workdir/b53_route
+```
+
+Result: 8/8 steps complete in 0.84 s. Exports:
+`output/artifacts/exports/<hash>/{width,summit,gap,signal}.csv`.
+
+### Values (20 000 peaks)
+
+| metric | value |
+| --- | --- |
+| width n / mean / median / sd | 20000 / 1110.55 / 1080 / 354.65 |
+| width min / max / p90 / total bp | 230 / 2946 / 1572.1 / 22211001 |
+| summit mean offset / median | 555.43 / 503 |
+| summit mean center deviation | 177.85 |
+| summit frac centered ≤50 bp | 0.19345 |
+| summit mean relative position | 0.50062 |
+| gaps n / mean / median / max | 19977 / 146174.95 / 31128 / 22503243 |
+| gaps frac <1000 bp / overlaps / total bp | 0.2140 / 3992 / 2920137002 |
+| signal mean / median / max / p95 | 15.8736 / 15.3551 / 43.6063 / 25.9905 |
+| mean pValue / mean qValue | 548.4496 / 545.0104 |
+| frac q>10 / frac q>20 | 1.0 / 1.0 |
+
+### Oracles
+
+`C:\Users\Public\b53_oracle2.py` recomputed every statistic twice: a pandas/NumPy
+implementation and an independent awk implementation over the same file (gaps use
+`sort -k1,1 -k2,2n` + awk for gap count and overlaps). 49/49 checks pass; the
+record is `workdir/b53_oracle.json`.
+
+| oracle | implementation | checks | result |
+| --- | --- | --- | --- |
+| A | pandas 2.3.3 + NumPy 2.1.3 | 33 | pass |
+| B | awk 5.1.0 (interval arithmetic, sorted scan) | 16 | pass |
+
+Median and SD are only in oracle A because awk lacks a portable median; the unit
+tests pin a hand-computed five-row example for both.
+
+### Three-end
+
+| end | status | evidence |
+| --- | --- | --- |
+| WSL (bp-numpy21, NumPy 2.1.3) | PASS | 8/8 steps; md5 below |
+| Windows (D:\Operon, py 3.12.10, NumPy 2.5.4) | PASS | 8/8 steps; md5 below |
+| srv (`/public/home/lihj/...`) | SKIP | `ssh srv` is not resolvable in this environment and no `/public/home/lihj` mount exists |
+
+CSV md5 (WSL = Windows):
+
+| export | md5 |
+| --- | --- |
+| width.csv | `d8ba3788d39ad1d012f29d9e25852585` |
+| summit.csv | `35040b71b9eff669fac7f5577124729c` |
+| gap.csv | `d7656cedbdc3ed1dbe8959ae7dc38d24` |
+| signal.csv | `9bc0e3c9532a516ffce1c054a9163470` |
+
+Unit tests: `tests/test_peak_panel_b53.py`, 4 passed.
+
+### Limitations
+
+- The route uses a 20 000-row subset; full-file numbers will differ.
+- `peak_gap_stats` counts overlaps as gaps clamped to zero and reports their count
+  separately; overlapping intervals are not merged first.
+- Signal columns are narrowPeak signalValue/pValue/qValue as stored; qValue is not
+  recomputed.
+- `peak_quality_filter` remains planned for a later epigenomics batch.
