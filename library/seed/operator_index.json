@@ -2750,6 +2750,16 @@
     "status": "generated"
   },
   {
+    "id": "fst_outlier_scan",
+    "kind": "operator",
+    "title": "Fst outlier scan",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Hudson Fst per variant with local smoothing and outlier flags.",
+    "doc": "src/task/step/steps/fst_outlier_scan.FstOutlierScanStep.md",
+    "status": "generated"
+  },
+  {
     "id": "g_test",
     "kind": "operator",
     "title": "G-test of independence",
@@ -2947,6 +2957,26 @@
     "version": "1.0.0",
     "description": "Chain minimap2 alignments into collinear synteny blocks between two assemblies.",
     "doc": "src/task/step/steps/genome_synteny_blocks.GenomeSyntenyBlocksStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genomic_selection_rrblup",
+    "kind": "operator",
+    "title": "Genomic selection (rrBLUP)",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Ridge-regression genomic prediction from a marker matrix.",
+    "doc": "src/task/step/steps/genomic_selection_rrblup.GenomicSelectionRrblupStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genotype_allele_balance",
+    "kind": "operator",
+    "title": "Genotype allele balance",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Binomial allele-balance test from reference and alternate read counts.",
+    "doc": "src/task/step/steps/genotype_allele_balance.GenotypeAlleleBalanceStep.md",
     "status": "generated"
   },
   {
@@ -6070,6 +6100,16 @@
     "status": "generated"
   },
   {
+    "id": "qtl_interval_mapping",
+    "kind": "operator",
+    "title": "QTL interval mapping",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Single-marker regression of a phenotype on marker dosage.",
+    "doc": "src/task/step/steps/qtl_interval_mapping.QtlIntervalMappingStep.md",
+    "status": "generated"
+  },
+  {
     "id": "quade_test",
     "kind": "operator",
     "title": "Quade test",
@@ -6477,6 +6517,16 @@
     "version": "1.0.0",
     "description": "Enumerate the RDKit tautomers of every input SMILES, pick the canonical tautomer and report the tautomer count, whether the input changed, and the canonical hydrogen-bond donor/acceptor counts.",
     "doc": "src/task/step/steps/rdkit_tautomer.RdkitTautomerStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "recombination_rate",
+    "kind": "operator",
+    "title": "Recombination rate from a genetic map",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Local cM per Mb rates from cumulative genetic map positions.",
+    "doc": "src/task/step/steps/recombination_rate.RecombinationRateStep.md",
     "status": "generated"
   },
   {

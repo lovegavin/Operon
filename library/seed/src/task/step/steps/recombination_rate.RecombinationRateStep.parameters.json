@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "title": "Output name",
+      "description": "Name for the output value.",
+      "default": "output",
+      "x-ui-order": 90
+    },
+    "interval_dim": {
+      "type": "string",
+      "title": "Interval dimension",
+      "description": "Axis holding map intervals.",
+      "default": "interval",
+      "x-ui-group": "Input fields",
+      "x-ui-order": 0
+    },
+    "field_dim": {
+      "type": "string",
+      "title": "Field dimension",
+      "description": "Axis holding table columns.",
+      "default": "field",
+      "x-ui-group": "Input fields",
+      "x-ui-order": 1
+    },
+    "chrom_field": {
+      "type": "string",
+      "title": "Chromosome field",
+      "description": "Column with chromosome labels.",
+      "default": "chrom",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 2
+    },
+    "pos_field": {
+      "type": "string",
+      "title": "Position field",
+      "description": "Column with base-pair positions.",
+      "default": "pos",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 3
+    },
+    "cm_field": {
+      "type": "string",
+      "title": "Genetic map field",
+      "description": "Column with cumulative cM positions.",
+      "default": "cM",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 4
+    }
+  }
+}

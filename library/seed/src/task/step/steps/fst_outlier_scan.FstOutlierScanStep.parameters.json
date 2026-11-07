@@ -1,0 +1,93 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "title": "Output name",
+      "description": "Name for the output value.",
+      "default": "output",
+      "x-ui-order": 90
+    },
+    "variant_dim": {
+      "type": "string",
+      "title": "Variant dimension",
+      "description": "Axis holding one row per variant.",
+      "default": "variant",
+      "x-ui-group": "Input fields",
+      "x-ui-order": 0
+    },
+    "field_dim": {
+      "type": "string",
+      "title": "Field dimension",
+      "description": "Axis holding table columns.",
+      "default": "field",
+      "x-ui-group": "Input fields",
+      "x-ui-order": 1
+    },
+    "chrom_field": {
+      "type": "string",
+      "title": "Chromosome field",
+      "description": "Column with chromosome labels.",
+      "default": "chrom",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 2
+    },
+    "pos_field": {
+      "type": "string",
+      "title": "Position field",
+      "description": "Column with base-pair positions.",
+      "default": "pos",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 3
+    },
+    "ref1_field": {
+      "type": "string",
+      "title": "Population 1 reference field",
+      "description": "Reference allele count in population 1.",
+      "default": "n1_ref",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 4
+    },
+    "alt1_field": {
+      "type": "string",
+      "title": "Population 1 alternate field",
+      "description": "Alternate allele count in population 1.",
+      "default": "n1_alt",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 5
+    },
+    "ref2_field": {
+      "type": "string",
+      "title": "Population 2 reference field",
+      "description": "Reference allele count in population 2.",
+      "default": "n2_ref",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 6
+    },
+    "alt2_field": {
+      "type": "string",
+      "title": "Population 2 alternate field",
+      "description": "Alternate allele count in population 2.",
+      "default": "n2_alt",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 7
+    },
+    "window_bp": {
+      "type": "integer",
+      "title": "Smoothing window (bp)",
+      "description": "Half-width of the local smoothing window.",
+      "default": 100000,
+      "x-ui-group": "Analysis",
+      "x-ui-order": 8
+    },
+    "z_threshold": {
+      "type": "number",
+      "title": "Outlier z threshold",
+      "description": "Variants above this local z score are flagged.",
+      "default": 3.0,
+      "x-ui-group": "Analysis",
+      "x-ui-order": 9
+    }
+  }
+}
