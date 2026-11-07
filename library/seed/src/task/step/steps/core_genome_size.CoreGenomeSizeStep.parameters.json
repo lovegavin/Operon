@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name"
+    },
+    "genome_dim": {
+      "type": "string",
+      "default": "genome"
+    },
+    "gene_dim": {
+      "type": "string",
+      "default": "gene"
+    }
+  }
+}

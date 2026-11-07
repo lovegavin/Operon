@@ -1570,6 +1570,16 @@
     "status": "generated"
   },
   {
+    "id": "core_genome_size",
+    "kind": "operator",
+    "title": "Core genome size and fractions",
+    "category": "Comparative genomics",
+    "version": "1.0.0",
+    "description": "Summarises core and accessory gene counts from a presence/absence matrix.",
+    "doc": "src/task/step/steps/core_genome_size.CoreGenomeSizeStep.md",
+    "status": "authored"
+  },
+  {
     "id": "correction",
     "kind": "operator",
     "title": "FDR",
@@ -5200,6 +5210,16 @@
     "status": "generated"
   },
   {
+    "id": "ortholog_cluster",
+    "kind": "operator",
+    "title": "Ortholog clustering by presence-pattern similarity",
+    "category": "Comparative genomics",
+    "version": "1.0.0",
+    "description": "Clusters genes into ortholog groups by Jaccard similarity of their presence patterns.",
+    "doc": "src/task/step/steps/ortholog_cluster.OrthologClusterStep.md",
+    "status": "authored"
+  },
+  {
     "id": "pacf",
     "kind": "operator",
     "title": "Partial autocorrelation function",
@@ -5268,6 +5288,16 @@
     "description": "PAM（围绕中心点划分）：欧氏距离、BUILD 选取初始中心点，SWAP 以精确代价下降迭代，输出每个样本的簇编号与到中心点距离。",
     "doc": "src/task/step/steps/pam.PamStep.md",
     "status": "generated"
+  },
+  {
+    "id": "pangenome_curve",
+    "kind": "operator",
+    "title": "Pangenome accumulation curve",
+    "category": "Comparative genomics",
+    "version": "1.0.0",
+    "description": "Estimates the pangenome size for each number of genomes by resampling genome orders.",
+    "doc": "src/task/step/steps/pangenome_curve.PangenomeCurveStep.md",
+    "status": "authored"
   },
   {
     "id": "pangenome_matrix",

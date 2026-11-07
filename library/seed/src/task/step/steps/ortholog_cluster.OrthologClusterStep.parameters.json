@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name"
+    },
+    "min_jaccard": {
+      "type": "number",
+      "default": 0.8,
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "genome_dim": {
+      "type": "string",
+      "default": "genome"
+    },
+    "gene_dim": {
+      "type": "string",
+      "default": "gene"
+    }
+  }
+}
