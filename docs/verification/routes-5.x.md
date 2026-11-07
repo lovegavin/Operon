@@ -745,3 +745,27 @@ md5 values match across the two systems: `median_normalized.csv`
 impute missing intensities. Quantile normalisation breaks ties by row order.
 The missing-value filter is a per-protein threshold and does not model
 missing-not-at-random structure.
+
+## b61 — Genome annotation table summaries
+
+- **Batch**: b61 (5 operators, added 2026-11-08)
+- **Inputs** (synthetic fixtures, mode=synthetic):
+  - `genes.csv` sha256 `d207679dce28d5522693513c0709a4e78857c28060745f76fb5270ed158212b5`
+  - `domains.csv` sha256 `9640fa37d0cc4e8c09aaac360fd3a012af5120dc4360ce5976c86072ab018ae7`
+  - `markers.csv` sha256 `a3c9d81462845f472e622866a6bae72bd42bc785600cfa819a4778188b0328bb`
+- **Route**: `workdir/b61_route`, CsvReader sources → 5 operators → 5 CSV exports, 10/10 steps complete.
+- **Key values**:
+  - gene lengths 1200, 1200, 200, 550, 3500, 300 bp; short flags 0,0,1,0,0,1.
+  - gene overlaps 1,1,1,1,0,0; overlap bp 400,400,50,50,0,0.
+  - domain summary p1 3 domains / 200 covered bp / mean 70 / best 1e-20; p2 1/80/80/1e-9; p3 1/55/55/2e-3.
+  - Pfam architecture p1 3 domains, 2 unique, 1 switch.
+  - completeness gA 0.75 (1 missing, 1 duplicated), gB 0.25 (3 missing).
+- **Oracles**: pandas/NumPy independent recomputation (pairwise interval overlap, interval-union coverage, architecture switches) 14/14 pass → `workdir/b61_oracle.json`.
+- **Three ends**: WSL 10/10 and Windows 12.10 (NumPy 2.5.4) 10/10 agree byte-for-byte on all five CSVs:
+  - gene_length `e7f591a597f748d4c4f4940aa80d5657`
+  - overlap `e3187503329919b6581999f6e843563d`
+  - domain_summary `141d503ce6707cfccd9f3f4dac66bfda`
+  - architecture `fe9a432ade3059d00533553b1d4e3c74`
+  - completeness `37c230b3802b91cdf9ce6ca7dcecf5f1`
+- **Remote**: SKIP — `ssh srv` does not resolve on this host and no `/public/home/lihj` tree is mounted.
+- **Limitations**: overlap check is O(n^2) and intended for small annotation tables; domain coverage is the union of intervals, not the sum of lengths; architecture switches are adjacency changes in start order, not phylogenetically informed.

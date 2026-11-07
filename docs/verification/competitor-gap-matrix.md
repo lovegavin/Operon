@@ -90,7 +90,7 @@ operators when they share a competitor, a dataset and an oracle class.
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Domain and gene-model summaries | InterProScan 5.68 https://github.com/ebi-pf-team/interproscan ; Pfam 37 https://www.ebi.ac.uk/interpro/ ; Bakta 1.10 https://github.com/oschwengers/bakta ; Prokka 1.14 https://github.com/tseemann/prokka | `sequence_hmmer_domains`, `prodigal_genes`, `genome_cds_check`, `gff_feature_stats`, `annotation_gaps` | InterProScan TSV summary, Pfam architecture, annotation completeness, CDS overlap and gene-length profile are absent | P1 | E. coli K-12 GFF3 + InterProScan TSV (public EBI example); Bakta test data | InterProScan/Bakta TSV vs hand counting | `interpro_domain_summary`, `pfam_architecture`, `annotation_completeness`, `annotation_overlap_check`, `annotation_gene_length_profile` |
+| Domain and gene-model summaries | InterProScan 5.68 https://github.com/ebi-pf-team/interproscan ; Pfam 37 https://www.ebi.ac.uk/interpro/ ; Bakta 1.10 https://github.com/oschwengers/bakta ; Prokka 1.14 https://github.com/tseemann/prokka | `sequence_hmmer_domains`, `prodigal_genes`, `genome_cds_check`, `gff_feature_stats`, `annotation_gaps` | InterProScan TSV summary, Pfam architecture, annotation completeness, CDS overlap and gene-length profile are absent | P1 | E. coli K-12 GFF3 + InterProScan TSV (public EBI example); Bakta test data | InterProScan/Bakta TSV vs hand counting | `interpro_domain_summary`, `pfam_architecture`, `annotation_completeness`, `annotation_overlap_check`, `annotation_gene_length` |
 
 ## Epigenomics (15)
 
