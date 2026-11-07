@@ -1,5 +1,7 @@
 # Spatially variable genes (Moran's I)
 
+## Purpose
+
 Score each gene with Moran's I on a spatial kNN graph.
 
 ## Inputs

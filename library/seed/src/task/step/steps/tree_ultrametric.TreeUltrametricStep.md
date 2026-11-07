@@ -1,5 +1,7 @@
 # Ultrametricity check for a dated tree
 
+## Purpose
+
 Tests whether all root-to-tip distances are equal within a tolerance.
 
 Inputs are tree parameters (Newick string) and, where relevant, a numerical matrix.

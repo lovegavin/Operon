@@ -20,10 +20,15 @@ def decode_column(form, field_dim, name, operator="peak"):
     values = np.asarray(form.data[:, labels[name]])
     encoder = ((form.info or {}).get("encoders") or {}).get(field_dim, {}).get(name)
     inverse = getattr(encoder, "inverse", None)
+    if isinstance(inverse, dict):
+        return [str(inverse.get(int(value), value)) for value in values]
     if callable(inverse):
         return [str(value) for value in inverse(values.astype(int))]
     if isinstance(encoder, dict):
         return [str(encoder.get(int(value), value)) for value in values]
+    inverse_transform = getattr(encoder, "inverse_transform", None)
+    if callable(inverse_transform):
+        return [str(value) for value in inverse_transform(values.astype(int))]
     decoded = []
     for value in values:
         if isinstance(value, (float, np.floating)) and float(value).is_integer():

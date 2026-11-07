@@ -1,5 +1,7 @@
 # Distance from peaks to nearest TSS
 
+## Purpose
+
 Summarizes peak distance to the nearest gene TSS.
 
 ## Inputs

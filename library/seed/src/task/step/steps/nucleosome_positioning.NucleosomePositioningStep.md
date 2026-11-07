@@ -1,5 +1,7 @@
 # nucleosome_positioning
 
+## Purpose
+
 Estimates the dominant repeat length of a signal track (for example MNase-seq coverage) through
 autocorrelation.
 

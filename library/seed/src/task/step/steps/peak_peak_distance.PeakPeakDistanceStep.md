@@ -1,5 +1,7 @@
 # peak_peak_distance
 
+## Purpose
+
 For every peak, reports the distance from its midpoint to the closest other midpoint.
 
 ## Semantics

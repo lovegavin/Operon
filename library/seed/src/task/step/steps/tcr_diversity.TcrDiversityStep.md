@@ -1,5 +1,7 @@
 # TCR repertoire diversity indices
 
+## Purpose
+
 Computes observed richness, Shannon, Simpson, Chao1 and Pielou evenness from clonotype counts.
 
 Input is a two-dimensional table of sequences and counts; output is a two-dimensional form with one row per clone or sequence.

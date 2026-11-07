@@ -1,5 +1,7 @@
 # Count peaks overlapping genes
 
+## Purpose
+
 Counts how many peaks overlap any gene feature.
 
 ## Inputs

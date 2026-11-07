@@ -1,5 +1,7 @@
 # Peak density in fixed windows
 
+## Purpose
+
 Counts peaks and covered bases per genomic window.
 
 ## Inputs

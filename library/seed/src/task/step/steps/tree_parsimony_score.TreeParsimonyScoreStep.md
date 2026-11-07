@@ -1,5 +1,7 @@
 # Fitch parsimony score of a tree and character matrix
 
+## Purpose
+
 Computes the Fitch parsimony score for a Newick tree and a tip-by-character matrix.
 
 Inputs are tree parameters (Newick string) and, where relevant, a numerical matrix.

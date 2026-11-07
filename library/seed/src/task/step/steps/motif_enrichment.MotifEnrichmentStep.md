@@ -1,5 +1,7 @@
 # motif_enrichment
 
+## Purpose
+
 Tests whether a motif occurs more often in foreground than in background sequences.
 
 ## Semantics

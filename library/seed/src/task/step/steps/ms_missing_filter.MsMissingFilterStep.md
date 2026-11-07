@@ -1,5 +1,7 @@
 # Filter proteins by missing-value fraction
 
+## Purpose
+
 Missing-value filtering drops proteins that are absent or
 zero in too many samples.
 

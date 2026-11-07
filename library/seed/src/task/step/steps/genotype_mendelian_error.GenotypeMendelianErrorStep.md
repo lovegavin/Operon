@@ -1,5 +1,7 @@
 # Trio Mendelian error scan
 
+## Purpose
+
 Counts child genotypes incompatible with both parents.
 
 ## Inputs

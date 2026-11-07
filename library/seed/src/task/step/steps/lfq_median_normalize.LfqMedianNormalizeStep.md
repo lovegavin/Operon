@@ -1,5 +1,7 @@
 # Median-normalize an LFQ matrix
 
+## Purpose
+
 Median normalization removes sample loading differences by scaling
 each sample so that its median peptide intensity matches a common target.
 

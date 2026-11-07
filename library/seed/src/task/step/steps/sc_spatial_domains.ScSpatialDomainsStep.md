@@ -1,5 +1,7 @@
 # Spatial domain assignment
 
+## Purpose
+
 Assign spatial domains by k-means on coordinates and report neighbour purity.
 
 ## Inputs

@@ -1,5 +1,7 @@
 # Spatial k-nearest-neighbour graph
 
+## Purpose
+
 Build a Gaussian-weighted spatial kNN graph from cell coordinates.
 
 ## Inputs

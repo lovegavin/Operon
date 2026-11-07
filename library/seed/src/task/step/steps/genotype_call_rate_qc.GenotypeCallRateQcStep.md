@@ -1,5 +1,7 @@
 # Per-sample genotype call rate
 
+## Purpose
+
 Reports called fraction and a pass flag per sample.
 
 ## Inputs

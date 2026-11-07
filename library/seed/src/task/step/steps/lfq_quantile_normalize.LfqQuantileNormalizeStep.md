@@ -1,5 +1,7 @@
 # Quantile-normalize an LFQ matrix
 
+## Purpose
+
 Quantile normalization forces all sample columns to share one
 empirical intensity distribution, removing both loading and compression
 differences between runs.
