@@ -2980,6 +2980,16 @@
     "status": "generated"
   },
   {
+    "id": "genotype_call_rate_qc",
+    "kind": "operator",
+    "title": "Per-sample genotype call rate",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Reports called fraction and a pass flag per sample.",
+    "doc": "src/task/step/steps/genotype_call_rate_qc.GenotypeCallRateQcStep.md",
+    "status": "authored"
+  },
+  {
     "id": "genotype_filter",
     "kind": "operator",
     "title": "genotype_filter",
@@ -2998,6 +3008,16 @@
     "description": "PLINK-style genetic relationship matrix (Z Z^T / M) over biallelic SNPs.",
     "doc": "src/task/step/steps/genotype_grm.GenotypeGrmStep.md",
     "status": "generated"
+  },
+  {
+    "id": "genotype_mendelian_error",
+    "kind": "operator",
+    "title": "Trio Mendelian error scan",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Counts child genotypes incompatible with both parents.",
+    "doc": "src/task/step/steps/genotype_mendelian_error.GenotypeMendelianErrorStep.md",
+    "status": "authored"
   },
   {
     "id": "genotype_pca",

@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "min_call_rate": {
+      "type": "number",
+      "default": 0.9
+    },
+    "variant_dim": {
+      "type": "string",
+      "default": "variant"
+    },
+    "sample_dim": {
+      "type": "string",
+      "default": "sample"
+    }
+  }
+}
