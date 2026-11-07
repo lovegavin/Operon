@@ -616,3 +616,52 @@ no `/public/home/lihj` mount exists.
 Limitations: the GFF sample contains 93 gene records after type filtering, so
 TSS distances are a sparse sample rather than a complete annotation; windows
 before 16 Mb have zero peaks because the narrowPeak subset starts there.
+
+## b59 — metagenomics parsing panel (synthetic fixtures)
+
+**Scope.** Five operators that parse and summarise metagenomics tables with
+deterministic arithmetic: `ani_from_kmers`, `checkm_quality_parse`,
+`gtdb_taxonomy_parse`, `mlst_typing`, `pangenome_matrix`. The route uses
+synthetic fixtures; it validates the arithmetic and contracts, not any biological
+conclusion, and every table is marked synthetic here.
+
+**Data.** `workdir/b59_route/input/`:
+`kmers.csv` sha256 `8941fd3496e649863ae6a66079bcd0e02c79d417ed5cf1b0cbb9a536bf896045`,
+`checkm.csv` sha256 `3c663b17862b92d19c3022f5fb20bde4d2a31363526e85b78afa774caf6bc6a9`,
+`gtdb.csv` sha256 `d9449b52cdff02bb8d9c03b81aaab75783793758641732598008d8b0fa14c76f`,
+`mlst.csv` sha256 `b762e4a4278c1357154b02a8fbe0c8b9588ead2bbabef64d3836634a039f8fb0`,
+`pangenome.csv` sha256 `766f6fff532a2489ecc757695a9328a61caa824ec60fe2cb3195a7e876a35c04`.
+
+**Command.** `PYTHONPATH=library/seed:. python scripts/run.py workdir/b59_route`
+(preceded by `python -m operon registry build` and
+`python scripts/build_builtin_packages.py --refresh`). 10/10 steps completed.
+
+**Values (WSL).**
+ANI: shared 700, union 1000, Jaccard 0.7, Mash distance 0.0092455245, ANI 0.9907544755.
+CheckM: binA 92.5, binB 67.0, binC 24.5, binD 99.4 quality score.
+GTDB classified taxa (of 4 genomes): d 4, p 3, c 3, o 3, f 3, g 2, s 2.
+MLST: i1/i2/i6 ST 1, i3/i4 ST 2, i5 ST 3.
+Pangenome: core 5, accessory 7, unique 3, pangenome 12, core fraction 0.4166667.
+
+**Oracle.** `workdir/b59_oracle.json` recomputes every number from the raw
+CSV inputs with the standard library only (set intersection and Mash formula
+for ANI, `completeness - 5*contamination` for CheckM, prefix splitting for
+GTDB, tuple enumeration for MLST, presence counts for the pangenome);
+26/26 checks pass. Competitor references: Mash/ANI definition, CheckM2 quality
+score, GTDB taxonomy strings, PubMLST allele-profile semantics, Roary/Panaroo
+pangenome categories.
+
+**Three-end.** WSL and Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4)
+produce byte-identical CSVs: ANI `78b532d21eff3a03b07bc8f02b222cb8`,
+CheckM `6c1ab7237574801f2e6ff7d6cc10ed30`,
+GTDB `dd5bbed2dc813f3f1e2f3dd08c3dbbef`,
+MLST `dd4b3062dbfab11705b1d5b98dec79bd`,
+pangenome `ffbcab4bab23686a2e947598f5b45bd7`. srv: SKIP, `ssh srv` is not
+resolvable from this host (no matching Host block, no mounted `/public/home/lihj`).
+
+**Limitations.** The fixtures are synthetic and small; ANI is a presence/absence
+k-mer approximation (Mash-like distance), not a genome aligner; CheckM quality
+uses the classic 5x contamination penalty without strain heterogeneity; GTDB
+counts rank strings only and does not validate taxonomy against the release;
+MLST assigns sequence types within the input table; pangenome categories are
+presence/absence counts, not orthology calls.
