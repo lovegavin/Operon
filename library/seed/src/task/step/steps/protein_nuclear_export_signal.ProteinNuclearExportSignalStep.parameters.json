@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "sequence_dim": {
+      "type": "string",
+      "default": "sequence",
+      "title": "Sequence axis",
+      "description": "Name of the sequence axis in the input Form.",
+      "x-ui-group": "Input"
+    },
+    "position_dim": {
+      "type": "string",
+      "default": "position",
+      "title": "Position axis",
+      "description": "Name of the residue-position axis in the input Form.",
+      "x-ui-group": "Input"
+    },
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name",
+      "description": "Name under which the result Form is stored.",
+      "x-ui-group": "Output"
+    }
+  }
+}

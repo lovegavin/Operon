@@ -5410,6 +5410,16 @@
     "status": "generated"
   },
   {
+    "id": "protein_charge_curve",
+    "kind": "operator",
+    "title": "Protein charge versus pH",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Compute the net charge at pH 3 to 11 using standard residue pKa values.",
+    "doc": "src/task/step/steps/protein_charge_curve.ProteinChargeCurveStep.md",
+    "status": "authored"
+  },
+  {
     "id": "protein_composition",
     "kind": "operator",
     "title": "Protein amino-acid composition",
@@ -5430,6 +5440,16 @@
     "status": "generated"
   },
   {
+    "id": "protein_er_retention",
+    "kind": "operator",
+    "title": "Protein ER retention motif",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Detect C-terminal KDEL/HDEL/DDEL endoplasmic-reticulum retention motifs.",
+    "doc": "src/task/step/steps/protein_er_retention.ProteinErRetentionStep.md",
+    "status": "authored"
+  },
+  {
     "id": "protein_extinction",
     "kind": "operator",
     "title": "Protein A280 extinction coefficients",
@@ -5438,6 +5458,16 @@
     "description": "Computes molar extinction coefficients and A280 (1 mg/ml) from Trp, Tyr and cystine.",
     "doc": "src/task/step/steps/protein_extinction.ProteinExtinctionStep.md",
     "status": "generated"
+  },
+  {
+    "id": "protein_gravy_window",
+    "kind": "operator",
+    "title": "Protein GRAVY sliding window",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Summarize Kyte-Doolittle GRAVY over 9-residue windows.",
+    "doc": "src/task/step/steps/protein_gravy_window.ProteinGravyWindowStep.md",
+    "status": "authored"
   },
   {
     "id": "protein_instability",
@@ -5460,6 +5490,16 @@
     "status": "generated"
   },
   {
+    "id": "protein_mitochondrial_targeting",
+    "kind": "operator",
+    "title": "Protein mitochondrial presequence score",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Score an N-terminal mitochondrial presequence from charge and amphipathic moment.",
+    "doc": "src/task/step/steps/protein_mitochondrial_targeting.ProteinMitochondrialTargetingStep.md",
+    "status": "authored"
+  },
+  {
     "id": "protein_nglyc_sequons",
     "kind": "operator",
     "title": "Protein N-glycosylation sequons",
@@ -5477,6 +5517,16 @@
     "version": "1.0.0",
     "description": "Count monopartite and bipartite nuclear localization signal motifs.",
     "doc": "src/task/step/steps/protein_nls_motifs.ProteinNlsMotifsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_nuclear_export_signal",
+    "kind": "operator",
+    "title": "Protein nuclear export signal",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Detect leucine-rich nuclear export signals and report their positions.",
+    "doc": "src/task/step/steps/protein_nuclear_export_signal.ProteinNuclearExportSignalStep.md",
     "status": "generated"
   },
   {

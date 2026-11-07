@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "sequence_dim": {"type": "string", "default": "sequence", "title": "Sequence dimension", "x-ui-group": "basic", "x-ui-order": 0},
+    "position_dim": {"type": "string", "default": "position", "title": "Position dimension", "x-ui-group": "basic", "x-ui-order": 10},
+    "output": {"type": "string", "title": "Output name", "x-ui-group": "basic", "x-ui-order": 20}
+  },
+  "additionalProperties": false
+}

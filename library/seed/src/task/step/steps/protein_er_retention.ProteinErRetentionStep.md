@@ -1,0 +1,35 @@
+# Protein ER retention motif
+
+## Purpose
+
+Detect C-terminal KDEL/HDEL/DDEL endoplasmic-reticulum retention motifs.
+
+## Inputs
+
+A two-dimensional sequence Form (`sequence` x `position`) with protein
+`sequence_codes`; unknown residues are sanitized to X.
+
+## Parameters
+
+- `sequence_dim` (default `sequence`): row axis.
+- `position_dim` (default `position`): column axis.
+- `output`: output Form name.
+
+## Output
+
+A `[sequence, statistic]` Form with columns: `kdel_motif`, `hdel_motif`, `ddel_motif`, `any_er_retention`.
+
+## Interpretation
+
+The columns are arithmetic descriptors or consensus motif counts. They are not
+functional annotations and do not replace curated database evidence.
+
+## Limitations
+
+- Full UniProt sequences are used, including signal and propeptides.
+- Motif scans use short consensus rules and can produce false positives.
+- The charge curve uses standard pKa values and ignores local environment.
+
+## Source
+
+`library/seed/src/task/step/steps/protein_er_retention.py`
