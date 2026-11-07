@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "rank": {
+      "type": "string",
+      "default": "genus",
+      "enum": [
+        "phylum",
+        "class",
+        "order",
+        "family",
+        "genus",
+        "species"
+      ]
+    },
+    "output": {
+      "type": "string",
+      "default": "collapsed",
+      "title": "Output name"
+    },
+    "taxon_dim": {
+      "type": "string",
+      "default": "taxon"
+    },
+    "sample_dim": {
+      "type": "string",
+      "default": "sample"
+    }
+  }
+}

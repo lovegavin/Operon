@@ -3550,6 +3550,16 @@
     "status": "authored"
   },
   {
+    "id": "humann_pathway_collapse",
+    "kind": "operator",
+    "title": "Collapse stratified HUMAnN pathways to community totals",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Sum stratified pathway rows (pathway|taxon) into one row per pathway.",
+    "doc": "src/task/step/steps/humann_pathway_collapse.HumannPathwayCollapseStep.md",
+    "status": "authored"
+  },
+  {
     "id": "hurst_exponent",
     "kind": "operator",
     "title": "Hurst exponent (simple R/S)",
@@ -4688,6 +4698,16 @@
     "description": "Hypergeometric over-representation of metabolite sets among detected features.",
     "doc": "src/task/step/steps/metabolite_set_enrichment.MetaboliteSetEnrichmentStep.md",
     "status": "generated"
+  },
+  {
+    "id": "metaphlan_profile_merge",
+    "kind": "operator",
+    "title": "Merge two MetaPhlAn profiles",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Union taxa from two profiles and concatenate their sample columns.",
+    "doc": "src/task/step/steps/metaphlan_profile_merge.MetaphlanProfileMergeStep.md",
+    "status": "authored"
   },
   {
     "id": "metaphlan_profile_parse",
@@ -8858,6 +8878,16 @@
     "description": "Tamhane T2 comparisons with Welch degrees of freedom and Sidak correction.",
     "doc": "src/task/step/steps/tamhane_t2.TamhaneT2Step.md",
     "status": "generated"
+  },
+  {
+    "id": "taxon_abundance_collapse",
+    "kind": "operator",
+    "title": "Collapse a taxonomic abundance table to one rank",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Aggregate taxa sharing a rank prefix (for example g__) across samples.",
+    "doc": "src/task/step/steps/taxon_abundance_collapse.TaxonAbundanceCollapseStep.md",
+    "status": "authored"
   },
   {
     "id": "tcr_diversity",

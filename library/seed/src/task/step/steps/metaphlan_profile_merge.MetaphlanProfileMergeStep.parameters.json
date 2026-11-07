@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "collapsed",
+      "title": "Output name"
+    },
+    "duplicate": {
+      "type": "string",
+      "default": "sum",
+      "enum": [
+        "sum",
+        "mean",
+        "first"
+      ]
+    },
+    "taxon_dim": {
+      "type": "string",
+      "default": "taxon"
+    },
+    "sample_dim": {
+      "type": "string",
+      "default": "sample"
+    }
+  }
+}
