@@ -136,7 +136,7 @@ operators when they share a competitor, a dataset and an oracle class.
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Pangenome and orthology | Roary 3.13 https://github.com/sanger-pathogens/Roary ; OrthoMCL 2.0 https://orthomcl.org/ | `genome_kmer_similarity`, `genome_mash_distance` | Pan-genome curve, core-genome size, ortholog clustering, MRCA and ultrametric checks are absent | P1 | 5 E. coli GFF3 (NCBI); Roary test data | Roary vs hand presence matrix; Biopython vs hand MRCA | `pangenome_curve`, `core_genome_size`, `ortholog_cluster`, `tree_mrca`, `tree_ultrametric` |
+| Pangenome and orthology | Roary 3.13 https://github.com/sanger-pathogens/Roary ; OrthoMCL 2.0 https://orthomcl.org/ | `genome_kmer_similarity`, `genome_mash_distance` | Pan-genome curve, core-genome size, ortholog clustering, MRCA and ultrametric checks are absent | P1 | 5 E. coli GFF3 (NCBI); Roary test data | Roary vs hand presence matrix; Biopython vs hand MRCA | `core_genome_size` (implemented b71), `pangenome_curve` (implemented b71), `ortholog_cluster` (implemented b71), `conserved_gene_order`, `genome_rearrangement` |
 
 ## Phylogenetics (5)
 

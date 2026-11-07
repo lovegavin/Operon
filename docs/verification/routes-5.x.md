@@ -1007,3 +1007,26 @@ profile resolves in this environment.
 Limitations: CDR3 strings are grouped exactly, without junction trimming or
 V(D)J alignment, and the diversity indices treat the input counts as clonotype
 abundances rather than read counts.
+
+## b71 - comparative genomics presence/absence panel
+
+Synthetic presence/absence matrix (5 genomes, 8 genes) declared as synthetic.
+Input sha256 `8d6164618b696df59946afe04e98f249c9b53bc1752274f6fdd5ca5bcff5b86a`.
+
+| operator | principal values |
+| --- | --- |
+| core_genome_size | 2 core genes; A/B/C 5 present (0.4 core), D/E 4 present (0.5 core) |
+| pangenome_curve | 4.5, 6.35, 7.05, 7.6, 8.0 genes for 1..5 genomes |
+| ortholog_cluster | one identical pair (D,E); 4 clusters |
+
+Oracle: independent pandas/NumPy recomputation of core counts, fractions, curve
+endpoint and monotonicity, and identical-pattern clustering passed 8/8 checks
+(`workdir/b71_oracle.json`).
+
+Three-end comparison: WSL and Windows produced identical files (`core_genome.csv`
+md5 `62a74abbd005cc4173db6680382a9302`, `pangenome_curve.csv`
+`c0abcb9be00f76e32d153f5fea7e74ee`, `ortholog_clusters.csv`
+`5c8da8b4ef073038458ba27da41bff1b`). srv was SKIP because no SSH profile resolves.
+
+Limitations: clustering uses pairwise Jaccard on exact presence patterns; the
+pangenome curve is a fixed-seed resampling estimate, not an extrapolated model.
