@@ -5010,6 +5010,16 @@
     "status": "generated"
   },
   {
+    "id": "motif_enrichment",
+    "kind": "operator",
+    "title": "Motif enrichment",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "One-sided Fisher exact test of motif occurrence in foreground versus background sequences.",
+    "doc": "src/task/step/steps/motif_enrichment.MotifEnrichmentStep.md",
+    "status": "authored"
+  },
+  {
     "id": "motif_scan",
     "kind": "operator",
     "title": "motif_scan",
@@ -5288,6 +5298,16 @@
     "description": "D'Agostino-Pearson normality test：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度。",
     "doc": "src/task/step/steps/normaltest.NormaltestStep.md",
     "status": "generated"
+  },
+  {
+    "id": "nucleosome_positioning",
+    "kind": "operator",
+    "title": "Nucleosome positioning periodicity",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Autocorrelation of a signal track to estimate nucleosome repeat length.",
+    "doc": "src/task/step/steps/nucleosome_positioning.NucleosomePositioningStep.md",
+    "status": "authored"
   },
   {
     "id": "nucleotide_diversity",
@@ -5627,6 +5647,16 @@
     "version": "1.0.0",
     "description": "Pairwise peak overlap matrix",
     "doc": "src/task/step/steps/peak_overlap_matrix.PeakOverlapMatrixStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "peak_peak_distance",
+    "kind": "operator",
+    "title": "Nearest peak distance",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "For each peak, report the distance to the closest other peak midpoint.",
+    "doc": "src/task/step/steps/peak_peak_distance.PeakPeakDistanceStep.md",
     "status": "authored"
   },
   {
