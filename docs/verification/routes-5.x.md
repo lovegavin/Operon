@@ -49,7 +49,7 @@ RDKit's documented behavior. That limitation is recorded rather than hidden.
 | Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4) | PASS | same five CSV files, MD5 identical to WSL; tree reports library 5.0.0 |
 | srv (`/public/home/lihj/...`) | SKIP | no `srv` host in `~/.ssh/config`, no `/public/home/lihj` mount; host name and credentials unknown |
 
-MD5 agreement: molecular_formula `df5e087dcf78217c257ce2846a665681`,
+MD5 agreement: molecular_formula `3d76fd93ef72388721114182249472cf`,
 exact_mass `44fd7b03bda29e91f14a2629b2d38dc2`,
 brics_fragments `5d99cf7d491275c97b73aa723f8779ed`,
 rgroup_decomposition `18533212868f5ed840b53045326d0a9a`,
@@ -64,3 +64,72 @@ isotope_pattern `5d091e0715086595a31715f9f7afec4a`.
   6 peaks by default; very low-abundance fine structure is intentionally dropped.
 - RDKit version 2026.09.1 differs between ends only in the recorded build string;
   it is the same package generation on both ends.
+
+## Batch b50 - formula and mass-spec arithmetic (5 operators)
+
+- Route: `workdir/b50_route`
+- Flow: `SmiReader(ligands.smi)` to `ligand_formula_parse`, `ligand_dbe`,
+  `ligand_adduct_mz`, `ligand_mass_fraction`, `ligand_nitrogen_rule`, then six
+  `export_results` CSV sinks (formula counts are exported twice: the b49 formula
+  operator and the b50 parser).
+- Input: `workdir/b50_route/input/ligands.smi`, 10 molecules (same panel as b49),
+  sha256 `5090e90025d2bb5ebec9d0fd6c7b7262bdc8fca5f37fd689219f18f8344c6c3a`.
+- Command (WSL): `PYTHONPATH=/home/gavin/Operon/library/seed:/home/gavin/Operon /home/gavin/bp-numpy21/bin/python scripts/run.py workdir/b50_route`
+- Result: `complete`, 12/12 steps.
+
+### Values read back
+
+| Operator | aspirin | caffeine | ethanol |
+| --- | --- | --- | --- |
+| formula counts | C9 H8 O4, 21 atoms | C8 H10 N4 O2, 24 atoms | C2 H6 O, 9 atoms |
+| dbe / integer | 6 / yes | 6 / yes | 0 / yes |
+| [M+H]+ | 181.04953 | 195.08765 | 47.04914 |
+| [M-H]- | 179.03499 | 193.07310 | 45.03459 |
+| [M+2H]2+ | 91.02840 | 98.04746 | 24.02821 |
+| carbon mass fraction | 0.60002 | 0.49480 | 0.52144 |
+| nitrogen rule | even mass, even N, ok | even mass, even N, ok | even mass, even N, ok |
+
+`dbe_minus_halogen` treats halogens as hydrogens and adds the same +1 term, so it
+equals `dbe` for these neutral closed-shell formulas (6, 6, 0); it is retained as
+a cross-check column rather than a second definition.
+
+### Oracles
+
+`workdir/b50_oracle.json` records 270 checks, 0 failures. Oracle A is pyteomics
+5.0.2 (`mass.calculate_mass`, `mass.isotopologues` for the parent formula); Oracle
+B is independent hand arithmetic with average atomic weights C 12.011, H 1.008,
+N 14.007, O 15.999, P 30.974, S 32.06, F 18.998, Cl 35.45, Br 79.904, I 126.904.
+
+| Operator | Oracle A | Oracle B | Result | Tolerance | Pass |
+| --- | --- | --- | --- | --- | --- |
+| ligand_formula_parse | RDKit `CalcMolFormula` | manual Hill parse of the input SMILES | identical element counts | exact | yes |
+| ligand_dbe | pyteomics neutral mass parity | hand DBE `C-(H+X)/2+N/2+1` | all 10 formulas agree | exact | yes |
+| ligand_adduct_mz | pyteomics exact mass + proton/Na/NH4 constants | hand adduct arithmetic | max abs error < 1e-4 m/z | 1e-4 | yes |
+| ligand_mass_fraction | manual average-weight fractions | sum-to-one and per-element ratio check | max abs error < 1e-6 | 1e-6 | yes |
+| ligand_nitrogen_rule | hand nominal mass and N parity | parity table for the 10 molecules | all rows ok | exact | yes |
+
+### Three-end results
+
+| End | Result | Evidence |
+| --- | --- | --- |
+| WSL (Ubuntu 24.04, bp-numpy21, NumPy 2.1.3) | PASS | 12/12 steps, values above |
+| Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4) | PASS | same six CSV files, MD5 identical to WSL |
+| srv (`/public/home/lihj/...`) | SKIP | no `srv` host in `~/.ssh/config`, no `/public/home/lihj` mount |
+
+MD5 agreement: adduct_mz `6bfe10d65008e3e8c957d4ced3f3310a`,
+dbe `0a4363e5df89af2aa57741d1a270ddf7`,
+formula_parse `ea8f66beb8cd14ffe8c969373160db1a`,
+mass_fraction `d8efda990b0b41a0aa36b5efe330a375`,
+molecular_formula `3d76fd93ef72388721114182249472cf`,
+nitrogen_rule `cdc06190eb5c10021c6615ecb3613363`.
+
+### Limitations
+
+- Formula strings are echoed in `info["formula"]`; the export is the numeric
+  element-count matrix, so a CSV consumer must map columns through the headers.
+- Only neutral, closed-shell Hill formulas are parsed. Charges, hydrate dots and
+  parentheses raise `StepError` instead of being silently ignored.
+- `dbe_minus_halogen` is a cross-check of the same arithmetic; it is not an
+  independent estimate and should not be reported as a separate descriptor.
+- The panel is a small, curated public-molecule panel intended for arithmetic
+  verification, not a biological conclusion.
