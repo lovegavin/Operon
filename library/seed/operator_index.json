@@ -9300,6 +9300,26 @@
     "status": "generated"
   },
   {
+    "id": "tree_consensus",
+    "kind": "operator",
+    "title": "Tree split consensus",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Support of clades across a set of trees.",
+    "doc": "src/task/step/steps/tree_consensus.TreeConsensusStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_dating",
+    "kind": "operator",
+    "title": "Root-to-tip dating",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Root-to-tip regression against tip dates.",
+    "doc": "src/task/step/steps/tree_dating.TreeDatingStep.md",
+    "status": "authored"
+  },
+  {
     "id": "tree_mrca",
     "kind": "operator",
     "title": "Most recent common ancestor of two tips",
@@ -9328,6 +9348,16 @@
     "description": "Remove the named tips from a rooted tree, drop internal nodes that lose every child and merge the two edges of any node left with a single child.",
     "doc": "src/task/step/steps/tree_prune_tips.TreePruneTipsStep.md",
     "status": "generated"
+  },
+  {
+    "id": "tree_quartet_support",
+    "kind": "operator",
+    "title": "Quartet topology support",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Tree-induced quartet topology against expected topologies.",
+    "doc": "src/task/step/steps/tree_quartet_support.TreeQuartetSupportStep.md",
+    "status": "authored"
   },
   {
     "id": "tree_root_midpoint",

@@ -124,7 +124,7 @@ def numeric_column(form, dim, name):
 
 def result_form(names, values, columns):
     out = Form(
-        data=np.asarray(values, dtype=float),
+        data=np.round(np.asarray(values, dtype=float), 9),
         dims=["entry", "statistic"],
         labels={"entry": {str(n): i for i, n in enumerate(names)},
                 "statistic": {c: i for i, c in enumerate(columns)}},
@@ -132,3 +132,20 @@ def result_form(names, values, columns):
     )
     out.validate()
     return out
+
+
+def text_column(form, dim, name):
+    labels = form.labels.get(dim) or {}
+    if name not in labels:
+        raise ValueError(f"column {name!r} not present on {dim!r}")
+    idx = int(labels[name])
+    vals = form.data[:, idx]
+    enc = ((form.info or {}).get("encoders") or {})
+    e = (enc.get(dim) or {}).get(name)
+    if e is not None:
+        if hasattr(e, "inverse_transform"):
+            return [str(x) for x in e.inverse_transform(vals.astype(int))]
+        if isinstance(e, dict):
+            inv = {v: k for k, v in e.items()}
+            return [str(inv.get(int(v), v)) for v in vals]
+    return [str(v) for v in vals]
