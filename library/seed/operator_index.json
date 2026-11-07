@@ -1550,6 +1550,16 @@
     "status": "generated"
   },
   {
+    "id": "conserved_gene_order",
+    "kind": "operator",
+    "title": "Conserved gene order between two genomes",
+    "category": "Comparative genomics",
+    "version": "1.0.0",
+    "description": "Conserved gene order between two genomes",
+    "doc": "src/task/step/steps/conserved_gene_order.ConservedGeneOrderStep.md",
+    "status": "authored"
+  },
+  {
     "id": "cooks_distance",
     "kind": "operator",
     "title": "Cook's distance",
@@ -2148,6 +2158,16 @@
     "description": "Fit a closed SIR model to an incidence series by least squares.",
     "doc": "src/task/step/steps/epidemic_sir_fit.EpidemicSirFitStep.md",
     "status": "generated"
+  },
+  {
+    "id": "epitope_conservation",
+    "kind": "operator",
+    "title": "Per-position conservation of aligned epitope sequences",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Per-position conservation of aligned epitope sequences",
+    "doc": "src/task/step/steps/epitope_conservation.EpitopeConservationStep.md",
+    "status": "authored"
   },
   {
     "id": "esm3_embedding",
@@ -3088,6 +3108,16 @@
     "description": "Extract the upstream window of every gene or CDS, reverse complementing minus-strand features, and return an aligned sequence Form with FASTA-ready info.sequences.",
     "doc": "src/task/step/steps/genome_promoter_extract.GenomePromoterExtractStep.md",
     "status": "generated"
+  },
+  {
+    "id": "genome_rearrangement",
+    "kind": "operator",
+    "title": "Rearrangement breakpoints between two genomes",
+    "category": "Comparative genomics",
+    "version": "1.0.0",
+    "description": "Rearrangement breakpoints between two genomes",
+    "doc": "src/task/step/steps/genome_rearrangement.GenomeRearrangementStep.md",
+    "status": "authored"
   },
   {
     "id": "genome_rearrangement_summary",
@@ -4740,6 +4770,16 @@
     "status": "authored"
   },
   {
+    "id": "mhc_anchor_score",
+    "kind": "operator",
+    "title": "Heuristic MHC-I anchor score for 9-mer peptides",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Heuristic MHC-I anchor score for 9-mer peptides",
+    "doc": "src/task/step/steps/mhc_anchor_score.MhcAnchorScoreStep.md",
+    "status": "authored"
+  },
+  {
     "id": "min_max_scale",
     "kind": "operator",
     "title": "Min-max scaling",
@@ -4958,6 +4998,16 @@
     "description": "Compare an observed isotope envelope with a theoretical formula distribution.",
     "doc": "src/task/step/steps/ms1_isotope_pattern.Ms1IsotopePatternStep.md",
     "status": "generated"
+  },
+  {
+    "id": "ms2_cosine_similarity",
+    "kind": "operator",
+    "title": "MS2 cosine similarity against a library spectrum",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "MS2 cosine similarity against a library spectrum",
+    "doc": "src/task/step/steps/ms2_cosine_similarity.Ms2CosineSimilarityStep.md",
+    "status": "authored"
   },
   {
     "id": "ms_missing_filter",
@@ -6540,6 +6590,16 @@
     "status": "generated"
   },
   {
+    "id": "ptm_localization_score",
+    "kind": "operator",
+    "title": "Phospho-site localization probability from delta scores",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Phospho-site localization probability from delta scores",
+    "doc": "src/task/step/steps/ptm_localization_score.PtmLocalizationScoreStep.md",
+    "status": "authored"
+  },
+  {
     "id": "pwm_from_counts",
     "kind": "operator",
     "title": "pwm_from_counts",
@@ -7988,6 +8048,16 @@
     "description": "Spectral embedding：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、主成分数、Affinity、Gamma、随机种子。",
     "doc": "src/task/step/steps/spectral_embedding.SpectralEmbeddingStep.md",
     "status": "generated"
+  },
+  {
+    "id": "spectral_entropy",
+    "kind": "operator",
+    "title": "Spectral entropy and peak complexity",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Spectral entropy and peak complexity",
+    "doc": "src/task/step/steps/spectral_entropy.SpectralEntropyStep.md",
+    "status": "authored"
   },
   {
     "id": "spectrum_library_match",

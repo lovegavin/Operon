@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "result"
+    },
+    "query_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "library_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "fragment_ppm": {
+      "type": "number",
+      "default": 20.0
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    }
+  }
+}
