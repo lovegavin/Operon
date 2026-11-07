@@ -2050,6 +2050,16 @@
     "status": "generated"
   },
   {
+    "id": "effective_population_size",
+    "kind": "operator",
+    "title": "Effective population size from temporal allele frequencies",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Effective population size from temporal allele frequencies",
+    "doc": "src/task/step/steps/effective_population_size.EffectivePopulationSizeStep.md",
+    "status": "authored"
+  },
+  {
     "id": "egger_test",
     "kind": "operator",
     "title": "Egger's test",
@@ -3410,6 +3420,16 @@
     "status": "generated"
   },
   {
+    "id": "haplotype_blocks",
+    "kind": "operator",
+    "title": "Haplotype blocks from adjacent linkage disequilibrium",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Haplotype blocks from adjacent linkage disequilibrium",
+    "doc": "src/task/step/steps/haplotype_blocks.HaplotypeBlocksStep.md",
+    "status": "authored"
+  },
+  {
     "id": "hardy_weinberg",
     "kind": "operator",
     "title": "Hardy-Weinberg equilibrium",
@@ -3620,6 +3640,16 @@
     "status": "generated"
   },
   {
+    "id": "ibd_segments",
+    "kind": "operator",
+    "title": "Identity-by-descent segments from IBS calls",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Identity-by-descent segments from IBS calls",
+    "doc": "src/task/step/steps/ibd_segments.IbdSegmentsStep.md",
+    "status": "authored"
+  },
+  {
     "id": "ica",
     "kind": "operator",
     "title": "ICA",
@@ -3628,6 +3658,16 @@
     "description": "ICA：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、主成分数、Whiten、Max Iter、随机种子。",
     "doc": "src/task/step/steps/ica.IcaStep.md",
     "status": "generated"
+  },
+  {
+    "id": "ihs_selection",
+    "kind": "operator",
+    "title": "Integrated haplotype score from biallelic haplotypes",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Integrated haplotype score from biallelic haplotypes",
+    "doc": "src/task/step/steps/ihs_selection.IhsSelectionStep.md",
+    "status": "authored"
   },
   {
     "id": "impute",
@@ -7348,6 +7388,16 @@
     "description": "ROC curve points (FPR, TPR, threshold) for a binary target.",
     "doc": "src/task/step/steps/roc_curve.RocCurveStep.md",
     "status": "generated"
+  },
+  {
+    "id": "roh_detect",
+    "kind": "operator",
+    "title": "Runs of homozygosity per sample",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Runs of homozygosity per sample",
+    "doc": "src/task/step/steps/roh_detect.RohDetectStep.md",
+    "status": "authored"
   },
   {
     "id": "rscu_table",

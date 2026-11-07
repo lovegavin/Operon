@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string",
+      "default": "out"
+    },
+    "r2_threshold": {
+      "type": "number",
+      "default": 0.5
+    }
+  }
+}
