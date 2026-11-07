@@ -665,3 +665,48 @@ uses the classic 5x contamination penalty without strain heterogeneity; GTDB
 counts rank strings only and does not validate taxonomy against the release;
 MLST assigns sequence types within the input table; pangenome categories are
 presence/absence counts, not orthology calls.
+
+## b60 — metagenomics summary panel (synthetic fixtures)
+
+**Scope.** Five numeric summary operators: `kraken_kreport_parse`,
+`bracken_reestimate`, `humann_pathway_abundance`, `metaphlan_profile_parse`,
+`plasmid_contig_filter`. The route uses synthetic tables and validates the
+arithmetic and contracts only; nothing here is a biological conclusion.
+
+**Data.** `workdir/b60_route/input/`:
+`kraken.csv` sha256 `436c53d4822d587c1b137697fbb124f9cc225b7dcabb8b1240a2c52019a0c98c`,
+`bracken.csv` sha256 `475ffff2b535c4c0ecfefbc4513fdc105fc1c593421c7f17823453d297eee628`,
+`humann.csv` sha256 `ea554e4fe5cb21a241593739dbfa9e8a9300e938d358e6d50312854873142105`,
+`metaphlan.csv` sha256 `c957310c7fea54cb12a087ce58bd0460ede10bc3763235866bcb596cf7548b4d`,
+`plasmid.csv` sha256 `251218b24d0fa74f3fc0610af4f805a00f863f4b58501557b1f41174e7262299`.
+
+**Command.** `PYTHONPATH=library/seed:. python scripts/run.py workdir/b60_route`
+after `python -m operon registry build` and
+`python scripts/build_builtin_packages.py --refresh`; 10/10 steps completed.
+
+**Values (WSL).** Kraken: total 175, species fraction 0.5714286, genus
+fraction 0.8571429 (species included), max rank 6. Bracken: abundance
+5e-05 per taxon, relative 0.5, 500000 per million. HUMAnN: total 100, mean
+33.3333333, median 30, Shannon 0.8979457, top fraction 0.6. MetaPhlAn: rank
+2/5/6 sums 0.2/0.3/0.5, n_taxa 1/2/1, Shannon 0.8979457. Plasmid filter:
+contig 0 passes (5000 bp, depth 10), contig 1 fails (500 bp), n_pass 1,
+bp_pass 5000.
+
+**Oracle.** `workdir/b60_oracle.json` recomputes every value from the raw
+inputs with the standard library only (sums, ratios, median, Shannon,
+rank-grouping, threshold logic); 19/19 checks pass. Competitor references:
+Kraken2 report format, Bracken re-estimation, HUMAnN pathway tables,
+MetaPhlAn profile format, plasmid contig heuristics.
+
+**Three-end.** WSL and Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4)
+produce byte-identical CSVs: kraken `45b7576799a0d036b840573b4ca767ef`,
+bracken `58c9462435421ee6f176158cb786a618`,
+humann `2b0774d8933c234208d318f9efc92b36`,
+metaphlan `8425e6ff36007e65873ea393c66c480f`,
+plasmid `0b9f9b184772968375e6ffa02d9cb745`. srv: SKIP, `ssh srv` is not
+resolvable and no `/public/home/lihj` mount exists.
+
+**Limitations.** Synthetic fixtures; Kraken genus fraction includes species
+ranks; Bracken uses genome length rather than effective length; HUMAnN and
+MetaPhlAn inputs are already normalized tables; the plasmid filter is a
+length/depth heuristic with no replication or topology evidence.
