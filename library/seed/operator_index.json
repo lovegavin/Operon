@@ -4540,6 +4540,16 @@
     "status": "generated"
   },
   {
+    "id": "metabolite_mass_match",
+    "kind": "operator",
+    "title": "Metabolite mass match",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Match observed m/z values to a metabolite database within a ppm tolerance.",
+    "doc": "src/task/step/steps/metabolite_mass_match.MetaboliteMassMatchStep.md",
+    "status": "generated"
+  },
+  {
     "id": "metaphlan_profile_parse",
     "kind": "operator",
     "title": "MetaPhlAn rank profile summary",
@@ -4747,6 +4757,26 @@
     "version": "1.0.0",
     "description": "MRPP chance-corrected within-group agreement with a permutation p-value.",
     "doc": "src/task/step/steps/mrpp.MrppStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ms1_feature_detect",
+    "kind": "operator",
+    "title": "MS1 feature detection",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Detect local intensity maxima in profile-mode MS1 scans.",
+    "doc": "src/task/step/steps/ms1_feature_detect.Ms1FeatureDetectStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ms1_isotope_pattern",
+    "kind": "operator",
+    "title": "MS1 isotope pattern",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Compare an observed isotope envelope with a theoretical formula distribution.",
+    "doc": "src/task/step/steps/ms1_isotope_pattern.Ms1IsotopePatternStep.md",
     "status": "generated"
   },
   {

@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "ms1_feature_detect",
+      "title": "Output name"
+    },
+    "scan_dim": {
+      "type": "string",
+      "default": "scan"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "min_intensity": {
+      "type": "number",
+      "default": 1000.0
+    },
+    "min_prominence": {
+      "type": "number",
+      "default": 100.0
+    },
+    "peak_dim": {
+      "type": "string",
+      "default": "peak"
+    }
+  }
+}

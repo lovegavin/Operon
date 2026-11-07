@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "ms1_isotope_pattern",
+      "title": "Output name"
+    },
+    "peak_dim": {
+      "type": "string",
+      "default": "peak"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "formula": {
+      "type": "string",
+      "default": "C6H12O6"
+    },
+    "charge": {
+      "type": "integer",
+      "default": 1
+    },
+    "tolerance_ppm": {
+      "type": "number",
+      "default": 20.0
+    }
+  }
+}
