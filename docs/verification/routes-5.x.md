@@ -366,3 +366,96 @@ Unit tests: `tests/test_peak_panel_b53.py`, 4 passed.
 - Signal columns are narrowPeak signalValue/pValue/qValue as stored; qValue is not
   recomputed.
 - `peak_quality_filter` remains planned for a later epigenomics batch.
+
+## b54 — narrowPeak strand, width–signal and chromosome distribution
+
+Date: 2026-11-08. Commit: this batch's `feat(library)` commit.
+
+### Operators
+
+| id | purpose | output |
+| --- | --- | --- |
+| `peak_strand_bias` | plus/minus/unknown peak counts and plus fraction | 6 metrics |
+| `peak_width_signal_correlation` | Pearson/Spearman correlation and linear fit of peak width vs signalValue | 7 metrics |
+| `peak_chrom_summary` | peaks per chromosome, top-chromosome fractions | 7 metrics |
+
+`peak_quality_filter` was prototyped but removed before commit: a filtered
+narrowPeak table keeps encoded string columns and the CSV export would expose
+label codes rather than chrom/name text. It remains planned for a batch that can
+pair it with a text writer.
+
+### Route
+
+`workdir/b54_route` reuses the first 20 000 rows of the ENCODE GM12878 narrowPeak
+file (`workdir/b8_prep/peaks.bed`), sha256
+`dc25af7dc7579bc701d88fd8c7ae70a783c32f57ad131d51a7dd8553151ed931`.
+Command:
+
+```
+PYTHONPATH=$PWD/library/seed:$PWD /home/gavin/bp-numpy21/bin/python scripts/run.py workdir/b54_route
+```
+
+6/6 steps complete in 0.05 s.
+
+### Values
+
+| metric | value |
+| --- | --- |
+| n_peaks | 20 000 |
+| n_plus / n_minus / n_unknown | 0 / 0 / 20 000 |
+| fraction_plus | 0.0 |
+| plus_minus_ratio | nan (no minus-strand peak) |
+| pearson_r | -0.30582777 |
+| spearman_rho | -0.28463130 |
+| slope_bp_per_signal | -19.03993609 |
+| intercept_bp | 1412.78278377 |
+| mean_width / mean_signal | 1110.55005 / 15.87362123 |
+| n_chromosomes / max / median | 23 / 2033 / 863 |
+| fraction_top1 / fraction_top3 | 0.10165 / 0.24030 |
+
+Every peak in this file has `.` in the narrowPeak strand column, so the strand
+panel correctly reports 100 % unknown. `plus_minus_ratio` is `nan`, not `inf`, so
+the CSV stays finite.
+
+### Oracles
+
+`C:\Users\Public\b54_oracle.py` recomputes all 16 reported quantities from the
+same file with pandas 2.3.3/NumPy 2.1.3, including an explicit rank correlation
+and `numpy.polyfit`. 16/16 checks pass; `workdir/b54_oracle.json` records the
+input sha256 and each delta.
+
+| oracle | implementation | checks | result |
+| --- | --- | --- | --- |
+| A | pandas + NumPy (rank correlation, polyfit) | 16 | pass |
+
+The unit tests pin a six-row hand-computed example
+(`tests/test_peak_panel_b54.py`, 3 passed), which is the second, independent
+check on the definitions.
+
+### Three-end
+
+| end | status | evidence |
+| --- | --- | --- |
+| WSL (bp-numpy21, NumPy 2.1.3) | PASS | 6/6 steps; md5 below |
+| Windows (D:\Operon, py 3.12.10, NumPy 2.5.4) | PASS | 6/6 steps; md5 below |
+| srv (`/public/home/lihj/...`) | SKIP | `ssh srv` unresolved; no `/public/home/lihj` mount |
+
+CSV md5 (WSL = Windows):
+
+| export | md5 |
+| --- | --- |
+| strand_bias.csv | `9b089a5b41e628234fbb5b94890528a1` |
+| width_signal_correlation.csv | `b01c467b9468d953a725fbf127d69b4f` |
+| chrom_summary.csv | `dd37e5e64e17239d20fd6cdcbe392708` |
+
+The correlation statistics are rounded to 8 decimals inside the operator so that
+NumPy/BLAS last-bit drift between 2.1.3 and 2.5.4 cannot change the artifact
+bytes. Without that rounding the Windows value differed at the 1e-16 level and
+the md5 did not match.
+
+### Limitations
+
+- The route uses a 20 000-row subset; full-file numbers differ.
+- Strand statistics are uninformative for this file because ENCODE stores `.` for
+  all peaks; the operator reports that fact instead of guessing.
+- Correlation is descriptive; peaks are not independent observations.
