@@ -710,3 +710,38 @@ resolvable and no `/public/home/lihj` mount exists.
 ranks; Bracken uses genome length rather than effective length; HUMAnN and
 MetaPhlAn inputs are already normalized tables; the plasmid filter is a
 length/depth heuristic with no replication or topology evidence.
+
+### b67. LFQ matrix normalisation and missing-value filtering
+
+**Data.** Synthetic protein-by-sample intensity matrix (6 proteins x 4 samples,
+including missing and zero entries), `workdir/b67_route/input/intensities.csv`,
+sha256 `a17aa26bf9f849c9e7181c8c33ab15802cd081da7a0505b1d2aa7ecb517379a3`.
+The file is synthetic and is not a biological measurement.
+
+**Route.** `workdir/b67_route` (`CsvReader` -> three operators -> three
+`export_results`), 6 steps, all complete. Median normalisation shifts every
+sample to the global median of sample medians (target 250.0) with factors
+0.4/0.8/1.2/1.6 for the four samples. Quantile normalisation produces identical
+sorted distributions in every sample, and the missing-value filter keeps
+proteins whose missing fraction is at most 0.3.
+
+**Values.** Median-normalised first row 250/250/250/250; quantile-normalised
+columns share the same sorted profile; the filter keeps p1/p2/p3 of six
+proteins. Full matrices are in the three exported CSV files below.
+
+**Oracle.** `b67_oracle.py` recomputed medians and factors with NumPy (exact
+match), checked the quantile-normalisation property that each column's sorted
+finite values equal the shared reference profile (max delta 0.0), and recounted
+the filtered rows. 4/4 checks pass; results in `workdir/b67_oracle.json`.
+
+**Three-end.** WSL and Windows both ran the route to 6/6 steps. The three CSV
+md5 values match across the two systems: `median_normalized.csv`
+`48e4354c76d40932f9dbd126d5803ca7`, `quantile_normalized.csv`
+`6ea33831395130f9bfe4621d96a69245`, `missing_filtered.csv`
+`a13f82c7de0e9c8226d44d5de3cdf946`. The `srv` host remains unresolved
+(`ssh srv` is not configured), so that end is SKIP.
+
+**Limitations.** The operator normalises observed values only; it does not
+impute missing intensities. Quantile normalisation breaks ties by row order.
+The missing-value filter is a per-protein threshold and does not model
+missing-not-at-random structure.
