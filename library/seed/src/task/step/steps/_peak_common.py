@@ -11,7 +11,7 @@ def _labels(form, dim):
     return (form.labels or {}).get(dim) or {}
 
 
-def decode_column(form, field_dim, name, operator):
+def decode_column(form, field_dim, name, operator="peak"):
     """Return a decoded string column from a tabular form."""
 
     labels = _labels(form, field_dim)
@@ -20,8 +20,10 @@ def decode_column(form, field_dim, name, operator):
     values = np.asarray(form.data[:, labels[name]])
     encoder = ((form.info or {}).get("encoders") or {}).get(field_dim, {}).get(name)
     inverse = getattr(encoder, "inverse", None)
-    if inverse:
-        return [str(inverse.get(int(value), value)) for value in values]
+    if callable(inverse):
+        return [str(value) for value in inverse(values.astype(int))]
+    if isinstance(encoder, dict):
+        return [str(encoder.get(int(value), value)) for value in values]
     decoded = []
     for value in values:
         if isinstance(value, (float, np.floating)) and float(value).is_integer():
@@ -31,7 +33,7 @@ def decode_column(form, field_dim, name, operator):
     return decoded
 
 
-def numeric_column(form, field_dim, name, operator):
+def numeric_column(form, field_dim, name, operator="peak"):
     """Return a finite numeric column from a tabular form."""
 
     labels = _labels(form, field_dim)
@@ -52,6 +54,6 @@ def metric_form(names, values, info=None):
         "statistic": {"value": 0},
     }
     payload = {"missing_code": np.nan, "n_metrics": len(names)}
-    if info:
+    if isinstance(info, dict):
         payload.update(info)
     return Form(data=data, dims=["metric", "statistic"], labels=labels, info=payload)

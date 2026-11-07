@@ -5060,6 +5060,16 @@
     "status": "generated"
   },
   {
+    "id": "peak_density_profile",
+    "kind": "operator",
+    "title": "Peak density in fixed windows",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Counts peaks and covered bases per genomic window.",
+    "doc": "src/task/step/steps/peak_density_profile.PeakDensityProfileStep.md",
+    "status": "authored"
+  },
+  {
     "id": "peak_gap_stats",
     "kind": "operator",
     "title": "Inter-peak gap statistics",
@@ -5090,6 +5100,16 @@
     "status": "generated"
   },
   {
+    "id": "peak_overlap_count",
+    "kind": "operator",
+    "title": "Count peaks overlapping genes",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Counts how many peaks overlap any gene feature.",
+    "doc": "src/task/step/steps/peak_overlap_count.PeakOverlapCountStep.md",
+    "status": "authored"
+  },
+  {
     "id": "peak_signal_stats",
     "kind": "operator",
     "title": "Peak signal and confidence summary",
@@ -5118,6 +5138,16 @@
     "description": "Summarize the narrowPeak summit offset relative to the interval start and center.",
     "doc": "src/task/step/steps/peak_summit_offset.PeakSummitOffsetStep.md",
     "status": "generated"
+  },
+  {
+    "id": "peak_tss_distance",
+    "kind": "operator",
+    "title": "Distance from peaks to nearest TSS",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarizes peak distance to the nearest gene TSS.",
+    "doc": "src/task/step/steps/peak_tss_distance.PeakTssDistanceStep.md",
+    "status": "authored"
   },
   {
     "id": "peak_width_signal_correlation",

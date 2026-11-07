@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "window_bp": {
+      "type": "integer",
+      "default": 1000000
+    },
+    "region_dim": {
+      "type": "string",
+      "default": "region"
+    },
+    "chrom_dim": {
+      "type": "string",
+      "default": "chrom"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    }
+  }
+}
