@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "title": "Output name",
+      "default": "output"
+    },
+    "row_dim": {
+      "type": "string",
+      "title": "Row dimension",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "title": "Field dimension",
+      "default": "field"
+    },
+    "min_period": {
+      "type": "integer",
+      "default": -5,
+      "minimum": -50,
+      "maximum": -1
+    },
+    "max_period": {
+      "type": "integer",
+      "default": 5,
+      "minimum": 0,
+      "maximum": 50
+    }
+  },
+  "required": [
+    "output"
+  ]
+}

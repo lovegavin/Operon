@@ -1850,6 +1850,16 @@
     "status": "generated"
   },
   {
+    "id": "difference_in_differences",
+    "kind": "operator",
+    "title": "Difference-in-differences estimate",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Two-way fixed-effect style DiD from outcome, treatment and post columns with HC1 inference.",
+    "doc": "src/task/step/steps/difference_in_differences.DifferenceInDifferencesStep.md",
+    "status": "generated"
+  },
+  {
     "id": "difference_sign",
     "kind": "operator",
     "title": "Difference-sign test",
@@ -1917,6 +1927,16 @@
     "version": "1.0.0",
     "description": "Doublet detection：接收 1 个输入，输出 Form；主要参数：Cell Dim、Gene Dim、Expected Doublet Rate、随机种子、阈值、N Prin Comps。",
     "doc": "src/task/step/steps/doublet_detect.DoubletDetectStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "doubly_robust_ate",
+    "kind": "operator",
+    "title": "Doubly robust ATE (AIPW)",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "AIPW average treatment effect with logistic propensity and linear outcome models.",
+    "doc": "src/task/step/steps/doubly_robust_ate.DoublyRobustAteStep.md",
     "status": "generated"
   },
   {
@@ -2407,6 +2427,16 @@
     "version": "1.0.0",
     "description": "Per-feature eta-squared, the between-group share of total variance.",
     "doc": "src/task/step/steps/eta_squared.EtaSquaredStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "event_study",
+    "kind": "operator",
+    "title": "Event-study coefficients",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Two-way within-transformed event-study regression on a balanced panel.",
+    "doc": "src/task/step/steps/event_study.EventStudyStep.md",
     "status": "generated"
   },
   {
@@ -4527,6 +4557,16 @@
     "version": "1.0.0",
     "description": "Multidimensional scaling：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、主成分数、距离/相关指标。",
     "doc": "src/task/step/steps/mds.MdsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "mediation_analysis",
+    "kind": "operator",
+    "title": "Mediation analysis",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Product-of-coefficients mediation with delta-method inference.",
+    "doc": "src/task/step/steps/mediation_analysis.MediationAnalysisStep.md",
     "status": "generated"
   },
   {
@@ -8587,6 +8627,16 @@
     "version": "1.0.0",
     "description": "Linear SVM regressor：接收 2 个输入，输出 Form；主要参数：样本维度、特征维度、标签维度、目标字段、测试集比例、交叉验证折数。",
     "doc": "src/task/step/steps/svm_regressor.SvmRegressorStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "synthetic_control",
+    "kind": "operator",
+    "title": "Synthetic control ATT",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Simplex-weighted donor pool fitted on pre-treatment periods, ATT on post periods.",
+    "doc": "src/task/step/steps/synthetic_control.SyntheticControlStep.md",
     "status": "generated"
   },
   {
