@@ -124,7 +124,7 @@ operators when they share a competitor, a dataset and an oracle class.
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Epitope and repertoire | IEDB 2.12 https://www.iedb.org/ ; NetMHCpan 4.1 https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 ; Nextclade 3.0 https://clades.nextstrain.org/ | `vhh_humanization_score` | MHC-binding motif, processing score, TCR diversity, BCR clonotype and viral lineage assignment are absent | P1 | IEDB epitope table; Nextstrain SARS-CoV-2 JSON https://nextstrain.org/ | IEDB/NetMHCpan vs hand PWM; Nextclade vs hand mutation set | `mhc_binding_motif`, `epitope_processing`, `tcr_diversity`, `bcr_clonotype`, `viral_lineage_assign` |
+| Epitope and repertoire | IEDB 2.12 https://www.iedb.org/ ; NetMHCpan 4.1 https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 ; Nextclade 3.0 https://clades.nextstrain.org/ | `vhh_humanization_score` | MHC-binding motif, processing score, TCR diversity, BCR clonotype and viral lineage assignment are absent | P1 | IEDB epitope table; Nextstrain SARS-CoV-2 JSON https://nextstrain.org/ | IEDB/NetMHCpan vs hand PWM; Nextclade vs hand mutation set | `bcr_clonotype` (implemented b69), `tcr_diversity` (implemented b69), `cdr3_properties` (implemented b69), `mhc_binding_motif`, `epitope_conservation` |
 
 ## Epidemiology (5)
 

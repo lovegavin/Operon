@@ -979,3 +979,31 @@ srv: SKIP (ssh alias srv does not resolve).
 
 Tests: tests/test_tree_panel_b72.py 3 passed.
 Limitations: the Newick parser supports rooted trees with branch lengths, unquoted labels and no support values; parsimony uses equal-cost Fitch scoring and treats missing tip states as empty sets.
+
+## b69 - immune repertoire clonotypes, diversity and CDR3 properties
+
+Synthetic repertoire table (7 records, 96 counts across 5 clones) declared as
+synthetic data. Input sha256 `dafd79a2bbcae619bfd2f1a80885af59a5af5d47c8fe643ffed3062e20c334ec`.
+
+Three operators were exercised through `scripts/run.py workdir/b69_route`:
+`bcr_clonotype` grouped by V gene and CDR3, `tcr_diversity` computed richness and
+evenness indices, and `cdr3_properties` summarised residue composition.
+
+| operator | principal values |
+| --- | --- |
+| bcr_clonotype | 5 clones; top clone 50 counts (0.520833); n_expanded 3 |
+| tcr_diversity | observed 7; Shannon 1.52044; Simpson 0.72830; Chao1 7; Pielou 0.78135 |
+| cdr3_properties | 7 sequences; length 13-16; one cysteine each |
+
+Oracle: an independent pandas/NumPy recomputation of group sizes, Shannon,
+Simpson, Chao1 and composition passed 9/9 checks (`workdir/b69_oracle.json`).
+
+Three-end comparison: WSL and Windows produced identical CSV files
+(`clonotypes.csv` md5 `f3399bce93365716d9bfa9690416f77c`, `diversity.csv`
+`a57bf2e7b6e58a041b4edf5babfec9db`, `cdr3.csv`
+`f47afff2717cdb472fe661490788c197`). The srv endpoint was SKIP because no SSH
+profile resolves in this environment.
+
+Limitations: CDR3 strings are grouped exactly, without junction trimming or
+V(D)J alignment, and the diversity indices treat the input counts as clonotype
+abundances rather than read counts.
