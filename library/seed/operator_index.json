@@ -4950,6 +4950,16 @@
     "status": "generated"
   },
   {
+    "id": "peak_gap_stats",
+    "kind": "operator",
+    "title": "Inter-peak gap statistics",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarize distances between consecutive narrowPeak intervals on the same chromosome.",
+    "doc": "src/task/step/steps/peak_gap_stats.PeakGapStatsStep.md",
+    "status": "generated"
+  },
+  {
     "id": "peak_merge",
     "kind": "operator",
     "title": "peak_merge",
@@ -4967,6 +4977,36 @@
     "version": "1.0.0",
     "description": "Assign every BED interval to its nearest annotated gene.",
     "doc": "src/task/step/steps/peak_nearest_gene.PeakNearestGeneStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peak_signal_stats",
+    "kind": "operator",
+    "title": "Peak signal and confidence summary",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarize ENCODE narrowPeak signalValue, pValue and qValue columns.",
+    "doc": "src/task/step/steps/peak_signal_stats.PeakSignalStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peak_summit_offset",
+    "kind": "operator",
+    "title": "Peak summit offset",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarize the narrowPeak summit offset relative to the interval start and center.",
+    "doc": "src/task/step/steps/peak_summit_offset.PeakSummitOffsetStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peak_width_stats",
+    "kind": "operator",
+    "title": "Peak width distribution",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarize narrowPeak interval widths in base pairs.",
+    "doc": "src/task/step/steps/peak_width_stats.PeakWidthStatsStep.md",
     "status": "generated"
   },
   {

@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "region_dim": {
+      "type": "string",
+      "default": "region",
+      "title": "Region dimension",
+      "description": "Name of the peak axis in the input form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 10
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field dimension",
+      "description": "Name of the field axis holding narrowPeak columns.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 20
+    },
+    "output": {
+      "type": "string",
+      "default": "peak_gap_stats",
+      "title": "Output name",
+      "description": "Context name of the output form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 90
+    },
+    "short_gap_bp": {
+      "type": "integer",
+      "default": 1000,
+      "minimum": 1,
+      "title": "Short gap threshold (bp)",
+      "description": "Gaps shorter than this value contribute to frac_gap_lt_1000.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 30
+    }
+  }
+}
