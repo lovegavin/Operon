@@ -111,7 +111,7 @@ operators when they share a competitor, a dataset and an oracle class.
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Spectrum matching and annotation | pyteomics 4.7 https://pyteomics.readthedocs.io/ ; OpenMS 3.2 https://www.openms.de/ | `peptide_fragment_ions`, `peptide_isotope_envelope`, `peptide_mass`, `peptide_modified_mass` | MS2 cosine, spectral-library match, PTM localization and spectrum annotation are absent | P0 | PRIDE PXD000001 (local mzML subset), https://www.ebi.ac.uk/pride/ | pyteomics vs hand dot-product on 10 peaks | `spectrum_library_match` (b66), `peptide_spectrum_annotation` (b66); `ms2_cosine`, `ptm_localization` (future) |
+| Spectrum matching and annotation | pyteomics 4.7 https://pyteomics.readthedocs.io/ ; OpenMS 3.2 https://www.openms.de/ | `peptide_fragment_ions`, `peptide_isotope_envelope`, `peptide_mass`, `peptide_modified_mass` | MS2 cosine, spectral-library match, PTM localization and spectrum annotation are absent | P0 | PRIDE PXD000001 (local mzML subset), https://www.ebi.ac.uk/pride/ | pyteomics vs hand dot-product on 10 peaks | `spectrum_library_match` (b66), `peptide_spectrum_annotation` (b66), `ms2_cosine_similarity` (b62b), `ptm_localization_score` (b62b), `spectral_entropy` (b62b) |
 | Protein inference and quantification | OpenMS 3.2; MaxQuant 2.6 https://www.maxquant.org/ | `protein_rollup`, `peptide_qvalue` | Parsimony protein inference, LFQ median/quantile normalisation, MS1 feature detection, RT alignment and missing-value filter are absent | P0 | PRIDE PXD000001; MaxQuant LFQ benchmark | Hand parsimony set cover vs OpenMS; hand median/quantile | `lfq_median_normalize` (b67), `lfq_quantile_normalize` (b67), `ms_missing_filter` (b67); `protein_inference` (b66), `ms1_feature_detect` (b68), `rt_alignment` (b75b) |
 
 ## Metabolomics (5)
@@ -124,7 +124,7 @@ operators when they share a competitor, a dataset and an oracle class.
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Epitope and repertoire | IEDB 2.12 https://www.iedb.org/ ; NetMHCpan 4.1 https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 ; Nextclade 3.0 https://clades.nextstrain.org/ | `vhh_humanization_score` | MHC-binding motif, processing score, TCR diversity, BCR clonotype and viral lineage assignment are absent | P1 | IEDB epitope table; Nextstrain SARS-CoV-2 JSON https://nextstrain.org/ | IEDB/NetMHCpan vs hand PWM; Nextclade vs hand mutation set | `bcr_clonotype` (implemented b69), `tcr_diversity` (implemented b69), `cdr3_properties` (implemented b69), `mhc_binding_motif`, `epitope_conservation` |
+| Epitope and repertoire | IEDB 2.12 https://www.iedb.org/ ; NetMHCpan 4.1 https://services.healthtech.dtu.dk/service.php?NetMHCpan-4.1 ; Nextclade 3.0 https://clades.nextstrain.org/ | `vhh_humanization_score` | MHC-binding motif, processing score, TCR diversity, BCR clonotype and viral lineage assignment are absent | P1 | IEDB epitope table; Nextstrain SARS-CoV-2 JSON https://nextstrain.org/ | IEDB/NetMHCpan vs hand PWM; Nextclade vs hand mutation set | `bcr_clonotype` (implemented b69), `tcr_diversity` (implemented b69), `cdr3_properties` (implemented b69), `epitope_conservation` (b62b), `mhc_anchor_score` (b62b), `mhc_binding_motif` (future) |
 
 ## Epidemiology (5)
 
@@ -136,7 +136,7 @@ operators when they share a competitor, a dataset and an oracle class.
 
 | Capability | Competitor (version / link) | Existing | Gap | Pri | Public data | Oracle A / oracle B | Planned ids |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Pangenome and orthology | Roary 3.13 https://github.com/sanger-pathogens/Roary ; OrthoMCL 2.0 https://orthomcl.org/ | `genome_kmer_similarity`, `genome_mash_distance` | Pan-genome curve, core-genome size, ortholog clustering, MRCA and ultrametric checks are absent | P1 | 5 E. coli GFF3 (NCBI); Roary test data | Roary vs hand presence matrix; Biopython vs hand MRCA | `core_genome_size` (implemented b71), `pangenome_curve` (implemented b71), `ortholog_cluster` (implemented b71), `conserved_gene_order`, `genome_rearrangement` |
+| Pangenome and orthology | Roary 3.13 https://github.com/sanger-pathogens/Roary ; OrthoMCL 2.0 https://orthomcl.org/ | `genome_kmer_similarity`, `genome_mash_distance` | Pan-genome curve, core-genome size, ortholog clustering, MRCA and ultrametric checks are absent | P1 | 5 E. coli GFF3 (NCBI); Roary test data | Roary vs hand presence matrix; Biopython vs hand MRCA | `core_genome_size` (implemented b71), `pangenome_curve` (implemented b71), `ortholog_cluster` (implemented b71), `conserved_gene_order` (implemented b71b), `genome_rearrangement` (implemented b71b) |
 
 ## Phylogenetics (5)
 

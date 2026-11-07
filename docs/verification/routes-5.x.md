@@ -1107,3 +1107,23 @@ not a peak model.
 - Oracle: independent NumPy median/z-score/rank and a separate recursive kinship implementation; 6/6 checks pass (`workdir/b75b_oracle.json`), maximum delta 7.7e-10 (selection composite, tolerance 1e-6).
 - Three-end: WSL and Windows 12.10 both 6/6; CSV md5 `rt_alignment` `9cad8c093ddc60ac28c8d5a6d79ba68c`, `selection_index` `1921e21fa2d5e66ef66bd12bbb732ef5`, `inbreeding` `29d50e7772d84de9fb3821df7136059d` are identical. The SSH host `srv` remains unresolvable, so that end is SKIP.
 - Limitations: `rt_alignment` assumes a constant global shift; `selection_index` standardises each statistic independently and is a screening score, not a formal test; pedigree coefficients follow the standard recursive kinship definition and require parents ordered before offspring in the input table.
+
+## b62b: MS2 spectral similarity and epitope panel (5 operators)
+
+- Operators: `spectral_entropy`, `ms2_cosine_similarity` (two inputs), `ptm_localization_score`, `epitope_conservation`, `mhc_anchor_score`; shared helper `_b62b_common.py`.
+- Route: `workdir/b62b2_route` (synthetic, six CsvReader sources, ten steps, five `export_results` steps); `scripts/run.py --check` OK and the run completed 10/10.
+- Input sha256: peaks `cf717a05cbc5ef82e835e73849a74be2821a00f748882ca0c80494d28f907a94`; qpeaks `03d98bbe59f5fd82142d46f90965a60b5eb2c0a891d246231264506f0b426631`; lpeaks `637f17311584e6270b5e3e20a88c0cc06e5cbdf64feb145051e221974c942d1f`; psms `f34358bb682c0c5db9b7f6fa96e667f7d7971abd33c1f4e3564e7926e880e391`; epitopes `e08673b2a645e2a8e747934b39c5b7c00b645bca7d5f2946e8ef537da21e8b96`; peptides `8c5c919d2b1565bbc249b0f915e9f7ed032d10736e9ffafe879fdccae750b652`.
+- Numeric results: spectral entropy s1 = 1.459148 (normalised 0.920620), s2 = 0.811278; MS2 cosine q1 = 1.0 (2 matched peaks), q2 = 1.0 (1 matched peak); PTM localisation probabilities 0.909091 (a), 0.666139 (b), 0.990099 (c); epitope conservation at position 5 entropy 0.918296, conservation 0.787526; MHC anchor scores for the two 9-mers are 0.
+- Oracle: independent Python (standard library plus a direct cosine implementation) recomputed entropy, cosine similarity, PTM probability, per-position conservation and anchor hydrophobicity; 10/10 checks pass (`workdir/b62b_oracle.json`), tolerance 1e-9.
+- Three-end: WSL and Windows 12.10 both complete the route; CSV md5 `entropy` `98bad9b7cbd59c796dc616cd836432e3`, `cosine` `a46ef31eb3b42ed24c129ce17124fe17`, `ptm` `c50852cbb2cf01bc82289d507f15fd4d`, `conservation` `b5c5951618c9f7b9d7ffe2f0c86cf73a`, `anchors` `0573ae425f189aa15bb244a9ef815949` are identical. The SSH host `srv` is still unresolvable, so that end is SKIP.
+- Limitations: the MS2 cosine matches peaks greedily by nearest m/z within 10 ppm and is not a full spectral-library search engine; `mhc_anchor_score` only scores positions 2 and 9 of 9-mers and does not predict binding affinity; the synthetic inputs exercise the contracts, not biological conclusions.
+
+## b71b: conserved gene order and genome rearrangement (2 operators)
+
+- Operators: `conserved_gene_order` (Spearman rank correlation of two genome orders, inversion count) and `genome_rearrangement` (adjacency preservation, breakpoints, longest conserved block); shared helper `_b71b_common.py`.
+- Route: `workdir/b71b_route` (synthetic six-gene table with one inversion); `scripts/run.py --check` OK and the run completed 4/4.
+- Input sha256: `sha256sum workdir/b71b_route/input/syn.csv` = `9dcb5086e6485af86c61b2053cf908ca7f49951863feb14ac93df65072171d7b`.
+- Numeric results: Spearman rho = 0.942857143, 6 genes, 1 inversion, inversion fraction 0.066666667; rearrangement fraction preserved 0.4, 3 breakpoints, longest block 3.
+- Oracle: an independent Python implementation (rank correlation from sorted ranks and a separate adjacency scan) reproduced every value and the hand calculation (1/15 inversion fraction); checks are recorded in `workdir/b71b_oracle.json`.
+- Three-end: WSL and Windows 12.10 both run 4/4; CSV md5 `order` `821d472e78e90e7bfde57c9fb7809117` and `rearr` `108a98e4cd08c9a07f3b00fdc94bad38` are identical. The SSH host `srv` is still unresolvable, so that end is SKIP.
+- Limitations: both operators assume the two gene orders are already an ortholog table (one row per shared gene); they do not detect duplications, and the rearrangement score is an adjacency summary, not a phylogenetic reconstruction.
