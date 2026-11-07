@@ -75,7 +75,7 @@ def test_installer_finishes_and_records_unavailable_operators(managed_install, c
     assert {key: {'status': value['status'], 'error': value['error']} for key, value in states.items()} == tool_results()
     assert {command[0] for command in commands if len(command) <= 2} == {'bwa', 'samtools', 'pairtools', 'cooler', 'cooltools'}
     output = capsys.readouterr().out
-    assert 'BioPipe and Hi-C environment ready' in output
+    assert 'Operon and Hi-C environment ready' in output
     assert all(key in output for key in TOOLS)
     assert 'Optional OpenMM extras' not in output
 
