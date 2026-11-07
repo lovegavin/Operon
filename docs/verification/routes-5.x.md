@@ -515,3 +515,54 @@ deterministic growth/R0/CFR tables are byte-identical.
 - One incidence curve cannot identify beta and gamma separately; use the fit for
   short-term interpolation only.
 - The SEIR fit fixes sigma = 0.2; a free sigma would need a longer series.
+
+## b56 — population-genetics panel on variant tables (2026-11-08)
+
+**Data.** Four hand-built CSV tables in `workdir/b56_route/input` exercise the
+population-genetics operators. They are synthetic and are **not** a real cohort.
+`variants.csv` has 8 variants (chrom, pos, two population allele counts,
+ref/alt read counts); `map.csv` has 6 intervals on chr1 from 0 to 8 Mb;
+`genotype.csv` has 8 individuals x 6 markers (0/1/2); `phenotype.csv` has one
+trait per individual.
+
+| File | sha256 |
+| --- | --- |
+| variants.csv | `a3629ad75c970bcb1154eb4d0eef2a0896eb8b0ff2e59873f599189a73fc5b36` |
+| map.csv | `30bce94e9aaac2cf5c145c7efeabc1b294118ae9bb87a577b26a8a32658a6e5e` |
+| genotype.csv | `329befa65a0dc966d4df754798179ae57595e6bb50fb4cf4549dc893459a86e4` |
+| phenotype.csv | `0ab5f3c866d0c173ba00d4d548e5c5a8863f66937b8d85fd805ff50aeb0fe64c` |
+
+**Route.** Four `CsvReader` sources feed five operators; every operator ends in
+`export_results`. 10/10 steps complete, no warnings.
+
+**Results.**
+
+| Output | Key values |
+| --- | --- |
+| fst_outliers.csv | Hudson Fst 0, 0, 0, 0.2234, 0, 0, 0.5712, 0; window z max 1.1547; no outlier at z > 1.5 |
+| recombination_rates.csv | 1.10, 1.20, 0.733, 1.20, 0.75 cM/Mb; cumulative 7.9 cM |
+| qtl_scan.csv | betas 0.9308, 0.5205, -0.8077, 0.4846, -0.4641, -0.9308; p 0.0083 ... 0.0083 |
+| rrblup.csv | predicted 0.3671 ... 1.5949 for observed 0.1 ... 1.7 |
+| allele_balance.csv | alt fractions 0.29 ... 0.50; 3 of 8 sites flagged imbalanced at binomial p < 0.01 |
+
+**Oracle.** `workdir/b56_oracle.json`: 7/7 checks pass. Oracle A recomputes
+Hudson Fst, recombination rate, QTL OLS and ridge rrBLUP with NumPy/pandas.
+Oracle B uses `statsmodels` OLS for the QTL p-values and `scipy.stats.binomtest`
+for allele balance; window z uses ddof=1 and the operator's n > 2 rule.
+
+**Three-end.**
+
+| End | Route | Hash comparison |
+| --- | --- | --- |
+| WSL (NumPy 2.1.3) | 10/10 complete | fst `e29eff9b8f79229b862f11c02cf8936f`, recomb `6d3e01311bf40a1976e8bb35ab56c663`, qtl `6458d31d9d7876536758ef7641c4fafe`, rrblup `f5c7a5e4383c0030f4ce54d6ca4b2321`, allele `3aaffd6c14b301ec7a13f2936e698331` |
+| Windows 12.10 / NumPy 2.5.4 (D:\Operon) | 10/10 complete | all five md5 match WSL |
+| srv | SKIP | `ssh srv` is not resolvable; no `/public/home/lihj` mount |
+
+**Limitations.**
+
+- Synthetic tables; no biological conclusion is drawn.
+- Eight variants make the Fst window z unstable; the outlier threshold returns
+  nothing on this toy set.
+- Eight individuals give a very low-power QTL scan; p-values are illustrative.
+- XP-EHH and iHS need phased haplotypes and were left in the matrix as future
+  work rather than approximated from genotypes.
