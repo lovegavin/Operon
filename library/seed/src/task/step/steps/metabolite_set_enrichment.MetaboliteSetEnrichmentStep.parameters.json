@@ -1,0 +1,55 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "out"
+    },
+    "universe_size": {
+      "type": "integer",
+      "default": 20000,
+      "minimum": 1
+    },
+    "feature_dim": {
+      "type": "string",
+      "default": "feature"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "set_dim": {
+      "type": "string",
+      "default": "set"
+    },
+    "set_field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "set_size": {
+      "type": "string",
+      "default": "set_size"
+    },
+    "overlap": {
+      "type": "string",
+      "default": "overlap"
+    },
+    "expected": {
+      "type": "string",
+      "default": "expected"
+    },
+    "fold_enrichment": {
+      "type": "string",
+      "default": "fold_enrichment"
+    },
+    "p_value": {
+      "type": "string",
+      "default": "p_value"
+    },
+    "q_value": {
+      "type": "string",
+      "default": "q_value"
+    }
+  }
+}

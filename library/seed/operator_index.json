@@ -4660,6 +4660,16 @@
     "status": "generated"
   },
   {
+    "id": "metabolite_adduct_annotation",
+    "kind": "operator",
+    "title": "Metabolite adduct annotation",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Convert feature m/z values into neutral masses for common adducts and match a database.",
+    "doc": "src/task/step/steps/metabolite_adduct_annotation.MetaboliteAdductAnnotationStep.md",
+    "status": "generated"
+  },
+  {
     "id": "metabolite_mass_match",
     "kind": "operator",
     "title": "Metabolite mass match",
@@ -4667,6 +4677,16 @@
     "version": "1.0.0",
     "description": "Match observed m/z values to a metabolite database within a ppm tolerance.",
     "doc": "src/task/step/steps/metabolite_mass_match.MetaboliteMassMatchStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "metabolite_set_enrichment",
+    "kind": "operator",
+    "title": "Metabolite set enrichment",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Hypergeometric over-representation of metabolite sets among detected features.",
+    "doc": "src/task/step/steps/metabolite_set_enrichment.MetaboliteSetEnrichmentStep.md",
     "status": "generated"
   },
   {
@@ -9537,6 +9557,16 @@
     "version": "1.0.0",
     "description": "Woolf test for homogeneity of odds ratios across 2x2 strata.",
     "doc": "src/task/step/steps/woolf_test.WoolfTestStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "xic_extract",
+    "kind": "operator",
+    "title": "Extracted ion chromatogram peaks",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Detect and integrate peaks in a single extracted-ion chromatogram.",
+    "doc": "src/task/step/steps/xic_extract.XicExtractStep.md",
     "status": "generated"
   },
   {
