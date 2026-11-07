@@ -5400,6 +5400,16 @@
     "status": "generated"
   },
   {
+    "id": "protein_aliphatic_index",
+    "kind": "operator",
+    "title": "Protein aliphatic index",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Aliphatic index (Ikai 1980) from A, V, I and L composition.",
+    "doc": "src/task/step/steps/protein_aliphatic_index.ProteinAliphaticIndexStep.md",
+    "status": "generated"
+  },
+  {
     "id": "protein_composition",
     "kind": "operator",
     "title": "Protein amino-acid composition",
@@ -5440,6 +5450,36 @@
     "status": "generated"
   },
   {
+    "id": "protein_kinase_motifs",
+    "kind": "operator",
+    "title": "Protein kinase motifs",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Count minimal PKA (RRxS/T), CK2 (S/TxxD/E) and CDK (S/T-P-x-K/R) motifs.",
+    "doc": "src/task/step/steps/protein_kinase_motifs.ProteinKinaseMotifsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_nglyc_sequons",
+    "kind": "operator",
+    "title": "Protein N-glycosylation sequons",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Count N-X-S/T sequons (X not proline) and report density per 100 residues.",
+    "doc": "src/task/step/steps/protein_nglyc_sequons.ProteinNGlycSequonsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_nls_motifs",
+    "kind": "operator",
+    "title": "Protein NLS motifs",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Count monopartite and bipartite nuclear localization signal motifs.",
+    "doc": "src/task/step/steps/protein_nls_motifs.ProteinNlsMotifsStep.md",
+    "status": "generated"
+  },
+  {
     "id": "protein_properties",
     "kind": "operator",
     "title": "Protein properties",
@@ -5447,6 +5487,16 @@
     "version": "1.0.0",
     "description": "Protein properties：接收 1 个输入，输出 Form；主要参数：序列维度、位置维度。",
     "doc": "src/task/step/steps/protein_properties.ProteinPropertiesStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_pts1_signal",
+    "kind": "operator",
+    "title": "Protein PTS1 signal",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Detect the C-terminal peroxisomal targeting signal PTS1 (S/A/C-K/R/H-L/M).",
+    "doc": "src/task/step/steps/protein_pts1_signal.ProteinPts1SignalStep.md",
     "status": "generated"
   },
   {
