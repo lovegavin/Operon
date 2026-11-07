@@ -1,0 +1,47 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "time_dim": {
+      "type": "string",
+      "default": "time",
+      "title": "Time dimension",
+      "description": "Axis holding observation times.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 10
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field dimension",
+      "description": "Axis holding table columns.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 20
+    },
+    "cases_field": {
+      "type": "string",
+      "default": "cases",
+      "title": "Cases field",
+      "description": "Field label of the incidence column.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 30
+    },
+    "window_days": {
+      "type": "number",
+      "default": 30,
+      "title": "Window (days)",
+      "description": "Length of the early exponential window.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 40,
+      "minimum": 3
+    },
+    "output": {
+      "type": "string",
+      "default": "epidemic_growth_rate_result",
+      "title": "Output name",
+      "description": "Context name of the output form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 90
+    }
+  }
+}

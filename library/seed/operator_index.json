@@ -1970,6 +1970,56 @@
     "status": "generated"
   },
   {
+    "id": "epidemic_case_fatality",
+    "kind": "operator",
+    "title": "Case fatality ratio",
+    "category": "Epidemiology",
+    "version": "1.0.0",
+    "description": "Compute the crude case fatality ratio with a Wilson confidence interval.",
+    "doc": "src/task/step/steps/epidemic_case_fatality.EpidemicCaseFatalityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "epidemic_growth_rate",
+    "kind": "operator",
+    "title": "Early epidemic growth rate",
+    "category": "Epidemiology",
+    "version": "1.0.0",
+    "description": "Fit exponential growth to the early phase of an incidence series.",
+    "doc": "src/task/step/steps/epidemic_growth_rate.EpidemicGrowthRateStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "epidemic_r0",
+    "kind": "operator",
+    "title": "Basic reproduction number from growth",
+    "category": "Epidemiology",
+    "version": "1.0.0",
+    "description": "Estimate R0 from the early exponential growth rate and a generation time.",
+    "doc": "src/task/step/steps/epidemic_r0.EpidemicR0Step.md",
+    "status": "generated"
+  },
+  {
+    "id": "epidemic_seir_fit",
+    "kind": "operator",
+    "title": "SEIR model fit",
+    "category": "Epidemiology",
+    "version": "1.0.0",
+    "description": "Fit a closed SEIR model with a fixed incubation period to an incidence series.",
+    "doc": "src/task/step/steps/epidemic_seir_fit.EpidemicSeirFitStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "epidemic_sir_fit",
+    "kind": "operator",
+    "title": "SIR model fit",
+    "category": "Epidemiology",
+    "version": "1.0.0",
+    "description": "Fit a closed SIR model to an incidence series by least squares.",
+    "doc": "src/task/step/steps/epidemic_sir_fit.EpidemicSirFitStep.md",
+    "status": "generated"
+  },
+  {
     "id": "esm3_embedding",
     "kind": "operator",
     "title": "ESM-3 蛋白嵌入",
