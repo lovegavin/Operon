@@ -1087,3 +1087,13 @@ the configured adduct list; in-source fragments and multiply charged ions are
 out of scope. Set enrichment uses the detected metabolite count as universe
 size unless the caller overrides it. XIC integration uses a symmetric apex walk,
 not a peak model.
+
+### b58b - microbial abundance table collapse (3 operators)
+
+- Operators: `taxon_abundance_collapse`, `humann_pathway_collapse`, `metaphlan_profile_merge` (Metagenomics).
+- Route: `workdir/b58b_route` (6 steps, 4 synthetic CSV inputs, marked synthetic in this record).
+- Inputs (sha256): taxonomy `6c378dbefeb25f35b473697eb92f6d07cbcdb1bd07c88c968acf1f6efbfc7c1e`, pathways `69c04bb31b33a4bf420dfc6ff03b2af2358f8c9ea59c79251a501e3681aaabef`, profile_a `6553965c952b5658c0a961498bd4c9659813756f9536132f699c524b169aff32`, profile_b `2fcb81ae54272355f832c07cebf0a4b1343618b2cf50076f80d0cac6b7bf7b4a`.
+- Results: family collapse f__F 15/27, f__F2 1/2, f__F3 3/3; pathway collapse PWY1 4/6, PWY2 5/5, unmapped 0/1; merge t1 1/2/0/0, t2 3/4/10/20, t3 0/0/5/6.
+- Oracle: independent standard-library table arithmetic (6/6 pass).
+- Three ends: WSL and Windows md5 equal - taxon `56b6bbe01b2aa834f86417db52d9de53`, pathway `56b26023a0492920667b470613feb5bf`, merged `d553ef6da907fc6cbea9f18cb0e5a681`; srv SKIP (`ssh srv` unresolvable).
+- Limitation: rank collapse uses GTDB-style `d__/p__/...` prefixes; names without the requested prefix map to `unclassified`. Merge prefixes the left profile with `A:` to avoid duplicate sample names.
