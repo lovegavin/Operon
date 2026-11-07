@@ -197,3 +197,82 @@ pts1_signal `18399bbc2e874ec708e6f326e5b39390`.
   and propeptides, and is sensitive to unknown residues (sanitized to X).
 - The panel is a curated public-sequence panel for arithmetic verification, not
   a biological conclusion.
+
+## b52 — protein localization and property panel (10 sequences)
+
+Five operators extend the b51 protein panel: ER-retention motifs,
+nuclear-export-signal density, mitochondrial presequence score, charge-versus-pH
+curve and Kyte-Doolittle GRAVY windows. The b52 route runs the same ten
+sequences through all five operators and exports one CSV per operator.
+
+### Data
+
+`workdir/b52_route/input/proteins.fasta` (10 reviewed UniProt entries; the seven
+b51 entries plus P07237, P05186 and P06576), sha256
+`db38a65adbddc42600bf9dc1c6bfa0ed92e7c4151a04dffa964fe84308d3c7af`.
+Sequences were downloaded from `https://rest.uniprot.org/uniprotkb/<acc>.fasta`.
+
+### Route
+
+```bash
+PYTHONPATH=/home/gavin/Operon/library/seed:/home/gavin/Operon \
+  python scripts/run.py workdir/b52_route
+```
+
+All 10 steps report `complete`. Selected values:
+
+| Sequence | any ER retention | NES density | mito score | charge pH 7 | GRAVY mean |
+| --- | --- | --- | --- | --- | --- |
+| P03070 SV40 large T | 0 | 1.977 | 0.747 | -10.84 | -0.547 |
+| P05221 nucleoplasmin | 0 | 1.500 | 1.591 | -15.59 | -0.921 |
+| P07237 PDI (KDEL) | 1 | 0.984 | 1.066 | -33.51 | -0.431 |
+| P42212 GFP | 0 | 0.840 | 2.831 | -5.66 | -0.521 |
+| P06576 ATPB (mito) | 0 | 3.025 | 7.302 | -12.57 | 0.018 |
+
+### Oracle
+
+`workdir/b52_oracle.json` reports 130/130 checks with zero failures:
+
+- ER motifs: independent Python substring scan of KDEL/HDEL/DDEL.
+- NES: independent combinatorial scan over the Phi-X(2,3)-Phi-X(2,3)-Phi-X-Phi
+  pattern, counting unique start positions (the first oracle draft double-counted
+  overlapping spacer choices and was fixed).
+- Mito: hand Kyte-Doolittle sum and hydrophobic moment over the same 30-residue
+  window.
+- Charge: independent Henderson-Hasselbalch reimplementation with ExPASy/EMBOSS
+  pKa values (Nterm 8.6, Cterm 3.6, D 3.9, E 4.1, C 8.5, Y 10.1, H 6.5, K 10.8,
+  R 12.5). Biopython 1.88 `IsoelectricPoint` uses a different pKa set (Nterm 7.5,
+  K 10.0, R 12.0, H 5.98, D 4.05, E 4.45, C 9.0, Y 10.0), so its absolute charges
+  are not used as the oracle; the convention is documented in the operator page.
+- GRAVY: hand per-residue mean and window extrema.
+
+### Three-end comparison
+
+| Endpoint | Result |
+| --- | --- |
+| WSL (bp-numpy21, NumPy 2.1.3) | 10/10 steps, md5 below |
+| Windows 12.10 (`D:\Operon`, NumPy 2.5.4) | 10/10 steps, same md5 |
+| srv (`/public/home/lihj`) | SKIP: `ssh srv` does not resolve and no host is configured |
+
+| Export | md5 (WSL = Windows) |
+| --- | --- |
+| `er_retention.csv` | `cf2aac1f886eb3b936817124e854e3d0` |
+| `nuclear_export_signal.csv` | `942204b8499fd9d2d36e7b393724f67a` |
+| `mito_targeting.csv` | `89020753b8536830ff40d824db81597b` |
+| `charge_curve.csv` | `88096c6a5ec25838bbacfaffc8734c0d` |
+| `gravy_window.csv` | `aff8ec58e13a5dab75c6c18b5b805f35` |
+
+### Limitations
+
+- All five outputs are sequence heuristics, not curated functional annotations.
+  A single KDEL match or a high NES density is a candidate signal only.
+- The NES pattern is the published CRM1 consensus; density is length-normalised
+  and is not a prediction of export activity.
+- The mitochondrial score uses the first 30 residues and does not model import
+  efficiency, charge compensation or tandem presequences.
+- Charge curves use fixed pKa values and ignore local environment, binding and
+  post-translational charge changes; cross-tool absolute values differ when the
+  pKa convention differs.
+- A GPI-anchor heuristic was implemented and then withdrawn: it gave a false
+  negative on the curated GPI protein P05186 and no independent oracle was
+  available. It is recorded in the gap matrix as not planned.
