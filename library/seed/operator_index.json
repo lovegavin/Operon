@@ -220,6 +220,16 @@
     "status": "generated"
   },
   {
+    "id": "ani_from_kmers",
+    "kind": "operator",
+    "title": "ANI from shared k-mer counts",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "ANI from shared k-mer counts.",
+    "doc": "src/task/step/steps/ani_from_kmers.AniFromKmersStep.md",
+    "status": "authored"
+  },
+  {
     "id": "annotate",
     "kind": "operator",
     "title": "annotate",
@@ -1108,6 +1118,16 @@
     "description": "Estimate the number of unobserved species with the Chao1 estimator.",
     "doc": "src/task/step/steps/chao1.Chao1Step.md",
     "status": "generated"
+  },
+  {
+    "id": "checkm_quality_parse",
+    "kind": "operator",
+    "title": "CheckM/CheckM2 genome quality score",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "CheckM/CheckM2 genome quality score.",
+    "doc": "src/task/step/steps/checkm_quality_parse.CheckmQualityParseStep.md",
+    "status": "authored"
   },
   {
     "id": "chi_square",
@@ -3180,6 +3200,16 @@
     "status": "generated"
   },
   {
+    "id": "gtdb_taxonomy_parse",
+    "kind": "operator",
+    "title": "GTDB taxonomy rank completeness",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "GTDB taxonomy rank completeness.",
+    "doc": "src/task/step/steps/gtdb_taxonomy_parse.GtdbTaxonomyParseStep.md",
+    "status": "authored"
+  },
+  {
     "id": "gwas_association",
     "kind": "operator",
     "title": "GWAS association testing",
@@ -4510,6 +4540,16 @@
     "status": "generated"
   },
   {
+    "id": "mlst_typing",
+    "kind": "operator",
+    "title": "MLST sequence type assignment",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "MLST sequence type assignment.",
+    "doc": "src/task/step/steps/mlst_typing.MlstTypingStep.md",
+    "status": "authored"
+  },
+  {
     "id": "module_eigengenes",
     "kind": "operator",
     "title": "Module eigengenes",
@@ -4958,6 +4998,16 @@
     "description": "PAM（围绕中心点划分）：欧氏距离、BUILD 选取初始中心点，SWAP 以精确代价下降迭代，输出每个样本的簇编号与到中心点距离。",
     "doc": "src/task/step/steps/pam.PamStep.md",
     "status": "generated"
+  },
+  {
+    "id": "pangenome_matrix",
+    "kind": "operator",
+    "title": "Pangenome core and accessory summary",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Pangenome core and accessory summary.",
+    "doc": "src/task/step/steps/pangenome_matrix.PangenomeMatrixStep.md",
+    "status": "authored"
   },
   {
     "id": "partial_correlation",

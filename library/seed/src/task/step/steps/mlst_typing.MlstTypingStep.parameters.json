@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row",
+      "title": "Row dimension"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field dimension"
+    },
+    "loci": {
+      "type": "integer",
+      "default": 7,
+      "minimum": 1,
+      "maximum": 20
+    }
+  }
+}
