@@ -39,3 +39,33 @@ Three-end:
 
 Limitations: quartet/dating use the first tree row only; no branch supports; synthetic
 dataset; newline-normalised CSV.
+
+
+## final — circRNA, RNA editing and de-novo motif discovery
+
+Operators: `circrna_detect`, `rna_editing_detect` (Transcriptomics) and
+`motif_discovery_em` (Epigenomics), protocol 3.7; synthetic inputs.
+
+Route: `workdir/final_route` (6 steps, CHECK OK, 6/6 complete).
+
+Input SHA-256:
+- junctions.csv `45be01e1c4ee9b36795315a5d409387b52f59555c097d6f3919f7a6a08aac125`
+- variants.csv `4d52d490d47c223ac1dbfe821d62557f9f50e0747bfb2eef46d131459b569fc6`
+- seqs.csv `db9c8c4f905f1d03b3ff4c5dd00c8d038203983deeb12cbdf0c158134b359565`
+
+Exported values:
+- circ.csv: chr1:500-200 circular 1/length 301/ratio 0.5; chr1:100-400 0; chr2:900-700 1/201/1.0; chr2:100-200 0.
+- edit.csv: chr1:100 candidate 1/fraction 0.4; chr1:200 1/0.375; chr2:300 0/0.333333333; chr2:400 1/0.0.
+- pwm.csv: 6x4 PWM (position rows, A/C/G/T columns), row0 0.291666667/0.166666667/0.166666667/0.375.
+
+Oracles: independent Python recomputation from the input CSVs (`C:/Users/Public/final_oracle.py`),
+3/3 pass (`workdir/final_oracle.json`); circRNA/edit flags exact, PWM entropy-smoothed
+counts exact to 1e-9.
+
+Three-end:
+- WSL: 6/6, md5 circ `ce5f3b3f4f3d9b3eba7eb7cadf15f465`, edit `76d91960d02aa136a65dc93035b13970`, pwm `814f489fec9b33d305c86c712ca92a45`.
+- Windows (D:\Operon, py3.12, registry 1001): 6/6, same three md5 MATCH.
+- srv: SKIP, no ssh profile configured.
+
+Limitations: single-sample junction counts; A>G/T>C rule only (no strand-aware genome
+reference); motif EM is a single-width PWM without E-step sequence assignment; synthetic data.

@@ -1260,6 +1260,16 @@
     "status": "authored"
   },
   {
+    "id": "circrna_detect",
+    "kind": "operator",
+    "title": "Circular RNA junction detection",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "Flags back-spliced junctions and reports circular length.",
+    "doc": "src/task/step/steps/circrna_detect.CircrnaDetectStep.md",
+    "status": "authored"
+  },
+  {
     "id": "classification_metrics",
     "kind": "operator",
     "title": "Classification metrics",
@@ -5020,6 +5030,16 @@
     "status": "generated"
   },
   {
+    "id": "motif_discovery_em",
+    "kind": "operator",
+    "title": "Motif discovery by EM",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Discovers a fixed-width motif PWM from sequences.",
+    "doc": "src/task/step/steps/motif_discovery_em.MotifDiscoveryEmStep.md",
+    "status": "authored"
+  },
+  {
     "id": "motif_enrichment",
     "kind": "operator",
     "title": "Motif enrichment",
@@ -7398,6 +7418,16 @@
     "description": "Restricted mean survival：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、随访时间字段、事件字段、分组字段、Tau。",
     "doc": "src/task/step/steps/rmst.RmstStep.md",
     "status": "generated"
+  },
+  {
+    "id": "rna_editing_detect",
+    "kind": "operator",
+    "title": "RNA editing candidate detection",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "Flags A>G / T>C substitutions and reports editing fraction.",
+    "doc": "src/task/step/steps/rna_editing_detect.RnaEditingDetectStep.md",
+    "status": "authored"
   },
   {
     "id": "rna_structure_consensus",
