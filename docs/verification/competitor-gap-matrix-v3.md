@@ -27,3 +27,12 @@ Scope: capabilities absent from the 1017-operator catalog that have a determinis
 | Single-cell foundation model | scGPT, Geneformer | blocked | checkpoint download and no deterministic oracle |
 | Molecular diffusion generation | DiffSBDD, torsional diffusion | blocked | GPU weights and no reproducible oracle |
 | Clinical variant interpretation | ClinVar, ACMG | blocked | licence-restricted data and no deterministic oracle |
+
+
+### b90 implemented (2026-11-08)
+
+| capability | competitors | operator | verification |
+| --- | --- | --- | --- |
+| Gradient-boosted classification | LightGBM 4.7, XGBoost 3.4, scikit-learn 1.6 | `lightgbm_classifier` | synthetic+hand 10/10, WSL=Windows |
+| Gradient-boosted regression | XGBoost 3.4, LightGBM 4.7, CatBoost | `xgboost_regressor` | synthetic+hand 10/10, WSL=Windows |
+| Density-based clustering with noise | HDBSCAN 0.8, scikit-learn 1.6 | `hdbscan_cluster` | synthetic+hand 10/10, WSL=Windows |
