@@ -56,3 +56,11 @@ Scope: capabilities absent from the 1017-operator catalog that have a determinis
 | G-quadruplex propensity scan | quadparser, G4Hunter | none | Sequence-level G4 heuristic missing | medium | hand counts on motif fixtures | implemented b91 |
 | Time-series forecasting and anomaly detection | statsmodels SARIMAX, scikit-learn IsolationForest/LOF | `sarimax_forecast`, `isolation_forest_anomaly`, `lof_outlier_score` (implemented b93) | none | implemented | synthetic AR(1) + 12-point fixture; hand/sklearn oracles |
 | Quasi-experimental causal inference | statsmodels IV2SLS/OLS/Logit, Stata-style RD and PSM | `iv_2sls`, `regression_discontinuity`, `propensity_score_matching` (implemented b94) | weak-IV diagnostics, fuzzy RD, doubly robust matching | implemented | synthetic IV/RD/PSM fixtures; statsmodels oracle |
+
+### b95 implemented (Bayesian regression, pseudotime, image blur)
+
+| Capability | Competitor | Existing operator | Gap | Priority | Data / oracle | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| Bayesian linear regression with credible intervals | PyMC, Stan, rstanarm | none | No posterior regression path | high | synthetic 200x3; statsmodels OLS + CI coverage | implemented b95 |
+| Graph-geodesic pseudotime | Scanpy DPT, Monocle 3 | none | Diffusion-map DPT, branch detection | medium | synthetic 60-cell curve; raw-space geodesic | implemented b95 |
+| 2D Gaussian image blur | scipy.ndimage, ImageJ | none | 3D/volumetric blur, deconvolution | medium | random 24x24; scipy.ndimage oracle | implemented b95 |

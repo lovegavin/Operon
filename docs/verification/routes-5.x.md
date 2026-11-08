@@ -2233,3 +2233,23 @@ bands).
   srv SKIP: deterministic batch, no large weights or host-specific libraries.
 - Limitations: one endogenous regressor and one instrument, no weak-instrument diagnostics; sharp RD only with a
   user-supplied bandwidth; matching is one-to-one with replacement and no trimming or common-support plot.
+
+## Batch b95 - Bayesian linear regression, graph pseudotime, Gaussian image blur
+
+- Inputs: `workdir/b95_route/input/blr.csv` sha256 `15c3c23ebd8c94fd6725913a2a3d5e74116f05e64a2bdba7e1deb823a224a97d`;
+  `cells.csv` `28fbc4d51f3f6e6375ef296f2357e89184e25615b8358821a409a0ddb51e854d`;
+  `image.csv` `eb2c5749403acec734b7cbb31bcc9a3e573bf61df912828f30c71671905ee3cb` (all `mode=synthetic`).
+- Dependencies: `numpy>=1.24`, `scipy>=1.11` (tested 2.1.3 / 1.17.1); oracles additionally use statsmodels 0.15.0.
+- Route: 6/6 steps, `scripts/run.py workdir/b95_route`.
+- Values: BLR posterior means intercept 0.800646257, x1 1.742148271, x2 -0.880225347 (generating values 0.8 / 1.7 / -0.9);
+  graph pseudotime spans 0.0..1.0 (cell 1 = 0.108142163); blurred image preserves the 24x24 shape and the global mean.
+- Oracle: statsmodels OLS coefficients vs posterior means (max abs difference < 0.05, all CIs cover OLS estimates);
+  pseudotime Spearman rank correlation 0.9936 against the monotone latent gene and 0.9876 against an independently
+  built raw-space kNN geodesic; scipy.ndimage.gaussian_filter max abs difference < 1e-9; 6/6
+  (`workdir/b95_oracle.json`, mode `synthetic+statsmodels+scipy`).
+- Three ends: WSL and Windows (D:\Operon, py3.12) export md5 identical:
+  blr `8f4379c711d052ddcfca0ae1af104194`, pseudotime `ee465113f7414ea60d32d4816937b191`,
+  blurred `4d5f81e770380ce45b6c1bc5b3ce424d`. srv SKIP: deterministic batch, no host-specific libraries.
+- Limitations: BLR is a Gibbs sampler with weakly informative priors (no convergence diagnostics or marginal likelihood);
+  pseudotime is graph-geodesic from one root cell on a PCA graph and is sensitive to `n_neighbors`; blur is 2D-only
+  with reflect padding and no boundary cropping option.
