@@ -1930,6 +1930,16 @@
     "status": "generated"
   },
   {
+    "id": "deep_survival",
+    "kind": "operator",
+    "title": "DeepSurv Cox proportional hazards network",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "DeepSurv Cox proportional hazards network (batch b87).",
+    "doc": "src/task/step/steps/deep_survival.DeepSurvivalStep.md",
+    "status": "authored"
+  },
+  {
     "id": "delong_auc",
     "kind": "operator",
     "title": "DeLong AUC",
@@ -5418,6 +5428,16 @@
     "description": "Multinomial Naive Bayes classifier：接收 2 个输入，输出 Form；主要参数：样本维度、特征维度、标签维度、目标字段、测试集比例、交叉验证折数。",
     "doc": "src/task/step/steps/multinomial_nb_classifier.MultinomialNBClassifierStep.md",
     "status": "generated"
+  },
+  {
+    "id": "mutational_signature_decomposition",
+    "kind": "operator",
+    "title": "Mutational signature decomposition",
+    "category": "Genomics",
+    "version": "1.0.0",
+    "description": "Mutational signature decomposition (batch b87).",
+    "doc": "src/task/step/steps/mutational_signature_decomposition.MutationalSignatureDecompositionStep.md",
+    "status": "authored"
   },
   {
     "id": "mutual_information",
@@ -9897,6 +9917,16 @@
     "version": "1.0.0",
     "description": "Fit separate least-squares outcome models per treatment arm and report per-sample uplift.",
     "doc": "src/task/step/steps/uplift_t_learner.UpliftTLearnerStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "vae_anomaly",
+    "kind": "operator",
+    "title": "Variational autoencoder anomaly score",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Variational autoencoder anomaly score (batch b87).",
+    "doc": "src/task/step/steps/vae_anomaly.VaeAnomalyStep.md",
     "status": "authored"
   },
   {
