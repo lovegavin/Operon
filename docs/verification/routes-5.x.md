@@ -1446,3 +1446,30 @@ The `srv` host could not be reached in this session. From Windows OpenSSH,
 echo failed; the `/public/home/lihj` workspace was therefore not available.
 This endpoint is recorded as SKIP (network unreachable), not as a passing
 result, and no srv numbers are reported.
+
+## Post-1001 route: b80 GTR likelihood and MS2 spectral angle
+
+Synthetic, deterministic inputs (row-oriented CSV; `mode=synthetic` for all tables).
+
+| Input | sha256 |
+| --- | --- |
+| `workdir/b80_route/input/tree.csv` | `cf45e74d17a7a4a2a37b449ef5f27358a4d61d4b2dc6bc17c98264eba127b203` |
+| `workdir/b80_route/input/aln.csv` | `4b837c2298989f5aec62e83af18ebb4005401934b9fdf3999bab869491331082` |
+| `workdir/b80_route/input/qpeaks.csv` | `45e8dacd10dcc753ba792430e21aa8b182dd1b7e7b31e42cd19b2f02a160fb07` |
+| `workdir/b80_route/input/lpeaks.csv` | `b496c1f85a1b7a1d2fb1ef26bab2b6b5ff100872bfa04c3f1a2b73d632598629` |
+
+Route: `tree.csv` -> `phylogenetics_gtr_likelihood` -> export; `qpeaks.csv` + `lpeaks.csv` ->
+`ms2_spectral_angle` -> export. CHECK OK, 4/4 steps complete (0.78 s on WSL).
+
+Values: GTR log-likelihood `-19.315181699` (4 taxa, 6 sites); spectral angle `45.0` degrees,
+cosine `0.707106781`, 2 matched peaks.
+
+Oracle: an independent script builds GTR transition matrices with `scipy.linalg.expm` and
+enumerates all 4^3 internal-node states (log-likelihood -19.31518169927482, absolute difference
+2e-15); the spectral angle is recomputed manually from square-root intensities. 2/2 pass.
+
+Cross-platform: WSL (NumPy 2.1.3) and Windows (NumPy 2.5.4) md5 are identical after rounding the
+likelihood to 9 decimals: `gtr.csv` `715659b6ecac729f614e82a7b85a6e92`, `angle.csv`
+`5f7ad0f2a60a1b5a55db427719268153`. srv SKIP: 172.22.148.93:22 times out and ICMP is blocked.
+
+Limitations: one fixed tree topology, one rate matrix; no rate-category mixture, no tree search.

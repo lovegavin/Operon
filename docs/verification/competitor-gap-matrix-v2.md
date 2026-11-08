@@ -36,7 +36,7 @@ existing operators, implemented in b76-b79, or blocked with a concrete reason.
 | --- | --- | --- | --- | --- |
 | Sequence similarity search | BLAST+ 2.16, DIAMOND 2.1, HMMER 3.4 | local alignment, profile search | covered | sequence alignment and HMM wrapper operators |
 | Multiple sequence alignment | MAFFT 7.5, MUSCLE 5 | progressive MSA | blocked | no MSA binary in the environment and no independent aligner oracle |
-| Phylogenetics | IQ-TREE 2.3, RAxML-NG 1.2 | substitution-model likelihood, support | implemented b72c-b78/b79 | JC69 likelihood, consensus, quartet support, dating, RF distance |
+| Phylogenetics | IQ-TREE 2.3, RAxML-NG 1.2 | substitution-model likelihood, support | implemented b72c-b78/b80 | JC69/GTR likelihood, consensus, quartet support, dating, RF distance |
 | Population genetics | PLINK 2.0, ADMIXTURE 1.3 | Fst, PCA, pruning, ROH | implemented b55-b57 | 14 population-genetics operators with PLINK/bcftools oracles |
 | Variant annotation | VEP 112, SnpEff 5.2 | transcript consequence annotation | blocked | no cached annotation database; no offline oracle |
 | Clinical variant interpretation | ClinVar 2024, ACMG rules | pathogenicity classification | blocked | no labelled clinical truth set; rule engine has no independent oracle |
@@ -44,7 +44,7 @@ existing operators, implemented in b76-b79, or blocked with a concrete reason.
 | Docking | AutoDock Vina 1.2 | pose scoring | blocked | Vina binary and receptor preparation tools are absent |
 | Molecular dynamics | GROMACS 2024, OpenMM 8.1 | trajectory analysis | blocked | no MD engine or trajectory data; GPU not available |
 | Cheminformatics | RDKit 2026.09 | descriptors, fingerprints, fragmentation | covered | 10 chemistry operators |
-| Proteomics quantification | MaxQuant 2.6, Skyline | LFQ, iBAQ, PTM occupancy | implemented b66/b77 | iBAQ, PTM occupancy, spectrum matching, protein inference |
+| Proteomics quantification | MaxQuant 2.6, Skyline | LFQ, iBAQ, PTM occupancy, spectral similarity | implemented b66/b77/b80 | iBAQ, PTM occupancy, spectrum matching, protein inference, spectral angle |
 | Metabolomics | XCMS 4, MZmine 3 | adduct/feature annotation, XIC | implemented b68 | adduct annotation, set enrichment, XIC extraction |
 | Metagenomics | Kraken2 2.1, HUMAnN 3.9, MetaPhlAn 4 | taxonomic and pathway profiling | implemented b58-b60 | kreport/bracken/HUMAnN/MetaPhlAn parsers, abundance collapse |
 | Metagenome assembly | MEGAHIT 1.2, metaSPAdes 3.15 | contig assembly and binning | blocked | assembler binaries absent and no assembly truth set |
