@@ -1623,3 +1623,53 @@ The Windows side of 6.0.0 is covered by the release workflow's
 Readers, application 3.1.0). `D:\Operon` is a file-copy installation rather
 than a git checkout, so the same commit cannot be materialised there; the
 earlier route-level Windows md5 parity was recorded before the 6.0.0 bump.
+## Studio 3.1.2 compatibility (2026-11-08)
+
+Scope: decide whether the published 6.0.0 library bundle still installs and runs on
+Studio 3.1.2, and whether the 3.1.2 application line changes anything the library
+declares.
+
+### What changed between 3.1.0 and 3.1.2
+
+`v3.1.0..v3.1.2` contains four commits and 39 changed files:
+
+- `6cd94b18` enables the shared compute pool by default for desktop and server installs.
+- `00fbd2ec` adds real CSV dependencies to the Linux pool acceptance tests.
+- `ef2ed5c4` switches the project licence to Apache-2.0 and updates the quick start.
+- `beda223a` is the 3.1.2 release commit.
+
+The only library-facing code change is in `biopipe/plugins.py`: `PluginManager.__init__`
+accepts an optional `python` argument, stores it on the manager, and `python_for(state)`
+returns that interpreter instead of `sys.executable`. Descriptor handling, protocol
+version, `protocol_revision`, `data_formats`, parameter manifests and bundle layout are
+unchanged. Because the installer path did change, the bundle was re-verified instead of
+assuming compatibility from the diff.
+
+### Method and result
+
+A local worktree at tag `v3.1.2` was used because the GitHub release download was not
+reachable from the build host. The 3.1.2 `biopipe`, `operon` and `src` packages plus the
+3.1.0 `biopipe_sdk` were overlaid into a dedicated virtual environment, and
+`library/release.json` was temporarily set to `minimum_application = build_application =
+3.1.2` so the released-application guard could check this interpreter. The guard file was
+restored immediately after the run.
+
+Command:
+
+```
+/home/gavin/bp312/bin/python -I scripts/verify_library_release.py \
+  --bundle build/library600/Operon-Library-v6.0.0-Linux.operon-library.zip \
+  --work /tmp/verify312
+```
+
+Result: `passed: true`, 1017 operators, 108 Readers, `application_unchanged: true`,
+`old_pin_and_parameters_preserved: true`, `idempotent_install: true` and
+`disabled_provider_preserved: true`. The bundle therefore installs, preserves existing
+workflows and runs on 3.1.2 without a library change.
+
+### Decision
+
+The published 6.0.0 artifacts remain the current release; no re-tag or re-upload is
+needed for 3.1.2. `build_application` stays 3.1.0 because that is the release train the
+bundle was built and signed on, and 3.1.2 accepts it. A future library release can raise
+the floor to 3.1.2 after the normal three-end route campaign.
