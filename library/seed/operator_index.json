@@ -1150,6 +1150,36 @@
     "status": "generated"
   },
   {
+    "id": "causal_forest_ate",
+    "kind": "operator",
+    "title": "Causal forest average treatment effect",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Estimates the average treatment effect with a CausalForestDML and reports a 95% interval.",
+    "doc": "src/task/step/steps/causal_forest_ate.CausalForestAteStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "causal_forest_cate",
+    "kind": "operator",
+    "title": "Causal forest conditional effects",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Per-sample conditional average treatment effects with 95% confidence intervals.",
+    "doc": "src/task/step/steps/causal_forest_cate.CausalForestCateStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "causal_forest_importance",
+    "kind": "operator",
+    "title": "Causal forest feature importance",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Ranks covariates by their contribution to treatment-effect heterogeneity in a causal forest.",
+    "doc": "src/task/step/steps/causal_forest_importance.CausalForestImportanceStep.md",
+    "status": "authored"
+  },
+  {
     "id": "cca",
     "kind": "operator",
     "title": "Canonical correspondence analysis",
