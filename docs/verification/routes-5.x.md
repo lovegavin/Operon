@@ -1577,3 +1577,27 @@ numeric reproducibility and pipeline wiring, not biological conclusions.
   are listed. The published assets themselves verify against their GitHub digests. The
   checksum assembly needs per-OS filtering before the next release.
 - `main` was fast-forwarded to `cb1b79d8` locally and on `origin`.
+
+## Post-release checksum audit (6.0.0)
+
+The published `SHA256SUMS.txt` for `library-v6.0.0` contains 13 lines. A direct
+audit against the release assets found three defects in that file only (the
+assets themselves are intact):
+
+- `Operon-Quickstart-v6.0.0.zip` is listed twice: `705741a6...` matches the
+  published asset, while `39b09be1...` is the other OS build of the same file.
+- The BioPipe mirror bundle names are listed even though they are not published
+  assets.
+- The Routes line is prefixed with `artifacts/`, so `sha256sum -c` cannot be
+  run from the download directory without rewriting the path.
+
+Verified digests of the published assets: Linux `34cc9312...`, Windows
+`43b7707e...`, Routes `076e716c...`, quickstart `705741a6...`, seed wheel
+`f4509b02...`; both verification JSON files report `passed: true` for 1017
+operators and 108 Readers on application 3.1.0.
+
+`.github/workflows/library-release.yml` was corrected after the tag
+(commit `055d637f`) so that the quickstart is uploaded once from Linux, and
+`SHA256SUMS.txt` is regenerated from the files actually present in the
+publish workspace, with bare file names and verification JSONs included.
+The published tag and its assets were not modified.
