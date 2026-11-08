@@ -1960,3 +1960,42 @@ srv: SKIP (172.22.148.93:22 connection timed out at run time).
 Limitations: nnls exposures are non-negative but not normalized to clone fractions; the VAE
 threshold is robust-median-based and reported at three decimals; DeepSurv is trained on eight
 synthetic samples and is a smoke test of the implementation, not a survival benchmark.
+## Batch b88 post-1001 deep learning: transformer, CNN and KernelSHAP
+
+Synthetic, small deterministic tables (mode=synthetic); the metrics are smoke-test evidence,
+not benchmark claims.
+
+| input | sha256 |
+| --- | --- |
+| trans.csv | 1551dda0cf454618a231ed81a5439ee78cfe5c80fca91246fe5e5f1039e30a44 |
+| cnn.csv | 1e432cae9bd85fd7be548b6617385b7e6933c91465cd80a3e1296cd0d675aa27 |
+| shap.csv | 01644d34247e9dc72f73a9f1304e85292cef065550f2bd77cd23fbe5361367bc |
+
+Dependencies: `numpy>=1.24` (tested 2.1.3), `torch>=2.4,<3` (tested 2.11.0+cu130, CPU);
+kernel_shap uses numpy only.
+
+Route: CsvReader-trans -> transformer_classifier; CsvReader-cnn -> cnn_image_classifier;
+CsvReader-shap -> kernel_shap; three CSV exports (6/6 steps complete).
+
+Operator outputs (three decimals):
+- transformer_classifier: accuracy=1.0, log_loss=0.0, n_train=6, n_classes=2, n_params=658.
+- cnn_image_classifier: accuracy=1.0, log_loss=0.012, n_train=8, n_classes=2, n_params=354,
+  height=4, width=4.
+- kernel_shap: x1 value=0.0, phi=-1.984, |phi|=1.984; x2 value=1.0, phi=0.015, |phi|=0.015;
+  sum(phi)=-1.969 equals prediction-baseline within 2e-3.
+
+Oracle: sklearn 1.6.1 MLPClassifier as an independent tabular/image classifier (accuracy parity
+1.0), and sklearn Ridge(alpha=1.0) plus the closed-form Shapley identity
+phi_j = w_j (x0_j - mean_j) as the attribution oracle. 5/5 checks pass;
+`workdir/b88_oracle.json`.
+
+Three-end md5:
+- transformer.csv: 5b69188bf66f8271478f3fe4cc3aa393
+- cnn.csv: 0b432bca91a1cd748e231aaf6bc40d7e
+- shap.csv: 924f8cdd7c20169ced098fc4b6432fc6
+WSL (numpy 2.1.3, torch 2.11.0+cu130) and Windows (D:\Operon, Python 3.12) match byte-for-byte.
+srv: SKIP (172.22.148.93:22 connection timed out at run time).
+
+Limitations: tiny tables, single seed, CPU training only; the transformer uses learned positional
+encoding with one token per sample (no sequence structure); kernel_shap is exact only because the
+explained model is linear/ridge.
