@@ -1,0 +1,38 @@
+{
+ "type": "object",
+ "additionalProperties": false,
+ "properties": {
+  "row_dim": {
+   "type": "string",
+   "default": "row"
+  },
+  "field_dim": {
+   "type": "string",
+   "default": "field"
+  },
+  "output": {
+   "type": "string"
+  },
+  "layers": {
+   "type": "integer",
+   "default": 2
+  },
+  "hidden": {
+   "type": "integer",
+   "default": 8
+  },
+  "epochs": {
+   "type": "integer",
+   "default": 300
+  },
+  "learning_rate": {
+   "type": "number",
+   "default": 0.05
+  },
+  "seed": {
+   "type": "integer",
+   "default": 0
+  }
+ },
+ "required": []
+}
