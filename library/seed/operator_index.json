@@ -4180,6 +4180,16 @@
     "status": "generated"
   },
   {
+    "id": "isolation_forest_anomaly",
+    "kind": "operator",
+    "title": "Isolation-forest anomaly scores",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Builds a deterministic isolation forest from random splits and scores every row by expected path length.",
+    "doc": "src/task/step/steps/isolation_forest_anomaly.IsolationForestAnomalyStep.md",
+    "status": "authored"
+  },
+  {
     "id": "isomap",
     "kind": "operator",
     "title": "Isomap",
@@ -4808,6 +4818,16 @@
     "description": "Locally linear embedding：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、主成分数、邻居数、方法、随机种子。",
     "doc": "src/task/step/steps/locally_linear_embedding.LocallyLinearEmbeddingStep.md",
     "status": "generated"
+  },
+  {
+    "id": "lof_outlier_score",
+    "kind": "operator",
+    "title": "Local outlier factor",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Computes k-distance, local reachability density and the local outlier factor for every row.",
+    "doc": "src/task/step/steps/lof_outlier_score.LofOutlierScoreStep.md",
+    "status": "authored"
   },
   {
     "id": "log_transform",
@@ -7988,6 +8008,16 @@
     "description": "Fit a seasonal ARIMA(p, d, q)(P, D, Q)s model by maximum likelihood.",
     "doc": "src/task/step/steps/sarima.SarimaStep.md",
     "status": "generated"
+  },
+  {
+    "id": "sarimax_forecast",
+    "kind": "operator",
+    "title": "SARIMAX time-series forecast",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Fits a SARIMAX model to an ordered series and returns a multi-step forecast with confidence bounds.",
+    "doc": "src/task/step/steps/sarimax_forecast.SarimaxForecastStep.md",
+    "status": "authored"
   },
   {
     "id": "sasa_per_residue",
