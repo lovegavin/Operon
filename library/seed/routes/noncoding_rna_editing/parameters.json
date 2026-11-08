@@ -1,5 +1,5 @@
 {
-  "format": "operon.task-parameters",
+  "format": "biopipe.task-parameters",
   "params": {},
   "sources": {
     "junctions": {},

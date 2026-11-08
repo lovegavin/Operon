@@ -5,7 +5,10 @@ from __future__ import annotations
 import math
 from itertools import product
 
-from operon_sdk import StepError
+try:
+    from operon_sdk import StepError
+except ImportError:  # legacy application (<=3.1.0)
+    from biopipe_sdk import StepError
 
 PROTON = 1.007276466621
 WATER = 18.01056468403

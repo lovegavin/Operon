@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/home/gavin/Operon/library/seed/routes/structure_rg_metagenome/output/artifacts/exports/230bcaca277e481e83fab04183813b79/clr.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 247,
+  "source": "clr",
+  "conversion": {}
+}

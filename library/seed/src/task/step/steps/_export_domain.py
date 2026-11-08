@@ -5,7 +5,10 @@ from xml.sax.saxutils import escape, quoteattr
 
 import numpy as np
 
-from operon.bytecode import io_path
+try:
+    from operon.bytecode import io_path
+except ImportError:  # legacy application (<=3.1.0)
+    from biopipe.bytecode import io_path
 from src.core import StepError
 
 

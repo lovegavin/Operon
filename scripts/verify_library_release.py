@@ -10,6 +10,31 @@ import json
 import os
 import shutil
 from pathlib import Path
+
+LEGACY_APPLICATION = False
+
+
+def _bind_released_application():
+    """Studio 3.1.0 ships the implementation as biopipe.*; newer builds as operon.*."""
+    global LEGACY_APPLICATION
+    import importlib.util
+    import sys
+    if importlib.util.find_spec("operon.library_bundle") is not None:
+        return
+    import biopipe
+    import pkgutil
+    LEGACY_APPLICATION = True
+    sys.modules.setdefault('operon', biopipe)
+    for info in pkgutil.walk_packages(biopipe.__path__, biopipe.__name__ + '.'):
+        name = info.name
+        try:
+            module = __import__(name, fromlist=['*'])
+        except ImportError:
+            continue
+        sys.modules.setdefault('operon.' + name.split('.', 1)[1], module)
+
+
+_bind_released_application()
 import subprocess
 import sys
 
@@ -42,8 +67,15 @@ def probe(lock, work):
     for item in state['packages']:
         if item.get('origin') != 'wheel':
             continue
-        module = 'operon_library_' + item['name'].replace('-', '_').replace('.', '_')
-        helper = importlib.import_module(module + '.steps._resources_common')
+        stem = item['name'].replace('-', '_').replace('.', '_')
+        for prefix in ('operon_library_', 'biopipe_library_'):
+            try:
+                helper = importlib.import_module(prefix + stem + '.steps._resources_common')
+            except ModuleNotFoundError:
+                continue
+            break
+        else:
+            raise ModuleNotFoundError('provider wheel module not importable: ' + stem)
         assert helper.manifest_path().is_relative_to(profile), str(helper.manifest_path())
         assert {'rfam', 'amrfinder', 'antismash'} <= set(helper.load_resources())
     import pytest
@@ -93,6 +125,13 @@ def verify(source, bundle, work):
     from src.web.models import Graph
     before_files = application_digest()
     manager = PluginManager(work / 'profile')
+    _install = manager.install
+    def _install_any(path, **kwargs):
+        if str(path).lower().endswith('.operon-library.zip'):
+            from operon.library_bundle import install_bundle
+            return install_bundle(manager, path)
+        return _install(path, **kwargs)
+    manager.install = _install_any
     old = manager.state()
     old_graph = manager.pin(Graph.model_validate({'nodes': [{'id': 'pca', 'kind': 'operator', 'operator': 'pca',
         'position': {'x': 0, 'y': 0}, 'params': {'n_components': 2}}], 'edges': []}))
@@ -142,7 +181,11 @@ def verify(source, bundle, work):
                 'runtime': {'memory': {'enabled': True, 'budget_mb': 4, 'chunk_mb': .01}}}
     (job / 'task.yaml').write_text(yaml.safe_dump(manifest), encoding='utf-8')
     (job / 'plugins.lock.json').write_text(json.dumps(state), encoding='utf-8')
-    subprocess.run([sys.executable, '-I', '-m', 'operon.worker', str(job)], cwd=work, check=True)
+    import operon as _operon
+    worker_module = 'operon.worker'
+    if not (Path(_operon.__file__).resolve().parent / 'worker.py').is_file():
+        worker_module = 'biopipe.worker'
+    subprocess.run([sys.executable, '-I', '-m', worker_module, str(job)], cwd=work, check=True)
     summary = json.loads((job / 'output/run_summary.json').read_text(encoding='utf-8'))
     memory = json.loads(Path(summary['memory_report']).read_text(encoding='utf-8'))
     assert summary['steps'] and memory['plans'][0]['mode'] == 'stream'

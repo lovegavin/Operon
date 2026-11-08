@@ -2,7 +2,10 @@
 import tempfile
 from pathlib import Path
 from uuid import uuid4
-from operon.bytecode import io_path
+try:
+    from operon.bytecode import io_path
+except ImportError:  # legacy application (<=3.1.0)
+    from biopipe.bytecode import io_path
 
 
 def output_directory(ctx, name):

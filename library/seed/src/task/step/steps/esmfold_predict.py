@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import numpy as np
 
-from operon.bytecode import io_path
+try:
+    from operon.bytecode import io_path
+except ImportError:  # legacy application (<=3.1.0)
+    from biopipe.bytecode import io_path
 from src.core.errors import StepError
 from src.reader import read_source
 from src.task.step.base import Step

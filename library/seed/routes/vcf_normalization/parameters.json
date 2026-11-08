@@ -1,5 +1,5 @@
 {
-  "format": "operon.task-parameters",
+  "format": "biopipe.task-parameters",
   "schema_version": 1,
   "params": {},
   "sources": {"subset": {}, "part_a": {}, "part_b": {}, "truth_norm": {}, "reference": {}},

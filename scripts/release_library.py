@@ -12,6 +12,31 @@ import zipfile
 
 from packaging.version import Version
 
+LEGACY_APPLICATION = False
+
+
+def _bind_released_application():
+    """Studio 3.1.0 ships the implementation as biopipe.*; newer builds as operon.*."""
+    global LEGACY_APPLICATION
+    import importlib.util
+    import sys
+    if importlib.util.find_spec("operon.library_bundle") is not None:
+        return
+    import biopipe
+    import pkgutil
+    LEGACY_APPLICATION = True
+    sys.modules.setdefault('operon', biopipe)
+    for info in pkgutil.walk_packages(biopipe.__path__, biopipe.__name__ + '.'):
+        name = info.name
+        try:
+            module = __import__(name, fromlist=['*'])
+        except ImportError:
+            continue
+        sys.modules.setdefault('operon.' + name.split('.', 1)[1], module)
+
+
+_bind_released_application()
+
 
 def configuration(root, tag=None):
     value = json.loads((root / 'library/release.json').read_text(encoding='utf-8'))
@@ -57,6 +82,7 @@ def build(root, output, tag=None):
     config = configuration(root, tag)
     released_application(root, config)
     from operon.library_bundle import build_bundle, sha256
+    legacy_only = LEGACY_APPLICATION
     source = root / 'library/seed'
     result = build_bundle(source if source.is_dir() else root, output, config['version'])
     path = Path(result['bundle'])
@@ -78,7 +104,15 @@ def build(root, output, tag=None):
     if system not in {'Windows', 'Linux'}:
         raise ValueError('Official library bundles currently target Windows and Linux')
     native = path.with_name(f'Operon-Library-v{config["version"]}-{system}.operon-library.zip')
-    path.replace(native)
+    legacy_native = native.with_name(f'BioPipe-Library-v{config["version"]}-{system}.biopipe-library.zip')
+    if legacy_only:
+        # Studio 3.1.0's UI accepts only the legacy envelope name.
+        import shutil
+        path.replace(native)
+        shutil.copyfile(native, legacy_native)
+        result['legacy_bundle'] = str(legacy_native)
+    else:
+        path.replace(native)
     path = native
     result['bundle'] = str(path)
     result.update(sha256=sha256(path), minimum_application=config['minimum_application'],
@@ -90,7 +124,9 @@ def build(root, output, tag=None):
     result['quickstart'] = {'archive': str(archive), 'sha256': archive_sha256,
                             'bytes': archive.stat().st_size}
     (output / f'SHA256SUMS-{system}.txt').write_text(
-        f"{result['sha256']}  {path.name}\n{archive_sha256}  {archive.name}\n", encoding='utf-8')
+        f"{result['sha256']}  {path.name}\n"
+        + (f"{sha256(legacy_native)}  {legacy_native.name}\n" if legacy_only else '')
+        + f"{archive_sha256}  {archive.name}\n", encoding='utf-8')
     (output / 'library-build.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
     return result
 
