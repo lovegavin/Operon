@@ -40,6 +40,14 @@ repairs are retained in the raw evidence; they are not silently removed. The
 headless and MCP checks now pass with ordinary subprocess transport. Prior
 sandbox-specific failures in the implementation handoff are not current results.
 
+Additional release checks: 41 focused remote/coordinator tests passed, and the
+pool restart test passed after explicitly waiting for the separate resource-release
+phase. Native Setup checks passed (52 checks); an isolated command-line Setup
+installation succeeded. The installed desktop's CLI/MCP/API backend acceptance
+passed 17 checks, including actual scientific execution, explicit dependency
+preparation, scopes, frozen parameters, original figures and idempotent retry.
+This does not claim manual UI selection or a new test-PC double-click session.
+
 ## Real Linux and SSH evidence
 
 The user started the existing authorized Linux instance. All work used a new
@@ -48,7 +56,8 @@ acceptance directory, synthetic arrays and two dedicated workspaces. Python
 this is not a clean-machine dependency bootstrap claim.
 
 - Initial Linux product/engine suite: **37 passed**.
-- Final Linux engine suite: result recorded in release verification after completion.
+- Final Linux engine/product/remote tests: **183 distinct cases passed**, combining
+  per-module runs and focused repair reruns. Earlier failure logs remain archived.
 - Two actual SSH clients independently handshook with workspace daemons using
   one dedicated pool. Local synthetic file upload and subsequent reuse passed.
 - Both clients submitted real installed v3.7 Reader/scale workflows. Repeating
@@ -61,6 +70,18 @@ this is not a clean-machine dependency bootstrap claim.
   subscription reopened, retry reused the task, and its numeric output matched.
   Compute completion, artifact commit, tree exit and resource release all
   reached their confirmed states.
+- Two explicit SSH bridge closes removed their bridge processes without stopping
+  the shared daemon or scientific tasks. Registry refresh is single-flight even
+  while the environment maintenance gate is held.
+- The Linux server bundle installed into a private prefix and its standard-library
+  YAML example completed all three stages from the command line.
+
+This instance has a 1 GiB cgroup limit. An aggregate test process was OOM-killed;
+module-isolated execution completed. A later combined suite left too little free
+capacity for the Describe worker to start before its test timeout; the same test
+passed in an isolated process (5.09 seconds). Orphaned SSH bridges were also found
+and fixed; real disconnect checks confirm cleanup. These failures are retained
+as evidence, not counted as successful combined runs.
 
 The scale operator includes a synthetic delay to expose concurrency and crash
 recovery. These results validate real process/SSH and numeric data paths, not
