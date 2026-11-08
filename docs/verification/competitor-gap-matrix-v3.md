@@ -9,6 +9,9 @@ Scope: capabilities absent from the 1017-operator catalog that have a determinis
 | Exact change-point segmentation | ruptures 1.1.9, changepoint 2.2.4 | implemented b82 (changepoint_pelt) | brute-force dynamic program oracle |
 | Discrete HMM Viterbi decoding | hmmlearn 0.3.3, pomegranate 1.1 | implemented b82 (hidden_markov_viterbi) | exhaustive path enumeration for short sequences |
 | Local-level Kalman filter | statsmodels 0.15.0, filterpy 1.4.5 | implemented b82 (kalman_local_level) | independent recursion + statsmodels comparison |
+| Discrete HMM training (Baum-Welch) | hmmlearn 0.3.3, pomegranate 1.1 | implemented b86 (hmm_baum_welch) | forward-backward likelihood identity and convergence diagnostics |
+| Rauch-Tung-Striebel smoothing | statsmodels 0.15.0, filterpy 1.4.5 | implemented b86 (kalman_smoother) | independent matrix-form RTS recursion |
+| Bootstrap particle filter | filterpy 1.4.5, pymc 5.x | implemented b86 (particle_filter_bootstrap) | analytic Kalman posterior for the linear-Gaussian case |
 | Causal forests / uplift | econml 0.15, causalml 0.15 | implemented b83 (uplift_t_learner, uplift_qini_curve) | linear T-learner and normalised cumulative-uplift oracle; causal forest still blocked |
 | CRISPR off-target specificity | CRISPOR 5.0, FlashFry 2.0 | implemented b83 (crispr_mit_specificity) | Hsu MIT weights and hand score; CFD matrix remains blocked by licence |
 | Flux balance analysis | cobra 0.29, COBRApy | implemented b83 (fba_flux_balance) | vertex enumeration plus hand-solved network |

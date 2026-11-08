@@ -1888,3 +1888,36 @@ decoder, so it is a PCA-like reconstruction model, not a nonlinear manifold
 learner; anomaly threshold is mean + 3 population standard deviations and
 should not be read as a calibrated false-positive rate; cross-platform
 determinism depends on the three-decimal rounding.
+
+## Batch b86 - state-space models (HMM Baum-Welch, RTS smoother, particle filter)
+
+Synthetic, deterministic route `workdir/b86_route` (6 steps, 3 operators + 3 exports).
+
+Inputs (sha256):
+
+- `obs.csv` `644af702eba11c9599841db3638f4bc5c7bd76a60e936866b44daf45f5808b26`
+- `y.csv` `a1ca28a7ec2b9a58484b693dabb4953a1140804350ff4866062571b366b129b2`
+
+Operators and dependencies: `hmm_baum_welch`, `kalman_smoother`, `particle_filter_bootstrap`; declared `numpy>=1.24`, tested with numpy 2.1.3. No optional compiled dependency is used.
+
+Route results:
+
+- `hmm.csv`: log_likelihood 0.0, n_iter 24, converged 1, n_states 2, n_observations 12 (the two-state fit collapses onto the deterministic alternating cycle for this input).
+- `kalman.csv`: t0 filtered mean 1.0 / variance 0.4, smoothed mean 1.885429375 / variance 0.430073797.
+- `particles.csv` (50000 particles, seed 7): t0 mean 0.985731013 / variance 0.443454084 / ESS 4165.446196197.
+
+Oracle (`workdir/b86_oracle.json`, 8/8 checks):
+
+- HMM: likelihood identity (LL 0.0, converged) recomputed independently.
+- Kalman: matrix-form RTS recursion written independently in NumPy; maximum absolute differences 4.9e-10 (filtered mean), 4.5e-10 (filtered variance), 4.9e-10 (smoothed mean), 4.0e-10 (smoothed variance).
+- Particle filter: compared with the analytic Kalman posterior; max mean difference 0.0117 and max variance difference 0.0430 (tolerance 0.05). The bootstrap filter slightly underestimates posterior variance, a known finite-particle/resampling effect, documented as a limitation.
+
+Three-end md5 (WSL = Windows with app 3.1.0 / SDK 3.7.0):
+
+- `hmm.csv` `ccaf08de3b1513a6013947890b7fd75a`
+- `kalman.csv` `472a4e6a16cf96c20a70d2dab565f7ae`
+- `particles.csv` `b79cf573122ba0d6a577be76f093a9cd`
+
+srv SKIP: 172.22.148.93:22 timed out during this batch.
+
+Limitations: two-state HMM only (no model selection); local-level Kalman model only (no trend/seasonal terms); bootstrap particle filter resamples when ESS < N/2 and is only validated against the linear-Gaussian posterior.
