@@ -1,0 +1,52 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "type": "object",
+ "additionalProperties": false,
+ "title": "TransformerClassifierStep",
+ "properties": {
+  "label_column": {
+   "type": "string",
+   "default": "label"
+  },
+  "d_model": {
+   "type": "integer",
+   "default": 8
+  },
+  "nhead": {
+   "type": "integer",
+   "default": 2
+  },
+  "layers": {
+   "type": "integer",
+   "default": 1
+  },
+  "epochs": {
+   "type": "integer",
+   "default": 200
+  },
+  "learning_rate": {
+   "type": "number",
+   "default": 0.01
+  },
+  "seed": {
+   "type": "integer",
+   "default": 7
+  },
+  "output": {
+   "type": "string",
+   "default": "output"
+  },
+  "row_dim": {
+   "type": "string",
+   "default": "row"
+  },
+  "field_dim": {
+   "type": "string",
+   "default": "field"
+  }
+ },
+ "required": [
+  "row_dim",
+  "field_dim"
+ ]
+}

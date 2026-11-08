@@ -1,0 +1,36 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "type": "object",
+ "additionalProperties": false,
+ "title": "KernelShapStep",
+ "properties": {
+  "target_column": {
+   "type": "string",
+   "default": "target"
+  },
+  "row": {
+   "type": "integer",
+   "default": 0
+  },
+  "alpha": {
+   "type": "number",
+   "default": 1.0
+  },
+  "output": {
+   "type": "string",
+   "default": "output"
+  },
+  "row_dim": {
+   "type": "string",
+   "default": "row"
+  },
+  "field_dim": {
+   "type": "string",
+   "default": "field"
+  }
+ },
+ "required": [
+  "row_dim",
+  "field_dim"
+ ]
+}

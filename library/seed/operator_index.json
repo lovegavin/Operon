@@ -1340,6 +1340,16 @@
     "status": "generated"
   },
   {
+    "id": "cnn_image_classifier",
+    "kind": "operator",
+    "title": "CNN image classifier",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Two-layer convolutional classifier for flattened square grayscale images. (batch b88).",
+    "doc": "src/task/step/steps/cnn_image_classifier.CnnImageClassifierStep.md",
+    "status": "authored"
+  },
+  {
     "id": "cochran_armitage",
     "kind": "operator",
     "title": "Cochran-Armitage trend test",
@@ -4238,6 +4248,16 @@
     "description": "Kernel PCA：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、主成分数、Kernel、Gamma。",
     "doc": "src/task/step/steps/kernel_pca.KernelPcaStep.md",
     "status": "generated"
+  },
+  {
+    "id": "kernel_shap",
+    "kind": "operator",
+    "title": "KernelSHAP linear attribution",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Exact Shapley attribution for a ridge model (closed form for linear models). (batch b88).",
+    "doc": "src/task/step/steps/kernel_shap.KernelShapStep.md",
+    "status": "authored"
   },
   {
     "id": "kmer_count",
@@ -9638,6 +9658,16 @@
     "description": "Mean gene expression across equal-width pseudotime bins.",
     "doc": "src/task/step/steps/trajectory_gene_trends.TrajectoryGeneTrendsStep.md",
     "status": "generated"
+  },
+  {
+    "id": "transformer_classifier",
+    "kind": "operator",
+    "title": "Transformer classifier",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Multi-head self-attention encoder over tabular features with a class token head. (batch b88).",
+    "doc": "src/task/step/steps/transformer_classifier.TransformerClassifierStep.md",
+    "status": "authored"
   },
   {
     "id": "translate",

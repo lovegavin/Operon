@@ -1,0 +1,48 @@
+{
+ "$schema": "http://json-schema.org/draft-07/schema#",
+ "type": "object",
+ "additionalProperties": false,
+ "title": "CnnImageClassifierStep",
+ "properties": {
+  "label_column": {
+   "type": "string",
+   "default": "label"
+  },
+  "height": {
+   "type": "integer",
+   "default": 4
+  },
+  "width": {
+   "type": "integer",
+   "default": 4
+  },
+  "epochs": {
+   "type": "integer",
+   "default": 200
+  },
+  "learning_rate": {
+   "type": "number",
+   "default": 0.01
+  },
+  "seed": {
+   "type": "integer",
+   "default": 7
+  },
+  "output": {
+   "type": "string",
+   "default": "output"
+  },
+  "row_dim": {
+   "type": "string",
+   "default": "row"
+  },
+  "field_dim": {
+   "type": "string",
+   "default": "field"
+  }
+ },
+ "required": [
+  "row_dim",
+  "field_dim"
+ ]
+}
