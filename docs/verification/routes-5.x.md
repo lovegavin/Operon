@@ -1761,3 +1761,49 @@ so the srv leg is SKIP with that cause.
 - The HMM decoder accepts discrete observations with an explicit emission matrix; it
   does not estimate parameters.
 - The Kalman operator implements the local-level (random-walk plus noise) model only.
+
+## Batch b83 - uplift modelling, FBA and CRISPR specificity (2026-11-08)
+
+Four operators extend the causal-inference, metabolic-modelling and genome-editing
+coverage:
+
+- `uplift_t_learner` (numpy>=1.24): per-arm OLS with an intercept and the shared
+  covariates; emits mu0, mu1 and uplift for every row.
+- `uplift_qini_curve` (numpy>=1.24): sorts rows by predicted uplift and reports
+  cumulative uplift per decile. The `qini` column is the cumulative-sum uplift
+  normalised by the sampled fraction (mean uplift among the selected rows).
+- `fba_flux_balance` (scipy>=1.11): steady-state flux balance from a stoichiometric
+  matrix and reaction bounds via `scipy.optimize.linprog`.
+- `crispr_mit_specificity` (numpy>=1.24): Hsu 2013 position-weight MIT off-target
+  score for a guide and a single off-target site.
+
+Route `workdir/b83_route` (4 CsvReader sources, 8 steps) completed 8/8 in WSL and
+Windows.  Inputs:
+
+| input | sha256 |
+| --- | --- |
+| bounds.csv | b34c224084829924d050fd9ad3b8805c3b1cac7940c5a3d3f6e7066c30cc1d61 |
+| guides.csv | b405b6e4a1c415259911f6ec54ac5acde205ae72cb0d68ee30e969cb670de950 |
+| stoich.csv | a15647e3d3b6c5f839224cf0e0d7f4c9961fda4f82c8d0a2549316a0ce62ed11 |
+| uplift.csv | 66e8f95a72fd905a90661d866c146bd65bc8e57a368d82e1e21ef568d3cf4027 |
+
+Exported values: FBA r1 = 10, r2 = 10, objective = 20; uplift u1 mu0 = 0.9,
+mu1 = 2.9, uplift = 2.0 (u2 1.2/3.2/2.0); Qini q0 = 0, q2 gain 2.2, q4 gain 2.1;
+MIT g1 = 41.7 with one mismatch at position 19, g2 = 100 with none.
+
+Oracle `b83_oracle.py` (13/13): per-arm normal equations, hand-computed Qini,
+vertex enumeration for the two-reaction FBA network, and a hand MIT calculation.
+Export md5 values, identical in WSL and Windows:
+
+| export | md5 |
+| --- | --- |
+| fba.csv | fe286cb6d8a8edaadb4f0d07f9c5b59c |
+| mit.csv | 24cd8814a16aedf11ebf2057290416ae |
+| qini.csv | a56f93f7b150f86670388b4d3f8c3dfc |
+| uplift.csv | 3ea79a7808cd5d5c43bad6d1825621d7 |
+
+srv was not re-run for this batch (172.22.148.93:22 timed out during the window);
+the same commit is available for a later replay. Limitations: the T-learner is a
+linear baseline rather than a causal forest, the Qini column is a normalised
+cumulative uplift (not the area-under-Qini definition), and MIT covers a single
+off-target site rather than genome-wide enumeration.

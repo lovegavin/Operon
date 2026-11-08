@@ -9,9 +9,9 @@ Scope: capabilities absent from the 1017-operator catalog that have a determinis
 | Exact change-point segmentation | ruptures 1.1.9, changepoint 2.2.4 | implemented b82 (changepoint_pelt) | brute-force dynamic program oracle |
 | Discrete HMM Viterbi decoding | hmmlearn 0.3.3, pomegranate 1.1 | implemented b82 (hidden_markov_viterbi) | exhaustive path enumeration for short sequences |
 | Local-level Kalman filter | statsmodels 0.15.0, filterpy 1.4.5 | implemented b82 (kalman_local_level) | independent recursion + statsmodels comparison |
-| Causal forests / uplift | econml 0.15, causalml 0.15 | planned b83 | no installed package; implement T-learner and doubly robust estimator directly |
-| CRISPR off-target CFD score | CRISPOR 5.0, FlashFry 2.0 | planned b83 | public CFD matrix, two independent scorers |
-| Flux balance analysis | cobra 0.29, COBRApy | planned b83 | scipy.optimize.linprog oracle plus hand-solved network |
+| Causal forests / uplift | econml 0.15, causalml 0.15 | implemented b83 (uplift_t_learner, uplift_qini_curve) | linear T-learner and normalised cumulative-uplift oracle; causal forest still blocked |
+| CRISPR off-target specificity | CRISPOR 5.0, FlashFry 2.0 | implemented b83 (crispr_mit_specificity) | Hsu MIT weights and hand score; CFD matrix remains blocked by licence |
+| Flux balance analysis | cobra 0.29, COBRApy | implemented b83 (fba_flux_balance) | vertex enumeration plus hand-solved network |
 | Image segmentation / nuclei counting | scikit-image 0.25, CellProfiler 4.2 | planned b84 | synthetic images with known object counts |
 | Ion mobility collision cross-section | PNNL CCS 4.0 | planned b84 | formula oracle and independent implementation |
 | Protein language model embeddings | ESM3 3.4.2 | covered (esm3_embedding, esm_embedding) | existing operators |
