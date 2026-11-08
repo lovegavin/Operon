@@ -2121,3 +2121,47 @@ policy reserves srv for large weights).
 Limitations: training-set diagnostics only; LightGBM uses `min_child_samples=1` to
 allow splits on the eight-row fixture; XGBoost uses `hist` on a tiny linear fixture;
 HDBSCAN uses `allow_single_cluster=True`.
+
+## Batch b91 — Nucleotide Transformer embeddings, variant effect and G4 scan
+
+Small real-weight DNA language-model batch. Weights: `InstaDeepAI/nucleotide-transformer-v2-50m-multi-species`
+(transformers format, 223 MB safetensors, downloaded through `hf-mirror.com`; model card license is
+CC-BY-NC-SA 4.0, research/non-commercial use). Local cache: `~/.cache/operon-weights/NTv2-50M`
+(override with `OPERON_NT_WEIGHTS` or the `model_path` parameter).
+
+Dependencies: numpy 2.1.3, torch 2.11.0+cu130 (CPU path), transformers 4.57.6, huggingface_hub 0.36.2.
+The model is loaded through `get_class_from_dynamic_module("modeling_esm.EsmModel", ...)` because the
+checkpoint uses the repository's GLU `EsmIntermediate` (2x intermediate size), which differs from the
+native transformers ESM implementation.
+
+Inputs:
+- `seqs.csv` sha256 `cd2980b9921589eb1175c095aeaa0b384a27eb589c1576090f8b665505111a91` (4 sequences: ACGT repeat, TTTTGGGGCCCCAAAATTTT, GGGAGGGAGGGAGGG, one-base variant)
+- `variants.csv` sha256 `338a911563d4f4d1d7b021c2fd4e3e556d8260e0b1b8483ce22d142c729d9172` (3 ref/alt pairs)
+
+Route: embedding mean-pool (4x512), variant effect (ref/alt norm, cosine, Euclidean, norm delta),
+and an exact G-quadruplex tract scan; 6/6 steps, synthetic fixtures marked as synthetic.
+
+Observed values:
+- embedding: 4x512, first sequence row starts -0.1717, 0.2791, 0.0763, 0.2821 (round 3)
+- variant effect: identical pair cosine 1.0, Euclidean 0.0; one-base pair cosine 0.983, Euclidean 2.407;
+  unrelated pair cosine -0.014
+- G4 scan: ACGT repeat 0/0/0; GGGAGGGAGGGAGGG -> 1 G4, span 15, longest tract 3; GGGAAAAAAGGG -> 0/0/3
+
+Exports (WSL = Windows, D:\Operon py3.12 with local weights):
+- `emb.csv` md5 `a3ffb9cd9c31601596951e4e9afb9d1e`
+- `eff.csv` md5 `ca6d02220dcf4dfa661c85048afb3aff`
+- `g4.csv` md5 `c511f5565aeed49e1d3d4ca9f2a59cb9`
+
+Oracle (mode `synthetic+hand+real_weights`), `workdir/b91_oracle.json`, 6/6:
+- G4 counts exact hand calculation
+- variant cosine/Euclidean recomputed from the exported embeddings
+- independent mean-pool recomputation from `last_hidden_state` for one sequence (max abs diff < 3e-3,
+  after the 3-decimal output rounding), confirming tokenization and pooling
+- embedding shape/finiteness invariant
+
+Cross-host note: torch CPU kernels differ by ~1e-5 per coordinate; outputs are rounded to 3 decimals so the
+CSV bytes are stable across WSL and Windows. srv was not re-run for this batch (223 MB weights plus a torch
+install would have to be staged there); it is recorded as SKIP.
+
+Limitations: mean pooling only (no attention-pooled or per-layer features), 512-token windows, no fine-tuned
+head, and the G4 scan is a sequence heuristic rather than a structure prediction.

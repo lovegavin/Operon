@@ -45,3 +45,11 @@ Scope: capabilities absent from the 1017-operator catalog that have a determinis
 | Gradient-boosted classification | LightGBM 4.7, XGBoost 3.4, scikit-learn 1.6 | `lightgbm_classifier` | synthetic+hand 10/10, WSL=Windows |
 | Gradient-boosted regression | XGBoost 3.4, LightGBM 4.7, CatBoost | `xgboost_regressor` | synthetic+hand 10/10, WSL=Windows |
 | Density-based clustering with noise | HDBSCAN 0.8, scikit-learn 1.6 | `hdbscan_cluster` | synthetic+hand 10/10, WSL=Windows |
+
+### b91 additions (DNA language model, real weights)
+
+| Capability | Competitor | Existing operator | Gap | Priority | Data / oracle | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| DNA language-model embeddings | Nucleotide Transformer, DNABERT-2, HyenaDNA | esm_embedding covers protein only | No nucleotide LM path | high | NT v2 50M weights, hand + mean-pool recomputation | implemented b91 |
+| Variant effect from LM embeddings | NT variant effect scripts | esm_variant_effect is protein-only | No DNA embedding shift operator | high | same weights, cosine recomputation | implemented b91 |
+| G-quadruplex propensity scan | quadparser, G4Hunter | none | Sequence-level G4 heuristic missing | medium | hand counts on motif fixtures | implemented b91 |
