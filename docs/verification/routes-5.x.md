@@ -1673,3 +1673,30 @@ The published 6.0.0 artifacts remain the current release; no re-tag or re-upload
 needed for 3.1.2. `build_application` stays 3.1.0 because that is the release train the
 bundle was built and signed on, and 3.1.2 accepts it. A future library release can raise
 the floor to 3.1.2 after the normal three-end route campaign.
+## Release 6.0.1 verification (2026-11-08)
+
+Patch release for Studio 3.1.2. No operator, Reader, descriptor or route changed:
+the release raises `minimum_application`/`build_application` to 3.1.2, records the
+Studio 3.1.2 compatibility result and rebuilds the artifacts with the corrected
+checksum assembly.
+
+Build and verification were run with the local v3.1.2 application environment:
+
+```
+/home/gavin/bp312/bin/python -I scripts/release_library.py --source /home/gavin/Operon \
+  --output build/library601 --tag library-v6.0.1
+/home/gavin/bp312/bin/python -I scripts/verify_library_release.py \
+  --bundle build/library601/Operon-Library-v6.0.1-Linux.operon-library.zip \
+  --work /tmp/verify601
+```
+
+Results: `passed: true`, application 3.1.2, library 6.0.1, 1017 operators,
+108 Readers, bundle sha256 `6ac578c11308a824ede2fe6a8f97a39b703aadbdf546859c1218ce90539c702a`,
+`application_unchanged`, `old_pin_and_parameters_preserved`, `idempotent_install`,
+`disabled_provider_preserved` and `worker_streaming` all true. The 98-test bundle
+suite passed with 1 skip and 7 deselected.
+
+Registry on the release tree: 1017 operators, 108 Readers, 7 packages, 78 routes,
+0 errors. Full pytest on the NumPy 2.1.3 environment: 3659 passed, 223 skipped,
+0 failed. srv route parity recorded on the 6.0.0 tree applies unchanged because
+this patch ships the same operators and routes.
