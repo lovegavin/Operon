@@ -3470,6 +3470,16 @@
     "status": "authored"
   },
   {
+    "id": "haplotype_diversity",
+    "kind": "operator",
+    "title": "Haplotype and nucleotide diversity",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Haplotype and nucleotide diversity.",
+    "doc": "src/task/step/steps/haplotype_diversity.HaplotypeDiversityStep.md",
+    "status": "authored"
+  },
+  {
     "id": "hardy_weinberg",
     "kind": "operator",
     "title": "Hardy-Weinberg equilibrium",
@@ -4908,6 +4918,16 @@
     "description": "Count target residues within a heavy-atom distance cutoff of each binder residue and report the closest approach.",
     "doc": "src/task/step/steps/minibinder_interface.MinibinderInterfaceStep.md",
     "status": "generated"
+  },
+  {
+    "id": "mismatch_distribution",
+    "kind": "operator",
+    "title": "Mismatch distribution",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Mismatch distribution.",
+    "doc": "src/task/step/steps/mismatch_distribution.MismatchDistributionStep.md",
+    "status": "authored"
   },
   {
     "id": "missing",
@@ -7938,6 +7958,16 @@
     "description": "",
     "doc": "src/task/step/steps/sequence_disorder_predictor.SequenceDisorderPredictorStep.md",
     "status": "generated"
+  },
+  {
+    "id": "sequence_dnds",
+    "kind": "operator",
+    "title": "dN/dS ratio (Nei-Gojobori)",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "dN/dS ratio (Nei-Gojobori).",
+    "doc": "src/task/step/steps/sequence_dnds.SequenceDndsStep.md",
+    "status": "authored"
   },
   {
     "id": "sequence_gc_profile",
