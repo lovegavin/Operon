@@ -1,0 +1,46 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "value_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "feature": {
+      "type": "integer",
+      "default": 0
+    },
+    "alpha": {
+      "type": "number",
+      "default": 1.0
+    },
+    "n_grid": {
+      "type": "integer",
+      "default": 5
+    },
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "grid_dim": {
+      "type": "string",
+      "default": "grid"
+    },
+    "statistic": {
+      "type": "string",
+      "default": "statistic"
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}
