@@ -1,9 +1,5 @@
 name: Protocol and registry
-on:
-  push:
-    branches: ['fix/**', 'release/**']
-    tags-ignore: ['library-v*']
-  pull_request:
+on: workflow_dispatch
 jobs:
   installer-processes-linux:
     runs-on: ubuntu-latest
