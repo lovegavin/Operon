@@ -6020,6 +6020,16 @@
     "status": "generated"
   },
   {
+    "id": "phylogenetics_jc69_likelihood",
+    "kind": "operator",
+    "title": "JC69 tree likelihood",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Felsenstein pruning log-likelihood of an aligned nucleotide matrix on a fixed Newick tree under the JC69 model.",
+    "doc": "src/task/step/steps/phylogenetics_jc69_likelihood.PhylogeneticsJc69LikelihoodStep.md",
+    "status": "authored"
+  },
+  {
     "id": "pileup_variants",
     "kind": "operator",
     "title": "pileup_variants",
@@ -9417,6 +9427,16 @@
     "version": "1.0.0",
     "description": "Finds the MRCA node of two tip labels in a Newick tree and reports its height and pairwise distance.",
     "doc": "src/task/step/steps/tree_mrca.TreeMrcaStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_outgroup_root",
+    "kind": "operator",
+    "title": "Outgroup rooting",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Re-root a Newick tree on the terminal branch of a named outgroup and report root geometry.",
+    "doc": "src/task/step/steps/tree_outgroup_root.TreeOutgroupRootStep.md",
     "status": "authored"
   },
   {
