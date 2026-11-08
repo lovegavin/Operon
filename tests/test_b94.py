@@ -29,10 +29,11 @@ def test_iv_recovers_structural_coefficient():
     x = 0.9 * z + v
     y = 2.0 * x + rng.normal(scale=0.5, size=n)
     form = frame([y, x, z], ["y", "x", "z"])
-    ctx = Ctx(output="o", y_column="y", endog_column="x", instrument_column="z", control_columns="")
+    ctx = Ctx(output="o", sample_dim="row", feature_dim="field", outcome_label="y",
+              endog_labels=["x"], instrument_labels=["z"], exog_labels=[])
     Iv2slsStep().run(ctx, [form])
     out = ctx["o"]
-    coef = out.data[0, out.labels["statistic"]["coef"]]
+    coef = out.data[out.labels["term"]["x"], out.labels["statistic"]["coef"]]
     assert abs(coef - 2.0) < 0.15
     assert out.labels["statistic"]["ci_low"] == 4
 
