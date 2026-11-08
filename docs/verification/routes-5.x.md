@@ -2081,47 +2081,6 @@ Limitations: training-set diagnostics only; LightGBM uses `min_child_samples=1` 
 allow splits on the eight-row fixture; XGBoost uses `hist` on a tiny linear fixture;
 HDBSCAN uses `allow_single_cluster=True`.
 
-## Batch b90 - gradient boosting and density clustering (2026-11-08)
-
-Three Machine Learning operators built on pinned third-party wheels; route data is
-synthetic and hand-checked, so the evidence mode is `synthetic+hand` rather than a
-biological claim.
-
-| operator | dependency | tested version |
-| --- | --- | --- |
-| `lightgbm_classifier` | `lightgbm>=4.0,<5` | 4.7.0 (WSL and Windows) |
-| `xgboost_regressor` | `xgboost>=2.0,<4` | 3.4.1 (WSL and Windows) |
-| `hdbscan_cluster` | `hdbscan>=0.8,<1` | 0.8.44 (WSL and Windows) |
-
-Route `workdir/b90_route` (three CsvReader sources, six steps) completed 6/6 on WSL
-(Python 3.12, numpy 2.1.3) and on Windows (`D:\Operon`, py -3.12, numpy 2.5.4).
-
-Inputs (sha256):
-
-- lightgbm.csv `468f8a7f179f792ae6b545fc29aab489c813b6ae5e1db1ed5f7d43e6c52d2883`
-- xgboost.csv `8df2c8a6c21664e98c173b347cd18f619ce5af04ea57b951bb91d8ab45741b05`
-- hdbscan.csv `0753f7fa360b3cef95d4ba2f50493b8d8b0062f847bf00f85d7a595dfa1267bf`
-
-Hand verification (`workdir/b90_oracle.json`, 10/10): the two-class table is
-separated at the first feature (accuracy 1.0, log loss 0.001105); the regression
-target is exactly `2x+1` (rmse 0.027396, r2 0.999964, mae 0.017416 <= rmse); the
-eight points split into two four-point clusters with probability 1.0 each. Independent
-sklearn `GradientBoostingClassifier`/`Regressor` reproduce accuracy 1.0 and rmse
-0.000122 (difference from the operator 0.027274, within the 0.05 tolerance).
-
-Export md5 (WSL = Windows):
-
-- lightgbm_metrics.csv `c6cd2899b563bcccdf8622cef0cb59e8`
-- xgboost_metrics.csv `0bd105e9d910ee21947d913d497b5e39`
-- hdbscan_labels.csv `8678d5cf6847b59a43900597dba099b5`
-
-srv: SKIP (small CPU-only batch; the srv venv does not carry these wheels, and the
-policy reserves srv for large weights).
-
-Limitations: training-set diagnostics only; LightGBM uses `min_child_samples=1` to
-allow splits on the eight-row fixture; XGBoost uses `hist` on a tiny linear fixture;
-HDBSCAN uses `allow_single_cluster=True`.
-
 ## Batch b91 — Nucleotide Transformer embeddings, variant effect and G4 scan
 
 Small real-weight DNA language-model batch. Weights: `InstaDeepAI/nucleotide-transformer-v2-50m-multi-species`
