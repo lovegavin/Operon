@@ -1507,3 +1507,31 @@ matched byte for byte.
 Limitations: the srv run used the same small synthetic inputs as the WSL and
 Windows runs; it validates numeric reproducibility across Python 3.11/3.12 and
 numpy 2.2/2.1/2.5, not full-scale data behaviour.
+
+## Classic route bundles (post-1001)
+
+Two additional classic pipelines were packaged as route bundles and executed on
+WSL, srv and Windows from commit `222c2104`. All eight exported tables matched
+exactly on the three hosts.
+
+- `population_selection_scan`: effective population size, LD haplotype blocks,
+  iHS selection, IBD segments and ROH runs (operators from b55).
+- `noncoding_rna_editing`: back-splice circRNA detection, RNA-editing candidate
+  scoring and a motif PWM (operators from the final 1001 batch).
+
+srv used `/public/home/lihj/operon-venv311` (Python 3.11.18) and the same
+`scripts/run.py <bundle>` entry point as WSL and Windows.
+
+| route | export | md5 (WSL = srv = Windows) |
+| --- | --- | --- |
+| population_selection_scan | eps.csv | `8451858f977e8648ca0b51c7f48147fc` |
+| population_selection_scan | blocks.csv | `f87dd277de37c08ffd5bae615f7f5b64` |
+| population_selection_scan | ihs.csv | `dad65350028e31617210f421d43eeb63` |
+| population_selection_scan | ibd.csv | `93277da1bc4a7d289a74b557b12f91ec` |
+| population_selection_scan | roh.csv | `90c7481c2b3eddc6b08e06a6fcc2da9e` |
+| noncoding_rna_editing | circ.csv | `ce5f3b3f4f3d9b3eba7eb7cadf15f465` |
+| noncoding_rna_editing | edit.csv | `76d91960d02aa136a65dc93035b13970` |
+| noncoding_rna_editing | pwm.csv | `814f489fec9b33d305c86c712ca92a45` |
+
+Limitations: inputs are small synthetic tables, so these two bundles demonstrate
+numeric reproducibility and pipeline wiring, not biological conclusions.
