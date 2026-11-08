@@ -17,6 +17,8 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 
 ## Use Operon
 
+- **[Quick start: Windows, Linux and your first workflow](quickstart.md)**
+
 - [Shared execution pools](design/pool_service.md)
 - [Verified stage reuse and author cache declarations](stage_cache.md)
 

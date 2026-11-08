@@ -72,7 +72,7 @@ def main():
         copy(source, source.name)
     for source in root.glob('constraints*.txt'):
         copy(source, source.name)
-    for name_ in ('README.md', 'pyproject.toml'):
+    for name_ in ('README.md', 'pyproject.toml', 'LICENSE', 'NOTICE'):
         copy(root / name_, name_)
     for name_ in ('release.json', 'pyproject.toml', 'README.md'):
         if (root / 'library' / name_).is_file():
@@ -119,6 +119,9 @@ Use Operon_Setup.exe for installation. It owns its management Python and creates
 new isolated profile; previous BioPipe installations and profiles are retained.
 Double-click the installed Operon Studio shortcut. First-time WebView2 setup
 may need an internet connection. Do not move individual installed files.
+
+Start with docs/quickstart.md for your first Windows or Linux workflow.
+Operon is open source under Apache-2.0; see LICENSE and NOTICE.
 
 The operator library remains independently versioned. Existing v3/v3.5 packages,
 .biopipe workflow bundles, Python imports and MCP identifiers stay compatible.

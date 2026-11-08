@@ -1,5 +1,12 @@
 # Operon
 
+**[Quick start: install and run your first workflow](docs/quickstart.md)** ·
+[Download Windows Setup / Linux server](https://github.com/lovegavin/Operon/releases/latest) ·
+[Apache-2.0 license](LICENSE)
+
+Operon is open-source software. You may use, copy, modify and redistribute it,
+including commercially, under Apache-2.0.
+
 Windows users can install **Operon_Setup.exe**, which includes its own Python
 for management, Form/memory infrastructure and agent interfaces, and creates a fresh isolated profile. Scientific dependencies are prepared explicitly for the chosen route/host; PyTorch, Pandas, SciPy and plotting packages are not bundled by default. Existing profiles and analysis files remain
 available for explicit import. See [Windows Setup](docs/windows_setup.md).
@@ -154,19 +161,13 @@ multi-group comparisons, GO enrichment, sequence analysis, annotation QC and
 genomic interval analysis; example YAML remains under `tasks/`.
 
 Download the ready-built Windows desktop package from
-[GitHub Releases](https://github.com/lovegavin/BioPipe/releases/latest).
-Extract the complete ZIP and double-click `BioPipe Studio.exe`. The **full Windows
-x64 package includes Python, SSH support and the built-in Windows CPU analysis/Reader dependencies**.
-No Python, Conda or compiler setup is required. Keep the `runtime` folder beside
-the EXE. If WebView2 is missing, its official Microsoft installer prepares it
-automatically; that one-time step requires internet access. Linux command-line
-tools for Hi-C are installed on the execution server, not in the Windows runtime.
-
-The desktop also upgrades known legacy built-in profiles before
-startup, with recoverable backups under `.studio/migrations/v3/`. Unfinished
-canvas drafts remain editable; required parameters are still checked before a
-run. Old external provider packages require conversion to protocol v3 and produce
-an actionable startup error. Completed job records are not rewritten.
+[GitHub Releases](https://github.com/lovegavin/Operon/releases/latest).
+Run **Operon_Setup.exe**, then launch **Operon Studio** from its shortcut.
+Setup includes the lightweight management Python and creates an isolated profile.
+Choose an execution environment and explicitly prepare dependencies for your
+workflow before running. If WebView2 is missing, Setup uses Microsoft's installer;
+that step requires internet access. See the [quick start](docs/quickstart.md).
+Existing profiles and analysis files are retained for explicit import.
 
 Studio checks Reader/Step dependencies at startup and after library changes, and
 retains successful checks for the session. Compatible operators share the runtime;
@@ -1107,11 +1108,17 @@ python scripts/run.py tasks/csv_demo
 
 ## License
 
-Copyright (c) 2026 Haojian Li. All rights reserved.
+Copyright (c) 2026 Haojian Li and Operon contributors.
 
-This software is proprietary. No part of this software may be copied, modified, distributed, sublicensed, or used for commercial purposes without the prior written permission of the copyright holder.
+Operon is licensed under the **[Apache License, Version 2.0](LICENSE)**.
+Use, copying, modification, redistribution, sublicensing and commercial use are
+permitted under that license; no separate commercial permission is required.
+Retain the license and applicable attribution notices and identify modifications
+when redistributing. See [NOTICE](NOTICE) for attribution.
 
-For commercial licensing, custom development, or collaboration, please contact: email: lovegavin118@outlook.com / WeChat: mylovegavin118 / No. 13727316173.
+Third-party dependencies, external tools, model weights and datasets retain their
+own licenses. Their notices are preserved in `THIRD_PARTY_NOTICES/` and the
+individual packages; Operon's license does not replace those terms.
 
 ### Source preparation and Studio configuration
 

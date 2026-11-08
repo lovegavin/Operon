@@ -14,7 +14,7 @@ def build(root, application, library, output):
     if not library.name.startswith('biopipe_builtin_library-') or library.suffix != '.whl':
         raise ValueError('Expected the independently versioned factory library wheel')
     files = {'wheels/' + p.name: p.read_bytes() for p in (application, library)}
-    for name in ('LICENSE', 'scripts/install_server.py', 'scripts/install_server.sh'):
+    for name in ('LICENSE', 'NOTICE', 'scripts/install_server.py', 'scripts/install_server.sh'):
         files[name] = (root / name).read_bytes()
     for folder in ('docs', 'examples/workflows/script_pipeline'):
         for path in (root / folder).rglob('*'):
@@ -56,8 +56,8 @@ cp -R examples/workflows/script_pipeline "$HOME/apps/operon/workspace/demo"
 
 The example uses standard-library Python scripts. Scientific dependencies are
 prepared explicitly for the selected execution environment. Existing server
-installations can be selected in the desktop SSH settings. The shared pool is
-opt-in; see [pool setup](docs/design/pool_service.md), [server CLI](docs/server_cli.md),
+installations can be selected in the desktop SSH settings. The shared pool starts
+automatically; see [quick start](docs/quickstart.md), [pool setup](docs/design/pool_service.md), [server CLI](docs/server_cli.md),
 [installation](docs/command_line_installation.md), [stage cache](docs/stage_cache.md)
 and [release notes](docs/releases/v{version}.md).
 '''.encode()

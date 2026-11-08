@@ -52,6 +52,8 @@ def test_lite_archive_preserves_operator_docs_and_frozen_task_parameters(tmp_pat
     files = {
         "pyproject.toml": '[project]\nversion="0.0.1"\n',
         "README.md": "Example release",
+        "LICENSE": "Apache License, Version 2.0",
+        "NOTICE": "Example contributor attribution",
         "src/example.py": "# Example operator",
         "src/example.parameters.json": '{"default": 20}',
         "src/example.Operator.md": "# Operator usage",
@@ -90,6 +92,8 @@ def test_lite_archive_preserves_operator_docs_and_frozen_task_parameters(tmp_pat
     package_release.main()
     with zipfile.ZipFile(next((tmp_path / "archives").glob("*.zip"))) as archive:
         prefix = "Operon Studio/"
+        assert archive.read(prefix + "LICENSE").decode() == files['LICENSE']
+        assert archive.read(prefix + "NOTICE").decode() == files['NOTICE']
         assert archive.read(prefix + "src/example.Operator.md").decode() == "# Operator usage"
         assert json.loads(archive.read(prefix + "src/example.parameters.json"))["default"] == 20
         assert json.loads(archive.read(prefix + "tasks/example/parameters.json"))["value"] == 10
