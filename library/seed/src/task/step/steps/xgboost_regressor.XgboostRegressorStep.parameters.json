@@ -1,0 +1,45 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string",
+      "default": "xgboost_regressor"
+    },
+    "target_column": {
+      "type": "string",
+      "default": "target"
+    },
+    "n_estimators": {
+      "type": "integer",
+      "default": 30
+    },
+    "max_depth": {
+      "type": "integer",
+      "default": 3
+    },
+    "learning_rate": {
+      "type": "number",
+      "default": 0.3
+    },
+    "seed": {
+      "type": "integer",
+      "default": 7
+    }
+  },
+  "required": [
+    "target_column",
+    "n_estimators",
+    "max_depth",
+    "learning_rate",
+    "seed"
+  ]
+}

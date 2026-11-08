@@ -3610,6 +3610,16 @@
     "status": "generated"
   },
   {
+    "id": "hdbscan_cluster",
+    "kind": "operator",
+    "title": "HDBSCAN density clustering",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Cluster a numeric table with HDBSCAN and return per-point cluster, probability and outlier score.",
+    "doc": "src/task/step/steps/hdbscan_cluster.HdbscanClusterStep.md",
+    "status": "authored"
+  },
+  {
     "id": "heatmap",
     "kind": "operator",
     "title": "Heatmap",
@@ -4678,6 +4688,16 @@
     "description": "Run the official LigandMPNN side-chain packer on a backbone PDB and return the packed structure as an atom table.  The packer needs the LigandMPNN repository and its side-chain checkpoint.",
     "doc": "src/task/step/steps/ligandmpnn_side_chain_packing.LigandmpnnSideChainPackingStep.md",
     "status": "generated"
+  },
+  {
+    "id": "lightgbm_classifier",
+    "kind": "operator",
+    "title": "LightGBM binary classifier",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Fit a deterministic LightGBM gradient-boosted classifier and report training diagnostics.",
+    "doc": "src/task/step/steps/lightgbm_classifier.LightgbmClassifierStep.md",
+    "status": "authored"
   },
   {
     "id": "lillie_test",
@@ -10388,6 +10408,16 @@
     "description": "Woolf test for homogeneity of odds ratios across 2x2 strata.",
     "doc": "src/task/step/steps/woolf_test.WoolfTestStep.md",
     "status": "generated"
+  },
+  {
+    "id": "xgboost_regressor",
+    "kind": "operator",
+    "title": "XGBoost regressor",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Fit a deterministic XGBoost histogram regressor and report training diagnostics.",
+    "doc": "src/task/step/steps/xgboost_regressor.XgboostRegressorStep.md",
+    "status": "authored"
   },
   {
     "id": "xic_extract",
