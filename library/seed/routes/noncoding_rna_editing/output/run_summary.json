@@ -1,0 +1,94 @@
+{
+  "task_dir": "/home/gavin/Operon/library/seed/routes/noncoding_rna_editing",
+  "generated_at": "2026-11-08T02:44:23.070436+00:00",
+  "n_steps": 6,
+  "total_elapsed": 0.0038,
+  "steps": [
+    {
+      "index": 1,
+      "name": "circrna_detect",
+      "elapsed": 0.0001,
+      "inputs": [
+        "junctions"
+      ],
+      "params": {
+        "output": "circ",
+        "row_dim": "row",
+        "field_dim": "field"
+      },
+      "export_path": "steps/01_circrna_detect.json"
+    },
+    {
+      "index": 2,
+      "name": "rna_editing_detect",
+      "elapsed": 0.0001,
+      "inputs": [
+        "variants"
+      ],
+      "params": {
+        "output": "edit",
+        "row_dim": "row",
+        "field_dim": "field"
+      },
+      "export_path": "steps/02_rna_editing_detect.json"
+    },
+    {
+      "index": 3,
+      "name": "motif_discovery_em",
+      "elapsed": 0.0002,
+      "inputs": [
+        "seqs"
+      ],
+      "params": {
+        "output": "pwm",
+        "row_dim": "row",
+        "field_dim": "field",
+        "width": 6
+      },
+      "export_path": "steps/03_motif_discovery_em.json"
+    },
+    {
+      "index": 4,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "circ"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "circ"
+      },
+      "export_path": "steps/04_export_results.json"
+    },
+    {
+      "index": 5,
+      "name": "export_results",
+      "elapsed": 0.0009,
+      "inputs": [
+        "edit"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "edit"
+      },
+      "export_path": "steps/05_export_results.json"
+    },
+    {
+      "index": 6,
+      "name": "export_results",
+      "elapsed": 0.0008,
+      "inputs": [
+        "pwm"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "pwm"
+      },
+      "export_path": "steps/06_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261108T024422-a91115eaf127",
+  "event_log": "/home/gavin/Operon/library/seed/routes/noncoding_rna_editing/output/runs/20261108T024422-a91115eaf127/events.jsonl"
+}

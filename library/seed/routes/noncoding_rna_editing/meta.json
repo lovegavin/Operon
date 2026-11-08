@@ -1,0 +1,7 @@
+{
+  "key": "noncoding_rna_editing",
+  "title": "Non-coding RNA and RNA editing",
+  "summary": "Back-splice circRNA detection and A-to-G/T-to-C RNA editing candidate scoring from junctions, variants and sequences.",
+  "organism": "synthetic",
+  "steps": 6
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/home/gavin/Operon/library/seed/routes/population_selection_scan/output/artifacts/exports/7585b6ee20cc4b90a53a9d30a723443e/eps.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 96,
+  "source": "eps",
+  "conversion": {}
+}

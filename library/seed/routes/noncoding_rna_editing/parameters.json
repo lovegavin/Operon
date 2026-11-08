@@ -1,0 +1,81 @@
+{
+  "format": "operon.task-parameters",
+  "params": {},
+  "sources": {
+    "junctions": {},
+    "variants": {},
+    "seqs": {}
+  },
+  "steps": [
+    {
+      "name": "circrna_detect",
+      "inputs": [
+        "junctions"
+      ],
+      "params": {
+        "output": "circ",
+        "row_dim": "row",
+        "field_dim": "field"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "rna_editing_detect",
+      "inputs": [
+        "variants"
+      ],
+      "params": {
+        "output": "edit",
+        "row_dim": "row",
+        "field_dim": "field"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "motif_discovery_em",
+      "inputs": [
+        "seqs"
+      ],
+      "params": {
+        "output": "pwm",
+        "row_dim": "row",
+        "field_dim": "field",
+        "width": 6
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "circ"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "circ"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "edit"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "edit"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "pwm"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "pwm"
+      },
+      "context_params": {}
+    }
+  ]
+}

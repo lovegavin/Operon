@@ -1,0 +1,38 @@
+{"message": "Loading the analysis engine", "time": "2026-11-08T02:44:21.532556+00:00", "event": "worker_started"}
+{"run_id": "20261108T024421-2c55536bd565", "memory_enabled": false, "time": "2026-11-08T02:44:21.650994+00:00", "event": "run_started"}
+{"name": "freq", "shape": [3, 3], "dims": ["row", "field"], "time": "2026-11-08T02:44:21.969877+00:00", "event": "source_loaded"}
+{"name": "ld", "shape": [5, 2], "dims": ["row", "field"], "time": "2026-11-08T02:44:21.972267+00:00", "event": "source_loaded"}
+{"name": "ibs", "shape": [10, 4], "dims": ["row", "field"], "time": "2026-11-08T02:44:21.974437+00:00", "event": "source_loaded"}
+{"name": "haps", "shape": [5, 7], "dims": ["row", "field"], "time": "2026-11-08T02:44:21.976618+00:00", "event": "source_loaded"}
+{"name": "geno", "shape": [10, 4], "dims": ["row", "field"], "time": "2026-11-08T02:44:21.978768+00:00", "event": "source_loaded"}
+{"name": "effective_population_size", "index": 1, "time": "2026-11-08T02:44:21.979142+00:00", "event": "step_started"}
+{"name": "effective_population_size", "inputs": 1, "outputs": ["eps"], "contract_version": 1, "time": "2026-11-08T02:44:22.035643+00:00", "event": "contract_checked"}
+{"name": "effective_population_size", "index": 1, "seconds": 0.00012922301539219916, "time": "2026-11-08T02:44:22.035681+00:00", "event": "step_finished"}
+{"name": "export_results", "index": 2, "time": "2026-11-08T02:44:22.035724+00:00", "event": "step_started"}
+{"name": "export_results", "inputs": 1, "outputs": ["export"], "contract_version": 1, "time": "2026-11-08T02:44:22.087278+00:00", "event": "contract_checked"}
+{"name": "export_results", "index": 2, "seconds": 0.0018567850056570023, "time": "2026-11-08T02:44:22.087316+00:00", "event": "step_finished"}
+{"name": "haplotype_blocks", "index": 3, "time": "2026-11-08T02:44:22.087352+00:00", "event": "step_started"}
+{"name": "haplotype_blocks", "inputs": 1, "outputs": ["blocks"], "contract_version": 1, "time": "2026-11-08T02:44:22.136208+00:00", "event": "contract_checked"}
+{"name": "haplotype_blocks", "index": 3, "seconds": 0.0001754139957483858, "time": "2026-11-08T02:44:22.136248+00:00", "event": "step_finished"}
+{"name": "export_results", "index": 4, "time": "2026-11-08T02:44:22.136282+00:00", "event": "step_started"}
+{"name": "export_results", "inputs": 1, "outputs": ["export"], "contract_version": 1, "time": "2026-11-08T02:44:22.139033+00:00", "event": "contract_checked"}
+{"name": "export_results", "index": 4, "seconds": 0.0009855929820332676, "time": "2026-11-08T02:44:22.139058+00:00", "event": "step_finished"}
+{"name": "ibd_segments", "index": 5, "time": "2026-11-08T02:44:22.139086+00:00", "event": "step_started"}
+{"name": "ibd_segments", "inputs": 1, "outputs": ["ibd"], "contract_version": 1, "time": "2026-11-08T02:44:22.189222+00:00", "event": "contract_checked"}
+{"name": "ibd_segments", "index": 5, "seconds": 0.0001423330104444176, "time": "2026-11-08T02:44:22.189257+00:00", "event": "step_finished"}
+{"name": "export_results", "index": 6, "time": "2026-11-08T02:44:22.189306+00:00", "event": "step_started"}
+{"name": "export_results", "inputs": 1, "outputs": ["export"], "contract_version": 1, "time": "2026-11-08T02:44:22.192205+00:00", "event": "contract_checked"}
+{"name": "export_results", "index": 6, "seconds": 0.001108626020140946, "time": "2026-11-08T02:44:22.192233+00:00", "event": "step_finished"}
+{"name": "ihs_selection", "index": 7, "time": "2026-11-08T02:44:22.192261+00:00", "event": "step_started"}
+{"name": "ihs_selection", "inputs": 1, "outputs": ["ihs"], "contract_version": 1, "time": "2026-11-08T02:44:22.244212+00:00", "event": "contract_checked"}
+{"name": "ihs_selection", "index": 7, "seconds": 0.0004020199994556606, "time": "2026-11-08T02:44:22.244247+00:00", "event": "step_finished"}
+{"name": "export_results", "index": 8, "time": "2026-11-08T02:44:22.244280+00:00", "event": "step_started"}
+{"name": "export_results", "inputs": 1, "outputs": ["export"], "contract_version": 1, "time": "2026-11-08T02:44:22.247034+00:00", "event": "contract_checked"}
+{"name": "export_results", "index": 8, "seconds": 0.0010281440045218915, "time": "2026-11-08T02:44:22.247061+00:00", "event": "step_finished"}
+{"name": "roh_detect", "index": 9, "time": "2026-11-08T02:44:22.247098+00:00", "event": "step_started"}
+{"name": "roh_detect", "inputs": 1, "outputs": ["roh"], "contract_version": 1, "time": "2026-11-08T02:44:22.297328+00:00", "event": "contract_checked"}
+{"name": "roh_detect", "index": 9, "seconds": 0.00011993298539891839, "time": "2026-11-08T02:44:22.297365+00:00", "event": "step_finished"}
+{"name": "export_results", "index": 10, "time": "2026-11-08T02:44:22.297395+00:00", "event": "step_started"}
+{"name": "export_results", "inputs": 1, "outputs": ["export"], "contract_version": 1, "time": "2026-11-08T02:44:22.300382+00:00", "event": "contract_checked"}
+{"name": "export_results", "index": 10, "seconds": 0.001239488017745316, "time": "2026-11-08T02:44:22.300406+00:00", "event": "step_finished"}
+{"status": "complete", "error": null, "time": "2026-11-08T02:44:22.300421+00:00", "event": "run_finished"}

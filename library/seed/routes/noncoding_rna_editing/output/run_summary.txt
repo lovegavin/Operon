@@ -1,0 +1,22 @@
+============================================================
+Run summary
+============================================================
+task      : /home/gavin/Operon/library/seed/routes/noncoding_rna_editing
+generated : 2026-11-08T02:44:23.070436+00:00
+steps     : 6
+elapsed   : 0.004s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   circrna_detect          0.000s   steps/01_circrna_detect.json
+2   rna_editing_detect      0.000s   steps/02_rna_editing_detect.json
+3   motif_discovery_em      0.000s   steps/03_motif_discovery_em.json
+4   export_results          0.002s   steps/04_export_results.json
+5   export_results          0.001s   steps/05_export_results.json
+6   export_results          0.001s   steps/06_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,24 @@
+{"message": "Loading the analysis engine", "time": "2026-11-08T02:44:22.411588+00:00", "event": "worker_started"}
+{"run_id": "20261108T024422-a91115eaf127", "memory_enabled": false, "time": "2026-11-08T02:44:22.533651+00:00", "event": "run_started"}
+{"name": "junctions", "shape": [4, 4], "dims": ["row", "field"], "time": "2026-11-08T02:44:22.859048+00:00", "event": "source_loaded"}
+{"name": "variants", "shape": [4, 6], "dims": ["row", "field"], "time": "2026-11-08T02:44:22.861770+00:00", "event": "source_loaded"}
+{"name": "seqs", "shape": [4, 1], "dims": ["row", "field"], "time": "2026-11-08T02:44:22.863773+00:00", "event": "source_loaded"}
+{"name": "circrna_detect", "index": 1, "time": "2026-11-08T02:44:22.864089+00:00", "event": "step_started"}
+{"name": "circrna_detect", "inputs": 1, "outputs": ["circ"], "contract_version": 1, "time": "2026-11-08T02:44:22.915087+00:00", "event": "contract_checked"}
+{"name": "circrna_detect", "index": 1, "seconds": 0.00014496399671770632, "time": "2026-11-08T02:44:22.915121+00:00", "event": "step_finished"}
+{"name": "rna_editing_detect", "index": 2, "time": "2026-11-08T02:44:22.915162+00:00", "event": "step_started"}
+{"name": "rna_editing_detect", "inputs": 1, "outputs": ["edit"], "contract_version": 1, "time": "2026-11-08T02:44:22.963747+00:00", "event": "contract_checked"}
+{"name": "rna_editing_detect", "index": 2, "seconds": 0.00010269202175550163, "time": "2026-11-08T02:44:22.963781+00:00", "event": "step_finished"}
+{"name": "motif_discovery_em", "index": 3, "time": "2026-11-08T02:44:22.963813+00:00", "event": "step_started"}
+{"name": "motif_discovery_em", "inputs": 1, "outputs": ["pwm"], "contract_version": 1, "time": "2026-11-08T02:44:23.012162+00:00", "event": "contract_checked"}
+{"name": "motif_discovery_em", "index": 3, "seconds": 0.0001570839958731085, "time": "2026-11-08T02:44:23.012203+00:00", "event": "step_finished"}
+{"name": "export_results", "index": 4, "time": "2026-11-08T02:44:23.012242+00:00", "event": "step_started"}
+{"name": "export_results", "inputs": 1, "outputs": ["export_results"], "contract_version": 1, "time": "2026-11-08T02:44:23.064859+00:00", "event": "contract_checked"}
+{"name": "export_results", "index": 4, "seconds": 0.0016538190247956663, "time": "2026-11-08T02:44:23.064889+00:00", "event": "step_finished"}
+{"name": "export_results", "index": 5, "time": "2026-11-08T02:44:23.064918+00:00", "event": "step_started"}
+{"name": "export_results", "inputs": 1, "outputs": ["export_results"], "contract_version": 1, "time": "2026-11-08T02:44:23.067725+00:00", "event": "contract_checked"}
+{"name": "export_results", "index": 5, "seconds": 0.0008636899874545634, "time": "2026-11-08T02:44:23.067750+00:00", "event": "step_finished"}
+{"name": "export_results", "index": 6, "time": "2026-11-08T02:44:23.067777+00:00", "event": "step_started"}
+{"name": "export_results", "inputs": 1, "outputs": ["export_results"], "contract_version": 1, "time": "2026-11-08T02:44:23.070392+00:00", "event": "contract_checked"}
+{"name": "export_results", "index": 6, "seconds": 0.00079438800457865, "time": "2026-11-08T02:44:23.070415+00:00", "event": "step_finished"}
+{"status": "complete", "error": null, "time": "2026-11-08T02:44:23.070429+00:00", "event": "run_finished"}

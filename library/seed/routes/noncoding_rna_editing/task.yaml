@@ -1,0 +1,117 @@
+{
+  "format": "operon.task",
+  "id": "final",
+  "version": "1.0.0",
+  "title": "final panel",
+  "description": "Synthetic final panel",
+  "sources": {
+    "junctions": {
+      "reader": "CsvReader",
+      "path": "input/junctions.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    },
+    "variants": {
+      "reader": "CsvReader",
+      "path": "input/variants.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    },
+    "seqs": {
+      "reader": "CsvReader",
+      "path": "input/seqs.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "circrna_detect",
+      "inputs": [
+        "junctions"
+      ],
+      "params": {
+        "output": "circ",
+        "row_dim": "row",
+        "field_dim": "field"
+      }
+    },
+    {
+      "name": "rna_editing_detect",
+      "inputs": [
+        "variants"
+      ],
+      "params": {
+        "output": "edit",
+        "row_dim": "row",
+        "field_dim": "field"
+      }
+    },
+    {
+      "name": "motif_discovery_em",
+      "inputs": [
+        "seqs"
+      ],
+      "params": {
+        "output": "pwm",
+        "row_dim": "row",
+        "field_dim": "field",
+        "width": 6
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "circ"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "circ"
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "edit"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "edit"
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "pwm"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "pwm"
+      }
+    }
+  ]
+}

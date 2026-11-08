@@ -1,0 +1,26 @@
+============================================================
+Run summary
+============================================================
+task      : /home/gavin/Operon/library/seed/routes/population_selection_scan
+generated : 2026-11-08T02:44:22.300428+00:00
+steps     : 10
+elapsed   : 0.007s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   effective_population_size    0.000s   steps/01_effective_population_size.json
+2   export_results          0.002s   steps/02_export_results.json
+3   haplotype_blocks        0.000s   steps/03_haplotype_blocks.json
+4   export_results          0.001s   steps/04_export_results.json
+5   ibd_segments            0.000s   steps/05_ibd_segments.json
+6   export_results          0.001s   steps/06_export_results.json
+7   ihs_selection           0.000s   steps/07_ihs_selection.json
+8   export_results          0.001s   steps/08_export_results.json
+9   roh_detect              0.000s   steps/09_roh_detect.json
+10  export_results          0.001s   steps/10_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,199 @@
+{
+  "format": "operon.task",
+  "version": 1,
+  "name": "b55_popgen",
+  "sources": {
+    "freq": {
+      "reader": "CsvReader",
+      "path": "input/freq.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    },
+    "ld": {
+      "reader": "CsvReader",
+      "path": "input/ld.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    },
+    "ibs": {
+      "reader": "CsvReader",
+      "path": "input/ibs.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": "auto",
+        "field": "builtin"
+      }
+    },
+    "haps": {
+      "reader": "CsvReader",
+      "path": "input/haps.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    },
+    "geno": {
+      "reader": "CsvReader",
+      "path": "input/geno.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": "auto",
+        "field": "builtin"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "effective_population_size",
+      "inputs": [
+        "freq"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "generations": 1.0,
+        "output": "eps"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "eps"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "eps"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "haplotype_blocks",
+      "inputs": [
+        "ld"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "r2_threshold": 0.5,
+        "output": "blocks"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "blocks"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "blocks"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "ibd_segments",
+      "inputs": [
+        "ibs"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "min_variants": 2,
+        "output": "ibd"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "ibd"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "ibd"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "ihs_selection",
+      "inputs": [
+        "haps"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "output": "ihs"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "ihs"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "ihs"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "roh_detect",
+      "inputs": [
+        "geno"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "min_variants": 2,
+        "output": "roh"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "roh"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "roh"
+      },
+      "context_params": {}
+    }
+  ]
+}
