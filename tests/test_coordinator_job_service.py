@@ -74,7 +74,7 @@ def test_launch_dispatches_through_coordinator_and_releases_after_exit(service):
     assert run['status'] == 'complete'
     attempt = service.engine.store.attempt(attempts[0]['id'])
     assert attempt['state'] == 'succeeded'
-    assert service.engine.store.lease(attempts[0]['id'])['state'] == 'released'
+    wait_until(lambda: service.engine.store.lease(attempts[0]['id'])['state'] == 'released')
     assert service.environment_guard.status()['leases'] == []
     assert service.coordinator.status()['active_attempts'] == 0
     artifacts = service.engine.store.connection.execute(
@@ -99,7 +99,7 @@ def test_public_cancel_flows_through_coordinator_and_leaves_no_worker(service):
     assert result['status'] == 'cancelled'
     wait_until(lambda: service.engine.store.run(job['id'])['status'] == 'cancelled')
     assert service.engine.store.attempt(attempts[0]['id'])['state'] == 'cancelled'
-    assert service.engine.store.lease(attempts[0]['id'])['state'] == 'released'
+    wait_until(lambda: service.engine.store.lease(attempts[0]['id'])['state'] == 'released')
     assert service.environment_guard.status()['leases'] == []
     import psutil
     assert not psutil.pid_exists(pid) or psutil.Process(pid).status() == psutil.STATUS_ZOMBIE
@@ -128,7 +128,9 @@ def test_coordinator_restart_adopts_a_live_jobservice_worker(service, tmp_path):
         wait_until(lambda: second.details(job['id'])['logs_complete'])
         wait_until(lambda: second.engine.store.run(job['id'])['status'] == 'complete')
         assert len(second.engine.store.attempts(job['id'])) == 1
-        assert second.engine.store.lease(attempts[0]['id'])['state'] == 'released'
+        # Terminal compute state and resource release are separate durable
+        # lifecycle phases; require both rather than racing their commit gap.
+        wait_until(lambda: second.engine.store.lease(attempts[0]['id'])['state'] == 'released')
     finally:
         second.shutdown()
 
@@ -143,7 +145,7 @@ def test_real_describe_workflow_runs_through_coordinator(tmp_path):
         graph = Graph.model_validate({
             'schema_version': 2, 'name': 'coordinated describe', 'base_dir': str(tmp_path),
             'memory': {'enabled': True, 'auto_spill': True, 'budget_mb': 32,
-                       'process_limit_mb': 512, 'chunk_mb': .01, 'io_buffer_kb': 4},
+                       'process_limit_mb': 256, 'chunk_mb': .01, 'io_buffer_kb': 4},
             'nodes': [
                 {'id': 'input', 'kind': 'source', 'position': {'x': 0, 'y': 0},
                  'source': {'path': str(table), 'dims': ['sample', 'feature'],

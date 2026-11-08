@@ -337,7 +337,7 @@ class ManifestHandshake:
             value['catalog'] = deepcopy(self.service.catalog)
         return value
 
-    def refresh(self, params, *, maintenance=None):
+    def refresh(self, params, *, maintenance_factory=None):
         verify_all = params.get('verify_all', False)
         if type(verify_all) is not bool:
             raise ValueError('verify_all must be a boolean')
@@ -346,15 +346,22 @@ class ManifestHandshake:
                 raise HandshakeError('A registry refresh is already running; wait before requesting full dependency verification.',
                                      code='maintenance_busy')
             if not self.maintenance['running']:
+                maintenance = maintenance_factory() if maintenance_factory else None
                 self.maintenance = {'running': True, 'error': None, 'result': None}
                 self.maintenance_verify_all = verify_all
-                self.maintenance_token = maintenance
-                self.maintenance_thread = threading.Thread(target=self._refresh, args=(verify_all,),
+                self.maintenance_thread = threading.Thread(target=self._refresh, args=(verify_all, maintenance),
                                                             name='biopipe-registry-refresh', daemon=True)
-                self.maintenance_thread.start()
-            return self.response(params, legacy=True)
+                try:
+                    self.maintenance_thread.start()
+                except BaseException:
+                    self.maintenance['running'] = False
+                    if maintenance is not None:
+                        maintenance[0].end(maintenance[1])
+                    raise
+        # response takes job-state snapshots before catalog locks.
+        return self.response(params, legacy=True)
 
-    def _refresh(self, verify_all):
+    def _refresh(self, verify_all, maintenance=None):
         from biopipe.plugins import process_context
         process_context.cancel = self.service.dependencies.cancel
         try:
@@ -378,20 +385,22 @@ class ManifestHandshake:
                 self.sync()
                 self.tool_snapshot(refresh=True)
                 self.persist()
-                self.maintenance.update(running=False, result=result)
+                self.maintenance.update(result=result)
         except Exception as exc:
             with self.lock:
-                self.maintenance.update(running=False, error=str(exc))
+                self.maintenance.update(error=str(exc))
         finally:
-            token = getattr(self, 'maintenance_token', None)
-            self.maintenance_token = None
-            guard = getattr(self.service, 'environment_guard', None)
-            if token is not None and guard is not None:
+            if maintenance is not None:
+                guard, token = maintenance
                 try:
                     guard.end(token)
                 except Exception as exc:  # noqa: BLE001 - visible in maintenance state
                     with self.lock:
-                        self.maintenance.update(running=False, error=f'gate release failed: {exc}')
+                        self.maintenance.update(error=f'gate release failed: {exc}')
+            # Do not admit another refresh until this thread's gate has been
+            # released. The token belongs to this operation, never shared state.
+            with self.lock:
+                self.maintenance['running'] = False
             process_context.cancel = None
 
     @property

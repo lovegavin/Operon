@@ -212,18 +212,14 @@ class RemoteService:
             return self.handshake.response(params, legacy=method == 'bootstrap')
         if method == 'refresh_registry':
             guard = (self.service.execution_environment_guard() if hasattr(self.service, 'execution_environment_guard') else getattr(self.service, 'environment_guard', None))
-            token = None
-            if guard is not None:
-                token = guard.begin(owner=self.service.owner, kind='registry-refresh',
-                                    environment=self.service.environment_identity())
-            try:
-                return self.handshake.refresh(params, maintenance=token)
-            except BaseException:
-                # If the background maintenance thread started, it owns the
-                # token and releases it in its finally block.
-                if token is not None and not self.handshake.maintenance_running:
-                    guard.end(token)
-                raise
+            environment = self.service.environment_identity() if guard is not None else None
+            def acquire():
+                return (guard, guard.begin(owner=self.service.owner, kind='registry-refresh',
+                                           environment=environment)) if guard is not None else None
+            # The handshake's single-flight decision owns acquisition. A
+            # repeated refresh observes the existing operation, not a second
+            # conflicting environment maintenance request.
+            return self.handshake.refresh(params, maintenance_factory=acquire)
         if method == 'refresh_status':
             return self.handshake.response(params, legacy=True)
         if method in ('transport_reserve', 'transport_release'):
@@ -575,6 +571,8 @@ def main():
     while True:
         try: line = terminal.line()
         except EOFError: return
+        if line.strip() == 'BIOPIPE_REMOTE_CLOSE 1':
+            return
         try: request = decoder.feed(line)
         except ValueError: continue
         if decoder.ack: write(decoder.ack)

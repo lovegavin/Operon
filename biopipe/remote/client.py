@@ -213,5 +213,14 @@ class SSHConnection:
                 raise RemoteError('SSH 连接中断；服务器任务不会因此停止。请重新连接。', code='remote_disconnected') from exc
 
     def close(self):
-        if self.channel: self.channel.close()
+        if self.channel:
+            # Gateway PTYs can survive the SSH channel's close. Explicitly end
+            # this stdio bridge; the shared daemon and its jobs keep running.
+            try:
+                if self.channel.send_ready():
+                    self.channel.send(b'BIOPIPE_REMOTE_CLOSE 1\n')
+                    self.channel.shutdown_write()
+            except Exception:  # best effort on a broken transport
+                pass
+            self.channel.close()
         self.client.close()

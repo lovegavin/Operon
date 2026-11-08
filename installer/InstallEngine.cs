@@ -53,16 +53,26 @@ internal sealed class InstallEngine
         var local = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         var baseDir = Path.GetFullPath(workRoot ?? (string.IsNullOrWhiteSpace(local)
             ? Path.Combine(Path.GetTempPath(), "OperonSetup") : Path.Combine(local, "Operon", "Setup")));
-        try { InstallFiles.NoLinks(baseDir); Directory.CreateDirectory(baseDir); }
+        string CreateWork(string directory)
+        {
+            InstallFiles.NoLinks(directory);
+            Directory.CreateDirectory(directory);
+            var attempt = Path.Combine(directory, DateTime.UtcNow.ToString("yyyyMMddTHHmmss") + "-" + Guid.NewGuid().ToString("N")[..8]);
+            // An existing base directory may be readable but not writable.
+            // Include creation of the actual attempt in the fallback boundary.
+            Directory.CreateDirectory(attempt);
+            File.WriteAllText(Path.Combine(attempt, "setup.log"), "", Encoding.UTF8);
+            return attempt;
+        }
+        try { work = CreateWork(baseDir); }
         catch (Exception error) when (workRoot is null && error is UnauthorizedAccessException or IOException)
         {
             // Restricted or redirected accounts may deny LocalAppData. Keep
             // installation diagnostics available in the user's writable temp.
             baseDir = Path.Combine(Path.GetTempPath(), "OperonSetup");
-            InstallFiles.NoLinks(baseDir); Directory.CreateDirectory(baseDir);
+            work = CreateWork(baseDir);
         }
-        work = Path.Combine(baseDir, DateTime.UtcNow.ToString("yyyyMMddTHHmmss") + "-" + Guid.NewGuid().ToString("N")[..8]);
-        Directory.CreateDirectory(work); LogPath = Path.Combine(work, "setup.log");
+        LogPath = Path.Combine(work, "setup.log");
         Log("Operon Setup " + spec.Version + " initialized.");
     }
     private void Log(string line)

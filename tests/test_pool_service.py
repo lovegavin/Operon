@@ -195,7 +195,9 @@ def test_pool_restart_adopts_live_worker_without_duplicate(pool, tmp_path):
         wait_until(lambda: replacement.details(wsa, job['id'], principal='alice')['status'] == 'complete')
         wait_until(lambda: replacement.engine.store.run(job['id'])['status'] == 'complete')
         assert len(replacement.engine.store.attempts(job['id'])) == 1
-        assert replacement.engine.store.lease(attempts[0]['id'])['state'] == 'released'
+        # Resource release follows the terminal compute commit; verify the
+        # release phase explicitly instead of sampling in that commit gap.
+        wait_until(lambda: replacement.engine.store.lease(attempts[0]['id'])['state'] == 'released')
     finally:
         replacement.shutdown()
 
