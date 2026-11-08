@@ -1844,3 +1844,47 @@ Limitations: Otsu uses class-midpoint candidates (no histogram smoothing);
 components are 4-connected and binarise at a fixed 0.5 threshold; equalisation
 uses 256 histogram bins over the observed range; partial dependence is a ridge
 model on a single feature and does not capture interactions.
+
+## Batch b85 - tabular neural networks and autoencoder anomaly scoring
+
+Scope: three dependency-declared torch operators, `mlp_classifier`,
+`mlp_regressor` and `autoencoder_anomaly`. Dependencies: `torch>=2.4,<3`
+(tested 2.11.0+cu130) and `numpy>=1.24` (tested 2.1.3). All training is CPU,
+single-threaded, seeded (torch manual_seed), and exported values are rounded
+to three decimals so that float32 reductions agree byte-for-byte across
+platforms.
+
+Inputs (synthetic, mode=synthetic):
+
+| Input | sha256 |
+| --- | --- |
+| class.csv | 4fe1a7eb0d48430a4105cb565e8507903144565b201f3bea1b78e7f2f461b76e |
+| reg.csv | 1df1e3547b9dfed9865f960e58fbcc74f51c715cda04d7b5e6ee8386ac47480e |
+| ae.csv | 425b07bbbfe5f263a3f499e7590074713162c62b802fb42f43a5165dfb53cee5 |
+
+The route `workdir/b85_route` has six steps (three operators and three
+exports). Exported values:
+
+| Table | Values |
+| --- | --- |
+| mlp.csv | accuracy 1.0, log_loss 0.0, n_train 6, n_classes 2, n_params 42 |
+| reg.csv | rmse 0.0, mae 0.0, r2 1.0, n_train 6, n_params 25 |
+| ae.csv | mse_mean 1.081, mse_max 5.593, threshold 6.697, n_anomalies 0.0, n_features 2 |
+
+Oracle (`b85_oracle.py`, independent of the operators): iteratively reweighted
+least squares for the logistic classifier (accuracy 1.0), closed-form OLS for
+the regressor (rmse 1.4e-15), and an SVD rank-one reconstruction for the
+autoencoder (mean per-feature squared error 1.0805 vs 1.081). 3/3 checks pass;
+`workdir/b85_oracle.json` records the comparison.
+
+Three-end result: WSL and Windows D:\Operon run the route 6/6 with identical
+export md5s: mlp 3d6cb1152670a84a3f3b292e81c54485, reg
+995410a0441d1c7e909f57c74f3bd2ca, ae d256464e7f4a00ae64e88a9b02406d1e.
+srv was skipped: 172.22.148.93:22 timed out during this batch.
+
+Limitations: models are deliberately small (one hidden layer, at most a few
+hundred epochs); the autoencoder uses a single linear bottleneck and a linear
+decoder, so it is a PCA-like reconstruction model, not a nonlinear manifold
+learner; anomaly threshold is mean + 3 population standard deviations and
+should not be read as a calibrated false-positive rate; cross-platform
+determinism depends on the three-decimal rounding.
