@@ -1,0 +1,99 @@
+{
+ "format": "operon.task",
+ "version": 1,
+ "name": "b77 iBAQ, CAI and PTM occupancy",
+ "sources": {
+  "peptides": {
+   "reader": "CsvReader",
+   "path": "input/peptides.csv",
+   "dims": [
+    "row",
+    "field"
+   ],
+   "labels": {
+    "row": "auto",
+    "field": "builtin"
+   }
+  },
+  "cds": {
+   "reader": "CsvReader",
+   "path": "input/cds.csv",
+   "dims": [
+    "seq",
+    "field"
+   ],
+   "labels": {
+    "seq": {
+     "field": 0
+    },
+    "field": "builtin"
+   }
+  },
+  "weights": {
+   "reader": "CsvReader",
+   "path": "input/weights.csv",
+   "dims": [
+    "codon",
+    "field"
+   ],
+   "labels": {
+    "codon": "auto",
+    "field": "builtin"
+   }
+  },
+  "ptm": {
+   "reader": "CsvReader",
+   "path": "input/ptm.csv",
+   "dims": [
+    "site",
+    "field"
+   ],
+   "labels": {
+    "site": {
+     "field": 0
+    },
+    "field": "builtin"
+   }
+  }
+ },
+ "steps": [
+  {
+   "name": "proteomics_ibaq",
+   "inputs": [
+    "peptides"
+   ]
+  },
+  {
+   "name": "export_results",
+   "inputs": [
+    "ibaq"
+   ]
+  },
+  {
+   "name": "sequence_cai",
+   "inputs": [
+    "cds",
+    "weights"
+   ]
+  },
+  {
+   "name": "export_results",
+   "inputs": [
+    "cai"
+   ]
+  },
+  {
+   "name": "ptm_occupancy",
+   "inputs": [
+    "ptm"
+   ]
+  },
+  {
+   "name": "export_results",
+   "inputs": [
+    "occupancy"
+   ]
+  }
+ ],
+ "parameters_file": "parameters.json"
+}

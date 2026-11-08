@@ -1,0 +1,7 @@
+{
+  "key": "proteomics_ibaq_cai_ptm",
+  "title": "iBAQ, codon adaptation and PTM occupancy",
+  "summary": "Protein iBAQ from peptide intensities, codon adaptation index for two CDS, and site-level PTM occupancy.",
+  "organism": "synthetic",
+  "steps": 6
+}

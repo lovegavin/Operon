@@ -166,6 +166,10 @@
       "sha256": "be4ff122ba832b8e49087d37e3f1bd98ce9fb3b7de6abe640fdad29e17f5e346",
       "parameters_sha256": "00450847dcc32e1357b99ef653f9141ab03862867b5065c6d8658a84498ce731"
     },
+    "route_b41106b417fb": {
+      "path": "routes/methylation_conversion_asm_rf/task.yaml",
+      "sha256": "e5eb88a8bc1d1a74f034c1a7f412c1ed9dfd05035f0a79fccdea206890e9cd1d"
+    },
     "route_077bc98ade2b": {
       "path": "routes/microbiome/task.yaml",
       "sha256": "7679048c80c791c3b3de810b9f76ebb07877a257e44ff24a576627642c00a25c",
@@ -226,6 +230,10 @@
       "sha256": "3f4ae49448de33f76ac357306496aab5eb149821d0c936b3c67e1a90bd2f0d59",
       "parameters_sha256": "5fa8414f335f046e26d4929c41370b027680a4bab0e42f29aebf78f4cf84280c"
     },
+    "route_6d089c119fb5": {
+      "path": "routes/phylogenetics_jc69_rooting/task.yaml",
+      "sha256": "3957a84659ca2b87088239a8051ef2d3fcdc1d7cd3e90d01ce8e56fff3a4559e"
+    },
     "route_3ce87af12d30": {
       "path": "routes/ppi_network_analysis/task.yaml",
       "sha256": "6635a98dd0bd72ad404d61c339be8e70ace0c2b4e6a6fbdd11138b139eacd3bb",
@@ -245,6 +253,11 @@
       "path": "routes/proteomics_de/task.yaml",
       "sha256": "92020573ced5e395004973b35656b8374fb3cd5a905105454971b36cf3b38963",
       "commit": "ab439ab9af3a36220941d6a8b27c580a268b7c95"
+    },
+    "route_b7d8f87c82b3": {
+      "path": "routes/proteomics_ibaq_cai_ptm/task.yaml",
+      "sha256": "d9ee4baa742bf2c6b58946734b787c4ed990d257e45829452009b8b34e3090ae",
+      "parameters_sha256": "706eda1254cb619ff9a4ab19e5d9f1b9d11e5413412f5e315b5065bf7fc95513"
     },
     "route_3e4fafd880bc": {
       "path": "routes/proteomics_limma/task.yaml",
@@ -325,6 +338,11 @@
       "path": "routes/ssu_phylogeny/task.yaml",
       "sha256": "158e47798b03f394046df4de701965c4d6b45cd54dd39a2ab7dd2624a07ebf95",
       "parameters_sha256": "24ab0b5caf2d4b3d9cf5d44687e5df1627a362b2b9042db5708467a7d9cb2df1"
+    },
+    "route_147c77c7b21c": {
+      "path": "routes/structure_rg_metagenome/task.yaml",
+      "sha256": "55bfe137946fb6d538116ac9ec9107e6e9cafd5fd8d313df64044da880c1755a",
+      "parameters_sha256": "cc847ceb342ece737406821403078f4b5d959d4b73e0d167780e1364e14abba2"
     },
     "route_c12b6ec6660a": {
       "path": "routes/structure_validation/task.yaml",
@@ -2149,6 +2167,418 @@
                   "metadata": {}
                 },
                 "_format_explicit": true
+              }
+            }
+          ]
+        },
+        "plugin_lock": {}
+      }
+    },
+    {
+      "id": "route_147c77c7b21c",
+      "version": 1,
+      "name": "Radius of gyration and metagenomic distance",
+      "graph": {
+        "schema_version": 2,
+        "name": "Radius of gyration and metagenomic distance",
+        "base_dir": ".studio/builtin-inputs/structure_rg_metagenome",
+        "nodes": [
+          {
+            "id": "counts",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "counts",
+            "position": {
+              "x": 70.0,
+              "y": 100.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/counts.csv",
+              "dims": [
+                "sample",
+                "feature"
+              ],
+              "labels": {
+                "feature": "builtin",
+                "sample": {
+                  "feature": 0
+                }
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "structure_1mel",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "structure_1mel",
+            "position": {
+              "x": 70.0,
+              "y": 310.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "PdbReader",
+              "path": "input/1mel.pdb",
+              "dims": [
+                "atom",
+                "field"
+              ],
+              "labels": {},
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "structure_radius_of_gyration_1",
+            "kind": "operator",
+            "script": null,
+            "operator": "structure_radius_of_gyration",
+            "title": "Radius of gyration",
+            "position": {
+              "x": 360.0,
+              "y": 100.0
+            },
+            "params": {
+              "atom_dim": "atom",
+              "field_dim": "field",
+              "output": "rg"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "export_results_2",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 100.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "rg",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "metagenomics_bray_curtis_3",
+            "kind": "operator",
+            "script": null,
+            "operator": "metagenomics_bray_curtis",
+            "title": "Bray-Curtis dissimilarity",
+            "position": {
+              "x": 360.0,
+              "y": 310.0
+            },
+            "params": {
+              "row_dim": "sample",
+              "field_dim": "feature",
+              "output": "bc"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "export_results_4",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 310.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "bc",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export_2"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "metagenomics_clr_5",
+            "kind": "operator",
+            "script": null,
+            "operator": "metagenomics_clr",
+            "title": "Centered log-ratio transform",
+            "position": {
+              "x": 360.0,
+              "y": 520.0
+            },
+            "params": {
+              "row_dim": "sample",
+              "field_dim": "feature",
+              "pseudocount": 0.5,
+              "output": "clr"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "export_results_6",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 520.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "clr",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export_3"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          }
+        ],
+        "edges": [
+          {
+            "adaptation": null,
+            "id": "structure_1mel-structure_radius_of_gyration_1-0",
+            "source": "structure_1mel",
+            "target": "structure_radius_of_gyration_1",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "structure_radius_of_gyration_1-export_results_2-0",
+            "source": "structure_radius_of_gyration_1",
+            "target": "export_results_2",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "counts-metagenomics_bray_curtis_3-0",
+            "source": "counts",
+            "target": "metagenomics_bray_curtis_3",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "metagenomics_bray_curtis_3-export_results_4-0",
+            "source": "metagenomics_bray_curtis_3",
+            "target": "export_results_4",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "counts-metagenomics_clr_5-0",
+            "source": "counts",
+            "target": "metagenomics_clr_5",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "metagenomics_clr_5-export_results_6-0",
+            "source": "metagenomics_clr_5",
+            "target": "export_results_6",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          }
+        ],
+        "memory": {
+          "enabled": false
+        },
+        "params": {},
+        "runtime": {},
+        "manifest_extra": {
+          "format": "operon.task",
+          "version": 1
+        },
+        "interface": {
+          "version": 1,
+          "inputs": [
+            {
+              "node_id": "counts",
+              "label": "counts",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "sample",
+                  "feature"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            },
+            {
+              "node_id": "structure_1mel",
+              "label": "structure_1mel",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "atom",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "node_id": "export_results_2",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            },
+            {
+              "node_id": "export_results_4",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            },
+            {
+              "node_id": "export_results_6",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
               }
             }
           ]
@@ -17295,6 +17725,350 @@
       }
     },
     {
+      "id": "route_6d089c119fb5",
+      "version": 1,
+      "name": "JC69 likelihood and outgroup rooting",
+      "graph": {
+        "schema_version": 2,
+        "name": "JC69 likelihood and outgroup rooting",
+        "base_dir": ".studio/builtin-inputs/phylogenetics_jc69_rooting",
+        "nodes": [
+          {
+            "id": "aln",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "aln",
+            "position": {
+              "x": 70.0,
+              "y": 100.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/aln.csv",
+              "dims": [
+                "taxon",
+                "site"
+              ],
+              "labels": {
+                "site": "builtin",
+                "taxon": {
+                  "site": 0
+                }
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "tree",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "tree",
+            "position": {
+              "x": 70.0,
+              "y": 310.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/tree.csv",
+              "dims": [
+                "row",
+                "field"
+              ],
+              "labels": {
+                "field": "builtin",
+                "row": {
+                  "field": 0
+                }
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "phylogenetics_jc69_likelihood_1",
+            "kind": "operator",
+            "script": null,
+            "operator": "phylogenetics_jc69_likelihood",
+            "title": "JC69 tree likelihood",
+            "position": {
+              "x": 360.0,
+              "y": 100.0
+            },
+            "params": {
+              "tree_dim": "row",
+              "field_dim": "field",
+              "taxon_dim": "taxon",
+              "site_dim": "site",
+              "output": "jc69"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 2,
+            "route": null
+          },
+          {
+            "id": "export_results_2",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 100.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "jc69",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "tree_outgroup_root_3",
+            "kind": "operator",
+            "script": null,
+            "operator": "tree_outgroup_root",
+            "title": "Outgroup rooting",
+            "position": {
+              "x": 360.0,
+              "y": 310.0
+            },
+            "params": {
+              "row_dim": "row",
+              "field_dim": "field",
+              "outgroup": "A",
+              "output": "rooted"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "export_results_4",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 310.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "rooted",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export_2"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          }
+        ],
+        "edges": [
+          {
+            "adaptation": null,
+            "id": "tree-phylogenetics_jc69_likelihood_1-0",
+            "source": "tree",
+            "target": "phylogenetics_jc69_likelihood_1",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "aln-phylogenetics_jc69_likelihood_1-1",
+            "source": "aln",
+            "target": "phylogenetics_jc69_likelihood_1",
+            "sourceHandle": "out",
+            "targetHandle": "in-1"
+          },
+          {
+            "adaptation": null,
+            "id": "phylogenetics_jc69_likelihood_1-export_results_2-0",
+            "source": "phylogenetics_jc69_likelihood_1",
+            "target": "export_results_2",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "tree-tree_outgroup_root_3-0",
+            "source": "tree",
+            "target": "tree_outgroup_root_3",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "tree_outgroup_root_3-export_results_4-0",
+            "source": "tree_outgroup_root_3",
+            "target": "export_results_4",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          }
+        ],
+        "memory": {
+          "enabled": false
+        },
+        "params": {},
+        "runtime": {},
+        "manifest_extra": {
+          "format": "operon.task",
+          "version": 1
+        },
+        "interface": {
+          "version": 1,
+          "inputs": [
+            {
+              "node_id": "aln",
+              "label": "aln",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "taxon",
+                  "site"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            },
+            {
+              "node_id": "tree",
+              "label": "tree",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "row",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "node_id": "export_results_2",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            },
+            {
+              "node_id": "export_results_4",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            }
+          ]
+        },
+        "plugin_lock": {}
+      }
+    },
+    {
       "id": "route_73b41849ba57",
       "version": 2,
       "name": "VCF sample and site quality control",
@@ -25849,6 +26623,567 @@
       }
     },
     {
+      "id": "route_b41106b417fb",
+      "version": 1,
+      "name": "Bisulfite conversion, allele-specific methylation and RF distance",
+      "graph": {
+        "schema_version": 2,
+        "name": "Bisulfite conversion, allele-specific methylation and RF distance",
+        "base_dir": ".studio/builtin-inputs/methylation_conversion_asm_rf",
+        "nodes": [
+          {
+            "id": "asm",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "asm",
+            "position": {
+              "x": 70.0,
+              "y": 100.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/asm.csv",
+              "dims": [
+                "row",
+                "field"
+              ],
+              "labels": {
+                "field": "builtin",
+                "row": {
+                  "field": 0
+                }
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "bisulfite",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "bisulfite",
+            "position": {
+              "x": 70.0,
+              "y": 310.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/bisulfite.csv",
+              "dims": [
+                "row",
+                "field"
+              ],
+              "labels": {
+                "field": "builtin",
+                "row": {
+                  "field": 0
+                }
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "tree_a",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "tree_a",
+            "position": {
+              "x": 70.0,
+              "y": 520.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/tree_a.csv",
+              "dims": [
+                "row",
+                "field"
+              ],
+              "labels": {
+                "field": "builtin",
+                "row": {
+                  "field": 0
+                }
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "tree_b",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "tree_b",
+            "position": {
+              "x": 70.0,
+              "y": 730.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/tree_b.csv",
+              "dims": [
+                "row",
+                "field"
+              ],
+              "labels": {
+                "field": "builtin",
+                "row": {
+                  "field": 0
+                }
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "bisulfite_conversion_rate_1",
+            "kind": "operator",
+            "script": null,
+            "operator": "bisulfite_conversion_rate",
+            "title": "Bisulfite conversion rate",
+            "position": {
+              "x": 360.0,
+              "y": 100.0
+            },
+            "params": {
+              "output": "conversion",
+              "row_dim": "row",
+              "field_dim": "field",
+              "min_coverage": 1
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "allele_specific_methylation_2",
+            "kind": "operator",
+            "script": null,
+            "operator": "allele_specific_methylation",
+            "title": "Allele-specific methylation",
+            "position": {
+              "x": 360.0,
+              "y": 310.0
+            },
+            "params": {
+              "output": "asm_out",
+              "row_dim": "row",
+              "field_dim": "field"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "tree_robinson_foulds_3",
+            "kind": "operator",
+            "script": null,
+            "operator": "tree_robinson_foulds",
+            "title": "Robinson-Foulds distance",
+            "position": {
+              "x": 360.0,
+              "y": 520.0
+            },
+            "params": {
+              "output": "rf",
+              "row_dim": "row",
+              "field_dim": "field"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 2,
+            "route": null
+          },
+          {
+            "id": "export_results_4",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 100.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "conversion",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "export_results_5",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 310.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "asm",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export_2"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "export_results_6",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 520.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "rf",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export_3"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          }
+        ],
+        "edges": [
+          {
+            "adaptation": null,
+            "id": "bisulfite-bisulfite_conversion_rate_1-0",
+            "source": "bisulfite",
+            "target": "bisulfite_conversion_rate_1",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "asm-allele_specific_methylation_2-0",
+            "source": "asm",
+            "target": "allele_specific_methylation_2",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "tree_a-tree_robinson_foulds_3-0",
+            "source": "tree_a",
+            "target": "tree_robinson_foulds_3",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "tree_b-tree_robinson_foulds_3-1",
+            "source": "tree_b",
+            "target": "tree_robinson_foulds_3",
+            "sourceHandle": "out",
+            "targetHandle": "in-1"
+          },
+          {
+            "adaptation": null,
+            "id": "bisulfite_conversion_rate_1-export_results_4-0",
+            "source": "bisulfite_conversion_rate_1",
+            "target": "export_results_4",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "allele_specific_methylation_2-export_results_5-0",
+            "source": "allele_specific_methylation_2",
+            "target": "export_results_5",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "tree_robinson_foulds_3-export_results_6-0",
+            "source": "tree_robinson_foulds_3",
+            "target": "export_results_6",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          }
+        ],
+        "memory": {
+          "enabled": false
+        },
+        "params": {},
+        "runtime": {},
+        "manifest_extra": {
+          "format": "operon.task",
+          "version": 1
+        },
+        "interface": {
+          "version": 1,
+          "inputs": [
+            {
+              "node_id": "asm",
+              "label": "asm",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "row",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            },
+            {
+              "node_id": "bisulfite",
+              "label": "bisulfite",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "row",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            },
+            {
+              "node_id": "tree_a",
+              "label": "tree_a",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "row",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            },
+            {
+              "node_id": "tree_b",
+              "label": "tree_b",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "row",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "node_id": "export_results_4",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            },
+            {
+              "node_id": "export_results_5",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            },
+            {
+              "node_id": "export_results_6",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            }
+          ]
+        },
+        "plugin_lock": {}
+      }
+    },
+    {
       "id": "route_b6e05665f460",
       "version": 2,
       "name": "PWM scan of a CTCF motif on human chr22",
@@ -26203,6 +27538,563 @@
                   },
                   "sequences": {
                     "type": "array",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "node_id": "export_results_2",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            },
+            {
+              "node_id": "export_results_4",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            },
+            {
+              "node_id": "export_results_6",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            }
+          ]
+        },
+        "plugin_lock": {}
+      }
+    },
+    {
+      "id": "route_b7d8f87c82b3",
+      "version": 1,
+      "name": "iBAQ, codon adaptation and PTM occupancy",
+      "graph": {
+        "schema_version": 2,
+        "name": "iBAQ, codon adaptation and PTM occupancy",
+        "base_dir": ".studio/builtin-inputs/proteomics_ibaq_cai_ptm",
+        "nodes": [
+          {
+            "id": "cds",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "cds",
+            "position": {
+              "x": 70.0,
+              "y": 100.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/cds.csv",
+              "dims": [
+                "seq",
+                "field"
+              ],
+              "labels": {
+                "field": "builtin",
+                "seq": {
+                  "field": 0
+                }
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "peptides",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "peptides",
+            "position": {
+              "x": 70.0,
+              "y": 310.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/peptides.csv",
+              "dims": [
+                "row",
+                "field"
+              ],
+              "labels": {
+                "field": "builtin",
+                "row": "auto"
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "ptm",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "ptm",
+            "position": {
+              "x": 70.0,
+              "y": 520.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/ptm.csv",
+              "dims": [
+                "site",
+                "field"
+              ],
+              "labels": {
+                "field": "builtin",
+                "site": {
+                  "field": 0
+                }
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "weights",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "weights",
+            "position": {
+              "x": 70.0,
+              "y": 730.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "CsvReader",
+              "path": "input/weights.csv",
+              "dims": [
+                "codon",
+                "field"
+              ],
+              "labels": {
+                "codon": "auto",
+                "field": "builtin"
+              },
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "proteomics_ibaq_1",
+            "kind": "operator",
+            "script": null,
+            "operator": "proteomics_ibaq",
+            "title": "iBAQ protein abundance",
+            "position": {
+              "x": 360.0,
+              "y": 100.0
+            },
+            "params": {
+              "row_dim": "row",
+              "field_dim": "field",
+              "output": "ibaq"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "export_results_2",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 100.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "ibaq",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "sequence_cai_3",
+            "kind": "operator",
+            "script": null,
+            "operator": "sequence_cai",
+            "title": "Codon adaptation index",
+            "position": {
+              "x": 360.0,
+              "y": 310.0
+            },
+            "params": {
+              "seq_dim": "seq",
+              "codon_dim": "codon",
+              "field_dim": "field",
+              "output": "cai"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 2,
+            "route": null
+          },
+          {
+            "id": "export_results_4",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 310.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "cai",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export_2"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "ptm_occupancy_5",
+            "kind": "operator",
+            "script": null,
+            "operator": "ptm_occupancy",
+            "title": "PTM site occupancy",
+            "position": {
+              "x": 360.0,
+              "y": 520.0
+            },
+            "params": {
+              "row_dim": "site",
+              "field_dim": "field",
+              "output": "occupancy"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "export_results_6",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 650.0,
+              "y": 520.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "occupancy",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export_3"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          }
+        ],
+        "edges": [
+          {
+            "adaptation": null,
+            "id": "peptides-proteomics_ibaq_1-0",
+            "source": "peptides",
+            "target": "proteomics_ibaq_1",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "proteomics_ibaq_1-export_results_2-0",
+            "source": "proteomics_ibaq_1",
+            "target": "export_results_2",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "cds-sequence_cai_3-0",
+            "source": "cds",
+            "target": "sequence_cai_3",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "weights-sequence_cai_3-1",
+            "source": "weights",
+            "target": "sequence_cai_3",
+            "sourceHandle": "out",
+            "targetHandle": "in-1"
+          },
+          {
+            "adaptation": null,
+            "id": "sequence_cai_3-export_results_4-0",
+            "source": "sequence_cai_3",
+            "target": "export_results_4",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "ptm-ptm_occupancy_5-0",
+            "source": "ptm",
+            "target": "ptm_occupancy_5",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "ptm_occupancy_5-export_results_6-0",
+            "source": "ptm_occupancy_5",
+            "target": "export_results_6",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          }
+        ],
+        "memory": {
+          "enabled": false
+        },
+        "params": {},
+        "runtime": {},
+        "manifest_extra": {
+          "format": "operon.task",
+          "version": 1
+        },
+        "interface": {
+          "version": 1,
+          "inputs": [
+            {
+              "node_id": "cds",
+              "label": "cds",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "seq",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            },
+            {
+              "node_id": "peptides",
+              "label": "peptides",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "row",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            },
+            {
+              "node_id": "ptm",
+              "label": "ptm",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "site",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            },
+            {
+              "node_id": "weights",
+              "label": "weights",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "codon",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
                     "optional": true
                   }
                 },

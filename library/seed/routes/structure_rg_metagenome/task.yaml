@@ -1,0 +1,69 @@
+{
+ "format": "operon.task",
+ "version": 1,
+ "name": "b76 structure geometry and metagenomic transforms",
+ "sources": {
+  "structure_1mel": {
+   "reader": "PdbReader",
+   "path": "input/1mel.pdb",
+   "dims": [
+    "atom",
+    "field"
+   ],
+   "labels": {}
+  },
+  "counts": {
+   "reader": "CsvReader",
+   "path": "input/counts.csv",
+   "dims": [
+    "sample",
+    "feature"
+   ],
+   "labels": {
+    "sample": {
+     "feature": 0
+    },
+    "feature": "builtin"
+   }
+  }
+ },
+ "steps": [
+  {
+   "name": "structure_radius_of_gyration",
+   "inputs": [
+    "structure_1mel"
+   ]
+  },
+  {
+   "name": "export_results",
+   "inputs": [
+    "rg"
+   ]
+  },
+  {
+   "name": "metagenomics_bray_curtis",
+   "inputs": [
+    "counts"
+   ]
+  },
+  {
+   "name": "export_results",
+   "inputs": [
+    "bc"
+   ]
+  },
+  {
+   "name": "metagenomics_clr",
+   "inputs": [
+    "counts"
+   ]
+  },
+  {
+   "name": "export_results",
+   "inputs": [
+    "clr"
+   ]
+  }
+ ],
+ "parameters_file": "parameters.json"
+}

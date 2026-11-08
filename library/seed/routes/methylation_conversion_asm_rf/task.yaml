@@ -1,0 +1,131 @@
+{
+  "format": "operon.task",
+  "version": 1,
+  "sources": {
+    "bisulfite": {
+      "reader": "CsvReader",
+      "path": "input/bisulfite.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    },
+    "asm": {
+      "reader": "CsvReader",
+      "path": "input/asm.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    },
+    "tree_a": {
+      "reader": "CsvReader",
+      "path": "input/tree_a.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    },
+    "tree_b": {
+      "reader": "CsvReader",
+      "path": "input/tree_b.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "bisulfite_conversion_rate",
+      "inputs": [
+        "bisulfite"
+      ],
+      "params": {
+        "output": "conversion",
+        "row_dim": "row",
+        "field_dim": "field"
+      }
+    },
+    {
+      "name": "allele_specific_methylation",
+      "inputs": [
+        "asm"
+      ],
+      "params": {
+        "output": "asm_out",
+        "row_dim": "row",
+        "field_dim": "field"
+      }
+    },
+    {
+      "name": "tree_robinson_foulds",
+      "inputs": [
+        "tree_a",
+        "tree_b"
+      ],
+      "params": {
+        "output": "rf",
+        "row_dim": "row",
+        "field_dim": "field"
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "conversion"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "conversion"
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "asm_out"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "asm"
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "rf"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "rf"
+      }
+    }
+  ]
+}

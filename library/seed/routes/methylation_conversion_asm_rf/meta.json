@@ -1,0 +1,7 @@
+{
+  "key": "methylation_conversion_asm_rf",
+  "title": "Bisulfite conversion, allele-specific methylation and RF distance",
+  "summary": "Conversion rate with Wilson interval, allele-specific methylation tests with BH correction, and Robinson-Foulds distance.",
+  "organism": "synthetic",
+  "steps": 6
+}

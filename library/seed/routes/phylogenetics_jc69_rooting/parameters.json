@@ -1,0 +1,63 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "tree": {},
+    "aln": {}
+  },
+  "steps": [
+    {
+      "name": "phylogenetics_jc69_likelihood",
+      "inputs": [
+        "tree",
+        "aln"
+      ],
+      "params": {
+        "tree_dim": "row",
+        "field_dim": "field",
+        "taxon_dim": "taxon",
+        "site_dim": "site",
+        "output": "jc69"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "jc69"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "jc69"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "tree_outgroup_root",
+      "inputs": [
+        "tree"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "outgroup": "A",
+        "output": "rooted"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "rooted"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "rooted"
+      },
+      "context_params": {}
+    }
+  ]
+}

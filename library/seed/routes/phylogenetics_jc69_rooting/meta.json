@@ -1,0 +1,7 @@
+{
+  "key": "phylogenetics_jc69_rooting",
+  "title": "JC69 likelihood and outgroup rooting",
+  "summary": "Felsenstein pruning likelihood under JC69 for a four-taxon tree, and re-rooting at a designated outgroup.",
+  "organism": "synthetic",
+  "steps": 4
+}
