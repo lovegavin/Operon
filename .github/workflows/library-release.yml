@@ -93,7 +93,12 @@ jobs:
             build/library/SHA256SUMS-*.txt
             build/library/verification-*.json
             build/library/Operon-Routes-*.zip
-            build/library/Operon-Quickstart-*.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
+        with:
+          name: library-quickstart
+          path: build/library/Operon-Quickstart-*.zip
           if-no-files-found: error
   publish:
     if: startsWith(github.ref, 'refs/tags/library-v')
@@ -115,11 +120,11 @@ jobs:
         run: |
           set -euo pipefail
           ls -l artifacts
-          cat artifacts/SHA256SUMS-*.txt > artifacts/SHA256SUMS.txt
-          sha256sum artifacts/Operon-Routes-*.zip >> artifacts/SHA256SUMS.txt
-          sha256sum QUICKSTART.md QUICKSTART.zh.md >> artifacts/SHA256SUMS.txt
           cp install_dependencies.py install-dependencies.sh install-dependencies.ps1 artifacts/
-          sha256sum install_dependencies.py install-dependencies.sh install-dependencies.ps1 >> artifacts/SHA256SUMS.txt
+          : > artifacts/SHA256SUMS.txt
+          ( cd artifacts && sha256sum *.operon-library.zip *.whl Operon-Routes-*.zip Operon-Quickstart-*.zip ) >> artifacts/SHA256SUMS.txt
+          ( cd artifacts && sha256sum verification-*.json ) >> artifacts/SHA256SUMS.txt
+          sha256sum QUICKSTART.md QUICKSTART.zh.md install_dependencies.py install-dependencies.sh install-dependencies.ps1 >> artifacts/SHA256SUMS.txt
           gh release create "$GITHUB_REF_NAME" --verify-tag --latest=false \
             --title "Operon Operator Library v${GITHUB_REF_NAME#library-v}" \
             --notes-file "docs/releases/${GITHUB_REF_NAME}.md" \
