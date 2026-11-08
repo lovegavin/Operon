@@ -4242,12 +4242,12 @@
   {
     "id": "iv_2sls",
     "kind": "operator",
-    "title": "Instrumental-variables 2SLS",
-    "category": "Causal inference",
+    "title": "Two-stage least squares",
+    "category": "Statistics",
     "version": "1.0.0",
-    "description": "Two-stage least squares estimate of a single endogenous regressor with one instrument and optional controls.",
+    "description": "Two-stage least squares IV regression for a numeric table; instruments endogenous regressors.",
     "doc": "src/task/step/steps/iv_2sls.Iv2slsStep.md",
-    "status": "authored"
+    "status": "generated"
   },
   {
     "id": "jarque_bera",

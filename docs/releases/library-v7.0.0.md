@@ -15,8 +15,10 @@ existing route templates.
   classifiers, survival and generative models (DeepSurv, VAE, RealNVP),
   anomaly detection (isolation forest, LOF, HDBSCAN), gradient boosting
   (LightGBM, XGBoost), DNA language-model embeddings (Nucleotide Transformer
-  v2 50M), instrumental variables, regression discontinuity, propensity-score
-  matching, Bayesian linear regression, graph pseudotime and Gaussian blur.
+  v2 50M), regression discontinuity, propensity-score matching, Bayesian
+  linear regression, graph pseudotime and Gaussian blur. The pre-existing
+  `iv_2sls` operator (1.4.0 API) keeps its original contract and is exercised by
+  the b94 route.
 - Dependency versions are pinned in operator metadata: `numpy>=1.24`,
   `scipy>=1.11`, `scikit-learn>=1.5`, `statsmodels>=0.14`, `torch>=2.4`,
   `transformers>=4.45`, `lightgbm>=4.5`, `xgboost>=2.1`, `hdbscan>=0.8`,
