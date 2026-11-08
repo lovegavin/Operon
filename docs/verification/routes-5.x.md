@@ -1376,3 +1376,22 @@ The `srv` host remains SKIP because no SSH profile resolves in this session.
 Limits: synthetic peptide and CDS tables; iBAQ uses observed peptide counts,
 not tryptic digest prediction; CAI uses the supplied reference weights only;
 occupancy is a closed-form ratio without intensity normalization.
+
+## b78 JC69 likelihood and outgroup rooting (post-1001)
+
+- Inputs: `workdir/b78_route/input/tree.csv` sha256 `a03719d30cdff41dc6adfc23742d9472ad9da53d5a9d2ccbc3a168778da53aba`;
+  `workdir/b78_route/input/aln.csv` sha256 `8b34146c8627f0a4dc239ca746ad7fc8d00b603fd5e72b76ff8eb34481acbeca`.
+- Route: 4 steps (2 operators, 2 exports), all complete.
+- Values: JC69 log-likelihood `-18.416477967` (4 taxa, 6 sites); per-site values
+  `-2.627699768` (x4) and `-3.952839448` (x2). Outgroup rooting on taxon A:
+  n_tips 4, root_degree 2, outgroup_branch 0.1, rooted tree starts `(A:0.1`.
+- Oracle: `workdir/b78_oracle.json` (brute-force enumeration of 4^3 internal states
+  plus explicit root prior) 10/10 values match; DendroPy rerooting agrees on tip count
+  and root degree.
+- Exports: `jc69.csv` md5 `1127cc3d21747783364e04188393b38f`; `rooted.csv` md5
+  `9ae48dd645b8e32615463f1c32ae0773`. Windows (`D:\Operon`, py 3.12, registry 1009)
+  route 4/4 and both md5 values match WSL.
+- The `srv` host remains SKIP because no SSH profile resolves in this session.
+- Limits: fixed-tree JC69 only (no rate variation, no model search); rooted trees are
+  re-rooted on the outgroup branch without branch-length re-estimation; synthetic
+  6-site alignment.
