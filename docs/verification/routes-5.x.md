@@ -1423,3 +1423,26 @@ occupancy is a closed-form ratio without intensity normalization.
 - Limitations: synthetic count tables; conversion assumes a single conversion
   probability per cytosine; ASM ignores read phasing; RF ignores branch lengths
   and root position.
+
+## Three-end environment check (post-1001, app 3.0.2 / SDK 3.7.0)
+
+The post-1001 batches were re-checked against the pinned application versions:
+`operon 3.0.2` with `operon_sdk 3.7.0` on both WSL (`/home/gavin/bp-numpy21`)
+and Windows (`D:\\Operon`, `py -3.12`). The Windows registry contains the same
+1012 operators and zero errors.
+
+Route `workdir/b79_route` was re-run on both hosts after merging the restored
+`_phylo_common` API with the b78 likelihood helpers. Export md5 values are
+identical:
+
+| Export | md5 (WSL = Windows) |
+| --- | --- |
+| asm.csv | 2eeb9383388073b004e672ceaeff895f |
+| conversion.csv | 0a998059f5ccae9a75c269d67e2b09c2 |
+| rf.csv | 8de952e01d55a5afe0d41623d7ef9f25 |
+
+The `srv` host could not be reached in this session. From Windows OpenSSH,
+`ssh srv` resolved to 172.22.148.93 but the TCP connection timed out, and ICMP
+echo failed; the `/public/home/lihj` workspace was therefore not available.
+This endpoint is recorded as SKIP (network unreachable), not as a passing
+result, and no srv numbers are reported.
