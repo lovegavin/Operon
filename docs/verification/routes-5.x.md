@@ -1921,3 +1921,42 @@ Three-end md5 (WSL = Windows with app 3.1.0 / SDK 3.7.0):
 srv SKIP: 172.22.148.93:22 timed out during this batch.
 
 Limitations: two-state HMM only (no model selection); local-level Kalman model only (no trend/seasonal terms); bootstrap particle filter resamples when ESS < N/2 and is only validated against the linear-Gaussian posterior.
+## Batch b87 post-1001 frontier ML: mutational signatures, VAE anomaly and DeepSurv
+
+Synthetic, small deterministic inputs (mode=synthetic); no biological conclusions are drawn.
+
+| input | sha256 |
+| --- | --- |
+| counts.csv | 673c60ea314663e9c47b8154627775c9f00b629f403e32b248318dc49226503f |
+| signatures.csv | eb24123e43a1b76f23cbee0bc2d092d1c5cc537562423abc9f4332b14dcbe244 |
+| vae.csv | d4836afb7f5ce245f8fdbfab250763e014781a634ed5364af6cc1dfee1342bea |
+| surv.csv | c8ae9ae86ea61e2c6b721297e1a8cc0782e4a0e8270d7b306d18f5551a712eaa |
+
+Dependencies: `numpy>=1.24` (tested 2.1.3), `torch>=2.4,<3` (tested 2.11.0+cu130), tested on CPU.
+
+Route: CsvReader-counts, CsvReader-signatures -> mutational_signature_decomposition;
+CsvReader-vae -> vae_anomaly; CsvReader-surv -> deep_survival; three CSV exports (6/6 steps complete).
+
+Operator outputs:
+- mutational_signature_decomposition: s1 exposures S1=3.0, S2=5.0, cosine=1.0, total=8.0;
+  s2 S1=1.0, S2=1.0; s3 S1=S2=0.0, cosine=0.0, total=4.0 (channels c3/c4 are outside the library).
+- vae_anomaly: robust threshold median + 3 x 1.4826 x MAD = 0.014; v5, v6, v7 flagged
+  (scores 0.024, 0.037, 0.034); n_anomalies=3.
+- deep_survival: c_index=1.0, log_likelihood=-0.142, n_samples=8, n_events=5, n_features=1,
+  n_params=25.
+
+Oracle: independent support-enumeration least squares for signatures (not scipy nnls),
+closed-form re-computation of the VAE score/threshold/anomaly flags, and a lifelines 0.30.3
+CoxPH fit as an independent survival baseline. 15/15 checks pass; `workdir/b87_oracle.json`.
+
+Three-end md5 (torch float32 training differs across hosts, so operator tables are rounded to
+three decimals):
+- signatures.csv: c68af1e29e81d9e692869ef2bc0c1f6e
+- vae.csv: b9430f6bd773bd9b0432722f49939486
+- survival.csv: f55277293d75f08396e67be7d6bb8f0f
+WSL (numpy 2.1.3, torch 2.11.0+cu130) and Windows (D:\Operon, Python 3.12) match byte-for-byte.
+srv: SKIP (172.22.148.93:22 connection timed out at run time).
+
+Limitations: nnls exposures are non-negative but not normalized to clone fractions; the VAE
+threshold is robust-median-based and reported at three decimals; DeepSurv is trained on eight
+synthetic samples and is a smoke test of the implementation, not a survival benchmark.
