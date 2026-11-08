@@ -5150,6 +5150,16 @@
     "status": "authored"
   },
   {
+    "id": "ms2_spectral_angle",
+    "kind": "operator",
+    "title": "MS2 spectral angle",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Spectral angle in degrees between two centroid peak lists using square-root intensities and greedy m/z matching.",
+    "doc": "src/task/step/steps/ms2_spectral_angle.Ms2SpectralAngleStep.md",
+    "status": "authored"
+  },
+  {
     "id": "ms_missing_filter",
     "kind": "operator",
     "title": "Filter proteins by missing-value fraction",
@@ -6038,6 +6048,16 @@
     "description": "Compare two trees on the same tips: Robinson-Foulds distance, normalised RF and Kuhner-Felsenstein branch score.",
     "doc": "src/task/step/steps/phylo_tree_distance.PhylotreeDistanceStep.md",
     "status": "generated"
+  },
+  {
+    "id": "phylogenetics_gtr_likelihood",
+    "kind": "operator",
+    "title": "GTR tree likelihood",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Felsenstein pruning log-likelihood of an alignment on a fixed Newick tree under a general time-reversible model with fixed exchangeabilities and base frequencies.",
+    "doc": "src/task/step/steps/phylogenetics_gtr_likelihood.PhylogeneticsGtrLikelihoodStep.md",
+    "status": "authored"
   },
   {
     "id": "phylogenetics_jc69_likelihood",

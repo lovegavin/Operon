@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "mz_tolerance": {
+      "type": "number",
+      "default": 0.02
+    },
+    "peak_dim": {
+      "type": "string",
+      "default": "peak"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string",
+      "default": "angle"
+    }
+  },
+  "required": [
+    "mz_tolerance",
+    "peak_dim",
+    "field_dim"
+  ]
+}
