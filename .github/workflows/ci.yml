@@ -61,8 +61,12 @@ jobs:
       - run: python -m pytest tests/test_remote_upgrade.py tests/test_operon_import_compatibility.py tests/test_environment_checks.py tests/test_execution_plan.py tests/test_readiness.py -q
       - run: python -m pytest tests/test_server_package.py tests/test_server_setup.py tests/test_workflow_import_errors.py tests/test_workflow_spec_v3.py tests/test_setup_wrapper.py tests/test_bundled_long_imports.py tests/test_script_operators_v3.py -q
       - run: python -m biopipe registry check
-      - run: python scripts/build_operator_docs.py --check
+      # The factory seed belongs to its independent library release. A newer
+      # application template (including branding) must not rewrite that seed.
+      # Registry check above verifies its declarations and document hashes;
+      # these isolated fixtures verify generation, freshness and authored pages.
+      - run: python -m pytest tests/test_operator_docs.py -q
       - run: python -m pytest tests/test_manifest_v3.py tests/test_contracts.py tests/test_protocol_v2.py tests/test_sdk_agent.py tests/test_builtin_pins.py tests/test_route_parameters.py tests/test_desktop.py -q
-      - run: python -m pytest tests/test_headless_application.py tests/test_operator_docs.py tests/test_wheel_execution.py tests/test_application_library_separation.py tests/test_memory_system.py tests/test_memory_runtime.py -q
+      - run: python -m pytest tests/test_headless_application.py tests/test_wheel_execution.py tests/test_application_library_separation.py tests/test_memory_system.py tests/test_memory_runtime.py -q
       - run: python -m pytest tests/test_result_viewers.py tests/test_viewer_lifetime.py tests/test_export_domain.py tests/test_export_results.py tests/test_hic_workflow.py -q
       - run: python -m pytest tests/test_plugin_refresh.py tests/test_transfers.py tests/test_remote_transfer.py tests/test_release_build.py tests/test_release_agent_harness.py tests/test_storage.py tests/test_storage_runtime.py tests/test_service_long_paths.py tests/test_library_bundle.py::test_new_library_rejects_runtime_without_shared_io -q
