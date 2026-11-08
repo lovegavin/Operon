@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string"
+    },
+    "n_particles": {
+      "type": "integer",
+      "default": 200,
+      "description": "number of particles"
+    },
+    "process_var": {
+      "type": "number",
+      "default": 1.0,
+      "description": "state innovation variance"
+    },
+    "obs_var": {
+      "type": "number",
+      "default": 1.0,
+      "description": "observation variance"
+    },
+    "seed": {
+      "type": "integer",
+      "default": 0,
+      "description": "random seed"
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}

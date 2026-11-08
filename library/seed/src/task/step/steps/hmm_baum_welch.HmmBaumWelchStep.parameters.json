@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string"
+    },
+    "n_states": {
+      "type": "integer",
+      "default": 2,
+      "description": "number of hidden states"
+    },
+    "n_iter": {
+      "type": "integer",
+      "default": 100,
+      "description": "maximum EM iterations"
+    },
+    "tol": {
+      "type": "number",
+      "default": 1e-06,
+      "description": "log-likelihood convergence tolerance"
+    },
+    "seed": {
+      "type": "integer",
+      "default": 0,
+      "description": "random seed for the deterministic initialisation"
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}

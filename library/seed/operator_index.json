@@ -3650,6 +3650,16 @@
     "status": "generated"
   },
   {
+    "id": "hmm_baum_welch",
+    "kind": "operator",
+    "title": "Baum-Welch HMM training",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Fit a discrete hidden Markov model with scaled Baum-Welch EM and report the final log-likelihood, iteration count and transition/emission matrices.",
+    "doc": "src/task/step/steps/hmm_baum_welch.HmmBaumWelchStep.md",
+    "status": "authored"
+  },
+  {
     "id": "hmmer_domains",
     "kind": "operator",
     "title": "HMMER domain annotation",
@@ -4167,6 +4177,16 @@
     "version": "1.0.0",
     "description": "Local-level Kalman filter with filtered states and Gaussian log-likelihood.",
     "doc": "src/task/step/steps/kalman_local_level.KalmanLocalLevelStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "kalman_smoother",
+    "kind": "operator",
+    "title": "Rauch-Tung-Striebel Kalman smoother",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Run the Rauch-Tung-Striebel smoother for a local-level model and report filtered and smoothed state estimates with their variances.",
+    "doc": "src/task/step/steps/kalman_smoother.KalmanSmootherStep.md",
     "status": "authored"
   },
   {
@@ -5748,6 +5768,16 @@
     "description": "Partial Mantel test：接收 3 个输入，输出 Form；主要参数：样本维度、Sample B Dim、N Perm、随机种子。",
     "doc": "src/task/step/steps/partial_mantel.PartialMantelStep.md",
     "status": "generated"
+  },
+  {
+    "id": "particle_filter_bootstrap",
+    "kind": "operator",
+    "title": "Bootstrap particle filter",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Bootstrap particle filter for a local-level model with seeded resampling; reports the filtered mean, variance, effective sample size and log-likelihood.",
+    "doc": "src/task/step/steps/particle_filter_bootstrap.ParticleFilterBootstrapStep.md",
+    "status": "authored"
   },
   {
     "id": "passing_bablok",
