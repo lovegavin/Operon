@@ -1,0 +1,5 @@
+site,a_methylated,a_unmethylated,b_methylated,b_unmethylated
+v1,9,1,1,9
+v2,5,5,4,6
+v3,8,2,7,3
+v4,10,0,9,1
