@@ -34,6 +34,10 @@ def test_deep_profile_worker_outputs_and_api_readback(tmp_path, monkeypatch, hos
     monkeypatch.setenv('PYTHONIOENCODING', 'utf-8')
     monkeypatch.setenv('BIOPIPE_REGISTRY_MAINTENANCE', '1')
     monkeypatch.setenv('BIOPIPE_ADMISSION_DIR', str(tmp_path / 'admission'))
+    # Production keeps the interpreter gate beside the shared host ledger, not
+    # inside a workspace. Settings(testing=True) bypasses that admission setup;
+    # preserve the production topology while stressing all worker/result paths.
+    monkeypatch.setenv('BIOPIPE_ENVIRONMENT_GATE', str(tmp_path / 'environment-gate.json'))
     root = deep_workspace(tmp_path)
     io_path(root / 'input.csv').write_text('a,b\n1,2\n3,4\n', encoding='utf-8')
     settings = Settings(root, root / '.studio', root / 'no-frontend', testing=True,

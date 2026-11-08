@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import shutil
 import sys
+import sysconfig
 import time
 import zipfile
 
@@ -50,6 +51,13 @@ def test_installed_wheel_runs_headless_worker_without_checkout(tmp_path):
     command([sys.executable, '-m', 'venv', '--without-pip', '--system-site-packages', runtime])
     python = runtime / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
     command([sys.executable, '-m', 'pip', '--python', python, 'install', '--ignore-installed', '--no-deps', '--no-index', wheel, seed])
+    if sys.prefix != sys.base_prefix:
+        # --system-site-packages exposes the base interpreter, not the invoking
+        # development venv. Share only its third-party directory; do not process
+        # that directory's .pth files (which may install editable import hooks).
+        site = Path(command([python, '-c', 'import sysconfig; print(sysconfig.get_path("purelib"))']).strip())
+        io_path(site / '_acceptance_dependencies.pth').write_text(
+            sysconfig.get_path('purelib') + '\n', encoding='utf-8')
     probe = json.loads(command([python, '-c',
         'import json,sys,biopipe,biopipe.worker; print(json.dumps({"path":biopipe.__file__,"worker":biopipe.worker.__file__,"sys_path":sys.path}))']))
     assert Path(probe['path']).is_relative_to(runtime)
