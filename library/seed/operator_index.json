@@ -640,6 +640,16 @@
     "status": "generated"
   },
   {
+    "id": "autoencoder_anomaly",
+    "kind": "operator",
+    "title": "Score rows with a bottleneck autoencoder",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Trains a small autoencoder (torch) and reports reconstruction-error statistics plus a mean+3sd anomaly threshold.",
+    "doc": "src/task/step/steps/autoencoder_anomaly.AutoencoderAnomalyStep.md",
+    "status": "authored"
+  },
+  {
     "id": "bai_perron",
     "kind": "operator",
     "title": "Bai-Perron multiple structural breaks",
@@ -5118,6 +5128,26 @@
     "description": "Stratified train/test split with a reproducible seed.",
     "doc": "src/task/step/steps/ml_train_test_split.MlTrainTestSplitStep.md",
     "status": "generated"
+  },
+  {
+    "id": "mlp_classifier",
+    "kind": "operator",
+    "title": "Train a small MLP classifier",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Fits a two-layer perceptron (torch) on a labelled feature table and reports training accuracy and cross-entropy loss.",
+    "doc": "src/task/step/steps/mlp_classifier.MlpClassifierStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "mlp_regressor",
+    "kind": "operator",
+    "title": "Train a small MLP regressor",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Fits a two-layer perceptron (torch) on a feature table with a target column and reports RMSE, MAE and R2.",
+    "doc": "src/task/step/steps/mlp_regressor.MlpRegressorStep.md",
+    "status": "authored"
   },
   {
     "id": "mlst_typing",

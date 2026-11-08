@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "hidden": {
+      "type": "integer",
+      "default": 12,
+      "minimum": 2,
+      "maximum": 256
+    },
+    "epochs": {
+      "type": "integer",
+      "default": 200,
+      "minimum": 1,
+      "maximum": 5000
+    },
+    "learning_rate": {
+      "type": "number",
+      "default": 0.05,
+      "minimum": 0.0001,
+      "maximum": 2.0
+    },
+    "seed": {
+      "type": "integer",
+      "default": 7,
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "output": {
+      "type": "string",
+      "default": "autoencoder_anomaly"
+    },
+    "bottleneck": {
+      "type": "integer",
+      "default": 1,
+      "minimum": 1,
+      "maximum": 8
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}
