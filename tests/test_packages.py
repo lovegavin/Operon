@@ -105,7 +105,7 @@ class Future(Step):
         assert any(d['id'] == 'test.future_host' for d in state['descriptors'])
         assert not state.get('shared_paths')
     else:
-        with pytest.raises(ValueError, match='incompatible BioPipe SDK'):
+        with pytest.raises(ValueError, match='incompatible Operon SDK'):
             manager.install(wheel)
         assert manager.registry.read_bytes() == original
 

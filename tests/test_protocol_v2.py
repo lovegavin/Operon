@@ -244,5 +244,5 @@ def test_sdk_requirement_checks_running_code_not_stale_build_metadata(tmp_path, 
     builder = TargetBuilder(PluginManager(tmp_path), {})
     assert builder.prepare([f"biopipe-studio>={__version__},<4"])["mode"] == "shared"
     assert builder.prepare(['biopipe-studio>=999; python_version < "0"'])["mode"] == "shared"
-    with pytest.raises(ValueError, match="incompatible BioPipe SDK"):
+    with pytest.raises(ValueError, match="incompatible Operon SDK"):
         builder.prepare(["biopipe-studio>=999"])
