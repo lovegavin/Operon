@@ -19,6 +19,7 @@ Scope: capabilities absent from the 1017-operator catalog that have a determinis
 | Tabular neural networks / autoencoder anomaly | PyTorch 2.11, scikit-learn 1.6 MLP | implemented b85 (mlp_classifier, mlp_regressor, autoencoder_anomaly) | independent IRLS, OLS and SVD oracles with three-decimal cross-platform rounding |
 | Mutational signatures / VAE anomaly / DeepSurv | SigProfiler 1.x, PyTorch 2.11, lifelines 0.30 | implemented b87 (mutational_signature_decomposition, vae_anomaly, deep_survival) | independent support-enumeration NNLS, closed-form VAE score, lifelines CoxPH; three-decimal cross-platform rounding |
 | Attention/CNN classifiers and Shapley attribution | PyTorch 2.11, scikit-learn 1.6, SHAP 0.4x | implemented b88 (transformer_classifier, cnn_image_classifier, kernel_shap) | sklearn MLP parity and closed-form ridge Shapley identity; three-decimal cross-platform rounding |
+| Graph neural networks (node classification) and generative density models | PyTorch Geometric 2.6, scvi-tools 1.2 | implemented b89 (gcn_node_classifier, normalizing_flow_density) | sklearn logistic parity on features, two-layer RealNVP with KDE density check |
 | Ion mobility collision cross-section | PNNL CCS 4.0 | planned b84 | formula oracle and independent implementation |
 | Protein language model embeddings | ESM3 3.4.2 | covered (esm3_embedding, esm_embedding) | existing operators |
 | Structure generation | RFdiffusion, LigandMPNN | covered | existing operators |

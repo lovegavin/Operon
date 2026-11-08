@@ -1999,3 +1999,43 @@ srv: SKIP (172.22.148.93:22 connection timed out at run time).
 Limitations: tiny tables, single seed, CPU training only; the transformer uses learned positional
 encoding with one token per sample (no sequence structure); kernel_shap is exact only because the
 explained model is linear/ridge.
+
+## Batch b89 — GCN, quantile regression and normalizing flow (post-1001)
+
+Scope: three PyTorch/scipy operators with no pretrained weights, trained from scratch on
+tiny tables and run through a six-step route on WSL and Windows.
+
+Inputs (sha256):
+- `nodes.csv` `5351ae21b7c27a2bf08116c898e325a00d8f61c9b277d04395f359510f9290d7` (8 nodes, 3 features)
+- `edges.csv` `6238b859f80a6c348cb1694eb7a118cda875529806985e822fe71538a6bf6274` (12 edges)
+- `xy.csv` `97e85f8ef070e3be04f1d5e4cb5666809b80223812715175906531218a5c3a85` (10 points, y = 2x + 1)
+- `flow.csv` `cda7c2b444cd625c1d44c74b27ace90ca299beb207a14044369b0220404c98da` (120 two-dimensional samples)
+
+Dependencies: `numpy>=1.24` (tested 2.1.3), `torch>=2.4,<3` (tested 2.11.0+cu130 CPU) for the GCN
+and the RealNVP flow; `scipy>=1.11` (tested 1.17.1) for the pinball-regression linear program.
+
+Route results (6/6 steps):
+- `gcn_node_classifier`: accuracy 1.0, log_loss 0.0, n_nodes 8, n_edges 12, n_classes 2, n_params 42.
+- `deep_quantile_regressor`: slope 2.0, intercept 1.0, quantile 0.5, pinball_loss 0.0, n_train 10.
+- `normalizing_flow_density`: log_likelihood -2.041, n_samples 120, n_params 68, latent mean -0.005,
+  latent std 1.004, latent correlation 0.002.
+
+Oracles (7/7): scikit-learn 1.6.1 LogisticRegression reaches accuracy 1.0 on the same node features;
+statsmodels 0.15.0 QuantReg(0.5) gives slope 2.0 and intercept 1.0 (operator within 0.05/0.15);
+a Gaussian KDE fitted independently gives mean log density -2.038 against the flow value -2.041
+(tolerance 0.6); latent mean/std/correlation checks use 0/1/0 with tolerance 0.1.
+
+Exports (md5, WSL == Windows):
+- `gcn.csv` `252c2e0e7988f1631f989f48a03ef943`
+- `quant.csv` `da75dcf9dedc584bb6209698f5a1cc57`
+- `flow.csv` `912507c22b93877c3ed8311bf7722c43`
+
+The median-regression operator was originally trained with Adam, which produced cross-platform
+differences in the third decimal (intercept 0.99 vs 0.993). It now solves the equivalent pinball
+linear program with HiGHS, which is deterministic; two-decimal values match exactly.
+
+srv: not re-run for this batch (172.22.148.93:22 timed out during the session).
+
+Limitations: single seed except the LP; the GCN uses a dense two-layer encoder on a toy graph and
+is not a benchmark-scale implementation; the flow is a two-layer RealNVP on 2-D data; three-decimal
+rounding is required for torch float32 agreement across operating systems.
