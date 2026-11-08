@@ -6670,6 +6670,16 @@
     "status": "generated"
   },
   {
+    "id": "proteomics_ibaq",
+    "kind": "operator",
+    "title": "iBAQ protein abundance",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Per-protein iBAQ from peptide intensities: summed intensity divided by the number of observable peptides.",
+    "doc": "src/task/step/steps/proteomics_ibaq.ProteomicsIbaqStep.md",
+    "status": "authored"
+  },
+  {
     "id": "prs",
     "kind": "operator",
     "title": "Polygenic risk score",
@@ -6767,6 +6777,16 @@
     "version": "1.0.0",
     "description": "Phospho-site localization probability from delta scores",
     "doc": "src/task/step/steps/ptm_localization_score.PtmLocalizationScoreStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "ptm_occupancy",
+    "kind": "operator",
+    "title": "PTM site occupancy",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Site occupancy computed from modified and unmodified peptide intensities.",
+    "doc": "src/task/step/steps/ptm_occupancy.PtmOccupancyStep.md",
     "status": "authored"
   },
   {
@@ -7808,6 +7828,16 @@
     "description": "",
     "doc": "src/task/step/steps/sequence_beta_propensity.SequenceBetaPropensityStep.md",
     "status": "generated"
+  },
+  {
+    "id": "sequence_cai",
+    "kind": "operator",
+    "title": "Codon adaptation index",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Codon adaptation index of coding sequences against caller-supplied relative adaptiveness weights.",
+    "doc": "src/task/step/steps/sequence_cai.SequenceCaiStep.md",
+    "status": "authored"
   },
   {
     "id": "sequence_codon_adaptation",

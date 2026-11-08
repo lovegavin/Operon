@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "title": "PTM site occupancy Parameters",
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "title": "行维度",
+      "default": "site",
+      "x-ui-group": "basic",
+      "x-ui-order": 0
+    },
+    "field_dim": {
+      "type": "string",
+      "title": "字段维度",
+      "default": "field",
+      "x-ui-group": "basic",
+      "x-ui-order": 10
+    },
+    "output": {
+      "type": "string",
+      "title": "输出名称",
+      "default": "occupancy",
+      "x-ui-group": "basic",
+      "x-ui-order": 90
+    }
+  },
+  "additionalProperties": false
+}
