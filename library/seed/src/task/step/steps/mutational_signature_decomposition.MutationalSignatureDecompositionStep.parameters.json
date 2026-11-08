@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "sample_dim": {
+      "type": "string",
+      "default": "sample"
+    },
+    "channel_dim": {
+      "type": "string",
+      "default": "channel"
+    },
+    "signature_dim": {
+      "type": "string",
+      "default": "signature"
+    },
+    "output": {
+      "type": "string",
+      "default": "mutational_signature_decomposition"
+    }
+  },
+  "required": [
+    "sample_dim",
+    "channel_dim",
+    "signature_dim"
+  ]
+}
