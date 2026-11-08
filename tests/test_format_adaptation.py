@@ -128,6 +128,27 @@ def test_compile_freezes_converter_and_bad_types_block(tmp_path):
         compile_graph(graph(), c, tmp_path)
 
 
+@pytest.mark.parametrize('logical,representation,expected', [
+    ('form', 'form', 'compatible'), ('file_artifact', 'file_artifact', 'compatible'),
+    ('form', 'native.ndarray', 'compatible'), ('matrix', 'numpy.ndarray', 'unknown')])
+def test_legacy_union_input_selects_declared_branch_without_semantic_conversion(tmp_path, logical, representation, expected):
+    from src.web.contracts import analyze_graph
+    c = catalog()
+    reader, operator = c['readers'][0], c['operators'][0]
+    reader['contracts']['output'] = {'kind': 'file' if logical == 'file_artifact' else 'form'}
+    reader['data_formats']['outputs'] = [port(representation, logical)]
+    operator.pop('data_formats')
+    operator['contracts']['inputs'] = [{'kind': ['form', 'file']}]
+    analysis = analyze_graph(graph(), c, tmp_path)
+    edge = analysis['edges'][0]
+    assert edge['status'] == expected
+    if expected == 'compatible':
+        ids = [step['id'] for step in edge['conversion_plan']['converters']]
+        assert ids == (['form.ndarray.wrap'] if representation == 'native.ndarray' else [])
+    else:
+        assert edge['format_unresolved']
+
+
 def test_runner_executes_frozen_converter_and_disk_quota(tmp_path, monkeypatch):
     from src.task import Context, STEPS, run
     from src.task.step.base import Step
@@ -404,3 +425,14 @@ def test_generic_form_identity_keeps_disk_reducer_streaming(tmp_path, monkeypatc
         ctx.finalize()
     assert ctx.memory.report['plans'][0]['mode'] == 'stream'
     assert not any(event['event'] == 'load' for event in events(ctx))
+
+
+def test_legacy_parameter_choice_tracks_frozen_values():
+    from biopipe_sdk.formats import effective_formats
+    descriptor = {'inputs_arity': 0, 'output_parameter': 'output', 'contracts': {
+        'output': {'mode': 'choose', 'param': 'method', 'default': 'matrix',
+                   'cases': {'matrix': {'mode': 'declare', 'schema': {'kind': 'form'}}},
+                   'otherwise': {'mode': 'declare', 'schema': {'kind': 'file'}}}}}
+    assert effective_formats(descriptor, {'method': 'matrix'})['outputs'] == [port('form', 'form')]
+    assert effective_formats(descriptor, {'method': 'file'})['outputs'] == [port('file_artifact', 'file_artifact')]
+    assert descriptor['contracts']['output']['mode'] == 'choose'

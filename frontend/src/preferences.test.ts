@@ -2,6 +2,17 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 
 afterEach(() => {vi.unstubAllGlobals(); vi.resetModules();});
 describe('shared application preferences', () => {
+  it('reads the previous combined config and writes new choices without overwriting it', async () => {
+    const legacy=JSON.stringify({language:'en',theme:'dark'});
+    const values=new Map([['biopipe-studio-config-v1',legacy]]);
+    vi.stubGlobal('localStorage',{getItem:(key:string)=>values.get(key)??null,setItem:(key:string,value:string)=>values.set(key,value)});
+    const prefs=await import('./preferences');
+    expect(prefs.getPreferences()).toEqual({language:'en',theme:'dark'});
+    prefs.setPreferences({theme:'light'});
+    expect(values.get('biopipe-studio-config-v1')).toBe(legacy);
+    vi.resetModules();
+    expect((await import('./preferences')).getPreferences()).toEqual({language:'en',theme:'light'});
+  });
   it('imports browser-only choices and then caches one configuration object', async () => {
     const values = new Map([['biopipe-studio-theme-v1', 'dark'], ['biopipe-studio-language-v1', 'en']]);
     vi.stubGlobal('localStorage', {getItem: (key: string) => values.get(key) ?? null,
@@ -9,7 +20,7 @@ describe('shared application preferences', () => {
     const prefs = await import('./preferences');
     expect(prefs.getPreferences()).toEqual({language: 'en', theme: 'dark'});
     prefs.setPreferences({language: 'zh-CN'});
-    expect(JSON.parse(values.get('biopipe-studio-config-v1')!)).toEqual({language: 'zh-CN', theme: 'dark'});
+    expect(JSON.parse(values.get('operon-studio-config-v1')!)).toEqual({language: 'zh-CN', theme: 'dark'});
     vi.resetModules();
     expect((await import('./preferences')).getPreferences()).toEqual({language: 'zh-CN', theme: 'dark'});
   });

@@ -668,8 +668,6 @@
   "安装当前路线所需依赖": "Install dependencies for this workflow",
   "输入接头模板": "Input adapter template",
   "输出接头模板": "Output adapter template",
-  "端口": "Port",
-  "文件格式": "File format",
   "复制 {language} 接头": "Copy {language} adapter",
   "此端口未声明文件格式。请先使用输出或显式转换算子。": "No file format is declared. Use an output or explicit conversion operator first.",
   "已复制接头模板": "Adapter template copied",
@@ -682,5 +680,10 @@
   "保留兼容的 Python 模块名": "The Python module name is retained for compatibility",
   "算子已保存，但清单尚未包含它，请重新读取算子库。": "The operator was saved but is missing from the catalog. Reload the library.",
   "正在导入文件…": "Importing files…",
-  "已导入 {count} 个节点": "Imported {count} nodes"
+  "已导入 {count} 个节点": "Imported {count} nodes",
+  "环境依赖检查": "Check dependencies",
+  "运行前检查": "Preflight check",
+  "依赖已就绪": "Dependencies ready",
+  "运行前检查通过": "Preflight passed",
+  "未选择 Reader 的输入将在运行前补查": "Inputs without a selected Reader will be checked during preflight"
 }

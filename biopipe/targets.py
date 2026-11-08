@@ -113,7 +113,7 @@ class TargetBuilder:
             active = not req.marker or req.marker.evaluate()
             if (active and canonicalize_name(req.name) == 'biopipe-studio'
                     and not req.specifier.contains(host_version, prereleases=True)):
-                raise ValueError(f'Operator requires an incompatible BioPipe SDK: {value}')
+                raise ValueError(f'Operator requires an incompatible Operon SDK: {value}')
         deps = [v for v in deps if canonicalize_name(Requirement(v).name) != 'biopipe-studio']
         key = tuple(deps)
         if key in self.prepared:
@@ -167,7 +167,7 @@ class TargetBuilder:
             artifacts = []
             for item in resolved:
                 if canonicalize_name(item['metadata']['name']) == 'biopipe-studio':
-                    raise ValueError('A dependency attempted to replace the BioPipe engine')
+                    raise ValueError('A dependency attempted to replace the Operon engine')
                 info = item['download_info']
                 url = info['url']
                 digest = info.get('archive_info', {}).get('hashes', {}).get('sha256')

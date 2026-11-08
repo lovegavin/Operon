@@ -24,7 +24,7 @@ def render(source, cls, declaration, module_doc=None):
     memory = ', '.join(declaration.get('resources', {}).get('memory_modes', ['full']))
     environment = declaration.get('resources', {}).get('environment')
     environment = ('This operator executes in the dedicated `' + environment + '` interpreter; see docs/large_resources.md for resolution and overrides.'
-                   if environment else 'Runs in the shared BioPipe interpreter.')
+                   if environment else 'Runs in the shared Operon interpreter.')
     requirements = declaration.get('dependencies', [])
     if requirements:
         environment = ('Declared Python requirements: ' + ', '.join('`' + d + '`' for d in requirements) +
@@ -62,7 +62,7 @@ or statistical assumptions for a particular dataset.
 
 ## Limitations
 
-Declared memory modes: {memory}. BioPipe retains the existing planner, disk-backed
+Declared memory modes: {memory}. Operon retains the existing planner, disk-backed
 inputs and emergency spill behavior; full-mode operators still require their
 declared working set. This generated reference has not been independently
 scientifically reviewed.

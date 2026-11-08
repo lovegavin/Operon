@@ -61,7 +61,7 @@ describe('language projections', () => {
     expect(html).toContain('Manage library'); expect(html).toContain('Add operators');
     expect(html).toContain('Operators and Readers'); expect(html).toContain('Workflow operators');
     expect(html).toContain('Import package'); expect(html).toContain('Import workflow file');
-    expect(html).toContain('.whl,.biopipe-library.zip'); expect(html).toContain('aria-pressed="true">Add operators');
+    expect(html).toContain('.whl,.operon-library.zip,.biopipe-library.zip'); expect(html).toContain('aria-pressed="true">Add operators');
   });
   it('puts language beside existing settings without remounting server drafts', () => {
     setLanguage('en'); expect(t('设置')).toBe('Settings');

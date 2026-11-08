@@ -212,5 +212,5 @@ def export_portable(graph, output, *, runtime_dir=None):
     manifest = {'format': 'biopipe.standalone', 'schema_version': 1, 'runtime': record, 'steps': steps,
                 'converters': [], 'dependencies': requirements, 'inputs_included': False}
     (output / 'manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
-    (output / 'README.md').write_text('# Independent analysis\n\nEdit INPUTS and OUTPUT_DIR at the top of run.py. Input data is not included.\nRun run.cmd on Windows or run.sh on Linux. No BioPipe or global Python is used.\nChoose a fresh output directory for each run; existing results are not overwritten.\nThe runtime directory includes its own license notices.\n', encoding='utf-8')
+    (output / 'README.md').write_text('# Independent analysis\n\nEdit INPUTS and OUTPUT_DIR at the top of run.py. Input data is not included.\nRun run.cmd on Windows or run.sh on Linux. No Operon or global Python is used.\nChoose a fresh output directory for each run; existing results are not overwritten.\nThe runtime directory includes its own license notices.\n', encoding='utf-8')
     return {'path': str(output), 'format': 'standalone', 'runtime_bundled': True, 'steps': len(steps), 'inputs_included': False}

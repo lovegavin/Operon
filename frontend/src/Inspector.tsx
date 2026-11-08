@@ -225,6 +225,8 @@ export function Inspector({
   onExecution = () => {},
   onFileLocation = () => {},
   onCatalog,
+  preflight,
+  onPreflight,
 }: {
   graph: Graph;
   catalog: Catalog;
@@ -247,6 +249,8 @@ export function Inspector({
   onExecution?: (patch: Partial<ExecutionConfig>) => void;
   onFileLocation?: (key: string, target: TargetRef) => void;
   onCatalog?: (catalog: Catalog, createdId?: string) => void;
+  preflight?: import('./api').CheckFeedback;
+  onPreflight?: (value: import('./api').CheckFeedback) => void;
 }) {
   const node = graph.nodes.find((n) => n.id === nodeId),
     spec = node ? specFor(node, catalog) : undefined;
@@ -310,7 +314,7 @@ export function Inspector({
       <div className="inspector-content" ref={content}>
         {settings ? (
           <>
-            <ExecutionSettings graph={graph} servers={servers} disabled={busy} onChange={onExecution}/>
+            <ExecutionSettings graph={graph} servers={servers} disabled={busy} onChange={onExecution} preflight={preflight} onPreflight={onPreflight}/>
             <div className="inspector-intro">
               <div className="node-icon">
                 <HardDrives size={20} />

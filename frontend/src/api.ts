@@ -6,7 +6,9 @@ import type { LibraryState, LibraryAction } from "./types";
 export type Readiness = {
   status: 'ready' | 'blocked'; fingerprint: string; checked_at: string;
   blocked: {target: string; id: string | null; status: string; message: string}[];
+  scope?: 'dependencies' | 'preflight'; dependencies_cached?: boolean; unresolved_sources?: string[];
 };
+export type CheckFeedback = {signature: string; readiness?: Readiness; error?: string};
 
 const base =
   (import.meta as ImportMeta & { env: { VITE_API_BASE?: string } }).env
@@ -61,6 +63,7 @@ export const api = {
   publishScript: (payload: {script: import('./types').ScriptSnapshot; operator_id: string; title: string; category: string; version?: string}) => request<{id: string; catalog: Bootstrap['catalog']}>('/api/scripts/publish', payload),
   operatorSource: (id: string) => request<{available: boolean; code?: string; filename?: string; reason?: string}>(`/api/operators/${encodeURIComponent(id)}/source`),
   prepareEnvironment: (graph: Graph) => request<{readiness: Readiness}>('/api/prepare-environment', graph),
+  checkEnvironment: (graph: Graph) => request<{readiness: Readiness}>('/api/check-environment', graph),
   savePreferences: (value: Partial<import('./preferences').UiPreferences>, initialize = false) => {
     // Keep responses in edit order when users switch settings sections quickly.
     const result = preferencesWrite.catch(() => {}).then(() => request<import('./preferences').UiPreferences>(`/api/preferences?initialize=${initialize}`, value));

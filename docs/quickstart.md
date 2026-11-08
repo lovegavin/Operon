@@ -64,11 +64,11 @@ execution environment selected for the workflow.
 
 ## 3. Linux: install and run without a desktop
 
-Download and extract the server ZIP. For the current `3.1.2` release:
+Download and extract the server ZIP. For the current `3.1.3` release:
 
 ```sh
-unzip Operon-3.1.2-Server.zip
-cd Operon-3.1.2-Server
+unzip Operon-3.1.3-Server.zip
+cd Operon-3.1.3-Server
 bash install.sh --prefix "$HOME/apps/operon" --result "$PWD/server-install.json"
 ```
 

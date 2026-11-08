@@ -11,7 +11,7 @@ import re
 
 import yaml
 
-FORMAT = 'biopipe.workflow'
+FORMAT = 'operon.workflow'
 _ID = re.compile(r'^[A-Za-z_][A-Za-z0-9_.-]{0,79}$')
 
 
@@ -141,8 +141,8 @@ def compile_spec(spec, directory):
     _mapping(spec, {'format', 'schema_version', 'name', 'sources', 'steps', 'outputs',
                     'parameters', 'parameters_file', 'execution', 'execution_file',
                     'lock_file', 'ui_file'}, 'workflow', ('format', 'schema_version', 'sources', 'steps'))
-    if spec['format'] != FORMAT or type(spec['schema_version']) is not int or spec['schema_version'] != 1:
-        raise WorkflowError('Expected biopipe.workflow schema_version 1')
+    if spec['format'] not in (FORMAT, 'biopipe.workflow') or type(spec['schema_version']) is not int or spec['schema_version'] != 1:
+        raise WorkflowError('Expected operon.workflow schema_version 1')
     sources, steps = spec['sources'], spec['steps']
     if not isinstance(sources, dict) or not isinstance(steps, dict):
         raise WorkflowError('sources and steps must be mappings keyed by stable node IDs')
@@ -154,14 +154,14 @@ def compile_spec(spec, directory):
     parameters = _sidecar(spec, 'parameters', directory, {})
     execution = _sidecar(spec, 'execution', directory, {})
     _mapping(parameters, {'format', 'schema_version', 'sources', 'steps', 'params'}, 'parameters')
-    if parameters.get('format', 'biopipe.workflow-parameters') != 'biopipe.workflow-parameters' or type(parameters.get('schema_version', 1)) is not int or parameters.get('schema_version', 1) != 1:
+    if parameters.get('format', 'operon.workflow-parameters') not in ('operon.workflow-parameters', 'biopipe.workflow-parameters') or type(parameters.get('schema_version', 1)) is not int or parameters.get('schema_version', 1) != 1:
         raise WorkflowError('Unsupported parameters schema')
     for kind, items in (('sources', sources), ('steps', steps)):
         values = parameters.get(kind, {})
         if not isinstance(values, dict) or set(values) - set(items):
             raise WorkflowError(f'Parameter {kind} must reference existing node IDs')
     _mapping(execution, {'format', 'schema_version', 'memory', 'runtime', 'manifest_extra', 'interface'}, 'execution')
-    if execution.get('format', 'biopipe.workflow-execution') != 'biopipe.workflow-execution' or type(execution.get('schema_version', 1)) is not int or execution.get('schema_version', 1) != 1:
+    if execution.get('format', 'operon.workflow-execution') not in ('operon.workflow-execution', 'biopipe.workflow-execution') or type(execution.get('schema_version', 1)) is not int or execution.get('schema_version', 1) != 1:
         raise WorkflowError('Unsupported execution schema')
     nodes, edges = [], []
     for ordinal, (key, source) in enumerate(sources.items()):
@@ -268,7 +268,7 @@ def compile_spec(spec, directory):
     if 'lock_file' in spec:
         lock = _json(resolve_resource(directory, spec['lock_file']), directory)
         _mapping(lock, {'format', 'schema_version', 'plugin_lock'}, 'lock', ('format', 'schema_version', 'plugin_lock'))
-        if lock['format'] != 'biopipe.workflow-lock' or lock['schema_version'] != 1:
+        if lock['format'] not in ('operon.workflow-lock', 'biopipe.workflow-lock') or lock['schema_version'] != 1:
             raise WorkflowError('Unsupported lock schema')
         graph['plugin_lock'] = lock['plugin_lock']
     if 'ui_file' in spec:
@@ -324,7 +324,7 @@ def export_workflow(graph, directory):
             'parameters_file': 'parameters.json', 'execution_file': 'execution.json',
             'lock_file': 'workflow.lock.json', 'ui_file': 'ui.json', 'sources': {}, 'steps': {},
             'outputs': deepcopy(graph['runtime'].get('workflow_outputs', {}))}
-    parameters = {'format': 'biopipe.workflow-parameters', 'schema_version': 1,
+    parameters = {'format': 'operon.workflow-parameters', 'schema_version': 1,
                   'params': values['params'], 'sources': {}, 'steps': {}}
     for node in topology['nodes']:
         key, kind = node['id'], node['kind']
@@ -355,12 +355,12 @@ def export_workflow(graph, directory):
         spec['steps'][edge['target']]['inputs'][edge['targetHandle']] = binding
     runtime = deepcopy(graph['runtime'])
     runtime.pop('workflow_outputs', None)
-    execution = {'format': 'biopipe.workflow-execution', 'schema_version': 1,
+    execution = {'format': 'operon.workflow-execution', 'schema_version': 1,
                  'memory': graph['memory'], 'runtime': runtime,
                  'manifest_extra': graph['manifest_extra'], 'interface': graph['interface']}
     atomic_json(directory / 'parameters.json', parameters)
     atomic_json(directory / 'execution.json', execution)
-    atomic_json(directory / 'workflow.lock.json', {'format': 'biopipe.workflow-lock', 'schema_version': 1, 'plugin_lock': graph['plugin_lock']})
+    atomic_json(directory / 'workflow.lock.json', {'format': 'operon.workflow-lock', 'schema_version': 1, 'plugin_lock': graph['plugin_lock']})
     atomic_json(directory / 'ui.json', {'positions': {node['id']: node['position'] for node in graph['nodes']}})
     (directory / 'workflow.yaml').write_text(yaml.safe_dump(spec, sort_keys=False, allow_unicode=True), encoding='utf-8')
     return {'path': str(directory / 'workflow.yaml'), 'files': ['workflow.yaml', 'parameters.json', 'execution.json', 'workflow.lock.json', 'ui.json']}
@@ -395,7 +395,7 @@ def json_schema():
                 'inputs': {'type': 'object', 'propertyNames': {'pattern': '^in-?[0-9]+$'}, 'additionalProperties': binding},
                 'title': text, 'input_count': {'type': 'integer', 'minimum': 0, 'maximum': 20}}, ['inputs'])
     step['oneOf'] = [{'required': [key]} for key in ('operator', 'route', 'script')]
-    schema = obj({'format': {'const': FORMAT}, 'schema_version': {'const': 1, 'type': 'integer'},
+    schema = obj({'format': {'enum': [FORMAT, 'biopipe.workflow']}, 'schema_version': {'const': 1, 'type': 'integer'},
                   'name': text, 'sources': {'type': 'object', 'additionalProperties': source},
                   'steps': {'type': 'object', 'additionalProperties': step},
                   'outputs': {'type': 'object', 'additionalProperties': text},
@@ -403,6 +403,6 @@ def json_schema():
                   'execution': {'type': 'object'}, 'execution_file': text,
                   'lock_file': text, 'ui_file': text}, ['format', 'schema_version', 'sources', 'steps'])
     schema['$schema'] = 'https://json-schema.org/draft/2020-12/schema'
-    schema['title'] = 'BioPipe workflow v1'
+    schema['title'] = 'Operon workflow v1'
     schema['allOf'] = [{'not': {'required': [key, key + '_file']}} for key in ('parameters', 'execution')]
     return schema

@@ -51,6 +51,36 @@ def targets(plan):
     return {key: unit["target"] for unit in plan["units"] for key in unit["node_ids"]}
 
 
+def test_dependency_placement_does_not_require_input_paths_or_stat_data():
+    workflow = graph([source(path=''), operator('step')], [('input', 'step')], mode='manual')
+    def forbidden(*args):
+        pytest.fail('Dependency placement must not inspect data files')
+    plan = planner.make_plan(workflow, [host()], stat_file=forbidden, dependencies_only=True)
+    assert targets(plan) == {'step': LOCAL}
+    assert plan['dependencies_only'] and plan['validation_only']
+    # A normal execution still needs an identifiable Reader.
+    with pytest.raises(GraphError, match='No Reader'):
+        planner.make_plan(workflow, [host()])
+
+
+def test_preflight_missing_source_and_reference_fail_without_blocking_dependency_check():
+    workflow = graph([source(), operator('step', params={'reference': '/not-ready/ref.fa'})],
+                     [('input', 'step')], mode='manual')
+    infos = [host(specs=[spec(parameters={'reference': {'x-biopipe-path': True}})])]
+    def missing(*args):
+        raise ValueError('File does not exist')
+    assert planner.make_plan(workflow, infos, stat_file=missing, dependencies_only=True)['dependencies_only']
+    with pytest.raises(GraphError, match='input file unavailable'):
+        planner.make_plan(workflow, infos, stat_file=missing, validation_only=True, require_files=True)
+
+
+def test_dependency_check_does_not_require_the_data_storage_host_to_be_online():
+    workflow = graph([source(location=SSH), operator('step')], [('input', 'step')], mode='manual')
+    assert targets(planner.make_plan(workflow, [host()], dependencies_only=True)) == {'step': LOCAL}
+    with pytest.raises(GraphError, match='Input environment is unavailable'):
+        planner.make_plan(workflow, [host()], validation_only=True, require_files=True)
+
+
 def test_manual_target_overrides_and_legacy_default_are_preserved():
     workflow = graph([source(location=LOCAL), operator("local"), operator("remote"), operator("finish")],
                      [("input", "local"), ("local", "remote"), ("remote", "finish")],

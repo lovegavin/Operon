@@ -2,7 +2,8 @@ import {t} from './i18n';
 import {useState} from 'react';
 import {Check, CircleNotch, HardDrives, Path} from '@phosphor-icons/react';
 import {api} from './api';
-import type {Readiness} from './api';
+import type {CheckFeedback} from './api';
+import {ReadinessChecks} from './ReadinessChecks';
 import {ResourceSummary} from './ResourceSummary';
 import {bytes} from './graph';
 import {defaultTarget, executionConfig, targetFromKey, targetKey, targetLabel} from './execution';
@@ -29,25 +30,15 @@ export function EnvironmentMenu({graph, nodeId, servers, onSelect}: {
   </>;
 }
 
-export function ExecutionSettings({graph, servers, disabled, onChange}: {
+export function ExecutionSettings({graph, servers, disabled, onChange, preflight, onPreflight}: {
   graph: Graph; servers: RemoteStatus[]; disabled: boolean; onChange: (patch: Partial<ExecutionConfig>) => void;
+  preflight?: CheckFeedback; onPreflight?: (value: CheckFeedback) => void;
 }) {
   const config = executionConfig(graph);
   const [preview, setPreview] = useState<{signature: string; plan: ExecutionPlan} | null>(null);
   const [loading, setLoading] = useState(false), [error, setError] = useState('');
-  const [environment, setEnvironment] = useState<{signature: string; result: Readiness} | null>(null);
-  const [checking, setChecking] = useState(false);
   const signature = JSON.stringify(graph);
   const plan = preview?.signature === signature ? preview.plan : undefined;
-  const readiness = environment?.signature === signature ? environment.result : undefined;
-  async function checkEnvironment(repair = false) {
-    setChecking(true); setError('');
-    try {
-      const result = repair ? await api.prepareEnvironment(graph) : await api.validate(graph);
-      setEnvironment({signature, result: result.readiness});
-    } catch (value) {setError((value as Error).message);}
-    finally {setChecking(false);}
-  }
   async function inspect() {
     setLoading(true); setError('');
     try {setPreview({signature, plan: await api.executionPlan(graph)});}
@@ -77,14 +68,7 @@ export function ExecutionSettings({graph, servers, disabled, onChange}: {
     <button type="button" className="subtle-button execution-preview-button" disabled={disabled || loading || !graph.nodes.length} onClick={() => void inspect()}>
       {loading ? <CircleNotch size={16} className="spin"/> : <Path size={16}/>}{t("预览环境分配")}</button>
     {error && <p className="field-error" role="alert">{error}</p>}
-    <div className="execution-preview">
-      <button className="subtle-button" disabled={disabled || checking || !graph.nodes.length} onClick={() => void checkEnvironment()}>
-        {checking ? <CircleNotch size={16} className="spin"/> : <Check size={16}/>}{t('检查运行环境')}
-      </button>
-      {readiness && <strong role="status">{readiness.status === 'ready' ? t('运行环境已就绪') : t('运行环境未就绪')}</strong>}
-      {readiness?.blocked.map((item, index) => <p className="field-error" key={index}>{item.id || item.target}: {item.message}</p>)}
-      {readiness?.status === 'blocked' && <button className="subtle-button" disabled={disabled || checking} onClick={() => void checkEnvironment(true)}>{t('安装当前路线所需依赖')}</button>}
-    </div>
+    <ReadinessChecks graph={graph} disabled={disabled} preflight={preflight} onPreflight={onPreflight}/>
     {plan && <div className="execution-preview">
       {plan.units.map(unit => <div key={unit.id} title={unit.reason}>
         <span>{unit.node_ids.map(id => graph.nodes.find(node => node.id === id)?.title || id).join(' · ')}</span>

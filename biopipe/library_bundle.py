@@ -18,6 +18,13 @@ from biopipe_sdk.protocol import PROTOCOL_VERSION
 from biopipe.bytecode import filesystem_path
 
 
+LIBRARY_SUFFIXES = ('.biopipe-library.zip', '.operon-library.zip')
+
+
+def is_library_bundle(path):
+    return Path(path).name.lower().endswith(LIBRARY_SUFFIXES)
+
+
 def _io_path(path):
     return Path(filesystem_path(path, resolve=False))
 
@@ -54,7 +61,7 @@ def build_bundle(root, output, version):
         if not packages:
             raise ValueError("Library contains no operators or Readers")
         files = {p.relative_to(staging).as_posix(): sha256(p) for p in sorted(staging.rglob("*")) if p.is_file()}
-        document = {"format": "biopipe.library", "version": version, "protocol_version": PROTOCOL_VERSION,
+        document = {"format": "operon.library", "version": version, "protocol_version": PROTOCOL_VERSION,
                     # The bundled library can use the current engine's resource
                     # and isolated-environment adapters, not just SDK syntax.
                     "minimum_application": "2.0.1",
@@ -64,7 +71,7 @@ def build_bundle(root, output, version):
             archive.writestr("library.json", json.dumps(document, indent=2))
             for relative in files:
                 archive.write(staging / relative, relative)
-        destination = output / f"BioPipe-Library-v{version}.biopipe-library.zip"
+        destination = output / f"Operon-Library-v{version}.operon-library.zip"
         os.replace(archive_path, destination)
     return {"bundle": str(logical_output / destination.name), "sha256": sha256(destination),
             "version": version, "packages": len(packages), "descriptors": sum(len(p['descriptors']) for p in manifest['packages'])}
@@ -87,11 +94,11 @@ def unpack_bundle(path, destination):
                     or (info.external_attr >> 16) & 0o170000 == 0o120000):
                 raise ValueError(f"Invalid library archive path: {name}")
         document = json.loads(archive.read("library.json"))
-        if document.get("format") != "biopipe.library" or document.get("protocol_version") != PROTOCOL_VERSION:
-            raise ValueError("A protocol v3 BioPipe library bundle is required; migrate old declarations first")
+        if document.get("format") not in ("biopipe.library", "operon.library") or document.get("protocol_version") != PROTOCOL_VERSION:
+            raise ValueError("A protocol v3 Operon library bundle is required; migrate old declarations first")
         Version(document['version'])
         if Version(__version__) < Version(document['minimum_application']):
-            raise ValueError(f"Library requires BioPipe {document['minimum_application']} or newer")
+            raise ValueError(f"Library requires Operon {document['minimum_application']} or newer")
         files, packages = document['files'], document['packages']
         if not isinstance(files, dict) or not isinstance(packages, list) or not packages:
             raise ValueError("Invalid library manifest")
@@ -148,10 +155,24 @@ def install_bundle(manager, bundle):
                 if fingerprint != expected:
                     raise ValueError('Local library sources have unrefreshed edits; refresh or export them before importing an update')
             incoming = temporary / 'incoming'
+            from biopipe.library_pins import receipt as source_pin_receipt
+            manifest = json.loads((incoming / 'sources/biopipe/builtin_packages.json').read_text(encoding='utf-8'))
+            source_pins = source_pin_receipt(manifest, incoming / 'sources', document, sha256(bundle))
             installed = {p['name']: p['sha256'] for p in current['packages']}
             if ((current.get('library_release') or {}).get('sha256') == sha256(bundle)
                     and all(installed.get(p['name']) == document['files'][p['file']] for p in document['packages'])):
-                return current
+                if current.get('library_source_pins') == source_pins:
+                    return current
+                # Backfill only after repeating the full source/wheel check.
+                # Retained generations and archived jobs remain unchanged.
+                from copy import deepcopy
+                from biopipe.plugins import atomic_json
+                state = deepcopy(current)
+                state['generation'] = uuid.uuid4().hex
+                state['library_source_pins'] = source_pins
+                atomic_json(manager.directory / 'environments' / state['generation'] / 'lock.json', state)
+                atomic_json(manager.registry, state)
+                return state
             identifier = uuid.uuid4().hex
             relative = f'library/sources/{identifier}'
             target = _io_path(manager.directory / relative)
@@ -169,6 +190,7 @@ def install_bundle(manager, bundle):
             # before the single atomic registry pointer becomes visible.
             os.replace(incoming / 'sources', target)
             state['library_release'] = {'version': document['version'], 'sha256': sha256(bundle)}
+            state['library_source_pins'] = source_pins
             from biopipe.plugins import atomic_json
             atomic_json(manager.directory / 'environments' / state['generation'] / 'lock.json', state)
             atomic_json(manager.registry, state)

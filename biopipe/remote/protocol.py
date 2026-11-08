@@ -84,4 +84,4 @@ class Decoder:
             return json.loads(raw)
         except (ValueError, KeyError, TypeError, zlib.error) as exc:
             self.ack = None
-            raise ValueError('Invalid BioPipe SSH response frame') from exc
+            raise ValueError('Invalid Operon SSH response frame') from exc

@@ -6,6 +6,52 @@ validation is read-only: it checks the selected environment and reports blocked
 declarations. Dependency preparation is a separate explicit request; validation
 never silently modifies the running Python installation.
 
+## Dependency check versus preflight
+
+Execution settings exposes two separate actions:
+
+- **Check dependencies** accepts an unfinished draft with empty/nonexistent data
+  paths, disconnected input ports and incomplete scientific parameters. It checks
+  the declared operators, selected/inferable Readers and inline scripts on their
+  selected hosts. It does not stat, upload or read input data. Inputs without a
+  known Reader are listed as unresolved and checked after a Reader is selected.
+- **Preflight check**, also available in the top toolbar, checks the complete
+  graph, parameter values, input availability and dependency readiness. Missing
+  dependencies appear in execution settings with an explicit install button;
+  errors are retained in the panel rather than only a transient notification.
+
+An automatic dependency placement is provisional when data has not been selected.
+Preflight computes placement with actual file metadata; newly selected targets or
+Readers are checked before execution. A dependency-only success is never a runnable
+graph or permission to start a job. Preparation uses the same draft dependency
+scope and does not require data files. It still requires explicit installation
+authorization and the existing environment maintenance gate.
+
+Passed dependency receipts are shared by both checks on each execution host.
+They are invalidated by declaration generations, selected IDs, script content,
+interpreter/environment identity, tool locations and managed target receipts.
+Data paths and ordinary numeric parameter edits do not repeat import probes;
+their structural/file checks still run during preflight. Failed/unchecked states
+are not cached. Remote hosts must answer a live request and validate their own
+receipt; a disconnected server cannot inherit a client-side success.
+
+Terminal/API/agent equivalents:
+
+```bash
+operon --workspace . environment check draft.yaml
+operon --workspace . environment prepare draft.yaml
+operon --workspace . environment check workflow.yaml --require-files
+```
+
+The shared API accepts `{ "graph": ... }` at
+`POST /api/v1/workflows/check-environment` (read-only),
+`POST /api/v1/workflows/prepare-environment` (plugins permission), and
+`POST /api/v1/workflows/validate` (add `"require_files": true` for preflight).
+MCP exposes `biopipe_workflow_check_environment` and retains the existing explicit
+preparation and full validation tools. Python/MCP compatibility names are unchanged.
+
+## Full workflow and environment identities
+
 Placement during validation can select a host whose dependencies or tools are
 missing, so that their exact failures can be reported and preparation remains
 reachable. It still rejects unavailable hosts, unsupported operating systems,

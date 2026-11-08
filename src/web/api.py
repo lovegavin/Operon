@@ -230,7 +230,11 @@ def create_app(settings=None):
 
     @app.post('/api/prepare-environment')
     def prepare_environment(graph: Graph):
-        return application.validate(graph, require_files=False, repair=True)
+        return application.check_environment(graph, repair=True)
+
+    @app.post('/api/check-environment')
+    def check_environment(graph: Graph):
+        return application.check_environment(graph)
 
     @app.post("/api/contracts")
     def contracts(graph: Graph):
@@ -253,7 +257,7 @@ def create_app(settings=None):
         try:
             import_root = settings.code_root or settings.root
             raw = yaml.safe_load(payload.text)
-            if isinstance(raw, dict) and raw.get('format') == 'biopipe.workflow':
+            if isinstance(raw, dict) and raw.get('format') in ('operon.workflow', 'biopipe.workflow'):
                 from biopipe.workflow_spec import parse, compile_spec, WorkflowError
                 try:
                     directory = project_path(settings.root, '.', payload.base_dir)

@@ -62,6 +62,13 @@ class Application:
         readiness = self.readiness.validate(graph, result, require_files=require_files, repair=repair)
         return {**result, 'graph': graph.model_dump(mode='json'), 'readiness': readiness}
 
+    def check_environment(self, graph, *, repair=False):
+        graph = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
+        plan = self.executions.dependency_plan(graph)
+        result = {'execution_plan': plan}
+        readiness = self.readiness.validate(graph, result, dependencies_only=True, repair=repair)
+        return {**result, 'scope': 'dependencies', 'graph': graph.model_dump(mode='json'), 'readiness': readiness}
+
     def shutdown(self):
         self.service.dependencies.cancel.set()
         self.executions.shutdown()

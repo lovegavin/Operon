@@ -140,7 +140,7 @@ def _validate_host_requirements(records):
             if requirement.marker and not requirement.marker.evaluate():
                 continue
             if requirement.url or not requirement.specifier.contains(host_version, prereleases=True):
-                raise ValueError(f'Operator requires an incompatible BioPipe SDK: {text}')
+                raise ValueError(f'Operator requires an incompatible Operon SDK: {text}')
 
 
 def install(manager, current, packages, generation, *, dependencies=()):
@@ -148,8 +148,9 @@ def install(manager, current, packages, generation, *, dependencies=()):
     # filesystem-backed bundled_state() for every entry made large library
     # refreshes scan the same source tree hundreds of times.
     bundled = manager.bundled_state()
-    bundled_names = {p['name'] for p in bundled['packages']}
-    bundled_owners = {d['id']: d['distribution'] for d in bundled['descriptors']}
+    from biopipe.packages import provider_identity
+    bundled_names = {provider_identity(p['name']) for p in bundled['packages']}
+    bundled_owners = {d['id']: provider_identity(d['distribution']) for d in bundled['descriptors']}
     builder = TargetBuilder(manager, current)
     environment = manager.directory / 'environments' / generation
     Path(filesystem_path(environment)).mkdir(parents=True)
@@ -192,9 +193,9 @@ def install(manager, current, packages, generation, *, dependencies=()):
             from biopipe_sdk.declarations import declaration_hash
             descriptor['dependencies'] = requirements(sorted(declared))
             descriptor['declaration_sha'] = declaration_hash(descriptor)
-            if descriptor['id'] in bundled_owners and bundled_owners[descriptor['id']] != package['name']:
+            if descriptor['id'] in bundled_owners and bundled_owners[descriptor['id']] != provider_identity(package['name']):
                 raise ValueError(f'Plugin shadows a built-in: {descriptor["id"]}')
-            if '.' not in descriptor['id'] and package['name'] not in bundled_names:
+            if '.' not in descriptor['id'] and provider_identity(package['name']) not in bundled_names:
                 raise ValueError('Plugin IDs must be namespaced')
             descriptor.update(distribution=package['name'], package_version=package['version'], origin='wheel', execution=execution,
                               implementation={k: package[k] for k in ('version', 'sha256')})
@@ -206,7 +207,7 @@ def install(manager, current, packages, generation, *, dependencies=()):
         if not owned <= {d['id'] for d in records}:
             raise ValueError('Replacement package must preserve its bundled IDs')
         if not records:
-            raise ValueError(f'No BioPipe entry points in {package["name"]}')
+            raise ValueError(f'No Operon entry points in {package["name"]}')
         descriptors.extend(records)
     ids = [d['id'] for d in descriptors]
     if len(ids) != len(set(ids)):

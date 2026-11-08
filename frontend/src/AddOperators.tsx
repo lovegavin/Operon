@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from 'react';
 import {ArrowClockwise, FileArrowUp, FolderOpen, Package, Plus, Stack} from '@phosphor-icons/react';
 import {api} from './api';
 import {normalizeGraph} from './graph';
+import {isWorkflowBundle, ROUTE_FILE_ACCEPT} from './workflowFiles';
 import type {PluginState, WorkflowSummary} from './types';
 import {t} from './i18n';
 
@@ -26,7 +27,7 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
     const saved: string[] = [];
     try {
       if (files) for (const item of files) {
-        const graph = normalizeGraph(item.name.toLowerCase().endsWith('.zip')
+        const graph = normalizeGraph(isWorkflowBundle(item.name)
           ? await api.importWorkflow(item) : JSON.parse(await item.text()));
         saved.push((await api.saveWorkflow(graph)).id);
       }
@@ -55,7 +56,7 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
     <section className="operator-install-card">
       <div className="operator-install-heading"><span><Stack size={24}/></span><div><h3>{t('路线算子')}</h3><code>.json · .operon.zip</code></div>
         <button className="subtle-button" disabled={busy} onClick={() => file.current?.click()}><FileArrowUp size={16}/>{t('导入路线文件')}</button></div>
-      <input hidden ref={file} type="file" multiple accept=".json,.zip" onChange={event => {
+      <input hidden ref={file} type="file" multiple accept={ROUTE_FILE_ACCEPT} onChange={event => {
         const files = Array.from(event.target.files || []); event.target.value = '';
         if (files.length) void register(files);
       }}/>

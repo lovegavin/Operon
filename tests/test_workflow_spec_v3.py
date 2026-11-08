@@ -27,6 +27,8 @@ def test_branched_roundtrip_frozen_values_paths(tmp_path):
     restored = load_workflow(output / 'workflow.yaml')
     assert restored == graph
     values = json.loads((output / 'parameters.json').read_text())
+    assert values['format'] == 'operon.workflow-parameters'
+    assert parse((output / 'workflow.yaml').read_text())['format'] == 'operon.workflow'
     assert values['steps']['pca.a']['params'] == {'n_components': 0, 'flag': False, 'optional': None, 'empty': []}
     assert 'n_components' not in (output / 'workflow.yaml').read_text()
 

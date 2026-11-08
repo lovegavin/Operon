@@ -14,6 +14,22 @@ def document():
     return {'format': 'biopipe.workflow', 'schema_version': 1, 'sources': {}, 'steps': {}}
 
 
+@pytest.mark.parametrize('name', ['route.operon', 'route.OPERON', 'route.operon.zip',
+                                  'route.biopipe', 'route.biopipe.zip', 'route.zip'])
+def test_cli_imports_bundle_aliases_without_changing_saved_values(tmp_path, name):
+    from biopipe.cli import read_graph_file
+    from src.web.models import Graph
+    from src.web.parameters import export_bundle
+
+    graph = Graph(nodes=[{'id': 'pca', 'kind': 'operator', 'operator': 'pca',
+                          'position': {'x': 10, 'y': 20}, 'params': {'n_components': 2}}],
+                  edges=[], memory={'enabled': True, 'budget_bytes': 123456},
+                  runtime={'execution': {'mode': 'manual'}}, params={'seed': 0})
+    path = tmp_path / name
+    path.write_bytes(export_bundle(graph))
+    assert read_graph_file(path) == graph.model_dump(mode='json')
+
+
 @pytest.mark.parametrize('field', ['parameters_file', 'execution_file', 'lock_file', 'ui_file', 'script'])
 def test_missing_project_resource_is_actionable_validation_error(tmp_path, field):
     value = document()

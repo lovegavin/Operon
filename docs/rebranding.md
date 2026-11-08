@@ -7,12 +7,12 @@ meaning of a saved scientific workflow or an installed operator ID.
 | Surface | Naming policy |
 | --- | --- |
 | Windows application, installer and shortcuts | Operon Studio; the distributable installer is `Operon_Setup.exe` and the workspace displays Operon |
-| Application version | 3.1.0; independent of the operator-library version |
+| Application version | Independent of the operator-library version |
 | Python package and source directories | Existing `biopipe`, `biopipe_sdk` and `src` imports remain valid |
 | Command-line automation | Existing `biopipe` / `python -m biopipe` remain supported; `operon` and `python -m operon` are the branded aliases |
 | MCP names | Existing `biopipe_*` tools and resource identifiers remain valid |
 | HTTP routes and authentication | Existing application/agent API paths and scopes remain valid |
-| Saved formats | `biopipe.workflow`, parameter/execution sidecars, plugin IDs and implementation pins retain their wire identifiers |
+| Saved formats | New workflow YAML and parameter/execution sidecars use `operon.*`; exact `biopipe.*` aliases remain readable. Plugin IDs and historical implementation pins retain their identities |
 | Operator protocol | Base major 3; existing v3/v3.5 packages remain accepted; optional SDK 3.6 format capabilities are independent of the product name |
 | Previous evidence and documentation | Historical release names, filenames, URLs and log records retain their original spelling |
 
@@ -21,8 +21,11 @@ look branded. A public identifier is an interoperability contract. The product
 name in a window is display text.
 
 New canvas exports use `.operon.zip`; older `.biopipe.zip` bundles remain importable.
-Visible worker and launcher labels use Operon. Internal storage keys, MIME types,
-Python imports and MCP tool identifiers remain unchanged.
+Visible worker and launcher labels use Operon. New browser preferences, clipboard
+fragments and drag MIME types use Operon identifiers; import reads the exact
+legacy counterparts. Python imports, MCP tool identifiers and shared admission
+ledger paths remain compatible. Renaming the admission directory alone would
+create a second resource authority on the same machine, which is not allowed.
 
 ## Installation and old data
 
@@ -48,6 +51,27 @@ The application and scientific library remain separate distributions. A branding
 change does not require changing every scientific provider or reinstalling an
 unrelated user's environments. Standard v3 library installation, refresh and
 dependency preparation retain their existing responsibilities.
+
+## Workflow file names
+
+Studio exports a workflow bundle as `NAME.operon.zip`. Workflow import, saved-route
+import, route-operator registration and the CLI also accept `.operon` and
+`.biopipe` aliases, as well as `.operon.zip`, `.biopipe.zip` and `.zip`. These
+aliases contain the same ZIP bundle; they are not JSON/YAML text or a new protocol.
+Import still verifies the graph, frozen parameter values and execution settings.
+JSON and YAML keep their existing separate import paths.
+
+In released 3.1.2 and earlier builds, standalone `.operon`/`.biopipe` suffixes
+were missing from the import dispatch. For a valid ZIP workflow bundle, renaming
+a copy to `NAME.operon.zip` allows the existing archive importer to read it.
+If Windows hides known extensions, check the full file name first. A file already
+ending in `.operon.zip` does not need this workaround; inspect the actual import
+error instead. Renaming a non-bundle file does not convert its contents.
+
+This filename workaround does **not** repair all library-v6.0.1 imports in released
+3.1.2. Its routes also use `operon.*` sidecars and source-authored pins. See
+[library import compatibility](library_import_compatibility.md) for the separate
+transport, provider ownership and verified source/wheel fixes in the working tree.
 
 ## Acceptance boundary
 

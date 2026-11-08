@@ -16,7 +16,7 @@ MAX_RECEIPT_BYTES = 65536
 
 def validate(value):
     if not isinstance(value, dict) or value.get('schema_version') != SCHEMA_VERSION:
-        raise ValueError('Unsupported BioPipe server installation document')
+        raise ValueError('Unsupported Operon server installation document')
     if not isinstance(value.get('server_id'), str) or not value['server_id']:
         raise ValueError('Server installation identity is missing')
     for name in ('app_dir', 'python', 'workspace'):

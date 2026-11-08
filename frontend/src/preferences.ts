@@ -3,12 +3,13 @@ import {useSyncExternalStore} from 'react';
 export type LanguagePreference = 'system' | 'zh-CN' | 'en';
 export type ThemePreference = 'system' | 'light' | 'dark';
 export type UiPreferences = {language: LanguagePreference; theme: ThemePreference};
-const KEY = 'biopipe-studio-config-v1';
+const KEY = 'operon-studio-config-v1';
+const LEGACY_KEY = 'biopipe-studio-config-v1';
 const defaults: UiPreferences = {language: 'system', theme: 'system'};
 const listeners = new Set<() => void>();
 function stored(): UiPreferences {
   try {
-    const value = JSON.parse(localStorage.getItem(KEY) || '{}');
+    const value = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem(LEGACY_KEY) || '{}');
     const language = value.language ?? localStorage.getItem('biopipe-studio-language-v1');
     const theme = value.theme ?? localStorage.getItem('biopipe-studio-theme-v1');
     return {language: language === 'en' || language === 'zh-CN' ? language : 'system',
@@ -26,6 +27,6 @@ export function setPreferences(value: Partial<UiPreferences>) {
 export function usePreferences() {return useSyncExternalStore(subscribePreferences, getPreferences, () => defaults);}
 if (typeof window !== 'undefined') {
   window.addEventListener('storage', event => {
-    if (event.key === KEY || event.key === null) {current = stored(); listeners.forEach(listener => listener());}
+    if (event.key === KEY || event.key === LEGACY_KEY || event.key === null) {current = stored(); listeners.forEach(listener => listener());}
   });
 }

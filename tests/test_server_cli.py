@@ -36,7 +36,7 @@ def test_bad_project_is_rejected_before_starting_a_service(tmp_path, monkeypatch
         cli.execute(cli.parser().parse_args(['--workspace', str(tmp_path), *command, str(path)]))
 
 
-@pytest.mark.parametrize('action,endpoint,install', [('check','validate',False), ('prepare','prepare-environment',True)])
+@pytest.mark.parametrize('action,endpoint,install', [('check','check-environment',False), ('prepare','prepare-environment',True)])
 def test_environment_commands_reuse_shared_route_service(tmp_path, monkeypatch, action, endpoint, install):
     path = tmp_path / 'graph.json'
     path.write_text('{"nodes":[],"edges":[]}', encoding='utf-8')

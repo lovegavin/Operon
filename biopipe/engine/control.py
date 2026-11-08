@@ -274,12 +274,14 @@ class ControlLoop:
                 pass
 
     # -- accept loop ---------------------------------------------------
-    def serve(self, listener, *, alive=None, idle_seconds=300.0, accept_timeout=1.0):
+    def serve(self, listener, *, alive=None, idle_seconds=300.0, accept_timeout=1.0, stop_requested=None):
         """Accept connections until idle and no durable work remains."""
         listener.settimeout(accept_timeout)
         last_request = time.monotonic()
         try:
             while not self.closed.is_set():
+                if callable(stop_requested) and stop_requested():
+                    break
                 try:
                     connection, _ = listener.accept()
                 except socket.timeout:

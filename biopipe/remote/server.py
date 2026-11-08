@@ -55,6 +55,10 @@ def socket_path(workspace):
 
 class RemoteService:
     def __init__(self, workspace, input_roots=None):
+        self._lifecycle = threading.RLock()
+        self._active_requests = 0
+        self._draining = False
+        self.stop_requested = threading.Event()
         from src.web.service import JobService, Settings
         from src.web.operator_catalog import catalog_from_descriptors
         from src.task.memory.config import MemoryConfig, AUTO_BUDGET_FRACTION
@@ -208,7 +212,45 @@ class RemoteService:
             raise ValueError('Path is outside the configured server data roots')
         return path
 
+    def retire_if_idle(self):
+        with self._lifecycle:
+            if self._draining:
+                return {'retired': True}
+            if self._active_requests:
+                return {'retired': False, 'reason': 'Requests are still in progress'}
+            self._draining = True  # Reject new work before inventory, under the same lock.
+        try:
+            busy = self.alive() or any(job.get('status') in
+                ('queued', 'preparing', 'uploading', 'running', 'waiting_connection', 'recovery_required')
+                or job.get('logs_complete') is False for job in self.service.history())
+            if busy:
+                with self._lifecycle:
+                    self._draining = False
+                return {'retired': False, 'reason': 'Tasks, transfers or maintenance are still active'}
+            self.stop_requested.set()
+            return {'retired': True}
+        except Exception:
+            with self._lifecycle:
+                self._draining = False
+            raise
+
     def dispatch(self, method, params):
+        # Small direct-dispatch fixtures omit the daemon lifecycle entirely.
+        if not hasattr(self, '_lifecycle'):
+            return self._dispatch(method, params)
+        if method == 'retire_if_idle':
+            return self.retire_if_idle()
+        with self._lifecycle:
+            if self._draining:
+                raise CommandError('server_draining', 'Server is restarting after an upgrade; reconnect.')
+            self._active_requests += 1
+        try:
+            return self._dispatch(method, params)
+        finally:
+            with self._lifecycle:
+                self._active_requests -= 1
+
+    def _dispatch(self, method, params):
         if method != 'transport_release':
             self._purge_transport_leases()
         if method in ('handshake', 'bootstrap'):
@@ -491,7 +533,7 @@ def rpc(workspace, request):
         return read_message(client)
 
 
-def ensure_daemon(workspace):
+def ensure_daemon(workspace, *, upgrade=False):
     import fcntl
     from .handshake import daemon_request, validate_daemon_response
     address = socket_path(workspace)
@@ -499,8 +541,29 @@ def ensure_daemon(workspace):
         fcntl.flock(lock, fcntl.LOCK_EX)
         try:
             response = rpc(workspace, daemon_request())
-            validate_daemon_response(response)
-            return
+            value = validate_daemon_response(response)
+            if not upgrade:
+                return  # Ordinary connections reuse a compatible installed server.
+            from biopipe import __version__
+            expected_root = Path(__file__).resolve().parents[2]
+            same_installation = (value.get('version') == __version__
+                                 and value.get('code_root') == str(expected_root)
+                                 and value.get('python') == sys.executable)
+            if same_installation:
+                return
+            # Upgrading files does not replace a daemon already in memory.
+            # Ask it to close only after atomically rejecting work and confirming
+            # there are no tasks/transfers/maintenance or other active requests.
+            retired = rpc(workspace, {'method': 'retire_if_idle', 'params': {}})
+            if not retired.get('ok') or not retired.get('value', {}).get('retired'):
+                reason = retired.get('value', {}).get('reason') or 'This older server cannot retire automatically'
+                raise RuntimeError(reason + '. Finish old server tasks and close the previous server, then reconnect. '
+                                   'Do not delete resource locks or terminate running workers.')
+            deadline = time.monotonic() + 15
+            while address.exists() and time.monotonic() < deadline:
+                time.sleep(.1)
+            if address.exists():
+                raise RuntimeError('The previous server is still stopping; reconnect shortly')
         except (FileNotFoundError, ConnectionRefusedError):
             pass
         directory = Path(workspace)/'.studio/remote'
@@ -528,7 +591,8 @@ def serve(workspace):
         listener.bind(str(address)); os.chmod(address, 0o600)
         listener.listen(64)
         try:
-            loop.serve(listener, alive=service.alive, idle_seconds=300)
+            loop.serve(listener, alive=service.alive, idle_seconds=300,
+                       stop_requested=service.stop_requested.is_set)
         finally:
             address.unlink(missing_ok=True)
             service.close()
@@ -556,12 +620,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--workspace', required=True)
     parser.add_argument('--serve', action='store_true')
+    parser.add_argument('--upgrade', action='store_true', help='Retire an idle previous installation before reconnecting')
     args = parser.parse_args()
     workspace = Path(args.workspace).expanduser().resolve()
     if args.serve:
         serve(workspace); return
     try:
-        ensure_daemon(workspace)
+        if args.upgrade:
+            ensure_daemon(workspace, upgrade=True)
+        else:
+            ensure_daemon(workspace)
     except Exception as exc:
         print('BIOPIPE_REMOTE_ERROR ' + json.dumps({'code': getattr(exc, 'code', 'service_unavailable'),
                                                    'error': str(exc)}, ensure_ascii=False), flush=True)

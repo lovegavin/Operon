@@ -76,9 +76,12 @@ not overwritten. See [YAML reference](workflow_yaml_v3.md).
 
 ## Validation and explicit preparation
 
-`environment check` and `workflow validate` share the desktop validation service.
-They check only the route's operators, Readers and scripts on its selected hosts.
-They do not install dependencies. A blocked result is JSON with
+`environment check` checks dependencies for the draft's known operators, Readers
+and scripts without requiring data paths or complete scientific parameters.
+`environment check --require-files` performs full preflight, as does the desktop
+toolbar. `workflow validate` retains structural validation; add `--require-files`
+to check input availability. These commands share the desktop application services.
+They do not install dependencies. A blocked dependency result is JSON with
 `readiness.status = "blocked"` and exit code **1**, so shell automation can stop.
 `--require-files` also checks input availability; submission always checks again.
 
@@ -86,7 +89,10 @@ They do not install dependencies. A blocked result is JSON with
 `workflow prepare-environment`. It uses existing managed dependency targets and
 conflict isolation for registered providers. It does not start an analysis job.
 A successful probe can be reused during the service session; changes to the
-route, pins, input metadata or selected runtime invalidate the relevant readiness.
+declarations, scripts, pins or selected runtime invalidate dependency receipts.
+Input and ordinary parameter changes still require fresh preflight checks, but do
+not repeat successful dependency probes. Unknown Readers are reported as unresolved
+until an input format or Reader is selected. See [check scopes](readiness.md).
 `run` validates automatically but never silently installs missing packages.
 
 Workflow-local scripts currently check Python requirements and Python/R/C/C++

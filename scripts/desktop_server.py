@@ -81,7 +81,7 @@ def report_stalled_shutdown(finished, delay=3):
     """Leave actionable thread evidence before the host's fallback deadline."""
     if not finished.wait(delay):
         import faulthandler
-        print('[BioPipe shutdown] Backend still closing; active Python threads:',
+        print('[Operon shutdown] Backend still closing; active Python threads:',
               file=sys.stderr, flush=True)
         faulthandler.dump_traceback(file=sys.stderr, all_threads=True)
 

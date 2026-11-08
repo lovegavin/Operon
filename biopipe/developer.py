@@ -195,7 +195,7 @@ def check_source(path):
                 raise ValueError('Use a namespaced ID such as lab.scale')
             descriptors.append(d)
     if not descriptors:
-        raise ValueError('No BioPipe entry points declared')
+        raise ValueError('No Operon entry points declared')
     value = {'protocol_version': PROTOCOL_VERSION, 'name': canonicalize_name(project['name']),
              'version': project['version'], 'origin': 'wheel', 'dependencies': project.get('dependencies', []), 'descriptors': descriptors}
     PackageDescriptor.model_validate(value)

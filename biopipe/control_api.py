@@ -73,7 +73,12 @@ def mount_control(app, application, bridge):
     @app.post('/api/v1/workflows/prepare-environment')
     def prepare_environment(request: Request, payload: GraphRequest):
         authorize(request, 'plugins')
-        return application.validate(payload.graph, require_files=False, repair=True)
+        return application.check_environment(payload.graph, repair=True)
+
+    @app.post('/api/v1/workflows/check-environment')
+    def check_environment(request: Request, payload: GraphRequest):
+        authorize(request)
+        return application.check_environment(payload.graph)
 
     @app.get('/api/v1/environment')
     def environment_status(request: Request):

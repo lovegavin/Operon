@@ -27,7 +27,7 @@ def test_stalled_shutdown_reports_threads_only_until_backend_finishes(monkeypatc
     finished = threading.Event()
     report_stalled_shutdown(finished, delay=0)
     assert len(calls) == 1 and calls[0]['all_threads']
-    assert '[BioPipe shutdown]' in capsys.readouterr().err
+    assert '[Operon shutdown]' in capsys.readouterr().err
     finished.set()
     report_stalled_shutdown(finished, delay=0)
     assert len(calls) == 1 and not capsys.readouterr().err
@@ -247,7 +247,7 @@ def test_desktop_server_owns_port_and_exits_with_host(tmp_path, exit_mode):
                     deadline = time.monotonic() + 30
                     while time.monotonic() < deadline:
                         job = client.get(url + "/api/jobs/" + key).json()
-                        if job["status"] != "running":
+                        if job["status"] not in ("queued", "preparing", "running"):
                             break
                         time.sleep(.1)
                     assert job["status"] == "complete", job

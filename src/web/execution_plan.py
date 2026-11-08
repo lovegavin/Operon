@@ -144,7 +144,7 @@ def capability(node, info):
     return None
 
 
-def _metadata(graph, infos, stat_file, warnings):
+def _metadata(graph, infos, stat_file, warnings, *, dependencies_only=False, require_files=False):
     """Collect immutable file facts and used declarations once, outside sweeps.
 
     References are implicit transfer edges. A route owns all its nested
@@ -179,6 +179,8 @@ def _metadata(graph, infos, stat_file, warnings):
                 cached_stats[key] = None, str(exc)
         value, error = cached_stats[key]
         if error and not optional:
+            if require_files:
+                raise GraphError(f'{label}: input file unavailable: {path} ({error})')
             warning = f'{label}: input size unavailable ({error})'
             if warning not in warning_keys:
                 warnings.append(warning); warning_keys.add(warning)
@@ -194,6 +196,8 @@ def _metadata(graph, infos, stat_file, warnings):
         valid_locations = set()
 
         def reference(node, field, value, where, base, collection):
+            if dependencies_only:
+                return
             if not isinstance(value, str) or not value:
                 raise GraphError(f'{field} must reference a nonempty file path', owner or node.id)
             if target_key(where) not in infos:
@@ -225,10 +229,10 @@ def _metadata(graph, infos, stat_file, warnings):
                                            if node.source.args.get(name) is not None and node.source.args[name] != '')
                     continue
                 location = source_location(node, original_config)
-                if target_key(location) not in infos:
+                if target_key(location) not in infos and not dependencies_only:
                     raise GraphError(f'Input environment is unavailable: {target_key(location)}', node.id)
                 source_sizes[node.id] = size(location, node.source.path, part.base_dir, label=node.title or node.id) if node.source.path else None
-                origin_readers = {spec['id'] for spec in infos[target_key(location)]['catalog'].get('readers', [])
+                origin_readers = {spec['id'] for spec in infos.get(target_key(location), {}).get('catalog', {}).get('readers', [])
                                   if primary_ext(node.source.path) in spec.get('extensions', [])}
                 if origin_readers and not node.source.reader:
                     candidates = [name for name in candidates if name in origin_readers]
@@ -264,19 +268,21 @@ def _metadata(graph, infos, stat_file, warnings):
             elif node.kind == 'route' and node.route:
                 walk(node.route.graph, original_config, (*prefix, node.id), atomic, pins)
         unknown = set(config['file_locations']) - valid_locations
-        if unknown:
+        if unknown and not dependencies_only:
             raise GraphError('file_locations must name existing path parameters: ' + ', '.join(sorted(unknown)), owner)
 
     walk(graph, settings(graph))
     return requirements, references, source_references, source_readers, source_sizes
 
 
-def make_plan(graph, infos, *, stat_file=None, validation_only=False):
+def make_plan(graph, infos, *, stat_file=None, validation_only=False, dependencies_only=False, require_files=False):
     """Place for execution, or select hosts whose missing dependencies need checking.
 
     Validation placement never authorizes a job. OS, pinned code, declarations
     and connected host availability remain strict in either mode.
     """
+    if dependencies_only:
+        validation_only, stat_file, require_files = True, None, False
     config = settings(graph)
     nodes, order, incoming, outgoing = ordered_nodes(graph)
     default = target_key(config)
@@ -285,7 +291,8 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False):
     if config["mode"] == "manual":
         allowed |= {target_key(t) for t in config["node_targets"].values()} | {default}
     assigned, choices, reasons, sizes, warnings = {}, {}, {}, {}, []
-    requirements, references, source_references, source_readers, source_sizes = _metadata(graph, info_by_key, stat_file, warnings)
+    requirements, references, source_references, source_readers, source_sizes = _metadata(
+        graph, info_by_key, stat_file, warnings, dependencies_only=dependencies_only, require_files=require_files)
     for info in info_by_key.values():
         info['_validation_only'] = validation_only
         info['_operators'] = {spec['id']: spec for spec in info['catalog']['operators']}
@@ -302,6 +309,8 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False):
     def reader_capability(source_id, info):
         readers = source_readers.get(source_id, [])
         if not readers:
+            if dependencies_only:
+                return None  # Unknown input format is checked when the data is selected.
             return f'No Reader is installed for {nodes[source_id].source.path}'
         for name, pin in readers:
             spec = info['_readers'].get(name)
@@ -316,7 +325,7 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False):
         node = nodes[key]
         if node.kind == "source":
             location = source_location(node, config)
-            if target_key(location) not in info_by_key:
+            if target_key(location) not in info_by_key and not dependencies_only:
                 raise GraphError(f"Input environment is unavailable: {target_key(location)}", key)
             assigned[key] = target_key(location)
             sizes[key] = source_sizes.get(key)
@@ -461,8 +470,9 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False):
                 transfers.append({**item, 'target': key, 'to': units_by_id[owner[key]]['target']})
     for unit in units:
         unit["depends_on"] = sorted(set(unit["depends_on"]))
-    if not units:
+    if not units and not dependencies_only:
         raise GraphError("Add at least one analysis operator")
     return {"mode": config["mode"], "units": units, "transfers": transfers, "warnings": warnings,
             **({'validation_only': True} if validation_only else {}),
+            **({'dependencies_only': True} if dependencies_only else {}),
             "algorithm": "bounded-locality-v1", "optimality": "heuristic"}

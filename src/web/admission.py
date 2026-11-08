@@ -20,6 +20,18 @@ from .storage import FileLock, atomic_json
 MIB = 1024 ** 2
 
 
+class AdmissionConflict(RuntimeError):
+    code = 'legacy_launchers_active'
+
+    def __init__(self, clients, reservations):
+        self.details = {'clients': clients, 'reservations': sorted(reservations)}
+        pids = ', '.join(str(pid) for pid in sorted({c['pid'] for c in clients if c.get('pid')}))
+        super().__init__('The shared pool cannot take over while previous launchers are still active'
+                         + (f' (PID: {pids})' if pids else '')
+                         + '. Finish their tasks and close the old Studio/server processes, then reconnect. '
+                         'Do not delete the admission ledger or stop running workers.')
+
+
 def process_identity(pid=None):
     process = psutil.Process(pid or os.getpid())
     return {"pid": process.pid, "created": process.create_time()}
@@ -167,17 +179,11 @@ class HostAdmission:
                         (owner.get('pid'), owner.get('created'), owner.get('service_id'))):
                     return dict(active)
                 raise RuntimeError('Another coordinator already owns this admission domain')
-            if state['reservations']:
-                raise RuntimeError(
-                    'Coordinator takeover requires drained legacy reservations: ' +
-                    ', '.join(sorted(state['reservations'])[:10]))
             others = [identity for client, identity in state['clients'].items()
                       if (identity.get('pid'), identity.get('created')) !=
                       (owner.get('pid'), owner.get('created'))]
-            if others:
-                raise RuntimeError(
-                    'Coordinator takeover requires all legacy launchers in this admission '
-                    'domain to be drained')
+            if others or state['reservations']:
+                raise AdmissionConflict(others, state['reservations'])
             record = {'owner': dict(owner), 'claimed_at': datetime.now(timezone.utc).isoformat(),
                       'scope': 'host-user'}
             state['coordinator'] = record

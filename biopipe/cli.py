@@ -18,7 +18,7 @@ def read_graph_file(path):
     if path.suffix.lower() in ('.yaml', '.yml'):
         from .workflow_spec import load_workflow
         return load_workflow(path)
-    if path.suffix.lower() == ".zip":
+    if path.suffix.lower() in ('.zip', '.operon', '.biopipe'):
         from src.web.parameters import import_bundle
         return import_bundle(path.read_bytes()).model_dump(mode="json")
     value = json.loads(path.read_text(encoding="utf-8"))
@@ -403,6 +403,8 @@ def execute(args):
             payload = {'graph': graph_value}
             if args.action == 'check':
                 payload['require_files'] = args.require_files
+            if args.action == 'check' and not args.require_files:
+                return client.request('/v1/workflows/check-environment', {'graph': graph_value})
             return client.request('/v1/workflows/' + ('validate' if args.action == 'check' else 'prepare-environment'), payload)
         if args.command == 'engine':
             if args.action == 'status':

@@ -388,6 +388,12 @@ class RouteLibrary:
                 from src.reader import primary_ext
                 for node in checked.nodes:
                     if node.kind == "source" and node.source is not None:
+                        from biopipe.reader_selection import candidates
+                        choices = candidates(catalog['readers'], node.source.path, node.source.reader)
+                        if len(choices) > 1:
+                            from .graph import GraphError
+                            raise GraphError('Choose a Reader for input ' + node.id + '; multiple Readers match: '
+                                             + ', '.join(item['id'] for item in choices), node.id)
                         # Preserve the declared reader contract (e.g. VCF
                         # genotype metadata); only replace the file location.
                         node.source.path = "route-input" + primary_ext(Path(node.source.path))

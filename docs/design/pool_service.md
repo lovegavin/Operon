@@ -199,3 +199,23 @@ a guessed directory.
 - See [release acceptance](server_engine_acceptance.md) for platform evidence;
   production Reader streaming and immutable environment generations remain
   separate roadmap items. Verified caching is optional: see [stage reuse](../stage_cache.md).
+
+
+## Explicit server upgrades
+
+The desktop's **Install / upgrade server** reconnects with `--upgrade`.
+Ordinary SSH connections continue to reuse a compatible existing installation.
+An explicit upgrade compares the running daemon's version, code directory and
+interpreter with the newly installed server. An idle daemon supporting
+`retire_if_idle` stops accepting requests, inventories jobs/transfers/maintenance,
+and exits normally before its replacement starts. Active requests and unfinished
+tasks prevent retirement.
+
+Older daemons without this operation require their previous process to finish and
+exit. They are never force-killed during an upgrade. Shared-pool admission errors
+include live launcher PIDs, reservation IDs and `code: legacy_launchers_active`;
+the managed-pool startup receipt and client error retain this information. Close
+the identified old service after its tasks finish, then reconnect. Do not delete
+`resources.json`, change the admission directory, or start a second allocator to
+bypass the refusal. Python process identity includes creation time, so PID reuse
+alone is not treated as a surviving launcher.

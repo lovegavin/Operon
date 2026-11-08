@@ -55,7 +55,7 @@ def freeze_graph(graph, catalog, root, *, bound=False, depth=0, input_roots=None
 def split_graph(graph):
     """The sidecar owns values; graph.json owns structure and execution pins."""
     topology = graph.model_dump(mode="json") if isinstance(graph, Graph) else deepcopy(graph)
-    values = {"format": "biopipe.graph-parameters", "schema_version": 1,
+    values = {"format": "operon.graph-parameters", "schema_version": 1,
               "params": topology.pop("params", {}), "nodes": {}}
     for node in topology["nodes"]:
         if node["id"] in values["nodes"]:
@@ -76,7 +76,7 @@ def restore_graph(topology, values):
     """Hydrate a strict pair, without consulting the current operator catalog."""
     graph = Graph.model_validate(topology)
     if (not isinstance(values, dict) or set(values) != {"format", "schema_version", "params", "nodes"}
-            or values["format"] != "biopipe.graph-parameters" or values["schema_version"] != 1
+            or values["format"] not in ("biopipe.graph-parameters", "operon.graph-parameters") or values["schema_version"] != 1
             or not isinstance(values["params"], dict) or not isinstance(values["nodes"], dict)
             or set(values["nodes"]) != {node.id for node in graph.nodes}
             or len(graph.nodes) != len(values["nodes"]) or graph.params):
@@ -120,6 +120,10 @@ def import_bundle(content):
     try:
         with ZipFile(BytesIO(content)) as archive:
             names = sorted(archive.namelist())
+            if 'library.json' in names:
+                raise ValueError('This is an operator library, not a workflow. Use Operator Library > Add operators > Import package.')
+            if any(name.lower().endswith(('.operon.zip', '.biopipe.zip')) for name in names):
+                raise ValueError('This is a collection of workflows. Extract it and select the individual .operon.zip files in the routes folder.')
             if names not in (["graph.json", "parameters.json"], ["execution.json", "graph.json", "parameters.json"]):
                 raise ValueError("Workflow bundle must contain graph.json, parameters.json and optional execution.json only")
             # Only JSON is read in memory. No archive path is extracted or executed.
@@ -136,7 +140,7 @@ def import_bundle(content):
 def split_execution(topology):
     """Keep immutable execution settings alongside each saved parameter snapshot."""
     topology = deepcopy(topology)
-    config = {"format": "biopipe.graph-execution", "schema_version": 1,
+    config = {"format": "operon.graph-execution", "schema_version": 1,
               "memory": topology.pop("memory", {}), "execution": topology.get("runtime", {}).pop("execution", {}),
               "routes": {}}
     for node in topology["nodes"]:
@@ -149,7 +153,7 @@ def restore_execution(topology, config):
     topology = deepcopy(topology)
     routes = {node["id"]: node for node in topology["nodes"] if node.get("route")}
     if (not isinstance(config, dict) or set(config) != {"format", "schema_version", "memory", "execution", "routes"}
-            or config["format"] != "biopipe.graph-execution" or config["schema_version"] != 1
+            or config["format"] not in ("biopipe.graph-execution", "operon.graph-execution") or config["schema_version"] != 1
             or not all(isinstance(config[k], dict) for k in ("memory", "execution", "routes"))
             or set(routes) != set(config["routes"])):
         raise ValueError("Execution settings do not match the saved graph")

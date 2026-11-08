@@ -596,8 +596,10 @@ class JobService:
                 return self.pool_session_id
             except Exception as exc:  # noqa: BLE001 - pool failure is explicit, never local fallback
                 self.pool_error = f'{type(exc).__name__}: {exc}'
-                raise PoolSubmissionError(
-                    f'The shared pool is unavailable: {type(exc).__name__}: {exc}') from exc
+                error = PoolSubmissionError(f'The shared pool is unavailable: {type(exc).__name__}: {exc}')
+                error.code = getattr(exc, 'code', error.code)
+                error.details = getattr(exc, 'details', {})
+                raise error from exc
 
     def launch(self, graph: Graph, *, request_id=None, principal=None):
         from .source_paths import remote_profile
@@ -690,6 +692,8 @@ class JobService:
                 job["plugins"] = {"generation": plugin_snapshot["generation"], "packages": plugin_snapshot["packages"]}
                 if plugin_snapshot.get('bundled_updates'):
                     job['plugins']['bundled_updates'] = plugin_snapshot['bundled_updates']
+                if plugin_snapshot.get('library_pin_updates'):
+                    job['plugins']['library_pin_updates'] = plugin_snapshot['library_pin_updates']
                 if any(node.kind == "route" for node in graph.nodes):
                     _, job["node_owners"] = expand_routes(graph, self.catalog)
                 self.jobs[key] = job

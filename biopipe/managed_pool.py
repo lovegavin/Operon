@@ -96,8 +96,15 @@ def ensure_pool(settings):
         record = _read(root / 'instance.json')
         if _alive(record):
             if record.get('implementation') != expected:
-                raise PoolClientError('Another Operon version owns the shared pool. Finish its tasks and '
-                                      'close its clients before switching versions.', code='pool_upgrade_required')
+                # The explicitly upgraded SSH daemon may already have closed
+                # its last subscription. Allow the old pool's normal idle exit
+                # to finish; never retire other clients or active tasks here.
+                deadline = time.monotonic() + 5
+                while _alive(record) and time.monotonic() < deadline:
+                    time.sleep(.05)
+                if _alive(record):
+                    raise PoolClientError('Another Operon version owns the shared pool. Finish its tasks and '
+                                          'close its clients before switching versions.', code='pool_upgrade_required')
             if record.get('closing'):
                 # A confirmed draining process still owns the epoch. Do not
                 # start a second authority while it releases resources.
@@ -106,7 +113,7 @@ def ensure_pool(settings):
                     time.sleep(.05)
                 if _alive(record):
                     raise PoolClientError('Shared pool is still stopping; retry shortly', code='engine_unavailable')
-            else:
+            elif _alive(record):
                 return record, root
         error_path = root / 'startup-error.json'
         error_path.unlink(missing_ok=True)
@@ -119,7 +126,8 @@ def ensure_pool(settings):
             error = _read(error_path)
             if error:
                 raise PoolClientError(error.get('error') or 'Shared pool startup failed',
-                                      code='engine_unavailable', details={'log': str(root / 'pool.log')})
+                                      code=error.get('code') or 'engine_unavailable',
+                                      details={**(error.get('details') or {}), 'log': str(root / 'pool.log')})
             time.sleep(.05)
         raise PoolClientError(f'Shared pool startup timed out; see {root / "pool.log"}',
                               code='engine_unavailable')
@@ -299,7 +307,9 @@ def serve(root, admission, code_root):
             while not server.try_idle_close():
                 time.sleep(.2)
         except Exception as exc:
-            atomic_json(root / 'startup-error.json', {'error': f'{type(exc).__name__}: {exc}'})
+            atomic_json(root / 'startup-error.json', {'error': f'{type(exc).__name__}: {exc}',
+                        'code': getattr(exc, 'code', 'engine_unavailable'),
+                        'details': getattr(exc, 'details', {})})
             raise
         finally:
             if server is not None:

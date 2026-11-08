@@ -115,7 +115,7 @@ def code_root() -> Path:
     for candidate in candidates:
         if (candidate / "src/task").is_dir() and (candidate / "biopipe").is_dir():
             return candidate
-    raise RuntimeError("cannot locate the BioPipe source tree for the environment bridge")
+    raise RuntimeError("cannot locate the Operon source tree for the environment bridge")
 
 
 def _write_form(directory: Path, index: int, form) -> dict:
