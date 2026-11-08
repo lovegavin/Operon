@@ -1341,3 +1341,38 @@ Cross-end: Windows (D:\Operon, py -3.12, registry 1004) ran the same route
 alias is not configured. Limitations: Rg includes every ATOM/HETATM record in
 the file (no hydrogen filtering); CLR uses a fixed caller-supplied pseudocount;
 Bray-Curtis rejects negative abundance tables.
+
+
+## b77 iBAQ, CAI and PTM occupancy (post-1001)
+
+Route `workdir/b77_route` (6 steps, 4 CsvReader sources, synthetic data labelled
+mode=synthetic) exercises three operators:
+
+| operator | output | observed values |
+| --- | --- | --- |
+| proteomics_ibaq | ibaq.csv | P1 n_peptides=2 total=200 iBAQ=100; P2 n_peptides=1 total=220 iBAQ=220 |
+| sequence_cai | cai.csv | S1 n_codons=3 n_effective=2 CAI=0.632455532; S2 3/2/0.565685425 |
+| ptm_occupancy | occupancy.csv | S1 0.8; S2 0.0; S3 nan (no unmodified counts) |
+
+Inputs (sha256):
+
+- peptides.csv `afadd6c107571cf7e51150dcc7d0c7d180e26ea89b32c521267c3d15f431091f`
+- cds.csv `020c9301f553c2d61469425247c0adfc01f6147796b284a0a33f48af39db1b2f`
+- weights.csv `b03ca685782d5955f0c8c059a3f18d1c3cb987341631c84512a7784b1046bfbd`
+- ptm.csv `85186c34d1717d44b66514efaa4277fd1bbfcc2d7f42f7d852ec7cf99ed4f584`
+
+Oracles: independent stdlib recomputation (distinct-peptide grouping, codon
+table and explicit geometric mean, occupancy ratio) passed 15/15 numeric
+checks (`workdir/b77_oracle.json`); unit tests 4 passed in `tests/test_b77.py`.
+
+Three-end: WSL route 6/6 and Windows (D:\Operon, Python 3.12) route 6/6 with
+identical export md5:
+
+- ibaq.csv `6477ebdfbdea8b4dce9e3ec86ec8ae62`
+- cai.csv `6b1823e0db0b3b3ffc8696a87c24a2d8`
+- occupancy.csv `93bc472c99475baba7a3eec38f1075fb`
+
+The `srv` host remains SKIP because no SSH profile resolves in this session.
+Limits: synthetic peptide and CDS tables; iBAQ uses observed peptide counts,
+not tryptic digest prediction; CAI uses the supplied reference weights only;
+occupancy is a closed-form ratio without intensity normalization.
