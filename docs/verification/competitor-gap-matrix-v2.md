@@ -26,10 +26,10 @@ atlas-level deconvolution, clinical variant interpretation, assembler
 benchmarks (MEGAHIT/metaSPAdes), GPI-anchor prediction, Boman/N-end sorting
 signals and O-GalNAc glycosylation.
 
-## Family coverage (24 competitor families)
+## Family coverage (28 competitor families)
 
 The table records, per competitor family, whether the capability is covered by
-existing operators, implemented in b76-b79, or blocked with a concrete reason.
+existing operators, implemented in b76-b81, or blocked with a concrete reason.
 "Covered" means an operator already existed before the post-1001 expansion.
 
 | Family | Competitor reference | Representative capability | Operon status | Evidence |
