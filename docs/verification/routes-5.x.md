@@ -1601,3 +1601,25 @@ operators and 108 Readers on application 3.1.0.
 `SHA256SUMS.txt` is regenerated from the files actually present in the
 publish workspace, with bare file names and verification JSONs included.
 The published tag and its assets were not modified.
+## srv re-verification on the 6.0.0 tree (2026-11-08)
+
+After the 6.0.0 release, srv (`/public/home/lihj/Operon-verify`, commit
+`7de81b8`, editable install in `/public/home/lihj/operon-venv311`, Python
+3.11.18, numpy 2.2.6, scipy 1.14.1, pandas 2.2.3, biopython 1.85) ran the six
+bundled routes below. All 19 exported CSV files are byte-identical to the WSL
+run of the same commit:
+
+| route | exports | sha256 (first 16) |
+| --- | --- | --- |
+| structure_rg_metagenome | rg, bc, clr | 44319cd2ff0b12b4, b433208d3410ae40, 48235ebfbc47671b |
+| proteomics_ibaq_cai_ptm | ibaq, cai, occupancy | 2f3ced1b5b60932c, 5ac45d89c549ee4a, ebfc788884f37cd0 |
+| phylogenetics_jc69_rooting | jc69, rooted | dab14f59071a3577, 9475e9d34bcdb531 |
+| methylation_conversion_asm_rf | conversion, asm, rf | f4f07f94ed833095, b92a28cd253d7519, 21db258c1e55a482 |
+| population_selection_scan | eps, blocks, ihs, ibd, roh | 125a35d73fa5ee41, 3cd7ee0d4fbb5c8a, 403fc704cc03536f, ec690307bb21a3b6, b251133c58aaa198 |
+| noncoding_rna_editing | circ, edit, pwm | 624ea9d3fa55d7d2, cace8f8532b6a66e, a071c9c00cafb780 |
+
+The Windows side of 6.0.0 is covered by the release workflow's
+`verification-windows-latest.json` (`passed: true`, 1017 operators, 108
+Readers, application 3.1.0). `D:\Operon` is a file-copy installation rather
+than a git checkout, so the same commit cannot be materialised there; the
+earlier route-level Windows md5 parity was recorded before the 6.0.0 bump.
