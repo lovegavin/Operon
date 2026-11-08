@@ -2199,3 +2199,18 @@ recorded as SKIP rather than forcing a downgrade.
 Limitations: only the linear outcome / logistic treatment DML variant is exposed; no honest splitting
 controls beyond econml defaults, no policy tree, and CATE uncertainty is pointwise (no simultaneous
 bands).
+
+## Batch b93 - SARIMAX forecast, isolation forest and LOF
+
+- Inputs: `workdir/b93_route/input/series.csv` sha256 `3b3d001c65e58a8ff5f5cb15bcbc50165a1418b1f6c420537be2f8ff61ee35cb`;
+  `points.csv` sha256 `340b7b910dec30925f9b4fc3bc3bf989a85224d493cc4bb1f9ff8dc217b42c3d`.
+- Dependencies: `numpy>=1.24`, `scipy>=1.11`, `statsmodels>=0.14` (tested 2.1.3 / 1.17.1 / 0.15.0); no external tools.
+- Route: 6/6 steps, `scripts/run.py workdir/b93_route`.
+- Values: SARIMAX forecasts t40 -0.199027 (CI -0.519686..0.121631), t41 -0.170469, t42 -0.155089;
+  isolation forest scores 0.4129..0.6847 with points 10/11 flagged; LOF flags six points with far points 10/11 at ~3.79.
+- Oracle: hand-computed AR(1) forecast -0.205260, CI ordering, sklearn IsolationForest rank correlation > 0.6,
+  sklearn LocalOutlierFactor agreement within 0.15 for tied distances, far-point dominance; 7/7 (`workdir/b93_oracle.json`, mode `synthetic+hand+sklearn`).
+- Three ends: WSL and Windows (D:\Operon, py3.12, statsmodels 0.15.0/numpy 2.5.4) export md5 identical:
+  forecast `8c85615f8b1bcb876edd222d4b770b96`, iforest `101bb13bc19d62c101f9c725b5ba053d`, lof `4fcfb9a7f7cd9631316d0222b05626b2`. srv not rerun for this batch (not required for a deterministic batch; recorded as SKIP).
+- Limitations: single seasonal order chosen by the caller; no exogenous regressors; isolation forest is a compact
+  reimplementation (subsample without replacement, fixed depth limit); LOF values are tie-sensitive.

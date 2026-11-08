@@ -54,3 +54,4 @@ Scope: capabilities absent from the 1017-operator catalog that have a determinis
 | DNA language-model embeddings | Nucleotide Transformer, DNABERT-2, HyenaDNA | esm_embedding covers protein only | No nucleotide LM path | high | NT v2 50M weights, hand + mean-pool recomputation | implemented b91 |
 | Variant effect from LM embeddings | NT variant effect scripts | esm_variant_effect is protein-only | No DNA embedding shift operator | high | same weights, cosine recomputation | implemented b91 |
 | G-quadruplex propensity scan | quadparser, G4Hunter | none | Sequence-level G4 heuristic missing | medium | hand counts on motif fixtures | implemented b91 |
+| Time-series forecasting and anomaly detection | statsmodels SARIMAX, scikit-learn IsolationForest/LOF | `sarimax_forecast`, `isolation_forest_anomaly`, `lof_outlier_score` (implemented b93) | none | implemented | synthetic AR(1) + 12-point fixture; hand/sklearn oracles |
