@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "bayesian_linear_regression_out"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "y_column": {
+      "type": "string",
+      "default": "y"
+    },
+    "covariate_columns": {
+      "type": "string",
+      "default": "x1"
+    },
+    "n_samples": {
+      "type": "integer",
+      "default": 2000
+    },
+    "burn_in": {
+      "type": "integer",
+      "default": 500
+    },
+    "prior_scale": {
+      "type": "number",
+      "default": 10.0
+    },
+    "shape": {
+      "type": "number",
+      "default": 0.01
+    },
+    "scale": {
+      "type": "number",
+      "default": 0.01
+    },
+    "seed": {
+      "type": "integer",
+      "default": 7
+    }
+  }
+}

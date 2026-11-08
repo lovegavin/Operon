@@ -770,6 +770,16 @@
     "status": "generated"
   },
   {
+    "id": "bayesian_linear_regression",
+    "kind": "operator",
+    "title": "Bayesian linear regression",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Gibbs sampling for a normal-inverse-gamma linear model with weakly informative priors.",
+    "doc": "src/task/step/steps/bayesian_linear_regression.BayesianLinearRegressionStep.md",
+    "status": "authored"
+  },
+  {
     "id": "bayesian_ridge_regressor",
     "kind": "operator",
     "title": "Bayesian ridge regressor",
@@ -3510,6 +3520,16 @@
     "status": "generated"
   },
   {
+    "id": "graph_pseudotime",
+    "kind": "operator",
+    "title": "Graph pseudotime",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Graph-geodesic pseudotime from a PCA space and a k-nearest-neighbour graph.",
+    "doc": "src/task/step/steps/graph_pseudotime.GraphPseudotimeStep.md",
+    "status": "authored"
+  },
+  {
     "id": "grubbs_test",
     "kind": "operator",
     "title": "Grubbs outlier test",
@@ -3887,6 +3907,16 @@
     "version": "1.0.0",
     "description": "Labels binary foreground regions with four-connectivity and filters by area.",
     "doc": "src/task/step/steps/image_connected_components.ImageConnectedComponentsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "image_gaussian_blur",
+    "kind": "operator",
+    "title": "Gaussian image blur",
+    "category": "Imaging",
+    "version": "1.0.0",
+    "description": "Separable Gaussian blur with reflect padding for 2D image matrices.",
+    "doc": "src/task/step/steps/image_gaussian_blur.ImageGaussianBlurStep.md",
     "status": "authored"
   },
   {
