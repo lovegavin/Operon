@@ -1780,6 +1780,16 @@
     "status": "generated"
   },
   {
+    "id": "crispr_mit_specificity",
+    "kind": "operator",
+    "title": "CRISPR MIT specificity",
+    "category": "Genome editing",
+    "version": "1.0.0",
+    "description": "Compute the Hsu 2013 position-weighted MIT specificity score for guide/off-target pairs.",
+    "doc": "src/task/step/steps/crispr_mit_specificity.CrisprMitSpecificityStep.md",
+    "status": "authored"
+  },
+  {
     "id": "cronbach_alpha",
     "kind": "operator",
     "title": "Cronbach's alpha",
@@ -2748,6 +2758,16 @@
     "description": "Read count, length, GC fraction and base quality of a FASTQ/FASTQ.gz file.",
     "doc": "src/task/step/steps/fastq_stats.FastqStatsStep.md",
     "status": "generated"
+  },
+  {
+    "id": "fba_flux_balance",
+    "kind": "operator",
+    "title": "Flux balance analysis",
+    "category": "Metabolic modelling",
+    "version": "1.0.0",
+    "description": "Solve a steady-state flux balance linear program from a stoichiometric matrix and bounds.",
+    "doc": "src/task/step/steps/fba_flux_balance.FbaFluxBalanceStep.md",
+    "status": "authored"
   },
   {
     "id": "fba_flux_distribution",
@@ -9748,6 +9768,26 @@
     "description": "UPGMA (average linkage) tree from a symmetric pairwise distance matrix.",
     "doc": "src/task/step/steps/upgma.UpgmaStep.md",
     "status": "generated"
+  },
+  {
+    "id": "uplift_qini_curve",
+    "kind": "operator",
+    "title": "Uplift Qini curve",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Sort samples by estimated uplift and report the cumulative Qini gain curve.",
+    "doc": "src/task/step/steps/uplift_qini_curve.UpliftQiniCurveStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "uplift_t_learner",
+    "kind": "operator",
+    "title": "Uplift T-learner",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Fit separate least-squares outcome models per treatment arm and report per-sample uplift.",
+    "doc": "src/task/step/steps/uplift_t_learner.UpliftTLearnerStep.md",
+    "status": "authored"
   },
   {
     "id": "van_waerden",

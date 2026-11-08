@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "n_bins": {
+      "type": "integer",
+      "default": 10
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}
