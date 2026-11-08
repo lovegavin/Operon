@@ -12,7 +12,7 @@ Scope: capabilities absent from the 1017-operator catalog that have a determinis
 | Causal forests / uplift | econml 0.15, causalml 0.15 | implemented b83 (uplift_t_learner, uplift_qini_curve) | linear T-learner and normalised cumulative-uplift oracle; causal forest still blocked |
 | CRISPR off-target specificity | CRISPOR 5.0, FlashFry 2.0 | implemented b83 (crispr_mit_specificity) | Hsu MIT weights and hand score; CFD matrix remains blocked by licence |
 | Flux balance analysis | cobra 0.29, COBRApy | implemented b83 (fba_flux_balance) | vertex enumeration plus hand-solved network |
-| Image segmentation / nuclei counting | scikit-image 0.25, CellProfiler 4.2 | planned b84 | synthetic images with known object counts |
+| Image segmentation / nuclei counting | scikit-image 0.25, CellProfiler 4.2 | implemented b84 (image_otsu_threshold, image_connected_components, image_histogram_equalization, image_sobel_gradient) | synthetic images with known object counts |
 | Ion mobility collision cross-section | PNNL CCS 4.0 | planned b84 | formula oracle and independent implementation |
 | Protein language model embeddings | ESM3 3.4.2 | covered (esm3_embedding, esm_embedding) | existing operators |
 | Structure generation | RFdiffusion, LigandMPNN | covered | existing operators |

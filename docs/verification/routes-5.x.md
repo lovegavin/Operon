@@ -1807,3 +1807,40 @@ the same commit is available for a later replay. Limitations: the T-learner is a
 linear baseline rather than a causal forest, the Qini column is a normalised
 cumulative uplift (not the area-under-Qini definition), and MIT covers a single
 off-target site rather than genome-wide enumeration.
+
+## Batch b84 — image analysis and partial dependence
+
+Five image/ML utilities added on top of the b83 batch. Operators use only
+NumPy (`numpy>=1.24`, tested with 2.1.3); no SciPy or torch dependency.
+
+Inputs (synthetic, `mode=synthetic`):
+
+| file | sha256 |
+| --- | --- |
+| img.csv | `be3b4feca93bd9c871668024671e509cdbc4565ffbacb0014e85fb4c22b1e0f0` |
+| X.csv | `c70a23baa3b30f28f93f5fef2a96b4b03fa81137337b4e72b956efbdf76ff3bf` |
+| y.csv | `d332d5744e4125e705e5ffee8f1b7768b0ffd5d9defa2b0cc4ee2af6bda40742` |
+
+Route `workdir/b84_route` — 10/10 steps (5 operators + 5 exports).
+
+| export | md5 (WSL = Windows) | key values |
+| --- | --- | --- |
+| otsu.csv | `f8dee7b7db9cf862ae9b2c1a2f309deb` | threshold 125.0, between-class variance 13360.461876, foreground fraction 0.527778 |
+| components.csv | `9b49659cbb542edaf12885987d826249` | 1 component, area 27, centroid (2.592593, 2.962963), bbox (0,0)-(5,5) |
+| equalized.csv | `044f53728abf786913f2297624131f0b` | CDF-mapped values in [0.25, 1.0] |
+| sobel.csv | `ffae27bfacaea1a3d04180d06094f3ca` | 4x6 border zeros, vertical-edge responses at the 50/200 boundary |
+| pdp.csv | `c86c6f2a888ee330cff66df79593e007` | grid 0/1.25/2.5/3.75/5 -> 0.003322/2.501661/5.0/7.498339/9.996678 |
+
+Oracle `C:/Users/Public/b84_oracle.py` recomputes Otsu by class-midpoint
+enumeration, components by BFS, equalisation by explicit CDF, Sobel by direct
+3x3 convolution and partial dependence by an independently coded ridge solve:
+9/9 checks pass (`workdir/b84_oracle.json`).
+
+Windows (D:\Operon, Python 3.12) ran the same route: 10/10 steps, five md5
+values identical to WSL, and `tests/test_b84.py` 5 passed. srv was not
+re-tested for this batch (172.22.148.93:22 timed out).
+
+Limitations: Otsu uses class-midpoint candidates (no histogram smoothing);
+components are 4-connected and binarise at a fixed 0.5 threshold; equalisation
+uses 256 histogram bins over the observed range; partial dependence is a ridge
+model on a single feature and does not capture interactions.

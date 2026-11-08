@@ -3780,6 +3780,46 @@
     "status": "authored"
   },
   {
+    "id": "image_connected_components",
+    "kind": "operator",
+    "title": "Connected components",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Labels binary foreground regions with four-connectivity and filters by area.",
+    "doc": "src/task/step/steps/image_connected_components.ImageConnectedComponentsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "image_histogram_equalization",
+    "kind": "operator",
+    "title": "Histogram equalization",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Global histogram equalization of a 2D image.",
+    "doc": "src/task/step/steps/image_histogram_equalization.ImageHistogramEqualizationStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "image_otsu_threshold",
+    "kind": "operator",
+    "title": "Otsu image threshold",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Computes a global Otsu threshold and the corresponding between-class variance.",
+    "doc": "src/task/step/steps/image_otsu_threshold.ImageOtsuThresholdStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "image_sobel_gradient",
+    "kind": "operator",
+    "title": "Sobel gradient magnitude",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Computes the Sobel gradient magnitude of a 2D image.",
+    "doc": "src/task/step/steps/image_sobel_gradient.ImageSobelGradientStep.md",
+    "status": "authored"
+  },
+  {
     "id": "impute",
     "kind": "operator",
     "title": "缺失值填补",
@@ -5048,6 +5088,16 @@
     "description": "Binary logistic regression with L2 penalty and fit diagnostics.",
     "doc": "src/task/step/steps/ml_logistic_fit.MlLogisticFitStep.md",
     "status": "generated"
+  },
+  {
+    "id": "ml_partial_dependence",
+    "kind": "operator",
+    "title": "Partial dependence curve",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Ridge-model partial dependence for one feature on a grid.",
+    "doc": "src/task/step/steps/ml_partial_dependence.MlPartialDependenceStep.md",
+    "status": "authored"
   },
   {
     "id": "ml_stratified_folds",
