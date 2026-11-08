@@ -2,7 +2,7 @@
 
 **Release date:** 2026-11-08
 
-Patch release for Operon Studio 3.1.2. Operator content, route templates and
+Patch release for Operon Studio 3.1.4. Operator content, route templates and
 the wire protocol are unchanged from 7.0.0; this release fixes packaging of
 the legacy application seed so the v7 bundle verifies and installs cleanly on
 the released 3.1.2 application.
@@ -26,10 +26,10 @@ the released 3.1.2 application.
 
 | Item | Value |
 | --- | --- |
-| Operon Studio | 3.1.2 |
+| Operon Studio | 3.1.4 |
 | Operon SDK | 3.7.0 |
 | Operator protocol | integer 3, `protocol_revision` 3.7 |
-| `minimum_application` / `build_application` | 3.1.2 / 3.1.2 |
+| `minimum_application` / `build_application` | 3.1.4 / 3.1.4 |
 
 ## Verification
 
