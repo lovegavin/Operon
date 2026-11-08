@@ -4212,12 +4212,12 @@
   {
     "id": "iv_2sls",
     "kind": "operator",
-    "title": "Two-stage least squares",
-    "category": "Statistics",
+    "title": "Instrumental-variables 2SLS",
+    "category": "Causal inference",
     "version": "1.0.0",
-    "description": "Two-stage least squares IV regression for a numeric table; instruments endogenous regressors.",
+    "description": "Two-stage least squares estimate of a single endogenous regressor with one instrument and optional controls.",
     "doc": "src/task/step/steps/iv_2sls.Iv2slsStep.md",
-    "status": "generated"
+    "status": "authored"
   },
   {
     "id": "jarque_bera",
@@ -6640,6 +6640,16 @@
     "status": "generated"
   },
   {
+    "id": "propensity_score_matching",
+    "kind": "operator",
+    "title": "Propensity-score ATT matching",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Logistic propensity scores with one-to-one nearest-neighbour ATT matching.",
+    "doc": "src/task/step/steps/propensity_score_matching.PropensityScoreMatchingStep.md",
+    "status": "authored"
+  },
+  {
     "id": "proportion_ci",
     "kind": "operator",
     "title": "Binomial proportion confidence interval",
@@ -7718,6 +7728,16 @@
     "description": "逐个特征拟合回归模型，可加入协变量。",
     "doc": "src/task/step/steps/regress.RegressStep.md",
     "status": "generated"
+  },
+  {
+    "id": "regression_discontinuity",
+    "kind": "operator",
+    "title": "Sharp regression discontinuity",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Local linear sharp RD jump at a cutoff with a triangular window.",
+    "doc": "src/task/step/steps/regression_discontinuity.RegressionDiscontinuityStep.md",
+    "status": "authored"
   },
   {
     "id": "relatedness",
