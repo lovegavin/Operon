@@ -1200,6 +1200,16 @@
     "status": "generated"
   },
   {
+    "id": "changepoint_pelt",
+    "kind": "operator",
+    "title": "Change-point detection by exact penalised segmentation",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Exact penalised least-squares segmentation of a univariate series.",
+    "doc": "src/task/step/steps/changepoint_pelt.ChangepointPeltStep.md",
+    "status": "authored"
+  },
+  {
     "id": "chao1",
     "kind": "operator",
     "title": "Chao1 richness estimator",
@@ -1548,6 +1558,26 @@
     "description": "Fixed-effects logistic regression for matched case-control strata.",
     "doc": "src/task/step/steps/conditional_logit.ConditionalLogitStep.md",
     "status": "generated"
+  },
+  {
+    "id": "conformal_classification_sets",
+    "kind": "operator",
+    "title": "Split conformal prediction sets for binary classification",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Split-conformal binary prediction sets with a calibrated score threshold.",
+    "doc": "src/task/step/steps/conformal_classification_sets.ConformalClassificationSetsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "conformal_split_regression",
+    "kind": "operator",
+    "title": "Split conformal prediction intervals for regression",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Distribution-free split-conformal regression intervals with finite-sample coverage.",
+    "doc": "src/task/step/steps/conformal_split_regression.ConformalSplitRegressionStep.md",
+    "status": "authored"
   },
   {
     "id": "confusion_matrix",
@@ -3560,6 +3590,16 @@
     "status": "generated"
   },
   {
+    "id": "hidden_markov_viterbi",
+    "kind": "operator",
+    "title": "Viterbi decoding for a discrete hidden Markov model",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Most probable hidden state path for a discrete-emission HMM.",
+    "doc": "src/task/step/steps/hidden_markov_viterbi.HiddenMarkovViterbiStep.md",
+    "status": "authored"
+  },
+  {
     "id": "hierarchical_clustering",
     "kind": "operator",
     "title": "Hierarchical clustering",
@@ -4048,6 +4088,16 @@
     "description": "Rank-based test for a monotone trend across ordered groups.",
     "doc": "src/task/step/steps/jonckheere_terpstra.JonckheereTerpstraStep.md",
     "status": "generated"
+  },
+  {
+    "id": "kalman_local_level",
+    "kind": "operator",
+    "title": "Kalman filter for a local-level state-space model",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Local-level Kalman filter with filtered states and Gaussian log-likelihood.",
+    "doc": "src/task/step/steps/kalman_local_level.KalmanLocalLevelStep.md",
+    "status": "authored"
   },
   {
     "id": "kaplan_meier",
