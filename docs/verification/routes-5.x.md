@@ -1473,3 +1473,37 @@ likelihood to 9 decimals: `gtr.csv` `715659b6ecac729f614e82a7b85a6e92`, `angle.c
 `5f7ad0f2a60a1b5a55db427719268153`. srv SKIP: 172.22.148.93:22 times out and ICMP is blocked.
 
 Limitations: one fixed tree topology, one rate matrix; no rate-category mixture, no tree search.
+
+## srv three-end verification (post-1001)
+
+The srv host became reachable after the earlier SKIP, so the five post-1001 routes
+were re-run there on the same commit as WSL and Windows. All 13 exported tables
+matched byte for byte.
+
+- Host: `srv` (lihj), repository `/public/home/lihj/Operon-verify`
+- Commit: `c3d16930` (route inputs tracked after the first srv attempt exposed the
+  repository `input/` ignore rule)
+- Python: 3.11.18 in `/public/home/lihj/operon-venv311`; numpy 2.2.6, scipy 1.14.1,
+  pandas 2.2.3, pydantic 2.14.3
+- Command: `PYTHONPATH=$PWD /public/home/lihj/operon-venv311/bin/python scripts/run.py library/seed/routes/<bundle>` (plus `workdir/b80_route` for the b80 check)
+- WSL/Windows values are those recorded in the b76-b80 sections above.
+
+| route | export | md5 (srv = WSL = Windows) |
+| --- | --- | --- |
+| structure_rg_metagenome | rg.csv | `8d2badc2d20e0adc864f3f6ee0af0cbf` |
+| structure_rg_metagenome | bc.csv | `a5b1c85eb5f739b202b57a39b998316b` |
+| structure_rg_metagenome | clr.csv | `1c25604cdc66b66d9105a1366ffaca98` |
+| proteomics_ibaq_cai_ptm | ibaq.csv | `6477ebdfbdea8b4dce9e3ec86ec8ae62` |
+| proteomics_ibaq_cai_ptm | cai.csv | `6b1823e0db0b3b3ffc8696a87c24a2d8` |
+| proteomics_ibaq_cai_ptm | occupancy.csv | `93bc472c99475baba7a3eec38f1075fb` |
+| phylogenetics_jc69_rooting | jc69.csv | `1127cc3d21747783364e04188393b38f` |
+| phylogenetics_jc69_rooting | rooted.csv | `9ae48dd645b8e32615463f1c32ae0773` |
+| methylation_conversion_asm_rf | conversion.csv | `0a998059f5ccae9a75c269d67e2b09c2` |
+| methylation_conversion_asm_rf | asm.csv | `2eeb9383388073b004e672ceaeff895f` |
+| methylation_conversion_asm_rf | rf.csv | `8de952e01d55a5afe0d41623d7ef9f25` |
+| b80_route | gtr.csv | `715659b6ecac729f614e82a7b85a6e92` |
+| b80_route | angle.csv | `5f7ad0f2a60a1b5a55db427719268153` |
+
+Limitations: the srv run used the same small synthetic inputs as the WSL and
+Windows runs; it validates numeric reproducibility across Python 3.11/3.12 and
+numpy 2.2/2.1/2.5, not full-scale data behaviour.
