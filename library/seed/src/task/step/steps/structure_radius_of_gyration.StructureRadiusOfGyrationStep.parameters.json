@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "title": "Radius of gyration Parameters",
+  "properties": {
+    "atom_dim": {
+      "type": "string",
+      "title": "原子维度",
+      "default": "atom",
+      "x-ui-group": "basic",
+      "x-ui-order": 0
+    },
+    "field_dim": {
+      "type": "string",
+      "title": "字段维度",
+      "default": "field",
+      "x-ui-group": "basic",
+      "x-ui-order": 10
+    },
+    "output": {
+      "type": "string",
+      "title": "输出名称",
+      "default": "rg",
+      "x-ui-group": "basic",
+      "x-ui-order": 90
+    }
+  },
+  "additionalProperties": false
+}

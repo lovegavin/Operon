@@ -4790,6 +4790,26 @@
     "status": "generated"
   },
   {
+    "id": "metagenomics_bray_curtis",
+    "kind": "operator",
+    "title": "Bray-Curtis dissimilarity",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Pairwise Bray-Curtis dissimilarity matrix of a sample by feature abundance table.",
+    "doc": "src/task/step/steps/metagenomics_bray_curtis.MetagenomicsBrayCurtisStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "metagenomics_clr",
+    "kind": "operator",
+    "title": "Centered log-ratio transform",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Centered log-ratio transform of a non-negative count table with a pseudocount.",
+    "doc": "src/task/step/steps/metagenomics_clr.MetagenomicsClrStep.md",
+    "status": "authored"
+  },
+  {
     "id": "metaphlan_profile_merge",
     "kind": "operator",
     "title": "Merge two MetaPhlAn profiles",
@@ -9048,6 +9068,16 @@
     "description": "",
     "doc": "src/task/step/steps/structure_protonation_sites.StructureProtonationSitesStep.md",
     "status": "generated"
+  },
+  {
+    "id": "structure_radius_of_gyration",
+    "kind": "operator",
+    "title": "Radius of gyration",
+    "category": "Structure",
+    "version": "1.0.0",
+    "description": "Radius of gyration and maximum atom radius of a PDB structure.",
+    "doc": "src/task/step/steps/structure_radius_of_gyration.StructureRadiusOfGyrationStep.md",
+    "status": "authored"
   },
   {
     "id": "structure_rmsd",
