@@ -1309,3 +1309,35 @@ reference); motif EM is a single-width PWM without E-step sequence assignment; s
   `3426e450` and `01dfd9ef`.
 - Registry after the fixes: 1001 operators, 0 errors. Windows (D:\Operon,
   py -3.12) reports the same count and no errors.
+
+## b76 structure geometry and metagenomic transforms (post-1001)
+
+Route `workdir/b76_route`: PdbReader `1mel.pdb` -> `structure_radius_of_gyration`;
+CsvReader `counts.csv` (4 samples x 5 taxa) -> `metagenomics_bray_curtis` and
+`metagenomics_clr`; every branch ends in `export_results`. Six of six steps
+completed. Inputs sha256: `1mel.pdb`
+`321aa847a20535c018b12cf340d2e057628dce42b4005c185916dd17bdd24de4`, `counts.csv`
+`5c30d20a6f09d908b7087a0a90d9435d3e3c1b4bf1afd57ec988e3964dd9bc67`.
+
+Exported values:
+
+- `rg.csv`: n_atoms 3941, radius_of_gyration 28.961269387 A, max_radius
+  56.218888183 A.
+- `bc.csv`: s1-s2 0.714285714, s1-s3 0.62962963, s1-s4 0.5, s2-s3
+  0.904761905, s2-s4 0.461538462, s3-s4 0.6; diagonal 0.
+- `clr.csv`: s1 row 1.634151313 / -1.410371125 / 0.987524148 / -1.410371125 /
+  0.199066788; every row sums to zero.
+
+Oracles (independent): mdtraj 1.11.2 `compute_rg` (2.896126939 nm, converted to
+angstrom) and a standalone NumPy coordinate loop for Rg; `scipy.spatial.distance`
+`braycurtis` plus an explicit ratio loop for Bray-Curtis; a closed-form log-ratio
+calculation for CLR. Eight of eight checks passed (maximum deviation 4.7e-10 on
+Bray-Curtis, 4.1e-10 on CLR).
+
+Cross-end: Windows (D:\Operon, py -3.12, registry 1004) ran the same route
+6/6. Export md5 `rg.csv` `8d2badc2d20e0adc864f3f6ee0af0cbf`, `bc.csv`
+`a5b1c85eb5f739b202b57a39b998316b`, `clr.csv`
+`1c25604cdc66b66d9105a1366ffaca98`, identical on WSL. `srv` SKIP: the SSH
+alias is not configured. Limitations: Rg includes every ATOM/HETATM record in
+the file (no hydrogen filtering); CLR uses a fixed caller-supplied pseudocount;
+Bray-Curtis rejects negative abundance tables.
