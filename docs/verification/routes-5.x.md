@@ -1700,3 +1700,64 @@ Registry on the release tree: 1017 operators, 108 Readers, 7 packages, 78 routes
 0 errors. Full pytest on the NumPy 2.1.3 environment: 3659 passed, 223 skipped,
 0 failed. srv route parity recorded on the 6.0.0 tree applies unchanged because
 this patch ships the same operators and routes.
+
+## Batch b82 — conformal prediction, change-points, HMM and Kalman filter
+
+Post-6.0.1 extension (goal-c36385d9). Five Statistics/Machine Learning operators were
+added with NumPy only; tested with NumPy 2.1.3 on Python 3.12.14 (WSL) and NumPy 2.5.4
+on Python 3.12 (Windows).
+
+### Operators and dependencies
+
+| Operator | Capability | Dependency |
+| --- | --- | --- |
+| `conformal_split_regression` | split-conformal regression intervals | numpy>=1.24 (tested 2.1.3) |
+| `conformal_classification_sets` | split-conformal label sets | numpy>=1.24 (tested 2.1.3) |
+| `changepoint_pelt` | exact L2 change-point segmentation | numpy>=1.24 (tested 2.1.3) |
+| `hidden_markov_viterbi` | discrete HMM Viterbi decoding | numpy>=1.24 (tested 2.1.3) |
+| `kalman_local_level` | local-level Kalman filter | numpy>=1.24 (tested 2.1.3) |
+
+### Inputs (sha256)
+
+| File | sha256 |
+| --- | --- |
+| reg.csv | `fccadd1ca8595a4220d055590ff7ca298230e66c416b2863402d58ea01c90eed` |
+| cls.csv | `6a0c29a158b8d0a61a2740259a41dac1efc9a69066a99a2e0d6ce8183c8739b6` |
+| series.csv | `a16c7aec66b5859e0b6467e11d511aa3877fae442bbc6492ee2b348996b93573` |
+| obs.csv | `06fa89cba032d42a61a9ac1dcd52a425eaff14d557fc4c31d2977d9a58ce5220` |
+| trans.csv | `35fdf5704faa93750cf5b2caf8943d2989e692f25739ebc72d85969b21c5d2bc` |
+| emit.csv | `ca751d2efbb6571eef875fb6e9b4cdfbc6a2a61b83dbe7922ca974c22e81edd3` |
+| kal.csv | `d9539613cca114417b56fd4371e968805bad47b7d00641fd924db5e0de24b4cc` |
+
+### Route result (workdir/b82_route, 10/10 steps)
+
+| Export | Key values | md5 (WSL = Windows) |
+| --- | --- | --- |
+| conformal regression | width 0.4, covered 1, interval [9.7, 10.1] | `2b37b6a62a758603d7bb3ab6d447a43b` |
+| conformal classification | threshold 0.7, set_size 1, covered 1 | `560401b046bffcd7488bf7d547c9401b` |
+| change points | 0-4 mean 1, 4-8 mean 5 | `a56363df35bb8e18a080032c866b8982` |
+| Viterbi path | 0, 1, 0 | `ab09fdcdcff094ca09cfbb131de258fd` |
+| Kalman | mean 5, variance 0.0916667 -> 0.0618852 | `ccdb54f743754702652a990f85b28eff` |
+
+### Oracles (independent, no operator imports)
+
+`b82_oracle.py` recomputes all five outputs from first principles: manual quantiles for
+both conformal methods, an independent O(n^2) segmental dynamic program, exhaustive
+enumeration of all 2^3 HMM paths, and a hand-written Kalman recursion initialised at the
+first observation. Result: 14/14 checks pass (`workdir/b82_oracle.json`).
+
+### Three-end status
+
+WSL and Windows (D:\Operon, `py -3.12`) both complete 10/10 and produce byte-identical
+CSV exports. srv was not reachable during this batch (SSH to 172.22.148.93:22 timed out),
+so the srv leg is SKIP with that cause.
+
+### Limitations
+
+- Conformal methods assume exchangeable calibration data; no weighted or temporal
+  conformal variant is provided.
+- `changepoint_pelt` uses a fixed L2 cost and a single penalty parameter; it returns the
+  optimal segmentation under that penalty, not a significance test.
+- The HMM decoder accepts discrete observations with an explicit emission matrix; it
+  does not estimate parameters.
+- The Kalman operator implements the local-level (random-walk plus noise) model only.
