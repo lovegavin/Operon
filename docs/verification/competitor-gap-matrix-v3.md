@@ -36,3 +36,12 @@ Scope: capabilities absent from the 1017-operator catalog that have a determinis
 | Gradient-boosted classification | LightGBM 4.7, XGBoost 3.4, scikit-learn 1.6 | `lightgbm_classifier` | synthetic+hand 10/10, WSL=Windows |
 | Gradient-boosted regression | XGBoost 3.4, LightGBM 4.7, CatBoost | `xgboost_regressor` | synthetic+hand 10/10, WSL=Windows |
 | Density-based clustering with noise | HDBSCAN 0.8, scikit-learn 1.6 | `hdbscan_cluster` | synthetic+hand 10/10, WSL=Windows |
+
+
+### b90 implemented (2026-11-08)
+
+| capability | competitors | operator | verification |
+| --- | --- | --- | --- |
+| Gradient-boosted classification | LightGBM 4.7, XGBoost 3.4, scikit-learn 1.6 | `lightgbm_classifier` | synthetic+hand 10/10, WSL=Windows |
+| Gradient-boosted regression | XGBoost 3.4, LightGBM 4.7, CatBoost | `xgboost_regressor` | synthetic+hand 10/10, WSL=Windows |
+| Density-based clustering with noise | HDBSCAN 0.8, scikit-learn 1.6 | `hdbscan_cluster` | synthetic+hand 10/10, WSL=Windows |
