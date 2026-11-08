@@ -1535,3 +1535,13 @@ srv used `/public/home/lihj/operon-venv311` (Python 3.11.18) and the same
 
 Limitations: inputs are small synthetic tables, so these two bundles demonstrate
 numeric reproducibility and pipeline wiring, not biological conclusions.
+
+## b81 classical population-genetics operators (post-1001)
+
+- Operators: `sequence_dnds`, `haplotype_diversity`, `mismatch_distribution`.
+- Inputs: `workdir/b81_route/input/{cds.csv,aln.csv}`; sha256 `3627b2163e11631bcde93093127dfd6c1019b04fe8594a6d11b2fcedaca5e573` (cds) and `ccafdfb4c350f51d2a429578aeee05c0160115b6d90895d1d691834443a56374` (aln).
+- Route: six steps (three operators plus three exports); WSL, Windows and srv all completed 6/6.
+- Values: dN/dS for S1|S2 0.069817817/0.188485821/0.370414161; haplotype diversity n=4, haplotypes=4, hd=1.0, pi=0.541666667; mismatch mean=2.166666667, raggedness=0.138888889.
+- Oracle: independent codon table and combinatorial formulas, 28/28 checks pass (`workdir/b81_oracle.json`).
+- Export md5: dnds `8e324af791cbe6bbf180bbb41d66a146`, diversity `6a753ea34a483a9bc8fd8b508ca054b6`, mismatch `718c821d97c351bf1ef613db9bc47738`; identical on WSL, Windows (`D:\Operon`, Python 3.12) and srv (`operon-venv311`, Python 3.11.18, biopython 1.85).
+- Limits: Nei-Gojobori counting with JC correction only (no codon-model ML), haplotypes from a single alignment, mismatch distribution without a demographic fit.

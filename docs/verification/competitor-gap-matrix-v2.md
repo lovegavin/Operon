@@ -38,6 +38,7 @@ existing operators, implemented in b76-b79, or blocked with a concrete reason.
 | Multiple sequence alignment | MAFFT 7.5, MUSCLE 5 | progressive MSA | blocked | no MSA binary in the environment and no independent aligner oracle |
 | Phylogenetics | IQ-TREE 2.3, RAxML-NG 1.2 | substitution-model likelihood, support | implemented b72c-b78/b80 | JC69/GTR likelihood, consensus, quartet support, dating, RF distance |
 | Population genetics | PLINK 2.0, ADMIXTURE 1.3 | Fst, PCA, pruning, ROH | implemented b55-b57 | 14 population-genetics operators with PLINK/bcftools oracles |
+| Molecular evolution (classical) | PAML 4.10, DnaSP 6.12 | dN/dS, haplotype diversity, mismatch distribution | implemented b81 | Nei-Gojobori + JC dN/dS, haplotype statistics and mismatch distribution with independent oracles |
 | Variant annotation | VEP 112, SnpEff 5.2 | transcript consequence annotation | blocked | no cached annotation database; no offline oracle |
 | Clinical variant interpretation | ClinVar 2024, ACMG rules | pathogenicity classification | blocked | no labelled clinical truth set; rule engine has no independent oracle |
 | Structural bioinformatics | MDTraj 1.11, DSSP 4 | geometry, contacts, SASA | implemented b76/b78 plus existing | Rg, SASA, disulfides, salt bridges, pocket detection |
