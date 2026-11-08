@@ -1545,3 +1545,35 @@ numeric reproducibility and pipeline wiring, not biological conclusions.
 - Oracle: independent codon table and combinatorial formulas, 28/28 checks pass (`workdir/b81_oracle.json`).
 - Export md5: dnds `8e324af791cbe6bbf180bbb41d66a146`, diversity `6a753ea34a483a9bc8fd8b508ca054b6`, mismatch `718c821d97c351bf1ef613db9bc47738`; identical on WSL, Windows (`D:\Operon`, Python 3.12) and srv (`operon-venv311`, Python 3.11.18, biopython 1.85).
 - Limits: Nei-Gojobori counting with JC correction only (no codon-model ML), haplotypes from a single alignment, mismatch distribution without a demographic fit.
+
+## Release 6.0.0 verification (2026-11-08)
+
+- Tag `library-v6.0.0` points at `cb1b79d8`; release workflow
+  https://github.com/lovegavin/Operon/actions/runs/42447772302 completed successfully
+  for Ubuntu and Windows.
+- Library: 1017 operators, 108 Readers, 78 route templates, protocol 3 / revision 3.7,
+  `minimum_application` and `build_application` 3.1.0.
+- CI `verification-ubuntu-latest.json` and `verification-windows-latest.json` both report
+  `passed: true`, `operators: 1017`, `readers: 108`; bundle SHA-256
+  `34cc93123694f13fcbbf718a2c4f1b5b489fa28d2810d17921642d7e49a335f4` (Linux) and
+  `43b7707ed2e8b67f04e2722bc885ab5e1891a0ac185134ade4a0f1afa75cefb9` (Windows).
+- Published assets (13): Linux/Windows Operon library bundles, `Operon-Routes-v6.0.0.zip`
+  (`076e716c...`), `Operon-Quickstart-v6.0.0.zip` (`705741a6...`),
+  `operon_builtin_library-6.0.0-py3-none-any.whl` (`f4509b02...`), QUICKSTART.md and
+  QUICKSTART.zh.md, three install-dependency entry points, SHA256SUMS.txt and both
+  verification JSON files. Asset digests reported by the GitHub API match the checksum file
+  for every published file.
+- Studio 3.1.0 compatibility: the released 3.1.0 wheel exposes the thin `operon` alias over
+  the `biopipe.*` implementation. The library ships import fallbacks (`operon.bytecode`
+  -> `biopipe.bytecode`, `operon_sdk` -> `biopipe_sdk`), build/verify adapters that alias
+  `biopipe.*` as `operon.*`, a legacy `biopipe/builtin_packages.json` mirror, and 78 route
+  parameter files in the legacy `biopipe.task-parameters` format (the newer application
+  accepts both). The 6.0.0 bundle installs and runs on 3.1.0, and the worker executed every
+  route whose inputs are present; all comparable route exports matched the new engine
+  byte-for-byte.
+- Known release-bookkeeping defect: `SHA256SUMS.txt` concatenates the Ubuntu and Windows
+  checksum files, so the Quickstart line appears twice with different hashes (only one
+  corresponds to the published asset), and BioPipe-named bundles that are not published
+  are listed. The published assets themselves verify against their GitHub digests. The
+  checksum assembly needs per-OS filtering before the next release.
+- `main` was fast-forwarded to `cb1b79d8` locally and on `origin`.
