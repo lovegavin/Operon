@@ -5680,6 +5680,26 @@
     "status": "generated"
   },
   {
+    "id": "nucleotide_transformer_embedding",
+    "kind": "operator",
+    "title": "Nucleotide Transformer embeddings",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Mean-pooled 512-d embeddings from the Nucleotide Transformer v2 50M multi-species model.",
+    "doc": "src/task/step/steps/nucleotide_transformer_embedding.NucleotideTransformerEmbeddingStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "nucleotide_transformer_variant_effect",
+    "kind": "operator",
+    "title": "Nucleotide Transformer variant effect",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Embeds reference and alternate windows and reports cosine distance and embedding shift.",
+    "doc": "src/task/step/steps/nucleotide_transformer_variant_effect.NucleotideTransformerVariantEffectStep.md",
+    "status": "authored"
+  },
+  {
     "id": "odds_ratio",
     "kind": "operator",
     "title": "Odds ratio",
@@ -8237,6 +8257,16 @@
     "version": "1.0.0",
     "description": "dN/dS ratio (Nei-Gojobori).",
     "doc": "src/task/step/steps/sequence_dnds.SequenceDndsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sequence_g4_quadruplex_scan",
+    "kind": "operator",
+    "title": "G-quadruplex tract scan",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Counts G3+ tracts separated by short loops as a G-quadruplex propensity proxy.",
+    "doc": "src/task/step/steps/sequence_g4_quadruplex_scan.SequenceG4QuadruplexScanStep.md",
     "status": "authored"
   },
   {

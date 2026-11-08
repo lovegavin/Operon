@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string"
+    },
+    "sequence_column": {
+      "type": "string",
+      "default": "seq"
+    },
+    "min_tracts": {
+      "type": "integer",
+      "minimum": 2,
+      "default": 4
+    },
+    "min_g": {
+      "type": "integer",
+      "minimum": 2,
+      "default": 3
+    },
+    "max_loop": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 7
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim",
+    "max_loop",
+    "min_g",
+    "min_tracts",
+    "sequence_column"
+  ]
+}
