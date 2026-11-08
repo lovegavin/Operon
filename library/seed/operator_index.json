@@ -1940,6 +1940,16 @@
     "status": "generated"
   },
   {
+    "id": "deep_quantile_regressor",
+    "kind": "operator",
+    "title": "Linear quantile regressor",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Linear pinball-loss quantile regression solved as a linear program, reporting the fitted slope and intercept.",
+    "doc": "src/task/step/steps/deep_quantile_regressor.DeepQuantileRegressorStep.md",
+    "status": "authored"
+  },
+  {
     "id": "deep_survival",
     "kind": "operator",
     "title": "DeepSurv Cox proportional hazards network",
@@ -3138,6 +3148,16 @@
     "description": "GC / AT composition and cumulative GC skew over sliding windows.",
     "doc": "src/task/step/steps/gc_skew_profile.GcSkewProfileStep.md",
     "status": "generated"
+  },
+  {
+    "id": "gcn_node_classifier",
+    "kind": "operator",
+    "title": "GCN node classifier",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Two-layer graph convolutional network for semi-supervised node classification on a synthetic homophilous graph.",
+    "doc": "src/task/step/steps/gcn_node_classifier.GcnNodeClassifierStep.md",
+    "status": "authored"
   },
   {
     "id": "gene_list_to_hits",
@@ -5598,6 +5618,16 @@
     "description": "Normalized mutual information between two partitions.",
     "doc": "src/task/step/steps/normalized_mutual_info.NormalizedMutualInfoStep.md",
     "status": "generated"
+  },
+  {
+    "id": "normalizing_flow_density",
+    "kind": "operator",
+    "title": "RealNVP normalizing flow density",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "RealNVP affine-coupling flow trained by maximum likelihood on a 2-D table, reporting latent Gaussianity and parameters.",
+    "doc": "src/task/step/steps/normalizing_flow_density.NormalizingFlowDensityStep.md",
+    "status": "authored"
   },
   {
     "id": "normaltest",
