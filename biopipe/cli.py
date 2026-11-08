@@ -67,10 +67,15 @@ def execute_pool(args):
             return {'address': list(server.address), 'stopped': True}
     address = args.address or os.environ.get('BIOPIPE_POOL_ADDRESS')
     token = args.token or os.environ.get('BIOPIPE_POOL_TOKEN')
+    if not address and not token and args.action in ('status', 'stop'):
+        from .managed_pool import inspect_pool
+        return inspect_pool(stop=args.action == 'stop')
     if not address or not token:
         raise ValueError('pool client commands require --address/BIOPIPE_POOL_ADDRESS and --token/BIOPIPE_POOL_TOKEN')
     host, port = address.rsplit(':', 1)
     client = PoolClient((host, int(port)), token)
+    if args.action == 'stop':
+        return client.request('pool.retire')
     if args.action == 'status':
         return client.status()
     if args.action == 'stop-workspace':
@@ -166,7 +171,7 @@ def parser():
     engine.add_argument('--after', type=int, default=0, help='Resume after this durable event cursor')
     engine.add_argument('--limit', type=int, default=200, help='Maximum events per page (1–1000)')
     pool = commands.add_parser('pool', help='Run or query the dedicated multi-workspace resource pool')
-    pool.add_argument('action', choices=['serve', 'status', 'submit', 'cancel', 'stop-workspace'])
+    pool.add_argument('action', choices=['serve', 'status', 'stop', 'submit', 'cancel', 'stop-workspace'])
     pool.add_argument('--config', type=Path, help='Pool config JSON for serve')
     pool.add_argument('--address', help='Pool control address host:port for client commands')
     pool.add_argument('--token', help='Pool control token (or BIOPIPE_POOL_TOKEN)')

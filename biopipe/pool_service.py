@@ -23,7 +23,7 @@ import threading
 import time
 import uuid
 
-from .engine.contracts import EngineError, UnauthorizedError
+from .engine.contracts import EngineError, UnauthorizedError, StaleRevisionError
 from .engine.control import ControlLoop, ControlLimits, ControlError
 from .engine.environment import EnvironmentBusy, EnvironmentGuard
 from .engine.executor import ExecutionContext, ExecutionResult
@@ -46,11 +46,16 @@ class WorkspaceSpec:
     principal: str
     data_dir: Path | None = None
     code_root: Path | None = None
+    input_roots: list[Path] | None = None
+    worker_python: str | None = None
+    manifest_only_registry: bool = False
 
     def to_json(self):
         return {'root': str(self.root), 'principal': self.principal,
                 'data_dir': str(self.data_dir) if self.data_dir else None,
-                'code_root': str(self.code_root) if self.code_root else None}
+                'code_root': str(self.code_root) if self.code_root else None,
+                'input_roots': [str(p) for p in self.input_roots] if self.input_roots else None,
+                'worker_python': self.worker_python, 'manifest_only_registry': self.manifest_only_registry}
 
 
 def bundled_catalog():
@@ -184,11 +189,31 @@ class PoolService:
         self.code_root = _resolve(code_root) if code_root else None
         self.owner = owner_identity()
         from src.web.admission import HostAdmission
+        # A crashed daemon may leave live workers whose leases only exist in
+        # the durable engine store. Do not rescan free RAM and redefine their
+        # pool ceiling. Once all attempts drain, a cold start scans normally.
+        from .engine.state import StateStore
+        from .engine.facade import pool_id
+        directory = Path(os.environ.get('BIOPIPE_ENGINE_DIR') or Path(admission_dir) / 'engine').resolve()
+        recovery = None
+        if (directory / 'state.sqlite3').exists():
+            previous = StateStore(directory / 'state.sqlite3', create=False)
+            try:
+                recovery = previous.recovery_pool(pool_id(scope=str(directory)))
+            finally:
+                previous.close()
         self.admission = HostAdmission(admission_dir, available_bytes=capacity_bytes,
-                                       cpu_threads=cpu_threads)
-        self.engine = EngineRuntime.open(workspace_root=self.root, admission=self.admission,
-                                          mode='coordinator', principal=pool_owner(),
-                                          ceiling_bytes=capacity_bytes, cpu_threads=cpu_threads)
+                                       cpu_threads=cpu_threads, preserve_snapshot=recovery is not None)
+        try:
+            self.engine = EngineRuntime.open(workspace_root=self.root, admission=self.admission,
+                                              mode='coordinator', principal=pool_owner(),
+                                              ceiling_bytes=capacity_bytes if capacity_bytes is not None else
+                                                (recovery.ceiling_bytes if recovery else None),
+                                              cpu_threads=cpu_threads if cpu_threads is not None else
+                                                (recovery.cpu_threads if recovery else None))
+        except Exception:
+            self.admission.close()
+            raise
         if getattr(self.engine, 'store', None) is None:
             self.admission.close()
             raise PoolError(self.engine.error or 'The pool state store is unavailable')
@@ -201,6 +226,7 @@ class PoolService:
         self._by_id = {}
         self.sessions = {}
         self._state_lock = threading.RLock()
+        self._registration_lock = threading.RLock()
         self._closed = False
         self._claimed = False
         self.coordinator = None
@@ -211,11 +237,14 @@ class PoolService:
             for item in workspaces:
                 if isinstance(item, WorkspaceSpec):
                     self.add_workspace(item.root, principal=item.principal,
-                                       data_dir=item.data_dir, code_root=item.code_root)
+                                       data_dir=item.data_dir, code_root=item.code_root, input_roots=item.input_roots,
+                                       worker_python=item.worker_python, manifest_only_registry=item.manifest_only_registry)
                 else:
                     self.add_workspace(item['root'], principal=item.get('principal'),
                                        data_dir=item.get('data_dir'),
-                                       code_root=item.get('code_root'))
+                                       code_root=item.get('code_root'), input_roots=item.get('input_roots'),
+                                       worker_python=item.get('worker_python'),
+                                       manifest_only_registry=item.get('manifest_only_registry', False))
             self.executor = MultiWorkspaceExecutor(self)
             self.coordinator = self.engine.coordinator(
                 self.executor, project='default', artifact_committer=self._commit_artifacts).coordinator
@@ -235,18 +264,50 @@ class PoolService:
 
     def _principals(self):
         return {service._pool_principal or service.engine.principal
-                for service in self.services.values()}
+                for service in list(self.services.values())}
 
     def workspace_engine(self, root, principal):
         """Workspace facade sharing the pool store and frozen pool spec."""
         return EngineRuntime(self.engine.store, self.engine.spec, workspace_root=root,
                              mode='legacy', principal=principal or pool_owner())
 
-    def add_workspace(self, root, *, principal=None, data_dir=None, code_root=None):
+    def add_workspace(self, root, *, principal=None, data_dir=None, code_root=None, input_roots=None,
+                      worker_python=None, manifest_only_registry=False):
+        with self._registration_lock:
+            return self._add_workspace(root, principal=principal, data_dir=data_dir, code_root=code_root,
+                                       input_roots=input_roots, worker_python=worker_python,
+                                       manifest_only_registry=manifest_only_registry)
+
+    def _add_workspace(self, root, *, principal=None, data_dir=None, code_root=None, input_roots=None,
+                       worker_python=None, manifest_only_registry=False):
         from src.web.service import JobService, Settings
         root = _resolve(root)
         if str(root) in self.workspaces:
-            return self.workspaces[str(root)]
+            service = self.workspaces[str(root)]
+            if data_dir is not None and service.directory != _resolve(data_dir):
+                raise PoolError('This workspace is already registered with another data directory')
+            self._authorize(service, principal)
+            if input_roots:
+                # Every path was authorized by this account's workspace client.
+                # Preserve simultaneous clients' allowed roots rather than
+                # silently narrowing an already-running task's input scope.
+                service.settings.input_roots = list(dict.fromkeys([
+                    *service.settings.input_roots, *map(_resolve, input_roots)]))
+            changed_code = code_root is not None and _resolve(code_root) != _resolve(service.settings.code_root)
+            selected_python = str(Path(worker_python).absolute()) if worker_python else service.plugins.python
+            changed_policy = manifest_only_registry != service.settings.manifest_only_registry
+            if changed_code or selected_python != service.plugins.python or changed_policy:
+                active = any(job.get('status') in ('queued', 'preparing', 'running', 'recovery_required')
+                             or job.get('logs_complete') is False for job in service.jobs.values())
+                subscribed = any(s['workspace_id'] == service.engine.workspace_id
+                                 for s in list(self.sessions.values()))
+                if active or subscribed:
+                    raise PoolError('Finish tasks and close workspace clients before changing its application, interpreter or catalog policy')
+                if changed_code:
+                    service.settings.code_root = _resolve(code_root)
+                service.settings.worker_python = service.plugins.python = selected_python
+                service.settings.manifest_only_registry = service.plugins.manifest_only = manifest_only_registry
+            return service
         if data_dir is None:
             data_dir = root / '.studio'
         data_dir = _resolve(data_dir)
@@ -254,13 +315,17 @@ class PoolService:
             raise PoolError('Workspace data_dir must stay inside its workspace root')
         principal = principal or pool_owner()
         settings = Settings(root, data_dir, root / 'frontend/dist', testing=False,
-                            code_root=code_root or self.code_root or self.root,
-                            admission_dir=self.admission.directory, engine_mode='legacy')
+                            code_root=_resolve(code_root or self.code_root or self.root),
+                            admission_dir=self.admission.directory, engine_mode='legacy',
+                            manifest_only_registry=manifest_only_registry,
+                            input_roots=list(map(_resolve, input_roots)) if input_roots else None,
+                            worker_python=worker_python)
         service = JobService(settings, self.catalog, pool=self, principal=principal)
         wid = service.engine.workspace_id
-        self.services[wid] = service
-        self.workspaces[str(root)] = service
-        self._by_id[wid] = service
+        with self._state_lock:
+            self.services[wid] = service
+            self.workspaces[str(root)] = service
+            self._by_id[wid] = service
         if self.coordinator is not None:
             self.coordinator.trusted_principals.add(principal)
         service.admission.baseline_bytes = min(service.admission.capacity // 8,
@@ -286,14 +351,17 @@ class PoolService:
                                 details={'workspace': str(service.root)})
         return expected
 
-    def open_session(self, workspace, *, principal=None, name=None):
+    def open_session(self, workspace, *, principal=None, name=None, owner=None):
+        if owner is not None and (not isinstance(owner, dict) or type(owner.get('pid')) is not int
+                                  or owner['pid'] <= 0 or not isinstance(owner.get('created'), (int, float))):
+            raise PoolError('A session owner needs a verified process identity')
         service = self.resolve(workspace)
         principal = self._authorize(service, principal)
         session_id = 'sess-' + uuid.uuid4().hex
         record = {'session_id': session_id,
                   'workspace_id': service.engine.workspace_id,
                   'workspace': str(service.root), 'principal': principal,
-                  'name': name or '', 'created_at': time.time()}
+                  'name': name or '', 'created_at': time.time(), 'owner': owner}
         with self._state_lock:
             self.sessions[session_id] = record
         return dict(record)
@@ -426,7 +494,16 @@ class PoolService:
         job = service.require(run_id)
         if job.get('principal') and job['principal'] != principal:
             raise PoolAuthError('This run belongs to another scheduling principal')
-        value = self.coordinator.cancel(run_id, principal=principal, reason=reason)
+        try:
+            self.coordinator.cancel(run_id, principal=principal, reason=reason)
+        except StaleRevisionError:
+            # The scientific worker can finish between polling and cleanup.
+            # Late cancellation acknowledges the durable terminal decision;
+            # it must not overwrite it or strand the parent workflow.
+            from .engine.contracts import RunState, TERMINAL_RUN_STATES
+            if RunState(self.engine.store.run(run_id)['status']) not in TERMINAL_RUN_STATES:
+                raise
+            return self.details(workspace, run_id, principal=principal)
         with service.lock:
             current = service.jobs.get(run_id)
             if current is not None and current.get('status') in ('queued', 'running', 'preparing'):
@@ -462,7 +539,7 @@ class PoolService:
                  'jobs': len(service.jobs),
                  'running': sum(job.get('status') in ('running', 'preparing')
                                 for job in service.jobs.values())}
-                for wid, service in self.services.items()],
+                    for wid, service in list(self.services.items())],
             'trusted_principals': sorted(self._principals()),
             'sessions': len(self.sessions),
             'capacity_domain': self.engine.spec.capacity_domain,
@@ -581,7 +658,7 @@ class PoolControlServer:
         if method == 'session.open':
             return self.pool.open_session(params.get('workspace'),
                                           principal=params.get('principal'),
-                                          name=params.get('name'))
+                                          name=params.get('name'), owner=params.get('owner'))
         if method == 'session.close':
             session_id = params.get('session_id')
             if not isinstance(session_id, str) or not session_id:
@@ -668,7 +745,8 @@ class PoolClient:
 
     def open_session(self, workspace, *, principal=None, name=None):
         value = self.request('session.open', {'workspace': str(workspace),
-                                              'principal': principal, 'name': name})
+                                              'principal': principal, 'name': name,
+                                              'owner': owner_identity()})
         self.session_id = value['session_id']
         self._session_context = {'workspace': str(workspace), 'principal': principal, 'name': name}
         return value
@@ -682,6 +760,7 @@ class PoolClient:
                                                'principal': principal})
         if self.session_id == session_id:
             self.session_id = None
+            self._session_context = None
         return value
 
     def stop_workspace(self, workspace, *, principal=None):

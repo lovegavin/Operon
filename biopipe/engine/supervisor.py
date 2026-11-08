@@ -66,7 +66,9 @@ def identity_alive(identity: ProcessIdentity | dict | None) -> bool:
     if identity.boot_id and identity.boot_id != _BOOT:
         return False
     try:
-        return psutil.Process(identity.pid).create_time() == identity.created
+        process = psutil.Process(identity.pid)
+        return (process.create_time() == identity.created and
+                process.status() not in (psutil.STATUS_ZOMBIE, psutil.STATUS_DEAD))
     except psutil.NoSuchProcess:
         return False
     except psutil.AccessDenied:

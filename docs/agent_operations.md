@@ -66,9 +66,9 @@ Event cursors are durable; keep the returned `cursor` and pass it as `after`.
 If a cursor has expired, the response sets `snapshot_required` and the caller
 must request a snapshot instead of silently skipping events.  The engine journal
 is a live index; existing `jobs get`, `jobs logs`, `artifacts` and `events`
-APIs remain the user-facing compatibility paths.  `legacy` mode keeps the
-existing allocator authoritative; do not infer that a coordinator owns
-scheduling unless the status reports `mode: coordinator` and a live owner.
+APIs remain the user-facing compatibility paths. The default reports `mode: pool`
+and a live shared coordinator owner. An explicit `legacy` override keeps the old
+allocator authoritative; always inspect the returned status.
 
 ### Coordinator mode and environment maintenance
 
@@ -93,9 +93,13 @@ fix the reported path; do not delete a live gate while workers are running.
 
 ### Multi-workspace pool service
 
-Use the dedicated pool service when several workspaces must share one physical
-capacity domain.  It is a separate process from the workspace application
-services and is the only allocator for that pool:
+Desktop and server applications automatically start/reuse a dedicated shared
+pool in their host/account admission domain. No pool configuration is required.
+Use `operon pool status` to inspect it without starting anything; `operon pool
+stop` retires an idle pool and refuses active tasks. Scientific environment
+preparation remains an explicit workflow operation.
+
+For an administrator-managed service instead of automatic discovery:
 
 ```bash
 python3 -m biopipe pool serve --config /path/to/pool.json
@@ -116,8 +120,9 @@ boundary.  See [multi-workspace resource pool](design/pool_service.md).  Drain
 legacy launchers before starting the pool; older binaries that do not honor the
 admission ownership record must not be run concurrently.
 
-Ordinary desktop/CLI/MCP/API/SSH entry can use the same pool authority without a
-separate `pool submit` command.  Start the workspace application with:
+Ordinary desktop/CLI/MCP/API/SSH entry uses the shared pool without a separate
+`pool submit` command. To override automatic discovery with that manually
+configured service, start the workspace application with:
 
 ```text
 BIOPIPE_POOL_ADDRESS=127.0.0.1:PORT

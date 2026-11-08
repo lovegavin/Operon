@@ -108,7 +108,8 @@ _DEFAULT_SOURCES = object()
 
 
 class PluginManager:
-    def __init__(self, data_dir, *, source_root=_DEFAULT_SOURCES, manifest_only=None):
+    def __init__(self, data_dir, *, source_root=_DEFAULT_SOURCES, manifest_only=None, python=None):
+        self.python = str(Path(python).expanduser().absolute()) if python else sys.executable
         self.directory = Path(data_dir) / "plugins"
         self.managed_sources = source_root is _DEFAULT_SOURCES
         self._source_root = (None if self.managed_sources or source_root is None else Path(source_root).resolve())
@@ -424,4 +425,4 @@ class PluginManager:
 
     def python_for(self, state):
         # All v3 generations use the host interpreter with dependency targets.
-        return sys.executable
+        return self.python

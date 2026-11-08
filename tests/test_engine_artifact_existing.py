@@ -47,6 +47,20 @@ def test_commit_existing_refuses_links_and_empty_payload(tmp_path):
     else:
         raise AssertionError('empty output was published')
 
+
+def test_existing_payload_supports_long_windows_paths(tmp_path):
+    from biopipe.bytecode import io_path
+    source = tmp_path / ('segment-' + 'a' * 50) / ('segment-' + 'b' * 50) / ('segment-' + 'c' * 50)
+    io_path(source).mkdir(parents=True)
+    io_path(source / 'table.csv').write_text('x,y\n1,2\n', encoding='utf-8')
+    committer = ArtifactCommitter(tmp_path / 'evidence')
+    receipt = committer.commit_existing(attempt=attempt(), unit={'id': 'main'}, fence=7,
+                                        source_root=source, files=['table.csv'], run_id='long-path')
+    assert receipt['location'] == str(source)
+    assert committer.verify_existing(receipt)['valid']
+    io_path(source / 'table.csv').write_text('changed', encoding='utf-8')
+    assert not committer.verify_existing(receipt)['valid']
+
 def test_executor_never_acknowledges_completion_while_tree_is_alive(tmp_path):
     from biopipe.engine.executor import ExecutionContext, JobServiceExecutor
     class FakeService:

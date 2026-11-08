@@ -20,6 +20,7 @@ import uuid
 from .contracts import CorruptArtifactError, StaleAttemptError, canonical, digest
 from .state import now_iso
 from .telemetry import METRICS
+from biopipe.bytecode import io_path
 
 CHUNK = 1024 * 1024
 
@@ -35,7 +36,7 @@ class CommitInterrupted(Exception):
 def _sha256_file(path: Path) -> tuple[str, int]:
     hasher = hashlib.sha256()
     size = 0
-    with path.open('rb') as stream:
+    with io_path(path).open('rb') as stream:
         while True:
             block = stream.read(CHUNK)
             if not block:
@@ -59,7 +60,7 @@ def _normalize_relative(value: str) -> str:
 
 
 def _reject_symlinks(root: Path, relative: str) -> None:
-    current = root
+    current = io_path(root)
     for part in PurePosixPath(relative).parts:
         current = current / part
         try:
@@ -272,7 +273,7 @@ class ArtifactCommitter:
         for relative in files:
             relative = _normalize_relative(relative)
             _reject_symlinks(source_root, relative)
-            path = source_root / relative
+            path = io_path(source_root / relative)
             if not path.is_file():
                 continue
             checksum, size = _sha256_file(path)
@@ -315,7 +316,7 @@ class ArtifactCommitter:
         missing or newly added files and returns a machine-readable result.
         """
         artifact_id = receipt.get('artifact_id')
-        location = Path(receipt.get('location') or '')
+        location = io_path(Path(receipt.get('location') or ''))
         if manifest is None and self.store is not None and artifact_id:
             try:
                 record = self.store.artifact(artifact_id)

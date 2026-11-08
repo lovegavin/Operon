@@ -61,6 +61,11 @@ class PoolSubmissionError(GraphError):
     status = 503
 
 
+class SubmissionConflictError(GraphError):
+    code = 'idempotency_conflict'
+    status = 409
+
+
 class _AdoptedWorker:
     """Popen-compatible wait surface for a worker adopted after a launcher restart."""
 
@@ -94,12 +99,15 @@ class Settings:
     input_roots: list[Path] | None = None
     admission_dir: Path | None = None
     manifest_only_registry: bool = False
-    engine_mode: str = 'legacy'
+    # Tests can explicitly choose a real managed pool; old unit fixtures remain
+    # in-process so they never create a daemon in the user's account.
+    engine_mode: str | None = None
     engine_journal: bool = True
     engine_dir: Path | None = None
     pool_address: str | None = None
     pool_token: str | None = None
     pool_principal: str | None = None
+    worker_python: str | None = None
 
 
 class JobService:
@@ -108,12 +116,14 @@ class JobService:
         self.pool = pool
         self._pool_principal = principal
         self._configured_engine_mode = (os.environ.get('BIOPIPE_ENGINE_MODE') or
-                                        settings.engine_mode or 'legacy')
-        self.pool_address = (os.environ.get('BIOPIPE_POOL_ADDRESS') or
-                             settings.pool_address)
+                                        settings.engine_mode or ('legacy' if settings.testing else 'pool'))
+        self.pool_address = None if pool is not None else (os.environ.get('BIOPIPE_POOL_ADDRESS') or
+                                                         settings.pool_address)
         self.pool_token = (os.environ.get('BIOPIPE_POOL_TOKEN') or
                            settings.pool_token)
-        self.pool_remote = bool(self.pool_address)
+        self.pool_managed = (pool is None and not self.pool_address and
+                             self._configured_engine_mode in ('auto', 'pool'))
+        self.pool_remote = pool is None and (bool(self.pool_address) or self.pool_managed)
         self.pool_principal = (os.environ.get('BIOPIPE_POOL_PRINCIPAL') or
                                settings.pool_principal or
                                os.environ.get('BIOPIPE_ENGINE_PRINCIPAL') or
@@ -128,7 +138,8 @@ class JobService:
             settings.input_roots = list(dict.fromkeys([self.root, (settings.code_root or self.root).resolve()]))
         self.directory = settings.data_dir.resolve()
         from biopipe.plugins import PluginManager
-        self.plugins = PluginManager(self.directory, manifest_only=settings.manifest_only_registry)
+        self.plugins = PluginManager(self.directory, manifest_only=settings.manifest_only_registry,
+                                     python=settings.worker_python)
         from biopipe.dependencies import DependencySession
         self.dependencies = DependencySession(self.plugins)
         self.dependencies.sync(self.plugins.state())
@@ -176,9 +187,13 @@ class JobService:
             self._wrap_environment_mutations()
             from biopipe.pool_service import PoolClient
             try:
-                host, port = self.pool_address.rsplit(':', 1)
-                self.pool_client = PoolClient((host, int(port)), self.pool_token,
-                                              timeout=60)
+                if self.pool_managed:
+                    from biopipe.managed_pool import ManagedPoolClient
+                    self.pool_client = ManagedPoolClient(settings, principal=self.pool_principal)
+                else:
+                    host, port = self.pool_address.rsplit(':', 1)
+                    self.pool_client = PoolClient((host, int(port)), self.pool_token,
+                                                  timeout=60)
             except (ValueError, TypeError) as exc:
                 self.pool_error = f'invalid pool address: {exc}'
             self.scheduler = None
@@ -598,6 +613,8 @@ class JobService:
                 self.pool_error = f'{type(exc).__name__}: {exc}'
                 if isinstance(exc, PoolSubmissionError):
                     raise
+                if getattr(exc, 'code', None) == 'idempotency_conflict':
+                    raise SubmissionConflictError(str(exc)) from exc
                 raise PoolSubmissionError(
                     f'The shared pool rejected this submission: {type(exc).__name__}: {exc}') from exc
         if getattr(self, 'pool', None) is None and self.coordinator is None:
@@ -646,7 +663,7 @@ class JobService:
             if existing is not None:
                 prior = existing.get('request_digest')
                 if prior and prior != request_digest:
-                    raise GraphError('idempotency_conflict: this request_id was already used '
+                    raise SubmissionConflictError('idempotency_conflict: this request_id was already used '
                                      'with different content')
                 existing_key = existing.get('id') or key
             else:
@@ -679,7 +696,7 @@ class JobService:
                 write_json(directory / "job.json", job)
                 self._launcher_event(job, 'job_queued', allocation=allocation)
         if existing is not None:
-            return self.details(existing_key)
+            return {**self.details(existing_key), 'reused': True, 'request_id': request_id}
         if self.coordinator is not None:
             self._submit_coordinated(job)
         elif getattr(self, 'pool', None) is not None:
@@ -702,7 +719,7 @@ class JobService:
             # a worker spawn.
             self._dispatch()
             self._wake.set()
-        return self.details(key)
+        return {**self.details(key), 'reused': False, 'request_id': request_id}
 
     def _submit_coordinated(self, job):
         """Register a prepared JobService run with the pool coordinator."""
@@ -747,14 +764,14 @@ class JobService:
         if not output.is_dir():
             return {}
         files = []
-        for base, directories, names in os.walk(output):
+        for base, directories, names in os.walk(io_path(output)):
             directories[:] = [name for name in directories
                               if not (Path(base) / name).is_symlink()]
             for name in names:
                 path = Path(base) / name
                 if path.is_symlink():
                     continue
-                files.append(path.relative_to(output).as_posix())
+                files.append(path.relative_to(io_path(output)).as_posix())
         if not files:
             return {}
         receipt = self.artifact_committer.commit_existing(
@@ -1268,12 +1285,8 @@ class JobService:
         if self.remotes and self.remotes.owns(key):
             return self.remotes.job(key)
         if self.pool_remote:
-            try:
-                self.require(key)
-            except KeyError:
-                self._ensure_pool_session()
-                return self.pool_client.details(self.root, key,
-                                                principal=self.pool_principal)
+            self._ensure_pool_session()
+            return self.pool_client.details(self.root, key, principal=self.pool_principal)
         with self.lock:
             job = dict(self.require(key))
             queued = sorted((value for value in self.jobs.values() if value['status'] == 'queued'),
@@ -1513,10 +1526,12 @@ class JobService:
             # must not cancel work owned by the pool.
             self._closed.set()
             self._wake.set()
+            self.dependencies.cancel.set()
+            if self.remotes:
+                self.remotes.close()
             if self.pool_client is not None and self.pool_session_id:
                 try:
-                    self.pool_client.close_session(self.pool_session_id,
-                                                   workspace=self.root,
+                    self.pool_client.close_session(workspace=self.root,
                                                    principal=self.pool_principal)
                 except Exception as exc:  # noqa: BLE001 - session cleanup is best effort
                     self.pool_error = f'{type(exc).__name__}: {exc}'

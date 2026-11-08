@@ -21,6 +21,7 @@ import time
 import uuid
 
 from biopipe.remote.client import RemoteError
+from biopipe.pool_service import PoolClientError
 from .admission import process_identity, process_alive
 from .contracts import analyze_graph
 from .execution_plan import ACTIVE, LOCAL, make_plan, target, target_key, settings, source_location, operator_nodes
@@ -33,6 +34,7 @@ from .storage import atomic_json, FileLock
 from .transfers import TransferClient, TransferCancelled
 from biopipe.engine.artifacts import ArtifactCommitter
 from biopipe.engine.resume import cache_key, eligibility, execution_graph, execution_identity, file_identity
+from biopipe.bytecode import io_path
 
 
 def now():
@@ -758,14 +760,14 @@ class ExecutionService:
         if not output.is_dir():
             return None
         files = []
-        for base, directories, names in os.walk(output):
+        for base, directories, names in os.walk(io_path(output)):
             directories[:] = [name for name in directories
                               if not (Path(base) / name).is_symlink()]
             for name in names:
                 path = Path(base) / name
                 if path.is_symlink():
                     continue
-                files.append(path.relative_to(output).as_posix())
+                files.append(path.relative_to(io_path(output)).as_posix())
         if not files:
             return None
         try:
@@ -845,6 +847,8 @@ class ExecutionService:
         while True:
             self._check(key)
             result = self._child_details(key, child)
+            pool = result.get('pool') or {}
+            pool_failure = (pool.get('run') or {}).get('status') in ('failed', 'cancelled')
             drained = self._collect_logs(key, unit, child, offsets)
             with FileLock(self.path(key) / 'job.lock'):
                 atomic_json(self.path(key) / unit['id'] / 'result.json', safe_json(result))
@@ -852,13 +856,23 @@ class ExecutionService:
                 record = self._read(key)
                 for entry in record['children']:
                     if entry['unit_id'] == unit['id']:
-                        entry.update(status=result['status'], allocation=result.get('allocation'), progress=result.get('progress'))
+                        entry.update(status=pool['run']['status'] if pool_failure else result['status'],
+                                     allocation=result.get('allocation'), progress=result.get('progress'))
                 record['status'] = 'running' if any(c['status'] == 'running' for c in record['children']) else result['status']
                 if record['status'] not in ACTIVE:
                     record['status'] = 'running'
                 record['progress'] = {'phase': record['status'], 'completed': len(record['completed_units']), 'total': len(plan['units']), 'stage_id': unit['id']}
                 atomic_json(self.path(key) / 'job.json', safe_json(record))
-            if result['status'] not in ACTIVE and result.get('logs_complete', True) and drained:
+            if pool_failure and drained:
+                raise GraphError((pool.get('attempt') or {}).get('error') or
+                                 (pool.get('run') or {}).get('error') or 'Pool task did not complete')
+            lifecycle = result.get('lifecycle') or {}
+            # Pooled compute completion precedes immutable publication. Wait
+            # for the output commit before consuming/caching a successful stage.
+            publication_ready = (result['status'] != 'complete' or
+                                 lifecycle.get('resource_authority') != 'coordinator' or
+                                 lifecycle.get('artifact_committed') and lifecycle.get('tree_exited'))
+            if result['status'] not in ACTIVE and result.get('logs_complete', True) and drained and publication_ready:
                 if result['status'] != 'complete':
                     raise GraphError(result.get('error') or f"{unit['id']}: {result['status']}")
                 with self.lock, FileLock(self.path(key) / 'job.lock'):
@@ -995,7 +1009,7 @@ class ExecutionService:
                         if entry['id'] == child['id']:
                             entry['status'] = result['status']
                     atomic_json(self.path(key) / 'job.json', record)
-            except (RemoteError, KeyError) as exc:
+            except (RemoteError, PoolClientError, KeyError) as exc:
                 acknowledged = False
                 if not self._read(key).get('cancel_pending'):
                     self._event(key, 'cancel_pending', message='Server cancellation is pending reconnection: ' + str(exc), child=child)

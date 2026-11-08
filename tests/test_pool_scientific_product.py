@@ -43,7 +43,8 @@ def finish(app, key, timeout=90):
     pytest.fail(f'Workflow did not finish: {key}')
 
 
-def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch):
+@pytest.mark.parametrize('publication_failure', [False, True])
+def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, publication_failure):
     monkeypatch.setenv('BIOPIPE_ENVIRONMENT_GATE', str(tmp_path / 'gate.json'))
     workspace = tmp_path / 'workspace'; workspace.mkdir()
     data = np.array([[1., 2.], [3., 4.]])
@@ -58,6 +59,11 @@ def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch):
         for name, reader in [('cache_reader', True), ('cache_scale', False)]:
             service.plugins.install(cached_package(tmp_path, name, reader))
         service.refresh_catalog()
+        if publication_failure:
+            from biopipe.engine.artifacts import ArtifactError
+            def fail_publish(*args):
+                raise ArtifactError('injected publication failure')
+            monkeypatch.setattr(service, '_commit_job_artifacts', fail_publish)
         # Reload through the normal registry, never inject into the catalog.
         from biopipe.plugins import PluginManager
         state = PluginManager(workspace / '.studio').state()
@@ -81,6 +87,17 @@ def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch):
             'edges': [{'id': 'e', 'source': 'input', 'target': 'scale'}]})
         first = app.jobs.submit({'graph': graph.model_dump(mode='json'), 'request_id': 'science-1'})
         assert first['id'].startswith('exec-')  # orchestration was not bypassed
+        if publication_failure:
+            deadline = time.monotonic() + 60
+            while time.monotonic() < deadline:
+                failed = app.jobs.details(first['id'])
+                if failed['status'] not in ('queued', 'preparing', 'running'):
+                    break
+                time.sleep(.1)
+            assert failed['status'] == 'failed', failed
+            assert 'publication failure' in failed['error']
+            assert not failed.get('completed_units')
+            return
         done = finish(app, first['id'])
         assert app.service.admission is None
         assert app.service.resources()['capacity_bytes'] == pool.engine.resources.snapshot().capacity
@@ -89,7 +106,8 @@ def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch):
         report = service.details(child)
         assert report['summary']['steps']
         # Exported exchange is a safe array packet produced by the actual worker.
-        arrays = list((service.jobs_dir / child / 'output').rglob('*.npy'))
+        from biopipe.bytecode import io_path
+        arrays = list(io_path(service.jobs_dir / child / 'output').rglob('*.npy'))
         assert arrays, list((service.jobs_dir / child / 'output').rglob('*'))
         assert any(np.array_equal(np.load(p, allow_pickle=False), data * 3) for p in arrays)
         reused = finish(app, app.jobs.submit({'graph': graph.model_dump(mode='json'), 'request_id': 'science-2'})['id'])

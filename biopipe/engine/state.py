@@ -418,6 +418,17 @@ class StateStore:
                 raise UnavailableStateError(f'Unknown execution pool {pool_id}')
             return PoolSpec.from_json(_load(row['spec_json'], {})), int(row['epoch'])
 
+    def recovery_pool(self, pool_id: str) -> PoolSpec | None:
+        """Keep the startup ceiling while orphaned attempts still own resources."""
+        with self.lock:
+            row = self.connection.execute('SELECT spec_json FROM pools WHERE pool_id=?', (pool_id,)).fetchone()
+            if row is None:
+                return None
+            active = self._active_lease_totals(pool_id)
+            if active['leases'] or active['attempts']:
+                return PoolSpec.from_json(_load(row['spec_json'], {}))
+            return None
+
     def advance_epoch(self, pool_id: str, *, actor='supervisor') -> int:
         with self.transaction():
             row = self.connection.execute('SELECT epoch, spec_json FROM pools WHERE pool_id=?', (pool_id,)).fetchone()

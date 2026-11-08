@@ -105,6 +105,17 @@ user environment. Operon does not submit Slurm jobs or bypass scheduler policy.
 
 ## Batch output, task lifetime and recovery
 
+The server now automatically starts or reconnects to the host/account shared
+resource pool. Several SSH sessions and workspaces use one RAM/CPU authority;
+no pool address/token setup is required. `operon pool status` observes the local
+pool without starting it. `operon pool stop` retires an idle pool, refusing active
+tasks. Closing an SSH session does not cancel accepted pool workers. The
+workflow orchestrator remains resumable: reopen/retry a multi-stage workflow to
+continue stages that had not yet been submitted when its application stopped.
+See [shared pool lifecycle](design/pool_service.md) for deployment overrides and
+upgrade/drain rules. Environment selection and explicit readiness preparation
+remain unchanged.
+
 Normal commands write JSON to stdout; diagnostics and `run --progress` status
 changes go to stderr. `--progress` implies `--wait`. `--compact` reduces JSON size.
 

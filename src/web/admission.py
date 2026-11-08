@@ -27,7 +27,9 @@ def process_identity(pid=None):
 
 def process_alive(identity):
     try:
-        return psutil.Process(identity["pid"]).create_time() == identity["created"]
+        process = psutil.Process(identity["pid"])
+        return (process.create_time() == identity["created"] and
+                process.status() not in (psutil.STATUS_ZOMBIE, psutil.STATUS_DEAD))
     except (KeyError, psutil.NoSuchProcess):
         return False
     except psutil.AccessDenied:
@@ -79,7 +81,7 @@ def cpu_capacity():
 
 
 class HostAdmission:
-    def __init__(self, directory=None, *, available_bytes=None, cpu_threads=None):
+    def __init__(self, directory=None, *, available_bytes=None, cpu_threads=None, preserve_snapshot=False):
         self.directory = Path(directory or os.environ.get('BIOPIPE_ADMISSION_DIR') or
                               Path.home() / '.biopipe' / 'admission' / socket.gethostname())
         self.path = self.directory / 'resources.json'
@@ -89,7 +91,9 @@ class HostAdmission:
         with self.lock:
             state = self._read()
             self._reconcile(state)
-            if not state['clients'] and not state['reservations']:
+            if preserve_snapshot and not state.get('capacity_bytes'):
+                raise ValueError('Active shared-pool recovery requires its original host capacity snapshot')
+            if not state['clients'] and not state['reservations'] and not preserve_snapshot:
                 capacity_error = None
                 if available_bytes is None:
                     from src.task.memory.system import available_memory

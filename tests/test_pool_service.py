@@ -312,6 +312,9 @@ def test_artifact_publication_failure_is_distinct_from_compute_success(pool, mon
     assert result['lifecycle']['artifact_committed'] is False
     assert result['lifecycle']['resources_released'] is True
     assert result.get('artifact_committed') is False
+    cancelled = service.cancel(wsa, job['id'], principal='alice')
+    assert cancelled['pool']['run']['status'] == 'failed'
+    assert cancelled['pool']['attempt']['error'] == result['pool']['attempt']['error']
 
 def test_client_reopens_lost_subscription_without_relaunch(pool):
     service, server, wsa, _ = pool

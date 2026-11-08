@@ -1,8 +1,45 @@
 # Multi-workspace resource pool service
 
-This is the product entry for one physical capacity domain shared by several
-workspaces.  It is separate from the legacy per-workspace launcher and from the
-single-workspace coordinator takeover.
+The shared pool is the default execution authority for desktop, headless CLI,
+HTTP/MCP and SSH servers. One pool per host/account serves all workspaces in
+the same admission domain. No address, token or manual pool command is needed.
+
+## Automatic startup and discovery
+
+The application starts a detached control process on first resource access and
+registers its workspace. Concurrent clients reuse the same owner. The host RAM
+ceiling is scanned once (90% of available memory); CPU capacity respects affinity
+and visible container quotas. Recovery with active attempts preserves the durable
+ceiling rather than treating currently free memory as a new pool budget.
+
+The account-local state is under `<admission directory>/managed-pool`; the
+existing admission directory remains compatible with earlier ownership checks.
+`BIOPIPE_ADMISSION_DIR` is an administrator override, not a way to obtain extra
+capacity. Keep one admission domain for clients sharing physical resources.
+The daemon persists workspace bindings and retains each workspace's selected
+scientific interpreter and allowed input directories. It does not install or
+repair scientific dependencies at startup; workflow readiness remains explicit.
+
+Closing a client removes its subscription only. Dead client processes are
+reconciled by PID and creation time. The pool exits after the last subscription
+and active task/lease disappear. A replacement daemon adopts surviving workers
+without launching them again. Local idle observation does not start a pool:
+
+```bash
+operon pool status
+operon pool stop  # retire an idle pool; rejects active work, never cancels it
+```
+
+Different application code versions cannot share a live managed daemon. Finish
+tasks and close clients before switching installations. A live legacy allocator
+also blocks takeover; no failure silently launches a second allocator. An
+explicit `BIOPIPE_ENGINE_MODE=legacy` remains available for diagnosis on a drained
+domain. `Settings(testing=True)` retains the isolated in-process test default;
+production-default lifecycle tests deliberately use ordinary settings.
+
+`BIOPIPE_POOL_ADDRESS` and `BIOPIPE_POOL_TOKEN` select an administrator-managed
+pool instead of automatic discovery. The manual service/configuration below is
+for this optional deployment mode.
 
 ## Authority model
 
@@ -66,8 +103,8 @@ Methods (through `biopipe.pool_service.PoolClient`):
 
 ### Ordinary application/API/CLI/MCP/SSH entry
 
-The existing `Application`/`TaskService` service boundary routes to the pool
-when these settings/environment variables are present:
+The existing `Application`/`TaskService` boundary routes to the automatic pool
+by default. To select a separately managed pool, set:
 
 ```text
 BIOPIPE_POOL_ADDRESS=127.0.0.1:57891

@@ -174,6 +174,9 @@ class RemoteService:
         return None
 
     def events(self, params):
+        if self.service.pool_remote:
+            return self.service.events(params.get('after', params.get('cursor', 0)),
+                                       run_id=params.get('run_id'), limit=params.get('limit', 200))
         journal = self._journal()
         if journal is None:
             return {'available': False, 'events': [], 'cursor': int(params.get('after', 0) or 0),
@@ -191,13 +194,13 @@ class RemoteService:
 
     def close(self):
         self.handshake.close()
-        self.service.shutdown()
         with self._lease_guard():
             leases = list(self.transport_leases)
             self.transport_leases.clear()
             self.transport_active.clear()
         for lease in leases:
             transport_admission(self.service).release(lease)
+        self.service.shutdown()
 
     def path(self, value):
         path = (self.service.root / value).expanduser().resolve()

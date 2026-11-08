@@ -265,7 +265,7 @@ class TaskService:
                     'The shared pool address/token is invalid; no local executor fallback was used',
                     503, {'reason': self.service.pool_error or 'invalid pool configuration'})
             graph = self.app.workflows.graph(payload)
-            if self.app.executions.applies(Graph.model_validate(graph) if isinstance(graph, dict) else graph):
+            if self.app.executions.applies(Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph):
                 # The workflow journal owns orchestration; each scientific unit
                 # is submitted idempotently to its execution host's pool.
                 return self._submit_file(payload, request_id, request_key, digest)

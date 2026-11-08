@@ -22,6 +22,9 @@ def readiness(service, ids, *, graph=None, scripts=None, repair=False):
 
 @pytest.fixture
 def remote(tmp_path, monkeypatch):
+    # These fault-injection cases exercise the in-process legacy request journal.
+    # The shipping shared-pool SSH entry is covered by test_managed_pool.
+    monkeypatch.setenv('BIOPIPE_ENGINE_MODE', 'legacy')
     root = tmp_path / 'server'
     root.mkdir()
     monkeypatch.setenv('BIOPIPE_ADMISSION_DIR', str(tmp_path / 'admission'))
