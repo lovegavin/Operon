@@ -13,6 +13,9 @@ exist. Rows that cannot meet that bar are marked `blocked` with the reason.
 | JC69 likelihood | IQ-TREE, RAxML | distance-only tree utilities | site-pattern likelihood on a fixed tree | high | Newick plus alignment; pruning vs brute-force enumeration | implemented b78 |
 | Outgroup rooting | ETE3, DendroPy | midpoint rooting only | root a tree on a named outgroup | medium | rooted/unrooted Newick pair; DendroPy vs manual path walk | implemented b78 |
 | iBAQ abundance | MaxQuant | LFQ rollup | intensity divided by observable peptides | medium | peptide table; explicit sum vs MaxQuant formula | implemented b77 |
+| Bisulfite conversion rate | Bismark `--directional`, Illumina methylation | none | conversion efficiency with interval | high | synthetic C counts; statsmodels Wilson vs closed form | implemented b79 |
+| Allele-specific methylation | Bismark ASM, SNPsplit | none | per-SNP Fisher test with BH | high | synthetic allele counts; scipy Fisher vs explicit loop | implemented b79 |
+| Robinson-Foulds distance | DendroPy, ETE3, RAxML | none | split-set distance between two trees | medium | 4-taxon Newick pair; DendroPy symmetric_difference vs bipartition walk | implemented b79 |
 | Codon adaptation index | EMBOSS `cai` | codon usage and RSCU | reference-set CAI per sequence | medium | CDS FASTA plus reference weights; Bio.SeqUtils vs explicit geometric mean | implemented b77 |
 | PTM occupancy | MaxQuant | ptm_localization_score | site occupancy from modified/unmodified intensities | medium | synthetic peptide intensities; closed-form ratio | implemented b77 |
 

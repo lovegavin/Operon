@@ -1395,3 +1395,31 @@ occupancy is a closed-form ratio without intensity normalization.
 - Limits: fixed-tree JC69 only (no rate variation, no model search); rooted trees are
   re-rooted on the outgroup branch without branch-length re-estimation; synthetic
   6-site alignment.
+
+## b79 methylation conversion, allele-specific methylation and Robinson-Foulds (post-1001)
+
+- Operators: `bisulfite_conversion_rate`, `allele_specific_methylation`,
+  `tree_robinson_foulds` (+ shared `_b79_common.py`). Registry 1012 operators,
+  0 errors.
+- Route: `workdir/b79_route`, four synthetic CSV inputs, 6/6 steps complete.
+- Inputs (sha256): `bisulfite.csv`
+  `f813e7714cb83c8304785d0b35a6ed98a87ddf9954f6278b59980cc85c21222f`,
+  `asm.csv` `c8d322ef6727e7e9069da311403b88fd2f7d1571a3bacc9e976836d5b06498aa`,
+  `tree_a.csv` `9dc19c0fb50f525aa46e0e521b90978305c7584fd63a8b91cbd8dfde481c306c`,
+  `tree_b.csv` `e7b43d24db493eeab9ebe58b425e37cc4202c4ed7cca1fb23706c99439f0b83d`.
+- Values: conversion `n_sites 5, converted 84, unconverted 16, rate 0.84,
+  Wilson CI 0.7557973061-0.8990471151`; ASM `n_sites 4, n_tested 4,
+  n_significant 1, mean_abs_diff 0.275, min_p 0.0010933339`; RF `rf 2,
+  max_rf 2, normalized_rf 1.0, n_taxa 4` (one split each, no shared split).
+- Oracle: `workdir/b79_oracle.json`, 9/9 checks. Wilson interval from
+  statsmodels `proportion_confint`, ASM p-values from `scipy.stats.fisher_exact`
+  with an explicit BH loop, RF from DendroPy 5.1.3
+  `treecompare.symmetric_difference` with a shared taxon namespace.
+- Windows (D:\Operon, Python 3.12): registry 1012, route 6/6; export md5 equal
+  to WSL for `conversion.csv` `0a998059f5ccae9a75c269d67e2b09c2`, `asm.csv`
+  `2eeb9383388073b004e672ceaeff895f`, `rf.csv`
+  `8de952e01d55a5afe0d41623d7ef9f25`.
+- srv: SKIP, no reachable SSH profile in this environment.
+- Limitations: synthetic count tables; conversion assumes a single conversion
+  probability per cytosine; ASM ignores read phasing; RF ignores branch lengths
+  and root position.
