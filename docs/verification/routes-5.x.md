@@ -2214,3 +2214,22 @@ bands).
   forecast `8c85615f8b1bcb876edd222d4b770b96`, iforest `101bb13bc19d62c101f9c725b5ba053d`, lof `4fcfb9a7f7cd9631316d0222b05626b2`. srv not rerun for this batch (not required for a deterministic batch; recorded as SKIP).
 - Limitations: single seasonal order chosen by the caller; no exogenous regressors; isolation forest is a compact
   reimplementation (subsample without replacement, fixed depth limit); LOF values are tie-sensitive.
+
+## Batch b94 - IV 2SLS, sharp regression discontinuity, propensity-score matching
+
+- Inputs: `workdir/b94_route/input/iv.csv` sha256 `bcd72ee7e556e55f3b4a788d07a5ec8980a3f21395965e80a205994108f47fe1`;
+  `rdd.csv` `7ed46daeb6217f9fb3bae1c19ba75842039e768fd0b58c59b251ef16a8ba17d2`;
+  `psm.csv` `05a43fa4ba6df89fc8310484617161ed35e8318fb51626c2142fb4ad250b27ea`.
+- Dependencies: `numpy>=1.24`, `scipy>=1.11` (tested 2.1.3 / 1.17.1); the oracle additionally uses statsmodels 0.15.0.
+- Route: 6/6 steps, `scripts/run.py workdir/b94_route`.
+- Values: IV coefficient 1.946403676 (se 0.035463448, 95% CI 1.876469137..2.016338216, n=200);
+  RD jump 3.006993934 (se 0.019344679, slopes 1.001437373 / 0.990287296, 60/60 observations);
+  PSM ATT 2.055612088 (se 0.045229521, 70 treated, 70 matched).
+- Oracle: statsmodels `IV2SLS` (coef/se identical within 1e-6), two separate statsmodels OLS fits for the RD jump
+  (identical), statsmodels Logit propensity with an independently written nearest-neighbour matcher (ATT within 0.02,
+  matched count equal); 6/6 (`workdir/b94_oracle.json`, mode `synthetic+statsmodels`).
+- Three ends: WSL and Windows (D:\Operon, py3.12) export md5 identical:
+  iv `51b575b656c780ff20bc4f211b06d791`, rdd `c4d103385e362c6208c87341b52d34d1`, psm `ebf2437ccfad8d13c14ca36e2182dc18`.
+  srv SKIP: deterministic batch, no large weights or host-specific libraries.
+- Limitations: one endogenous regressor and one instrument, no weak-instrument diagnostics; sharp RD only with a
+  user-supplied bandwidth; matching is one-to-one with replacement and no trimming or common-support plot.
