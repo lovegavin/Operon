@@ -1,0 +1,11 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {"type": "string", "title": "Output", "default": "conversion"},
+    "row_dim": {"type": "string", "title": "Row dimension", "default": "row"},
+    "field_dim": {"type": "string", "title": "Field dimension", "default": "field"}
+    ,
+    "min_coverage": {"type": "integer", "title": "Minimum coverage", "default": 1}
+  }
+}

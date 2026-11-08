@@ -180,6 +180,16 @@
     "status": "generated"
   },
   {
+    "id": "allele_specific_methylation",
+    "kind": "operator",
+    "title": "Allele-specific methylation",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Test allele-specific methylation from methylated and unmethylated read counts per allele using Fisher's exact test with BH correction.",
+    "doc": "src/task/step/steps/allele_specific_methylation.AlleleSpecificMethylationStep.md",
+    "status": "authored"
+  },
+  {
     "id": "alternative_polyadenylation",
     "kind": "operator",
     "title": "Alternative polyadenylation",
@@ -868,6 +878,16 @@
     "description": "Balanced iterative reducing and clustering using hierarchies (BIRCH).",
     "doc": "src/task/step/steps/birch.BirchStep.md",
     "status": "generated"
+  },
+  {
+    "id": "bisulfite_conversion_rate",
+    "kind": "operator",
+    "title": "Bisulfite conversion rate",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Estimate bisulfite conversion efficiency from converted and unconverted cytosine counts with a Wilson interval.",
+    "doc": "src/task/step/steps/bisulfite_conversion_rate.BisulfiteConversionRateStep.md",
+    "status": "authored"
   },
   {
     "id": "bland_altman",
@@ -9467,6 +9487,16 @@
     "version": "1.0.0",
     "description": "Tree-induced quartet topology against expected topologies.",
     "doc": "src/task/step/steps/tree_quartet_support.TreeQuartetSupportStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_robinson_foulds",
+    "kind": "operator",
+    "title": "Robinson-Foulds distance",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Compute the Robinson-Foulds distance between two Newick trees with identical taxon sets.",
+    "doc": "src/task/step/steps/tree_robinson_foulds.TreeRobinsonFouldsStep.md",
     "status": "authored"
   },
   {
