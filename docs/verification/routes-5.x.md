@@ -2165,3 +2165,37 @@ install would have to be staged there); it is recorded as SKIP.
 
 Limitations: mean pooling only (no attention-pooled or per-layer features), 512-token windows, no fine-tuned
 head, and the G4 scan is a sequence heuristic rather than a structure prediction.
+
+## Batch b92 - causal forests for heterogeneous treatment effects (econml 0.17.0)
+
+Date: 2026-11-08. Dependency: `econml==0.17.0` installed with `--no-deps` on top of numpy 2.1.3 /
+scipy 1.17.1 / scikit-learn 1.6.1 (WSL). New operators `causal_forest_ate`, `causal_forest_cate`,
+`causal_forest_importance` (Causal inference category, protocol 3.7) wrap `CausalForestDML` with a
+linear outcome model and a logistic treatment model.
+
+Route: `workdir/b92_route` (cohort.csv, 60 rows; treatment assigned by a threshold rule, outcome has a
+linear treatment effect plus heterogeneity through x1). Input sha256
+`09abdf7e2380980e7695d463d1714be463343c77b6765865e5e16976b194c539`.
+
+Exported values: ATE 2.028365, stderr 0.1276, 95% CI 1.77827-2.27846, n_samples 60, n_trees 100;
+CATE for the first row 2.073901 (CI 1.604489-2.543313); importance x1 0.938144 (share 0.938144),
+x2 0.061856.
+
+Export md5: ate `247cc10c10b208186373b1f138526994`, cate `bc5fd1e2e7d4202959d5ff050def72d7`,
+importance `6406c68df4b469c213c1791da6dafbc8`.
+
+Oracle (7/7): statsmodels OLS treatment coefficient 2.005676 versus forest ATE 2.028365 (delta 0.023,
+tolerance 0.25); the OLS 95% CI contains the forest ATE; mean CATE equals the ATE within 0.1; every CATE
+interval is ordered; importance shares sum to 1.0; n_samples and n_trees match the manifest. Mode:
+`mode=synthetic+hand` (synthetic cohort, hand-checked identities).
+
+Three-end: WSL PASS (exports above). srv PASS: operon-venv311 on 172.22.148.93 with econml 0.17.0,
+numba 0.67.0, scikit-learn 1.6.1 and numpy 2.2.6 reproduced all three md5 byte-for-byte
+(`247cc10c...`, `bc5fd1e2...`, `6406c68d...`). Windows SKIP: `sparse` (an econml dependency) requires
+numba, and the Windows environment runs numpy 2.5.4 for which no compatible numba wheel is published;
+installing numpy 2.2.x there would change the pinned environment used by earlier batches, so the batch is
+recorded as SKIP rather than forcing a downgrade.
+
+Limitations: only the linear outcome / logistic treatment DML variant is exposed; no honest splitting
+controls beyond econml defaults, no policy tree, and CATE uncertainty is pointwise (no simultaneous
+bands).

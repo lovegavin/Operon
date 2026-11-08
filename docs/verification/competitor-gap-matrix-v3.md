@@ -13,6 +13,7 @@ Scope: capabilities absent from the 1017-operator catalog that have a determinis
 | Rauch-Tung-Striebel smoothing | statsmodels 0.15.0, filterpy 1.4.5 | implemented b86 (kalman_smoother) | independent matrix-form RTS recursion |
 | Bootstrap particle filter | filterpy 1.4.5, pymc 5.x | implemented b86 (particle_filter_bootstrap) | analytic Kalman posterior for the linear-Gaussian case |
 | Causal forests / uplift | econml 0.15, causalml 0.15 | implemented b83 (uplift_t_learner, uplift_qini_curve) | linear T-learner and normalised cumulative-uplift oracle; causal forest still blocked |
+| Causal forest ATE / CATE / importance | econml 0.17.0, grf 2.x | implemented b92 (causal_forest_ate, causal_forest_cate, causal_forest_importance) | statsmodels OLS coefficient/CI oracle plus hand-checked CATE and share identities |
 | CRISPR off-target specificity | CRISPOR 5.0, FlashFry 2.0 | implemented b83 (crispr_mit_specificity) | Hsu MIT weights and hand score; CFD matrix remains blocked by licence |
 | Flux balance analysis | cobra 0.29, COBRApy | implemented b83 (fba_flux_balance) | vertex enumeration plus hand-solved network |
 | Image segmentation / nuclei counting | scikit-image 0.25, CellProfiler 4.2 | implemented b84 (image_otsu_threshold, image_connected_components, image_histogram_equalization, image_sobel_gradient) | synthetic images with known object counts |
