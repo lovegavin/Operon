@@ -13,6 +13,7 @@ env/
 tasks/*/input/
 tasks/**/output/
 input/
+library/seed/routes/*/output/
 #output/
 
 # 基因型 / 测序大文件
