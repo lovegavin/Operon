@@ -3,8 +3,24 @@ import json
 from pathlib import Path
 import sys
 import zipfile
+import pytest
 
 from scripts.build_runtime import windows_descriptors, runtime_requirements
+
+
+def test_packaging_rejects_stale_frontend_install_after_lock_version_change(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / 'scripts'))
+    from scripts.package_release import verify_frontend_versions
+    module = tmp_path / 'node_modules/example'
+    module.mkdir(parents=True)
+    (module / 'package.json').write_text(json.dumps({'version': '3.1.2'}))
+    lock = {'packages': {'': {'version': '9.0.0'}, 'node_modules/example': {'version': '3.1.3'}}}
+    (tmp_path / 'package-lock.json').write_text(json.dumps(lock))
+    with pytest.raises(ValueError, match='Frontend dependency differs from lock'):
+        verify_frontend_versions(tmp_path)
+    lock['packages']['node_modules/example']['version'] = '3.1.2'
+    (tmp_path / 'package-lock.json').write_text(json.dumps(lock))
+    assert verify_frontend_versions(tmp_path) == lock
 
 
 def test_management_runtime_does_not_expand_with_operator_library():

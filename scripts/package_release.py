@@ -15,6 +15,23 @@ from audit_portability import audit_files
 from biopipe.bytecode import io_path
 
 
+def verify_frontend_versions(frontend):
+    """Reject a build made with dependencies different from its declared lock."""
+    lock = json.loads((frontend / 'package-lock.json').read_text(encoding='utf-8'))
+    for directory, declared in lock['packages'].items():
+        if not directory or declared.get('link'):
+            continue
+        metadata = frontend / directory / 'package.json'
+        # Platform-specific optional packages are absent on other build hosts.
+        if not metadata.is_file():
+            continue
+        installed = json.loads(metadata.read_text(encoding='utf-8')).get('version')
+        if installed != declared.get('version'):
+            raise ValueError(f'Frontend dependency differs from lock: {directory} '
+                             f'(installed {installed}, locked {declared.get("version")}). Run npm ci before building.')
+    return lock
+
+
 def main():
     root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description=__doc__)
@@ -33,6 +50,7 @@ def main():
         parser.error(f'Output already exists: {destination}')
     if not (args.desktop / 'Operon Studio.exe').is_file():
         parser.error('Build the desktop host first.')
+    lock = verify_frontend_versions(root / 'frontend')
     destination.mkdir(parents=True)
 
     def copy(source, rel):
@@ -95,7 +113,6 @@ def main():
                     ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'build', 'dist', '*.egg-info'))
     shutil.copytree(root / 'THIRD_PARTY_NOTICES', destination / 'THIRD_PARTY_NOTICES')
     # Regenerate frontend notices from the lockfile actually used for this build.
-    lock = json.loads((root / 'frontend/package-lock.json').read_text(encoding='utf-8'))
     notices = ['Licenses for bundled frontend dependencies.\n']
     for directory, meta in sorted(lock['packages'].items()):
         if not directory or (meta.get('dev') and directory not in ('node_modules/tailwindcss', 'node_modules/vite')):
