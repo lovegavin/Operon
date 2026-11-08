@@ -79,3 +79,6 @@ jobs/
 transfers/
 *.pyc
 node_modules/
+
+# Local verification workspace (routes, oracle inputs, downloaded fixtures)
+/workdir/
