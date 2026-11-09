@@ -348,6 +348,10 @@ def _windows_pool_flags():
                     ('active', wintypes.DWORD), ('affinity', ctypes.c_size_t),
                     ('priority', wintypes.DWORD), ('scheduling', wintypes.DWORD)]
 
+    class Extended(ctypes.Structure):
+        _fields_ = [('basic', Basic), ('io', ctypes.c_uint64 * 6),
+                    ('memory', ctypes.c_size_t * 4)]
+
     api = ctypes.WinDLL('kernel32', use_last_error=True)
     api.GetCurrentProcess.restype = wintypes.HANDLE
     api.IsProcessInJob.argtypes = [wintypes.HANDLE, wintypes.HANDLE, ctypes.POINTER(wintypes.BOOL)]
@@ -360,13 +364,16 @@ def _windows_pool_flags():
         raise ctypes.WinError(ctypes.get_last_error())
     flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
     if member.value:
-        limits = Basic()
-        if not api.QueryInformationJobObject(None, 2, ctypes.byref(limits), ctypes.sizeof(limits), None):
+        limits = Extended()
+        if not api.QueryInformationJobObject(None, 9, ctypes.byref(limits), ctypes.sizeof(limits), None):
             raise ctypes.WinError(ctypes.get_last_error())
-        if limits.flags & 0x0800:  # JOB_OBJECT_LIMIT_BREAKAWAY_OK
+        print(f'Windows pool host job limits=0x{limits.basic.flags:x}', flush=True)
+        if limits.basic.flags & (0x0800 | 0x1000):  # BREAKAWAY_OK | SILENT_BREAKAWAY_OK
             flags |= subprocess.CREATE_BREAKAWAY_FROM_JOB
-        # SILENT_BREAKAWAY_OK needs no creation flag. Otherwise retain the
-        # external host's containment rather than trying to override it.
+        # Request explicit breakaway even for a silent inner job: an ancestor
+        # (such as the desktop) may require the explicit flag. Windows stops
+        # at an ancestor that forbids breakaway, preserving external containment.
+    print(f'Windows pool process flags=0x{flags:x}; in_job={bool(member.value)}', flush=True)
     return flags
 
 
