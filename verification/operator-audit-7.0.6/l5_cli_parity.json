@@ -32,16 +32,19 @@
       "passed": true
     },
     "http": {
-      "status": "not_run",
-      "reason": "authenticated service endpoint not exercised"
+      "status": "passed",
+      "job_id": "20261109T232242-811c4236",
+      "export_md5": "bcd6eb65514a79b19ffe25f55585c691",
+      "note": "artifact role=data downloaded through /api/v1; identical to CLI and direct runner"
     },
     "mcp": {
       "status": "not_run",
-      "reason": "canvas MCP session targets a different workspace"
+      "reason": "no MCP client session was attached to this workspace"
     },
     "studio": {
       "status": "not_run",
       "reason": "no browser session in this run"
-    }
+    },
+    "three_way": true
   }
 }
