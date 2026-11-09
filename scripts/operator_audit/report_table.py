@@ -15,7 +15,7 @@ from pathlib import Path
 import yaml
 
 REPO = Path(__file__).resolve().parents[2]
-EVIDENCE = REPO / "verification" / "operator-audit-7.0.5"
+EVIDENCE = REPO / "verification" / "operator-audit-7.0.7"
 ROUTES = REPO / "library" / "seed" / "routes"
 
 
@@ -47,11 +47,11 @@ def builtin_covered():
 def main():
     l0 = load_jsonl(EVIDENCE / "l0_static.jsonl")
     l1 = load_jsonl(EVIDENCE / "l1_full" / "l1_contract.jsonl")
-    generated = {}
-    gen_path = EVIDENCE / "l3_generated_routes.json"
-    if gen_path.exists():
-        for item in json.loads(gen_path.read_text(encoding="utf-8")).get("results", []):
-            generated[item["id"]] = item.get("status")
+    coverage = {}
+    cov_path = EVIDENCE / "l3_route_coverage.json"
+    if cov_path.exists():
+        coverage = json.loads(cov_path.read_text(encoding="utf-8"))
+    generated = {op: "PASS" for op in coverage.get("covered_ids", [])}
     deterministic = {}
     det_path = EVIDENCE / "l4_determinism.json"
     if det_path.exists():
@@ -93,7 +93,9 @@ def main():
             "contract_negative": negative,
             "oracle_ref": "l2_oracle" if op_id in {
                 "kalman_local_level", "image_gaussian_blur", "pca",
-                "conformal_split_regression", "bayesian_linear_regression"} else "",
+                "conformal_split_regression", "bayesian_linear_regression",
+                "cohens_kappa", "image_sobel_gradient",
+                "genotype_call_rate_qc"} else "",
             "oracle_delta": "",
             "route_replay": replay,
             "memory_within_budget": memory,

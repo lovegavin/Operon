@@ -1,0 +1,72 @@
+{
+  "library_version": "7.0.6",
+  "mode": "independent-oracle",
+  "results": {
+    "kalman_local_level": {
+      "pass": true,
+      "delta": 4.889884053227433e-10,
+      "n": 40,
+      "oracle": "scalar Kalman recursion"
+    },
+    "image_gaussian_blur": {
+      "pass": true,
+      "delta": 4.995169000654442e-10,
+      "oracle": "scipy.ndimage.gaussian_filter"
+    },
+    "pca": {
+      "pass": true,
+      "corrs": [
+        0.9999999999999999,
+        0.9999999999999998,
+        1.0
+      ],
+      "scores_shape": [
+        6,
+        3
+      ],
+      "oracle": "numpy SVD on transposed, standardized matrix"
+    },
+    "conformal_split_regression": {
+      "pass": true,
+      "got": 0.803264099,
+      "expected": 0.8032640994328629,
+      "oracle": "empirical split-conformal quantile"
+    },
+    "bayesian_linear_regression": {
+      "pass": true,
+      "delta": 0.0004800184681807984,
+      "posterior": {
+        "(Intercept)": 0.779357196,
+        "x1": 1.495635366,
+        "x2": -0.727367966
+      },
+      "ols": [
+        0.7794454423699368,
+        1.4958361868194918,
+        -0.7278479844681808
+      ],
+      "oracle": "statsmodels/numpy OLS"
+    },
+    "cohens_kappa": {
+      "pass": true,
+      "delta": 1.8769122145378958e-08,
+      "got": 0.6425532102584839,
+      "expected": 0.6425531914893617,
+      "tolerance": 1e-07,
+      "note": "operator rounds kappa to 8 decimals",
+      "oracle": "hand-computed Cohen kappa from the contingency table"
+    },
+    "image_sobel_gradient": {
+      "pass": true,
+      "delta": 0.0,
+      "oracle": "hand-written 3x3 Sobel kernels"
+    },
+    "genotype_call_rate_qc": {
+      "pass": true,
+      "delta": 0.0,
+      "oracle": "manual call-rate arithmetic with NaN as missing"
+    }
+  },
+  "passed": 8,
+  "total": 8
+}
