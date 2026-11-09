@@ -41,6 +41,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openssh-server
           sudo mkdir -p /run/sshd
+          # GitHub's runner account is intentionally locked; key auth still
+          # requires an unlocked (empty-password) account with UsePAM=no.
+          sudo passwd -d runner || true
+          sudo usermod -U runner || true
+          sudo passwd -S runner
           key="$RUNNER_TEMP/operon_test_key"
           ssh-keygen -t rsa -b 3072 -N '' -f "$key"
           mkdir -p "$HOME/.ssh"
