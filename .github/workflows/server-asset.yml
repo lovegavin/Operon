@@ -15,11 +15,18 @@ on:
       expected_sha256:
         description: SHA256 of the exact server ZIP
         required: true
+  push:
+    paths: ['release-trigger']
 
 jobs:
   linux-server:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag || 'v3.1.6-rc1' }}
+      RELEASE_VERSION: ${{ inputs.release_version || '3.1.6' }}
+      ASSET_NAME: ${{ inputs.asset_name || 'Operon-3.1.6-Server.zip' }}
+      EXPECTED_SHA256: ${{ inputs.expected_sha256 || '0b42a115058d0d802643f22b391569933cc2c9a93c1752b5479381d4bcffef1f' }}
     steps:
       - uses: actions/checkout@v4
       - name: Download exact release asset
@@ -27,15 +34,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p "$RUNNER_TEMP/server-asset"
-          gh release download "${{ inputs.release_tag }}" \
-            --pattern "${{ inputs.asset_name }}" \
+          gh release download "$RELEASE_TAG" \
+            --pattern "$ASSET_NAME" \
             --dir "$RUNNER_TEMP/server-asset"
           cd "$RUNNER_TEMP/server-asset"
-          echo "${{ inputs.expected_sha256 }}  ${{ inputs.asset_name }}" | sha256sum -c -
-          unzip -q "${{ inputs.asset_name }}" -d bundle
+          echo "$EXPECTED_SHA256  $ASSET_NAME" | sha256sum -c -
+          unzip -q "$ASSET_NAME" -d bundle
       - name: Install the exact Linux server bundle
         run: |
-          cd "$RUNNER_TEMP/server-asset/bundle/Operon-${{ inputs.release_version }}-Server"
+          cd "$RUNNER_TEMP/server-asset/bundle/Operon-$RELEASE_VERSION-Server"
           bash install.sh --prefix "$RUNNER_TEMP/operon" --result "$RUNNER_TEMP/server-install.json"
           python - <<'PY'
           import json, pathlib
