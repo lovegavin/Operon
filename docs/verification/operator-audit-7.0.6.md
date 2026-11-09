@@ -128,11 +128,28 @@ actual_input_size"), confirming admission is enforced.
 Per-operator estimate-versus-RSS tables, spill-recompute equality and wire
 round-trip rejection are not yet measured.
 
+A prepared graph pins operator implementation hashes, not source-file hashes.
+Changing `input.csv` between prepare and run does not abort the run: the second
+run re-read the changed file and exported a different matrix
+(`1806a277...` instead of `bcd6eb65...`). This is recorded as a failed L4
+source-mutation probe, not as a pass; fixing it belongs to the application run
+layer. Evidence: `l5_cli_parity.json`.
+
 ## L5 - entry points
 
 Route bundles import through the Studio 3.1.6 HTTP parameter API
-(`import_bundle(bytes)`, 78/78). Byte-identical CLI/HTTP/MCP/Studio output for
-a common route is not yet measured.
+(`import_bundle(bytes)`, 78/78).
+
+A three-way sample on the `correlation` route compares the direct development
+runner, two `operon run` CLI jobs and a repeated CLI job:
+
+- `python scripts/run.py /tmp/l5task` -> `bcd6eb65514a79b19ffe25f55585c691`
+- CLI job `20261109T232004-b6c71553` -> same hash
+- CLI job `20261109T232043-618265c8` -> same hash
+
+CLI and the direct runner are byte-identical for this route. HTTP, MCP and
+Studio entry-point parity, and `describe` contract equality, are not yet
+measured. Evidence: `l5_cli_parity.json`.
 
 ## Defects fixed in 7.0.2-7.0.6
 
