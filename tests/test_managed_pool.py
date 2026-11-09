@@ -65,6 +65,13 @@ while not (task/'finish').exists():
             pass
         app.shutdown()
     _, directory = locations()
+    # Preserve the actual launcher failure in CI instead of only a path to a
+    # temporary runner file. This contains startup diagnostics, not pool tokens.
+    log = directory / 'pool.log'
+    if log.is_file():
+        output = log.read_text(encoding='utf-8', errors='replace')
+        if 'Traceback' in output:
+            print('Managed pool startup log:\n' + output[-6000:])
     path = directory / 'instance.json'
     if path.exists():
         record = json.loads(path.read_text(encoding='utf-8'))
