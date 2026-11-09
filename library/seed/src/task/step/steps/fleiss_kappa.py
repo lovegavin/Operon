@@ -52,6 +52,9 @@ class FleissKappaStep(Step):
         )
         if np.any(data < 0):
             raise StepError("fleiss_kappa: cell counts must be non-negative")
+        totals = data.sum(axis=1)
+        if np.any(totals <= 0) or not np.allclose(totals, totals[0]):
+            raise StepError("fleiss_kappa: every subject must have the same positive number of ratings")
         method = ctx.step_params.get("method", "fleiss")
         kappa = float(fleiss_kappa(data, method=method))
         form = scalar_form([kappa, len(subjects), len(categories)],

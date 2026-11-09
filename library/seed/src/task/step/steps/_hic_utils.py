@@ -137,5 +137,5 @@ def decay_table(rows, n_bins=20, max_distance=0):
         n_contacts = int(mask.sum())
         n_pairs = int(counts[mask].sum())
         mean_count = n_pairs / n_contacts if n_contacts else 0.0
-        table.append((f"{lo:.0f}-{hi:.0f}", lo, hi, n_contacts, n_pairs, mean_count, n_pairs / grand))
+        table.append((f"{lo:.0f}-{hi:.0f}", lo, hi, n_contacts, n_pairs, mean_count, n_pairs / grand if grand else 0.0))
     return table, int(grand)

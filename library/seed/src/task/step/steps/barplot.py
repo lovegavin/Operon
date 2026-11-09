@@ -220,7 +220,7 @@ class BarplotStep(Step):
             max(6.0, 0.3 * n_samples + 2),
             max(4.0, 0.1 * n_stacks + 3),
         )
-        if figsize is None:
+        if not figsize:
             figsize = figsize_auto
 
         fig, ax = plt.subplots(figsize=tuple(figsize))

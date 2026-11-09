@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from src.core import Form
+from src.core import Form, StepError
 from src.task.step.base import Step
 
 from ._b84_common import matrix, row_names
@@ -18,6 +18,10 @@ class MlPartialDependenceStep(Step):
         x = matrix(inputs[0])
         y = matrix(inputs[1]).reshape(-1)
         n, p = x.shape
+        if n == 0 or p == 0 or y.size != n:
+            raise StepError("ml_partial_dependence: design matrix and response are inconsistent")
+        if not 0 <= int(ctx.step_params.get("feature", 0)) < p:
+            raise StepError("ml_partial_dependence: feature index is out of range")
         lam = float(ctx.step_params.get("alpha", 1.0))
         feat = int(ctx.step_params.get("feature", 0))
         n_grid = int(ctx.step_params.get("n_grid", 5))

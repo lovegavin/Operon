@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 from scipy import stats
 
-from src.core import Form
+from src.core import Form, StepError
 from src.task.step.base import Step
 from ._sc_common import matrix, row_names
 
@@ -55,8 +55,8 @@ class ScBatchKbetStep(Step):
         graph = np.asarray(matrix(inputs[0]), dtype=float)
         batch = _batch_column(inputs[1]).astype(int)
         n = graph.shape[0]
-        if batch.size != n:
-            raise ValueError("graph rows and batch rows differ")
+        if graph.ndim != 2 or graph.shape[0] != graph.shape[1] or batch.size != n:
+            raise StepError("sc_batch_kbet: graph rows and batch rows differ")
         batches = sorted(set(int(b) for b in batch))
         global_p = np.array([(batch == b).mean() for b in batches])
         names = row_names(inputs[0], inputs[0].dims[0])

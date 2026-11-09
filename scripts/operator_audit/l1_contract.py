@@ -47,6 +47,7 @@ class Ctx(dict):
         self.inputs = inputs
         self.step_params = params
         self.artifacts = {}
+        self.out_dir = Path(tempfile.mkdtemp(prefix="l1out_"))
         self.metadata = {}
         self.memory = {}
         self._root = Path(tempfile.mkdtemp(prefix="l1_"))
@@ -216,7 +217,7 @@ def make_params(descriptor, props, forms, contracts):
         elif typ == "object":
             params[key] = {}
         elif typ == "string":
-            params[key] = "x"
+            params[key] = "x.png" if "filename" in key else "x"
     out = descriptor.get("output_parameter")
     if out:
         params[out] = "audit_output"

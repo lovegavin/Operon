@@ -1,6 +1,6 @@
 import numpy as np
 
-from src.core import Form
+from src.core import Form, StepError
 from src.task.step.base import Step
 from ._splice_common import numeric_column, names_for, result_form
 
@@ -47,6 +47,8 @@ class IsoformQuantificationEmStep(Step):
         form = inputs[0]
         compat = np.asarray(inputs[0].data, dtype=float)
         counts = np.asarray(inputs[1].data, dtype=float)[:, 0]
+        if compat.ndim != 2 or compat.shape[1] != counts.size or compat.shape[0] == 0:
+            raise StepError("isoform_quantification_em: compatibility matrix and counts differ")
         n_iso = compat.shape[0]
         theta = np.full(n_iso, 1.0 / n_iso)
         it = 0

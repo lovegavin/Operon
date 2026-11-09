@@ -72,6 +72,12 @@ class DoubletDetectStep(Step):
         except ImportError as exc:
             raise StepError("doublet_detect requires anndata and scanpy") from exc
         data = reorder(form, cell_dim, gene_dim)
+        if data.shape[0] == 0 or data.shape[1] == 0 or not np.any(data):
+            raise StepError("doublet_detect: count matrix has no expressed genes")
+        if data.shape[0] < 30 or data.shape[1] < 2:
+            raise StepError("doublet_detect: at least 30 cells and 2 genes are required")
+        if int(np.count_nonzero(np.asarray(data).sum(axis=0))) < 2:
+            raise StepError("doublet_detect: fewer than two genes are expressed")
         cells = labels_in_order(form, cell_dim)
         genes = labels_in_order(form, gene_dim)
         adata = ad.AnnData(X=np.asarray(data, dtype=np.float32))

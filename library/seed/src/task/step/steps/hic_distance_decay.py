@@ -70,9 +70,11 @@ class HicDistanceDecayStep(Step):
             start2 = float(form.data[row, index["start2"]])
             count = float(form.data[row, index["count"]])
             rows.append(("", start1, start2, count))
+        if not rows or sum(row[3] for row in rows) <= 0:
+            raise StepError("hic_distance_decay: contact table has no positive counts")
         table, total = hic.decay_table(rows, int(params.get("n_bins", 20)), int(params.get("max_distance", 0)))
         data = np.asarray([[row[1], row[2], row[3], row[4], row[5], row[6]] for row in table], dtype=np.float64)
-        labels = {row[0]: position for position, row in enumerate(table)}
+        labels = {f"bin{position}": position for position in range(len(table))}
         info = {
             "distance_dim": "distance_bin",
             "statistic_dim": "statistic",
