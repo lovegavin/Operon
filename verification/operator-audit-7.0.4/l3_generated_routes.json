@@ -1,0 +1,4598 @@
+[
+ {
+  "id": "acf",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ada_boost_classifier",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ada_boost_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "additive_glm",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "additive_spline_regression",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "adf_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "adjusted_mutual_info",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "adjusted_rand",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "adjusted_rand_index",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "aft",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "agglomerative",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "agostino_skewness",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "agostino_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "alternative_polyadenylation",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['gene', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "amrfinder_plus",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "anderson_darling",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ani_from_kmers",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['kmer', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "annotation_completeness",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['observation', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "annotation_gene_length",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['gene', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "annotation_overlap_check",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['gene', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "anosim",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'sample_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "anova",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ansari_bradley",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "anscombe_glynn",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "anscombe_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "antibody_cdr_graft",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 22], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antibody_cdr_hydrophobicity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 23], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antibody_cdr_kabat",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antibody_cdr_length_profile",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antibody_cdr_motifs",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 22], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antibody_cdr_physchem",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 22], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antibody_cdr_redesign",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: antibody_cdr_redesign: structure_path is required; point it at a PDB file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antibody_developability",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antibody_numbering_imgt",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antibody_numbering_kabat",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antifold_design",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: antifold_design: structure_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antifold_score",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: antifold_score: structure_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "antismash_bgc",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "approx_entropy",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "arch_lm",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "arch_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "arima",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "assembly_stats",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "autoencoder_anomaly",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "bai_perron",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "barnard_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'column']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "bartels_rank",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "bartlett",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "bartlett_sphericity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "bayesian_linear_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "bayesian_ridge_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "bcr_clonotype",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "bds_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "beta_regression",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "betadisper",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'sample_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "betadiver",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "bh_adjust",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'pvalue']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "bhapkar_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['row', 'column']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "binomial_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "bioenv",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "birch",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "bland_altman",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "boltz_affinity_summary",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: boltz_affinity_summary: affinity_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "boltz_complex_confidence",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 23], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "boltz_predict",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 26], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "bonett_seier",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "bonferroni",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['feature', 'statistic']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "bootstrap_ci",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "boschloo_exact",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'column']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "box_cox",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "box_m",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "box_pierce",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "bracken_reestimate",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['taxon', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "brennan_prediger",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "breusch_godfrey",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "breusch_pagan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'variable']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "brown_forsythe",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "brunner_munzel",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "by_adjust",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'pvalue']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "calibration_curve",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "calibration_slope",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "calinski_harabasz",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "canonical_correlation",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'y']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "causal_forest_ate",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "causal_forest_cate",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "causal_forest_importance",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cca",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'predictor']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cdr3_properties",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "cell_cycle_score",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 17], dims=['gene', 'gene_set']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "chacko_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "changepoint_pelt",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "chao1",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "checkm_quality_parse",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "chi_square",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "chi_square_gof",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "chisq_gof",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "chisq_out_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "chow_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "classification_metrics",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'score']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cliffs_delta",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cnn_image_classifier",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cochran_armitage",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['group', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cochran_c_test",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cochran_q",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "codon_usage",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cohens_d",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cohens_h",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['row', 'col']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cohens_kappa",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['rater_a', 'rater_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "colabfold_predict",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "complement_nb_classifier",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "concordance_correlation",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "conditional_logistic",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "conditional_logit",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "conformal_classification_sets",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "conformal_split_regression",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "confusion_matrix",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "conger_kappa",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "conover_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "conserved_gene_order",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['gene', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cooks_distance",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cophenetic_correlation",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 17], dims=['sample', 'sample_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "core_genome_size",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "corresp",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "correspondence_analysis",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "covratio",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cox_stuart",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "cox_stuart_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "cramer_v",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "cramer_von_mises",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "crispr_array_detect",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "crispr_mit_specificity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cronbach_alpha",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "cross_correlation",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "cusum_chart",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "cuzick",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "cuzick_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "davies_bouldin",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "dbrda",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 15], dims=['sample', 'predictor']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "dbscan",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "dca",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "decision_curve",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "decision_tree_classifier",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "decision_tree_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "deep_quantile_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "deep_survival",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "delong_auc",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'score']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "deming_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "dfbetas",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "dffits",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "dfgls",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "difference_in_differences",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "difference_sign",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "distance_correlation",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "dmr_window_scan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['probe', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "doubly_robust_ate",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "dunn_index",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "dunn_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "durbin_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['block', 'treatment']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "durbin_watson",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'variable']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "egger_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "elastic_net_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "engle_granger",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "envfit",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "epidemic_case_fatality",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "epidemic_growth_rate",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['time', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "epidemic_r0",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['time', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "epidemic_seir_fit",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['time', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "epidemic_sir_fit",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['time', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "epitope_conservation",
+  "ok": false,
+  "err": "src.core.errors.errors.ValidationError: ('Form', 'dims contain duplicates')",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm3_embedding",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm3_fold",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm3_inverse_folding",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: esm3_inverse_folding: structure_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm3_sasa_prediction",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm3_secondary_structure",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm3_sequence_generation",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_embedding",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_embedding_autoencoder",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_embedding_isolation_forest",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_embedding_kmeans_silhouette",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_embedding_knn_density",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_embedding_linear_probe",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'embedding']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_embedding_mlp_probe",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'embedding']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_embedding_neighbors",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_embedding_outlier_scan",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_embedding_pca",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_embedding_pca_loadings",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_embedding_pca_reconstruction",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_embedding_ridge_probe",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'embedding']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_embedding_umap_projection",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "esm_if_design",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_if_interface_redesign",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_if_masked_region_scan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_if_mutation_scan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_if_position_entropy",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_if_redesign",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_if_score",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_masked_marginal",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_pseudo_likelihood",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esm_variant_effect",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "esmfold_predict",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "eta_squared",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "event_study",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ewma_chart",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "exon_skipping",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['exon', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "extra_trees_classifier",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "extra_trees_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "factor_analysis",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "faith_pd",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['node', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "fba_flux_balance",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "fine_gray",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "fisher_alpha",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "fisher_combined",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'statistic']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "fisher_exact",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'col']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "fleiss_kappa",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['subject', 'category']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "fligner_killeen",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "fligner_kruskal",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "fligner_wolfe",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "flow_compensate",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['detector', 'fluorochrome']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "flow_gate",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "flow_transform",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "flye_assemble",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "foldseek_align",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: foldseek_align: query_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "foldseek_cluster",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: foldseek_cluster: no structure file was found; set structure_dir or structure_paths",
+  "reason": "FAIL"
+ },
+ {
+  "id": "foldseek_search",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "fowlkes_mallows",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "friedman",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "fst_outlier_scan",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "g_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "games_howell",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "gamma_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "garch",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "gaussian_mixture",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "gaussian_process_regressor",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "gaussian_random_projection",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "gc_skew_profile",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "gcn_node_classifier",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 17], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "genome_rearrangement",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['gene', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "genotype_allele_balance",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "genotype_call_rate_qc",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "genotype_mendelian_error",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "glmm_logistic",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "goldfeld_quandt",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sample', 'variable']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "goodman_kruskal_gamma",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "gower_distance",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "granger_causality",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "graph_pseudotime",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "grubbs_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "gsva_plage",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "gtdb_taxonomy_parse",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "gwet_ac1",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "haplotype_diversity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "hardy_weinberg",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['variant', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "harvey_collier",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "hdbscan",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "hdbscan_cluster",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "heterozygosity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['variant', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "hierarchical_clustering",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "hmm_baum_welch",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "hmmer_domains",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "holm_adjust",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'pvalue']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "homogeneity_completeness_v_measure",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "hosmer_lemeshow",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "hotelling_t2",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "huber_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "humann_pathway_abundance",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['pathway', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "humann_pathway_collapse",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "hurst_exponent",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "hvg",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ica",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "image_gaussian_blur",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "integrated_discrimination_improvement",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "interface_alanine_scan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 22], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "interface_bsa",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 23], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "interface_contact_map",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 25], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "interface_distance_histogram",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "interface_hbond_network",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "interface_hotspots",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 24], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "interface_hydrophobic_patch",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 32], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "interface_mmgbsa_delta",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 22], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "interpro_domain_summary",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['hit', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "interval_censored_regression",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "intraclass_correlation",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "intron_retention",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['intron', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "inverse_gaussian_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "iptw_effect",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "isoform_quantification_em",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 17], dims=['exon', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "isolation_forest",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "isolation_forest_anomaly",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "isomap",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "isotonic",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "iv_2sls",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "jarque_bera",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "johansen",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "jonckheere_terpstra",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "kalman_local_level",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "kalman_smoother",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "kendall_tau",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "kendall_w",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "kernel_pca",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "kernel_shap",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "kmer_count",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "kmo_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "knn",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "kpss_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "kraken_kreport_parse",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['taxon', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "krippendorff_alpha",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "kruskal",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ks_2samp",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "lasso_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "lda",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "lda_classifier",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "leave_one_out",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['study', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "levene",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "levene_test",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "leverage",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "lfq_median_normalize",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "lfq_quantile_normalize",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ligand_adduct_mz",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['molecule', 'statistic']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_brics_fragments",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['molecule', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_contact_profile",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_dbe",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['molecule', 'statistic']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_efficiency",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ligand_exact_mass",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['molecule', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_formula_parse",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['molecule', 'statistic']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_isotope_pattern",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['molecule', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_mass_fraction",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['molecule', 'statistic']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_molecular_formula",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['molecule', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_nitrogen_rule",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['molecule', 'statistic']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_pdbqt_flexible",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: ligand_pdbqt_flexible: smiles is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_pdbqt_prepare",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: ligand_pdbqt_prepare: smiles must not be empty",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligand_rgroup_decomposition",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['molecule', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligandmpnn_active_site_design",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: ligandmpnn_design: ligandmpnn_path is required; point it at a LigandMPNN checkout or set OPERON_LIGANDMPNN_PATH",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligandmpnn_design",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: ligandmpnn_design: structure_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligandmpnn_score",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: ligandmpnn_score: structure_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ligandmpnn_side_chain_packing",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: ligandmpnn_side_chain_packing: structure_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "lightgbm_classifier",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "lillie_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "lilliefors_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "linear_mixed_model",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "linear_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ljung_box",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "locally_linear_embedding",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "lof_outlier_score",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "lowess",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "mack_wolfe",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mahalanobis_distance",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mann_kendall",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "mann_whitney",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "manova",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mantel",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 17], dims=['sample', 'sample_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mantel_haenszel",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['stratum', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mardia_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mauchly_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mcnemar",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "mds",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "mediation_analysis",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "meta_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "metabolite_adduct_annotation",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "metabolite_mass_match",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 17], dims=['entry', 'database_field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "metabolite_set_enrichment",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 23], dims=['set', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "metaphlan_profile_merge",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "metaphlan_profile_parse",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['taxon', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "methylation_beta_value",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['probe', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "methylation_m_value",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['probe', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mhc_anchor_score",
+  "ok": false,
+  "err": "src.core.errors.errors.ValidationError: ('Form', 'dims contain duplicates')",
+  "reason": "FAIL"
+ },
+ {
+  "id": "min_max_scale",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "minibinder_interface",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 22], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mismatch_distribution",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ml_partial_dependence",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 20], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mlp_classifier",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mlp_regressor",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mlst_typing",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mood_median",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mood_median_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "mood_scale",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "moran",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 17], dims=['sample', 'sample_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "morisita",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "moses_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mrpp",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sample', 'taxon']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ms1_feature_detect",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ms1_isotope_pattern",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ms2_cosine_similarity",
+  "ok": false,
+  "err": "src.core.errors.errors.ValidationError: ('Form', 'dims contain duplicates')",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ms2_spectral_angle",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ms_missing_filter",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "multinomial_logit",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "multinomial_nb_classifier",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "mutational_signature_decomposition",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "mutual_information",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "negative_binomial_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "neighbor_joining",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['taxon', 'taxon_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "nelson_aalen",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "nemenyi_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "nestedness",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "net_reclassification_improvement",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "nmds",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'sample_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "nmf",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "normalized_mutual_info",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "normalizing_flow_density",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "normaltest",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "nucleotide_diversity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['variant', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "nucleotide_transformer_embedding",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "nucleotide_transformer_variant_effect",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "odds_ratio",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'col']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "openfold_predict",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "optics",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ora",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 21], dims=['gene', 'gene_set']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ordinal_logistic",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ortholog_cluster",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "pacf",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "page_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "pains_filter",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "pair_confusion_matrix",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "pairwise_alignment",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "pam",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "pangenome_curve",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "pangenome_matrix",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "particle_filter_bootstrap",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "passing_bablok",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "patristic_distance",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['node', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "pca_loadings",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "pcnm",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sample', 'sample_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "pcoa",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'sample_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_chrom_summary",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['region', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_density_profile",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 18], dims=['chrom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_gap_stats",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['region', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_nearest_gene",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 25], dims=['record', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_overlap_count",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 18], dims=['record', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_signal_stats",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['region', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_strand_bias",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['region', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_summit_offset",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['region', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_tss_distance",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 18], dims=['record', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_width_signal_correlation",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['region', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peak_width_stats",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['region', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "pearson_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "pedigree_inbreeding",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['individual', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "peptide_qvalue",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "peptide_spectrum_annotation",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 18], dims=['peak', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "periodogram",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "permutation_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "pettitt_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "pfam_architecture",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['hit', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "phillips_perron",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "phylogenetics_gtr_likelihood",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 29], dims=['taxon', 'site']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "plasmid_contig_filter",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['contig', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "pls_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "poisson_means_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "poisson_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "poisson_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "power_anova",
+  "ok": false,
+  "err": "ValueError: k_groups: 1 is less than the minimum of 2; n_per_group: 1 is less than the minimum of 2",
+  "reason": "FAIL"
+ },
+ {
+  "id": "power_prop_test",
+  "ok": false,
+  "err": "ValueError: nobs1: 1 is less than the minimum of 2; nobs2: 1 is less than the minimum of 2",
+  "reason": "FAIL"
+ },
+ {
+  "id": "power_t_test",
+  "ok": false,
+  "err": "ValueError: nobs1: 1 is less than the minimum of 2",
+  "reason": "FAIL"
+ },
+ {
+  "id": "power_transform",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "precision_recall_curve",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'score']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "press",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "probit_regression",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "procrustes",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "prodigal_genes",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "propensity_score_matching",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proportion_ci",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "prosite_scan",
+  "ok": false,
+  "err": "pandas.errors.ParserError: Error tokenizing data. C error: Expected 19 fields in line 3, saw 21",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_aliphatic_index",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_charge_curve",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_er_retention",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_gravy_window",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_inference",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['peptide', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_kinase_motifs",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_mitochondrial_targeting",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_nglyc_sequons",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_nls_motifs",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_nuclear_export_signal",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_properties",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "protein_pts1_signal",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_bias_matrix",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_bias_matrix: structure_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_bias_scan",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_bias_scan: structure_path must point at a PDB file, got '.'",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_design",
+  "ok": false,
+  "err": "ValueError: structure_path: '' should be non-empty",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_design_cluster",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_design_cluster: structure_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_design_diversity",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_design_diversity: structure_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_design_profile",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_design_profile: structure_path must point at an existing PDB file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_ensemble_score",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_ensemble_score: structure_path '.' is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_hotspot_masked_design",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 22], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_interface_design",
+  "ok": false,
+  "err": "ValueError: structure_path: '' should be non-empty",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_interface_redesign",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_interface_redesign: structure_path '.' does not exist",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_interface_scan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 29], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_interface_temperature_scan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 28], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_masked_design",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_masked_design: structure_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_masked_interface_design",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 24], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_masked_interface_score",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 23], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_multi_model_consensus",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_multi_model_consensus: structure_path is required; point it at a PDB file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_native_recovery_scan",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_native_recovery_scan: structure_path '.' does not exist",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_noise_robustness",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_noise_robustness: structure_path '.' is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_omit_design",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_omit_design: structure_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_perplexity",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_perplexity: structure_path '.' is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_position_entropy",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_position_entropy: structure_path must point at an existing PDB file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_probability_profile",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_probability_profile: structure_path '.' is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_score",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_score: structure_path '.' is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_temperature_ladder",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_temperature_ladder: structure_path is required; point it at a PDB file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "proteinmpnn_tied_design",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: proteinmpnn_tied_design: structure_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ptm_localization_score",
+  "ok": false,
+  "err": "src.core.errors.errors.ValidationError: ('Form', 'dims contain duplicates')",
+  "reason": "FAIL"
+ },
+ {
+  "id": "qda",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 15], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "quade_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "quantile_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "quantile_transform",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "rainbow_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'variable']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rank_biserial",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rank_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "rank_transform",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "rarefaction",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rda",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "rdd",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_admet_rules",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "rdkit_atom_environment_histogram",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_atom_environment_histogram: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_charge_profile",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_charge_profile: cannot parse SMILES 'value' for molecule 'mol1'",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_conformer_cluster",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_conformer_cluster: smiles is required; give one 'SMILES [name]' line per molecule",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_conformer_energy",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "rdkit_descriptors",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_descriptors: smiles is required; give one 'SMILES [name]' line per molecule",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_esol",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_esol: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_fragment_overlap",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_fragment_overlap: smiles_a is required; give one 'SMILES [name]' line per molecule",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_fragment_profile",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_fragment_profile: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_functional_group_counts",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_functional_group_counts: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_mcs",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "rdkit_mcs_cluster",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_mcs_cluster: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_morgan_fingerprint",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_morgan_fingerprint: smiles is required; give one 'SMILES [name]' line per molecule",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_murcko_fingerprint",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_murcko_fingerprint: smiles is required; give one 'SMILES [name]' line per molecule",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_oral_bioavailability",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_oral_bioavailability: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_pharmacophore_features",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_pharmacophore_features: smiles is required; give one 'SMILES [name]' line per molecule",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_qed",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_qed: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_reaction_pairwise_enumerate",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_reaction_pairwise_enumerate: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_reaction_smarts_apply",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_reaction_smarts_apply: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_ring_systems",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_ring_systems: cannot parse SMILES 'value' for molecule 'mol1'",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_sa_score",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_sa_score: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_scaffold",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "rdkit_scaffold_diversity",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_scaffold_diversity: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_scaffold_tree",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_scaffold_tree: smiles is required; give one 'SMILES [name]' line per molecule",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_similarity",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "rdkit_smarts_matches",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: smarts is required; give one SMARTS pattern per line",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_smiles_augment",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_smiles_augment: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rdkit_tautomer",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rdkit_tautomer: smiles must contain at least one SMILES line ('SMILES [name]' per line)",
+  "reason": "FAIL"
+ },
+ {
+  "id": "recombination_rate",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "redundancy_analysis",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'predictor']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "regression_discontinuity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "relatedness",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "renyi",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "reset_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "resource_preflight",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "restriction_sites",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "reverse_complement",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rfam_scan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rfdiffusion_design",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: rfdiffusion_design: contigs is required, for example 'A1-100' or '50-80 A1-100,0'",
+  "reason": "FAIL"
+ },
+ {
+  "id": "risk_ratio",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'col']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rmst",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "robinson_foulds",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 17], dims=['node', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "robust_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "robust_scale",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "roc_curve",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'score']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "rt_alignment",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['feature', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "runs_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "sarima",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sarimax_forecast",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "sasa_per_residue",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sc_batch_ilisi",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 18], dims=['cell', 'batch']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sc_batch_kbet",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 18], dims=['cell', 'batch']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sc_knn_graph",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "sc_leiden_cluster",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['cell', 'cell2']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sc_pseudobulk_de",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 18], dims=['cell', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "scheffe_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "seasonal_decompose",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "selection_index",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['variant', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sen_slope",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "sequence_aggregation_propensity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_beta_propensity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_codon_adaptation",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_complexity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_cpg_island",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_cysteine_pairing",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_disorder_predictor",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_dnds",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_g4_quadruplex_scan",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "sequence_gc_profile",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_gc_skew_profile",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_hydrophobic_moment",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_hydrophobicity_profile",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_isoelectric_point",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_kmer_enrichment",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_kmer_profile",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_liability_scan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_net_charge",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_orf_finder",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_repeat_finder",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_restriction_sites",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_rna_accessibility",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_rna_cofold",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_rna_cofold_ensemble",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_rna_duplex",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_rna_ensemble",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_rna_fold",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_signal_peptide",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_signal_peptide_v2",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_tm_segments",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sequence_transmembrane_topology",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sgd_classifier",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sgd_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "shapiro",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "shapiro_francia",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "shapiro_wilk",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "siegel_tukey",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "sign_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "silhouette",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "silhouette_samples",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "silhouette_score",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "simper",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sample', 'taxon']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "site_frequency_spectrum",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['variant', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "skillings_mack",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "smiles_standardize",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: smiles_standardize: smiles is required; give one 'SMILES [name]' line per molecule",
+  "reason": "FAIL"
+ },
+ {
+  "id": "snk_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "softmax",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "somers_d",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "specaccum",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "specpool",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "spectral_embedding",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "spectral_entropy",
+  "ok": false,
+  "err": "src.core.errors.errors.ValidationError: ('Form', 'dims contain duplicates')",
+  "reason": "FAIL"
+ },
+ {
+  "id": "spectrum_library_match",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 18], dims=['library', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "splicing_psi",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['event', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "spline_regression",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "standardized_residuals",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "storey_qvalue",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'pvalue']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_amide_pi_bonds",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_anm_modes",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_aromatic_stacking",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_bfactor_profile",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ca_distance_matrix",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_cation_pi",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_cavity_druggability",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_cavity_lining",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_cavity_scan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_chi_angles",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_contact_order",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_contacts",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_disorder_profile",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_disulfide_bonds",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_dockq",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_domain_boundary",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_dssp_segments",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_glycosylation_sites",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_gnm_flexibility",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_halogen_bond_scan",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_hbonds",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_helix_bend",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_helix_geometry",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_helix_helix_angle",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_interface_core",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_interface_residue_energy",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_interface_residue_energy: structure_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_lddt",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ligand_burial",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ligand_clash",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ligand_geometry_qc",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ligand_interaction_fingerprint",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ligand_pose_qc",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ligand_pose_rmsd",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ligand_redock_qc",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_ligand_redock_qc: complex_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ligand_residue_map",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 24], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ligand_strain",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_communication_path",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_communication_path: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_conformational_clusters",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_conformational_clusters: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_contact_occupancy",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_contact_occupancy: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_dihedral_occupancy",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_dihedral_occupancy: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_dssp_transitions",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_ss_occupancy: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_free_energy_landscape",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_free_energy_landscape: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_hbond_lifetime",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_hbond_occupancy: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_hbond_occupancy",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_hbond_occupancy: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_interface_occupancy",
+  "ok": false,
+  "err": "IsADirectoryError: [Errno 21] Is a directory: '.'",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_ligand_rmsd",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_ligand_rmsd: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_markov_states",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_markov_states: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_pca",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_pca: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_quasiharmonic_entropy",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_quasiharmonic_entropy: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_rotamer_states",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_rotamer_states: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_salt_bridge_occupancy",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_salt_bridge_occupancy: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_sasa_occupancy",
+  "ok": false,
+  "err": "ValueError: n_sphere_points: 92 is less than the minimum of 100",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_ss_occupancy",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_ss_occupancy: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_md_tica",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: structure_md_tica: trajectory_path . is not a file",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_metal_coordination",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_openmm_energy",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_openmm_md_rmsf",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_openmm_md_stability",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_packing_density",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_pae_summary",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['residue', 'residue_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_paratope_predict",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_pdbqt_flexible_receptor",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_phi_psi",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_plddt_profile",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_pocket_detect",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_protonation_pka",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_protonation_sites",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_rmsd",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_salt_bridges",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_secondary_structure",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_ss_bridge_network",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_surface_hydrophobicity",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_tm_score",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "structure_zinc_sites",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "stuart_maxwell",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "stuart_maxwell_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['row', 'column']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "studentized_residuals",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "svm_classifier",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "svm_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "synthetic_control",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "tajimas_d",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['variant', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "tamhane_t2",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "taxon_abundance_collapse",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "tcr_diversity",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "theil_sen_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "theil_u",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "tmm_normalize",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "tobit",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "topic_lda",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "tost_equivalence",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "transformer_classifier",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "translate",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "tree_mrca",
+  "ok": false,
+  "err": "ValueError: both taxa must be leaves of the tree",
+  "reason": "FAIL"
+ },
+ {
+  "id": "tree_parsimony_score",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['taxon', 'character']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "tree_ultrametric",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "trnascan_se",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "truncated_svd",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "tsallis",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "tsne",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "ttest_one_sample",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "ttest_paired",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "tukey_hsd",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "tukey_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "turning_point",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "turning_point_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "umap",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "unweighted_unifrac",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['node', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "upgma",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['taxon', 'taxon_b']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "uplift_qini_curve",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "uplift_t_learner",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['row', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "vae_anomaly",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "van_waerden",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'label']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "var_model",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "var_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "variance_ratio",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "variation_of_information",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "varimax_rotation",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "vecm",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "vhh_humanization_mutations",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "vhh_humanization_score",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 18], dims=['sequence', 'position']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "vif",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "vina_dock",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: vina_dock: receptor_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "vina_dock_batch",
+  "ok": false,
+  "err": "src.core.errors.errors.StepError: vina_dock_batch: receptor_path is required",
+  "reason": "FAIL"
+ },
+ {
+  "id": "vina_dock_python",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 21], dims=['atom', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "von_neumann",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "watterson_theta",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 16], dims=['variant', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "weighted_kappa",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 19], dims=['subject', 'rater']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "weighted_unifrac",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 16], dims=['node', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "welch_anova",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "white_test",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "wilcoxon",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 17], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "winsorize",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "woolf_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 20], dims=['stratum', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "xgboost_regressor",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "xic_extract",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 24], dims=['scan', 'field']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "youden_index",
+  "ok": false,
+  "err": "[source] x1: shape=[12, 14], dims=['sample', 'score']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "yuen_test",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['feature', 'sample']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "zero_inflated_negative_binomial",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "zero_inflated_poisson",
+  "ok": false,
+  "err": "[source] x0: shape=[12, 15], dims=['sample', 'feature']",
+  "reason": "FAIL"
+ },
+ {
+  "id": "zivot_andrews",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "id": "zscore",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ }
+]
