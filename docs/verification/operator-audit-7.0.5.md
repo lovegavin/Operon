@@ -87,8 +87,8 @@ Generated coverage routes (`scripts/operator_audit/gen_l1_routes.py`) reuse
 the L1 fixtures and write a CSV-backed template plus `export_results` for
 operators whose L1 case passed. 293 templates were generated, 259 pass static
 validation and 250 execute successfully. The union of builtin route coverage
-(246 operators in the graphs) and executed generated routes is
-**460 / 1063** (36 overlap). 603 operators still have no passing route; the
+(245 operators in the graphs) and executed generated routes is
+**459 / 1063** (36 overlap, 604 uncovered). 604 operators still have no passing route; the
 blocking reasons are one-dimensional Form ports that `CsvReader` cannot
 declare, sequence/`sequence_codes` Form ports that lose `info` through CSV,
 structure/atom tables requiring real records, file-only ports, and statistical

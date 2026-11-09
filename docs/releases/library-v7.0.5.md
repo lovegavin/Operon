@@ -17,7 +17,7 @@ the library, and targets Studio 3.1.6.
 - L3 routes: 78 / 78 route bundles import on Studio 3.1.6; 13 builtin routes
   replay (65 SKIP_DATA because input data is not distributed with the
   template); 250 generated CSV-backed routes execute; union coverage
-  460 / 1063 operators. 603 operators still lack a passing route.
+  459 / 1063 operators. 604 operators still lack a passing route.
 - L4: sampled double-run determinism 13 / 14 byte-identical; `pca` route peak
   RSS 141 MiB; a 1 KiB managed budget raises `MemoryBudgetError`.
 - L5: bundle import through the Studio HTTP API is verified; cross-entry-point
