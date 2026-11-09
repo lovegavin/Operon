@@ -42,7 +42,7 @@ jobs:
           sudo apt-get install -y openssh-server
           sudo mkdir -p /run/sshd
           key="$RUNNER_TEMP/operon_test_key"
-          ssh-keygen -t ed25519 -N '' -f "$key"
+          ssh-keygen -t rsa -b 3072 -N '' -f "$key"
           mkdir -p "$HOME/.ssh"
           cat "$key.pub" >> "$HOME/.ssh/authorized_keys"
           chmod 700 "$HOME/.ssh"
@@ -63,9 +63,15 @@ jobs:
           done
           if [ "$ready" != 1 ]; then
             sudo ss -ltnp || true
-            [ -f "$RUNNER_TEMP/sshd.log" ] && cat "$RUNNER_TEMP/sshd.log" || true
+            [ -f "$RUNNER_TEMP/sshd.log" ] && sudo cat "$RUNNER_TEMP/sshd.log" || true
             exit 1
           fi
+          ls -l "$key" "$key.pub" "$HOME/.ssh/authorized_keys"
+          sudo /usr/sbin/sshd -T | grep -Ei '^(port|permitrootlogin|pubkeyauthentication|authorizedkeysfile|allowusers|usepam|strictmodes)' || true
+          ssh -vvv -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null             -o BatchMode=yes -i "$key" -p 2222 runner@127.0.0.1 true || {
+              sudo cat "$RUNNER_TEMP/sshd.log" || true
+              exit 1
+            }
           echo "OPERON_LOCAL_SSH_PORT=2222" >> "$GITHUB_ENV"
           echo "OPERON_LOCAL_SSH_USER=runner" >> "$GITHUB_ENV"
           echo "OPERON_LOCAL_SSH_KEY=$key" >> "$GITHUB_ENV"
