@@ -300,8 +300,10 @@ def test_exited_process_is_not_a_live_pool_owner(monkeypatch, status):
 
 
 @pytest.mark.skipif(os.name != 'nt', reason='Windows desktop Job Object lifecycle')
-def test_pool_and_other_client_work_survive_desktop_job_object_close(managed, tmp_path):
-    """DETACHED_PROCESS alone must not be mistaken for Job Object breakaway."""
+@pytest.mark.parametrize('job_flags', [0x2800, 0x3000, 0x2000],
+                         ids=['desktop-breakaway', 'silent-breakaway', 'external-host-contained'])
+def test_pool_and_other_client_work_survive_desktop_job_object_close(managed, tmp_path, job_flags):
+    """A desktop closes its job; an enclosing service/CI job outlives clients."""
     import ctypes
     from ctypes import wintypes
     class Basic(ctypes.Structure):
@@ -317,7 +319,7 @@ def test_pool_and_other_client_work_survive_desktop_job_object_close(managed, tm
     kernel.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
     kernel.CloseHandle.argtypes = [wintypes.HANDLE]
     handle = kernel.CreateJobObjectW(None, None)
-    limits = Limits(); limits.basic.flags = 0x2000 | 0x800
+    limits = Limits(); limits.basic.flags = job_flags
     assert kernel.SetInformationJobObject(handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)), ctypes.get_last_error()
     app = managed()
     request = tmp_path / 'request.json'; request.write_text(graph(app).model_dump_json(), encoding='utf-8')
@@ -346,7 +348,13 @@ time.sleep(120)
         # A second real client observes the SAME pool before the owning host dies.
         before = app.service.details(value['id'])
         assert app.service.pool_client.record['owner'] == value['owner']
-        kernel.CloseHandle(handle); handle = None
+        if job_flags & (0x800 | 0x1000):
+            kernel.CloseHandle(handle); handle = None
+        else:
+            # A host that forbids breakaway (CI / container) owns the job for
+            # its whole lifetime. Ending one submitting client must not kill
+            # its peer's work; the outer host retains cleanup authority.
+            host.kill()
         host.wait(timeout=10)
         time.sleep(.3)
         assert process_alive(value['owner']), 'Desktop Job Object killed the shared pool'

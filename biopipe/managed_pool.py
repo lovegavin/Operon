@@ -330,6 +330,46 @@ def inspect_pool(*, stop=False):
     return client.request('pool.retire') if stop else client.status()
 
 
+def _windows_pool_flags():
+    """Leave an Operon desktop job, while respecting an enclosing host job.
+
+    BREAKAWAY_FROM_JOB is rejected by Windows when the current job does not
+    grant it (for example a CI runner or service container). Such an external
+    job remains the host's lifetime boundary, not the submitting client's.
+    Operon's own desktop job always grants explicit breakaway. Never retry a
+    failed breakaway by launching inside that desktop job.
+    """
+    import ctypes
+    from ctypes import wintypes
+
+    class Basic(ctypes.Structure):
+        _fields_ = [('times', ctypes.c_int64 * 2), ('flags', wintypes.DWORD),
+                    ('minimum', ctypes.c_size_t), ('maximum', ctypes.c_size_t),
+                    ('active', wintypes.DWORD), ('affinity', ctypes.c_size_t),
+                    ('priority', wintypes.DWORD), ('scheduling', wintypes.DWORD)]
+
+    api = ctypes.WinDLL('kernel32', use_last_error=True)
+    api.GetCurrentProcess.restype = wintypes.HANDLE
+    api.IsProcessInJob.argtypes = [wintypes.HANDLE, wintypes.HANDLE, ctypes.POINTER(wintypes.BOOL)]
+    api.IsProcessInJob.restype = wintypes.BOOL
+    api.QueryInformationJobObject.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p,
+                                              wintypes.DWORD, ctypes.c_void_p]
+    api.QueryInformationJobObject.restype = wintypes.BOOL
+    member = wintypes.BOOL()
+    if not api.IsProcessInJob(api.GetCurrentProcess(), None, ctypes.byref(member)):
+        raise ctypes.WinError(ctypes.get_last_error())
+    flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.CREATE_NO_WINDOW
+    if member.value:
+        limits = Basic()
+        if not api.QueryInformationJobObject(None, 2, ctypes.byref(limits), ctypes.sizeof(limits), None):
+            raise ctypes.WinError(ctypes.get_last_error())
+        if limits.flags & 0x0800:  # JOB_OBJECT_LIMIT_BREAKAWAY_OK
+            flags |= subprocess.CREATE_BREAKAWAY_FROM_JOB
+        # SILENT_BREAKAWAY_OK needs no creation flag. Otherwise retain the
+        # external host's containment rather than trying to override it.
+    return flags
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--start', action='store_true')
@@ -343,14 +383,12 @@ def main():
         with (args.root / 'pool.log').open('ab') as log:
             subprocess.Popen(command, cwd=args.code_root, stdin=subprocess.DEVNULL, stdout=log,
                              stderr=subprocess.STDOUT, start_new_session=os.name != 'nt',
-                             creationflags=(subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP |
-                                            subprocess.CREATE_NO_WINDOW | subprocess.CREATE_BREAKAWAY_FROM_JOB)
-                             if os.name == 'nt' else 0)
+                             creationflags=_windows_pool_flags() if os.name == 'nt' else 0)
             # DETACHED_PROCESS only detaches the console. The desktop explicitly
             # permits Job Object breakaway; request it so closing that client's
             # KILL_ON_JOB_CLOSE handle cannot stop the pool or other clients' work.
-            # If the OS forbids breakaway, fail startup instead of silently
-            # creating a pool whose lifetime still belongs to one desktop.
+            # External host jobs (CI runners / service containers) keep their
+            # own lifetime boundary. No retry weakens a failed desktop escape.
     else:
         serve(args.root, args.admission, args.code_root)
 
