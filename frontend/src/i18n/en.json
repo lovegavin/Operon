@@ -705,5 +705,9 @@
   "查看算子": "View operators",
   "正在补齐算子库": "Supplementing library",
   "算子已补齐；运行依赖请在执行设置中检查。": "Operators installed. Check execution dependencies in Execution settings.",
-  "补齐所选算子包": "Install selected packages"
+  "补齐所选算子包": "Install selected packages",
+  "?? Agent ?????????????": "Allow the Agent to install or repair operator packages and environments",
+  "?????????????? --allow-plugins?????????????????????????????????????????????????????": "This is off by default. Enabling it adds --allow-plugins, permitting operator package changes and environment preparation; it is separate from canvas edit or run permission. Connected clients must reconnect before they gain it.",
+  "允许 Agent 安装或修复算子包与运行环境": "Allow the Agent to install or repair operator packages and environments",
+  "此选项默认关闭。开启后会加入 --allow-plugins，允许修改算子包和准备依赖环境；它不同于画布编辑或提交运行权限。已连接的客户端需要重新连接才会获得该权限。": "This is off by default. Enabling it adds --allow-plugins, permitting operator package changes and environment preparation; it is separate from canvas edit or run permission. Connected clients must reconnect before they gain it."
 }

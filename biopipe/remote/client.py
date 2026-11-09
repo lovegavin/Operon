@@ -13,9 +13,9 @@ from .protocol import ANSI, Decoder, transmit
 
 
 class RemoteError(ValueError):
-    def __init__(self, message, *, code='remote_error', node_id=None):
+    def __init__(self, message, *, code='remote_error', node_id=None, details=None):
         super().__init__(message)
-        self.code, self.node_id = code, node_id
+        self.code, self.node_id, self.details = code, node_id, details
 
 
 class HostKeyRequired(RemoteError):
@@ -203,8 +203,17 @@ class SSHConnection:
                     if decoder.ack: self.channel.sendall(decoder.ack.encode())
                     if response is None or response.get('id') != identity: continue
                     if not response.get('ok'):
-                        raise RemoteError(response.get('error', 'Remote operation failed'),
-                                          code=response.get('code', 'remote_error'), node_id=response.get('node_id'))
+                        message = response.get('error', 'Remote operation failed')
+                        details = response.get('details')
+                        if isinstance(details, dict) and response.get('code') in (
+                                'service_unavailable', 'remote_transport_error'):
+                            hint = details.get('path') or details.get('socket')
+                            trace_id = details.get('trace_id')
+                            if hint or trace_id:
+                                message += (' (server diagnostics: ' + (hint or 'server log')
+                                            + (f', trace {trace_id}' if trace_id else '') + ')')
+                        raise RemoteError(message, code=response.get('code', 'remote_error'),
+                                          node_id=response.get('node_id'), details=details)
                     return response['value']
             except RemoteError as exc:
                 if exc.code == 'remote_disconnected': self.close()

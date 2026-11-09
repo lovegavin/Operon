@@ -511,3 +511,38 @@ def test_independent_branch_split_is_opt_in_and_preserves_default_units():
     assert split['units'][2]['depends_on'] == ['stage_1', 'stage_2']
     with pytest.raises(GraphError, match='boolean'):
         planner.make_plan(graph(nodes, edges, mode='manual', split_independent_branches='yes'), [host()])
+
+def test_broken_unrelated_host_does_not_block_explicit_target():
+    from types import SimpleNamespace
+    from src.web.execution import ExecutionService
+
+    calls = []
+    class Remotes:
+        def status(self):
+            return [{'profile': {'id': 'good', 'name': 'good'}, 'connected': True,
+                     'info': host(target={'kind': 'ssh', 'profile_id': 'good'})},
+                    {'profile': {'id': 'bad', 'name': 'bad'}, 'connected': True,
+                     'info': host(target={'kind': 'ssh', 'profile_id': 'bad'})}]
+        def call(self, key, method, params=None):
+            calls.append(key)
+            if key == 'bad':
+                raise RuntimeError('unrelated host is down')
+            return {}
+    service = SimpleNamespace(
+        catalog={'operators': [], 'readers': []},
+        resources=lambda: {},
+        dependencies=SimpleNamespace(snapshot=lambda: {}),
+        remotes=Remotes(), root='.')
+    engine = SimpleNamespace(service=service)
+    value = Graph.model_validate({'nodes': [], 'edges': [],
+                                  'runtime': {'execution': {'target': {'kind': 'ssh', 'profile_id': 'good'}}}})
+    result = ExecutionService.infos(engine, graph=value)
+    assert calls == ['good']
+    bad = next(item for item in result if item['target'].get('profile_id') == 'bad')
+    assert 'validated_pins' not in bad and 'pin_validation_error' not in bad
+
+    automatic = Graph.model_validate({'nodes': [], 'edges': [],
+                                      'runtime': {'execution': {'mode': 'auto'}}})
+    result = ExecutionService.infos(engine, graph=automatic)
+    assert calls == ['good', 'good', 'bad']
+    assert any(item.get('pin_validation_error') for item in result)

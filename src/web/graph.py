@@ -187,7 +187,9 @@ def compile_graph(graph: Graph, catalog: dict, root: Path, *, require_files=Fals
             if not is_exchange and source.get('reader') and not readers:
                 raise GraphError(f"Selected Reader {source['reader']} cannot read the file compression or required companions are missing", key)
             if require_files and not is_exchange and len(readers) != 1:
-                raise GraphError('Choose a registered Reader for this input; its format is unknown or ambiguous', key)
+                choices = ', '.join(item['id'] for item in readers) or 'none'
+                raise GraphError('Choose a registered Reader for this input; its format is '
+                                 f'unknown or ambiguous (candidates: {choices})', key)
             if len(readers) == 1:
                 from biopipe_sdk.protocol import validate_parameters
                 try:

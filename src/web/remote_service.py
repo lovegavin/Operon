@@ -456,8 +456,9 @@ class RemoteManager:
     def ensure(self, key):
         """Idempotently restore an SSH connection; key/agent auth needs no secret."""
         profile = self.profile(key)
-        state = self.status().get('profiles', {})
-        if state.get(key, {}).get('connected'):
+        state = next((item for item in self.status()
+                      if (item.get('profile') or {}).get('id') == key), None)
+        if state and state.get('connected'):
             return {'connected': True, 'profile_id': key, 'latency': None}
         if profile.get('auth', 'password') == 'password':
             raise ValueError('服务器需要密码认证，请调用 /api/remote/{key}/connect 提供本次会话密码')

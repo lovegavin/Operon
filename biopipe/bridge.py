@@ -45,7 +45,14 @@ class Bridge:
         token = request.headers.get("authorization", "").removeprefix("Bearer ")
         value = self.connections.get(hashlib.sha256(token.encode()).hexdigest())
         if not value or capability not in value["scopes"]:
-            raise HTTPException(403, f"Agent connection requires '{capability}' capability")
+            if capability == 'plugins':
+                guidance = ("Agent connection requires the 'plugins' capability. "
+                            "Reconnect the MCP client with --allow-plugins to authorize operator "
+                            "package changes and environment preparation; a data-independent "
+                            "check-environment request only needs context permission.")
+            else:
+                guidance = f"Agent connection requires the '{capability}' capability."
+            raise HTTPException(403, guidance)
         return "agent:" + value["name"]
 
     def register_routes(self):

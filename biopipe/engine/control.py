@@ -84,10 +84,12 @@ class ByteBudget:
 
 
 class ControlLoop:
-    def __init__(self, dispatch, *, limits: ControlLimits | None = None, on_close=None):
+    def __init__(self, dispatch, *, limits: ControlLimits | None = None, on_close=None,
+                 on_error=None):
         self.dispatch = dispatch
         self.limits = limits or ControlLimits()
         self.on_close = on_close
+        self.on_error = on_error
         self.budget = ByteBudget(self.limits.max_inflight_bytes)
         self.slots = threading.BoundedSemaphore(self.limits.max_handlers)
         self.executor = ThreadPoolExecutor(max_workers=self.limits.max_handlers,
@@ -160,6 +162,11 @@ class ControlLoop:
         except BaseException as exc:  # noqa: BLE001 - response must always be framed
             self.errors += 1
             METRICS.increment('control.errors')
+            if self.on_error is not None:
+                try:
+                    self.on_error(exc, dict(_request_context.get()))
+                except Exception:  # noqa: BLE001 - diagnostics must not break the response
+                    pass
             response = self._error_response(exc, request_id)
         finally:
             _request_context.set({})
@@ -200,6 +207,10 @@ class ControlLoop:
             values['code'] = 'invalid_request'
         if isinstance(details, dict) and len(json.dumps(details, default=str)) <= 16384:
             values['details'] = details
+        elif details is None:
+            values['details'] = {'request_id': request_id}
+        if isinstance(values.get('details'), dict):
+            values['details'].setdefault('request_id', request_id)
         if getattr(exc, 'retry_after', None) is not None:
             values['retry_after'] = exc.retry_after
         node_id = getattr(exc, 'node_id', None)

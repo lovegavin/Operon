@@ -1,10 +1,12 @@
 """Server-owned jobs, reached through SSH and a private Unix socket only."""
 import argparse
 import hashlib
+from datetime import datetime, timezone
 from biopipe.engine.transport import transport_admission
 import json
 import os
 from pathlib import Path
+import re
 import socket
 import stat
 import struct
@@ -13,6 +15,8 @@ import sys
 import tempfile
 import threading
 import time
+import traceback
+import uuid
 
 from .protocol import Decoder, transmit
 from biopipe.engine.control import ControlLoop, limits_from_environment
@@ -63,6 +67,7 @@ class RemoteService:
         from src.web.operator_catalog import catalog_from_descriptors
         from src.task.memory.config import MemoryConfig, AUTO_BUDGET_FRACTION
         workspace = Path(workspace).expanduser().resolve()
+        self.workspace = workspace
         workspace.mkdir(parents=True, exist_ok=True)
         code = Path(__file__).resolve().parents[2]
         # Explicit interpreter selection must also select its command-line tools.
@@ -233,6 +238,17 @@ class RemoteService:
             with self._lifecycle:
                 self._draining = False
             raise
+
+    def record_dispatch_error(self, exc, context):
+        """Persist a sanitized dispatch traceback without touching jobs/state."""
+        _event_log(self.workspace, 'dispatch.events.jsonl', {
+            'event': 'dispatch_error',
+            'operation': context.get('method'),
+            'request_id': context.get('request_id'),
+            'code': getattr(exc, 'code', type(exc).__name__),
+            'error': str(exc),
+            'traceback': traceback.format_exc(),
+        })
 
     def dispatch(self, method, params):
         # Small direct-dispatch fixtures omit the daemon lifecycle entirely.
@@ -534,11 +550,175 @@ class RemoteService:
 
 
 def rpc(workspace, request):
-    with socket.socket(socket.AF_UNIX) as client:
+    """Call the shared daemon, classifying pre-dispatch connection failures.
+
+    A retry is safe only when connect failed before the request was sent.  Read
+    or write failures may have reached a stateful operation and are never
+    replayed.  Business exceptions from the daemon are returned as framed
+    responses and are not converted into transport failures.
+    """
+    address = socket_path(workspace)
+    client = None
+    try:
+        client = socket.socket(socket.AF_UNIX)
         client.settimeout(90)
-        client.connect(str(socket_path(workspace)))
-        send_message(client, request)
-        return read_message(client)
+        try:
+            client.connect(str(address))
+        except (FileNotFoundError, ConnectionRefusedError) as exc:
+            raise DaemonUnavailable(
+                f'The remote RPC daemon is unavailable at {address}',
+                details={'phase': 'connect', 'retryable': True, 'socket': str(address),
+                         'path': str(address), 'errno': getattr(exc, 'errno', None),
+                         'request_id': request.get('id'), 'method': request.get('method'),
+                         'cause': f'{type(exc).__name__}: {exc}'}) from exc
+        try:
+            send_message(client, request)
+        except OSError as exc:
+            raise RpcTransportError(
+                'The RPC request could not be sent completely; it is not replayed',
+                details={'phase': 'send', 'retryable': False, 'request_id': request.get('id'),
+                         'method': request.get('method'),
+                         'cause': f'{type(exc).__name__}: {exc}'}) from exc
+        try:
+            return read_message(client)
+        except OSError as exc:
+            raise RpcTransportError(
+                'The RPC daemon connection failed after dispatch; it is not replayed',
+                details={'phase': 'read', 'retryable': False, 'request_id': request.get('id'),
+                         'method': request.get('method'),
+                         'cause': f'{type(exc).__name__}: {exc}'}) from exc
+    finally:
+        if client is not None:
+            client.close()
+
+
+class DaemonUnavailable(OSError):
+    code = 'service_unavailable'
+
+    def __init__(self, message, *, details=None):
+        super().__init__(message)
+        self.details = details or {}
+
+
+class RpcTransportError(OSError):
+    code = 'remote_transport_error'
+
+    def __init__(self, message, *, details=None):
+        super().__init__(message)
+        self.details = details or {}
+
+
+def _sanitize_diagnostic(value):
+    """Remove credential-shaped text before a traceback reaches a log.
+
+    Exception strings are not trusted to be free of secrets.  This is applied
+    to the complete formatted traceback, not only the message field.
+    """
+    text = str(value)
+    text = re.sub(r'(?i)\b(password|passphrase|token|secret|authorization)\b'
+                  r'\s*[:=]\s*([^\s,;]+)', lambda m: m.group(1) + '=<redacted>', text)
+    text = re.sub(r'(?i)(https?://)[^/\s:@]+:[^/\s@]+@', r'\1<redacted>@', text)
+    return text
+
+
+def _event_log(workspace, filename, fields, *, limit=1024 * 1024):
+    """Append a bounded, machine-readable diagnostic outside protocol stdout."""
+    try:
+        directory = Path(workspace) / '.studio' / 'remote'
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / filename
+        try:
+            if path.stat().st_size >= limit:
+                path.replace(path.with_suffix(path.suffix + '.1'))
+        except OSError:
+            pass
+        payload = {'time': datetime.now(timezone.utc).isoformat(), **fields}
+        payload = {key: _sanitize_diagnostic(value) if isinstance(value, str) else value
+                   for key, value in payload.items()}
+        line = json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str) + '\n'
+        with path.open('a', encoding='utf-8') as stream:
+            stream.write(line)
+    except OSError:
+        pass
+
+
+def _bridge_event(workspace, **fields):
+    """Local, secret-free bridge diagnostics; never writes to the RPC stream."""
+    _event_log(workspace, 'bridge.events.jsonl', fields)
+
+
+def _response_details(exc, *, request_id=None, method=None, trace_id=None, **extra):
+    details = dict(getattr(exc, 'details', None) or {})
+    details.setdefault('operation', method)
+    details.setdefault('request_id', request_id)
+    details.setdefault('trace_id', trace_id or uuid.uuid4().hex)
+    details.update(extra)
+    return details
+
+
+def dispatch_with_recovery(workspace, request, *, ensure=None, log=None):
+    """Dispatch one request, recovering only a pre-send missing daemon.
+
+    The exact same request id is retried at most once after `ensure_daemon`.
+    A post-send failure is surfaced and never replayed.  This is the common
+    boundary used by the SSH bridge, so HTTP/MCP see stable codes and details.
+    """
+    ensure = ensure or ensure_daemon
+    log = log or _bridge_event
+    request_id = request.get('id')
+    trace_id = uuid.uuid4().hex
+    try:
+        return rpc(workspace, request)
+    except DaemonUnavailable as first:
+        log(workspace, event='daemon_missing', request_id=request_id, trace_id=trace_id,
+            method=request.get('method'), phase=first.details.get('phase'),
+            error=str(first), cause=first.details.get('cause'),
+            traceback=traceback.format_exc())
+        try:
+            ensure(workspace)
+        except Exception as exc:  # noqa: BLE001 - explicit recovery failure
+            details = _response_details(
+                first, request_id=request_id, method=request.get('method'), trace_id=trace_id,
+                phase='ensure', retryable=True, recovery='failed',
+                recovery_attempted=True, cause=f'{type(exc).__name__}: {exc}')
+            log(workspace, event='daemon_recovery_failed', request_id=request_id,
+                trace_id=trace_id, method=request.get('method'), cause=details['cause'],
+                traceback=traceback.format_exc())
+            raise DaemonUnavailable(
+                'The remote service could not be restarted. '
+                f'Inspect .studio/remote/bridge.events.jsonl on the server (trace {trace_id}).',
+                details=details) from exc
+        try:
+            response = rpc(workspace, request)
+            log(workspace, event='daemon_recovered', request_id=request_id, trace_id=trace_id,
+                method=request.get('method'), retry=1)
+            return response
+        except DaemonUnavailable as retry_exc:
+            details = _response_details(
+                retry_exc, request_id=request_id, method=request.get('method'), trace_id=trace_id,
+                recovery='retry_failed', recovery_attempted=True, retry=1)
+            log(workspace, event='daemon_recovery_failed', request_id=request_id,
+                trace_id=trace_id, method=request.get('method'),
+                cause=retry_exc.details.get('cause'), traceback=traceback.format_exc())
+            raise DaemonUnavailable(
+                'The remote service did not respond after recovery. '
+                f'Inspect .studio/remote/bridge.events.jsonl on the server (trace {trace_id}).',
+                details=details) from retry_exc
+        except RpcTransportError as retry_exc:
+            details = _response_details(
+                retry_exc, request_id=request_id, method=request.get('method'), trace_id=trace_id,
+                recovery='retry_transport_failed', recovery_attempted=True, retry=1)
+            log(workspace, event='daemon_recovery_transport_failed', request_id=request_id,
+                trace_id=trace_id, method=request.get('method'),
+                cause=retry_exc.details.get('cause'), traceback=traceback.format_exc())
+            raise RpcTransportError('The remote service failed after recovery; it was not replayed',
+                                    details=details) from retry_exc
+    except RpcTransportError as exc:
+        # The request may already have been dispatched; never call ensure/retry.
+        log(workspace, event='rpc_transport_failed', request_id=request_id, trace_id=trace_id,
+            method=request.get('method'), phase=exc.details.get('phase'),
+            cause=exc.details.get('cause'), traceback=traceback.format_exc())
+        raise
 
 
 def ensure_daemon(workspace, *, upgrade=False):
@@ -572,7 +752,7 @@ def ensure_daemon(workspace, *, upgrade=False):
                 time.sleep(.1)
             if address.exists():
                 raise RuntimeError('The previous server is still stopping; reconnect shortly')
-        except (FileNotFoundError, ConnectionRefusedError):
+        except DaemonUnavailable:
             pass
         directory = Path(workspace)/'.studio/remote'
         directory.mkdir(parents=True, exist_ok=True)
@@ -585,21 +765,24 @@ def ensure_daemon(workspace, *, upgrade=False):
             try:
                 validate_daemon_response(rpc(workspace, daemon_request()))
                 return
-            except (FileNotFoundError, ConnectionRefusedError):
+            except DaemonUnavailable:
                 time.sleep(.15)
-        raise RuntimeError('Remote service did not start; inspect .studio/remote/service.log on the server')
+        raise DaemonUnavailable('Remote service did not start; inspect .studio/remote/service.log on the server',
+                                details={'phase': 'start', 'retryable': True, 'socket': str(address)})
 
 
 def serve(workspace):
     address = socket_path(workspace)
     service = RemoteService(workspace)
     address.unlink(missing_ok=True)
-    loop = ControlLoop(service.dispatch, limits=limits_from_environment())
+    loop = ControlLoop(service.dispatch, limits=limits_from_environment(),
+                       on_error=service.record_dispatch_error)
+    idle_seconds = float(os.environ.get('BIOPIPE_REMOTE_IDLE_SECONDS', 300))
     with socket.socket(socket.AF_UNIX) as listener:
         listener.bind(str(address)); os.chmod(address, 0o600)
         listener.listen(64)
         try:
-            loop.serve(listener, alive=service.alive, idle_seconds=300,
+            loop.serve(listener, alive=service.alive, idle_seconds=idle_seconds,
                        stop_requested=service.stop_requested.is_set)
         finally:
             address.unlink(missing_ok=True)
@@ -639,8 +822,11 @@ def main():
         else:
             ensure_daemon(workspace)
     except Exception as exc:
-        print('BIOPIPE_REMOTE_ERROR ' + json.dumps({'code': getattr(exc, 'code', 'service_unavailable'),
-                                                   'error': str(exc)}, ensure_ascii=False), flush=True)
+        payload = {'code': getattr(exc, 'code', 'service_unavailable'), 'error': str(exc)}
+        details = getattr(exc, 'details', None)
+        if details:
+            payload['details'] = details
+        print('BIOPIPE_REMOTE_ERROR ' + json.dumps(payload, ensure_ascii=False), flush=True)
         return
     print('\nBIOPIPE_REMOTE_READY 1', flush=True)
     decoder = Decoder('Q')
@@ -656,9 +842,14 @@ def main():
         except ValueError: continue
         if decoder.ack: write(decoder.ack)
         if request is None: continue
-        try: response = rpc(workspace, request)
-        except Exception as exc:
-            response = {'ok': False, 'error': str(exc), 'code': getattr(exc, 'code', 'remote_error')}
+        try:
+            response = dispatch_with_recovery(workspace, request)
+        except Exception as exc:  # noqa: BLE001 - framed error is the bridge contract
+            details = getattr(exc, 'details', None)
+            response = {'ok': False, 'error': str(exc),
+                        'code': getattr(exc, 'code', 'remote_error')}
+            if details:
+                response['details'] = details
         response['id'] = request.get('id')
         try: transmit(response, 'R', write, terminal.line)
         except (EOFError, TimeoutError): return

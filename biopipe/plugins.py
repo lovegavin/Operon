@@ -273,7 +273,16 @@ class PluginManager:
         candidates = [state]
         for pattern in ("snapshots/*.json", "environments/*/lock.json"):
             for path in sorted(io_path(self.directory).glob(pattern)):
-                candidate = json.loads(path.read_text(encoding="utf-8"))
+                try:
+                    candidate = json.loads(path.read_text(encoding="utf-8"))
+                except OSError:
+                    # A generation can disappear between glob and read.  It is
+                    # unavailable, not silently replaced by a different one.
+                    continue
+                except ValueError:
+                    continue
+                if not isinstance(candidate, dict):
+                    continue
                 if candidate.get("package_protocol_version") == PROTOCOL_VERSION:
                     candidate["_runtime_root"] = str(self.directory.resolve())
                     candidates.append(candidate)

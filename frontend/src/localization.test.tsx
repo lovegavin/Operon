@@ -8,7 +8,7 @@ import {displayTitle, runSignature} from './graph';
 import {ParameterField} from './Inspector';
 import {PluginPanel} from './PluginPanel';
 import {SettingsPage} from './SettingsPage';
-import {AgentPanel} from './AgentPanel';
+import {AgentPanel, agentConfiguration} from './AgentPanel';
 import type {Graph, Operator} from './types';
 
 afterEach(() => setLanguage('system'));
@@ -80,5 +80,10 @@ describe('language projections', () => {
     expect(configured).toContain('&quot;command&quot;: &quot;python&quot;');
     expect(configured).toContain('&quot;biopipe&quot;');
     expect(configured).toContain('-m operon mcp');
+    expect(agentConfiguration({command:'python',args:['-m','biopipe','mcp','--allow-run']}, false)).not.toContain('--allow-plugins');
+    const permitted = agentConfiguration({command:'python',args:['-m','biopipe','mcp','--allow-run','--workspace','/tmp/ws']}, true);
+    expect(permitted).toContain('--allow-plugins');
+    expect(permitted).toContain('--workspace');
+    expect(permitted).toContain('/tmp/ws');
   });
 });

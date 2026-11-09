@@ -185,3 +185,24 @@ def test_invalid_method_and_oversized_frame_are_machine_readable():
         assert value['code'] == 'invalid_request'
     finally:
         loop.close()
+
+def test_dispatch_exception_is_reported_to_diagnostics_without_breaking_response():
+    seen = []
+    def dispatch(method, params):
+        raise ValueError('password=hunter2 request failed')
+    listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    listener.bind(('127.0.0.1', 0)); listener.listen(8)
+    loop = ControlLoop(dispatch, limits=ControlLimits(max_handlers=2),
+                       on_error=lambda exc, context: seen.append((str(exc), context)))
+    thread = threading.Thread(target=loop.serve,
+                              kwargs={'listener': listener, 'alive': lambda: False, 'idle_seconds': 10},
+                              daemon=True)
+    thread.start()
+    try:
+        value = request(listener.getsockname(), 'status')
+        assert value['ok'] is False and value['code'] == 'invalid_request'
+        assert seen and 'password=hunter2' in seen[0][0]
+        assert seen[0][1]['method'] == 'status'
+    finally:
+        loop.close()

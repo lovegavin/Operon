@@ -158,9 +158,29 @@ class ExecutionService:
                 for key, pin in part.plugin_lock.items():
                     if pin not in requested.setdefault(key, []):
                         requested[key].append(pin)
+            execution = graph.runtime.get('execution') or {}
+            explicitly_targeted = (isinstance(execution, dict) and
+                                   ('target' in execution or 'profile_id' in execution or
+                                    execution.get('kind') in ('local', 'ssh')))
+            preferred = target_key(execution.get('target') or execution)
             for info in result:
-                info['validated_pins'] = (validated_pins(self.service, requested) if info['target']['kind'] == 'local'
-                                          else self.service.remotes.call(target_key(info['target']), 'pin_compatibility', {'pins': requested}))
+                key = target_key(info['target'])
+                if explicitly_targeted and key != preferred:
+                    # A broken unrelated server must not block an explicit
+                    # local or different-host workflow.
+                    continue
+                try:
+                    info['validated_pins'] = (
+                        validated_pins(self.service, requested) if info['target']['kind'] == 'local'
+                        else self.service.remotes.call(key, 'pin_compatibility', {'pins': requested}))
+                except Exception as exc:  # noqa: BLE001 - candidate isolation
+                    # Automatic placement may exclude a candidate; an explicit
+                    # target remains blocked by the detector below, never
+                    # silently relocated to another host.
+                    info['validated_pins'] = {'__errors__': [
+                        {'operator': '*', 'reason': 'pin_validation_unavailable',
+                         'error': f'{type(exc).__name__}: {exc}'}]}
+                    info['pin_validation_error'] = f'{type(exc).__name__}: {exc}'
         return result
 
     def catalog(self, graph):

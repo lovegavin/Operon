@@ -4,15 +4,27 @@ import { Copy, PlugsConnected, X } from "@phosphor-icons/react";
 import { api } from "./api";
 
 type Connection = {id: string; name: string; scopes: string[]};
-export function AgentPanel({sessionId, command, onClose, onCopySelection}: {sessionId?: string; command?: {command: string; args: string[]}; onClose: () => void; onCopySelection: () => void}) {
+type AgentCommand = {command: string; args: string[]};
+
+export function agentConfiguration(command: AgentCommand | undefined, allowInstallation: boolean) {
+  const base = command || {command: "operon", args: ["mcp", "--allow-run"]};
+  const args = [...base.args];
+  if (allowInstallation && !args.includes("--allow-plugins")) args.push("--allow-plugins");
+  return JSON.stringify({mcpServers: {operon: {command: base.command, args}}}, null, 2);
+}
+
+export function AgentPanel({sessionId, command, onClose, onCopySelection}: {sessionId?: string; command?: AgentCommand; onClose: () => void; onCopySelection: () => void}) {
   const [connections, setConnections] = useState<Connection[]>([]), [error, setError] = useState("");
-  const config = JSON.stringify({mcpServers: {operon: command || {command: "operon", args: ["mcp", "--allow-run"]}}}, null, 2);
+  const [installationPermission, setInstallationPermission] = useState(false);
+  const config = agentConfiguration(command, installationPermission);
   const refresh = () => api.agent<Connection[]>("/connections").then(setConnections).catch(error => setError((error as Error).message));
   useEffect(() => {void refresh(); const timer = setInterval(() => void refresh(), 2000); return () => clearInterval(timer);}, []);
   return <div className="agent-overlay" role="presentation" onMouseDown={e => {if(e.target === e.currentTarget) onClose();}}>
     <section className="agent-panel" role="dialog" aria-modal="true" aria-label={t("连接自己的 Agent")}>
       <header><div className="agent-heading"><PlugsConnected size={24}/><div><h2>{t("连接自己的 Agent")}</h2><p>{t("让你的助手读取选区、生成路线、协作编辑。")}</p></div></div><button className="icon-button" aria-label={t("关闭 Agent 面板")} onClick={onClose}><X size={18}/></button></header>
       <p>{t("在已安装 Operon CLI 的环境中，将下面的配置添加到支持 MCP 的客户端。提问时，助手可读取最新选区。")}</p>
+      <label className="agent-permission"><input type="checkbox" checked={installationPermission} onChange={event => setInstallationPermission(event.target.checked)}/><span>{t("允许 Agent 安装或修复算子包与运行环境")}</span></label>
+      <p className="agent-note">{t("此选项默认关闭。开启后会加入 --allow-plugins，允许修改算子包和准备依赖环境；它不同于画布编辑或提交运行权限。已连接的客户端需要重新连接才会获得该权限。")}</p>
       <pre>{config}</pre>
       <div className="agent-actions"><button className="subtle-button" onClick={() => {void navigator.clipboard.writeText(config).catch(error=>setError(String(error)));}}><Copy size={15}/>{t("复制 MCP 配置")}</button><button className="subtle-button" onClick={onCopySelection}>{t("复制选区上下文")}</button></div>
       <p className="agent-note">{t("画布修改可撤销。默认启动参数已含")} <code>--allow-run</code>{t("（可提交运行）；只读场景移除该参数并添加")} <code>--read-only</code>{t("。无 CLI 的环境可使用已配置的 Python 执行")} <code>-m operon mcp</code>。</p>

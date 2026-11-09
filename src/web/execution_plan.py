@@ -120,10 +120,13 @@ def descriptor_capability(spec, info, pin=None):
         validated = info.get('_validated_pins')
         if validated is None:
             validated = {(key, identity(value)) for key, values in (info.get('validated_pins') or {}).items()
+                         if not str(key).startswith('__') and isinstance(values, list)
                          for value in values if isinstance(value, dict)}
         if ((name, identity(pin)) not in validated and
                 not equivalent(current, replacement, bundled=bundled)):
-            return f'{name} pinned implementation is unavailable'
+            because = info.get('pin_validation_error')
+            return (f'{name} pinned implementation is unavailable'
+                    + (f' ({because})' if because else ''))
     return None
 
 
@@ -303,6 +306,7 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False, dependenci
         # PluginManager.snapshot, not unverified aliases supplied by a graph.
         info['_validated_pins'] = {(name, identity(pin))
                                    for name, pins in (info.get('validated_pins') or {}).items()
+                                   if not str(name).startswith('__') and isinstance(pins, list)
                                    for pin in pins if isinstance(pin, dict)}
         info['_released_pins'] = released_replacements(graph, {**info['_operators'], **info['_readers']})
 
