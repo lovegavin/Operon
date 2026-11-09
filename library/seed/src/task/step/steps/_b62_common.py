@@ -38,10 +38,19 @@ def names(form):
 
 
 def table(rows, values, columns):
+    labels = {}
+    for i, name in enumerate(rows):
+        key = str(name)
+        base = key
+        suffix = 1
+        while key in labels:
+            key = f"{base}#{suffix}"
+            suffix += 1
+        labels[key] = i
     out = Form(
         data=np.round(np.asarray(values, dtype=float), 9),
         dims=["row", "statistic"],
-        labels={"row": {str(n): i for i, n in enumerate(rows)},
+        labels={"row": labels,
                 "statistic": {c: i for i, c in enumerate(columns)}},
         info={"columns": list(columns)},
     )

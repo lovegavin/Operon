@@ -7,6 +7,7 @@ import numpy as np
 
 from src.core import Form
 from src.task.step.base import Step
+from src.core.errors import StepError
 from ._sc_common import matrix, row_names, result_form
 
 
@@ -39,6 +40,8 @@ class ScLeidenClusterStep(Step):
     def run(self, ctx, inputs):
         params = ctx.step_params
         adj = matrix(inputs[0])
+        if adj.ndim != 2 or adj.shape[0] != adj.shape[1]:
+            raise StepError("sc_leiden_cluster requires a square cell-by-cell adjacency matrix")
         edges = [(i, j, float(adj[i, j])) for i in range(adj.shape[0]) for j in range(i + 1, adj.shape[1]) if adj[i, j] > 0]
         g = ig.Graph(n=adj.shape[0], edges=[(i, j) for i, j, _ in edges], directed=False)
         g.es["weight"] = [w for _, _, w in edges]

@@ -136,7 +136,10 @@ class StructureMdInterfaceOccupancyStep(Step):
 
     def run(self, ctx, inputs):
         params = ctx.step_params
-        frames = load_frames(str(params.get("trajectory_path", "")))
+        trajectory = str(params.get("trajectory_path", "") or "").strip()
+        if not trajectory:
+            raise StepError("structure_md_interface_occupancy: trajectory_path is required")
+        frames = load_frames(trajectory)
         labels, chain, heavy = topology_table(str(params.get("topology_path", "")))
         binder, target = select_chains(params, chain)
         cutoff = float(params.get("cutoff", 5.0))

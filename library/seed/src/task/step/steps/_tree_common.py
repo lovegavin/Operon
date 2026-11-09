@@ -123,8 +123,13 @@ def numeric_column(form, dim, name):
 
 
 def result_form(names, values, columns):
+    data = np.asarray(values, dtype=float)
+    if data.size == 0:
+        data = np.zeros((0, len(columns)), dtype=float)
+    elif data.ndim == 1:
+        data = data.reshape(1, -1)
     out = Form(
-        data=np.round(np.asarray(values, dtype=float), 9),
+        data=np.round(data, 9),
         dims=["entry", "statistic"],
         labels={"entry": {str(n): i for i, n in enumerate(names)},
                 "statistic": {c: i for i, c in enumerate(columns)}},

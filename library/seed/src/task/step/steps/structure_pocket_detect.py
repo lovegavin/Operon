@@ -168,6 +168,11 @@ class StructurePocketDetectStep(Step):
         numbers = decode_column(form, field_dim, "residue_number")
         names = decode_column(form, field_dim, "atom_name")
         elements = decode_column(form, field_dim, "element")
+        missing = [name for name, value in (("resname", resnames), ("chain", chains),
+                                            ("residue_number", numbers), ("atom_name", names),
+                                            ("element", elements)) if value is None]
+        if missing:
+            raise StepError("structure_pocket_detect: missing structure columns: " + ", ".join(missing))
         heavy = np.asarray([str(value).strip().upper() != "H" for value in elements])
         if not heavy.any():
             raise StepError("structure_pocket_detect: the structure form carries no heavy atoms")

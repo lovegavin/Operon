@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 from src.core import Form
+from src.core.errors import StepError
 from src.task.step.base import Step
 from src.task.step.steps._b65_common import numeric, names, table, matrix, knn
 
@@ -20,6 +21,8 @@ class ScSpatialVariableGenesStep(Step):
         k = int(ctx.step_params["k"])
         idx, dist = knn(xy, k)
         n = len(cells)
+        if counts.data.shape[1] != n:
+            raise StepError("sc_spatial_variable_genes: counts must have one column per spatial cell")
         sigma = float(np.median(dist)) or 1.0
         adj = np.zeros((n, n))
         for i in range(n):

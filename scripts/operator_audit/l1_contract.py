@@ -257,6 +257,26 @@ def classify(exc):
     return "FAIL", text
 
 
+def source_external_imports(module):
+    """Return heavy optional imports found in the module source."""
+    import ast
+    names = {"torch", "transformers", "esm", "openmm", "fair_esm"}
+    found = set()
+    try:
+        tree = ast.parse(Path(module.__file__).read_text(encoding="utf-8"))
+    except Exception:
+        return found
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name.split(".")[0] in names:
+                    found.add(alias.name.split(".")[0])
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            if node.module.split(".")[0] in names:
+                found.add(node.module.split(".")[0])
+    return found
+
+
 def audit_one(descriptor):
     op_id = descriptor["id"]
     record = {"id": op_id, "kind": descriptor.get("kind"), "positive": "FAIL",
@@ -274,6 +294,11 @@ def audit_one(descriptor):
             file_port = True
     try:
         cls = import_class(descriptor["entry_point"])
+        heavy = source_external_imports(importlib.import_module(cls.__module__))
+        if heavy:
+            record["positive"] = "SKIP_EXTERNAL"
+            record["notes"].append("source imports: " + ", ".join(sorted(heavy)))
+            return record
         step = cls()
     except ValueError as exc:
         record["positive"] = "SKIP_DOMAIN" if ("column" in str(exc) or "label" in str(exc)) else "FAIL"
