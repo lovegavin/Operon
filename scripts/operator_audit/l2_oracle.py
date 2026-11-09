@@ -155,11 +155,73 @@ def check_bayes():
             "oracle": "statsmodels/numpy OLS"}
 
 
+
+def check_kappa():
+    table = np.array([[20, 5, 0], [3, 15, 2], [0, 4, 11]], dtype=float)
+    form = matrix(3, 3, ["a", "b", "c"], table)
+    p = params_for(DESCRIPTORS["cohens_kappa"], [], row_dim="row", col_dim="field", weights="none")
+    out = run(DESCRIPTORS["cohens_kappa"], [form], p)
+    n = table.sum()
+    po = float(np.trace(table) / n)
+    pe = float((table.sum(axis=1) * table.sum(axis=0)).sum() / (n * n))
+    expected = (po - pe) / (1.0 - pe)
+    row = next(idx for name, idx in out.labels["statistic"].items() if name == "kappa")
+    got = float(out.data[row, 0])
+    delta = abs(got - expected)
+    return {"pass": bool(delta < 1e-7), "delta": delta, "got": got, "expected": expected,
+            "tolerance": 1e-7, "note": "operator rounds kappa to 8 decimals",
+            "oracle": "hand-computed Cohen kappa from the contingency table"}
+
+
+def check_sobel():
+    rng = np.random.default_rng(17)
+    data = rng.normal(size=(20, 18))
+    form = matrix(20, 18, [f"c{i}" for i in range(18)], data)
+    p = params_for(DESCRIPTORS["image_sobel_gradient"], [])
+    out = run(DESCRIPTORS["image_sobel_gradient"], [form], p)
+    kx = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=float)
+    ky = kx.T
+    ref = np.zeros_like(data)
+    for y in range(1, data.shape[0] - 1):
+        for x in range(1, data.shape[1] - 1):
+            patch = data[y - 1:y + 2, x - 1:x + 2]
+            gx = float((patch * kx).sum())
+            gy = float((patch * ky).sum())
+            ref[y, x] = np.sqrt(gx * gx + gy * gy)
+    delta = float(np.max(np.abs(out.data - ref)))
+    return {"pass": bool(delta < 1e-12), "delta": delta, "oracle": "hand-written 3x3 Sobel kernels"}
+
+
+def check_call_rate():
+    rng = np.random.default_rng(19)
+    data = rng.normal(size=(30, 6))
+    mask = rng.random(size=data.shape) < 0.15
+    data[mask] = np.nan
+    form = matrix(30, 6, [f"s{i}" for i in range(6)], data)
+    form.dims = ["variant", "sample"]
+    form.labels = {"variant": {str(i): i for i in range(30)},
+                   "sample": {f"s{i}": i for i in range(6)}}
+    p = params_for(DESCRIPTORS["genotype_call_rate_qc"], [], min_call_rate=0.8)
+    out = run(DESCRIPTORS["genotype_call_rate_qc"], [form], p)
+    called = np.isfinite(data).sum(axis=0)
+    rate = np.round(called / 30.0, 8)
+    flag = (rate >= 0.8).astype(float)
+    stats = {name: idx for name, idx in out.labels["statistic"].items()}
+    sample = {name: idx for name, idx in out.labels["sample"].items()}
+    got_rate = np.array([out.data[sample[f"s{i}"], stats["call_rate"]] for i in range(6)])
+    got_flag = np.array([out.data[sample[f"s{i}"], stats["pass_flag"]] for i in range(6)])
+    delta = float(max(np.max(np.abs(got_rate - rate)), np.max(np.abs(got_flag - flag))))
+    return {"pass": bool(delta < 1e-12), "delta": delta, "oracle": "manual call-rate arithmetic with NaN as missing"}
+
+
 CHECKS = [("kalman_local_level", check_kalman),
           ("image_gaussian_blur", check_blur),
           ("pca", check_pca),
           ("conformal_split_regression", check_conformal),
-          ("bayesian_linear_regression", check_bayes)]
+          ("bayesian_linear_regression", check_bayes),
+          ("cohens_kappa", check_kappa),
+          ("image_sobel_gradient", check_sobel),
+          ("genotype_call_rate_qc", check_call_rate)]
 
 
 def main():
@@ -171,9 +233,9 @@ def main():
             result = {"pass": False, "error": f"{type(exc).__name__}: {exc}"}
         results[operator_id] = result
         print(operator_id, result)
-    out_dir = ROOT / "verification" / "operator-audit-7.0.3"
+    out_dir = ROOT / "verification" / "operator-audit-7.0.6"
     out_dir.mkdir(parents=True, exist_ok=True)
-    payload = {"library_version": "7.0.3", "mode": "independent-oracle",
+    payload = {"library_version": "7.0.6", "mode": "independent-oracle",
                "results": results, "passed": sum(1 for r in results.values() if r.get("pass")),
                "total": len(results)}
     (out_dir / "l2_oracle.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")

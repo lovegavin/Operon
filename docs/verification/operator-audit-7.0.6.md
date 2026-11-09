@@ -67,13 +67,16 @@ plink2, RDKit/Vina, HMMER/Prodigal, etc.). A per-operator oracle matrix for all
 plus the numeric checks recorded in those files.
 
 `scripts/operator_audit/l2_oracle.py` adds independent, deterministic checks
-for five operators (`verification/operator-audit-7.0.3/l2_oracle.json`, 5/5):
+for eight operators (`verification/operator-audit-7.0.6/l2_oracle.json`, 8/8):
 Kalman local level against a hand-written scalar recursion (delta 4.9e-10),
 Gaussian image blur against `scipy.ndimage.gaussian_filter` (delta 5.0e-10),
 PCA against NumPy SVD on the transposed standardized matrix (component
 correlations > 0.999999), split conformal regression against an empirical
-quantile (width delta < 1e-9), and Bayesian linear regression posterior means
-against NumPy OLS (max delta 4.8e-4).
+quantile (width delta < 1e-9), Bayesian linear regression posterior means
+against NumPy OLS (max delta 4.8e-4), Cohen's kappa against a hand-computed
+contingency-table formula (delta 1.9e-8, output rounded to 8 decimals), Sobel
+gradient against hand-written 3x3 kernels (delta 0), and genotype call rate
+against manual NaN-aware arithmetic (delta 0).
 
 ## L3 - route replay
 
