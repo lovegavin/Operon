@@ -1,5 +1,5 @@
 {
-  "library_version": "7.0.6",
+  "library_version": "7.0.7",
   "mode": "independent-oracle",
   "results": {
     "kalman_local_level": {
@@ -65,8 +65,23 @@
       "pass": true,
       "delta": 0.0,
       "oracle": "manual call-rate arithmetic with NaN as missing"
+    },
+    "zscore": {
+      "pass": true,
+      "delta": 5.83158823452834e-08,
+      "oracle": "NumPy nanmean/nanstd(ddof=1) along the feature axis"
+    },
+    "min_max_scale": {
+      "pass": true,
+      "delta": 2.9146690949666265e-08,
+      "oracle": "manual min-max scaling along the feature axis"
+    },
+    "ttest_one_sample": {
+      "pass": true,
+      "delta": 4.243257545333279e-08,
+      "oracle": "scipy.stats.ttest_1samp"
     }
   },
-  "passed": 8,
-  "total": 8
+  "passed": 11,
+  "total": 11
 }

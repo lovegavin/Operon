@@ -19,8 +19,9 @@ number of generated templates that both validate and execute:
 | union coverage | 459 / 1063 | 509 / 1063 |
 | operators without a passing route | 604 | 554 |
 
-The L2 sample now contains eight independent numeric oracles (adds Cohen's
-kappa, Sobel gradient and genotype call rate), all passing. The per-operator
+The L2 sample now contains eleven independent numeric oracles (adds Cohen's
+kappa, Sobel gradient, genotype call rate, z-score standardisation, min-max
+scaling and a one-sample t-test), all passing. The per-operator
 table `verification/operator-audit-7.0.7/operator_table.csv` has one row per
 catalog entry (1063 operators plus 108 Readers) and splits route replay by
 kind. L5 records a four-way entry-point parity sample (direct runner, CLI,

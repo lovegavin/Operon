@@ -214,6 +214,65 @@ def check_call_rate():
     return {"pass": bool(delta < 1e-12), "delta": delta, "oracle": "manual call-rate arithmetic with NaN as missing"}
 
 
+
+def _dims(form, first, second):
+    form.dims = [first, second]
+    form.labels = {first: dict(form.labels["row"]), second: dict(form.labels["field"])}
+
+
+def check_zscore():
+    rng = np.random.default_rng(23)
+    data = rng.normal(3.0, 2.0, size=(24, 3))
+    data[3, 1] = np.nan
+    form = matrix(24, 3, ["a", "b", "c"], data)
+    _dims(form, "sample", "feature")
+    p = params_for(DESCRIPTORS["zscore"], ["sample", "feature"], dim="feature")
+    out = run(DESCRIPTORS["zscore"], [form], p)
+    mean = np.nanmean(data, axis=1, keepdims=True)
+    std = np.nanstd(data, axis=1, ddof=1, keepdims=True)
+    std = np.where(np.isfinite(std) & (std > 0), std, 1.0)
+    expected = np.where(np.isfinite(data), (data - mean) / std, 0.0)
+    delta = float(np.max(np.abs(out.data - expected)))
+    return {"pass": bool(delta < 1e-5), "delta": delta, "oracle": "NumPy nanmean/nanstd(ddof=1) along the feature axis"}
+
+
+def check_minmax():
+    rng = np.random.default_rng(29)
+    data = rng.normal(-1.0, 4.0, size=(24, 3))
+    data[5, 0] = np.nan
+    form = matrix(24, 3, ["a", "b", "c"], data)
+    _dims(form, "sample", "feature")
+    p = params_for(DESCRIPTORS["min_max_scale"], ["sample", "feature"], dim="feature")
+    out = run(DESCRIPTORS["min_max_scale"], [form], p)
+    lo = np.nanmin(data, axis=1, keepdims=True)
+    hi = np.nanmax(data, axis=1, keepdims=True)
+    span = hi - lo
+    scaled = np.where(span > 0, (data - lo) / span, 0.0)
+    expected = np.where(np.isfinite(scaled), scaled, 0.0)
+    delta = float(np.max(np.abs(out.data - expected)))
+    return {"pass": bool(delta < 1e-6), "delta": delta, "oracle": "manual min-max scaling along the feature axis"}
+
+
+def check_ttest():
+    from scipy import stats
+
+    rng = np.random.default_rng(31)
+    data = rng.normal(0.4, 1.5, size=(24, 2))
+    form = matrix(24, 2, ["a", "b"], data)
+    _dims(form, "sample", "feature")
+    p = params_for(DESCRIPTORS["ttest_one_sample"], ["sample", "feature"], popmean=0.25)
+    out = run(DESCRIPTORS["ttest_one_sample"], [form], p)
+    stats_idx = out.labels["statistic"]
+    feat_idx = out.labels["feature"]
+    delta = 0.0
+    for i, name in enumerate(["a", "b"]):
+        t, pv = stats.ttest_1samp(data[:, i], 0.25)
+        got_t = float(out.data[feat_idx[name], stats_idx["T"]])
+        got_p = float(out.data[feat_idx[name], stats_idx["P"]])
+        delta = max(delta, abs(got_t - t), abs(got_p - pv))
+    return {"pass": bool(delta < 1e-5), "delta": float(delta), "oracle": "scipy.stats.ttest_1samp"}
+
+
 CHECKS = [("kalman_local_level", check_kalman),
           ("image_gaussian_blur", check_blur),
           ("pca", check_pca),
@@ -221,7 +280,10 @@ CHECKS = [("kalman_local_level", check_kalman),
           ("bayesian_linear_regression", check_bayes),
           ("cohens_kappa", check_kappa),
           ("image_sobel_gradient", check_sobel),
-          ("genotype_call_rate_qc", check_call_rate)]
+          ("genotype_call_rate_qc", check_call_rate),
+          ("zscore", check_zscore),
+          ("min_max_scale", check_minmax),
+          ("ttest_one_sample", check_ttest)]
 
 
 def main():
@@ -233,9 +295,9 @@ def main():
             result = {"pass": False, "error": f"{type(exc).__name__}: {exc}"}
         results[operator_id] = result
         print(operator_id, result)
-    out_dir = ROOT / "verification" / "operator-audit-7.0.6"
+    out_dir = ROOT / "verification" / "operator-audit-7.0.7"
     out_dir.mkdir(parents=True, exist_ok=True)
-    payload = {"library_version": "7.0.6", "mode": "independent-oracle",
+    payload = {"library_version": "7.0.7", "mode": "independent-oracle",
                "results": results, "passed": sum(1 for r in results.values() if r.get("pass")),
                "total": len(results)}
     (out_dir / "l2_oracle.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")

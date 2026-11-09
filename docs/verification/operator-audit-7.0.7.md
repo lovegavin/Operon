@@ -67,7 +67,7 @@ plink2, RDKit/Vina, HMMER/Prodigal, etc.). A per-operator oracle matrix for all
 plus the numeric checks recorded in those files.
 
 `scripts/operator_audit/l2_oracle.py` adds independent, deterministic checks
-for eight operators (`verification/operator-audit-7.0.7/l2_oracle.json`, 8/8):
+for eleven operators (`verification/operator-audit-7.0.7/l2_oracle.json`, 11/11):
 Kalman local level against a hand-written scalar recursion (delta 4.9e-10),
 Gaussian image blur against `scipy.ndimage.gaussian_filter` (delta 5.0e-10),
 PCA against NumPy SVD on the transposed standardized matrix (component
