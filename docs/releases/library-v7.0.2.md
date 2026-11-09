@@ -22,8 +22,10 @@ Four defects found by the L1 contract audit are fixed:
 `docs/verification/operator-audit-7.0.2.md` records the measured layers:
 
 - L0 static consistency: 1171/1171 PASS.
-- L1 contract behaviour: 281 PASS, 51 FAIL (domain preconditions), 580
-  SKIP_DOMAIN, 53 SKIP_FILE, 26 SKIP_EXTERNAL, 71 SKIP_HARNESS, 1 SKIP_TIMEOUT.
+- L1 contract behaviour: 281 PASS, 51 FAIL, 580 SKIP_DOMAIN, 53 SKIP_FILE,
+  26 SKIP_EXTERNAL, 71 SKIP_HARNESS, 1 SKIP_TIMEOUT. Every FAIL records its
+  step error; most are unsatisfied domain fixtures, and they are not counted
+  as verified.
 - L3 route replay: 78/78 bundles import on Studio 3.1.6; 13 routes replay,
   65 SKIP_DATA; generated coverage routes execute for 244 operators; union
   490/1063.
