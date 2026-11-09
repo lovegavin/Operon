@@ -30,6 +30,8 @@ from copy import deepcopy
 from src.core.contracts import resolve, validate_form
 from src.core.errors import StepError, ValidationError
 
+REPO = Path(__file__).resolve().parents[2]
+
 ROOT = Path(__file__).resolve().parents[2]
 PKG = ROOT / "library/seed/operon/builtin_packages.json"
 

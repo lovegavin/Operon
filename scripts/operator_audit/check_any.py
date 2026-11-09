@@ -1,7 +1,13 @@
-import json, subprocess, sys, pathlib, re
+import json
+import os
+import sys, subprocess, sys, pathlib, re
 
-py = "/home/gavin/bp-numpy21/bin/python"
-env = {"PYTHONPATH": "/home/gavin/Operon", "PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": "/home/gavin"}
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+
+py = sys.executable
+env = {"PYTHONPATH": str(REPO), "PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": os.environ.get("HOME", "/tmp")}
 base = pathlib.Path(sys.argv[1])
 ids = json.load(open(sys.argv[2]))
 mode = sys.argv[3] if len(sys.argv) > 3 else "check"
@@ -9,7 +15,7 @@ out = []
 for i, op in enumerate(ids):
     cmd = [py, "scripts/run.py", str(base / op)] + (["--check"] if mode == "check" else [])
     try:
-        p = subprocess.run(cmd, cwd="/home/gavin/Operon", env=env, capture_output=True, text=True, timeout=180)
+        p = subprocess.run(cmd, cwd=str(REPO), env=env, capture_output=True, text=True, timeout=180)
         ok = p.returncode == 0
         err = ""
         if not ok:

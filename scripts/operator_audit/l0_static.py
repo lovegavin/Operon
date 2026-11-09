@@ -25,6 +25,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+REPO = Path(__file__).resolve().parents[2]
+
 ROOT = Path(__file__).resolve().parents[2]
 SEED = ROOT / "library" / "seed"
 LOGICAL = re.compile(r"^[a-z][a-z0-9_.-]{0,79}$")

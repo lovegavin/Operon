@@ -1,7 +1,13 @@
-import json, subprocess, pathlib, time
+import json
+import os
+import sys, subprocess, pathlib, time
 
-py = "/home/gavin/bp-numpy21/bin/python"
-env = {"PYTHONPATH": "/home/gavin/Operon", "PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": "/home/gavin"}
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+
+py = sys.executable
+env = {"PYTHONPATH": str(REPO), "PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": os.environ.get("HOME", "/tmp")}
 prev = {x["id"]: x["ok"] for x in json.load(open("/tmp/cov_check.json"))}
 ids = [i for i in json.load(open("/tmp/cov_built.json")) if prev.get(i)]
 base = pathlib.Path("/tmp/covroutes")
@@ -9,7 +15,7 @@ out = []
 t0 = time.time()
 for i, op in enumerate(ids):
     try:
-        p = subprocess.run([py, "scripts/run.py", str(base / op)], cwd="/home/gavin/Operon",
+        p = subprocess.run([py, "scripts/run.py", str(base / op)], cwd=str(REPO),
                            env=env, capture_output=True, text=True, timeout=180)
         ok = p.returncode == 0
         lines = [l for l in (p.stderr or p.stdout).strip().splitlines() if l.strip()]

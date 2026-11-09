@@ -15,8 +15,8 @@ for library 7.0.2 against Studio 3.1.6.
 Run from the repository root with the library interpreter, for example:
 
 ```
-/home/gavin/bp-numpy21/bin/python scripts/operator_audit/l0_static.py
-/home/gavin/bp-numpy21/bin/python scripts/operator_audit/l1_contract.py
+python scripts/operator_audit/l0_static.py
+python scripts/operator_audit/l1_contract.py
 ```
 
 Generated route sets are written under `/tmp` and are not part of the seeded

@@ -1,6 +1,10 @@
 import json, pathlib, re, ast, shutil
 
-root = pathlib.Path("/home/gavin/Operon")
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[2]
+
+root = pathlib.Path(str(REPO))
 man = json.load(open(root / "library/seed/operon/builtin_packages.json"))
 cov = json.load(open("/tmp/route_coverage.json"))
 uncovered = set(cov["uncovered"])
