@@ -147,10 +147,11 @@ runner, two `operon run` CLI jobs and a repeated CLI job:
 - CLI job `20261109T232004-b6c71553` -> same hash
 - CLI job `20261109T232043-618265c8` -> same hash
 
-The HTTP entry point (job `20261109T232242-811c4236`, artifact role `data`)
-exported the same hash. CLI, HTTP and the direct runner are byte-identical for
-this route. MCP and Studio entry-point parity, and `describe` contract equality,
-are not yet measured. Evidence: `l5_cli_parity.json`.
+The HTTP entry point (job `20261109T232242-811c4236`) and the MCP adapter
+(`operon_submit`, job `20261109T232353-fe429063`) both exported the same hash.
+CLI, HTTP, MCP and the direct runner are byte-identical for this route. Studio
+entry-point parity and `describe` contract equality are not yet measured.
+Evidence: `l5_cli_parity.json`.
 
 ## Defects fixed in 7.0.2-7.0.6
 
