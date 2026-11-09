@@ -1,0 +1,129 @@
+{
+ "mode": "real-route-templates",
+ "tolerance": 1e-09,
+ "comparison": "JSON after root/export-id normalization; numeric fields via isclose; figure metadata; Windows text line endings normalized",
+ "wsl_pass": 13,
+ "windows_pass": 11,
+ "windows_skip_dep": 2,
+ "parity_pass": 11,
+ "srv": "SKIP: no SSH host configured in this session",
+ "routes": [
+  {
+   "route": "gwas_meta_prs",
+   "wsl": "PASS",
+   "wsl_seconds": 1.8,
+   "windows": "PASS",
+   "windows_seconds": 16.37,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  },
+  {
+   "route": "methylation_conversion_asm_rf",
+   "wsl": "PASS",
+   "wsl_seconds": 1.71,
+   "windows": "PASS",
+   "windows_seconds": 3.45,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  },
+  {
+   "route": "microbiome_diff",
+   "wsl": "PASS",
+   "wsl_seconds": 3.06,
+   "windows": "PASS",
+   "windows_seconds": 6.66,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  },
+  {
+   "route": "noncoding_rna_editing",
+   "wsl": "PASS",
+   "wsl_seconds": 1.07,
+   "windows": "PASS",
+   "windows_seconds": 2.33,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  },
+  {
+   "route": "phylogenetics_jc69_rooting",
+   "wsl": "PASS",
+   "wsl_seconds": 1.8,
+   "windows": "PASS",
+   "windows_seconds": 3.11,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  },
+  {
+   "route": "population_selection_scan",
+   "wsl": "PASS",
+   "wsl_seconds": 1.59,
+   "windows": "PASS",
+   "windows_seconds": 2.38,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  },
+  {
+   "route": "proteomics_ibaq_cai_ptm",
+   "wsl": "PASS",
+   "wsl_seconds": 1.44,
+   "windows": "PASS",
+   "windows_seconds": 1.93,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  },
+  {
+   "route": "proteomics_limma",
+   "wsl": "PASS",
+   "wsl_seconds": 4.07,
+   "windows": "PASS",
+   "windows_seconds": 5.05,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  },
+  {
+   "route": "rnaseq_de_enrichment",
+   "wsl": "PASS",
+   "wsl_seconds": 4.22,
+   "windows": "PASS",
+   "windows_seconds": 5.55,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  },
+  {
+   "route": "rnaseq_ssgsea",
+   "wsl": "PASS",
+   "wsl_seconds": 3.04,
+   "windows": "PASS",
+   "windows_seconds": 4.99,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  },
+  {
+   "route": "single_cell_batch",
+   "wsl": "PASS",
+   "wsl_seconds": 5.47,
+   "windows": "SKIP_DEP",
+   "windows_seconds": 5.12,
+   "parity": "SKIP_DEP",
+   "note": "Windows environment lacks anndata/scanpy for this route"
+  },
+  {
+   "route": "single_cell_loom",
+   "wsl": "PASS",
+   "wsl_seconds": 9.3,
+   "windows": "SKIP_DEP",
+   "windows_seconds": 4.4,
+   "parity": "SKIP_DEP",
+   "note": "Windows environment lacks anndata/scanpy for this route"
+  },
+  {
+   "route": "structure_rg_metagenome",
+   "wsl": "PASS",
+   "wsl_seconds": 1.41,
+   "windows": "PASS",
+   "windows_seconds": 2.16,
+   "parity": "PASS",
+   "note": "step/figure JSON equal after path normalization, numbers within 1e-9"
+  }
+ ]
+}

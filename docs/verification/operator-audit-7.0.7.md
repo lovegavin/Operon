@@ -104,11 +104,22 @@ structure/atom tables requiring real records, file-only ports, and statistical
 designs needing factor levels or paired samples.
 
 Evidence: `verification/operator-audit-7.0.7/l3_builtin_routes.json`,
-`l3_generated_routes.json`, `l3_route_coverage.json`.
+`l3_generated_routes.json`, `l3_route_coverage.json`,
+`l3_three_end_routes.json`.
 
-Windows and srv replay of the same routes: not completed in this audit; the
-existing three-end records in `docs/verification/routes-5.x.md` cover the
-route set shipped before 7.0.3.
+Windows and srv replay of the same routes:
+
+| end | PASS | SKIP | evidence |
+| --- | --- | --- | --- |
+| WSL Ubuntu-24.04 | 13 / 13 | 0 | per-route wall time 1.07-9.30 s |
+| Windows D:\Operon, py 3.12 | 11 / 13 | 2 SKIP_DEP | `combat` and `doublet_detect` need anndata/scanpy |
+| srv | 0 | all | SKIP: no SSH host configured in this session |
+
+Raw output hashes are not comparable across ends (absolute roots, run ids,
+CRLF, last-bit float differences). Step and figure JSON were compared after
+normalizing roots and export ids, with numeric fields required to agree within
+`rel=abs=1e-9`; **11 / 11** runnable routes pass. Evidence:
+`verification/operator-audit-7.0.7/l3_three_end_routes.json`.
 
 Additional L4 probe: a 20000 x 60 PCA route (11.5 MB CSV) under a 4 MiB
 managed budget fails with MemoryBudgetError at actual_input_size; under
