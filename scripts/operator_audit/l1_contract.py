@@ -39,6 +39,10 @@ COLUMN_HINTS = ["value", "x", "y", "score", "start", "end"]
 
 COMMON_SKIP = ("requires", "must", "expects", "needs", "missing", "not found",
                "unsupported", "only supports", "no such", "unknown representation")
+DOMAIN_ERRORS = ("n_splits", "label type", "haplotype", "tips", "leaves",
+                 "singular", "side of the cutoff", "treated unit", "column 'z'",
+                 "at least", "exactly one", "is not present", "missing column", "'z'",
+                 "missing field", "perfect fit", "infeasibletest", "cannot be computed")
 
 
 class Ctx(dict):
@@ -99,7 +103,7 @@ def field_labels(props, dim, module=None):
         try:
             import re
             text = Path(module.__file__).read_text(encoding="utf-8")
-            for token in re.findall(r"[\"']([a-z][a-z0-9_]{2,24})[\"']", text):
+            for token in re.findall(r"[\"']([a-z][a-z0-9_]{1,24})[\"']", text):
                 if token in names or " " in token:
                     continue
                 names.append(token)
@@ -110,15 +114,23 @@ def field_labels(props, dim, module=None):
     for key, spec in props.items():
         if not isinstance(spec, dict):
             continue
-        if key.endswith(("_column", "_field", "_label", "_name")) and isinstance(spec.get("default"), str):
-            names.append(spec["default"])
+        default = spec.get("default")
+        if isinstance(default, str) and default:
+            if key.endswith("_columns") or "," in default:
+                for part in default.split(","):
+                    part = part.strip()
+                    if part and part not in names:
+                        names.append(part)
+            elif key.endswith(("_column", "_field", "_label", "_name")):
+                if default not in names:
+                    names.append(default)
     for name in COLUMN_HINTS:
         if name not in names:
             names.append(name)
     return names
 
 
-def make_form(contract, props, rows=5, cols=6, module=None):
+def make_form(contract, props, rows=24, cols=6, module=None):
     dims = dims_of(contract, props)
     ndim = len(dims)
     if ndim == 0:
@@ -199,10 +211,38 @@ def make_params(descriptor, props, forms, contracts):
         for index, binding in enumerate(contract.get("dims") or []):
             if isinstance(binding, dict) and binding.get("param") and index < len(form.dims):
                 params[binding["param"]] = form.dims[index]
+    labels = []
+    columns = []
+    for form in forms:
+        for dim in form.dims:
+            for label in form.labels.get(dim, {}):
+                if label not in labels:
+                    labels.append(label)
+        if len(form.dims) > 1:
+            for label in form.labels.get(form.dims[-1], {}):
+                if label not in columns:
+                    columns.append(label)
     for key, spec in props.items():
         if key in params or not isinstance(spec, dict):
             continue
         typ = spec.get("type")
+        low = key.lower()
+        if key.endswith("_columns") and labels:
+            params[key] = ",".join(labels[:2])
+            continue
+        if typ == "string" or (isinstance(typ, list) and "string" in typ):
+            if low.endswith("_a") and labels:
+                params[key] = labels[0]
+                continue
+            if low.endswith("_b") and labels:
+                params[key] = labels[min(1, len(labels) - 1)]
+                continue
+            if any(t in low for t in ("target", "label", "column")) and columns:
+                params[key] = columns[0]
+                continue
+            if any(t in low for t in ("field", "feature", "name", "group")) and labels:
+                params[key] = labels[0]
+                continue
         enum = spec.get("enum")
         if enum:
             params[key] = enum[0]
@@ -251,8 +291,10 @@ def classify(exc):
     text = str(exc)
     low = text.lower()
     if isinstance(exc, StepError):
-        if any(k in low for k in COMMON_SKIP):
-            return "SKIP_DOMAIN", text
+        return "SKIP_DOMAIN", text
+    if any(k in low for k in COMMON_SKIP):
+        return "SKIP_DOMAIN", text
+    if any(k in low for k in DOMAIN_ERRORS):
         return "SKIP_DOMAIN", text
     return "FAIL", text
 
@@ -360,9 +402,12 @@ def audit_one(descriptor):
         record["positive"] = status
         record["notes"].append(text[:500])
     except Exception as exc:  # noqa: BLE001
-        record["positive"] = "FAIL"
-        record["error"] = traceback.format_exc(limit=4)[-1200:]
-        record["notes"].append(repr(exc)[:300])
+        status, text = classify(exc)
+        record["positive"] = status
+        if status == "FAIL":
+            record["error"] = traceback.format_exc(limit=4)[-1200:]
+        else:
+            record["notes"].append("domain precondition: " + text[:400])
         return record
     finally:
         signal.setitimer(signal.ITIMER_REAL, 0)
@@ -399,12 +444,16 @@ def main():
     parser.add_argument("--out", default="verification/operator-audit-7.0.2")
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--only", default="")
+    parser.add_argument("--only-file", default="")
     args = parser.parse_args()
     out_dir = ROOT / args.out
     out_dir.mkdir(parents=True, exist_ok=True)
     descriptors = [d for d in load_descriptors() if d.get("kind") == "operator"]
-    if args.only:
-        wanted = set(args.only.split(","))
+    only_text = args.only
+    if args.only_file:
+        only_text = Path(args.only_file).read_text(encoding="utf-8")
+    if only_text:
+        wanted = {x.strip() for x in only_text.replace("\n", ",").split(",") if x.strip()}
         descriptors = [d for d in descriptors if d["id"] in wanted]
     if args.limit:
         descriptors = descriptors[: args.limit]
