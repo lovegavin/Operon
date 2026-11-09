@@ -1,0 +1,99 @@
+{
+  "layer": "L0",
+  "library_version": "7.0.1",
+  "counts": {
+    "total": 1171,
+    "operators": 1063,
+    "readers": 108,
+    "failures": 0
+  },
+  "status": {
+    "operator:PASS": 1063,
+    "reader:PASS": 108
+  },
+  "manifest_errors": [],
+  "top_errors": [],
+  "top_warnings": [
+    [
+      "definition.outputs empty",
+      1042
+    ],
+    [
+      "definition.outputs null (file outputs declared through contracts)",
+      126
+    ],
+    [
+      "no output_parameter (streaming, plot or file-output operator)",
+      123
+    ],
+    [
+      "parameters_schema allows additionalProperties (dynamic parameter operator)",
+      50
+    ],
+    [
+      "dims param 'group_dim' default differs from parameters_schema",
+      43
+    ],
+    [
+      "contracts.inputs[0] legacy string dim 'row'",
+      20
+    ],
+    [
+      "contracts.inputs[0] legacy string dim 'field'",
+      20
+    ],
+    [
+      "data_formats.outputs empty (pass-through, plot or streaming output)",
+      15
+    ],
+    [
+      "contracts.inputs[1] legacy string dim 'field'",
+      11
+    ],
+    [
+      "contracts.inputs[1] legacy string dim 'row'",
+      9
+    ],
+    [
+      "protocol_revision absent (pre-3.7 metadata)",
+      8
+    ],
+    [
+      "contracts.inputs[0] legacy string dim 'cell'",
+      7
+    ],
+    [
+      "contracts.inputs[1] legacy string dim 'cell'",
+      6
+    ],
+    [
+      "dims param 'field_dim' default differs from parameters_schema",
+      6
+    ],
+    [
+      "contracts.inputs[0] legacy string dim 'gene'",
+      5
+    ],
+    [
+      "contracts.inputs[1] legacy string dim 'cluster'",
+      5
+    ],
+    [
+      "documented polymorphic legacy operator",
+      5
+    ],
+    [
+      "data_formats missing (legacy)",
+      5
+    ],
+    [
+      "contracts.inputs[1] legacy string dim 'feature'",
+      4
+    ],
+    [
+      "dims param 'value_dim' default differs from parameters_schema",
+      4
+    ]
+  ],
+  "failures": []
+}

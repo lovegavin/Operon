@@ -78,6 +78,26 @@ def quickstart(root, output, version):
     return archive
 
 
+def audit_archive(root, output, version):
+    """Package the audit scripts and evidence next to the library release."""
+    evidence = root / 'verification' / f'operator-audit-{version}'
+    scripts = root / 'scripts' / 'operator_audit'
+    report = root / 'docs' / 'verification' / f'operator-audit-{version}.md'
+    if not evidence.is_dir():
+        raise FileNotFoundError(f'Audit evidence is missing: {evidence}')
+    if not report.is_file():
+        raise FileNotFoundError(f'Audit report is missing: {report}')
+    archive = output / f'Operon-Operator-Audit-v{version}.zip'
+    with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as target:
+        target.write(report, f'docs/verification/{report.name}')
+        for source in sorted(scripts.glob('*.py')) + sorted(scripts.glob('*.md')):
+            target.write(source, f'scripts/operator_audit/{source.name}')
+        for source in sorted(evidence.rglob('*')):
+            if source.is_file():
+                target.write(source, 'verification/' + source.relative_to(root / 'verification').as_posix())
+    return archive
+
+
 def build(root, output, tag=None):
     config = configuration(root, tag)
     released_application(root, config)
@@ -123,10 +143,15 @@ def build(root, output, tag=None):
     archive_sha256 = sha256(archive)
     result['quickstart'] = {'archive': str(archive), 'sha256': archive_sha256,
                             'bytes': archive.stat().st_size}
+    audit = audit_archive(root, output, config['version'])
+    audit_sha256 = sha256(audit)
+    result['audit'] = {'archive': str(audit), 'sha256': audit_sha256,
+                       'bytes': audit.stat().st_size}
+    audit_lines = f"{audit_sha256}  {audit.name}\n"
     (output / f'SHA256SUMS-{system}.txt').write_text(
         f"{result['sha256']}  {path.name}\n"
         + (f"{sha256(legacy_native)}  {legacy_native.name}\n" if legacy_only else '')
-        + f"{archive_sha256}  {archive.name}\n", encoding='utf-8')
+        + f"{archive_sha256}  {archive.name}\n" + audit_lines, encoding='utf-8')
     (output / 'library-build.json').write_text(json.dumps(result, indent=2) + '\n', encoding='utf-8')
     return result
 

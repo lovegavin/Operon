@@ -1,0 +1,15 @@
+{
+ "total": 1063,
+ "positive": {
+  "SKIP_DOMAIN": 580,
+  "PASS": 281,
+  "SKIP_FILE": 53,
+  "FAIL": 51,
+  "SKIP_EXTERNAL": 26,
+  "SKIP_HARNESS": 71,
+  "SKIP_TIMEOUT": 1
+ },
+ "negative_pass": 98,
+ "negative_fail": 30,
+ "negative_na": 733
+}
