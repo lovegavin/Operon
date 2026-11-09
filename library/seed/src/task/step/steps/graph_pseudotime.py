@@ -21,6 +21,7 @@ class GraphPseudotimeStep(Step):
         root = int(ctx.step_params.get("root_cell", 0))
         if n < 5 or X.shape[1] < 2:
             raise ValueError("need at least 5 cells and 2 genes")
+        n_neighbors = max(1, min(n_neighbors, n - 1))
         X = X - X.mean(0)
         U, S, Vt = np.linalg.svd(X, full_matrices=False)
         k = min(k, S.size)

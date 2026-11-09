@@ -2,6 +2,7 @@
 import numpy as np
 
 from src.core import Form
+from src.core.errors import StepError
 from src.task.step.base import Step
 
 from ._b83_common import column, strings, table
@@ -21,6 +22,8 @@ class FbaFluxBalanceStep(Step):
         stoich = inputs[0]
         bounds = inputs[1]
         S = np.asarray(stoich.data, dtype=float)
+        if bounds.data.ndim != 2 or bounds.data.shape[0] != S.shape[1]:
+            raise StepError("fba_flux_balance: bounds must have one row per reaction")
         low = column(bounds, 0)
         high = column(bounds, 1)
         if bounds.data.shape[1] >= 3:

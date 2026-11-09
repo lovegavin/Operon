@@ -1,6 +1,7 @@
 """Inbreeding coefficients from a numeric pedigree"""
 import numpy as np
 from src.core import Form
+from src.core.errors import StepError
 from src.task.step.base import Step
 from src.task.step.steps._b75b_common import numeric, result_form, row_names
 
@@ -48,6 +49,25 @@ class PedigreeInbreedingStep(Step):
         sires = numeric(inputs[0], "individual", "sire_index").astype(int)
         dams = numeric(inputs[0], "individual", "dam_index").astype(int)
         parents = [(int(s) if s >= 0 else None, int(d) if d >= 0 else None) for s, d in zip(sires, dams)]
+        state = {}
+        for start in range(len(parents)):
+            stack = [(start, iter([x for x in parents[start] if x is not None]))]
+            state[start] = 1
+            while stack:
+                node, children = stack[-1]
+                try:
+                    child = next(children)
+                except StopIteration:
+                    state[node] = 2
+                    stack.pop()
+                    continue
+                if child < 0 or child >= len(parents):
+                    raise StepError("pedigree_inbreeding: parent index out of range")
+                if state.get(child) == 1:
+                    raise StepError("pedigree_inbreeding: pedigree contains a cycle")
+                if state.get(child) is None:
+                    state[child] = 1
+                    stack.append((child, iter([x for x in parents[child] if x is not None])))
         kin = {}
 
         def inbreeding(i):

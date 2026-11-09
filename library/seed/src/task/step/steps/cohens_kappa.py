@@ -53,6 +53,8 @@ class CohensKappaStep(Step):
             inputs[0], ctx.step_params.get("row_dim", "rater_a"),
             ctx.step_params.get("col_dim", "rater_b"), "cohens_kappa",
         )
+        if data.ndim != 2 or data.shape[0] != data.shape[1]:
+            raise StepError("cohens_kappa: the contingency table must be square")
         if np.any(data < 0):
             raise StepError("cohens_kappa: cell counts must be non-negative")
         weights = ctx.step_params.get("weights", "none")
