@@ -1,0 +1,122 @@
+# Operator audit for library 7.0.2
+
+Audit of the 1063 operators and 108 Readers shipped in library 7.0.2 against
+Studio 3.1.6. Layers are reported independently; a layer is marked complete
+only when every catalog entry has a measured result (PASS or an explicit
+`SKIP_*` with a stated precondition). **L0 is complete; L1-L5 are partial and
+the exact scope is stated below.**
+
+## L0 - static declaration consistency
+
+Command: `python scripts/operator_audit/l0_static.py`
+
+Result: **1171 / 1171 PASS** (1063 operators, 108 Readers), failures 0.
+
+Checked per entry: entry point resolves to a class with a literal
+`definition`, `id`/`kind`/`protocol_version` agree with the descriptor,
+`parameters_schema` is reproduced from the adjacent JSON, arity matches
+`contracts.inputs`, declared outputs and `output_parameter` are consistent,
+dimension bindings reference declared schema parameters, `data_formats`
+logical types and representations are valid, documentation hash matches the
+canonical document content, and documented section anchors exist.
+
+Evidence: `verification/operator-audit-7.0.2/l0_static.jsonl` and
+`l0_summary.json`.
+
+## L1 - contract behaviour
+
+Command: `python scripts/operator_audit/l1_contract.py`
+
+Positive case: synthesize a Form for each input port from the resolved
+contract, resolve parameter bindings exactly as the engine does, validate,
+then call `run`. Negative cases: mutate each `info` predicate on a valid Form
+and require `validate_form` to raise a `StepError` before execution.
+
+| result | count |
+| --- | --- |
+| PASS | 281 |
+| FAIL | 51 |
+| SKIP_DOMAIN (domain precondition, e.g. missing required column or too few samples) | 580 |
+| SKIP_FILE (file port; no fixture) | 53 |
+| SKIP_EXTERNAL (model/weight download) | 26 |
+| SKIP_HARNESS (no dimensional contract) | 71 |
+| SKIP_TIMEOUT | 1 |
+
+Negative predicates: 98 PASS, 30 FAIL, 733 not applicable.
+
+The 51 failures are mostly domain preconditions that cannot be satisfied by a
+generic fixture (rank-deficient designs, required factor levels, exact 2x2
+tables). They are listed with their step error in
+`verification/operator-audit-7.0.2/l1_full/l1_contract.jsonl`; they are not
+counted as verified.
+
+## L2 - independent numeric oracles
+
+Oracle pairs accumulated in `docs/verification/routes-5.x.md` and
+`docs/verification/three-end-audit-7.0.1.md` cover the route-level operators
+(statsmodels/linearmodels, scipy, Biopython, bedtools/samtools/bcftools,
+plink2, RDKit/Vina, HMMER/Prodigal, etc.). A per-operator oracle matrix for all
+1063 entries is **not** complete; the current coverage is the route evidence
+plus the numeric checks recorded in those files.
+
+## L3 - route replay
+
+Package: `scripts/package_routes.py --output <dir>` builds 78 bundles, each
+containing exactly `graph.json`, `parameters.json`, `execution.json`. Import
+through `src.web.parameters.import_bundle(bytes)` succeeds for **78/78** on
+Studio 3.1.6.
+
+Replay on WSL with `python scripts/run.py library/seed/routes/<name>`:
+
+| result | count |
+| --- | --- |
+| PASS | 13 |
+| SKIP_DATA (input data not distributed with the template) | 65 |
+
+Generated coverage routes (`scripts/operator_audit/gen_cov.py`,
+`gen_cov2.py`) add CSV-backed templates for operators that the builtin routes
+do not reach. 766 templates were generated; 693 pass static validation; 244
+execute successfully. The union of builtin route coverage (246 operators in
+the graphs) and executed generated routes is **490 / 1063**. 573 operators
+still have no passing route; the blocking reasons are domain-specific fixtures
+(sequence/`sequence_codes` Form ports, structure/atom tables requiring real
+records, file-only ports, and statistical designs needing factor levels or
+paired samples).
+
+Windows and srv replay of the same routes: not completed in this audit; the
+existing three-end records in `docs/verification/routes-5.x.md` cover the
+route set shipped before 7.0.2.
+
+## L4 - memory, determinism, transfer
+
+Not yet measured per operator. The engine-level tests
+(`tests/test_memory*.py`, `tests/test_spill*.py`,
+`tests/test_artifact_fingerprint.py`) pass in the 7.0.2 test run; no
+estimate-versus-RSS table or per-route double-run hash comparison is included.
+
+## L5 - entry points
+
+Route bundles import through the Studio 3.1.6 HTTP parameter API
+(`import_bundle(bytes)`, 78/78). Byte-identical CLI/HTTP/MCP/Studio output for
+a common route is not yet measured.
+
+## Defects fixed in 7.0.2
+
+- `graph_pseudotime`: clamp `n_neighbors` to `n - 1` for small inputs.
+- `cohens_kappa`: reject non-square count tables with `StepError`.
+- `fba_flux_balance`: require bounds rows to equal the reaction count.
+- `pedigree_inbreeding`: detect ancestral cycles and raise `StepError`
+  instead of recursing.
+
+## Reproduce
+
+```
+cd /home/gavin/Operon
+/home/gavin/bp-numpy21/bin/python scripts/operator_audit/l0_static.py
+/home/gavin/bp-numpy21/bin/python scripts/operator_audit/l1_contract.py
+/home/gavin/bp-numpy21/bin/python scripts/operator_audit/gen_cov2.py
+/home/gavin/bp-numpy21/bin/python scripts/operator_audit/run_routes.py
+```
+
+The 7.0.2 release assets include this directory and the audit scripts so the
+measurements can be reproduced against the released bundle.
