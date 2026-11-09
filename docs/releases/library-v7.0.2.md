@@ -38,6 +38,8 @@ Four defects found by the L1 contract audit are fixed:
 - Bundle: `operon.library` v7.0.2, 1063 operators, 108 Readers
 - Verified in a clean Python 3.11 environment with Studio 3.1.6:
   `passed: true`, 95 passed / 2 skipped.
+- Full library test suite on the release tree: **3708 passed, 221 skipped, 0 failed** in 39:58 (bp-numpy21, NumPy 2.1.3); skipped cases are
+  optional-dependency or platform gates listed by the test runner.
 
 ## Assets
 
