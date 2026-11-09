@@ -1,0 +1,1177 @@
+id,kind,conformance,contract_positive,contract_negative,oracle_ref,oracle_delta,route_replay,memory_within_budget,notes
+Ab1Reader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+AlignmentReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+ArrowReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BamFileReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BamReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BcfReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BedGraphReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BedMethylReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BedReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BedpeReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BgenReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BigWigReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BimReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BiomReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BlastTabularReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+BroadPeakReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+ChainFileReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+ChainReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+ClsReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+ClustalReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+CoolerReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+CramReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+CsvReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+CytobandReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+EmblReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+ExcelReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+FaiReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+FamReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+FastaFileReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+FastaReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+FastqReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+FcsReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GafReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GctReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GenBankReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GenePredReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GfaReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+Gff3Reader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GffFileReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GffReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GmtReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GroReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GrpReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+GtfReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+H5Reader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+H5adReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+H5muReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+HapmapReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+HmmReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+HmmerDomtblReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+HmmerTbloutReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+InterProScanReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+JsonTableReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+LoomReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MafReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MapReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MgfReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MmcifReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+Mol2Reader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MolReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MrcReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MtxReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MzdataReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MzidentmlReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MzmlReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MztabReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+MzxmlReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+NarrowPeakReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+NewickReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+NexusReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+NiftiReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+NpyReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+NrrdReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+ObjReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+OboReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+OffReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PafReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PairsReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+ParquetReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PdbReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PdbmlReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PdbqtReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PedReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PepxmlReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PhylipReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PhyloXmlReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+Plink1Reader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+Plink2Reader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PlyReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+ProtxmlReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+PslReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+RnkReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+SamReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+SbmlFileReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+SdfReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+SmiReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+StlReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+StockholmReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+TenxH5Reader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+TpedReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+TsvFileReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+TsvReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+TxtReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+VcfFileReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+VcfReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+WigReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+XyzReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+ZarrReader,reader,PASS,not_run,not_run,,,no_route,not_measured,"no output_parameter (streaming, plot or file-output operator); definition.outputs null (file outputs declared through contracts)"
+acf,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ada_boost_classifier,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ada_boost_classifier: only 0 samples with a valid class | definition.outputs empty
+ada_boost_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+additive_glm,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,additive_glm: need between 2 and 8 predictors | definition.outputs empty
+additive_spline_regression,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: need at least one array to concatenate | definition.outputs empty
+adf_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+adjusted_mutual_info,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"adjusted_mutual_info: '0' not in ['adjusted_mutual_info', 'average_method', 'axis_info_open', 'category', 'contracts', 'data_formats', 'declare', 'default', 'dependencies', 'dependency_imports', 'description', 'dims', 'end', 'estimate', 'estimate_memory', 'form', 'full', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'label', 'label_a', 'label_b', 'label_dim', 'labels', 'logical_type', 'max', 'memory_modes', 'metadata', 'metric', 'missing_code', 'mode', 'n_clusters_a', 'n_clusters_ | definition.outputs empty"
+adjusted_rand,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+adjusted_rand_index,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"adjusted_rand_index: '0' not in ['adjusted_rand_index', 'axis_info_open', 'category', 'contracts', 'data_formats', 'declare', 'default', 'dependencies', 'dependency_imports', 'description', 'dims', 'end', 'estimate', 'estimate_memory', 'form', 'full', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'label', 'label_a', 'label_b', 'label_dim', 'labels', 'logical_type', 'memory_modes', 'metadata', 'metric', 'missing_code', 'mode', 'n_clusters_a', 'n_clusters_b', 'n_samples', 'ndim', 'n | definition.outputs empty"
+aft,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,aft: predictors must be a non-empty list | definition.outputs empty
+agglomerative,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+aggregate,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,declared contract rejected fixture: aggregate contract: 第 2 维需要字段 0 | definition.outputs empty
+agostino_skewness,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+agostino_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+aldex2,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,groups '0'/'1' not present | definition.outputs empty
+align_reads,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+alignment_coverage,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+alignment_insert_size,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+allele_specific_methylation,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+alternative_polyadenylation,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+amrfinder_plus,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,amrfinder_plus: resource 'amrfinder' is missing; no candidate directory exists; set OPERON_AMRFINDER_DB to the directory that holds these files; install: amrfinder_update -d /path/to/amrfinder_db (installed with the amrfinder binary); https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/ | info predicates 1/1 rejected | definition.outputs empty
+analyze_contacts,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | documented polymorphic legacy operator; protocol_revision absent (pre-3.7 metadata)
+ancom_bc,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,groups '0'/'1' not present | definition.outputs empty
+anderson_darling,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ani_from_kmers,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+annotate,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,annotate: 'fields' is required | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+annotation_completeness,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+annotation_gaps,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,annotation_gaps: 'type' column is not encoded | info predicates 1/2 rejected | definition.outputs empty
+annotation_gene_length,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+annotation_overlap_check,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+anosim,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,anosim: distance matrix must be square | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+anova,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,deterministic,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+ansari_bradley,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ansari_bradley: no samples in the requested groups | definition.outputs empty
+anscombe_glynn,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+anscombe_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+antibody_cdr_graft,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,antibody_cdr_graft: sequence of length 69 is too short for a VH/VHH domain (donor sequence) | info predicates 1/1 rejected | definition.outputs empty
+antibody_cdr_hydrophobicity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+antibody_cdr_kabat,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"antibody_cdr_kabat: exactly one VH/VHH sequence is supported, got 24 | info predicates 3/3 rejected | definition.outputs empty"
+antibody_cdr_length_profile,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,antibody_cdr_kabat: sequence of length 69 is too short for a VH/VHH domain | info predicates 1/1 rejected | definition.outputs empty
+antibody_cdr_motifs,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"antibody_cdr_motifs: exactly one sequence is supported so the region labels stay unique, got 24 | info predicates 2/2 rejected | definition.outputs empty"
+antibody_cdr_physchem,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,antibody_cdr_physchem: exactly one sequence is supported so the region labels stay unique | info predicates 3/3 rejected | definition.outputs empty
+antibody_cdr_redesign,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,antibody_cdr_redesign: structure_path is required; point it at a PDB file | definition.outputs empty
+antibody_developability,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+antibody_numbering_imgt,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"antibody_numbering_imgt: expected exactly one sequence, got 24 | info predicates 3/3 rejected | definition.outputs empty"
+antibody_numbering_kabat,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"antibody_numbering_kabat: expected exactly one VH/VHH sequence, got 24 | info predicates 3/3 rejected | definition.outputs empty"
+antifold_design,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: antifold torch | definition.outputs empty
+antifold_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,antifold_score: structure_path is required | definition.outputs empty
+antismash_bgc,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,antismash_bgc: resource 'antismash' is missing; no candidate directory exists; set OPERON_ANTISMASH_DB to the directory that holds these files; install: download-antismash-databases --database-dir /path/to/antismash_db (the conda package ships no databases); https://dl.secondarymetabolites.org/releases/ | info predicates 1/1 rejected | definition.outputs empty
+approx_entropy,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+arch_lm,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+arch_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+arima,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+assembly_contig_stats,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,assembly_contig_stats: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+assembly_contiguity,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+assembly_gap_stats,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,assembly_gap_stats: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+assembly_length_bins,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,assembly_length_bins: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+assembly_ngx_curve,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,assembly_ngx_curve: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+assembly_ngx_metrics,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,assembly_ngx_metrics: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+assembly_stats,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,assembly_stats: the QUAST executable was not found; set quast_path to its location | info predicates 1/1 rejected | definition.outputs empty
+atac_fragment_size,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+atac_peak_call,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+atac_peak_quality,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+atac_tss_enrichment,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+attach_info,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+autoencoder_anomaly,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"external model dependency: numpy>=1.24 torch<3,>=2.4 | definition.outputs empty"
+bai_perron,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,bai_perron: predictors must be a non-empty list | definition.outputs empty
+bam_alignment_summary,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+bam_flagstat,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+bam_gene_bias,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty; contracts.inputs[1] legacy string dim 'feature'
+bam_gene_counts,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty; contracts.inputs[1] legacy string dim 'feature'
+bam_mapq_distribution,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+bam_read_length_stats,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+barnard_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"barnard_test needs a 2x2 table, got (24, 63) | definition.outputs empty"
+barplot,operator,PASS,SKIP_DOMAIN,SKIP,,,builtin_route,not_measured,"domain precondition: Figure filename must be an image/PDF inside the figures directory | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+bartels_rank,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+bartlett,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+bartlett_sphericity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,bartlett_sphericity: need more complete samples than variables | definition.outputs empty
+bayesian_linear_regression,operator,PASS,PASS,N/A,l2_oracle,0.0004800184681807984,generated_route,not_measured,definition.outputs empty
+bayesian_ridge_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+bcr_clonotype,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+bds_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+beta_regression,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,beta_regression: predictors must be a non-empty list | definition.outputs empty
+betadisper,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,betadisper: distance matrix must be square | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+betadiver,operator,PASS,PASS,N/A,,,generated_route,deterministic,definition.outputs empty
+bh_adjust,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,bh_adjust expects exactly one value column | definition.outputs empty; dims param 'value_dim' default differs from parameters_schema
+bhapkar_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,bhapkar_test: expected a square table with at least two categories | definition.outputs empty
+bin,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,bin: value_label requires at least two dims; input has only 'dim' | definition.outputs empty
+binomial_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+bioenv,operator,PASS,SKIP_TIMEOUT,SKIP,,,no_route,not_measured,operator exceeded 15 s on synthetic input | definition.outputs empty
+birch,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+bisulfite_conversion_rate,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+bland_altman,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,bland_altman: column '0' not found | definition.outputs empty
+boltz_affinity_summary,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,boltz_affinity_summary: affinity_path is required | definition.outputs empty
+boltz_complex_confidence,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+boltz_predict,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs null (file outputs declared through contracts)
+bonett_seier,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+bonferroni,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+bootstrap_ci,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+boschloo_exact,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,boschloo_exact: input must be a 2x2 table | definition.outputs empty
+box_cox,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+box_m,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,box_m: group '0.25' needs more than 61 samples | definition.outputs empty
+box_pierce,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+boxplot,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,"declared contract rejected fixture: boxplot contract: labels.feature 需要 feature | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+bracken_reestimate,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+brennan_prediger,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+breusch_godfrey,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,breusch_godfrey: predictors must be a non-empty list | definition.outputs empty
+breusch_pagan,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,breusch_pagan: at least one regressor is required | definition.outputs empty
+brier_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"expected dims 'sample', 'feature', got ['d0', 'd1'] | definition.outputs empty"
+brown_forsythe,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,only 0 shared samples between expression and metadata | definition.outputs empty
+brunner_munzel,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+build_contacts,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+by_adjust,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,by_adjust expects exactly one p-value column | definition.outputs empty; dims param 'value_dim' default differs from parameters_schema
+calibration_curve,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,calibration_curve: true labels must be binary 0/1 | definition.outputs empty
+calibration_slope,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,calibration_slope: outcome must be binary 0/1 | definition.outputs empty
+calinski_harabasz,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,calinski_harabasz: need at least two clusters | definition.outputs empty
+canonical_correlation,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,canonical_correlation: fewer samples than variables | definition.outputs empty
+causal_forest_ate,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: n_splits=2 cannot be greater than the number of members in each class. | definition.outputs empty
+causal_forest_cate,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: n_splits=2 cannot be greater than the number of members in each class. | definition.outputs empty
+causal_forest_importance,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: n_splits=2 cannot be greater than the number of members in each class. | definition.outputs empty
+cca,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,cca: need more sites than predictors | definition.outputs empty
+cdr3_properties,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+cell_communication,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,cell_communication requires pairs_table | definition.outputs empty; contracts.inputs[0] legacy string dim 'cell'
+cell_cycle_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,cell_cycle_score: gene set 'protocol_revision' has no measured genes | definition.outputs empty
+chacko_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+chain_coverage_summary,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty; parameters_file implicit: chain_coverage_summary.parameters.json
+changepoint_pelt,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+chao1,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,chao1: counts must be integers | definition.outputs empty
+checkm_quality_parse,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+chi_square,operator,PASS,PASS,N/A,,,generated_route,deterministic,definition.outputs empty
+chi_square_gof,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+chisq_gof,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,chisq_gof: probabilities must have one entry per category | definition.outputs empty
+chisq_out_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+chow_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,chow_test: predictors must be a non-empty list | definition.outputs empty
+chromatin_state_segmentation,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+circrna_detect,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+classification_metrics,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"classification_metrics: need exactly two classes, got ['0'] | definition.outputs empty"
+cliffs_delta,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+cluster_axis,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"cluster_axis: input must have at least 2 dims, got ndim=1 | definition.outputs empty"
+cnn_image_classifier,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"external model dependency: numpy>=1.24 torch<3,>=2.4 | definition.outputs empty"
+cochran_armitage,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,cochran_armitage: cases and totals must be integers | definition.outputs empty
+cochran_c_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,only 0 shared samples between expression and metadata | definition.outputs empty
+cochran_q,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,cochran_q: condition columns must contain only 0/1 | definition.outputs empty
+coding_variant_filter,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+codon_adaptation,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,codon_adaptation: FASTA input lacks info.sequences | definition.outputs empty
+codon_design_qc,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,codon_design_qc: FASTA input lacks info.sequences | definition.outputs empty
+codon_gc_harmonize,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,codon_gc_harmonize: FASTA input lacks info.sequences | definition.outputs empty
+codon_optimize,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,codon_optimize: FASTA input lacks info.sequences | definition.outputs empty
+codon_usage,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+codon_usage_bias,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,codon_usage_bias: FASTA input lacks info.sequences | definition.outputs empty
+coexpression_modules,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'sample'
+cohens_d,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+cohens_h,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"cohens_h: needs a 2x2 table, got (24, 63) | definition.outputs empty"
+cohens_kappa,operator,PASS,SKIP_DOMAIN,N/A,l2_oracle,1.8769122145378958e-08,no_route,not_measured,cohens_kappa: the contingency table must be square | definition.outputs empty
+colabfold_predict,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"colabfold_predict: expected exactly one sequence, got 24 | info predicates 2/2 rejected | definition.outputs empty"
+combat,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,combat: 66 expression samples have no batch label | definition.outputs empty
+compare_groups,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,compare_groups: only 0 common samples on 'group_dim'. | definition.outputs empty
+complement_nb_classifier,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,complement_nb_classifier: only 0 samples with a valid class | definition.outputs empty
+concat,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,concat needs at least two inputs | variadic inputs_arity; definition.outputs empty
+concordance_correlation,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+concordance_index,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"concordance_index: expected dims 'sample', 'feature', got ['d0', 'd1'] | definition.outputs empty"
+conditional_logistic,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,conditional_logistic: outcome must have exactly two levels | definition.outputs empty
+conditional_logit,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,conditional_logit: event column must contain only 0/1 | definition.outputs empty
+conformal_classification_sets,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,need at least two calibration and one test row | definition.outputs empty
+conformal_split_regression,operator,PASS,SKIP_DOMAIN,N/A,l2_oracle,,no_route,not_measured,need at least two calibration and one test row | definition.outputs empty
+confusion_matrix,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"confusion_matrix: need exactly two classes, got ['0'] | definition.outputs empty"
+conger_kappa,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+conover_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'none' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+consensus_sequence,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+conserved_gene_order,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+cooks_distance,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,cooks_distance: need more than 60 complete observations for influence statistics | definition.outputs empty
+cophenetic_correlation,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,cophenetic_correlation: tree: tree table is missing the 'parent' field | definition.outputs empty
+core_genome_size,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+correction,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,declared contract rejected fixture: correction contract: labels.statistic 需要 P | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+correlation,operator,PASS,PASS,N/A,,,builtin_route,not_deterministic,definition.outputs empty
+corresp,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+correspondence_analysis,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+counts_normalize,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'feature'
+covratio,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,covratio: need more than 62 complete observations for influence statistics | definition.outputs empty
+cox_regression,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,cox_regression: 'covariates' must be a non-empty list | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+cox_stuart,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+cox_stuart_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+cramer_v,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+cramer_von_mises,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+crispr_array_detect,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,crispr_array_detect: the minced executable was not found; set minced_path to its location | info predicates 1/1 rejected | definition.outputs empty
+crispr_mit_specificity,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: guide and off_target must have equal length | definition.outputs empty
+cronbach_alpha,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+cross_correlation,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+cumulative_incidence,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"cumulative_incidence: dim 'sample' not in ['d0', 'd1'] | definition.outputs empty"
+cusum_chart,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+cuzick,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'group' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+cuzick_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+davies_bouldin,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,davies_bouldin: need at least two clusters | definition.outputs empty
+dbrda,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,dbrda: need more samples than predictors | definition.outputs empty
+dbscan,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+dca,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,dca: outcome labels must be binary 0/1 | definition.outputs empty
+decision_curve,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"need exactly two classes, got ['0'] | definition.outputs empty"
+decision_tree_classifier,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,decision_tree_classifier: only 0 samples with a valid class | definition.outputs empty
+decision_tree_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+deep_quantile_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+deep_survival,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"external model dependency: numpy>=1.24 torch<3,>=2.4 | definition.outputs empty"
+delong_auc,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"need exactly two classes, got ['0'] | definition.outputs empty"
+deming_regression,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+describe,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,"form synthesis: ValueError('contract declares no dimensions') | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+dfbetas,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,dfbetas: need more than 65 complete observations for influence statistics | definition.outputs empty
+dffits,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,dffits: need more than 60 complete observations for influence statistics | definition.outputs empty
+dfgls,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,"domain precondition: The maximum lag you are considering (9) results in an ADF regression with a
+singular regressor matrix after including 0 lags, and so a specification test be
+run. This may occur if your series have little variation and so is locally constant,
+or may occur if you are attempting to test a very short series. You can manually set
+maximum lag length to consider smaller models. | definition.outputs empty"
+difference_in_differences,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+difference_sign,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+distance_correlation,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+distance_matrix,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+diversity,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,diversity: 'metrics' must be a non-empty list | definition.outputs empty
+dmr_window_scan,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+dotplot,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"dotplot: 'features' is required | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+doublet_detect,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,doublet_detect: at least 30 cells and 2 genes are required | definition.outputs empty
+doubly_robust_ate,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,"domain precondition: Unknown label type: continuous. Maybe you are trying to fit a classifier, which expects discrete classes on a regression target with continuous values. | definition.outputs empty"
+drop,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+dunn_index,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,dunn_index: need at least two clusters | definition.outputs empty
+dunn_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+durbin_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,durbin_test: the design must be incomplete (k < treatments) | definition.outputs empty
+durbin_watson,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,durbin_watson: at least one regressor is required | definition.outputs empty
+dxy,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,dxy: info['ploidy'] must be a positive integer | definition.outputs empty
+effective_population_size,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+egger_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+elastic_net_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+engle_granger,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+enrich_go,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+enrichment_plot,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"enrichment_plot: statistic_dim 'statistic' not in ['d0', 'd1'] | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+envfit,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,envfit: too few finite samples for the number of components | definition.outputs empty
+epidemic_case_fatality,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+epidemic_growth_rate,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+epidemic_r0,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+epidemic_seir_fit,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+epidemic_sir_fit,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+epitope_conservation,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; dims param 'field_dim' default differs from parameters_schema
+esm3_embedding,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"source imports: esm, torch | definition.outputs empty"
+esm3_fold,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"source imports: esm, torch | definition.outputs empty"
+esm3_inverse_folding,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"source imports: esm, torch | definition.outputs empty"
+esm3_sasa_prediction,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"source imports: esm, torch | definition.outputs empty"
+esm3_secondary_structure,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"source imports: esm, torch | definition.outputs empty"
+esm3_sequence_generation,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: esm torch | definition.outputs empty
+esm_embedding,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
+esm_embedding_autoencoder,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: torch | definition.outputs null (file outputs declared through contracts)
+esm_embedding_isolation_forest,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs null (file outputs declared through contracts)
+esm_embedding_kmeans_silhouette,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+esm_embedding_knn_density,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs null (file outputs declared through contracts)
+esm_embedding_linear_probe,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,esm_embedding_linear_probe: labels are required; pass a comma-separated labels parameter or store them in info['labels'] | info predicates 1/2 rejected | definition.outputs empty
+esm_embedding_mlp_probe,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,esm_embedding_mlp_probe: labels are required; pass a comma-separated labels parameter or store them in info['labels'] | info predicates 1/2 rejected | definition.outputs empty
+esm_embedding_neighbors,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+esm_embedding_outlier_scan,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+esm_embedding_pca,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+esm_embedding_pca_loadings,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+esm_embedding_pca_reconstruction,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs null (file outputs declared through contracts)
+esm_embedding_ridge_probe,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,esm_embedding_ridge_probe: targets are required; pass a comma-separated targets parameter or store them in info['targets'] | info predicates 2/2 rejected | definition.outputs empty
+esm_embedding_umap_projection,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+esm_if_design,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
+esm_if_interface_redesign,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: biotite>=0.37 fair-esm>=2.0 numpy>=1.24 scipy>=1.10 torch>=2.0 | definition.outputs empty
+esm_if_masked_region_scan,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
+esm_if_mutation_scan,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
+esm_if_position_entropy,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
+esm_if_redesign,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
+esm_if_score,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
+esm_masked_marginal,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: fair-esm>=2.0 torch>=2.0 | definition.outputs empty
+esm_pseudo_likelihood,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
+esm_variant_effect,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
+esmfold_predict,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"source imports: esm, transformers | definition.outputs empty"
+eta_squared,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+event_study,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ewma_chart,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+exon_skipping,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+explode,operator,PASS,SKIP_HARNESS,SKIP,,,no_route,not_measured,declared contract rejected fixture: explode contract: 需要 0 的轴注释（dim） | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+export_results,operator,PASS,SKIP_HARNESS,SKIP,,,no_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | documented polymorphic legacy operator; protocol_revision absent (pre-3.7 metadata)
+extra_trees_classifier,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,extra_trees_classifier: only 0 samples with a valid class | definition.outputs empty
+extra_trees_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+factor_analysis,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+faith_pd,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,faith_pd: tree table is missing the 'parent' field | definition.outputs empty
+fastq_adapter_scan,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fastq_adapter_trim,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fastq_deduplicate,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fastq_duplication_profile,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fastq_gc_distribution,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fastq_overrepresented,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fastq_quality_profile,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fastq_quality_trim,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fastq_stats,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fba_flux_balance,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,fba_flux_balance: bounds must have one row per reaction | definition.outputs empty
+fba_flux_distribution,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fba_flux_variability,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+fba_gene_knockout,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+filter_by,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,filter_by: 'rules' must be a non-empty list | definition.outputs empty; contracts.inputs[1] legacy string dim 'statistic'
+filter_min,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,filter_min: threshold removed every position along 'dim'. | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+find_orfs,operator,PASS,PASS,PASS,,,builtin_route,not_measured,info predicates 5/5 rejected | definition.outputs empty
+fine_gray,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,fine_gray: 'covariates' must be a non-empty list | definition.outputs empty
+fisher_alpha,operator,PASS,PASS,N/A,,,generated_route,deterministic,definition.outputs empty
+fisher_combined,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+fisher_exact,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"fisher_exact needs a 2x2 table, got (24, 58) | definition.outputs empty"
+fleiss_kappa,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,fleiss_kappa: every subject must have the same positive number of ratings | definition.outputs empty
+fligner_killeen,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,only 0 shared samples between expression and metadata | definition.outputs empty
+fligner_kruskal,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+fligner_wolfe,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+flow_compensate,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,flow_compensate: spillover matrix must be square | definition.outputs empty
+flow_gate,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+flow_transform,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+flye_assemble,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,flye_assemble: the Flye executable was not found; set flye_path to its location | info predicates 1/1 rejected | definition.outputs empty
+foldseek_align,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,foldseek_align: query_path is required | definition.outputs empty
+foldseek_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,foldseek_cluster: no structure file was found; set structure_dir or structure_paths | definition.outputs empty
+foldseek_search,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,foldseek_search: query_path . is not a file | definition.outputs null (file outputs declared through contracts)
+forest_plot,operator,PASS,SKIP_DOMAIN,SKIP,,,builtin_route,not_measured,"domain precondition: Figure filename must be an image/PDF inside the figures directory | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+fowlkes_mallows,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"fowlkes_mallows: '0' not in ['axis_info_open', 'category', 'contracts', 'data_formats', 'declare', 'default', 'dependencies', 'dependency_imports', 'description', 'dims', 'end', 'estimate', 'estimate_memory', 'form', 'fowlkes_mallows', 'full', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'label', 'label_a', 'label_b', 'label_dim', 'labels', 'logical_type', 'memory_modes', 'metadata', 'metric', 'missing_code', 'mode', 'n_clusters_a', 'n_clusters_b', 'n_samples', 'ndim', 'numeric', | definition.outputs empty"
+friedman,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+fst,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,fst needs at least two genotyped samples in each group | definition.outputs empty
+fst_outlier_scan,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+g_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+games_howell,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+gamma_regression,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,gamma_regression: predictors must be a non-empty list | definition.outputs empty
+garch,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,garch: need at least 50 finite observations | definition.outputs empty
+gaussian_mixture,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+gaussian_process_regressor,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,gaussian_process_regressor: predictors must not be empty | definition.outputs empty
+gaussian_random_projection,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+gc_skew_profile,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"gc_skew_profile: input must contain exactly one sequence, got 24. Use select on 'sequence' first. | info predicates 5/5 rejected | definition.outputs empty"
+gcn_node_classifier,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: torch | definition.outputs empty
+gene_list_to_hits,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,gene_list_to_hits: 'genes' must be a non-empty list | definition.outputs empty
+gene_structure,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,gene_structure: 'type' column is not encoded | info predicates 1/2 rejected | definition.outputs empty
+genome_alignment_stats,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty
+genome_cds_check,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,"genome_cds_check: no 'seqid' label found. Tried aliases ['seqid', 'seqname'], available columns ['axis_info_open', 'category', 'contracts', 'data_formats', 'declare', 'default', 'description', 'dims', 'encoders', 'end', 'estimate', 'estimate_memory', 'field', 'field_dim', 'form', 'full', 'genome_cds_check', 'icon', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'internal_stops', 'kind', 'labels', 'length_ok', 'logical_type', 'memory_modes', 'metadata', 'missing_code', 'mode', 'ndim', 'null | info predicates 2/4 rejected | definition.outputs empty"
+genome_gene_density,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,"genome_gene_density: no 'seqid' label found. Tried aliases ['seqid', 'seqname'], available columns ['aligned_bp', 'aligned_fraction', 'axis_info_open', 'category', 'contracts', 'data', 'data_formats', 'declare', 'default', 'description', 'dims', 'encoders', 'end', 'estimate', 'estimate_memory', 'feature_type', 'features_per_kb', 'field', 'field_dim', 'form', 'full', 'genome_gene_density', 'icon', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'labels', 'logical_type', 'memory_modes | info predicates 1/2 rejected | definition.outputs empty"
+genome_intergenic_regions,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,genome_intergenic_regions: 'seqid' column is not encoded | info predicates 1/2 rejected | definition.outputs empty
+genome_kmer_similarity,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,genome_kmer_similarity: FASTA input lacks info.sequences | info predicates 2/4 rejected | definition.outputs empty
+genome_kmer_spectrum,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,genome_kmer_spectrum: FASTA input lacks info.sequences | info predicates 1/2 rejected | definition.outputs empty
+genome_mash_distance,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,genome_mash_distance: FASTA input lacks info.sequences | info predicates 2/4 rejected | definition.outputs empty
+genome_promoter_extract,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,"genome_promoter_extract: no 'seqid' label found. Tried aliases ['seqid', 'seqname'], available columns ['axis_info_open', 'category', 'contracts', 'data', 'data_formats', 'declare', 'default', 'description', 'dims', 'encoders', 'end', 'estimate', 'estimate_memory', 'feature_type', 'field', 'field_dim', 'form', 'full', 'gene', 'genome_promoter_extract', 'icon', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'labels', 'logical_type', 'memory_modes', 'metadata', 'missing_code', 'mode' | info predicates 2/4 rejected | definition.outputs empty"
+genome_rearrangement,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+genome_rearrangement_summary,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty
+genome_synteny_blocks,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty
+genomic_selection_rrblup,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"population genetics input: missing field 'phenotype' in ['0', '1', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '2', '20', '21', '22', '23', '3', '4', '5', '6', '7', '8', '9'] | definition.outputs empty"
+genotype_allele_balance,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+genotype_call_rate_qc,operator,PASS,PASS,N/A,l2_oracle,0.0,generated_route,not_measured,definition.outputs empty
+genotype_filter,operator,PASS,PASS,PASS,,,builtin_route,not_measured,info predicates 4/4 rejected | definition.outputs empty
+genotype_grm,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+genotype_mendelian_error,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+genotype_pca,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+genotype_pca_loadings,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+gff_feature_stats,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,gff_feature_stats: 'type' column is not encoded | info predicates 1/2 rejected | definition.outputs empty
+glmm_logistic,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,glmm_logistic: outcome must be binary 0/1 | definition.outputs empty
+go_gene_similarity,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,go_gene_similarity: column 'gene_a' is missing | definition.outputs empty
+go_ic_profile,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,go_ic_profile: column 'term' is missing | definition.outputs empty
+go_term_similarity,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,go_term_similarity: column 'term_a' is missing | definition.outputs empty
+goldfeld_quandt,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,goldfeld_quandt: response and regressor must be different | definition.outputs empty
+goodman_kruskal_gamma,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+gower_distance,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+gradient_boosting_classifier,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,gradient_boosting_classifier: only 0 samples with a valid class | definition.outputs empty
+gradient_boosting_regressor,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+granger_causality,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: The Granger causality test statistic cannot be computed because the VAR has a perfect fit of the data. | definition.outputs empty
+graph_pseudotime,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+grubbs_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+gsea,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+gsva_plage,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+gtdb_taxonomy_parse,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+gwas_association,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+gwas_inflation,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,gwas_inflation: association column 'p' is missing | definition.outputs empty
+gwas_top_hits,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,gwas_top_hits: association column 'p' is missing | definition.outputs empty
+gwet_ac1,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+haplotype_blocks,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+haplotype_diversity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,haplotype_diversity: sequences differ in length | definition.outputs empty
+hardy_weinberg,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,hardy_weinberg: genotype column 'AA' must contain nonnegative integers | definition.outputs empty
+harvey_collier,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,harvey_collier: predictors must be a non-empty list | definition.outputs empty
+hdbscan,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+hdbscan_cluster,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+heatmap,operator,PASS,SKIP_DOMAIN,SKIP,,,builtin_route,not_measured,"domain precondition: Figure filename must be an image/PDF inside the figures directory | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+heterozygosity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,heterozygosity: info['ploidy'] must be a positive integer | definition.outputs empty
+hic_contact_matrix,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+hic_distance_decay,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+hic_pair_stats,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+hidden_markov_viterbi,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,transition table must be square | definition.outputs empty
+hierarchical_clustering,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+histogram,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,"declared contract rejected fixture: histogram contract: labels.feature 需要 feature | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+hmm_baum_welch,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+hmmer_domains,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,hmmer_domains: hmm_path is required; set it to a pressed Pfam-A.hmm (see docs/large_resources.md for the download instructions) | info predicates 1/1 rejected | definition.outputs empty
+holm_adjust,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,holm_adjust expects exactly one p-value column | definition.outputs empty; dims param 'value_dim' default differs from parameters_schema
+homogeneity_completeness_v_measure,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"homogeneity_completeness_v_measure: '0' not in ['axis_info_open', 'beta', 'category', 'completeness', 'contracts', 'data_formats', 'declare', 'default', 'dependencies', 'dependency_imports', 'description', 'dims', 'end', 'estimate', 'estimate_memory', 'form', 'full', 'homogeneity', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'label', 'label_a', 'label_b', 'label_dim', 'labels', 'logical_type', 'memory_modes', 'metadata', 'metric', 'missing_code', 'mode', 'n_clusters_a', 'n_clust | definition.outputs empty"
+hosmer_lemeshow,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,hosmer_lemeshow: outcome must be binary 0/1 | definition.outputs empty
+hotelling_t2,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,hotelling_t2: no samples in the requested groups | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+huber_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+humann_pathway_abundance,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+humann_pathway_collapse,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+hurst_exponent,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+hvg,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+hwe,operator,PASS,PASS,PASS,,,builtin_route,not_measured,info predicates 3/3 rejected | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+ibd_segments,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+ica,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ihs_selection,operator,PASS,SKIP_DOMAIN,SKIP,,,builtin_route,not_measured,domain precondition: ihs_selection needs at least four haplotype columns | definition.outputs empty
+image_connected_components,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+image_gaussian_blur,operator,PASS,PASS,N/A,l2_oracle,4.995169000654442e-10,generated_route,not_measured,definition.outputs empty
+image_histogram_equalization,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+image_otsu_threshold,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+image_sobel_gradient,operator,PASS,PASS,N/A,l2_oracle,0.0,generated_route,not_measured,definition.outputs empty
+impute,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+indicator_species,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[1] legacy string dim 'feature'
+integrated_brier_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"expected dims 'sample', 'feature', got ['d0', 'd1'] | definition.outputs empty"
+integrated_discrimination_improvement,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,integrated_discrimination_improvement: outcome must be binary 0/1 | definition.outputs empty
+interface_alanine_scan,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: openmm | definition.outputs empty
+interface_bsa,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,interface_bsa: the PDB form has no 'z' column | info predicates 0/1 rejected | definition.outputs empty
+interface_contact_map,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
+interface_distance_histogram,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
+interface_hbond_network,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"interface_hbond_network: chain(s) A not found in the PDB form (available chains: ['0.45', '0.459', '0.468', '0.477', '0.486', '0.495', '0.504', '0.513', '0.522', '0.531', '0.54', '0.549', '0.558', '0.567', '0.576', '0.585', '0.594', '0.603', '0.612', '0.621', '0.63', '0.639', '0.648', '0.657']) | definition.outputs empty"
+interface_hotspots,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,interface_hotspots: the PDB form has no 'z' column | info predicates 0/1 rejected | definition.outputs empty
+interface_hydrophobic_patch,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
+interface_mmgbsa_delta,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: openmm | definition.outputs empty
+interpro_domain_summary,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+interval_annotate,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"interval_annotate: unknown classes ['1.05', '1.0710000000000002', '1.092', '1.1130000000000002', '1.1340000000000001', '1.1550000000000002', '1.1760000000000002', '1.1970000000000003', '1.218', '1.2389999999999999', '1.26', '1.281', '1.302', '1.3230000000000002', '1.344', '1.3650000000000002', '1.3860000000000001', '1.4070000000000003', '1.428', '1.4489999999999998', '1.47', '1.4909999999999999', '1.512', '1.533']; expected ['cds', 'exon', 'intron', 'promoter', 'utr3', 'utr5']"
+interval_censored_regression,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,interval_censored_regression: need at least one covariate | definition.outputs empty
+interval_coverage,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"interval_coverage: unknown classes ['0.8500000000000001', '0.8670000000000001', '0.8840000000000001', '0.9010000000000001', '0.9180000000000001', '0.9350000000000002', '0.9520000000000002', '0.9690000000000002', '0.986', '1.0030000000000001', '1.02', '1.0370000000000001', '1.054', '1.0710000000000002', '1.088', '1.1050000000000002', '1.122', '1.1390000000000002', '1.156', '1.173', '1.19', '1.207', '1.224', '1.241']; expected ['cds', 'exon', 'intron', 'promoter', 'utr3', 'utr5']"
+interval_jaccard,operator,PASS,PASS,N/A,,,builtin_route,not_measured,
+interval_merge,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,interval_merge: 'chrom' column is not encoded | info predicates 1/2 rejected | definition.outputs empty
+interval_overlap,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,interval_overlap: A 'chrom' column is not encoded | info predicates 2/4 rejected | definition.outputs empty
+interval_stats,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,interval_stats: 'chrom' column is not encoded | info predicates 1/2 rejected | definition.outputs empty
+intraclass_correlation,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+intron_retention,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+inverse_gaussian_regression,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,inverse_gaussian_regression: predictors must be a non-empty list | definition.outputs empty
+iptw_effect,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,iptw_effect: treatment must be coded 0/1 | definition.outputs empty
+isoform_quantification_em,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,isoform_quantification_em: compatibility matrix and counts differ | definition.outputs empty
+isolation_forest,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+isolation_forest_anomaly,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+isomap,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+isotonic,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+iv_2sls,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,iv_2sls: endog_labels must not be empty | definition.outputs empty
+jarque_bera,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+johansen,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,johansen: Johansen computation failed: Singular matrix | definition.outputs empty
+join,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,join: feature label 'metadata' already exists in data. Use 'prefix' to disambiguate. | definition.outputs empty
+jonckheere_terpstra,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+kalman_local_level,operator,PASS,PASS,N/A,l2_oracle,4.889884053227433e-10,generated_route,not_measured,definition.outputs empty
+kalman_smoother,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+kaplan_meier,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"kaplan_meier: 'groups' must be a non-empty list | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+kendall_tau,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+kendall_w,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+kernel_pca,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+kernel_shap,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+kmer_count,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 5/5 rejected | definition.outputs empty
+kmo_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,kmo_test: need more complete samples than variables | definition.outputs empty
+knn,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,knn: need at least two classes | definition.outputs empty
+kpss_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+kraken_kreport_parse,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+krippendorff_alpha,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+kruskal,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,deterministic,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+ks_2samp,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+lasso_regression,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ld_decay,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,declared contract rejected fixture: ld_decay contract: 缺少 info.pos | definition.outputs empty
+ld_matrix,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,ld_matrix: genotype matrix needs one position per variant in info['pos'] | definition.outputs empty
+ld_prune,operator,PASS,PASS,PASS,,,builtin_route,not_measured,info predicates 1/1 rejected | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+lda,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,lda: need at least two classes | definition.outputs empty
+lda_classifier,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,lda_classifier: only 0 samples with a valid class | definition.outputs empty
+leave_one_out,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,leave_one_out: effect and variance columns must differ | definition.outputs empty
+levene,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+levene_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,only 0 shared samples between expression and metadata | definition.outputs empty
+leverage,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,leverage: need more than 60 complete observations for influence statistics | definition.outputs empty
+lfq_median_normalize,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+lfq_quantile_normalize,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+liftover_intervals,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty; parameters_file implicit: liftover_intervals.parameters.json
+liftover_variants,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty; parameters_file implicit: liftover_variants.parameters.json
+ligand_adduct_mz,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_adduct_mz: input Form has no info['formula'] list | definition.outputs empty
+ligand_brics_fragments,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_brics_fragments: the input form has no 'smiles' column on dim 'field' | definition.outputs empty
+ligand_contact_profile,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,"ligand_contact_profile: no ligand atoms named 'LIG'; available residue names: ['0.65', '0.663', '0.676', '0.689', '0.702', '0.715', '0.728', '0.741', '0.754', '0.767', '0.78', '0.793', '0.806', '0.819', '0.832', '0.845', '0.858', '0.871', '0.884', '0.897', '0.91', '0.923', '0.936', '0.949'] | info predicates 0/1 rejected | definition.outputs empty"
+ligand_dbe,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_dbe: input Form has no info['formula'] list | definition.outputs empty
+ligand_efficiency,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+ligand_exact_mass,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_exact_mass: the input form has no 'smiles' column on dim 'field' | definition.outputs empty
+ligand_formula_parse,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_formula_parse: input Form has no info['formula'] list | definition.outputs empty
+ligand_isotope_pattern,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_isotope_pattern: the input form has no 'smiles' column on dim 'field' | definition.outputs empty
+ligand_mass_fraction,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_mass_fraction: input Form has no info['formula'] list | definition.outputs empty
+ligand_molecular_formula,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_molecular_formula: the input form has no 'smiles' column on dim 'field' | definition.outputs empty
+ligand_nitrogen_rule,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_nitrogen_rule: input Form has no info['formula'] list | definition.outputs empty
+ligand_pdbqt_flexible,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_pdbqt_flexible: smiles is required | definition.outputs empty
+ligand_pdbqt_prepare,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_pdbqt_prepare: smiles must not be empty | definition.outputs empty
+ligand_rgroup_decomposition,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligand_rgroup_decomposition: the input form has no 'smiles' column on dim 'field' | definition.outputs empty
+ligandmpnn_active_site_design,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligandmpnn_design: ligandmpnn_path is required; point it at a LigandMPNN checkout or set OPERON_LIGANDMPNN_PATH | definition.outputs empty
+ligandmpnn_design,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: torch | definition.outputs empty
+ligandmpnn_score,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: torch | definition.outputs empty
+ligandmpnn_side_chain_packing,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ligandmpnn_side_chain_packing: structure_path . is not a file | definition.outputs empty
+lightgbm_classifier,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+lillie_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+lilliefors_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+limma_de,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,limma_de: 24 metadata samples are absent from values | definition.outputs empty
+line,operator,PASS,SKIP_HARNESS,SKIP,,,no_route,not_measured,"declared contract rejected fixture: line contract: labels.feature 需要 feature; labels.feature 需要 feature | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+linear_mixed_model,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,linear_mixed_model: every group needs at least two rows | definition.outputs empty
+linear_regression,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ljung_box,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+locally_linear_embedding,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+lof_outlier_score,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+log_transform,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+logistic_regression,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,logistic_regression: only 0 samples with a valid class | definition.outputs empty
+logrank_test,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,logrank_test: 'groups' must be a non-empty list | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+lowess,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ma_plot,operator,PASS,SKIP_DOMAIN,SKIP,,,builtin_route,not_measured,"domain precondition: Figure filename must be an image/PDF inside the figures directory | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+mack_wolfe,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+maf,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,maf: threshold removed every position along 'dim' | info predicates 3/3 rejected | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+mahalanobis_distance,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,mahalanobis_distance: need more samples than features | definition.outputs empty
+manhattan,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,"declared contract rejected fixture: manhattan contract: 需要 protocol_revision 的轴注释（feature）; 需要 protocol_revision 的轴注释（feature）; 需要 protocol_revision 的轴注释（feature） | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+mann_kendall,operator,PASS,PASS,N/A,,,generated_route,deterministic,definition.outputs empty
+mann_whitney,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+manova,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"manova: every group needs >= 2 samples, got [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] | definition.outputs empty"
+mantel,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,mantel: matrix must be square with one label per row | definition.outputs empty
+mantel_haenszel,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,mantel_haenszel: cell counts must be integers | definition.outputs empty
+mardia_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,mardia_test: need more complete samples than features | definition.outputs empty
+marker_score,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,marker_score: no gene set has at least 1 measured genes | definition.outputs empty
+mauchly_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,mauchly_test: sample count must exceed feature count | definition.outputs empty
+mcnemar,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,mcnemar: column '0' not found | definition.outputs empty
+mds,operator,PASS,PASS,N/A,,,generated_route,deterministic,definition.outputs empty
+mediation_analysis,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+meta_analysis,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+meta_regression,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,meta_regression: predictors must be a non-empty list | definition.outputs empty
+metabolite_adduct_annotation,operator,PASS,PASS,N/A,,,generated_route,not_measured,protocol_revision absent (pre-3.7 metadata); definition.outputs empty
+metabolite_mass_match,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+metabolite_set_enrichment,operator,PASS,PASS,N/A,,,generated_route,not_measured,protocol_revision absent (pre-3.7 metadata); definition.outputs empty
+metagenomics_bray_curtis,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+metagenomics_clr,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+metaphlan_profile_merge,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+metaphlan_profile_parse,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+methylation_beta_value,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+methylation_m_value,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+mhc_anchor_score,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; dims param 'field_dim' default differs from parameters_schema
+mhc_binding_motif,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+min_max_scale,operator,PASS,PASS,N/A,l2_oracle,2.9146690949666265e-08,generated_route,not_measured,definition.outputs empty
+minibinder_interface,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,minibinder_interface: structure form lacks chain/resname columns | info predicates 0/1 rejected | definition.outputs empty
+mismatch_distribution,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,mismatch_distribution: sequences differ in length | definition.outputs empty
+missing,operator,PASS,PASS,PASS,,,builtin_route,not_measured,info predicates 1/1 rejected | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+ml_feature_ablation,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,ml_feature_ablation: labels must be a single column | definition.outputs empty
+ml_grid_search,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,ml_grid_search: labels must be a single column | definition.outputs empty
+ml_learning_curve,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,ml_learning_curve: labels must be a single column | definition.outputs empty
+ml_logistic_fit,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,ml_logistic_fit: labels must be a single column | definition.outputs empty
+ml_partial_dependence,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ml_partial_dependence: design matrix and response are inconsistent | definition.outputs empty
+ml_stratified_folds,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,ml_stratified_folds: labels must be a single column | definition.outputs empty
+ml_train_test_split,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,ml_train_test_split: labels must be a single column | definition.outputs empty
+mlp_classifier,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"external model dependency: numpy>=1.24 torch<3,>=2.4 | definition.outputs empty"
+mlp_regressor,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"external model dependency: numpy>=1.24 torch<3,>=2.4 | definition.outputs empty"
+mlst_typing,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,mlst: column 'locus1' is required | definition.outputs empty
+module_eigengenes,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"module assignment must be a [feature, module] form | definition.outputs empty; contracts.inputs[0] legacy string dim 'sample'"
+module_trait_correlation,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'sample'
+mood_median,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+mood_median_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+mood_scale,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,mood_scale: no samples in the requested groups | definition.outputs empty
+moran,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,moran: distance matrix must be square | definition.outputs empty
+morisita,operator,PASS,PASS,N/A,,,generated_route,deterministic,definition.outputs empty
+moses_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,moses_test: each group needs at least two observations | definition.outputs empty
+motif_discovery_em,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+motif_enrichment,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+motif_scan,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,motif_scan: 'motifs' must be a non-empty mapping | info predicates 5/5 rejected | definition.outputs empty
+motif_scan_pwm,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+mrpp,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'group' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+ms1_feature_detect,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ms1_isotope_pattern,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ms2_cosine_similarity,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; dims param 'field_dim' default differs from parameters_schema
+ms2_spectral_angle,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ms_missing_filter,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+msa_column_stats,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,msa_column_stats: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+msa_consensus,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,msa_consensus: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+msa_identity_matrix,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,msa_identity_matrix: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+msa_trim,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,msa_trim: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+multinomial_logit,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,multinomial_logit: every response level needs at least two rows | definition.outputs empty
+multinomial_nb_classifier,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,multinomial_nb_classifier: only 0 samples with a valid class | definition.outputs empty
+mutational_signature_decomposition,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; dims param 'sample_dim' default differs from parameters_schema
+mutual_information,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"mutual_information: need >= 2 classes, got ['0'] | definition.outputs empty"
+negative_binomial_regression,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,negative_binomial_regression: predictors must be a non-empty list | definition.outputs empty
+neighbor_joining,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,neighbor_joining: distance matrix must be square | definition.outputs empty
+nelson_aalen,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+nemenyi_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'tukey' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+nestedness,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+net_reclassification_improvement,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,net_reclassification_improvement: outcome must be binary 0/1 | definition.outputs empty
+network_centrality,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+network_communities,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+network_summary,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+nmds,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,nmds: distance matrix must be square | definition.outputs empty
+nmf,operator,PASS,PASS,N/A,,,generated_route,deterministic,definition.outputs empty
+normalize,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"normalize/cpm: 24 sample(s) have zero total count and cannot be normalized (positions [0, 1, 2, 3, 4]). | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)"
+normalized_mutual_info,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"normalized_mutual_info: '0' not in ['arithmetic', 'average_method', 'axis_info_open', 'category', 'contracts', 'data_formats', 'declare', 'default', 'dependencies', 'dependency_imports', 'description', 'dims', 'end', 'estimate', 'estimate_memory', 'form', 'full', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'label', 'label_a', 'label_b', 'label_dim', 'labels', 'logical_type', 'memory_modes', 'metadata', 'metric', 'missing_code', 'mode', 'n_clusters_a', 'n_clusters_b', 'n_samples' | definition.outputs empty"
+normalizing_flow_density,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: torch | definition.outputs empty
+normaltest,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+nucleosome_positioning,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+nucleotide_diversity,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,nucleotide_diversity: alt allele counts must be integers | info predicates 3/3 rejected | definition.outputs empty
+nucleotide_transformer_embedding,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"external model dependency: numpy>=1.24 torch<3,>=2.4 transformers<5,>=4.50 | definition.outputs empty"
+nucleotide_transformer_variant_effect,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"external model dependency: numpy>=1.24 torch<3,>=2.4 transformers<5,>=4.50 | definition.outputs empty"
+odds_ratio,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"odds_ratio: needs a 2x2 table, got (24, 64) | definition.outputs empty"
+openfold_predict,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: torch | definition.outputs empty
+optics,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+ora,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ora: no genes pass the hit thresholds | definition.outputs empty
+order_axis,operator,PASS,SKIP_HARNESS,SKIP,,,no_route,not_measured,declared contract rejected fixture: order_axis contract: 需要 x 的轴注释（dim） | documented polymorphic legacy operator; protocol_revision absent (pre-3.7 metadata)
+ordinal_logistic,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,ordinal_logistic: predictors must be a non-empty list | definition.outputs empty
+ortholog_cluster,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+pacf,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+paga_connectivity,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,paga_connectivity: cluster labels must have exactly one column | definition.outputs empty; contracts.inputs[0] legacy string dim 'cell'
+page_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,page_test: ties within a block are not supported | definition.outputs empty
+pains_filter,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+pair_confusion_matrix,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"pair_confusion_matrix: '0' not in ['axis_info_open', 'category', 'contracts', 'data_formats', 'declare', 'default', 'dependencies', 'dependency_imports', 'description', 'different_cluster', 'different_label', 'dims', 'end', 'estimate', 'estimate_memory', 'form', 'full', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'label', 'label_a', 'label_b', 'label_dim', 'labels', 'logical_type', 'memory_modes', 'metadata', 'missing_code', 'mode', 'n_clusters_a', 'n_clusters_b', 'n_samples', ' | definition.outputs empty"
+pairwise_alignment,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"pairwise_alignment: exactly two sequences are required, got 24 and 24 | info predicates 6/6 rejected | definition.outputs empty"
+pam,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"pam: n_clusters must satisfy 2 <= n_clusters < n_samples, got 1 for 24 samples | definition.outputs empty"
+pangenome_curve,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+pangenome_matrix,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+partial_correlation,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,not enough shared samples (24) for 63 covariates | definition.outputs empty
+partial_mantel,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,partial_mantel A: distance matrix must be square | definition.outputs empty
+particle_filter_bootstrap,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+passing_bablok,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+patristic_distance,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,patristic_distance: tree table is missing the 'parent' field | definition.outputs empty
+patterson_fst,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,patterson_fst: info['ploidy'] must be a positive integer | definition.outputs empty
+pca,operator,PASS,PASS,PASS,l2_oracle,"[0.9999999999999999, 0.9999999999999998, 1.0]",builtin_route,deterministic,info predicates 1/1 rejected | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+pca_loadings,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+pcnm,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,pcnm: distance matrix must be square | definition.outputs empty
+pcoa,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,pcoa: distance matrix must be square | definition.outputs empty
+peak_annotate,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+peak_chrom_summary,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+peak_density_profile,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+peak_gap_stats,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,peak_gap_stats: at least two intervals on one chromosome are required | info predicates 1/1 rejected | definition.outputs empty
+peak_merge,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+peak_nearest_gene,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,peak_nearest_gene: B 'type' column is not encoded | info predicates 2/4 rejected | definition.outputs empty
+peak_overlap_count,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,peak: column 'chrom' is required | definition.outputs empty
+peak_overlap_matrix,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+peak_peak_distance,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+peak_signal_stats,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,peak_signal_stats: column 'signalValue' is required | info predicates 1/1 rejected | definition.outputs empty
+peak_strand_bias,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+peak_summit_offset,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,peak_summit_offset: column 'peak' is required | info predicates 1/1 rejected | definition.outputs empty
+peak_tss_distance,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,peak: column 'chrom' is required | definition.outputs empty
+peak_tss_enrichment,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+peak_width_signal_correlation,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,peak_width_signal_correlation: column 'signalValue' is required | info predicates 1/1 rejected | definition.outputs empty
+peak_width_stats,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+pearson_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+pedigree_inbreeding,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,pedigree_inbreeding: pedigree contains a cycle | definition.outputs empty
+peptide_coverage,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,peptide_coverage: FASTA input lacks info.sequences | info predicates 0/1 rejected | definition.outputs empty
+peptide_fragment_ions,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,peptide_fragment_ions: peptide Form lacks info.sequences | definition.outputs empty
+peptide_isotope_envelope,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,peptide_isotope_envelope: peptide Form lacks info.sequences | definition.outputs empty
+peptide_mass,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,peptide_mass: peptide Form lacks info.sequences | definition.outputs empty
+peptide_modified_mass,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,peptide_modified_mass: peptide Form lacks info.sequences | definition.outputs empty
+peptide_qvalue,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+peptide_spectrum_annotation,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+periodogram,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+permanova,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"permanova: dist_dim 'sample_1' must be the first axis of the distance form, got ['sample', 'sample_1'] | definition.outputs empty; dims param 'group_dim' uses a dynamic default"
+permutation_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+pettitt_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+pfam_architecture,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+phillips_perron,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+phylo_ancestral,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,tree: tree table is missing the 'parent' field | definition.outputs empty
+phylo_bootstrap,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,phylo_bootstrap: FASTA input lacks info.sequences | definition.outputs empty
+phylo_contrasts,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,tree: tree table is missing the 'parent' field | definition.outputs empty
+phylo_distance_matrix,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,phylo_distance_matrix: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+phylo_lambda,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,tree: tree table is missing the 'parent' field | definition.outputs empty
+phylo_neighbor_joining,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,phylo_neighbor_joining: row and column labels differ | definition.outputs empty
+phylo_support_filter,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,phylo_support_filter: tree table is missing the 'parent' field | definition.outputs empty
+phylo_support_summary,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+phylo_tree_distance,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,phylo_tree_distance (tree A): tree table is missing the 'parent' field | definition.outputs empty
+phylogenetics_gtr_likelihood,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,tree taxa missing from alignment: ['0.8500000000000001'] | definition.outputs empty
+phylogenetics_jc69_likelihood,operator,PASS,SKIP_DOMAIN,SKIP,,,builtin_route,not_measured,domain precondition: tree tips and alignment names differ | definition.outputs empty
+pileup_variants,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+pivot,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+plasmid_contig_filter,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+pls_regression,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+poisson_means_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,poisson_means_test: no samples in the requested groups | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+poisson_regression,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,poisson_regression: predictors must be a non-empty list | definition.outputs empty
+poisson_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,poisson_test: counts must be non-negative integers | definition.outputs empty
+power_anova,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,power: parameter 'n_per_group' must be at least 2 | definition.outputs empty
+power_prop_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,power: parameter 'nobs1' must be at least 2 | definition.outputs empty
+power_t_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,power: parameter 'nobs1' must be at least 2 | definition.outputs empty
+power_transform,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+precision_recall_curve,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"need exactly two classes, got ['0'] | definition.outputs empty"
+press,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,press: need more than 60 complete observations for influence statistics | definition.outputs empty
+primer_design,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,primer_design: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+primer_specificity,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,primer_specificity: FASTA input lacks info.sequences | info predicates 2/2 rejected | definition.outputs empty
+primer_tm,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,primer_tm: FASTA input lacks info.sequences | info predicates 1/1 rejected | definition.outputs empty
+prioritize,operator,PASS,SKIP_HARNESS,SKIP,,,no_route,not_measured,declared contract rejected fixture: prioritize contract: 需要 x 的轴注释（dim） | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+probit_regression,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,probit_regression: response must have exactly two levels | definition.outputs empty
+procrustes,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+prodigal_genes,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,prodigal_genes: the predictor failed with exit code 10: Error:  Sequence must be 20000 characters (only 1824 read). | (Consider running with the -p meta option or finding more contigs from the same genome.) | info predicates 1/1 rejected | definition.outputs empty
+propensity_score,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,propensity_score: treatment 'treat' must be 0/1 | definition.outputs empty
+propensity_score_matching,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: Singular matrix | definition.outputs empty
+proportion_ci,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proportion_ci: successes and trials must be integers | definition.outputs empty
+prosite_scan,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 2/2 rejected | definition.outputs empty
+protein_aliphatic_index,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_charge_curve,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_composition,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,protein_composition: no protein sequences with standard residues | info predicates 3/3 rejected | definition.outputs empty
+protein_digest,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,protein_digest: FASTA input lacks info.sequences | info predicates 1/2 rejected | definition.outputs empty
+protein_er_retention,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_extinction,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,protein_extinction: no protein sequences with standard residues | info predicates 3/3 rejected | definition.outputs empty
+protein_gravy_window,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_inference,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+protein_instability,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,protein_instability: no protein sequences with standard residues | info predicates 3/3 rejected | definition.outputs empty
+protein_kinase_motifs,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_mitochondrial_targeting,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_nglyc_sequons,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_nls_motifs,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_nuclear_export_signal,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_properties,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_pts1_signal,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+protein_rollup,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+proteinmpnn_bias_matrix,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_bias_matrix: structure_path . is not a file | definition.outputs empty
+proteinmpnn_bias_scan,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"proteinmpnn_bias_scan: structure_path must point at a PDB file, got '.' | definition.outputs empty"
+proteinmpnn_design,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: torch | definition.outputs empty
+proteinmpnn_design_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_design_cluster: structure_path is required | definition.outputs empty
+proteinmpnn_design_diversity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_design_diversity: structure_path is required | definition.outputs empty
+proteinmpnn_design_profile,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: numpy>=1.24 torch>=2.0 | definition.outputs empty
+proteinmpnn_ensemble_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_ensemble_score: structure_path '.' is not a file | definition.outputs empty
+proteinmpnn_hotspot_masked_design,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,proteinmpnn_hotspot_masked_design: structure_path is required | info predicates 0/1 rejected | definition.outputs empty
+proteinmpnn_interface_design,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_interface_design: structure_path '.' is not a file | definition.outputs empty
+proteinmpnn_interface_redesign,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_interface_redesign: structure_path '.' does not exist | definition.outputs empty
+proteinmpnn_interface_scan,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_interface_scan: the structure form has no 'z' column | definition.outputs null (file outputs declared through contracts)
+proteinmpnn_interface_temperature_scan,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_interface_temperature_scan: structure_path . is not a file | definition.outputs null (file outputs declared through contracts)
+proteinmpnn_masked_design,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_masked_design: structure_path is required | definition.outputs empty
+proteinmpnn_masked_interface_design,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,proteinmpnn_masked_interface_design: structure_path is required (the PDB file the atom form was read from) | info predicates 0/1 rejected | definition.outputs empty
+proteinmpnn_masked_interface_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_masked_interface_score: structure_path '.' is not a file | definition.outputs empty
+proteinmpnn_multi_model_consensus,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_multi_model_consensus: structure_path is required; point it at a PDB file | definition.outputs empty
+proteinmpnn_native_recovery_scan,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_native_recovery_scan: structure_path '.' does not exist | definition.outputs empty
+proteinmpnn_noise_robustness,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_noise_robustness: structure_path '.' is not a file | definition.outputs empty
+proteinmpnn_omit_design,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_omit_design: structure_path x is not a file | definition.outputs empty
+proteinmpnn_perplexity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_perplexity: structure_path '.' is not a file | definition.outputs empty
+proteinmpnn_position_entropy,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_position_entropy: structure_path must point at an existing PDB file | definition.outputs empty
+proteinmpnn_probability_profile,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_probability_profile: structure_path '.' is not a file | definition.outputs empty
+proteinmpnn_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_score: structure_path '.' is not a file | definition.outputs empty
+proteinmpnn_temperature_ladder,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_temperature_ladder: structure_path is required; point it at a PDB file | definition.outputs empty
+proteinmpnn_tied_design,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_tied_design: structure_path is required | definition.outputs empty
+proteomics_ibaq,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+prs,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+prs_af_filter,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+prs_harmonize,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+prs_ld_clump,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+pseudobulk,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+pseudotime_dpt,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'cell'
+psm_balance,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,psm_balance: treatment 'treat' must be 0/1 | definition.outputs empty
+psm_effect,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,psm_effect: treatment 'treat' must be 0/1 | definition.outputs empty
+psm_match,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,psm_match: treatment 'treat' must be 0/1 | definition.outputs empty
+ptm_localization_score,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty; dims param 'field_dim' default differs from parameters_schema
+ptm_occupancy,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+pwm_from_counts,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"pwm: counts table is missing base column(s): A, C, G, T | definition.outputs empty"
+pwm_information,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"pwm: PWM table is missing base column(s): A, C, G, T | definition.outputs empty"
+pwm_scan,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"pwm: PWM table is missing base column(s): A, C, G, T | definition.outputs empty"
+qc_metrics,operator,PASS,SKIP_DOMAIN,PASS,,,builtin_route,not_measured,qc_metrics: 'metrics' must be a non-empty list | info predicates 1/1 rejected | definition.outputs empty
+qda,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,qda: stratified split left too few classes | definition.outputs empty
+qtl_interval_mapping,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"population genetics input: missing field 'phenotype' in ['0', '1', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '2', '20', '21', '22', '23', '3', '4', '5', '6', '7', '8', '9'] | definition.outputs empty"
+quade_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+quantile_regression,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+quantile_transform,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+rainbow_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rainbow_test: response and regressor must be different | definition.outputs empty
+random_forest_classifier,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,random_forest_classifier: only 0 samples with a valid class | definition.outputs empty
+random_forest_regressor,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+rank_axis,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,rank_axis: no positions survived the selection along 'dim'. | definition.outputs empty
+rank_biserial,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+rank_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+rank_transform,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+rarefaction,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rarefaction: counts must be integers | definition.outputs empty
+rda,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+rdd,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdd: need at least three observations on each side of the cutoff | definition.outputs empty
+rdkit_admet_rules,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+rdkit_atom_environment_histogram,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_atom_environment_histogram: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_charge_profile,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_charge_profile: cannot parse SMILES 'x' for molecule 'mol1' | definition.outputs empty
+rdkit_conformer_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_conformer_cluster: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
+rdkit_conformer_energy,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+rdkit_descriptors,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_descriptors: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
+rdkit_esol,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_esol: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_fragment_overlap,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_fragment_overlap: smiles_a is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
+rdkit_fragment_profile,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_fragment_profile: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_functional_group_counts,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_functional_group_counts: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_mcs,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+rdkit_mcs_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_mcs_cluster: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_morgan_fingerprint,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_morgan_fingerprint: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
+rdkit_murcko_fingerprint,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_murcko_fingerprint: cannot parse SMILES 'x' | definition.outputs empty
+rdkit_oral_bioavailability,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_oral_bioavailability: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_pharmacophore_features,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_pharmacophore_features: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
+rdkit_qed,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_qed: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_reaction_pairwise_enumerate,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_reaction_pairwise_enumerate: cannot parse SMILES 'x' for molecule 'mol1' | definition.outputs empty
+rdkit_reaction_smarts_apply,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_reaction_smarts_apply: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_ring_systems,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_ring_systems: cannot parse SMILES 'x' for molecule 'mol1' | definition.outputs empty
+rdkit_sa_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_sa_score: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_scaffold,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+rdkit_scaffold_diversity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_scaffold_diversity: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_scaffold_tree,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_scaffold_tree: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
+rdkit_similarity,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+rdkit_smarts_matches,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,smarts is required; give one SMARTS pattern per line | definition.outputs empty
+rdkit_smiles_augment,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_smiles_augment: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+rdkit_tautomer,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,rdkit_tautomer: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
+recombination_rate,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+reduce,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+reduce_axis,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,reduce_axis: 'stats' must be a non-empty list of statistic names | definition.outputs empty
+redundancy_analysis,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,redundancy_analysis: fewer samples than variables | definition.outputs empty
+regress,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,declared contract rejected fixture: regress contract: labels.dim 需要 x | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+regression_discontinuity,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: need at least 3 observations on each side of the cutoff | definition.outputs empty
+relatedness,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+remove_batch_effect,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,remove_batch_effect: 65 expression samples have no batch label | definition.outputs empty
+rename_dim,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+renyi,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,renyi: scales must be a non-empty list of numbers | definition.outputs empty
+reset_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,reset_test: predictors must be a non-empty list | definition.outputs empty
+resource_preflight,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+restriction_digest,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,restriction_digest: FASTA input lacks info.sequences | definition.outputs empty
+restriction_fragment_stats,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+restriction_sites,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+reverse_complement,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+rfam_scan,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"rfam_scan: resource 'rfam' is missing; no candidate directory exists; set OPERON_RFAM_DB to the directory that holds these files; install: download Rfam.cm.gz, gunzip it, then run 'cmpress Rfam.cm' in the same directory; https://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/Rfam.cm.gz | info predicates 1/1 rejected | definition.outputs empty"
+rfdiffusion_design,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"rfdiffusion_design: contigs is required, for example 'A1-100' or '50-80 A1-100,0' | definition.outputs empty"
+ridge_regression,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+risk_ratio,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"risk_ratio: needs a 2x2 table, got (24, 66) | definition.outputs empty"
+rmst,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+rna_editing_detect,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+rna_structure_consensus,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+rna_structure_distance,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+rna_structure_features,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+robinson_foulds,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,robinson_foulds: tree A: tree table is missing the 'parent' field | definition.outputs empty
+robust_regression,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,robust_regression: predictors must be a non-empty list | definition.outputs empty
+robust_scale,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+roc_comparison,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"score: '0' not in ['axis_info_open', 'category', 'confidence', 'contracts', 'data_formats', 'declare', 'default', 'dependencies', 'dependency_imports', 'description', 'difference', 'dims', 'end', 'estimate', 'estimate_memory', 'form', 'full', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'label', 'label_dim', 'labels', 'logical_type', 'memory_modes', 'metadata', 'metric', 'missing_code', 'mode', 'n_neg', 'n_pos', 'ndim', 'numeric', 'operator', 'output', 'output_parameter', 'output | definition.outputs empty"
+roc_curve,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"need exactly two classes, got ['0'] | definition.outputs empty"
+roh_detect,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+rscu_table,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,rscu_table: FASTA input lacks info.sequences | definition.outputs empty
+rt_alignment,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+runs_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,runs_test: both sides of the threshold need samples | definition.outputs empty
+sarima,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+sarimax_forecast,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+sasa_per_residue,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
+sc_batch_ilisi,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+sc_batch_kbet,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sc_batch_kbet: graph rows and batch rows differ | definition.outputs empty
+sc_cluster_profile,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'cell'
+sc_cnv_score,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+sc_deconvolution,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+sc_knn_graph,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+sc_leiden_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sc_leiden_cluster requires a square cell-by-cell adjacency matrix | definition.outputs empty
+sc_marker_specificity,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,not enough clusters with the requested minimum number of cells | definition.outputs empty; contracts.inputs[0] legacy string dim 'cell'
+sc_pseudobulk_de,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: sc_pseudobulk_de requires exactly two groups | definition.outputs empty
+sc_rank_genes,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'cell'
+sc_spatial_domains,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+sc_spatial_neighbors,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+sc_spatial_variable_genes,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sc_spatial_variable_genes: counts must have one column per spatial cell | definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+scale_features,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+scatter,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,"declared contract rejected fixture: scatter contract: labels.feature 需要 feature; labels.feature 需要 feature; labels.feature 需要 feature | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+scheffe_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+seasonal_decompose,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,seasonal_decompose: period must be at least 2 | definition.outputs empty
+select,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | documented polymorphic legacy operator; protocol_revision absent (pre-3.7 metadata)
+selection_index,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+sen_slope,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+sequence_aggregation_propensity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs null (file outputs declared through contracts)
+sequence_beta_propensity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs null (file outputs declared through contracts)
+sequence_cai,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,missing column 'w' in dimension 'field' | definition.outputs empty
+sequence_codon_adaptation,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 2/2 rejected | definition.outputs empty
+sequence_complexity,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+sequence_cpg_island,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+sequence_cysteine_pairing,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs null (file outputs declared through contracts)
+sequence_disorder_predictor,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs null (file outputs declared through contracts)
+sequence_dnds,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence_dnds: 0 length is not a multiple of three | definition.outputs empty
+sequence_g4_quadruplex_scan,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+sequence_gc_profile,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+sequence_gc_skew_profile,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+sequence_hydrophobic_moment,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs null (file outputs declared through contracts)
+sequence_hydrophobicity_profile,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,sequence_hydrophobicity_profile: the sequence contains residues outside the Kyte-Doolittle scale | info predicates 2/2 rejected | definition.outputs empty
+sequence_isoelectric_point,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs null (file outputs declared through contracts)
+sequence_kmer_enrichment,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 2/2 rejected | definition.outputs empty
+sequence_kmer_profile,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+sequence_liability_scan,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,"sequence_liability_scan: expected exactly one sequence, got 24 | info predicates 2/3 rejected | definition.outputs empty"
+sequence_net_charge,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs null (file outputs declared through contracts)
+sequence_orf_finder,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,sequence_orf_finder: no open reading frame of at least 30 nucleotides was found | info predicates 1/1 rejected | definition.outputs empty
+sequence_repeat_finder,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+sequence_restriction_sites,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+sequence_rna_accessibility,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+sequence_rna_cofold,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+sequence_rna_cofold_ensemble,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+sequence_rna_duplex,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+sequence_rna_ensemble,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+sequence_rna_fold,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs empty
+sequence_signal_peptide,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 2/2 rejected | definition.outputs empty
+sequence_signal_peptide_v2,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 2/2 rejected | definition.outputs empty
+sequence_stats,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | documented polymorphic legacy operator; protocol_revision absent (pre-3.7 metadata)
+sequence_tm_segments,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,sequence_tm_segments: no transmembrane segment reaches the threshold 1.6 | info predicates 4/4 rejected | definition.outputs empty
+sequence_transmembrane_topology,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,"sequence_transmembrane_topology: expected exactly one sequence, got 24 | info predicates 2/3 rejected | definition.outputs empty"
+sgd_classifier,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sgd_classifier: only 0 samples with a valid class | definition.outputs empty
+sgd_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+shapiro,operator,PASS,PASS,N/A,,,generated_route,deterministic,definition.outputs empty
+shapiro_francia,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+shapiro_wilk,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+siegel_tukey,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,siegel_tukey: no samples in the requested groups | definition.outputs empty
+sign_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+silhouette,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"silhouette: need 2..n-1 classes, got 1 | definition.outputs empty"
+silhouette_samples,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,silhouette_samples: need at least two clusters | definition.outputs empty
+silhouette_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,silhouette_score: need at least two clusters | definition.outputs empty
+simper,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'group' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+site_frequency_spectrum,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,site_frequency_spectrum: alt allele counts must be integers | info predicates 3/3 rejected | definition.outputs empty
+skillings_mack,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+smiles_standardize,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,smiles_standardize: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
+snk_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+softmax,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+somers_d,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+specaccum,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+specpool,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+spectral_embedding,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+spectral_entropy,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; dims param 'field_dim' default differs from parameters_schema
+spectrum_library_match,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+splicing_psi,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+spline_regression,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,spline_regression: response and predictor must be different columns | definition.outputs empty
+ssgsea,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,ssgsea: no gene set has at least 1 measured genes | definition.outputs empty
+standardized_residuals,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,standardized_residuals: need more than 60 complete observations for influence statistics | definition.outputs empty
+stats_fdr,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"stats_fdr: expected an (n, 1) p-value matrix | definition.outputs empty"
+storey_qvalue,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,storey_qvalue expects exactly one p-value column | definition.outputs empty; dims param 'value_dim' default differs from parameters_schema
+structure_altloc_inventory,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+structure_amide_pi_bonds,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure_amide_pi_bonds: the PDB form needs 'resname', 'atom_name' and 'chain' columns | definition.outputs empty"
+structure_anm_modes,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
+structure_aromatic_stacking,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_aromatic_stacking: the PDB form needs 'resname' and 'atom_name' columns | definition.outputs empty
+structure_bfactor_profile,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | info predicates 0/1 rejected | definition.outputs empty"
+structure_ca_distance_matrix,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
+structure_cation_pi,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
+structure_cavity_druggability,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,the PDB form has no 'z' column | info predicates 0/1 rejected | definition.outputs empty
+structure_cavity_lining,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,structure_cavity_lining: the structure form has no 'z' column | info predicates 0/1 rejected | definition.outputs empty
+structure_cavity_scan,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_cavity_scan: the structure form has no 'z' column | definition.outputs empty
+structure_chi_angles,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_chi_angles: the structure form has no 'z' column | definition.outputs empty
+structure_cis_peptides,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,the PDB form has no 'residue_number' column | definition.outputs empty
+structure_contact_order,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_contact_order: the structure form has no 'z' column | definition.outputs empty
+structure_contacts,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
+structure_disorder_profile,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | info predicates 1/2 rejected | definition.outputs empty"
+structure_disulfide_bonds,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,structure_disulfide_bonds: the PDB form has no 'z' column | info predicates 1/1 rejected | definition.outputs empty
+structure_dockq,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_dockq: native_path is required | definition.outputs empty
+structure_domain_boundary,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
+structure_dssp_segments,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_dssp_segments: structure_path . is not a file | definition.outputs null (file outputs declared through contracts)
+structure_glycosylation_sites,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
+structure_gnm_flexibility,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
+structure_halogen_bond_scan,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_helix_helix_angle: the structure form has no 'z' column | definition.outputs empty
+structure_hbonds,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: 'z' | definition.outputs empty
+structure_helix_bend,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_helix_helix_angle: the structure form has no 'atom_name' column | definition.outputs empty
+structure_helix_geometry,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_helix_geometry: at least three CA atoms are required | definition.outputs empty
+structure_helix_helix_angle,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_helix_helix_angle: the structure form has no 'z' column | definition.outputs empty
+structure_interface_core,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_interface_core: no 'z' column | definition.outputs empty
+structure_interface_residue_energy,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: openmm | definition.outputs empty
+structure_lddt,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_lddt: reference_path is required | definition.outputs empty
+structure_ligand_burial,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
+structure_ligand_clash,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_clash: the structure form has no 'z' column | definition.outputs empty
+structure_ligand_geometry_qc,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_geometry_qc: no atoms match residue names ['LIG'] | definition.outputs empty
+structure_ligand_interaction_fingerprint,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_interaction_fingerprint: no ligand atom matches the requested residue names | definition.outputs null (file outputs declared through contracts)
+structure_ligand_pose_qc,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_pose_qc: no atom carries the residue name 'LIG' | definition.outputs empty
+structure_ligand_pose_rmsd,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_pose_rmsd: the structure form has no 'z' column | definition.outputs empty
+structure_ligand_redock_qc,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_redock_qc: complex_path . is not a file | definition.outputs empty
+structure_ligand_residue_map,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_residue_map: no ligand atom matches ligand_resnames 'LIG' | definition.outputs empty
+structure_ligand_strain,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,structure_ligand_strain: the structure form has no 'z' column | info predicates 0/1 rejected | definition.outputs empty
+structure_md_communication_path,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_communication_path: trajectory_path . is not a file | definition.outputs empty
+structure_md_conformational_clusters,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_conformational_clusters: trajectory_path . is not a file | definition.outputs empty
+structure_md_contact_occupancy,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_contact_occupancy: trajectory_path . is not a file | definition.outputs empty
+structure_md_dihedral_occupancy,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_dihedral_occupancy: trajectory_path . is not a file | definition.outputs empty
+structure_md_dssp_transitions,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_ss_occupancy: trajectory_path . is not a file | definition.outputs empty
+structure_md_free_energy_landscape,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_free_energy_landscape: trajectory_path . is not a file | definition.outputs empty
+structure_md_hbond_lifetime,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_hbond_occupancy: trajectory_path . is not a file | definition.outputs empty
+structure_md_hbond_occupancy,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_hbond_occupancy: trajectory_path . is not a file | definition.outputs empty
+structure_md_interface_occupancy,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_interface_occupancy: trajectory_path is required | definition.outputs empty
+structure_md_ligand_rmsd,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_ligand_rmsd: trajectory_path . is not a file | definition.outputs empty
+structure_md_markov_states,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_markov_states: trajectory_path . is not a file | definition.outputs empty
+structure_md_pca,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_pca: trajectory_path . is not a file | definition.outputs empty
+structure_md_quasiharmonic_entropy,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_quasiharmonic_entropy: trajectory_path . is not a file | definition.outputs empty
+structure_md_rotamer_states,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_rotamer_states: trajectory_path . is not a file | definition.outputs empty
+structure_md_salt_bridge_occupancy,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_salt_bridge_occupancy: trajectory_path . is not a file | definition.outputs empty
+structure_md_sasa_occupancy,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_sasa_occupancy: trajectory_path . is not a file | definition.outputs empty
+structure_md_ss_occupancy,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_ss_occupancy: trajectory_path . is not a file | definition.outputs empty
+structure_md_tica,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_md_tica: trajectory_path . is not a file | definition.outputs empty
+structure_metal_coordination,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_metal_coordination: the structure form has no 'z' column | definition.outputs empty
+structure_missing_residues,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,the PDB form has no 'residue_number' column | definition.outputs empty
+structure_openmm_energy,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: openmm | definition.outputs empty
+structure_openmm_md_rmsf,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: openmm>=8.0 pdbfixer>=1.9 | definition.outputs empty
+structure_openmm_md_stability,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: openmm pdbfixer | definition.outputs empty
+structure_packing_density,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
+structure_pae_summary,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure_pae_summary: expected a square PAE matrix, got 24x60 | definition.outputs empty"
+structure_paratope_predict,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,the PDB form has no 'z' column | info predicates 0/1 rejected | definition.outputs empty
+structure_pdbqt_flexible_receptor,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_pdbqt_flexible_receptor: no residue carries a flexible side chain | definition.outputs empty
+structure_phi_psi,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
+structure_plddt_profile,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
+structure_pocket_detect,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure_pocket_detect: missing structure columns: resname, chain, residue_number, atom_name, element | definition.outputs empty"
+structure_protonation_pka,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure_openmm_energy: the structure form has no ['z', 'residue_number', 'resname', 'atom_name', 'element'] column(s) | definition.outputs empty"
+structure_protonation_sites,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_protonation_sites: the structure carries no titratable residue | definition.outputs null (file outputs declared through contracts)
+structure_radius_of_gyration,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,missing column 'z' in dimension 'field' | definition.outputs empty
+structure_rmsd,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,structure_rmsd: the mobile form has no 'z' column | info predicates 0/2 rejected | definition.outputs empty
+structure_salt_bridges,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,structure_salt_bridges: the PDB form has no 'z' column | info predicates 1/1 rejected | definition.outputs empty
+structure_secondary_structure,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_secondary_structure: the structure form has no 'z' column | definition.outputs empty
+structure_ss_bridge_network,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ss_bridge_network: the structure form has no 'z' column | definition.outputs empty
+structure_surface_hydrophobicity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_surface_hydrophobicity: the structure form has no 'z' column | definition.outputs empty
+structure_tm_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_tm_score: reference_path is required | definition.outputs empty
+structure_zinc_sites,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_zinc_sites: the structure form has no 'z' column | definition.outputs empty
+stuart_maxwell,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,stuart_maxwell: rater columns not found | definition.outputs empty
+stuart_maxwell_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,stuart_maxwell_test: table must be square | definition.outputs empty
+studentized_residuals,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,studentized_residuals: need more than 60 complete observations for influence statistics | definition.outputs empty
+svm_classifier,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,svm_classifier: only 0 samples with a valid class | definition.outputs empty
+svm_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+synthetic_control,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: synthetic_control: exactly one treated unit is required | definition.outputs empty
+tajimas_d,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,tajimas_d: alt allele counts must be integers | info predicates 3/3 rejected | definition.outputs empty
+tamhane_t2,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+taxon_abundance_collapse,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+tcr_diversity,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+theil_sen_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+theil_u,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+time_dependent_auc,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"time_dependent_auc: expected dims 'sample', 'feature', got ['d0', 'd1'] | definition.outputs empty"
+tmm_normalize,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+tobit,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,tobit: predictors must be a non-empty list | definition.outputs empty
+topic_lda,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+tost_equivalence,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,tost_equivalence: need at least two samples in each group | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+trajectory_gene_trends,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,trajectory_gene_trends: pseudotime must have exactly one column | definition.outputs empty; contracts.inputs[0] legacy string dim 'cell'
+transformer_classifier,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"external model dependency: numpy>=1.24 torch<3,>=2.4 | definition.outputs empty"
+translate,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
+transpose,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,transpose: 'order' must be a non-empty list | definition.outputs empty; parameters_schema allows additionalProperties (dynamic parameter operator)
+tree_balance,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,tree_balance: tree table is missing the 'parent' field | definition.outputs empty
+tree_consensus,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+tree_dating,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+tree_mrca,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: both taxa must be leaves of the tree | definition.outputs empty
+tree_outgroup_root,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,outgroup name is required | definition.outputs empty
+tree_parsimony_score,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+tree_prune_tips,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,tree_prune_tips: tree table is missing the 'parent' field | definition.outputs empty
+tree_quartet_support,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'row'
+tree_robinson_foulds,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
+tree_root_midpoint,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,tree_root_midpoint: tree table is missing the 'parent' field | definition.outputs empty
+tree_ultrametric,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+trnascan_se,operator,PASS,PASS,PASS,,,no_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+truncated_svd,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+tsallis,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,tsallis: scales must be a non-empty list of numbers | definition.outputs empty
+tsne,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,tsne: perplexity (30.0) must be smaller than n_samples (24) | definition.outputs empty
+ttest_one_sample,operator,PASS,PASS,N/A,l2_oracle,4.243257545333279e-08,generated_route,deterministic,definition.outputs empty
+ttest_paired,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+tukey_hsd,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+tukey_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+turning_point,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+turning_point_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+umap,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+unweighted_unifrac,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,unweighted_unifrac: tree table is missing the 'parent' field | definition.outputs empty
+upgma,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,upgma: distance matrix must be square | definition.outputs empty
+uplift_qini_curve,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+uplift_t_learner,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain precondition: each treatment arm needs at least two rows | definition.outputs empty
+vae_anomaly,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,"external model dependency: numpy>=1.24 torch<3,>=2.4 | definition.outputs empty"
+van_waerden,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,van_waerden: no samples in the requested groups | definition.outputs empty
+var_model,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,var_model: not enough complete observations | definition.outputs empty
+var_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+variance_ratio,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+variant_consequence,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+variant_impact_summary,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+variation_of_information,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"variation_of_information: '0' not in ['axis_info_open', 'category', 'contracts', 'data_formats', 'declare', 'default', 'description', 'dims', 'end', 'entropy_a', 'entropy_b', 'estimate', 'estimate_memory', 'form', 'full', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'joint_entropy', 'kind', 'label', 'label_a', 'label_b', 'label_dim', 'labels', 'logical_type', 'memory_modes', 'metadata', 'metric', 'missing_code', 'mode', 'mutual_information', 'n_clusters_a', 'n_clusters_b', 'n_samples', ' | definition.outputs empty"
+varimax_rotation,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+varpart,operator,PASS,PASS,N/A,,,no_route,not_measured,definition.outputs empty
+vcf_concat,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_concordance,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_filter,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_hardy_weinberg,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_merge,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_normalize,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_relatedness,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_sample_stats,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_site_missingness,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_stats,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vecm,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,vecm: VECM fit failed: Singular matrix | definition.outputs empty
+vhh_humanization_mutations,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"vhh_humanization_mutations: expected exactly one sequence, got 24 | info predicates 3/3 rejected | definition.outputs empty"
+vhh_humanization_score,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"vhh_humanization_score: expected exactly one VHH sequence, got 24 | info predicates 1/1 rejected | definition.outputs empty"
+vif,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+vina_dock,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,vina_dock: receptor_path is required | definition.outputs empty
+vina_dock_batch,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,vina_dock_batch: receptor_path is required | definition.outputs empty
+vina_dock_python,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,vina_dock_python: ligand_path is required | definition.outputs empty
+vina_pose_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,vina_pose_cluster: the input has no 'z' column | definition.outputs empty
+vina_pose_rmsd,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,vina_pose_rmsd: reference_path x is not a file | info predicates 0/1 rejected | definition.outputs empty
+violin,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"violin: only 0 common samples on 'group_dim'. | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+volcano,operator,PASS,SKIP_DOMAIN,SKIP,,,builtin_route,not_measured,"domain precondition: Figure filename must be an image/PDF inside the figures directory | no output_parameter (streaming, plot or file-output operator); definition.outputs empty"
+von_neumann,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+watterson_theta,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,watterson_theta: alt allele counts must be integers | info predicates 3/3 rejected | definition.outputs empty
+weighted_kappa,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"weighted_kappa: expected exactly two raters, got 62 | definition.outputs empty"
+weighted_unifrac,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,weighted_unifrac: tree table is missing the 'parent' field | definition.outputs empty
+welch_anova,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+wgcna_soft_threshold,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty; contracts.inputs[0] legacy string dim 'sample'
+white_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,white_test: predictors must be a non-empty list | definition.outputs empty
+wilcoxon,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,metadata: group column 'protocol_revision' is not parallel to 'sample_1' | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+winsorize,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+woolf_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"woolf_test: table must have exactly four count columns a,b,c,d | definition.outputs empty"
+xgboost_regressor,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+xic_extract,operator,PASS,PASS,N/A,,,generated_route,not_measured,protocol_revision absent (pre-3.7 metadata); definition.outputs empty
+youden_index,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"need exactly two classes, got ['0'] | definition.outputs empty"
+yuen_test,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,yuen_test: no samples in the requested groups | definition.outputs empty; dims param 'group_dim' default differs from parameters_schema
+zero_inflated_negative_binomial,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,zero_inflated_negative_binomial: both predictor lists must be non-empty | definition.outputs empty
+zero_inflated_poisson,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,zero_inflated_poisson: predictors must be a non-empty list | definition.outputs empty
+zivot_andrews,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"zivot_andrews: Zivot-Andrews computation failed: ZA: auxiliary exog matrix is not full rank.
+  cols (exc intercept) = 5  rank = 3.0 | definition.outputs empty"
+zscore,operator,PASS,PASS,N/A,l2_oracle,5.83158823452834e-08,generated_route,deterministic,definition.outputs empty

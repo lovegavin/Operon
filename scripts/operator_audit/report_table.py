@@ -19,6 +19,20 @@ EVIDENCE = REPO / "verification" / "operator-audit-7.0.7"
 ROUTES = REPO / "library" / "seed" / "routes"
 
 
+def _oracle_delta(op_id):
+    path = EVIDENCE / "l2_oracle.json"
+    if not path.exists():
+        return ""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    rec = data.get("results", {}).get(op_id)
+    if not rec:
+        return ""
+    delta = rec.get("delta")
+    if delta is None:
+        delta = rec.get("corrs")
+    return "" if delta is None else str(delta)
+
+
 def load_jsonl(path):
     rows = {}
     if path.exists():
@@ -95,8 +109,9 @@ def main():
                 "kalman_local_level", "image_gaussian_blur", "pca",
                 "conformal_split_regression", "bayesian_linear_regression",
                 "cohens_kappa", "image_sobel_gradient",
-                "genotype_call_rate_qc"} else "",
-            "oracle_delta": "",
+                "genotype_call_rate_qc", "zscore", "min_max_scale",
+                "ttest_one_sample"} else "",
+            "oracle_delta": _oracle_delta(op_id),
             "route_replay": replay,
             "memory_within_budget": memory,
             "notes": " | ".join(notes),
