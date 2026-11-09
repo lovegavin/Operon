@@ -45,7 +45,7 @@ The original four fixes are:
 - L3 route replay: 78/78 bundles import on Studio 3.1.6; 13 routes replay,
   65 SKIP_DATA; generated coverage routes execute for 244 operators; union
   490/1063.
-- L2, L4, L5 are partial and explicitly marked as such in the report.
+- L2: five deterministic operators checked against independent oracles; 5/5 pass (l2_oracle.json). L2, L4 and L5 remain partial and are explicitly marked as such in the report.
 
 ## Compatibility
 
