@@ -226,8 +226,16 @@ export type RemoteProfile = {id?: string; name: string; host: string; port: numb
 export type RemoteInfo = {catalog: Catalog; history: Job[]; system: string; version: string; python: string;
   workspace: string; automatic_memory_budget_bytes: number; automatic_memory_fraction: number; tools: Record<string, boolean>;
   dependencies?: DependencyState;
+  library_check?: RemoteLibraryCheck;
   handshake?: {version: number; server_id: string; catalog_digest: string; dependency_revision: string; capabilities: string[]; operator_protocol: number}};
 export type RemoteStatus = {profile: RemoteProfile; fingerprint?: string; connected: boolean; info?: RemoteInfo};
+export type RemoteLibraryEntry = {id: string; kind: string; title?: string};
+export type RemoteLibraryCheck = {error?: string; local_revision?: string; remote_revision?: string; supported?: boolean;
+  missing_count?: number; packages?: {name: string; version: string; remote_version: string | null;
+    missing: RemoteLibraryEntry[]; disabled: RemoteLibraryEntry[]; replaces: number; selectable: boolean; reason?: string | null}[]};
+export type RemoteLibraryOperation = {status: 'idle' | 'running' | 'complete' | 'failed'; phase?: string;
+  package?: string; index?: number; total?: number; bytes_done?: number; bytes_total?: number;
+  error?: string; result?: RemoteLibraryCheck};
 export type RemoteListing = {path: string; parent: string; next_offset: number | null;
   entries: {name: string; path: string; directory: boolean; bytes: number; modified: number}[]};
 export type TargetRef = {kind: 'local'} | {kind: 'ssh'; profile_id: string};

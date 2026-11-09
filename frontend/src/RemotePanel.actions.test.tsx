@@ -9,7 +9,7 @@ import type {RemoteInfo, RemoteProfile, RemoteStatus} from './types';
 const hooks = vi.hoisted(() => ({values: [] as unknown[], cursor: 0}));
 vi.mock('react', async importOriginal => {
   const actual = await importOriginal<typeof import('react')>();
-  return {...actual, useEffect: () => {}, useState: (initial: unknown) => {
+  return {...actual, useEffect: () => {}, useCallback: (fn: unknown) => fn, useState: (initial: unknown) => {
     const index = hooks.cursor++;
     if (!(index in hooks.values)) hooks.values[index] = typeof initial === 'function' ? initial() : initial;
     return [hooks.values[index], (next: unknown) => {

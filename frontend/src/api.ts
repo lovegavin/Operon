@@ -83,6 +83,10 @@ export const api = {
   connectRemote: (id: string, credentials: {password?: string; passphrase?: string}) => request<import('./types').RemoteInfo>(`/api/remote/${id}/connect`, credentials),
   installRemote: (id: string, credentials: {password?: string; passphrase?: string}) => request<import('./types').RemoteInfo>(`/api/remote/${id}/install`, credentials),
   refreshRemote: (id: string) => request<import('./types').RemoteInfo>(`/api/remote/${id}/refresh`, {}),
+  checkRemoteLibrary: (id: string) => request<import('./types').RemoteLibraryCheck>(`/api/remote/${id}/library/check`, {}),
+  installRemoteLibrary: (id: string, payload: {packages: string[]; local_revision: string; remote_revision: string}) =>
+    request<import('./types').RemoteLibraryOperation>(`/api/remote/${id}/library/install`, payload),
+  remoteLibraryStatus: (id: string) => request<import('./types').RemoteLibraryOperation>(`/api/remote/${id}/library/status`),
   remoteSetup: (id: string) => request<{running: boolean; lines: string[]; error: string}>(`/api/remote/${id}/setup`),
   trustRemote: (id: string, fingerprint: string) => request(`/api/remote/${id}/trust`, {fingerprint}),
   disconnectRemote: (id: string) => request(`/api/remote/${id}/disconnect`, {}),

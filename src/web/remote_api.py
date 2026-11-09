@@ -47,6 +47,18 @@ def mount_remote(app, service):
     def setup(key: str):
         return manager.setup_status(key)
 
+    @app.post('/api/remote/{key}/library/check')
+    def check_library(key: str):
+        return manager.check_library(key)
+
+    @app.post('/api/remote/{key}/library/install')
+    def install_library(key: str, payload: dict):
+        return manager.start_library_install(key, payload)
+
+    @app.get('/api/remote/{key}/library/status')
+    def library_status(key: str):
+        return manager.library_status(key)
+
     @app.post('/api/remote/{key}/trust')
     def trust(key: str, payload: dict):
         manager.trust(key, payload.get('fingerprint'))

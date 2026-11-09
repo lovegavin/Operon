@@ -321,6 +321,7 @@ class ManifestHandshake:
                           'capabilities': list(CAPABILITIES),
                           'base_capabilities': list(CAPABILITIES),
                           'engine_capabilities': list(ENGINE_CAPABILITIES),
+                          'library_capabilities': ['library_sync_v1'],
                           'operator_protocol': OPERATOR_PROTOCOL},
         }
         try:
@@ -342,6 +343,8 @@ class ManifestHandshake:
         if type(verify_all) is not bool:
             raise ValueError('verify_all must be a boolean')
         with self.lock:
+            if self.maintenance['running'] and self.maintenance.get('kind') == 'library-install':
+                raise HandshakeError('Library installation is running; wait before refreshing.', code='maintenance_busy')
             if self.maintenance['running'] and verify_all and not self.maintenance_verify_all:
                 raise HandshakeError('A registry refresh is already running; wait before requesting full dependency verification.',
                                      code='maintenance_busy')
@@ -361,13 +364,37 @@ class ManifestHandshake:
         # response takes job-state snapshots before catalog locks.
         return self.response(params, legacy=True)
 
-    def _refresh(self, verify_all, maintenance=None):
+    def install_library(self, payload, transfers, *, maintenance_factory):
+        with self.lock:
+            if self.maintenance['running']:
+                raise HandshakeError('Server maintenance is already running.', code='maintenance_busy')
+            maintenance = maintenance_factory()
+            self.maintenance = {'running': True, 'kind': 'library-install', 'error': None, 'result': None}
+            self.maintenance_verify_all = False
+            self.maintenance_thread = threading.Thread(
+                target=self._refresh, args=(False, maintenance, (payload, transfers)),
+                name='operon-library-install', daemon=True)
+            try:
+                self.maintenance_thread.start()
+            except BaseException:
+                self.maintenance['running'] = False
+                if maintenance is not None:
+                    maintenance[0].end(maintenance[1])
+                raise
+        return self.response({}, legacy=True)
+
+    def _refresh(self, verify_all, maintenance=None, installation=None):
         from biopipe.plugins import process_context
         process_context.cancel = self.service.dependencies.cancel
         try:
             # Neither operation holds the handshake lock. Other desktops can
             # reconnect, read documents and follow jobs throughout maintenance.
-            result = self.service.plugins.refresh()
+            if installation is None:
+                result = self.service.plugins.refresh()
+            else:
+                from .library import install_selected
+                payload, transfers = installation
+                result = install_selected(self.service.plugins, transfers, payload)
             with self.lock, self.service.dependencies.lock:
                 self.runtime = runtime_identity()
                 if verify_all:
@@ -380,7 +407,10 @@ class ManifestHandshake:
                         entry.update(status='unchecked', error='')
                 self.sync(force=True)
                 self.persist()
-            self.service.dependencies.check(repair=False, repair_r=True)
+            # Installing provider code does not install/probe scientific
+            # dependencies. Readiness stays explicit and execution-target aware.
+            if installation is None:
+                self.service.dependencies.check(repair=False, repair_r=True)
             with self.lock:
                 self.sync()
                 self.tool_snapshot(refresh=True)

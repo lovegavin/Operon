@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Text;
 using BioPipe.Setup;
 
+if (UpgradeTests.RunHost(args)) return;
 var root = Path.GetFullPath(args.Single());
 if (Directory.Exists(root)) throw new Exception("Use a fresh test directory");
 Directory.CreateDirectory(root);
@@ -109,4 +110,5 @@ using (var busy = new InstallLease("Local\\BioPipeStudio-" + InstallLease.Identi
 }
 InstallEngine.CleanVersion(managed, "versions/old", profiles);
 Check(!Directory.Exists(version), "stopped installation not cleaned");
+await UpgradeTests.Run(root, Check);
 Console.WriteLine($"PASS: {checks} native installer checks");

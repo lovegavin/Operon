@@ -18,6 +18,17 @@ describe('remote API actions', () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ok: false, status: 409, json: async () => ({code: 'server_not_installed', message: 'Install first'})}));
     await expect(api.connectRemote('server-a', {})).rejects.toMatchObject({code: 'server_not_installed', message: 'Install first', status: 409});
   });
+  it('uses separate comparison, selection and progress endpoints', async () => {
+    const fetch = vi.fn().mockResolvedValue({ok: true, json: async () => ({})});
+    vi.stubGlobal('fetch', fetch);
+    const selection = {packages: ['example'], local_revision: 'local', remote_revision: 'remote'};
+    await api.checkRemoteLibrary('server-a');
+    await api.installRemoteLibrary('server-a', selection);
+    await api.remoteLibraryStatus('server-a');
+    expect(fetch).toHaveBeenNthCalledWith(1, '/api/remote/server-a/library/check', expect.objectContaining({method: 'POST'}));
+    expect(fetch).toHaveBeenNthCalledWith(2, '/api/remote/server-a/library/install', expect.objectContaining({body: JSON.stringify(selection)}));
+    expect(fetch).toHaveBeenNthCalledWith(3, '/api/remote/server-a/library/status', expect.objectContaining({method: 'GET'}));
+  });
   it.each(['server_incompatible', 'handshake_incompatible', 'capability_missing', 'handshake_required'])('preserves actionable server guidance for %s', async code => {
     const message = '服务端仍有任务运行，请等待任务结束，再升级并重启服务端。';
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ok: false, status: 409, json: async () => ({code, message})}));

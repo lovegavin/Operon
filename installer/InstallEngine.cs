@@ -219,6 +219,8 @@ internal sealed class InstallEngine
         var old = ReadReceipt(root);
         string? stage = null, installed = null, resolvedProfile = null;
         InstallLease? profileLease = null;
+        InstallUpgrade? upgrade = null;
+        IReadOnlyList<UpgradeTarget> upgradeTargets = [];
         var priorLinks = new Dictionary<string, byte[]?>();
         string? registrationKey = null;
         Dictionary<string, (object Value, RegistryValueKind Kind)>? priorRegistration = null;
@@ -262,6 +264,12 @@ internal sealed class InstallEngine
             token.ThrowIfCancellationRequested();
             // A fresh profile is never populated from an old registry or target.
             if (Directory.Exists(resolvedProfile)) throw new IOException("新档案目录已存在，请重新运行安装程序。");
+            if (old is not null)
+            {
+                upgradeTargets = InstallUpgrade.Targets(root, old);
+                Report("正在检查旧版本并准备安全更新…", 86);
+                upgrade = await InstallUpgrade.Prepare(upgradeTargets, message => Report(message, 88), token);
+            }
             Report("正在启用独立安装…", 90);
             var relative = "versions/" + spec.Version + "-" + Guid.NewGuid().ToString("N")[..12];
             installed = InstallFiles.Inside(root, relative);
@@ -305,7 +313,8 @@ internal sealed class InstallEngine
             {
                 Report("正在清理旧版本；用户档案会保留…", 98);
                 foreach (var previous in old.Versions)
-                    try { CleanVersion(root, previous, Path.GetDirectoryName(old.Profile)!); }
+                    try { CleanVersion(root, previous, Path.GetDirectoryName(old.Profile)!,
+                        upgradeTargets.FirstOrDefault(t => t.Directory == InstallFiles.Inside(root, previous))?.Profile); }
                     catch (Exception cleanupError) { Log("Old version retained: " + cleanupError.Message); }
             }
             Report("安装完成", 100);
@@ -333,7 +342,7 @@ internal sealed class InstallEngine
             }
             throw;
         }
-        finally { profileLease?.Dispose(); }
+        finally { upgrade?.Dispose(); profileLease?.Dispose(); }
     }
 
     private static void CreateShortcut(string path, string executable, string profile)

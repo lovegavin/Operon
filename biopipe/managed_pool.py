@@ -344,7 +344,13 @@ def main():
             subprocess.Popen(command, cwd=args.code_root, stdin=subprocess.DEVNULL, stdout=log,
                              stderr=subprocess.STDOUT, start_new_session=os.name != 'nt',
                              creationflags=(subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP |
-                                            subprocess.CREATE_NO_WINDOW) if os.name == 'nt' else 0)
+                                            subprocess.CREATE_NO_WINDOW | subprocess.CREATE_BREAKAWAY_FROM_JOB)
+                             if os.name == 'nt' else 0)
+            # DETACHED_PROCESS only detaches the console. The desktop explicitly
+            # permits Job Object breakaway; request it so closing that client's
+            # KILL_ON_JOB_CLOSE handle cannot stop the pool or other clients' work.
+            # If the OS forbids breakaway, fail startup instead of silently
+            # creating a pool whose lifetime still belongs to one desktop.
     else:
         serve(args.root, args.admission, args.code_root)
 

@@ -290,3 +290,64 @@ def test_exited_process_is_not_a_live_pool_owner(monkeypatch, status):
         create_time=lambda: 123.0, status=lambda: status))
     assert not process_alive({'pid': 42, 'created': 123.0})
     assert not identity_alive({'pid': 42, 'created': 123.0})
+
+
+@pytest.mark.skipif(os.name != 'nt', reason='Windows desktop Job Object lifecycle')
+def test_pool_and_other_client_work_survive_desktop_job_object_close(managed, tmp_path):
+    """DETACHED_PROCESS alone must not be mistaken for Job Object breakaway."""
+    import ctypes
+    from ctypes import wintypes
+    class Basic(ctypes.Structure):
+        _fields_ = [('times', ctypes.c_int64 * 2), ('flags', wintypes.DWORD),
+                    ('minimum', ctypes.c_size_t), ('maximum', ctypes.c_size_t),
+                    ('active', wintypes.DWORD), ('affinity', ctypes.c_size_t),
+                    ('priority', wintypes.DWORD), ('scheduling', wintypes.DWORD)]
+    class Limits(ctypes.Structure):
+        _fields_ = [('basic', Basic), ('io', ctypes.c_uint64 * 6), ('memory', ctypes.c_size_t * 4)]
+    kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel.CreateJobObjectW.restype = wintypes.HANDLE
+    kernel.SetInformationJobObject.argtypes = [wintypes.HANDLE, ctypes.c_int, ctypes.c_void_p, wintypes.DWORD]
+    kernel.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
+    kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+    handle = kernel.CreateJobObjectW(None, None)
+    limits = Limits(); limits.basic.flags = 0x2000 | 0x800
+    assert kernel.SetInformationJobObject(handle, 9, ctypes.byref(limits), ctypes.sizeof(limits)), ctypes.get_last_error()
+    app = managed()
+    request = tmp_path / 'request.json'; request.write_text(graph(app).model_dump_json(), encoding='utf-8')
+    reply = tmp_path / 'host-ready.json'
+    script = '''import json, sys, time
+from pathlib import Path
+from biopipe.application import Application
+from src.web.models import Graph
+from src.web.service import Settings
+sys.stdin.readline()
+root=Path(sys.argv[1])
+app=Application(Settings(root,root/'.studio',root/'ui',code_root=Path(sys.argv[2])))
+job=app.jobs.launch(Graph.model_validate_json(Path(sys.argv[3]).read_text()))
+Path(sys.argv[4]).write_text(json.dumps({'id':job['id'],'owner':app.service.pool_client.record['owner']}))
+time.sleep(120)
+'''
+    host = subprocess.Popen([sys.executable, '-c', script, str(app.service.root),
+                             str(app.service.settings.code_root), str(request), str(reply)],
+                            stdin=subprocess.PIPE, cwd=ROOT)
+    try:
+        assert kernel.AssignProcessToJobObject(handle, int(host._handle)), ctypes.get_last_error()
+        host.stdin.write(b'start\n'); host.stdin.flush()
+        wait(reply.exists)
+        value = json.loads(reply.read_text())
+        wait(lambda: (app.service.jobs_dir / value['id'] / 'output/started.json').exists())
+        # A second real client observes the SAME pool before the owning host dies.
+        before = app.service.details(value['id'])
+        assert app.service.pool_client.record['owner'] == value['owner']
+        kernel.CloseHandle(handle); handle = None
+        host.wait(timeout=10)
+        time.sleep(.3)
+        assert process_alive(value['owner']), 'Desktop Job Object killed the shared pool'
+        after = app.service.details(value['id'])
+        assert after['worker'] == before['worker']
+        assert app.service.pool_client.record['owner'] == value['owner'], 'Pool was restarted instead of surviving'
+        assert finish(app, value)['status'] == 'complete'
+    finally:
+        if handle: kernel.CloseHandle(handle)
+        if host.poll() is None: host.kill()
+        host.wait(timeout=10)

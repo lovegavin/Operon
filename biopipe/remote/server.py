@@ -255,6 +255,14 @@ class RemoteService:
             self._purge_transport_leases()
         if method in ('handshake', 'bootstrap'):
             return self.handshake.response(params, legacy=method == 'bootstrap')
+        if method == 'library_manifest':
+            from .library import inventory
+            return inventory(self.service.plugins.state())
+        if method == 'library_install':
+            # JobService wraps _install_many in the shared environment gate.
+            # Acquiring it here too would reject our own install as concurrent
+            # maintenance. Its mutation boundary remains the single authority.
+            return self.handshake.install_library(params, self.transfers, maintenance_factory=lambda: None)
         if method == 'refresh_registry':
             guard = (self.service.execution_environment_guard() if hasattr(self.service, 'execution_environment_guard') else getattr(self.service, 'environment_guard', None))
             environment = self.service.environment_identity() if guard is not None else None
