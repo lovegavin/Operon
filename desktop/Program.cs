@@ -39,6 +39,7 @@ internal static class Program
         }
         RuntimePaths runtime;
         ProfilePaths profile;
+        if (!smoke && !checkProfile) Autostart.RemoveOwnEntries();
         try {
             if (selectRuntime && (smoke || checkProfile)) return 2;
             if (selectRuntime && RuntimeLocator.IsIsolated(AppContext.BaseDirectory))
@@ -56,6 +57,8 @@ internal static class Program
                 Console.SetOut(new StreamWriter(Console.OpenStandardOutput(), new UTF8Encoding(false)) { AutoFlush = true });
                 Console.WriteLine(JsonSerializer.Serialize(profile)); return 0;
             }
+            // Repair a stale .lnk left by a manually deleted version directory.
+            if (!smoke) { try { ShortcutRepair.Repair(profile); } catch (Exception) { } }
         } catch (Exception error) {
             if (!smoke && !checkProfile) MessageBox.Show(error.Message, "Operon Studio", MessageBoxButtons.OK, MessageBoxIcon.Error);
             else { Console.SetError(new StreamWriter(Console.OpenStandardError(), new UTF8Encoding(false)) { AutoFlush = true }); Console.Error.WriteLine(error.Message); }
@@ -105,7 +108,9 @@ internal sealed class StudioWindow : Form
     private ProcessLifetime? lifetime;
     private Process? backend;
     private string? origin;
-    private bool frontReady, closing, allowClose;
+    private bool frontReady, closing, allowClose, exitRequested;
+    private NotifyIcon? tray;
+    private bool trayHintShown;
     private TaskCompletionSource<bool>? draftSaved;
     public int ExitCode { get; private set; }
 
@@ -116,6 +121,8 @@ internal sealed class StudioWindow : Form
         this.smoke = smoke; this.activation = activation;
         Text = "Operon Studio";
         Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+        CreateTray();
+        if (smoke) exitRequested = true;
         StartPosition = FormStartPosition.CenterScreen;
         var area = Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1600, 1000);
         Size = new Size(Math.Min(1440, area.Width - 60), Math.Min(960, area.Height - 60));
@@ -124,6 +131,7 @@ internal sealed class StudioWindow : Form
         Controls.Add(status); Controls.Add(view);
         Shown += async (_, _) => await StartStudio();
         FormClosing += ClosingStudio;
+        Resize += (_, _) => { if (WindowState == FormWindowState.Minimized && !exitRequested) HideToTray(); };
     }
 
     private void Log(string text) => desktopLog.Write(text);
@@ -183,7 +191,7 @@ internal sealed class StudioWindow : Form
             backend.Exited += (_, _) => {
                 ready.TrySetException(new InvalidOperationException("工作台服务提前退出。详情见 logs 文件夹。"));
                 if (!closing && frontReady && !IsDisposed)
-                    BeginInvoke(() => { frontReady = false; view.Visible = false; status.Text = "工作台服务已退出，请重新打开 Operon Studio。\n\n日志位置：" + Path.Combine(dataDir, "logs"); });
+                    BeginInvoke((Action)(() => { frontReady = false; view.Visible = false; status.Text = "工作台服务已退出，请重新打开 Operon Studio。\n\n日志位置：" + Path.Combine(dataDir, "logs"); }));
             };
             backend.Start();
             Log("Backend started; pid=" + backend.Id);
@@ -224,7 +232,7 @@ internal sealed class StudioWindow : Form
                         case "studio-ready":
                             frontReady = true; view.Visible = true; view.BringToFront();
                             Log("Frontend ready; operator catalog and workspace loaded");
-                            if (smoke) BeginInvoke(Close);
+                            if (smoke) BeginInvoke((Action)Close);
                             break;
                         case "draft-saved": draftSaved?.TrySetResult(true); break;
                         case "draft-save-failed": draftSaved?.TrySetResult(false); break;
@@ -239,7 +247,7 @@ internal sealed class StudioWindow : Form
             _ = Task.Run(() => {
                 while (!stopped.IsCancellationRequested)
                     if (activation.WaitOne(500) && !IsDisposed)
-                        BeginInvoke(() => { if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal; Show(); Activate(); });
+                        BeginInvoke((Action)RestoreFromTray);
             });
             // A failed JS bootstrap must produce an actionable error, not an endless splash.
             _ = MonitorFrontend();
@@ -248,9 +256,11 @@ internal sealed class StudioWindow : Form
         catch (Exception error)
         {
             ExitCode = 1;
+            exitRequested = true;
             Log(error.ToString());
             await StopBackend();
             if (smoke) { allowClose = true; Close(); return; }
+            RestoreFromTray();
             status.Text = "Operon Studio 启动失败\n\n" +
                 (error is WebView2RuntimeNotFoundException ? "请安装 Microsoft Edge WebView2 Runtime 后重试。\nhttps://developer.microsoft.com/microsoft-edge/webview2/" : error.Message)
                 + "\n\n日志位置：" + Path.Combine(dataDir, "logs");
@@ -279,9 +289,65 @@ internal sealed class StudioWindow : Form
             Process.Start(new ProcessStartInfo(value) { UseShellExecute = true });
     }
 
+    private void CreateTray()
+    {
+        tray = new NotifyIcon
+        {
+            Text = "Operon Studio",
+            Icon = this.Icon ?? SystemIcons.Application,
+            Visible = true,
+            ContextMenuStrip = new ContextMenuStrip(),
+        };
+        var open = new ToolStripMenuItem("打开 Operon Studio");
+        open.Click += (_, _) => RestoreFromTray();
+        var exit = new ToolStripMenuItem("完全退出（停止 Python）");
+        exit.Click += (_, _) => RequestExit();
+        tray.ContextMenuStrip.Items.Add(open);
+        tray.ContextMenuStrip.Items.Add(new ToolStripSeparator());
+        tray.ContextMenuStrip.Items.Add(exit);
+        tray.DoubleClick += (_, _) => RestoreFromTray();
+    }
+
+    private void RestoreFromTray()
+    {
+        if (IsDisposed) return;
+        ShowInTaskbar = true;
+        Show();
+        if (WindowState == FormWindowState.Minimized) WindowState = FormWindowState.Normal;
+        Activate();
+        BringToFront();
+    }
+
+    private void HideToTray()
+    {
+        if (exitRequested || IsDisposed) return;
+        Hide();
+        ShowInTaskbar = false;
+        if (!trayHintShown)
+        {
+            trayHintShown = true;
+            tray?.ShowBalloonTip(3000, "Operon Studio 仍在运行",
+                "工作台已最小化到托盘。右键托盘图标选择“完全退出（停止 Python）”。", ToolTipIcon.Info);
+        }
+    }
+
+    private void RequestExit()
+    {
+        exitRequested = true;
+        if (!IsDisposed) Close();
+    }
+
     private async void ClosingStudio(object? sender, FormClosingEventArgs e)
     {
         if (allowClose) return;
+        if (e.CloseReason is CloseReason.WindowsShutDown or CloseReason.TaskManagerClosing or CloseReason.ApplicationExitCall)
+            exitRequested = true;
+        if (!exitRequested && !smoke)
+        {
+            e.Cancel = true;
+            HideToTray();
+            return;
+        }
         e.Cancel = true;
         if (closing) return;
         closing = true;
@@ -291,7 +357,7 @@ internal sealed class StudioWindow : Form
             {
                 using var jobs = JsonDocument.Parse(await http.GetStringAsync(origin + "/api/jobs"));
                 if (jobs.RootElement.EnumerateArray().Any(job => job.GetProperty("status").GetString() == "running") && !smoke &&
-                    MessageBox.Show(this, "工作流仍在运行。退出会停止当前任务，已保存的记录和结果会保留。\n\n确定退出吗？",
+                    MessageBox.Show(this, "工作流仍在运行。退出会停止当前任务，已保存的记录和结果会保留。\n\n确定完全退出吗？",
                         "退出 Operon Studio", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
                 { closing = false; return; }
                 draftSaved = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -301,17 +367,22 @@ internal sealed class StudioWindow : Form
                 {
                     Log("Draft flush failed");
                     if (smoke) ExitCode = 1;
-                    else if (MessageBox.Show(this, "最新草稿未能保存。仍然退出吗？", "Operon Studio",
+                    else if (MessageBox.Show(this, "最新草稿未能保存。仍然完全退出吗？", "Operon Studio",
                         MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) { closing = false; return; }
                 }
                 else Log("Draft flushed to workspace");
             }
         }
         catch (Exception error) { Log("Closing: " + error.Message); if (smoke) ExitCode = 1; }
-        await StopBackend();
-        allowClose = true;
-        Log("Host stopped");
-        Close();
+        try { await StopBackend(); }
+        catch (Exception error) { Log("Backend stop: " + error.Message); }
+        finally
+        {
+            if (tray is not null) tray.Visible = false;
+            allowClose = true;
+            Log("Host stopped");
+            Close();
+        }
     }
 
     private async Task StopBackend()
@@ -334,17 +405,38 @@ internal sealed class StudioWindow : Form
                 Log("Backend cleanup: " + error.Message);
                 Log(backend.HasExited ? "Backend process already exited; code=" + backend.ExitCode
                                       : "Backend process still running; pid=" + backend.Id);
-                try { if (!backend.HasExited) backend.Kill(true); } catch (InvalidOperationException) { }
+                try
+                {
+                    if (!backend.HasExited)
+                    {
+                        backend.Kill(true);
+                        await backend.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(3));
+                    }
+                }
+                catch (Exception kill) { Log("Backend kill: " + kill.Message); }
             }
         }
         lifetime?.Dispose();
+        if (backend is not null && !backend.HasExited)
+        {
+            try
+            {
+                if (!backend.WaitForExit(1000))
+                {
+                    Log("Backend survived job close; stopping pid " + backend.Id);
+                    backend.Kill(true);
+                    backend.WaitForExit(3000);
+                }
+            }
+            catch (Exception error) { Log("Backend final cleanup: " + error.Message); }
+        }
     }
 
     protected override void Dispose(bool disposing)
     {
         if (disposing)
         {
-            stopped.Cancel(); lifetime?.Dispose(); view.Dispose(); backend?.Dispose(); http.Dispose();
+            stopped.Cancel(); lifetime?.Dispose(); tray?.Dispose(); view.Dispose(); backend?.Dispose(); http.Dispose();
         }
         base.Dispose(disposing);
     }

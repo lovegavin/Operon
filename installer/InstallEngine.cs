@@ -288,6 +288,7 @@ internal sealed class InstallEngine
                     CreateShortcut(link, Path.Combine(installed, "Operon Studio.exe"), resolvedProfile);
                     shortcuts[link] = InstallFiles.Hash(link);
                 }
+                RepairPinnedShortcut(installed, resolvedProfile);
                 var uninstall = Path.Combine(root, "Operon_Uninstall.exe");
                 if (File.Exists(uninstall)) { savedUninstaller = Path.Combine(work, "previous-uninstaller.exe"); File.Copy(uninstall, savedUninstaller); }
                 SaveUninstaller(uninstall);
@@ -345,6 +346,19 @@ internal sealed class InstallEngine
         finally { upgrade?.Dispose(); profileLease?.Dispose(); }
     }
 
+    private void RepairPinnedShortcut(string installed, string profile)
+    {
+        try
+        {
+            var pinned = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "Microsoft", "Internet Explorer", "Quick Launch", "User Pinned", "TaskBar");
+            var link = Path.Combine(pinned, "Operon Studio.lnk");
+            if (!File.Exists(link)) return;
+            CreateShortcut(link, Path.Combine(installed, "Operon Studio.exe"), profile);
+        }
+        catch (Exception e) { Log("Taskbar shortcut repair: " + e.Message); }
+    }
+
     private static void CreateShortcut(string path, string executable, string profile)
     {
         var type = Type.GetTypeFromProgID("WScript.Shell") ?? throw new NotSupportedException("无法创建 Windows 快捷方式。");
@@ -392,8 +406,10 @@ internal sealed class InstallEngine
             InstallFiles.NoLinks(path);
         }
         foreach (var relative in receipt.Versions) CleanVersion(root, relative, Path.GetDirectoryName(receipt.Profile)!, receipt.Profile);
+        RemoveAutostart();
         foreach (var (path, hash) in receipt.Shortcuts)
-            if (File.Exists(path) && InstallFiles.Hash(path) == hash) File.Delete(path);
+            if (File.Exists(path) && (InstallFiles.Hash(path) == hash || ShortcutIsStale(path, root))) File.Delete(path);
+        RemovePinnedShortcut(root);
         if (receipt.UninstallKey is not null)
         {
             Registry.CurrentUser.DeleteSubKeyTree(expectedKey, false);
@@ -404,6 +420,65 @@ internal sealed class InstallEngine
         if (File.Exists(uninstaller) && !string.Equals(uninstaller, Environment.ProcessPath, StringComparison.OrdinalIgnoreCase)) File.Delete(uninstaller);
         Report("已卸载 Operon；用户档案、路线、数据和任务记录均已保留。",100);
         return new("uninstalled", root, null, receipt.Profile, LogPath);
+    }
+
+    private static bool ShortcutIsStale(string path, string root)
+    {
+        try
+        {
+            var type = Type.GetTypeFromProgID("WScript.Shell");
+            if (type is null) return false;
+            dynamic shell = Activator.CreateInstance(type)!;
+            try
+            {
+                dynamic shortcut = shell.CreateShortcut(path);
+                try
+                {
+                    var target = (string?)shortcut.TargetPath ?? string.Empty;
+                    if (string.IsNullOrWhiteSpace(target) || !File.Exists(target)) return true;
+                    var prefix = root.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+                    return Path.GetFullPath(target).StartsWith(prefix, StringComparison.OrdinalIgnoreCase);
+                }
+                finally { System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shortcut); }
+            }
+            finally { System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shell); }
+        }
+        catch (Exception) { return false; }
+    }
+
+    private static void RemovePinnedShortcut(string root)
+    {
+        try
+        {
+            var pinned = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "Microsoft", "Internet Explorer", "Quick Launch", "User Pinned", "TaskBar");
+            var link = Path.Combine(pinned, "Operon Studio.lnk");
+            if (File.Exists(link) && ShortcutIsStale(link, root)) File.Delete(link);
+        }
+        catch (Exception) { }
+    }
+
+    private static void RemoveAutostart()
+    {
+        try
+        {
+            using var run = Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Run", writable: true);
+            if (run is not null)
+                foreach (var value in new[] { "Operon Studio", "OperonStudio", "BioPipe Studio", "BioPipeStudio" })
+                    run.DeleteValue(value, throwOnMissingValue: false);
+        }
+        catch (Exception) { }
+        try
+        {
+            var startup = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
+            foreach (var name in new[] { "Operon Studio.lnk", "BioPipe Studio.lnk" })
+            {
+                var path = Path.Combine(startup, name);
+                if (File.Exists(path)) File.Delete(path);
+            }
+        }
+        catch (Exception) { }
     }
 
     internal static void CleanVersion(string root, string relative, string profiles, string? heldProfile = null)
