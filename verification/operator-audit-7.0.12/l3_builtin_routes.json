@@ -1,0 +1,470 @@
+[
+ {
+  "route": "assembly_ngx_qc",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/assembly_ngx_qc/input/yeast.fna'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "assembly_qc",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/assembly_qc/input/genome.fna'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "atac_peak_calling",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/atac_peak_calling/input/chr22.bam'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "atac_qc",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/atac_qc/input/ENCFF415FEC.bam'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "b9_ml",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/b9_ml/input/X.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "bam_alignment_qc",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/bam_alignment_qc/input/region.bam'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "bgen_qc",
+  "ok": false,
+  "err": "  File \"/home/gavin/miniconda3/envs/operon/lib/python3.12/site-packages/bgen_reader/_file.py\", line 14, in assert_file_exist |     raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filepath) | FileNotFoundError: [Errno 2] No such file or directory: PosixPath('/home/gavin/Operon/librar",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "codon_design",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/codon_design/input/design_proteins.faa'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "codon_usage_bias",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/codon_usage_bias/input/ecoli_cds.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "ecoli_annotation",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/ecoli_annotation/input/ecoli.gff'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "ecoli_gene_counts",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/ecoli_gene_counts/input/ecoli.sorted.bam'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "ecoli_resequencing",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/ecoli_resequencing/input/alignment.bam'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "fastq_composition_qc",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/fastq_composition_qc/input/reads_1.fastq.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "fba_flux_balance",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/fba_flux_balance/input/e_coli_core.xml'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "genome_comparison",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/genome_comparison/input/o157.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "genome_kmer_comparison",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/genome_kmer_comparison/input/ecoli.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "genotype_structure",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/genotype_structure/input/subset_snps.vcf.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "gm12878_interval_annotation",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/gm12878_interval_annotation/input/peaks.bed'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "go_enrichment",
+  "ok": false,
+  "err": "    fileobj = self.myfileobj = builtins.open(filename, mode or 'rb') |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/go_enrichment/input/goa_human.gaf.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "go_semantic_similarity",
+  "ok": false,
+  "err": "    handle = open( |              ^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/go_semantic_similarity/input/terms.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "golub_coexpression",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/golub_coexpression/input/expression.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "gtf_annotation",
+  "ok": false,
+  "err": "  File \"/home/gavin/Operon/src/reader/__init__.py\", line 133, in _decompressed |     raise ReaderError(f\"Could not decompress {path}: {exc}\") from exc | src.core.errors.errors.ReaderError: Could not decompress /home/gavin/Operon/library/seed/routes/gtf_annotation/input/saccharomyces_cerevisiae.gtf.g",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "gwas",
+  "ok": false,
+  "err": "    with opener(path, \"rt\", encoding=\"utf-8\") as f: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/gwas/input/geno.vcf'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "gwas_association",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/gwas_association/input/subset_snps.vcf.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "gwas_meta_prs",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "hic_bam",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/hic_bam/input/reads.bam'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "hic_fastq",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/hic_fastq/input/reads.fastq'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "hic_pair_qc",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/hic_pair_qc/input/gm12878.pairs.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "hic_pairs",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/hic_pairs/input/reads.pairs.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "interval_analysis",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/interval_analysis/input/cCREs.bed'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "lalonde_psm",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/lalonde_psm/input/lalonde.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "ld_analysis",
+  "ok": false,
+  "err": "    fileobj = self.myfileobj = builtins.open(filename, mode or 'rb') |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/ld_analysis/input/query.vcf.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "liftover_intervals",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/liftover_intervals/input/intervals.bed'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "methylation_conversion_asm_rf",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "microbiome",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/microbiome/input/OTU_CB_rarefied20k.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "microbiome_diff",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "ml_classification",
+  "ok": false,
+  "err": "    handle = open( |              ^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/ml_classification/input/proteomics_raw.txt'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "ml_regression",
+  "ok": false,
+  "err": "    handle = open( |              ^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/ml_regression/input/proteomics_raw.txt'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "ml_validation",
+  "ok": false,
+  "err": "    handle = open( |              ^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/ml_validation/input/X.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "msa_analysis",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/msa_analysis/input/pf00069_aligned.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "multi_omics",
+  "ok": false,
+  "err": "  File \"/home/gavin/Operon/library/seed/src/reader/readers/tenx_h5_reader.py\", line 172, in read |     raise ReaderError( | src.core.errors.errors.ReaderError: tenx_h5: cannot open /home/gavin/Operon/library/seed/routes/multi_omics/input/cite_seq_pbmc.h5: [Errno 2] Unable to synchronously open file ",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "noncoding_rna_editing",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "pbmc_markers",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/pbmc_markers/input/expression.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "pbmc_trajectory",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/pbmc_trajectory/input/embedding.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "peptide_msms",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/peptide_msms/input/proteins.faa'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "phylo_bootstrap_support",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/phylo_bootstrap_support/input/ssu_aligned.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "phylo_comparative",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/phylo_comparative/input/ssu_aligned.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "phylogenetics_jc69_rooting",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "population_selection_scan",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "ppi_network_analysis",
+  "ok": false,
+  "err": "    handle = open( |              ^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/ppi_network_analysis/input/network_edges.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "primer_design_qc",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/primer_design_qc/input/ecoli.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "proteome_properties",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/proteome_properties/input/protein.faa'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "proteomics_de",
+  "ok": false,
+  "err": "    handle = open( |              ^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/proteomics_de/input/proteomics_raw.txt'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "proteomics_ibaq_cai_ptm",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "proteomics_limma",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "proteomics_qc",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/proteomics_qc/input/protein.faa'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "prs_harmonize_qc",
+  "ok": false,
+  "err": "    fileobj = self.myfileobj = builtins.open(filename, mode or 'rb') |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/prs_harmonize_qc/input/chr22_prs.vcf.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "pwm_scan_chr22",
+  "ok": false,
+  "err": "    handle = open( |              ^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/pwm_scan_chr22/input/counts.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "read_preprocessing",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/read_preprocessing/input/reads_1.fastq.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "restriction_digest",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/restriction_digest/input/lambda.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "rna_structure_compare",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/rna_structure_compare/input/trna.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "rnaseq_de",
+  "ok": false,
+  "err": "    handle = open( |              ^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/rnaseq_de/input/airway_counts.csv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "rnaseq_de_enrichment",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "rnaseq_ssgsea",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "sequence_features",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/sequence_features/input/sequences.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "sequencing_qc",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/sequencing_qc/input/reads_1.fastq.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "single_cell",
+  "ok": false,
+  "err": "  File \"/home/gavin/Operon/library/seed/src/reader/readers/mtx_reader.py\", line 161, in read |     raise ReaderError( | src.core.errors.errors.ReaderError: Cannot find barcodes.tsv or features.tsv next to /home/gavin/Operon/library/seed/routes/single_cell/input/filtered_gene_bc_matrices/hg19/matrix.",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "single_cell_batch",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "single_cell_loom",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "ssu_phylogeny",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/ssu_phylogeny/input/ssu_aligned.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "structure_rg_metagenome",
+  "ok": true,
+  "err": "",
+  "reason": "PASS"
+ },
+ {
+  "route": "structure_validation",
+  "ok": false,
+  "err": "    return io.open(self, mode, buffering, encoding, errors, newline) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/structure_validation/input/1mel.pdb'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "survival",
+  "ok": false,
+  "err": "    handle = open( |              ^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/survival/input/tcga_brca_clinical_raw.tsv'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "tree_manipulation",
+  "ok": false,
+  "err": "    with open(path, encoding=\"utf-8\") as fh: |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/tree_manipulation/input/ssu_aligned.fasta'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "variant_annotation",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/variant_annotation/input/subset.vcf'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "variant_qc_concordance",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/variant_qc_concordance/input/query.vcf.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "vcf_normalization",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/vcf_normalization/input/partA.vcf.gz'",
+  "reason": "SKIP_DATA"
+ },
+ {
+  "route": "vcf_sample_qc",
+  "ok": false,
+  "err": "    return os.stat(self, follow_symlinks=follow_symlinks) |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ | FileNotFoundError: [Errno 2] No such file or directory: '/home/gavin/Operon/library/seed/routes/vcf_sample_qc/input/subset_snps.vcf.gz'",
+  "reason": "SKIP_DATA"
+ }
+]

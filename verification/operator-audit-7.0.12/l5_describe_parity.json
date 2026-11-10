@@ -1,0 +1,37 @@
+{
+  "canonical_fields": [
+    "id",
+    "kind",
+    "title",
+    "parameters_schema",
+    "contracts",
+    "data_formats",
+    "outputs",
+    "inputs_arity",
+    "output_parameter"
+  ],
+  "canonical_sha256": "e71d6fb91c3f7d0b",
+  "entrypoints": {
+    "cli": {
+      "tool": "python -m operon --workspace /tmp/l5desc operators describe kalman_local_level --view schema --json"
+    },
+    "http": {
+      "route": "POST /api/v1/operators/describe"
+    },
+    "mcp": {
+      "args": {
+        "ids": [
+          "kalman_local_level"
+        ],
+        "view": "schema"
+      },
+      "tool": "operon_operator_describe"
+    }
+  },
+  "equal": true,
+  "note": "Mixed application implementations cannot be compared here: the 3.1.6 wheel speaks the biopipe bridge header while this checkout speaks the operon bridge header. All three entry points above were driven from the same checkout and the same running service.",
+  "operator": "kalman_local_level",
+  "schema": 1,
+  "studio": "Studio uses the same POST /api/v1/operators/describe handler; the UI dialog itself was not automated.",
+  "view": "schema"
+}
