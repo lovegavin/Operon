@@ -377,7 +377,7 @@ internal sealed class InstallEngine
         // Copy just the self-contained program, not the large appended payload.
         using var source = File.OpenRead(Environment.ProcessPath!);
         source.Seek(-32, SeekOrigin.End); byte[] footer = new byte[32]; source.ReadExactly(footer);
-        if (!footer.AsSpan(0,16).SequenceEqual(InstallFiles.FooterMagic)) throw new InvalidDataException("安装包缺少卸载组件。");
+        if (!footer.AsSpan(0, InstallFiles.FooterMagic.Length).SequenceEqual(InstallFiles.FooterMagic)) throw new InvalidDataException("安装包缺少卸载组件。");
         long length = BitConverter.ToInt64(footer, 16); source.Position = 0;
         var temporary = destination + ".tmp-" + Guid.NewGuid().ToString("N");
         try {
