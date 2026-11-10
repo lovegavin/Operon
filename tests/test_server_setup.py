@@ -72,6 +72,12 @@ def test_inherited_python_and_conda_settings_are_not_used(monkeypatch):
     assert environment['HTTPS_PROXY'] == 'http://proxy.example:8000'
 
 
+def test_shell_bootstrap_does_not_auto_select_python_314():
+    shell = Path('scripts/install_server.sh').read_text()
+    assert "(3,11) <= sys.version_info[:2] < (3,14)" in shell
+    assert "Without Python 3.11-3.13" in shell
+
+
 def test_shell_bootstrap_uses_existing_verified_manager_constants():
     from biopipe.remote.provision import MAMBA_ARCHIVE_SHA, MAMBA_SHA, MAMBA_URL
     shell = Path('scripts/install_server.sh').read_text()
