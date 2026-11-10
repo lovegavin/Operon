@@ -61,8 +61,8 @@ limitation, not hidden as a pass.
 ## Verification
 
 - `python scripts/build_operator_docs.py --check` and registry checks pass.
-- Full pytest: 3720 passed, 209 skipped, 2 failed. Both failures were stale
-  `builtin_routes.json` counts after adding the VHH template; rebuilding the
-  route index fixed them, and the two affected files then passed 9/9.
+- Full pytest: 3722 passed, 209 skipped, 0 failed (41:03). An earlier iteration
+  hit two stale `builtin_routes.json` count assertions after the VHH template
+  was added; rebuilding the route index fixed them.
 - `Operon-Operator-Audit-v7.0.8.zip` contains the updated report, the
   per-operator table and the raw JSON/JSONL evidence.
