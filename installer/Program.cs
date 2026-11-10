@@ -58,19 +58,32 @@ internal static class Program
             var programName = Path.GetFileNameWithoutExtension(Environment.ProcessPath) ?? string.Empty;
             bool uninstall = flags.Contains("--uninstall") ||
                 (!flags.Contains("--install") && programName.Contains("uninstall", StringComparison.OrdinalIgnoreCase));
-            // A running executable cannot remove itself. Only copy this small
-            // helper when invoked from the installation that is being removed.
-            if (uninstall && !unattended && !flags.Contains("--uninstall-worker") &&
+            // A running executable cannot remove itself. The helper lives in
+            // %TEMP%, so the install root (including this uninstaller) can be
+            // deleted even for an unattended invocation. Interactive mode hands
+            // the UI to the helper; unattended mode waits so the result file and
+            // exit code still describe the completed uninstall.
+            if (uninstall && !flags.Contains("--uninstall-worker") &&
                 string.Equals(Path.GetDirectoryName(Environment.ProcessPath), Path.GetFullPath(options.InstallDir), StringComparison.OrdinalIgnoreCase))
             {
                 var folder = Path.Combine(Path.GetTempPath(), "Operon-Uninstall-" + Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(folder); var helper = Path.Combine(folder, "Operon_Uninstall.exe");
                 File.Copy(Environment.ProcessPath!, helper);
-                var start = new ProcessStartInfo(helper) { UseShellExecute = false, CreateNoWindow = true };
+                var start = new ProcessStartInfo(helper) { UseShellExecute = false, CreateNoWindow = unattended };
                 foreach (var arg in args) start.ArgumentList.Add(arg);
                 start.ArgumentList.Add("--uninstall-worker");
                 using var worker = Process.Start(start) ?? throw new IOException("Could not start the uninstall worker.");
-                return 0;
+                if (!unattended) return 0;
+                worker.WaitForExit();
+                var root = Path.GetFullPath(options.InstallDir);
+                var leftover = Path.Combine(root, "Operon_Uninstall.exe");
+                if (File.Exists(leftover))
+                {
+                    var cleanup = new ProcessStartInfo("cmd.exe",
+                        $"/c ping 127.0.0.1 -n 4 >nul & del /f /q \"{leftover}\" & rmdir \"{root}\"") { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden };
+                    try { Process.Start(cleanup); } catch { }
+                }
+                return worker.ExitCode;
             }
             if (unattended)
             {

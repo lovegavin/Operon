@@ -422,7 +422,15 @@ internal sealed class InstallEngine
         File.Delete(ReceiptPath(root));
         File.Delete(Path.Combine(root, ".biopipe-setup.json"));
         var uninstaller = Path.Combine(root,"Operon_Uninstall.exe");
-        if (File.Exists(uninstaller) && !string.Equals(uninstaller, Environment.ProcessPath, StringComparison.OrdinalIgnoreCase)) File.Delete(uninstaller);
+        if (File.Exists(uninstaller) && !string.Equals(uninstaller, Environment.ProcessPath, StringComparison.OrdinalIgnoreCase))
+        {
+            for (var attempt = 0; attempt < 20 && File.Exists(uninstaller); attempt++)
+            {
+                try { File.Delete(uninstaller); }
+                catch (IOException) { Thread.Sleep(250); }
+                catch (UnauthorizedAccessException) { Thread.Sleep(250); }
+            }
+        }
         try
         {
             var versions = Path.Combine(root, "versions");
@@ -450,6 +458,7 @@ internal sealed class InstallEngine
                     if (string.IsNullOrWhiteSpace(image)) continue;
                     var full = Path.GetFullPath(image);
                     if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (string.Equals(Path.GetFileName(full), "Operon_Uninstall.exe", StringComparison.OrdinalIgnoreCase)) continue;
                     process.Kill(entireProcessTree: true);
                     process.WaitForExit(3000);
                     stopped.Add(process.Id);
@@ -467,8 +476,11 @@ internal sealed class InstallEngine
             try
             {
                 var image = process.MainModule?.FileName;
-                if (!string.IsNullOrWhiteSpace(image) && Path.GetFullPath(image).StartsWith(root, StringComparison.OrdinalIgnoreCase))
-                    throw new InvalidOperationException("仍有进程占用安装目录，无法完全卸载。请从任务管理器结束该进程后重试。");
+                if (string.IsNullOrWhiteSpace(image)) continue;
+                var full = Path.GetFullPath(image);
+                if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase)) continue;
+                if (string.Equals(Path.GetFileName(full), "Operon_Uninstall.exe", StringComparison.OrdinalIgnoreCase)) continue;
+                throw new InvalidOperationException($"仍有进程占用安装目录，无法完全卸载（PID {process.Id}：{image}）。请从任务管理器结束该进程后重试。");
             }
             catch (InvalidOperationException) { throw; }
             catch (Exception) { }
