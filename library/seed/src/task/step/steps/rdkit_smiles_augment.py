@@ -44,7 +44,7 @@ def augment_row(molecule, count: int, seed: int) -> tuple[list[str], list[float]
 class RdkitSmilesAugmentStep(Step):
     """Enumerate random SMILES variants for every input molecule."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "rdkit_smiles_augment.RdkitSmilesAugmentStep.parameters.json"
 
     definition = {

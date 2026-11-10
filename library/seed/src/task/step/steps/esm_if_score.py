@@ -23,7 +23,7 @@ _STATISTICS = ("log_prob",)
 class EsmIfScoreStep(Step):
     """Score every residue of a chain with the official ESM-IF1 inverse-folding model."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_if_score.EsmIfScoreStep.parameters.json"
 
     definition = {

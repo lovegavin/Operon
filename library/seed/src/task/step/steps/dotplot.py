@@ -52,7 +52,7 @@ _PROP_MODES = ("nonzero", "threshold")
 
 class DotplotStep(Step):
     """Dot plot of features grouped by a label column."""
-    provider = 'biopipe-plots'
+    provider = 'operon-plots'
     parameters_file = 'dotplot.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

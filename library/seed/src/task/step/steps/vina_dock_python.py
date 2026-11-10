@@ -143,7 +143,7 @@ _STATISTICS = ("total", "inter", "intra", "torsion", "intra_best")
 
 
 class VinaDockPythonStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "vina_dock_python.VinaDockPythonStep.parameters.json"
     definition = {
         "protocol_version": 3,

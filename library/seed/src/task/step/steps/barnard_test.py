@@ -12,7 +12,7 @@ from ._ext_common import labels_in_order, require_dims
 
 
 class BarnardTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Barnard's exact unconditional test of independence in a 2x2 table.
 
     The p-value is computed with SciPy's unconditional exact algorithm,

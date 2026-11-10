@@ -46,7 +46,7 @@ from src.reader.readers._labels import unique_labels
 
 class BgenReader(Reader):
     """Reader for .bgen files."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'bgen_reader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'BgenReader',

@@ -67,7 +67,7 @@ def cdr_hydrophobicity_row(
 class AntibodyCdrHydrophobicityStep(Step):
     """Hydrophobicity profile of the Kabat CDR loops of a VHH or VH domain."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "antibody_cdr_hydrophobicity.AntibodyCdrHydrophobicityStep.parameters.json"
 
     definition = {

@@ -109,7 +109,7 @@ def find_hits(sequence: str, expression: str) -> list[int]:
 class PrositeScanStep(Step):
     """Scan protein sequences for PROSITE-like patterns."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "prosite_scan.PrositeScanStep.parameters.json"
 
     definition = {

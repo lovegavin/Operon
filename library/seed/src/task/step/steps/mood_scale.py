@@ -13,7 +13,7 @@ from ._ext_common import labels_in_order
 
 
 class MoodScaleStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Mood's two-sample rank test for equality of scale."""
     parameters_file = 'mood_scale.MoodScaleStep.parameters.json'
     definition = {'protocol_version': 3,

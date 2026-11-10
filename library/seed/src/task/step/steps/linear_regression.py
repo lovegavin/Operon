@@ -5,7 +5,7 @@ from ._ml_common import _RegressionBase
 
 
 class LinearRegressionStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'linear_regression.LinearRegressionStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'linear_regression',

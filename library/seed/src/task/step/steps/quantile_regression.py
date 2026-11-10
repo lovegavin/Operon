@@ -5,7 +5,7 @@ from ._ml_common import _RegressionBase
 
 
 class QuantileRegressionStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'quantile_regression.QuantileRegressionStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'quantile_regression',

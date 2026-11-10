@@ -67,7 +67,7 @@ _STATS = (
 
 class RankAxisStep(Step):
     """Rank positions along one axis by a statistic."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'rank_axis.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'rank_axis',

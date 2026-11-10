@@ -29,7 +29,7 @@ def _child_text(clade, *names: str) -> str | None:
 class PhyloXmlReader(Reader):
     """Parse a PhyloXML phylogeny into a node x field table."""
 
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'phyloxml_reader.PhyloXmlReader.parameters.json'
     definition = {
         'protocol_version': 3,

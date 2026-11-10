@@ -88,7 +88,7 @@ def topology_rows(
 class SequenceTransmembraneTopologyStep(Step):
     """Assign inside/outside sides to transmembrane segments."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "sequence_transmembrane_topology."
         "SequenceTransmembraneTopologyStep.parameters.json"

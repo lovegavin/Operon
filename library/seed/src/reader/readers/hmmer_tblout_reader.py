@@ -20,7 +20,7 @@ FIELDS = [
 
 
 class HmmerTbloutReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """HMMER3 --tblout reader."""
     parameters_file = 'hmmer_tblout_reader.HmmerTbloutReader.parameters.json'
     definition = {

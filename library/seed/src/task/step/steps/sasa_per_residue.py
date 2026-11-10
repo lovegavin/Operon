@@ -42,7 +42,7 @@ def residue_sasa(
 class SasaPerResidueStep(Step):
     """Compute Shrake-Rupley SASA for every residue of a structure."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sasa_per_residue.SasaPerResidueStep.parameters.json"
 
     definition = {

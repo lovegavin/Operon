@@ -11,7 +11,7 @@ from src.reader.readers._table_common import table_form
 
 
 class BimReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """PLINK BIM reader (six standard columns)."""
     parameters_file = 'bim_reader.BimReader.parameters.json'
     definition = {

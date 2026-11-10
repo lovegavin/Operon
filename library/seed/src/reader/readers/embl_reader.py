@@ -15,7 +15,7 @@ from src.reader.readers._table_common import table_form
 
 
 class EmblReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """EMBL flat-file reader."""
     parameters_file = 'embl_reader.EmblReader.parameters.json'
     definition = {

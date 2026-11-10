@@ -11,7 +11,7 @@ from pathlib import Path
 import uuid
 
 from .storage import FileLock, atomic_json
-from biopipe.parameter_values import read_values
+from operon.parameter_values import read_values
 from .parameters import freeze_graph, split_graph, restore_graph, split_execution, restore_execution
 
 from .models import (Graph, GraphEdge, RouteDefinition, RouteInterface, RouteInput,
@@ -35,7 +35,7 @@ def output_names(node, registry):
     if node.kind == "source":
         return [node.id]
     if node.kind == "script":
-        from biopipe.script_operators import validate_script
+        from operon.script_operators import validate_script
         snapshot = validate_script(node.script)
         if len(snapshot["outputs"]) != 1:
             fail("Script route nodes require one declared file output", node.id)
@@ -388,7 +388,7 @@ class RouteLibrary:
                 from src.reader import primary_ext
                 for node in checked.nodes:
                     if node.kind == "source" and node.source is not None:
-                        from biopipe.reader_selection import candidates
+                        from operon.reader_selection import candidates
                         choices = candidates(catalog['readers'], node.source.path, node.source.reader)
                         if len(choices) > 1:
                             from .graph import GraphError
@@ -443,7 +443,7 @@ class RouteLibrary:
 
     def install_builtins(self):
         """Seed shipped routes once. Removal/disable and user edits survive boots."""
-        from biopipe.library_location import asset_path
+        from operon.library_location import asset_path
         path = asset_path('src/web/builtin_routes.json')
         bundle = json.loads(path.read_text(encoding='utf-8')) if path.is_file() else {'routes': []}
         with self.lock:
@@ -483,4 +483,4 @@ class RouteLibrary:
         except FileNotFoundError:
             return None
         except ValueError as exc:
-            fail("Workspace is invalid or uses an older graph protocol. Close Studio and run biopipe migrate; the file has been preserved. " + str(exc))
+            fail("Workspace is invalid or uses an older graph protocol. Close Studio and run operon migrate; the file has been preserved. " + str(exc))

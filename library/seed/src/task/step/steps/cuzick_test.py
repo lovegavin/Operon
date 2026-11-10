@@ -12,7 +12,7 @@ from ._ext_common import group_map, labels_in_order, make_form, reorder
 
 
 class CuzickTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Cuzick's rank-based trend test across ordered groups.
 
     Groups are ordered by their encoded group code (the order in which labels

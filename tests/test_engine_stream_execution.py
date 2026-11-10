@@ -11,7 +11,7 @@ import time
 
 import pytest
 
-from biopipe.pool_service import PoolService
+from operon.pool_service import PoolService
 from src.web.models import Graph
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,15 +37,15 @@ def test_bounded_channels_run_inside_a_real_worker(tmp_path, monkeypatch):
     (code / 'scripts/run.py').write_text('''import json, os, sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-sys.path.insert(0, os.environ['BIOPIPE_ACCEPTANCE_ROOT'])
+sys.path.insert(0, os.environ['OPERON_ACCEPTANCE_ROOT'])
 import numpy as np
-from biopipe.engine.channels import ChannelBudget, Channel, OwnedBlock, ChannelClosed
+from operon.engine.channels import ChannelBudget, Channel, OwnedBlock, ChannelClosed
 from src.reader.readers.csv_reader import CsvReader
 from src.task.step.steps.describe import DescribeStep
 import yaml
 
 task = Path(sys.argv[1]); output = task / 'output'; output.mkdir(parents=True, exist_ok=True)
-form = CsvReader().read(Path(os.environ['BIOPIPE_STREAM_INPUT']), ['sample', 'feature'],
+form = CsvReader().read(Path(os.environ['OPERON_STREAM_INPUT']), ['sample', 'feature'],
                         {'sample': 'auto', 'feature': 'builtin'})
 data = form.data
 chunks = np.array_split(data, 6)
@@ -82,8 +82,8 @@ summary = {'status': 'complete', 'branches_equal':
            'mean': left_result['global']['mean'], 'n_valid': left_result['global']['n_valid']}
 (output / 'run_summary.json').write_text(json.dumps(summary))
 ''', encoding='utf-8')
-    monkeypatch.setenv('BIOPIPE_STREAM_INPUT', str(source))
-    monkeypatch.setenv('BIOPIPE_ACCEPTANCE_ROOT', str(ROOT))
+    monkeypatch.setenv('OPERON_STREAM_INPUT', str(source))
+    monkeypatch.setenv('OPERON_ACCEPTANCE_ROOT', str(ROOT))
     monkeypatch.setenv('PYTHONPATH', str(ROOT) + os.pathsep + os.environ.get('PYTHONPATH', ''))
     graph = Graph.model_validate({
         'schema_version': 2, 'name': 'stream adapter', 'base_dir': str(workspace),

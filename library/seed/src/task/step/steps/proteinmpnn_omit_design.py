@@ -91,7 +91,7 @@ def run_omit_designer(
     repo: Path,
 ) -> list[dict]:
     timeout = int(params.get("timeout_seconds", 1800) or 1800)
-    with tempfile.TemporaryDirectory(prefix="biopipe_omit_") as tmp:
+    with tempfile.TemporaryDirectory(prefix="operon_omit_") as tmp:
         out_dir = Path(tmp) / "designs"
         out_dir.mkdir()
         command = omit_command(params, structure, out_dir, chains_text, omit, weights, repo)
@@ -138,7 +138,7 @@ def _resolve_weights(repo: Path, text: str) -> Path:
 class ProteinmpnnOmitDesignStep(Step):
     """Design sequences while forbidding a set of amino acids."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "proteinmpnn_omit_design.ProteinmpnnOmitDesignStep.parameters.json"
     definition = {
         "protocol_version": 3,

@@ -82,7 +82,7 @@ def efficiency_row(molecule, activity_molar: float, temperature: float) -> list[
 class LigandEfficiencyStep(Step):
     """Ligand efficiency / LLE / BEI from potency values."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'ligand_efficiency.LigandEfficiencyStep.parameters.json'
     definition = {
         'protocol_version': 3,

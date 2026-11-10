@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class VarTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'var_test.VarTestStep.parameters.json'
     definition = {
         'protocol_version': 3,

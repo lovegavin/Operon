@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class RunsTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Runs test with a median (or explicit) threshold."""
     parameters_file = 'runs_test.RunsTestStep.parameters.json'
     definition = {'protocol_version': 3,

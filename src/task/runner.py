@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import json
 import time
-from biopipe.bytecode import io_path
+from operon.bytecode import io_path
 
 from src.core import ContextError, StepError
 from src.task.context import Context
@@ -21,7 +21,7 @@ def run(ctx: Context, steps: list[dict]) -> None:
     try:
         # Workflow-local scripts are frozen assets, not globally installed
         # providers. Register their execution adapter only inside this worker.
-        from biopipe.script_operators import PREFIX, script_step_class
+        from operon.script_operators import PREFIX, script_step_class
         for specification in steps:
             if specification['name'].startswith(PREFIX):
                 snapshot = specification.get('params', {}).get('script')
@@ -43,7 +43,7 @@ def run(ctx: Context, steps: list[dict]) -> None:
             _check_arity(name, step.inputs_arity, names)
             ctx.step_params = dict(spec.get("params", {}))
             ctx.step_params.pop('_input_names', None)
-            from biopipe_sdk.protocol import validate_parameters
+            from operon_sdk.protocol import validate_parameters
             if cls.parameters_schema is None:
                 raise StepError(f"{name}: protocol v3 requires a compiled parameter schema; migrate the declaration first")
             output = ctx.step_params.pop(cls.output_parameter, None) if cls.output_parameter else None
@@ -63,7 +63,7 @@ def run(ctx: Context, steps: list[dict]) -> None:
                     forms = [_resolve(ctx, n, name) for n in names]
                 if spec.get("conversions"):
                     if stream is not None:
-                        from biopipe_sdk.native_array import validate_stream_format
+                        from operon_sdk.native_array import validate_stream_format
                         for conversion in spec['conversions']:
                             plan = conversion['plan']
                             if conversion['port'] != 0 or plan['converters'] or plan['representation'] != 'form':
@@ -71,7 +71,7 @@ def run(ctx: Context, steps: list[dict]) -> None:
                             validate_stream_format(stream, plan['source'])
                             validate_stream_format(stream, plan['target'])
                     else:
-                        from biopipe.conversions import apply_step_conversions
+                        from operon.conversions import apply_step_conversions
                         forms = apply_step_conversions(ctx, forms, spec["conversions"])
                 requirements = [resolve(rule, ctx.step_params) for rule in (cls.input_contracts or [])]
                 schemas = []
@@ -79,7 +79,7 @@ def run(ctx: Context, steps: list[dict]) -> None:
                     declaration = getattr(cls, '_declaration', {}) or getattr(cls, 'definition', {})
                     input_formats = (declaration.get('data_formats') or {}).get('inputs', [])
                     if input_formats:
-                        from biopipe_sdk.native_array import validate_stream_format
+                        from operon_sdk.native_array import validate_stream_format
                         validate_stream_format(stream, input_formats[0])
                     schema = describe_metadata(stream["metadata"], stream["shape"])
                     required = requirements[0] if requirements else None
@@ -101,7 +101,7 @@ def run(ctx: Context, steps: list[dict]) -> None:
                         declaration = getattr(cls, '_declaration', {}) or getattr(cls, 'definition', {})
                         input_formats = (declaration.get('data_formats') or {}).get('inputs', [])
                         if input_formats:
-                            from biopipe_sdk.native_array import reader_output
+                            from operon_sdk.native_array import reader_output
                             reader_output(form, {'data_formats': {'outputs': [input_formats[min(port, len(input_formats)-1)]]}})
                         required = requirements[min(port, len(requirements) - 1)] if requirements else None
                         validate_form(form, required, f"{name} input {port + 1} ({names[port]})")
@@ -119,7 +119,7 @@ def run(ctx: Context, steps: list[dict]) -> None:
                     declaration = getattr(cls, '_declaration', {}) or getattr(cls, 'definition', {})
                     format_outputs = (declaration.get('data_formats') or {}).get('outputs', [])
                     if format_outputs and key in declared_outputs:
-                        from biopipe_sdk.native_array import reader_output
+                        from operon_sdk.native_array import reader_output
                         reader_output(form, {'data_formats': {'outputs': [format_outputs[declared_outputs.index(key)]]}})
                     if cls.output_contract:
                         validate_output(form, expected, f"{name} output {key}")
@@ -174,7 +174,7 @@ def run(ctx: Context, steps: list[dict]) -> None:
                     # committed budget in place; process credits are not
                     # inferred from this acknowledgement.
                     try:
-                        from biopipe.engine.budget import step_boundary_resize
+                        from operon.engine.budget import step_boundary_resize
                         acknowledgement = step_boundary_resize(ctx.task_dir, ctx.memory)
                         if acknowledgement:
                             ctx.event('resize_applied', state=acknowledgement.get('state'),

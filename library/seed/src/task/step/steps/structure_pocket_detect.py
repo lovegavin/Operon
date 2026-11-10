@@ -117,7 +117,7 @@ def run_fpocket(
 
 
 class StructurePocketDetectStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_pocket_detect.StructurePocketDetectStep.parameters.json"
     definition = {
         "protocol_version": 3,

@@ -14,7 +14,7 @@ ceiling rather than treating currently free memory as a new pool budget.
 
 The account-local state is under `<admission directory>/managed-pool`; the
 existing admission directory remains compatible with earlier ownership checks.
-`BIOPIPE_ADMISSION_DIR` is an administrator override, not a way to obtain extra
+`OPERON_ADMISSION_DIR` is an administrator override, not a way to obtain extra
 capacity. Keep one admission domain for clients sharing physical resources.
 The daemon persists workspace bindings and retains each workspace's selected
 scientific interpreter and allowed input directories. It does not install or
@@ -33,11 +33,11 @@ operon pool stop  # retire an idle pool; rejects active work, never cancels it
 Different application code versions cannot share a live managed daemon. Finish
 tasks and close clients before switching installations. A live legacy allocator
 also blocks takeover; no failure silently launches a second allocator. An
-explicit `BIOPIPE_ENGINE_MODE=legacy` remains available for diagnosis on a drained
+explicit `OPERON_ENGINE_MODE=legacy` remains available for diagnosis on a drained
 domain. `Settings(testing=True)` retains the isolated in-process test default;
 production-default lifecycle tests deliberately use ordinary settings.
 
-`BIOPIPE_POOL_ADDRESS` and `BIOPIPE_POOL_TOKEN` select an administrator-managed
+`OPERON_POOL_ADDRESS` and `OPERON_POOL_TOKEN` select an administrator-managed
 pool instead of automatic discovery. The manual service/configuration below is
 for this optional deployment mode.
 
@@ -85,10 +85,10 @@ Python environment; use separate OS accounts/hosts for that boundary.
 ## Control API
 
 `operon pool serve --config pool.json` starts a loopback-only framed control
-server.  The token is read from `--token`, `BIOPIPE_POOL_TOKEN` or the config;
+server.  The token is read from `--token`, `OPERON_POOL_TOKEN` or the config;
 if omitted it is generated into `<root>/pool-token` with restrictive file mode.
 
-Methods (through `biopipe.pool_service.PoolClient`):
+Methods (through `operon.pool_service.PoolClient`):
 
 | Method | Purpose |
 | --- | --- |
@@ -107,9 +107,9 @@ The existing `Application`/`TaskService` boundary routes to the automatic pool
 by default. To select a separately managed pool, set:
 
 ```text
-BIOPIPE_POOL_ADDRESS=127.0.0.1:57891
-BIOPIPE_POOL_TOKEN=<local token>
-BIOPIPE_POOL_PRINCIPAL=alice
+OPERON_POOL_ADDRESS=127.0.0.1:57891
+OPERON_POOL_TOKEN=<local token>
+OPERON_POOL_PRINCIPAL=alice
 ```
 
 The workspace's `root` and `data_dir` must be the same directory registered in

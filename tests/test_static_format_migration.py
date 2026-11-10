@@ -1,10 +1,10 @@
-from biopipe_sdk.format_inference import infer_legacy_formats as _infer
+from operon_sdk.format_inference import infer_legacy_formats as _infer
 from scripts.migrate_format_declarations import migrate
 import pytest
 
 
 def infer_legacy_formats(declaration, source, name):
-    return _infer(declaration, 'from biopipe_sdk import Form, FileArtifact\n' + source, name)
+    return _infer(declaration, 'from operon_sdk import Form, FileArtifact\n' + source, name)
 
 
 def test_annotation_and_ambiguity():
@@ -18,7 +18,7 @@ def test_annotation_and_ambiguity():
 
 
 def test_dry_run_apply_backup_without_imports(tmp_path):
-    source = "from biopipe_sdk import Form\nraise RuntimeError('never import')\nclass R:\n definition = {'id':'R','kind':'reader','protocol_version':3,'contracts':{'inputs':[],'output':{}}}\n def read(self) -> Form: return Form()\n"
+    source = "from operon_sdk import Form\nraise RuntimeError('never import')\nclass R:\n definition = {'id':'R','kind':'reader','protocol_version':3,'contracts':{'inputs':[],'output':{}}}\n def read(self) -> Form: return Form()\n"
     path = tmp_path / 'reader.py'
     path.write_text(source, encoding='utf-8')
     (tmp_path / 'reader.parameters.json').write_text('{"type":"object"}')
@@ -49,7 +49,7 @@ def test_read_output_flow(body, expected):
 
 def test_context_output_alias_and_report_export():
     declaration = {'kind': 'operator', 'output_parameter': 'output', 'contracts': {'inputs': [{'numeric': True}], 'output': {}}}
-    source = 'from biopipe_sdk import Form as F\nclass S:\n def run(self, ctx, inputs):\n  result = F()\n  ctx["out"] = result\n'
+    source = 'from operon_sdk import Form as F\nclass S:\n def run(self, ctx, inputs):\n  result = F()\n  ctx["out"] = result\n'
     assert infer_legacy_formats(declaration, source, 'S')['data_formats']['outputs'][0]['representations'] == ['form']
     early = source.replace('  result = F()', '  if flag:\n   return\n  result = F()')
     assert infer_legacy_formats(declaration, early, 'S')['data_formats'] is None
@@ -59,7 +59,7 @@ def test_context_output_alias_and_report_export():
 
 def test_existing_backup_is_never_overwritten(tmp_path):
     path = tmp_path / 'r.py'
-    source = "from biopipe_sdk import Form\nclass R:\n definition={'id':'R','kind':'reader','protocol_version':3,'contracts':{'inputs':[],'output':{}}}\n def read(self): return Form()\n"
+    source = "from operon_sdk import Form\nclass R:\n definition={'id':'R','kind':'reader','protocol_version':3,'contracts':{'inputs':[],'output':{}}}\n def read(self): return Form()\n"
     path.write_text(source)
     (tmp_path / 'r.parameters.json').write_text('{"type":"object"}')
     backup = tmp_path / 'r.py.pre-sdk37'
@@ -74,7 +74,7 @@ def test_polymorphic_inputs_and_untrusted_names_require_review():
     assert infer_legacy_formats(declaration, 'class S:\n def run(self,ctx,inputs): ctx["out"]=Form()', 'S')['data_formats'] is None
     reader = {'kind': 'reader', 'contracts': {'inputs': [], 'output': {'kind': ['form', 'file']}}}
     for prefix in ('from unrelated import Form\n', 'class Form: pass\n', '',
-                   'from biopipe_sdk import Form\nfrom unrelated import Form\n'):
+                   'from operon_sdk import Form\nfrom unrelated import Form\n'):
         assert _infer(reader, prefix + 'class R:\n def read(self): return Form()', 'R')['data_formats'] is None
 
 
@@ -86,11 +86,11 @@ def test_file_contract_remains_file_and_conflicting_flow_is_reviewed():
 
 
 def test_publication_failure_rolls_back_previous_sources(tmp_path, monkeypatch):
-    import biopipe.format_migration as migration
+    import operon.format_migration as migration
     original = {}
     for name in ('a', 'b'):
         path = tmp_path / (name + '.py')
-        source = "from biopipe_sdk import Form\nclass R:\n definition={'id':'R','kind':'reader','protocol_version':3,'contracts':{'inputs':[],'output':{}}}\n def read(self): return Form()\n"
+        source = "from operon_sdk import Form\nclass R:\n definition={'id':'R','kind':'reader','protocol_version':3,'contracts':{'inputs':[],'output':{}}}\n def read(self): return Form()\n"
         path.write_text(source)
         original[path] = path.read_bytes()
         path.with_suffix('.parameters.json').write_text('{"type":"object"}')
@@ -109,7 +109,7 @@ def test_publication_failure_rolls_back_previous_sources(tmp_path, monkeypatch):
 
 
 def test_scaffolds_keep_required_formats_with_localization(tmp_path):
-    from biopipe.developer import scaffold, check_source
+    from operon.developer import scaffold, check_source
     for template in ('operator', 'reader'):
         project = tmp_path / template
         scaffold(project, template)
@@ -127,7 +127,7 @@ def test_cli_dry_run_and_review_exit_code(tmp_path):
     root.mkdir()
     (root / 'demo.py').write_text("raise RuntimeError('never import')\nclass S:\n definition={'protocol_version':3,'id':'lab.s','kind':'operator','inputs_arity':1,'output_parameter':'output','contracts':{'inputs':[{'kind':['form','file']}],'output':{}}}\n def run(self,ctx,inputs): ctx['out']=helper()\n")
     (root / 'demo.parameters.json').write_text('{"type":"object"}')
-    result = subprocess.run([sys.executable, '-m', 'biopipe', 'registry', 'formats', str(root)],
+    result = subprocess.run([sys.executable, '-m', 'operon', 'registry', 'formats', str(root)],
                             capture_output=True, text=True, encoding='utf-8', timeout=30)
     assert result.returncode == 2, result.stderr
     report = json.loads(result.stdout)
@@ -139,8 +139,8 @@ def test_reader_scaffold_wheel_install_and_read(tmp_path):
     import json
     import subprocess
     import sys
-    from biopipe.developer import scaffold, build
-    from biopipe.plugins import PluginManager
+    from operon.developer import scaffold, build
+    from operon.plugins import PluginManager
     project = tmp_path / 'reader_example'
     scaffold(project, 'reader')
     wheel = build(project)['wheels'][0]
@@ -150,8 +150,8 @@ def test_reader_scaffold_wheel_install_and_read(tmp_path):
     assert descriptor['protocol_revision'] == '3.7'
     code = '''import json,sys,numpy as np
 from pathlib import Path
-from biopipe.targets import activate
-from biopipe.plugins import load_runtime
+from operon.targets import activate
+from operon.plugins import load_runtime
 state=json.loads(Path(sys.argv[1]).read_text(encoding='utf-8'))
 state['_runtime_root']=str(Path(sys.argv[1]).parent)
 activate(state); load_runtime(state)

@@ -12,7 +12,7 @@ from ._metric_common import score_series
 
 
 class VarianceRatioStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'variance_ratio.VarianceRatioStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'variance_ratio',

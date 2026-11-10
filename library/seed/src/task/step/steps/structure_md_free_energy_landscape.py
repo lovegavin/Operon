@@ -40,7 +40,7 @@ def free_energy(pc: np.ndarray, *, bins: int = 20, temperature: float = 300.0) -
 
 
 class StructureMdFreeEnergyLandscapeStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_free_energy_landscape.StructureMdFreeEnergyLandscapeStep.parameters.json"
     definition = {
         "protocol_version": 3,

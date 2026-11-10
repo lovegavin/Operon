@@ -39,7 +39,7 @@ def _indices(values, crit):
 
 
 class MorisitaStep(Step):
-    provider = "biopipe-microbiome"
+    provider = "operon-microbiome"
     parameters_file = "morisita.MorisitaStep.parameters.json"
     definition = {
         "protocol_version": 3,

@@ -69,7 +69,7 @@ def stacking_pairs(
 
 
 class StructureAromaticStackingStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "structure_aromatic_stacking.StructureAromaticStackingStep.parameters.json"
     )

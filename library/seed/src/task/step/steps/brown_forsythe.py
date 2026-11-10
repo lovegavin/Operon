@@ -7,7 +7,7 @@ from .levene_test import LeveneTestStep
 
 
 class BrownForsytheStep(LeveneTestStep):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Median-centered Levene test, known as the Brown-Forsythe test."""
     parameters_file = 'brown_forsythe.BrownForsytheStep.parameters.json'
     definition = {'protocol_version': 3,

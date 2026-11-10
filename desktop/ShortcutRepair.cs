@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace BioPipe.Desktop;
+namespace Operon.Desktop;
 
 // The installer normally rewrites shortcuts during an upgrade. If a version
 // directory was removed manually, the old .lnk can still point at the deleted
@@ -13,7 +13,7 @@ internal static class ShortcutRepair
         var executable = Environment.ProcessPath;
         if (string.IsNullOrWhiteSpace(executable)) return;
         var install = Path.GetFullPath(AppContext.BaseDirectory).TrimEnd(Path.DirectorySeparatorChar);
-        if (!File.Exists(Path.Combine(install, "biopipe-install.json"))) return;
+        if (!File.Exists(Path.Combine(install, "operon-install.json"))) return;
         var parent = Directory.GetParent(install);
         var root = parent?.Name == "versions" && parent.Parent is not null
             ? parent.Parent.FullName.TrimEnd(Path.DirectorySeparatorChar)

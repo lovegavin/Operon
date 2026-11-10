@@ -205,7 +205,7 @@ def _fit_fine_gray(
 
 
 class FineGrayStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fine-Gray subdistribution hazard regression."""
     parameters_file = 'fine_gray.FineGrayStep.parameters.json'
     definition = {'protocol_version': 3,

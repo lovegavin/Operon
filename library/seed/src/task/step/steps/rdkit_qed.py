@@ -44,7 +44,7 @@ def qed_row(molecule) -> dict[str, float]:
 class RdkitQedStep(Step):
     """Compute the QED drug-likeness score from RDKit."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "rdkit_qed.RdkitQedStep.parameters.json"
 
     definition = {

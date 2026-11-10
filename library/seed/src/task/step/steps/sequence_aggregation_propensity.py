@@ -56,7 +56,7 @@ def hotspot_segments(scores: np.ndarray, *, window: int = 5, threshold: float = 
 
 
 class SequenceAggregationPropensityStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_aggregation_propensity.SequenceAggregationPropensityStep.parameters.json"
 
     definition = {

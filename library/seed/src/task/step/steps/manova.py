@@ -58,7 +58,7 @@ def _statistics(eigs, df_h, df_e, test):
 
 
 class ManovaStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "manova.ManovaStep.parameters.json"
     definition = {
         "protocol_version": 3,

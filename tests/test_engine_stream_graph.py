@@ -7,7 +7,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from biopipe.engine.channels import Channel, ChannelBudget, ChannelClosed, OwnedBlock
+from operon.engine.channels import Channel, ChannelBudget, ChannelClosed, OwnedBlock
 from src.reader.readers.csv_reader import CsvReader
 from src.task.step.steps.describe import DescribeStep
 

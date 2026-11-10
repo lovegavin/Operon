@@ -17,7 +17,7 @@ FIELDS = [
 
 
 class BedMethylReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """bedMethyl reader (15-column ENCODE layout)."""
     parameters_file = 'bedmethyl_reader.BedMethylReader.parameters.json'
     definition = {

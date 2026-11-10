@@ -12,7 +12,7 @@ from ._tests39_common import select_groups, yuen_columns
 
 
 class YuenTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'yuen_test.YuenTestStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'yuen_test',

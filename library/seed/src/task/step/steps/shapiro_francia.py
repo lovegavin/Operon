@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class ShapiroFranciaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Shapiro-Francia W test with the standard normalizing approximation."""
     parameters_file = 'shapiro_francia.ShapiroFranciaStep.parameters.json'
     definition = {'protocol_version': 3,

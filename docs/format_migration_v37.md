@@ -36,7 +36,7 @@ SDK 3.7 maintenance environment (`operon registry build`, then
 `operon registry check`). The apply command itself does not publish a new package
 or rewrite an active profile registry. Test representative workflows before
 publishing a separately versioned library. The command also works as
-`python -m biopipe registry formats ...` in an installed headless application;
+`python -m operon registry formats ...` in an installed headless application;
 the source wrapper `scripts/migrate_format_declarations.py` is optional.
 
 A Reader already returning Form needs no extra conversion or data copy. A Reader

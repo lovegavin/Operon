@@ -4,7 +4,7 @@ from pathlib import Path
 
 from src.web.operator_catalog import catalog_from_descriptors
 from src.web.service import JobService, Settings
-from biopipe.engine.facade import EngineRuntime
+from operon.engine.facade import EngineRuntime
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -13,10 +13,10 @@ def test_scheduling_principal_does_not_change_the_physical_pool(tmp_path, monkey
     shared = tmp_path / 'control'
     first_root, second_root = tmp_path / 'alice', tmp_path / 'bob'
     first_root.mkdir(); second_root.mkdir()
-    monkeypatch.setenv('BIOPIPE_ENGINE_PRINCIPAL', 'alice')
+    monkeypatch.setenv('OPERON_ENGINE_PRINCIPAL', 'alice')
     alice = EngineRuntime.open(data_dir=shared, workspace_root=first_root, mode='shadow',
                                ceiling_bytes=64 * 1024 * 1024, cpu_threads=2)
-    monkeypatch.setenv('BIOPIPE_ENGINE_PRINCIPAL', 'bob')
+    monkeypatch.setenv('OPERON_ENGINE_PRINCIPAL', 'bob')
     bob = EngineRuntime.open(data_dir=shared, workspace_root=second_root, mode='shadow',
                              ceiling_bytes=64 * 1024 * 1024, cpu_threads=2)
     try:
@@ -30,8 +30,8 @@ def test_scheduling_principal_does_not_change_the_physical_pool(tmp_path, monkey
 
 def test_two_workspaces_share_the_pool_and_lease_ledger(tmp_path, monkeypatch):
     admission = tmp_path / 'admission'
-    monkeypatch.setenv('BIOPIPE_ADMISSION_DIR', str(admission))
-    monkeypatch.delenv('BIOPIPE_ENGINE_DIR', raising=False)
+    monkeypatch.setenv('OPERON_ADMISSION_DIR', str(admission))
+    monkeypatch.delenv('OPERON_ENGINE_DIR', raising=False)
     first_root, second_root = tmp_path / 'first', tmp_path / 'second'
     first_root.mkdir(); second_root.mkdir()
     first = JobService(Settings(first_root, first_root / '.studio', first_root / 'ui',

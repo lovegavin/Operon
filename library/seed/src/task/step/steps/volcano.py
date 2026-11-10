@@ -41,7 +41,7 @@ from src.task.step.steps._plot_helpers import save_figure, setup_style, figure_r
 
 class VolcanoStep(Step):
     """Draw a volcano plot."""
-    provider = 'biopipe-plots'
+    provider = 'operon-plots'
     parameters_file = 'volcano.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

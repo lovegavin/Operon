@@ -13,7 +13,7 @@ from ._matrix_common import matrix
 
 
 class HdbscanStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Cluster samples with HDBSCAN and report membership probabilities."""
     parameters_file = 'hdbscan.HdbscanStep.parameters.json'
     definition = {'protocol_version': 3,

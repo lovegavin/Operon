@@ -12,7 +12,7 @@ from ._multivariate35_common import frame_matrix
 
 
 class CronbachAlphaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Cronbach's alpha for a set of continuous items."""
     parameters_file = 'cronbach_alpha.CronbachAlphaStep.parameters.json'
     definition = {'protocol_version': 3,

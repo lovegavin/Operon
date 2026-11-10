@@ -11,7 +11,7 @@ from ._stats21_common import design_matrix, numeric_column, table_frame
 
 
 class BetaRegressionStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Beta regression with a logit mean link and identity precision link."""
     parameters_file = 'beta_regression.BetaRegressionStep.parameters.json'
     definition = {'protocol_version': 3,

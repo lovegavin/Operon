@@ -5,7 +5,7 @@ from ._ml_common import _RegressionBase
 
 
 class BayesianRidgeRegressorStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'bayesian_ridge_regressor.BayesianRidgeRegressorStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'bayesian_ridge_regressor',

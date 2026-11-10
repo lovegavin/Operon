@@ -26,7 +26,7 @@ _CORRECTIONS = ("fdr", "bonferroni", "holm", "hommel", "fdr_by")
 
 
 class Aldex2Step(Step):
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'aldex2.Aldex2Step.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'aldex2',

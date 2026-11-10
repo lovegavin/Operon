@@ -16,7 +16,7 @@ from src.reader.readers._table_common import table_form
 
 
 class MafReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Mutation Annotation Format table reader."""
     parameters_file = 'maf_reader.MafReader.parameters.json'
     definition = {

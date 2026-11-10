@@ -1,6 +1,6 @@
-# Operating BioPipe with an agent
+# Operating Operon with an agent
 
-BioPipe exposes one engine through MCP, CLI and HTTP. These operating guides are
+Operon exposes one engine through MCP, CLI and HTTP. These operating guides are
 for **using** the software; SDK/protocol documentation is for writing extensions.
 No model, desktop window or source checkout is required to retrieve a guide.
 
@@ -8,16 +8,16 @@ No model, desktop window or source checkout is required to retrieve a guide.
 
 | Layer | MCP | CLI | Contents |
 | --- | --- | --- | --- |
-| Entry | Server initialization instructions; `biopipe_guide()` | `biopipe help` | Short rules, permissions, task routing |
-| Task | `biopipe_guide(topic="workflow")` | `biopipe help workflow` | One executable scenario at a time |
-| Operator | `biopipe_operator_search`, then `biopipe_operator_describe` | `biopipe operators search`, then `describe` | Installed schemas/contracts and selected Markdown |
+| Entry | Server initialization instructions; `operon_guide()` | `operon help` | Short rules, permissions, task routing |
+| Task | `operon_guide(topic="workflow")` | `operon help workflow` | One executable scenario at a time |
+| Operator | `operon_operator_search`, then `operon_operator_describe` | `operon operators search`, then `describe` | Installed schemas/contracts and selected Markdown |
 
-`biopipe help index` lists topics: start, operators, canvas, workflow, jobs,
+`operon help index` lists topics: start, operators, canvas, workflow, jobs,
 results and api. `guide` is an alias of `help`. Guides are package resources under
-`biopipe/guides/`, included in wheels. MCP also exposes `biopipe://guide` and
-`biopipe://guide/{topic}`. Clients that do not display server instructions or
+`operon/guides/`, included in wheels. MCP also exposes `operon://guide` and
+`operon://guide/{topic}`. Clients that do not display server instructions or
 resources can call the guide tool explicitly. A client controls what reaches its
-model; BioPipe cannot force it to inject or obey instructions.
+model; Operon cannot force it to inject or obey instructions.
 
 The same English text is available through authenticated GET `/api/v1/guides`
 and `/api/v1/guides/{topic}`. Responses include software version and a content
@@ -35,7 +35,7 @@ there is no arbitrary-file reading endpoint. Reading CLI help starts no service.
   `view=docs` retrieves only the requested documentation plus identity. `view=full`
   restores complete descriptor metadata. `sections=['*']` explicitly reads all MD.
 - MCP job status and CLI `jobs get` default to brief. Use `view=full` / `--view full`
-  for runtime internals. `biopipe_job(wait_seconds=30)` waits inside the tool;
+  for runtime internals. `operon_job(wait_seconds=30)` waits inside the tool;
   CLI `jobs wait <id> --timeout 30 --brief` does the same. Timeout never cancels.
 - Logs default to 4 KiB of text. Choose base64 for exact byte reconstruction or
   both for compatibility. Offsets remain bytes, with the same reset/done semantics.
@@ -56,8 +56,8 @@ API; do not stop a service while it has active jobs.
 The durable backend state is readable without changing execution authority:
 
 ```text
-biopipe engine status                       # pool snapshot, epoch, journal counters
-biopipe engine events --after 0 --limit 50  # resumable lifecycle events
+operon engine status                       # pool snapshot, epoch, journal counters
+operon engine events --after 0 --limit 50  # resumable lifecycle events
 GET /api/v1/engine                          # same snapshot (context scope)
 GET /api/v1/engine/events?after=0&limit=50  # same cursor (context scope)
 ```
@@ -72,13 +72,13 @@ allocator authoritative; always inspect the returned status.
 
 ### Coordinator mode and environment maintenance
 
-`BIOPIPE_ENGINE_MODE=coordinator` is an explicit opt-in for a **drained**
+`OPERON_ENGINE_MODE=coordinator` is an explicit opt-in for a **drained**
 admission domain.  On startup it refuses to run if a legacy reservation, an
 active legacy job, another live launcher, or a legacy worker is present; it
 does not silently fall back to shadow.  Once started, one coordinator owns the
 pool, the legacy scheduler is not started, and the existing JobService worker
 and memory planner remain the scientific implementation.  Use
-`biopipe engine status` to verify `mode`, `epoch`, owner and active attempts
+`operon engine status` to verify `mode`, `epoch`, owner and active attempts
 before treating the service as coordinated.
 
 Dependency repair/install and plugin replacement take an exclusive environment
@@ -102,13 +102,13 @@ preparation remains an explicit workflow operation.
 For an administrator-managed service instead of automatic discovery:
 
 ```bash
-python3 -m biopipe pool serve --config /path/to/pool.json
-python3 -m biopipe pool status --address 127.0.0.1:PORT --token "$BIOPIPE_POOL_TOKEN"
-python3 -m biopipe pool submit --address ... --token ... \
+python3 -m operon pool serve --config /path/to/pool.json
+python3 -m operon pool status --address 127.0.0.1:PORT --token "$OPERON_POOL_TOKEN"
+python3 -m operon pool submit --address ... --token ... \
   --workspace /srv/ws-a --principal alice --request-id stable-1 --file graph.json
-python3 -m biopipe pool cancel --address ... --token ... \
+python3 -m operon pool cancel --address ... --token ... \
   --workspace /srv/ws-a --run-id <run>
-python3 -m biopipe pool stop-workspace --address ... --token ... \
+python3 -m operon pool stop-workspace --address ... --token ... \
   --workspace /srv/ws-a
 ```
 
@@ -125,10 +125,10 @@ Ordinary desktop/CLI/MCP/API/SSH entry uses the shared pool without a separate
 configured service, start the workspace application with:
 
 ```text
-BIOPIPE_POOL_ADDRESS=127.0.0.1:PORT
-BIOPIPE_POOL_TOKEN=<local token>
-BIOPIPE_POOL_PRINCIPAL=<registered principal>
-BIOPIPE_ENVIRONMENT_GATE=<pool state>/environment-gate.json
+OPERON_POOL_ADDRESS=127.0.0.1:PORT
+OPERON_POOL_TOKEN=<local token>
+OPERON_POOL_PRINCIPAL=<registered principal>
+OPERON_ENVIRONMENT_GATE=<pool state>/environment-gate.json
 ```
 
 The workspace `root`/`data_dir` must be the one registered in the pool service.

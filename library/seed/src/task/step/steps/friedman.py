@@ -14,7 +14,7 @@ from ._matrix_common import grouped
 
 
 class FriedmanStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'friedman.FriedmanStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'friedman',

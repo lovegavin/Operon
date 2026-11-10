@@ -34,7 +34,7 @@ from src.reader.readers._table_common import table_form
 class ArrowReader(Reader):
     """Reader for Arrow IPC, Feather and ORC tables."""
 
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'arrow_reader.parameters.json'
     definition = {'protocol_version': 3,
                   'id': 'ArrowReader',

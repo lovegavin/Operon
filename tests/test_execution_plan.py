@@ -66,7 +66,7 @@ def test_dependency_placement_does_not_require_input_paths_or_stat_data():
 def test_preflight_missing_source_and_reference_fail_without_blocking_dependency_check():
     workflow = graph([source(), operator('step', params={'reference': '/not-ready/ref.fa'})],
                      [('input', 'step')], mode='manual')
-    infos = [host(specs=[spec(parameters={'reference': {'x-biopipe-path': True}})])]
+    infos = [host(specs=[spec(parameters={'reference': {'x-operon-path': True}})])]
     def missing(*args):
         raise ValueError('File does not exist')
     assert planner.make_plan(workflow, infos, stat_file=missing, dependencies_only=True)['dependencies_only']
@@ -338,7 +338,7 @@ def test_disconnected_explicit_source_location_is_not_a_valid_transfer_origin():
 
 
 def test_large_remote_reference_places_small_local_reads_on_server():
-    specs = [spec(parameters={'reference': {'x-biopipe-path': 'workflow'}})]
+    specs = [spec(parameters={'reference': {'x-operon-path': 'workflow'}})]
     workflow = graph([source(location=LOCAL), operator('align', params={'reference': '/refs/genome.fa'})],
                      [('input', 'align')], mode='auto', file_locations={'align.params.reference': SSH})
     calls = []
@@ -359,7 +359,7 @@ def test_large_remote_reference_places_small_local_reads_on_server():
 
 
 def test_source_argument_reference_base_and_cost_follow_explicit_location():
-    readers = [reader(parameters={'index': {'x-biopipe-path': 'source'}})]
+    readers = [reader(parameters={'index': {'x-operon-path': 'source'}})]
     workflow = graph([source(location=LOCAL, path='reads/counts.csv', args={'index': 'large.idx'}), operator('step')],
                      [('input', 'step')], mode='auto', file_locations={'input.source.args.index': SSH})
     workflow.base_dir = 'project'
@@ -378,7 +378,7 @@ def test_source_argument_reference_base_and_cost_follow_explicit_location():
 
 
 def test_route_internal_reference_is_costed_once_for_the_atomic_route():
-    specs = [spec(parameters={'reference': {'x-biopipe-path': 'workflow'}})]
+    specs = [spec(parameters={'reference': {'x-operon-path': 'workflow'}})]
     inner = graph([source('placeholder', path='never-stat.csv'), operator('align', params={'reference': 'genome.fa'})],
                   [('placeholder', 'align')], mode='manual', file_locations={'align.params.reference': SSH})
     inner.base_dir = 'references'
@@ -405,7 +405,7 @@ def test_route_internal_reference_is_costed_once_for_the_atomic_route():
     {'input.source.path': LOCAL},
 ])
 def test_invalid_file_location_references_fail_before_any_execution(locations):
-    specs = [spec(parameters={'reference': {'x-biopipe-path': 'workflow'}})]
+    specs = [spec(parameters={'reference': {'x-operon-path': 'workflow'}})]
     workflow = graph([source(), operator('step', params={'reference': 'reference.fa'})],
                      [('input', 'step')], mode='auto', file_locations=locations)
     with pytest.raises(GraphError, match='file_locations|Reference environment'):
@@ -442,11 +442,11 @@ def test_auto_rejects_third_party_implementation_substitution(change):
 
 
 def test_bundled_default_changes_and_known_release_receipts_keep_code_identity(monkeypatch):
-    pin = implementation('biopipe-core')
+    pin = implementation('operon-core')
     workflow = graph([operator('step')], mode='auto')
     workflow.plugin_lock = {'portable': pin}
     current = {**pin, 'sha256': 'new-index', 'declaration_sha': 'new-default'}
-    descriptor = spec(origin='bundled', distribution='biopipe-core', version='1.0', implementation=current)
+    descriptor = spec(origin='bundled', distribution='operon-core', version='1.0', implementation=current)
     assert targets(planner.make_plan(workflow, [host(specs=[descriptor])])) == {'step': LOCAL}
     current = {**current, 'code_sha': 'new-code'}
     descriptor['implementation'] = current
@@ -466,10 +466,10 @@ def test_reader_pin_is_checked_on_the_destination():
 
 
 def test_host_validated_historical_pin_allows_known_snapshot_migration_only():
-    pin = implementation('biopipe-core', code='historical-code')
+    pin = implementation('operon-core', code='historical-code')
     workflow = graph([operator('step')], mode='auto')
     workflow.plugin_lock = {'portable': pin}
-    current = spec(origin='bundled', distribution='biopipe-core', version='1.0',
+    current = spec(origin='bundled', distribution='operon-core', version='1.0',
                    implementation={**pin, 'code_sha': 'current-code', 'sha256': 'current-index'})
     info = host(specs=[current])
     with pytest.raises(GraphError, match='pinned implementation'):

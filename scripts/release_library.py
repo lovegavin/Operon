@@ -26,19 +26,19 @@ def configuration(root, tag=None):
 
 
 def released_application(root, config):
-    import biopipe
+    import operon
     if not sys.flags.isolated:
         raise ValueError('Use python -I to exclude checkout and user Python paths')
-    if Path(biopipe.__file__).resolve().parent == (root / 'biopipe').resolve():
+    if Path(operon.__file__).resolve().parent == (root / 'operon').resolve():
         raise ValueError('Install the released application; do not build with the source checkout')
-    if biopipe.__version__ != config['build_application']:
-        raise ValueError(f"Expected released BioPipe {config['build_application']}; got {biopipe.__version__}")
+    if operon.__version__ != config['build_application']:
+        raise ValueError(f"Expected released Operon {config['build_application']}; got {operon.__version__}")
 
 
 def build(root, output, tag=None):
     config = configuration(root, tag)
     released_application(root, config)
-    from biopipe.library_bundle import build_bundle, sha256
+    from operon.library_bundle import build_bundle, sha256
     source = root / 'library/seed'
     result = build_bundle(source if source.is_dir() else root, output, config['version'])
     path = Path(result['bundle'])
@@ -59,7 +59,7 @@ def build(root, output, tag=None):
     system = platform.system()
     if system not in {'Windows', 'Linux'}:
         raise ValueError('Official library bundles currently target Windows and Linux')
-    native = path.with_name(f'BioPipe-Library-v{config["version"]}-{system}.biopipe-library.zip')
+    native = path.with_name(f'Operon-Library-v{config["version"]}-{system}.operon-library.zip')
     path.replace(native)
     path = native
     result['bundle'] = str(path)

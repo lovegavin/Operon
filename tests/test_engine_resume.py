@@ -4,13 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from biopipe.engine.artifacts import ArtifactCommitter
-from biopipe.engine.contracts import PoolSpec
-from biopipe.engine.resume import (
+from operon.engine.artifacts import ArtifactCommitter
+from operon.engine.contracts import PoolSpec
+from operon.engine.resume import (
     ResumePlanner, cache_key, eligibility, execution_graph, execution_identity, file_identity,
     implementation_identity,
 )
-from biopipe.engine.state import StateStore
+from operon.engine.state import StateStore
 
 
 def setup(tmp_path):

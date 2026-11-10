@@ -5,7 +5,7 @@ from ._ml_common import _RegressionBase
 
 
 class ExtraTreesRegressorStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'extra_trees_regressor.ExtraTreesRegressorStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'extra_trees_regressor',

@@ -8,7 +8,7 @@ from src.task.step.base import Step
 from ._matrix_common import matrix
 
 class AgglomerativeStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Agglomerative (hierarchical) clustering."""
     parameters_file = 'agglomerative.AgglomerativeStep.parameters.json'
     definition = {'protocol_version': 3,

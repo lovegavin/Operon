@@ -11,7 +11,7 @@ from ._ext_common import labels_in_order, require_dims
 
 
 class ProcrustesStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'procrustes.ProcrustesStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'procrustes',

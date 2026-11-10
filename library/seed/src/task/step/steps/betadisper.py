@@ -13,7 +13,7 @@ from ._stats20_common import distance
 
 
 class BetadisperStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Distance-to-centroid dispersion per group, with one-way ANOVA."""
     parameters_file = 'betadisper.BetadisperStep.parameters.json'
     definition = {'protocol_version': 3,

@@ -183,7 +183,7 @@ def boundary_rows(
 class StructureDomainBoundaryStep(Step):
     """Split a CA contact graph into domains and flag the boundary residues."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "structure_domain_boundary.StructureDomainBoundaryStep.parameters.json"
 

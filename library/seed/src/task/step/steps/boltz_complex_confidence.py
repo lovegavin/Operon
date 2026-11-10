@@ -176,7 +176,7 @@ def summarise(pdb_path: Path, confidence: dict, *, cutoff: float) -> tuple[list[
 
 
 class BoltzComplexConfidenceStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "boltz_complex_confidence.BoltzComplexConfidenceStep.parameters.json"
 
     definition = {

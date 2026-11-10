@@ -3,7 +3,7 @@ from src.task.step.base import Step
 
 
 class AlignReadsStep(Step):
-    provider = 'biopipe-hic'
+    provider = 'operon-hic'
     parameters_file = 'align_reads.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'align_reads',

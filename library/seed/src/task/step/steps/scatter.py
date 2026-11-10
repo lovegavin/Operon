@@ -34,7 +34,7 @@ class ScatterStep(Step):
         point_size  : marker size (default 8)
         alpha       : marker transparency (default 0.7)
     """
-    provider = 'biopipe-plots'
+    provider = 'operon-plots'
     parameters_file = 'scatter.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

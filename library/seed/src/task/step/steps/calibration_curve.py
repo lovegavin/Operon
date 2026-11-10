@@ -11,7 +11,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class CalibrationCurveStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Reliability curve with uniform or quantile probability bins.
 
     Bins with no observations are omitted. ``observed_fraction`` is the

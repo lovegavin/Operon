@@ -11,7 +11,7 @@ from ._epi64_common import corrected_table, count_table, odds_ratio
 
 
 class OddsRatioStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'odds_ratio.OddsRatioStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'odds_ratio',

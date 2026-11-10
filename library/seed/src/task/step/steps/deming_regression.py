@@ -11,7 +11,7 @@ _NAMES = ["slope", "intercept", "n"]
 
 
 class DemingRegressionStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'deming_regression.DemingRegressionStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'deming_regression',

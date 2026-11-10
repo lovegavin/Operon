@@ -137,7 +137,7 @@ def pair_rows(ca: np.ndarray, labels: list[str], runs: list[list[int]], *, cutof
 
 
 class StructureHelixHelixAngleStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_helix_helix_angle.StructureHelixHelixAngleStep.parameters.json"
 
     definition = {

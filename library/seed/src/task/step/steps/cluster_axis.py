@@ -48,7 +48,7 @@ _METHODS = ("kmeans", "hierarchical", "louvain")
 
 class ClusterAxisStep(Step):
     """Cluster positions along one axis."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'cluster_axis.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'cluster_axis',

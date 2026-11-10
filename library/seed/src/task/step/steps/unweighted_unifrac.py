@@ -19,7 +19,7 @@ from src.task.step.steps._phylo_common import (
 class UnweightedUnifracStep(Step):
     """Unweighted UniFrac: fraction of unique branch length between two samples."""
 
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'unweighted_unifrac.UnweightedUnifracStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11', 'statsmodels>=0.14'],

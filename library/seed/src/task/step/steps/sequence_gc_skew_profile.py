@@ -37,7 +37,7 @@ def skew_windows(sequence: str, window: int, step: int) -> list[tuple[int, int, 
 
 
 class SequenceGcSkewProfileStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_gc_skew_profile.SequenceGcSkewProfileStep.parameters.json"
 
     definition: dict[str, Any] = {

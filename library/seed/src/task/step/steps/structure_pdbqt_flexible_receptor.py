@@ -205,7 +205,7 @@ def build_pair(form: Form, field_dim: str, selected: list[tuple[str, int]], *, p
 
 
 class StructurePdbqtFlexibleReceptorStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_pdbqt_flexible_receptor.StructurePdbqtFlexibleReceptorStep.parameters.json"
     definition = {
         "protocol_version": 3,

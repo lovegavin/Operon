@@ -5,7 +5,7 @@ from ._ml_common import _ClassificationBase
 
 
 class SgdClassifierStep(_ClassificationBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'sgd_classifier.SgdClassifierStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'sgd_classifier',

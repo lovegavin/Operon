@@ -5,7 +5,7 @@ from ._ml_common import _RegressionBase
 
 
 class HuberRegressorStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'huber_regressor.HuberRegressorStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'huber_regressor',

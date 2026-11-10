@@ -25,7 +25,7 @@ def _paired(counts, fill, matrix, row_axis):
 
 
 class NestednessStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "nestedness.NestednessStep.parameters.json"
     definition = {
         "protocol_version": 3,

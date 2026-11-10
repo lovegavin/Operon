@@ -76,7 +76,7 @@ def anm_msf(hessian: np.ndarray, n_modes: int = 20) -> tuple[np.ndarray, np.ndar
 
 
 class StructureAnmModesStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_anm_modes.StructureAnmModesStep.parameters.json"
     definition = {
         "protocol_version": 3,

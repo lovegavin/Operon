@@ -22,7 +22,7 @@ class TransposeStep(Step):
         order  : list of dimension names, the desired new axis order
         output : context key for the result
     """
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'transpose.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'transpose',

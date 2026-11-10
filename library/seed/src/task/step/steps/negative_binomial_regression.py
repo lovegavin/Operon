@@ -12,7 +12,7 @@ from ._ext_common import make_form
 
 
 class NegativeBinomialRegressionStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'negative_binomial_regression.NegativeBinomialRegressionStep.parameters.json'
     definition = {
      'dependencies': ['statsmodels>=0.14'],

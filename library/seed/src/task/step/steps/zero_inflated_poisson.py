@@ -11,7 +11,7 @@ from ._stats21_common import design_matrix, numeric_column, table_frame
 
 
 class ZeroInflatedPoissonStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Poisson count model with a logistic zero-inflation component."""
     parameters_file = 'zero_inflated_poisson.ZeroInflatedPoissonStep.parameters.json'
     definition = {'protocol_version': 3,

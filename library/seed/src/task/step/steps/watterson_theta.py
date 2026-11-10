@@ -42,7 +42,7 @@ COLUMNS = ["start", "end", "n_variants", "n_bases", "n_segregating", "theta_w",
 
 
 class WattersonThetaStep(Step):
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'watterson_theta.WattersonThetaStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'watterson_theta',

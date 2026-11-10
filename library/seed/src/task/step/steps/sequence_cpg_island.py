@@ -55,7 +55,7 @@ def merge_windows(windows: list[tuple[int, int, float, float]]) -> list[dict[str
 
 
 class SequenceCpgIslandStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_cpg_island.SequenceCpgIslandStep.parameters.json"
 
     definition = {

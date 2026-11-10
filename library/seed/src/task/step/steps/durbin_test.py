@@ -13,7 +13,7 @@ from ._ext_common import make_form
 
 
 class DurbinTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Durbin's rank sum test for a balanced incomplete block design.
 
     Each block contains the same number ``k`` of the ``t`` treatments, every

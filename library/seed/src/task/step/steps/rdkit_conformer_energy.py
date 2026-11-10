@@ -20,7 +20,7 @@ _STATISTICS = (
 
 
 class RdkitConformerEnergyStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Multi-conformer embedding scored with an RDKit force field."""
     parameters_file = 'rdkit_conformer_energy.RdkitConformerEnergyStep.parameters.json'
     definition = {'protocol_version': 3,

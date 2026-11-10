@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from biopipe.engine.artifacts import ArtifactCommitter, ArtifactError, CommitInterrupted
-from biopipe.engine.contracts import PoolSpec, ResourceRequest, RunState, StaleAttemptError
-from biopipe.engine.state import StateStore
+from operon.engine.artifacts import ArtifactCommitter, ArtifactError, CommitInterrupted
+from operon.engine.contracts import PoolSpec, ResourceRequest, RunState, StaleAttemptError
+from operon.engine.state import StateStore
 
 
 def setup(tmp_path, *, state='running'):
@@ -125,6 +125,6 @@ def test_damaged_output_is_never_served_as_committed(tmp_path):
     committer = ArtifactCommitter(tmp_path, store)
     receipt = commit(committer, store, unit, attempt)
     (Path(receipt['location']) / 'data.npy').write_bytes(b'payload-2')
-    from biopipe.engine.resume import verify_artifact
+    from operon.engine.resume import verify_artifact
     ok, problems = verify_artifact(store.artifact(receipt['artifact_id']), tmp_path)
     assert not ok and any('digest' in item for item in problems)

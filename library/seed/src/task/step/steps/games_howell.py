@@ -12,7 +12,7 @@ from ._matrix_common import grouped
 
 
 class GamesHowellStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """All-pairwise Games-Howell comparisons for every feature.
 
     The studentized range statistic uses unequal variances and a Welch

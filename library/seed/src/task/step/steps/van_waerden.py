@@ -13,7 +13,7 @@ from ._tests39_common import select_groups
 
 
 class VanWaerdenStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Two-sample Van der Waerden normal-scores test.
 
     Matches ``DescTools::VanWaerdenTest``: normal scores are

@@ -62,7 +62,7 @@ def esol_row(molecule) -> dict[str, float]:
 class RdkitEsolStep(Step):
     """Estimate aqueous solubility with the Delaney/ESOL regression."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "rdkit_esol.RdkitEsolStep.parameters.json"
 
     definition = {

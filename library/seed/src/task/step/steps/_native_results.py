@@ -1,7 +1,7 @@
 """JSON report descriptors for original tool outputs (no new SDK dependency)."""
 from pathlib import Path
 from uuid import uuid4
-from biopipe.bytecode import io_path
+from operon.bytecode import io_path
 
 
 def output_directory(ctx, name):

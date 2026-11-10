@@ -23,7 +23,7 @@ from ._ext_common import axis_labels, labels_in_order, make_form, reorder, requi
 
 
 class ProteinRollupStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'protein_rollup.ProteinRollupStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'protein_rollup',

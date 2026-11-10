@@ -62,7 +62,7 @@ _KNOWN_STATS = (
 
 class ReduceAxisStep(Step):
     """Reduce one axis of a form to summary statistics."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'reduce_axis.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'reduce_axis',

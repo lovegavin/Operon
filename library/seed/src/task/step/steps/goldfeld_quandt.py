@@ -11,7 +11,7 @@ from ._regression54_common import gq_points, ols_rss, regression_series
 
 
 class GoldfeldQuandtStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'goldfeld_quandt.GoldfeldQuandtStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'goldfeld_quandt',

@@ -53,7 +53,7 @@ from src.reader.readers._labels import unique_labels
 
 
 class TenxH5Reader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for 10x Cell Ranger h5 count matrices."""
     parameters_file = 'tenx_h5_reader.TenxH5Reader.parameters.json'
     definition = {'protocol_version': 3,

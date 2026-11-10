@@ -23,7 +23,7 @@ def _correlation(left, right, method):
 
 
 class BioenvStep(Step):
-    provider = "biopipe-microbiome"
+    provider = "operon-microbiome"
     parameters_file = "bioenv.BioenvStep.parameters.json"
     definition = {
         "protocol_version": 3,

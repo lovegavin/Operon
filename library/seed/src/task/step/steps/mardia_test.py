@@ -13,7 +13,7 @@ from ._stats20_common import scalar_form
 
 
 class MardiaTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Mardia's multivariate normality tests.
 
     Matches ``psych::mardia``: with centered data ``X`` and covariance

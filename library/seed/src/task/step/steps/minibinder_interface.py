@@ -17,7 +17,7 @@ from ._protein_common import (
 
 
 class MinibinderInterfaceStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Report binder residues that contact a target chain set."""
     parameters_file = 'minibinder_interface.MinibinderInterfaceStep.parameters.json'
     definition = {

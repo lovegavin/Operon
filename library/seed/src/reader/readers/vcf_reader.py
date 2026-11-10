@@ -219,7 +219,7 @@ def _read_cyvcf2(path: Path):
 
 class VcfReader(Reader):
     """Reader for .vcf and .vcf.gz files."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'vcf_reader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'VcfReader',

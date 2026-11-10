@@ -46,7 +46,7 @@ def pca_projection(matrix: np.ndarray, n_components: int) -> dict:
 
 
 class EsmEmbeddingPcaStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_embedding_pca.EsmEmbeddingPcaStep.parameters.json"
     definition = {
         "protocol_version": 3,

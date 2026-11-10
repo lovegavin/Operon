@@ -6,7 +6,7 @@ import re
 import subprocess
 import tempfile
 import shutil
-from biopipe.bytecode import io_path
+from operon.bytecode import io_path
 from pathlib import Path
 
 import numpy as np
@@ -114,7 +114,7 @@ def stack_designs(paths: list[Path]) -> tuple[np.ndarray, dict, dict]:
 class RfdiffusionDesignStep(Step):
     """Generate protein backbones with the official RFdiffusion runner."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "rfdiffusion_design.RfdiffusionDesignStep.parameters.json"
 

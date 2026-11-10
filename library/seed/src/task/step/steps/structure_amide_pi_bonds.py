@@ -58,7 +58,7 @@ def amide_pi_bonds(
 
 
 class StructureAmidePiBondsStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "structure_amide_pi_bonds.StructureAmidePiBondsStep.parameters.json"
     )

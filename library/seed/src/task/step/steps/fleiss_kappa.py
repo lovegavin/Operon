@@ -11,7 +11,7 @@ from ._stats20_common import scalar_form, table
 
 
 class FleissKappaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'fleiss_kappa.FleissKappaStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'fleiss_kappa',

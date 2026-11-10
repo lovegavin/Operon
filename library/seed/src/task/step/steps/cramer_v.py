@@ -12,7 +12,7 @@ from ._stats20_common import scalar_form, table
 
 
 class CramerVStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Cramer's V with the Pearson chi-square statistic (no continuity correction)."""
     parameters_file = 'cramer_v.CramerVStep.parameters.json'
     definition = {'protocol_version': 3,

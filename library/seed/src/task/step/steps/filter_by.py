@@ -47,7 +47,7 @@ from ._axis_contracts import estimate_axis
 
 class FilterByStep(Step):
     """Keep positions along a dim that satisfy thresholds from another form."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'filter_by.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'filter_by',

@@ -9,9 +9,9 @@ import types
 
 import pytest
 
-from biopipe.application import Application
-from biopipe.documents import CommandError
-from biopipe.engine.contracts import CommitOutcomeUnknown
+from operon.application import Application
+from operon.documents import CommandError
+from operon.engine.contracts import CommitOutcomeUnknown
 from src.web.service import Settings
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,8 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture
 def application(tmp_path, monkeypatch):
-    monkeypatch.setenv('BIOPIPE_ADMISSION_DIR', str(tmp_path / 'admission'))
-    monkeypatch.setenv('BIOPIPE_ENGINE_DIR', str(tmp_path / 'engine'))
+    monkeypatch.setenv('OPERON_ADMISSION_DIR', str(tmp_path / 'admission'))
+    monkeypatch.setenv('OPERON_ENGINE_DIR', str(tmp_path / 'engine'))
     app = Application(Settings(tmp_path, tmp_path / '.studio', tmp_path / 'ui', testing=True,
                                 code_root=ROOT))
     launched = []

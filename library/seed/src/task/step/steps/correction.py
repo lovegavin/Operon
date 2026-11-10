@@ -23,7 +23,7 @@ class CorrectionStep(Step):
                  "statistic")
         output : context key for the result
     """
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'correction.parameters.json'
     definition = {
      'dependencies': ['statsmodels>=0.14'],

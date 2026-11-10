@@ -69,7 +69,7 @@ def per_base_statistics(matrix: np.ndarray, n_left: int, n_right: int) -> dict:
 
 
 class SequenceRnaCofoldEnsembleStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_rna_cofold_ensemble.SequenceRnaCofoldEnsembleStep.parameters.json"
     definition = {
         "protocol_version": 3,

@@ -9,7 +9,7 @@ from ._matrix_common import matrix, projection
 
 
 class NmfStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'nmf.NmfStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'nmf',

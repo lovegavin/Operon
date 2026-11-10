@@ -12,7 +12,7 @@ from ._stats20_common import scalar_form, table
 
 
 class WoolfTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Woolf test for homogeneity of odds ratios across 2x2 strata."""
     parameters_file = 'woolf_test.WoolfTestStep.parameters.json'
     definition = {'protocol_version': 3,

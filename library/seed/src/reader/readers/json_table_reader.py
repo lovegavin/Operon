@@ -12,7 +12,7 @@ from ._table_common import table_form
 
 
 class JsonTableReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for a JSON array of records or a mapping of column -> list."""
     parameters_file = 'json_table_reader.JsonTableReader.parameters.json'
     definition = {

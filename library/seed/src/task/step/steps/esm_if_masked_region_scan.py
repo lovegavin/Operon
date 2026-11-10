@@ -45,7 +45,7 @@ def window_rows(sequence: str, designs: list[str], windows: list[tuple[int, int]
 class EsmIfMaskedRegionScanStep(Step):
     """Scan a sliding masked window along a chain and score each window."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_if_masked_region_scan.EsmIfMaskedRegionScanStep.parameters.json"
 
     def estimate_memory(self, inputs, params, profiles):

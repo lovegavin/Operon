@@ -102,7 +102,7 @@ def run_ligand(
 class VinaDockBatchStep(Step):
     """Dock a list of PDBQT ligands and rank their best affinities."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "vina_dock_batch.VinaDockBatchStep.parameters.json"
     definition = {
         "protocol_version": 3,

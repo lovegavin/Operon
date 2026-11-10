@@ -9,7 +9,7 @@ from src.reader.readers._gsea_common import parse_phenotype, phenotype_form
 
 
 class GrpReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for GSEA .grp phenotype group files.
 
     The layout is the same as CLS: counts, a ``#`` class-name line, then

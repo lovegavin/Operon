@@ -25,17 +25,17 @@ function triggerFiles(files: unknown[]) {
 const graph:Graph={schema_version:2,name:'Imported',base_dir:'.',nodes:[],edges:[],memory:{enabled:true}};
 beforeEach(()=>{hooks.values=[];hooks.cursor=0;vi.clearAllMocks();vi.mocked(api.workflows).mockResolvedValue([]);
   vi.mocked(api.saveWorkflow).mockResolvedValue({id:'saved',version:1,graph,updated_at:''});vi.mocked(api.registerRoutes).mockResolvedValue([]);});
-it.each(['route.biopipe.zip', 'route.operon.zip', 'route.operon', 'route.OPERON', 'route.biopipe'])('imports %s, saves its graph and registers it without opening or running a canvas',async name=>{
+it.each(['route.operon.zip', 'route.operon.zip', 'route.operon', 'route.OPERON', 'route.operon'])('imports %s, saves its graph and registers it without opening or running a canvas',async name=>{
   vi.mocked(api.importWorkflow).mockResolvedValue(graph);
   const file=new File([new Uint8Array([80,75,3,4])],name);triggerFiles([file]);
   await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
   expect(api.importWorkflow).toHaveBeenCalledWith(file);expect(vi.mocked(api.saveWorkflow).mock.calls[0][0]).toMatchObject(graph);
   expect(api.registerRoutes).toHaveBeenCalledWith(['saved']);expect(onChanged).toHaveBeenCalledOnce();
 });
-it('allows Operon and compatible BioPipe bundles in the route file picker',()=>{
+it('allows Operon and compatible Operon bundles in the route file picker',()=>{
   const field=elements(render()).find(n=>n.type==='input'&&n.props.type==='file')!;
   const extensions=String(field.props.accept).split(',');
-  expect(extensions).toEqual(expect.arrayContaining(['.operon','.biopipe','.zip','.json']));
+  expect(extensions).toEqual(expect.arrayContaining(['.operon','.operon','.zip','.json']));
 });
 it('keeps successfully saved imports selected when a later file fails',async()=>{
   triggerFiles([{name:'one.json',text:async()=>JSON.stringify(graph)},{name:'bad.json',text:async()=>'{broken'}]);

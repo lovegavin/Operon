@@ -11,7 +11,7 @@ from ._metric_common import binary_truth, label_series, score_series
 
 
 class PrecisionRecallCurveStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'precision_recall_curve.PrecisionRecallCurveStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'precision_recall_curve',

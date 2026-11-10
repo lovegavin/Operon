@@ -19,7 +19,7 @@ class TpedReader(Reader):
     call is the count of the first allele, so heterozygous calls are ``1``.
     """
 
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'tped_reader.TpedReader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'TpedReader',

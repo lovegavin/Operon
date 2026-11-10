@@ -105,7 +105,7 @@ def halogen_bonds(
 
 
 class StructureHalogenBondScanStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_halogen_bond_scan.StructureHalogenBondScanStep.parameters.json"
 
     definition = {

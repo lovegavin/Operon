@@ -51,7 +51,7 @@ def cdr_physchem_row(sequence: str, *, ph: float = 7.4, hydrophobic: set[str] | 
 class AntibodyCdrPhyschemStep(Step):
     """Per-CDR charge, pI, hydrophobicity and PTM motifs of a VH/VHH domain."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'antibody_cdr_physchem.AntibodyCdrPhyschemStep.parameters.json'
     definition = {
         'protocol_version': 3,

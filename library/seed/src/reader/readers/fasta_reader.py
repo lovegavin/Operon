@@ -79,7 +79,7 @@ _ALPHABETS = ("auto", "dna", "rna", "protein")
 
 class FastaReader(Reader):
     """Reader for .fasta / .fa / .fna / .faa files."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'fasta_reader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'FastaReader',

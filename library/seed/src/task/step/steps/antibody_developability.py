@@ -97,7 +97,7 @@ def developability_row(
 
 
 class AntibodyDevelopabilityStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Whole-sequence developability metrics for antibody domains."""
     parameters_file = (
         'antibody_developability.AntibodyDevelopabilityStep.parameters.json'

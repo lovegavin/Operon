@@ -38,7 +38,7 @@ _STAT_LABELS = (
 
 class IntervalStatsStep(Step):
     """Per-chromosome interval count and length statistics."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'interval_stats.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'interval_stats',

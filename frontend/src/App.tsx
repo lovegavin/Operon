@@ -1499,7 +1499,7 @@ function Studio() {
             }}
             onDrop={(event) => {
               event.preventDefault();
-              const type = event.dataTransfer.getData("application/operon") || event.dataTransfer.getData("application/biopipe");
+              const type = event.dataTransfer.getData("application/operon") || event.dataTransfer.getData("application/operon");
               const position = flow.screenToFlowPosition({x: event.clientX, y: event.clientY});
               if (type) add(type === "source" ? undefined : type, position);
               else if (event.dataTransfer.files.length) void dropFiles(Array.from(event.dataTransfer.files), position);

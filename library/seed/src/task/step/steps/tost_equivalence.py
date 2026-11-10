@@ -12,7 +12,7 @@ from ._ext_common import group_values, labels_in_order, make_form, reorder, requ
 
 
 class TostEquivalenceStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'tost_equivalence.TostEquivalenceStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

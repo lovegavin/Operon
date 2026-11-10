@@ -10,7 +10,7 @@ from ._ext_common import labels_in_order, reorder, require_dims
 
 
 class EnvfitStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'envfit.EnvfitStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'envfit',

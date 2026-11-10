@@ -11,7 +11,7 @@ from ._cluster_agreement import paired_labels
 
 
 class HomogeneityCompletenessVMeasureStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Three entropy-based agreement scores for two partitions."""
     parameters_file = 'homogeneity_completeness_v_measure.HomogeneityCompletenessVMeasureStep.parameters.json'
     definition = {'protocol_version': 3,

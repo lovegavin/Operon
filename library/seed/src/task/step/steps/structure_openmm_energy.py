@@ -121,7 +121,7 @@ def run_openmm(
 
 
 class StructureOpenmmEnergyStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_openmm_energy.StructureOpenmmEnergyStep.parameters.json"
 
     definition = {

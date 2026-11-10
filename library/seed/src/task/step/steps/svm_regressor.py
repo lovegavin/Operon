@@ -4,7 +4,7 @@ from ._ml_common import _RegressionBase
 
 
 class SvmRegressorStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'svm_regressor.SvmRegressorStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'svm_regressor',

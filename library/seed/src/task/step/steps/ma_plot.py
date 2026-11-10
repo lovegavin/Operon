@@ -38,7 +38,7 @@ from src.task.step.steps._plot_helpers import save_figure, setup_style, figure_r
 
 class MaPlotStep(Step):
     """Draw an MA plot."""
-    provider = 'biopipe-plots'
+    provider = 'operon-plots'
     parameters_file = 'ma_plot.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

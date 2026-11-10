@@ -11,7 +11,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class LowessStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Cleveland's LOWESS smoother with a fixed span and robust iterations.
 
     The implementation delegates the local regressions to

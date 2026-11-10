@@ -11,7 +11,7 @@ from ._survival21_common import cox_brier, fit_cox, survival_columns
 
 
 class IntegratedBrierScoreStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Trapezoidal integral of the Cox IPCW Brier score."""
     parameters_file = 'integrated_brier_score.IntegratedBrierScoreStep.parameters.json'
     definition = {'protocol_version': 3,

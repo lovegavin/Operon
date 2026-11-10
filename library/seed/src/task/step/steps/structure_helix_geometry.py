@@ -113,7 +113,7 @@ def helix_geometry(points: np.ndarray) -> dict:
 class StructureHelixGeometryStep(Step):
     """Measures rise, radius and twist for every helix in a structure."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_helix_geometry.StructureHelixGeometryStep.parameters.json"
 
     definition = {

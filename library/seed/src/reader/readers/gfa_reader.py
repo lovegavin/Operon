@@ -11,7 +11,7 @@ from src.reader.readers._table_common import table_form
 
 
 class GfaReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """GFA segment reader; links and paths are ignored."""
     parameters_file = 'gfa_reader.GfaReader.parameters.json'
     definition = {

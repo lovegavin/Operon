@@ -11,7 +11,7 @@ from ._matrix_common import matrix
 
 
 class RankTransformStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'rank_transform.RankTransformStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'rank_transform',

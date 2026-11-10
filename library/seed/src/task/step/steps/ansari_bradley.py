@@ -13,7 +13,7 @@ from ._tests39_common import select_groups
 
 
 class AnsariBradleyStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Ansari-Bradley rank test for a difference in scale.
 
     Uses the normal approximation implemented by base R

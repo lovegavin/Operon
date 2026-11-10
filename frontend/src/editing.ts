@@ -4,7 +4,7 @@ import { clone } from "./graph";
 import {defaultTarget, executionConfig, withExecution} from './execution';
 
 const FORMAT = "operon/graph-fragment-v1";
-const LEGACY_FORMAT = "biopipe/graph-fragment-v1";
+const LEGACY_FORMAT = "operon/graph-fragment-v1";
 export const isFragmentText = (text: string) => [FORMAT, LEGACY_FORMAT].some(format => text.includes(`"${format}"`));
 export type Fragment = { format: typeof FORMAT; base_dir?: string; nodes: GraphNode[]; edges: GraphEdge[];
   node_targets?: Record<string, TargetRef>; file_locations?: Record<string, TargetRef> };

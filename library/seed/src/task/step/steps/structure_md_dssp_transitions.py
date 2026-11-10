@@ -97,7 +97,7 @@ def transition_rows(matrix: np.ndarray, labels: list[str], *, lag: int, frame_ti
 
 
 class StructureMdDsspTransitionsStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_dssp_transitions.StructureMdDsspTransitionsStep.parameters.json"
     definition = {
         "protocol_version": 3,

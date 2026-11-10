@@ -66,7 +66,7 @@ def _fit(x, y, tol):
 
 
 class LdaStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "lda.LdaStep.parameters.json"
     definition = {
         "protocol_version": 3,

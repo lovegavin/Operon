@@ -15,7 +15,7 @@ import traceback
 import uuid
 
 import yaml
-from biopipe.run_log import append_event
+from operon.run_log import append_event
 
 from .graph import GraphError, compile_graph, relative_manifest
 from .models import Graph
@@ -115,18 +115,18 @@ class JobService:
         self.settings, self.base_catalog = settings, catalog
         self.pool = pool
         self._pool_principal = principal
-        self._configured_engine_mode = (os.environ.get('BIOPIPE_ENGINE_MODE') or
+        self._configured_engine_mode = (os.environ.get('OPERON_ENGINE_MODE') or
                                         settings.engine_mode or ('legacy' if settings.testing else 'pool'))
-        self.pool_address = None if pool is not None else (os.environ.get('BIOPIPE_POOL_ADDRESS') or
+        self.pool_address = None if pool is not None else (os.environ.get('OPERON_POOL_ADDRESS') or
                                                          settings.pool_address)
-        self.pool_token = (os.environ.get('BIOPIPE_POOL_TOKEN') or
+        self.pool_token = (os.environ.get('OPERON_POOL_TOKEN') or
                            settings.pool_token)
         self.pool_managed = (pool is None and not self.pool_address and
                              self._configured_engine_mode in ('auto', 'pool'))
         self.pool_remote = pool is None and (bool(self.pool_address) or self.pool_managed)
-        self.pool_principal = (os.environ.get('BIOPIPE_POOL_PRINCIPAL') or
+        self.pool_principal = (os.environ.get('OPERON_POOL_PRINCIPAL') or
                                settings.pool_principal or
-                               os.environ.get('BIOPIPE_ENGINE_PRINCIPAL') or
+                               os.environ.get('OPERON_ENGINE_PRINCIPAL') or
                                getpass.getuser())
         self.pool_client = None
         self.pool_session_id = None
@@ -137,10 +137,10 @@ class JobService:
         if settings.input_roots is None:
             settings.input_roots = list(dict.fromkeys([self.root, (settings.code_root or self.root).resolve()]))
         self.directory = settings.data_dir.resolve()
-        from biopipe.plugins import PluginManager
+        from operon.plugins import PluginManager
         self.plugins = PluginManager(self.directory, manifest_only=settings.manifest_only_registry,
                                      python=settings.worker_python)
-        from biopipe.dependencies import DependencySession
+        from operon.dependencies import DependencySession
         self.dependencies = DependencySession(self.plugins)
         self.dependencies.sync(self.plugins.state())
         self.catalog = self.plugins.extend_catalog(catalog)
@@ -185,10 +185,10 @@ class JobService:
             self.environment_error = None
             self.environment_guard = self._open_environment_guard()
             self._wrap_environment_mutations()
-            from biopipe.pool_service import PoolClient
+            from operon.pool_service import PoolClient
             try:
                 if self.pool_managed:
-                    from biopipe.managed_pool import ManagedPoolClient
+                    from operon.managed_pool import ManagedPoolClient
                     self.pool_client = ManagedPoolClient(settings, principal=self.pool_principal)
                 else:
                     host, port = self.pool_address.rsplit(':', 1)
@@ -207,7 +207,7 @@ class JobService:
             self.environment_error = None
             self.environment_guard = pool.environment_guard
             self._wrap_environment_mutations()
-            from biopipe.engine.artifacts import ArtifactCommitter
+            from operon.engine.artifacts import ArtifactCommitter
             self.artifact_committer = ArtifactCommitter(self.jobs_dir, self.engine.store)
             self.scheduler = None
             self._adopt_running_jobs()
@@ -229,15 +229,15 @@ class JobService:
                     raise RuntimeError(
                         'Active coordinator-owned jobs exist; restart in coordinator mode or '
                         'finish them before reverting to legacy scheduling')
-                self.scheduler = threading.Thread(target=self._schedule, name='biopipe-admission', daemon=True)
+                self.scheduler = threading.Thread(target=self._schedule, name='operon-admission', daemon=True)
                 self.scheduler.start()
             else:
                 self.scheduler = None
 
     def _open_environment_guard(self):
         try:
-            from biopipe.engine.environment import EnvironmentGuard
-            path = os.environ.get('BIOPIPE_ENVIRONMENT_GATE')
+            from operon.engine.environment import EnvironmentGuard
+            path = os.environ.get('OPERON_ENVIRONMENT_GATE')
             if not path:
                 if self.admission is None:
                     path = self.directory / 'environment-gate.json'
@@ -275,7 +275,7 @@ class JobService:
         therefore share one exclusion domain.  The code root is intentionally
         excluded from the identity.
         """
-        from biopipe.engine.environment import environment_identity
+        from operon.engine.environment import environment_identity
         lock = plugins_lock
         if lock is None:
             try:
@@ -286,7 +286,7 @@ class JobService:
         try:
             python = self.plugins.python_for(lock or {})
         except Exception as exc:
-            from biopipe.engine.environment import EnvironmentGuardError
+            from operon.engine.environment import EnvironmentGuardError
             raise EnvironmentGuardError('Cannot resolve the execution interpreter for environment locking') from exc
         return environment_identity(
             python or sys.executable)
@@ -310,7 +310,7 @@ class JobService:
         if self.pool_remote:
             self._ensure_pool_session()
             path = self.pool_client.status()['environment_gate']['path']
-            from biopipe.engine.environment import EnvironmentGuard
+            from operon.engine.environment import EnvironmentGuard
             if not Path(path).is_absolute():
                 raise PoolSubmissionError('The pool did not return an absolute shared environment gate')
             self.environment_guard = EnvironmentGuard(path)
@@ -327,7 +327,7 @@ class JobService:
         the coordinator recovery path.
         """
         from dataclasses import replace
-        from biopipe.engine.executor import JobServiceExecutor
+        from operon.engine.executor import JobServiceExecutor
         with self.lock:
             self._refresh_jobs()
             active = [job for job in self.jobs.values()
@@ -364,7 +364,7 @@ class JobService:
         self._coordinator_claimed = True
         try:
             executor = JobServiceExecutor(self)
-            from biopipe.engine.artifacts import ArtifactCommitter
+            from operon.engine.artifacts import ArtifactCommitter
             self.artifact_committer = ArtifactCommitter(self.jobs_dir, self.engine.store)
             facade = self.engine.coordinator(executor, project='default',
                                              artifact_committer=self._commit_job_artifacts)
@@ -386,10 +386,10 @@ class JobService:
         A corrupt or newer state database is reported and legacy execution
         continues; it is never silently recreated.
         """
-        if os.environ.get('BIOPIPE_ENGINE_DISABLE', '').strip().lower() in ('1', 'true', 'yes'):
+        if os.environ.get('OPERON_ENGINE_DISABLE', '').strip().lower() in ('1', 'true', 'yes'):
             return None
         try:
-            from biopipe.engine.facade import EngineRuntime
+            from operon.engine.facade import EngineRuntime
             runtime = EngineRuntime.open(
                 data_dir=settings.engine_dir,
                 workspace_root=self.root, admission=self.admission,
@@ -634,7 +634,7 @@ class JobService:
         graph = self.plugins.pin(graph, snapshot=plugin_snapshot)
         catalog = self.plugins._catalog(plugin_snapshot, self.base_catalog)
         from .parameters import freeze_graph
-        from biopipe.parameter_values import split_task
+        from operon.parameter_values import split_task
         graph = freeze_graph(graph, catalog, self.root, input_roots=self.settings.input_roots)
         manifest, order = compile_graph(graph, catalog, self.root, require_files=True, input_roots=self.settings.input_roots)
         try:
@@ -802,8 +802,8 @@ class JobService:
         if engine is None or getattr(engine, 'store', None) is None or self._engine_journal is None:
             return
         try:
-            from biopipe.engine.contracts import ResourceRequest
-            from biopipe.engine.policy import Demand, Usage, aggregate, select_ready
+            from operon.engine.contracts import ResourceRequest
+            from operon.engine.policy import Demand, Usage, aggregate, select_ready
             allocation = job['allocation']
             demand = Demand(
                 key=job['id'], principal=engine.principal, project='default',
@@ -929,16 +929,16 @@ class JobService:
                        TEMP=str(io_path(temporary)), TMP=str(io_path(temporary)), MPLCONFIGDIR=str(io_path(self.directory / 'matplotlib')))
             threads = str(allocation['cpu_threads'])
             for name in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS',
-                         'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS', 'BIOPIPE_CPU_LIMIT'):
+                         'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS', 'OPERON_CPU_LIMIT'):
                 env[name] = threads
-            env['BIOPIPE_AVAILABLE_AT_START_BYTES'] = str(allocation['available_at_start_bytes'])
+            env['OPERON_AVAILABLE_AT_START_BYTES'] = str(allocation['available_at_start_bytes'])
             code_root = self.settings.code_root or self.root
             python = self.plugins.python_for(read_json(directory / 'plugins.lock.json'))
-            if io_path(code_root / 'biopipe/worker.py').is_file():
+            if io_path(code_root / 'operon/worker.py').is_file():
                 # Wheels have no scripts/ tree. Preserve code selection when
                 # dependency resolution chooses a different Python runtime.
                 env['PYTHONPATH'] = os.pathsep.join(part for part in (str(code_root), env.get('PYTHONPATH')) if part)
-                command = [python, '-P', '-m', 'biopipe.worker', str(directory)]
+                command = [python, '-P', '-m', 'operon.worker', str(directory)]
             else:
                 # Older server distributions and explicit custom worker roots.
                 command = [python, str(code_root / 'scripts/run.py'), str(directory)]
@@ -973,7 +973,7 @@ class JobService:
                 try:
                     process.wait(timeout=1)
                 except subprocess.TimeoutExpired:
-                    from biopipe.processes import stop_tree
+                    from operon.processes import stop_tree
                     stop_tree(process)
             watcher = threading.Thread(target=self._watch, args=(key, process, console), daemon=True)
             with self.lock:
@@ -989,7 +989,7 @@ class JobService:
                 except Exception as release_error:  # noqa: BLE001 - retain the launch failure
                     self.environment_error = f'{type(release_error).__name__}: {release_error}'
             if process is not None:
-                from biopipe.processes import stop_tree
+                from operon.processes import stop_tree
                 try:
                     stop_tree(process)
                 except Exception:  # noqa: BLE001 - retain the original failure
@@ -1141,7 +1141,7 @@ class JobService:
                     over_since = over_since or time.monotonic()
                     if time.monotonic() - over_since >= 2:
                         pressure_error = f'Worker tree RSS {rss} exceeds its host reservation {limit}; emergency spill could not recover enough memory'
-                        from biopipe.processes import stop_tree
+                        from operon.processes import stop_tree
                         stop_tree(process)
                 else:
                     over_since = None
@@ -1513,7 +1513,7 @@ class JobService:
             try:
                 process.wait(timeout=1)
             except subprocess.TimeoutExpired:
-                from biopipe.processes import stop_tree
+                from operon.processes import stop_tree
                 stop_tree(process)
             watcher = self.threads.get(key)
             if watcher and watcher is not threading.current_thread():
@@ -1609,7 +1609,7 @@ class JobService:
         # Validate containment before using Windows' extended I/O path. A cache
         # directory can be renamed successfully past MAX_PATH while ordinary
         # stat/open subsequently report that the existing payload is absent.
-        from biopipe.bytecode import filesystem_path
+        from operon.bytecode import filesystem_path
         path = Path(filesystem_path(path))
         if not path.is_file():
             raise KeyError("产物文件不可用。")

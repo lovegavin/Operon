@@ -162,7 +162,7 @@ def md_run(
 
 
 class StructureOpenmmMdStabilityStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_openmm_md_stability.StructureOpenmmMdStabilityStep.parameters.json"
     definition = {
         "protocol_version": 3,
@@ -216,7 +216,7 @@ class StructureOpenmmMdStabilityStep(Step):
         field_dim = str(params.get("field_dim", "field"))
         if bool(params.get("remove_water", True)):
             form = without_water(form, atom_dim, field_dim)
-        with tempfile.TemporaryDirectory(prefix="biopipe_md_") as folder:
+        with tempfile.TemporaryDirectory(prefix="operon_md_") as folder:
             path = Path(folder) / "input.pdb"
             write_pdb(form, atom_dim, field_dim, path)
             result = md_run(

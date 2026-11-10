@@ -11,7 +11,7 @@ from ._matrix_common import matrix
 
 
 class HvgStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'hvg.HvgStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'hvg',

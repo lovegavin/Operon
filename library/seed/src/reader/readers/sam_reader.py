@@ -14,7 +14,7 @@ from src.reader.readers._table_common import table_form
 
 
 class SamReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Sequence Alignment/Map text reader."""
     parameters_file = 'sam_reader.SamReader.parameters.json'
     definition = {

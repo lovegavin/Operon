@@ -17,7 +17,7 @@ _STATISTICS = ("mean_log_prob", "sequence_recovery")
 class EsmIfDesignStep(Step):
     """Sample protein sequences for a fixed backbone with the official ESM-IF1 model."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_if_design.EsmIfDesignStep.parameters.json"
 
     definition = {

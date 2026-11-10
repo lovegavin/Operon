@@ -15,7 +15,7 @@ from ._ext_common import labels_in_order
 
 
 class SiegelTukeyStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Siegel-Tukey rank test for equality of dispersion (no ties)."""
     parameters_file = 'siegel_tukey.SiegelTukeyStep.parameters.json'
     definition = {'protocol_version': 3,

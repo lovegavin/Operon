@@ -92,19 +92,19 @@ guaranteed without supported OS mechanisms.
 
 | Existing seam | Planned use / hazard |
 | --- | --- |
-| `biopipe/application.py` (`WorkflowService`, `TaskService`, `ArtifactService`) | Stable frontend/CLI/API/MCP service boundary; delegate to engine facade instead of creating a new public engine for each entry point |
-| `biopipe/remote/server.py` (`serve`, `RemoteService.dispatch`) | Serial accept/dispatch loop today; replace only after shared state/idempotency is safe |
-| `biopipe/remote/client.py:SSHConnection.call` | Per-connection lock protects a single ordered byte stream; keep it for legacy transport, add separate channels rather than removing it |
-| `biopipe/remote/handshake.py` | Existing registry refresh already runs in background; extend capability/receipt handling, do not implement a competing installer |
+| `operon/application.py` (`WorkflowService`, `TaskService`, `ArtifactService`) | Stable frontend/CLI/API/MCP service boundary; delegate to engine facade instead of creating a new public engine for each entry point |
+| `operon/remote/server.py` (`serve`, `RemoteService.dispatch`) | Serial accept/dispatch loop today; replace only after shared state/idempotency is safe |
+| `operon/remote/client.py:SSHConnection.call` | Per-connection lock protects a single ordered byte stream; keep it for legacy transport, add separate channels rather than removing it |
+| `operon/remote/handshake.py` | Existing registry refresh already runs in background; extend capability/receipt handling, do not implement a competing installer |
 | `src/web/service.py:JobService` | Launch/queue/monitor/details/cancel/shutdown responsibilities currently combined; carve out adapters and short transitions |
 | `src/web/admission.py:HostAdmission` | Existing fixed-session pool and shared file ledger; sole allocator in legacy mode, not a second allocator beside the new coordinator |
 | `src/web/execution.py:ExecutionService` | Existing stage orchestration and `completed_units`; preserve these IDs/retry boundaries while routing scheduling through the coordinator |
 | `src/task/runner.py:run` | Keep as initial sequential execution unit; do not share its Context across parallel nodes |
 | `src/task/memory/runtime.py:MemoryRuntime.update_budget` | Existing between-step resize hook; rejects active store use and rolls back the setting on failure; not mid-chunk resizing or a distributed lease protocol |
 | `src/task/memory/planner.py`, `store.py` | Lifetime positions/next-use/release logic assumes linear execution; use one store per sequential unit until DAG-level ownership is designed |
-| `biopipe/exchange.py`, `wire.py`, `isolation.py` | Reuse verified metadata/file transport, mapped input ingestion, pull/ACK semantics; audit control-event queues separately for boundedness |
-| `src/web/models.py`, parameters helpers, `biopipe/workflow_spec.py` | Preserve strict YAML, execution sidecars, defaults and frozen values; add versioned optional engine policy through these shared models |
-| `biopipe/remote/transfers.py` | Retain upload receipts/dedup/resume; add concurrency-safe ownership rather than replacing transfer formats |
+| `operon/exchange.py`, `wire.py`, `isolation.py` | Reuse verified metadata/file transport, mapped input ingestion, pull/ACK semantics; audit control-event queues separately for boundedness |
+| `src/web/models.py`, parameters helpers, `operon/workflow_spec.py` | Preserve strict YAML, execution sidecars, defaults and frozen values; add versioned optional engine policy through these shared models |
+| `operon/remote/transfers.py` | Retain upload receipts/dedup/resume; add concurrency-safe ownership rather than replacing transfer formats |
 
 Specific concurrency defects to test *before* enabling threads:
 
@@ -136,7 +136,7 @@ separate remote scan-then-launch path.
 ## 3. Target boundaries and proposed module layout
 
 ```text
-biopipe/engine/
+operon/engine/
   contracts.py        immutable plan, request, resource and event records
   state.py            transactional repository, schema versions, outbox
   facade.py           shared application operations and compatibility views
@@ -394,7 +394,7 @@ target 20/12/12/12. Assert D cannot start before all required release ACKs.
 ## 8. Artifacts, recovery and storage
 
 Each execution unit/attempt has its own Context and linear memory store initially.
-Parallel branches exchange immutable, verified artifacts through `biopipe.exchange`
+Parallel branches exchange immutable, verified artifacts through `operon.exchange`
 adapters. Never reuse one linear `LifetimePlan.position` across parallel workers.
 Measure process/input-copy overhead and keep small or stateful chains grouped when
 splitting them would be slower or semantically unsafe.
@@ -478,7 +478,7 @@ already present; inspect the repository before creating a duplicate test suite.
 
 ### P01 — Engine contracts and compatibility facade
 
-- **Depends:** P00. **Seams:** `biopipe/application.py`, new contracts/facade,
+- **Depends:** P00. **Seams:** `operon/application.py`, new contracts/facade,
   shared execution config and handshake schemas.
 - Define request/plan/attempt/resource/error records and explicit mode/capability
   negotiation. Wrap current JobService behind the executor/facade interfaces.

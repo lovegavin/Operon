@@ -12,7 +12,7 @@ from ._metric_common import label_series
 
 
 class CalinskiHarabaszStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Calinski-Harabasz index for features and a label column."""
     parameters_file = 'calinski_harabasz.CalinskiHarabaszStep.parameters.json'
     definition = {'protocol_version': 3,

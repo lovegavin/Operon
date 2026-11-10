@@ -141,7 +141,7 @@ def run_quast(
 
 
 class AssemblyStatsStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "assembly_stats.AssemblyStatsStep.parameters.json"
 
     definition = {

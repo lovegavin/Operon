@@ -4,14 +4,14 @@ export type LanguagePreference = 'system' | 'zh-CN' | 'en';
 export type ThemePreference = 'system' | 'light' | 'dark';
 export type UiPreferences = {language: LanguagePreference; theme: ThemePreference};
 const KEY = 'operon-studio-config-v1';
-const LEGACY_KEY = 'biopipe-studio-config-v1';
+const LEGACY_KEY = 'operon-studio-config-v1';
 const defaults: UiPreferences = {language: 'system', theme: 'system'};
 const listeners = new Set<() => void>();
 function stored(): UiPreferences {
   try {
     const value = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem(LEGACY_KEY) || '{}');
-    const language = value.language ?? localStorage.getItem('biopipe-studio-language-v1');
-    const theme = value.theme ?? localStorage.getItem('biopipe-studio-theme-v1');
+    const language = value.language ?? localStorage.getItem('operon-studio-language-v1');
+    const theme = value.theme ?? localStorage.getItem('operon-studio-theme-v1');
     return {language: language === 'en' || language === 'zh-CN' ? language : 'system',
       theme: theme === 'light' || theme === 'dark' ? theme : 'system'};
   } catch {return defaults;}

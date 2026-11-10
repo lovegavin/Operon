@@ -62,7 +62,7 @@ def _align(response, predictor, sample_dim, response_dim, predictor_dim):
 
 
 class DbrdaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Constrain a PCoA of a distance matrix by explanatory variables."""
     parameters_file = 'dbrda.DbrdaStep.parameters.json'
     definition = {'protocol_version': 3,

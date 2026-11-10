@@ -14,7 +14,7 @@ from src.reader.readers._table_common import table_form
 
 
 class BlastTabularReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """BLAST outfmt 6 reader."""
     parameters_file = 'blast_tabular_reader.BlastTabularReader.parameters.json'
     definition = {

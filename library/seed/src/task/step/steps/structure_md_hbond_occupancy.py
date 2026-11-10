@@ -119,7 +119,7 @@ def occupancy_rows(
 
 
 class StructureMdHbondOccupancyStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_hbond_occupancy.StructureMdHbondOccupancyStep.parameters.json"
     definition = {
         "protocol_version": 3,

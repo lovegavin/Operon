@@ -56,7 +56,7 @@ def reaction_products(reaction, molecule, max_products: int):
 
 
 class RdkitReactionSmartsApplyStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "rdkit_reaction_smarts_apply.RdkitReactionSmartsApplyStep.parameters.json"
 
     definition = {

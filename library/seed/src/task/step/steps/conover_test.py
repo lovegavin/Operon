@@ -37,7 +37,7 @@ def _adjust(pvalues: np.ndarray, method: str) -> np.ndarray:
 
 
 class ConoverTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """All-pairwise Conover comparisons for every feature.
 
     Mean-rank differences are tested with the Conover variance correction

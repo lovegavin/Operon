@@ -52,7 +52,7 @@ from src.task.step.steps._microbiome import estimate
 
 class JoinStep(Step):
     """Join two forms along a shared dim by label."""
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'join.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'join',

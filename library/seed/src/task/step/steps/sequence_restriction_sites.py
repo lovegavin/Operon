@@ -54,7 +54,7 @@ def site_row(sequence: str) -> dict:
 
 
 class SequenceRestrictionSitesStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_restriction_sites.SequenceRestrictionSitesStep.parameters.json"
 
     definition = {

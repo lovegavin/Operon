@@ -13,7 +13,7 @@ from ._posthoc57_common import finite_group_values, pairs
 
 
 class SnkTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """SNK all-pairwise comparisons with a pooled variance and step-down ranges."""
     parameters_file = 'snk_test.SnkTestStep.parameters.json'
     definition = {'protocol_version': 3,

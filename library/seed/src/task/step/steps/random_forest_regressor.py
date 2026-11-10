@@ -4,7 +4,7 @@ from ._ml_common import _RegressionBase
 
 
 class RandomForestRegressorStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'random_forest_regressor.RandomForestRegressorStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'random_forest_regressor',

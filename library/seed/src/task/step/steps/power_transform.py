@@ -11,7 +11,7 @@ from ._matrix_common import matrix
 
 
 class PowerTransformStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'power_transform.PowerTransformStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'power_transform',

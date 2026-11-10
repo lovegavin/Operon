@@ -1,6 +1,6 @@
 # Reference operator library
 
-This directory is independently owned and versioned from the BioPipe application.
+This directory is independently owned and versioned from the Operon application.
 
 Library **2026.11.6.1** makes previously implicit Pandas/SciPy/Statsmodels/Matplotlib
 requirements explicit for 175 Readers/operators (including shared helper imports).
@@ -16,14 +16,14 @@ exports. See its [operator guide](seed/src/task/step/steps/export_results.Export
 
 - `seed/src/task/step/steps/`: operator Python, parameter JSON, Markdown and assets.
 - `seed/src/reader/readers/`: Reader implementations and their sidecars.
-- `seed/biopipe/builtin_packages.json`: statically compiled v3 provider manifest.
-- `seed/biopipe/environments.json`: optional named-environment recipes.
+- `seed/operon/builtin_packages.json`: statically compiled v3 provider manifest.
+- `seed/operon/environments.json`: optional named-environment recipes.
 - `seed/routes/` and `seed/src/web/builtin_routes.json`: source and compiled routes.
 - `seed/operator_index.json`, `seed/reader_index.json`: documentation indexes.
 - `release.json`: library version and compatible released build application.
 - `pyproject.toml`: separately installable factory seed distribution.
 
-From the repository root, run `python -m biopipe registry build` after editing
+From the repository root, run `python -m operon registry build` after editing
 declarations. Run `python scripts/build_operator_docs.py` to maintain generated
 documentation; authored pages are preserved. No operator module is imported by
 these maintenance commands.

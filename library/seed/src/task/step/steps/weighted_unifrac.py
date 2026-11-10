@@ -19,7 +19,7 @@ from src.task.step.steps._phylo_common import (
 class WeightedUnifracStep(Step):
     """Weighted UniFrac: branch-length distance weighted by abundance proportions."""
 
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'weighted_unifrac.WeightedUnifracStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11', 'statsmodels>=0.14'],

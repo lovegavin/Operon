@@ -14,7 +14,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class KpssTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'kpss_test.KpssTestStep.parameters.json'
     definition = {
      'dependencies': ['statsmodels>=0.14'],

@@ -81,7 +81,7 @@ def bioavailability_row(
 class RdkitOralBioavailabilityStep(Step):
     """Flag rule-based oral bioavailability from RDKit descriptors."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "rdkit_oral_bioavailability.RdkitOralBioavailabilityStep.parameters.json"
     )

@@ -49,7 +49,7 @@ def _missing_mask(data, code):
 
 
 class ScaleFeaturesStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Z-score standardise a 2D Form along one axis."""
     parameters_file = 'scale_features.ScaleFeaturesStep.parameters.json'
     definition = {'protocol_version': 3,

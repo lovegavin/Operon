@@ -12,7 +12,7 @@ from src.reader.readers._table_common import table_form
 
 
 class HapmapReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """HapMap genotype table, returned as variant x sample dosage."""
     parameters_file = 'hapmap_reader.HapmapReader.parameters.json'
     definition = {

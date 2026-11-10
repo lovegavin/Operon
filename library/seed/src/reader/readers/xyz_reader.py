@@ -24,7 +24,7 @@ _MASS = {
 
 
 class XyzReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """XYZ reader, one row per atom."""
     parameters_file = 'xyz_reader.XyzReader.parameters.json'
     definition = {

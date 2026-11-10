@@ -70,7 +70,7 @@ def _read_matrix(node, label: str) -> tuple[np.ndarray, str]:
 
 
 class H5muReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'h5mu_reader.parameters.json'
     definition = {
         'protocol_version': 3,

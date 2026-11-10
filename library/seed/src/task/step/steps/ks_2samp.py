@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class Ks2SampStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'ks_2samp.Ks2SampStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'ks_2samp',

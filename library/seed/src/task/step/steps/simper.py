@@ -27,7 +27,7 @@ from ._ecology_common import abundance, group_codes, normalize_group
 class SimperStep(Step):
     """SIMPER decomposition of the Bray-Curtis dissimilarity."""
 
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'simper.SimperStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'simper',

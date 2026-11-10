@@ -68,7 +68,7 @@ _METRICS = (
 
 class CorrelationStep(Step):
     """Pairwise correlation matrix along one axis."""
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'correlation.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

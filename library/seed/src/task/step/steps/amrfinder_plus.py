@@ -175,7 +175,7 @@ def _export_summary(form) -> dict:
 
 
 class AmrfinderPlusStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "amrfinder_plus.AmrfinderPlusStep.parameters.json"
     definition = {
         "protocol_version": 3,

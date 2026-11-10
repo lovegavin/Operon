@@ -13,7 +13,7 @@ from ._ext_common import labels_in_order, reorder, require_dims
 
 
 class BreuschPaganStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'breusch_pagan.BreuschPaganStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'breusch_pagan',

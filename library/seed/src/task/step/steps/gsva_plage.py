@@ -24,7 +24,7 @@ from ._ext_common import labels_in_order, make_form, reorder, require_dims
 
 
 class GsvaPlageStep(Step):
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'gsva_plage.GsvaPlageStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'gsva_plage',

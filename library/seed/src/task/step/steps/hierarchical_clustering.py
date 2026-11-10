@@ -23,7 +23,7 @@ def _ordered(labels: dict) -> list[str]:
 
 
 class HierarchicalClusteringStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Cluster samples with single/complete/average/Ward linkage."""
     parameters_file = 'hierarchical_clustering.HierarchicalClusteringStep.parameters.json'
     definition = {'protocol_version': 3,

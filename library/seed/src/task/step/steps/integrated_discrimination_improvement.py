@@ -12,7 +12,7 @@ from ._ext_common import make_form
 
 
 class IntegratedDiscriminationImprovementStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'integrated_discrimination_improvement.IntegratedDiscriminationImprovementStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'integrated_discrimination_improvement',

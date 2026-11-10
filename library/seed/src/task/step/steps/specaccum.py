@@ -31,7 +31,7 @@ from ._ecology_common import abundance
 class SpecaccumStep(Step):
     """Expected species richness as a function of the number of sites."""
 
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'specaccum.SpecaccumStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'specaccum',

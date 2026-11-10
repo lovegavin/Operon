@@ -35,7 +35,7 @@ from src.task.step.base import Step
 
 
 class GeneListToHitsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Turn a gene list into a subset hits matrix over a universe."""
     parameters_file = 'gene_list_to_hits.GeneListToHitsStep.parameters.json'
     definition = {'protocol_version': 3,

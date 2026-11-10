@@ -12,7 +12,7 @@ from ._stats20_common import scalar_form
 
 
 class ApproxEntropyStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Approximate entropy for a univariate series.
 
     ``ApEn(m, r) = phi(m) - phi(m+1)`` where ``phi(m)`` is the mean log

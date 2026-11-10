@@ -7,7 +7,7 @@ from pathlib import Path
 import psutil
 import pytest
 
-from biopipe.engine.supervisor import (
+from operon.engine.supervisor import (
     LaunchSpec, ProcessSupervisor, SupervisorError, identity_alive,
 )
 

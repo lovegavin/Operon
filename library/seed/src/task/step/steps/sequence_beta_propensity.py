@@ -50,7 +50,7 @@ def beta_hotspots(scores: np.ndarray, *, window: int = 5, threshold: float = 1.0
 
 
 class SequenceBetaPropensityStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_beta_propensity.SequenceBetaPropensityStep.parameters.json"
 
     definition = {

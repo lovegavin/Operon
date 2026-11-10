@@ -11,7 +11,7 @@ from ._stats20_common import table
 
 
 class CcaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Constrained correspondence analysis of a count table."""
     parameters_file = 'cca.CcaStep.parameters.json'
     definition = {'protocol_version': 3,

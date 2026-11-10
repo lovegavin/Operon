@@ -14,7 +14,7 @@ _FIELDS = ["x", "y", "z", "v0", "v1", "v2"]
 
 
 class ObjReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Parse a Wavefront OBJ mesh into an element x field table."""
     parameters_file = 'obj_reader.ObjReader.parameters.json'
     definition = {'protocol_version': 3,

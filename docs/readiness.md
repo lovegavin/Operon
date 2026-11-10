@@ -47,7 +47,7 @@ The shared API accepts `{ "graph": ... }` at
 `POST /api/v1/workflows/check-environment` (read-only),
 `POST /api/v1/workflows/prepare-environment` (plugins permission), and
 `POST /api/v1/workflows/validate` (add `"require_files": true` for preflight).
-MCP exposes `biopipe_workflow_check_environment` and retains the existing explicit
+MCP exposes `operon_workflow_check_environment` and retains the existing explicit
 preparation and full validation tools. Python/MCP compatibility names are unchanged.
 
 ## Full workflow and environment identities

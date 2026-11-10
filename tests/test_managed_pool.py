@@ -10,9 +10,9 @@ import time
 import psutil
 import pytest
 
-from biopipe.application import Application
-from biopipe.managed_pool import inspect_pool, locations
-from biopipe.pool_service import PoolClientError
+from operon.application import Application
+from operon.managed_pool import inspect_pool, locations
+from operon.pool_service import PoolClientError
 from src.web.admission import HostAdmission, process_alive
 from src.web.models import Graph
 from src.web.service import Settings
@@ -32,8 +32,8 @@ def wait(check, timeout=30):
 
 @pytest.fixture
 def managed(tmp_path, monkeypatch):
-    for key in ('BIOPIPE_POOL_ADDRESS', 'BIOPIPE_POOL_TOKEN', 'BIOPIPE_ENGINE_MODE',
-                'BIOPIPE_ENGINE_PRINCIPAL', 'BIOPIPE_POOL_PRINCIPAL'):
+    for key in ('OPERON_POOL_ADDRESS', 'OPERON_POOL_TOKEN', 'OPERON_ENGINE_MODE',
+                'OPERON_ENGINE_PRINCIPAL', 'OPERON_POOL_PRINCIPAL'):
         monkeypatch.delenv(key, raising=False)
     code = tmp_path / 'code'; (code / 'scripts').mkdir(parents=True)
     (code / 'scripts/run.py').write_text('''import json, os, sys, time
@@ -175,7 +175,7 @@ def test_shared_workspace_rejects_conflicting_data_directory(managed):
     app = managed()
     assert app.engine_status()['available']
     _, root = locations()
-    from biopipe.managed_pool import _client
+    from operon.managed_pool import _client
     record = app.service.pool_client.record
     client = _client(record, root)
     with pytest.raises(PoolClientError, match='another data directory'):
@@ -223,7 +223,7 @@ def test_dead_client_does_not_stop_pool_worker(managed, tmp_path):
     reply = tmp_path / 'child.json'
     script = '''import json, os, sys
 from pathlib import Path
-from biopipe.application import Application
+from operon.application import Application
 from src.web.models import Graph
 from src.web.service import Settings
 root=Path(sys.argv[1])
@@ -257,7 +257,7 @@ def test_live_different_pool_version_is_not_replaced(managed):
 
 
 def test_legacy_is_explicit_only(managed, monkeypatch):
-    monkeypatch.setenv('BIOPIPE_ENGINE_MODE', 'legacy')
+    monkeypatch.setenv('OPERON_ENGINE_MODE', 'legacy')
     app = managed()
     assert not app.service.pool_remote
     assert app.service.admission is not None
@@ -265,7 +265,7 @@ def test_legacy_is_explicit_only(managed, monkeypatch):
 
 
 def test_remote_entry_automatically_shares_pool_and_durable_events(managed):
-    from biopipe.remote.server import RemoteService
+    from operon.remote.server import RemoteService
     alpha, beta = (managed(code_root=ROOT, manifest_only_registry=True),
                    managed('beta', code_root=ROOT, manifest_only_registry=True))
     remotes = [RemoteService(app.service.root, input_roots=[app.service.root]) for app in (alpha, beta)]
@@ -292,7 +292,7 @@ def test_remote_entry_automatically_shares_pool_and_durable_events(managed):
 @pytest.mark.parametrize('status', [psutil.STATUS_ZOMBIE, psutil.STATUS_DEAD])
 def test_exited_process_is_not_a_live_pool_owner(monkeypatch, status):
     from types import SimpleNamespace
-    from biopipe.engine.supervisor import identity_alive
+    from operon.engine.supervisor import identity_alive
     monkeypatch.setattr(psutil, 'Process', lambda pid: SimpleNamespace(
         create_time=lambda: 123.0, status=lambda: status))
     assert not process_alive({'pid': 42, 'created': 123.0})
@@ -326,7 +326,7 @@ def test_pool_and_other_client_work_survive_desktop_job_object_close(managed, tm
     reply = tmp_path / 'host-ready.json'
     script = '''import json, sys, time
 from pathlib import Path
-from biopipe.application import Application
+from operon.application import Application
 from src.web.models import Graph
 from src.web.service import Settings
 sys.stdin.readline()

@@ -59,7 +59,7 @@ def neighbor_indices(similarity: np.ndarray, k: int) -> np.ndarray:
 
 
 class EsmEmbeddingNeighborsStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_embedding_neighbors.EsmEmbeddingNeighborsStep.parameters.json"
     definition = {
         "protocol_version": 3,

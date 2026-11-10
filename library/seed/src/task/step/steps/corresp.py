@@ -10,7 +10,7 @@ from ._ext_common import require_dims
 
 
 class CorrespStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "corresp.CorrespStep.parameters.json"
     definition = {
         "protocol_version": 3,

@@ -25,7 +25,7 @@ from src.reader.readers._labels import unique_labels
 
 
 class GmtReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for .gmt gene-set files."""
     parameters_file = 'gmt_reader.GmtReader.parameters.json'
     definition = {'protocol_version': 3,

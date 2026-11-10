@@ -192,7 +192,7 @@ def run_flye(
 
 
 class FlyeAssembleStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "flye_assemble.FlyeAssembleStep.parameters.json"
 
     definition = {

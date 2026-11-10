@@ -114,7 +114,7 @@ def fixed_payload(
 
 
 class AntibodyCdrRedesignStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "antibody_cdr_redesign.AntibodyCdrRedesignStep.parameters.json"
 
     definition = {
@@ -161,7 +161,7 @@ class AntibodyCdrRedesignStep(Step):
             )
         repo = str(params.get("proteinmpnn_path", "")).strip()
         if not repo:
-            repo = os.environ.get("BIOPIPE_PROTEINMPNN_PATH", "").strip()
+            repo = os.environ.get("OPERON_PROTEINMPNN_PATH", "").strip()
         if not repo:
             raise StepError(
                 "antibody_cdr_redesign: proteinmpnn_path is required; point it at the "
@@ -210,7 +210,7 @@ class AntibodyCdrRedesignStep(Step):
         cdr_residues, positions = cdr_positions("".join(sequence))
         payload = fixed_payload(structure_path, chain, positions, numbers)
 
-        out_dir = Path(tempfile.mkdtemp(prefix="biopipe-cdr-redesign-"))
+        out_dir = Path(tempfile.mkdtemp(prefix="operon-cdr-redesign-"))
         fixed_jsonl = out_dir / "fixed_positions.jsonl"
         fixed_jsonl.write_text(json.dumps(payload) + "\n", encoding="utf-8")
         started = time.monotonic()

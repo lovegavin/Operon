@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class PermutationTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'permutation_test.PermutationTestStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'permutation_test',

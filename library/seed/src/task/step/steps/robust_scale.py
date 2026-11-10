@@ -9,7 +9,7 @@ from src.task.step.base import Step
 
 
 class RobustScaleStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'robust_scale.RobustScaleStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'robust_scale',

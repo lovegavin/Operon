@@ -5,7 +5,7 @@ from ._ml_common import _ClassificationBase
 
 
 class AdaBoostClassifierStep(_ClassificationBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'ada_boost_classifier.AdaBoostClassifierStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'ada_boost_classifier',

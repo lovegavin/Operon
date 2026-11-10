@@ -59,7 +59,7 @@ from src.reader.readers._labels import unique_labels
 
 class TsvReader(Reader):
     """Reader for .tsv files."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'tsv_reader.parameters.json'
     definition = {
      'dependencies': ['pandas>=2.0'],

@@ -72,7 +72,7 @@ _BED_COLUMNS = [
 
 class BedReader(Reader):
     """Reader for UCSC .bed files."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'bed_reader.parameters.json'
     definition = {
      'dependencies': ['pandas>=2.0'],

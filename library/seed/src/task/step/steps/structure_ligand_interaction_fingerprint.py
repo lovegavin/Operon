@@ -117,7 +117,7 @@ def fingerprint_rows(
 
 
 class StructureLigandInteractionFingerprintStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_ligand_interaction_fingerprint.StructureLigandInteractionFingerprintStep.parameters.json"
 
     definition = {

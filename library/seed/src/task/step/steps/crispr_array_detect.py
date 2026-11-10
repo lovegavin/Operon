@@ -174,7 +174,7 @@ def run_minced(
 
 
 class CrisprArrayDetectStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "crispr_array_detect.CrisprArrayDetectStep.parameters.json"
 
     definition = {

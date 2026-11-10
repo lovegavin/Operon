@@ -12,7 +12,7 @@ from ._cluster_agreement import paired_labels
 
 
 class VariationOfInformationStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'variation_of_information.VariationOfInformationStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'variation_of_information',

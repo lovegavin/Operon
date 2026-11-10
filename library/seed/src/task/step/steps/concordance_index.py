@@ -9,7 +9,7 @@ from src.task.step.base import Step
 
 
 class ConcordanceIndexStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Harrell C-index for a survival risk column."""
     parameters_file = 'concordance_index.ConcordanceIndexStep.parameters.json'
     definition = {'protocol_version': 3,

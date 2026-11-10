@@ -11,7 +11,7 @@ from ._influence66_common import influence_ols
 
 
 class PressStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'press.PressStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'press',

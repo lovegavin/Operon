@@ -92,7 +92,7 @@ def rotamer_rows(records: list[dict], angles: np.ndarray, codes: np.ndarray) -> 
 
 
 class StructureMdRotamerStatesStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_rotamer_states.StructureMdRotamerStatesStep.parameters.json"
     definition = {
         "protocol_version": 3,

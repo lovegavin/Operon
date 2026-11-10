@@ -9,7 +9,7 @@ from src.task.step.base import Step
 
 
 class ClassificationMetricsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """ROC AUC, PR AUC, accuracy, F1 and MCC for binary labels."""
     parameters_file = 'classification_metrics.ClassificationMetricsStep.parameters.json'
     definition = {'protocol_version': 3,

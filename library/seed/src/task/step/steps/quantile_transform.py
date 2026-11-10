@@ -11,7 +11,7 @@ from ._matrix_common import matrix
 
 
 class QuantileTransformStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'quantile_transform.QuantileTransformStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'quantile_transform',

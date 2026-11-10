@@ -12,7 +12,7 @@ from ._stats21_common import design_matrix, numeric_column, table_frame
 
 
 class RobustRegressionStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Huber M-estimator matching R MASS::rlm(psi = psi.huber)."""
     parameters_file = 'robust_regression.RobustRegressionStep.parameters.json'
     definition = {'protocol_version': 3,

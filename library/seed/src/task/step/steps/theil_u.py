@@ -12,7 +12,7 @@ from ._stats20_common import scalar_form
 
 
 class TheilUStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'theil_u.TheilUStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'theil_u',

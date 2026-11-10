@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class ChiSquareOutTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Chi-square test for one extreme observation.
 
     Mirrors ``outliers::chisq.out.test``: the farther of the minimum and

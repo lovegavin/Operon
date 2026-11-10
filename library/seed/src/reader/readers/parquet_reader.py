@@ -47,7 +47,7 @@ from src.reader.readers._labels import unique_labels
 
 class ParquetReader(Reader):
     """Reader for .parquet files."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'parquet_reader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'ParquetReader',

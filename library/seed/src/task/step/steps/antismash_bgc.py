@@ -179,7 +179,7 @@ def _export_summary(form) -> dict:
 
 
 class AntismashBgcStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "antismash_bgc.AntismashBgcStep.parameters.json"
     definition = {
         "protocol_version": 3,

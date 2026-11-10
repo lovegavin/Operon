@@ -21,7 +21,7 @@ from ._ext_common import axis_labels, labels_in_order, make_form, reorder, requi
 
 
 class SsgseaStep(Step):
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'ssgsea.SsgseaStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

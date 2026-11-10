@@ -34,7 +34,7 @@ def profile(workspace, port, user, key):
 
 
 def connect(value):
-    from biopipe.remote.client import SSHConnection
+    from operon.remote.client import SSHConnection
     connection = SSHConnection(value, {'password': ''}, install=False)
     assert connection.connected
     return connection
@@ -58,7 +58,7 @@ def test_same_bridge_recovers_after_daemon_exit(tmp_path):
     connection = connect(value)
     try:
         assert connection.call('bootstrap', {})['workspace']
-        from biopipe.remote.server import socket_path
+        from operon.remote.server import socket_path
         path = socket_path(workspace)
         assert path.exists()
         retired = connection.call('retire_if_idle', {})
@@ -86,7 +86,7 @@ def test_same_bridge_recovers_after_production_idle_timeout(tmp_path):
     connection = connect(value)
     try:
         connection.call('bootstrap', {})
-        from biopipe.remote.server import socket_path
+        from operon.remote.server import socket_path
         path = socket_path(workspace)
         wait_socket(path, False, timeout=330)
         assert connection.connected and connection.channel.active

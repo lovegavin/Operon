@@ -39,7 +39,7 @@ def _profile(p, q, richness, hill, norm):
 
 
 class TsallisStep(Step):
-    provider = "biopipe-microbiome"
+    provider = "operon-microbiome"
     parameters_file = "tsallis.TsallisStep.parameters.json"
     definition = {
         "protocol_version": 3,

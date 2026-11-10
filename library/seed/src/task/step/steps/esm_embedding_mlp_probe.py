@@ -146,7 +146,7 @@ def mlp_rows(
 class EsmEmbeddingMlpProbeStep(Step):
     """Stratified MLP probe on a protein embedding form."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "esm_embedding_mlp_probe.EsmEmbeddingMlpProbeStep.parameters.json"
     )

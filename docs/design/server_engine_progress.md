@@ -30,7 +30,7 @@ as proof of end-to-end support.
 
 ## 1. Delivered in this change
 
-New package `biopipe/engine/` with transport-independent, tested implementation:
+New package `operon/engine/` with transport-independent, tested implementation:
 
 | Module | Responsibility |
 | --- | --- |
@@ -59,7 +59,7 @@ New package `biopipe/engine/` with transport-independent, tested implementation:
 
 - `src/web/service.py` opens the engine journal for every `JobService`,
   emits launcher events to the durable event journal, and reports engine state
-  through `resources()`.  `BIOPIPE_ENGINE_MODE=coordinator` now performs a real
+  through `resources()`.  `OPERON_ENGINE_MODE=coordinator` now performs a real
   drain/inventory, claims the pool, starts a `JobServiceExecutor` and does not
   start the legacy scheduler; `legacy` remains the default.
 - `JobService.cancel` no longer waits for a process tree while holding the job
@@ -82,12 +82,12 @@ New package `biopipe/engine/` with transport-independent, tested implementation:
   check the same record.  A scan followed by a later legacy launch is therefore
   refused; older binaries that do not know the record are an explicit
   mixed-version prohibition, not silently tolerated.
-- A dedicated `biopipe pool serve` process (the only pool allocator) hosts
+- A dedicated `operon pool serve` process (the only pool allocator) hosts
   multiple registered `JobService` workspaces through one coordinator.  Every
   run carries its own workspace id, principal, frozen graph/parameters, plugin
   lock and artifact permissions; no process-global mutable working directory is
   used.  Two workspaces and multiple clients submit/query/cancel/reconnect over
-  a loopback framed control API (`biopipe.pool_service.PoolClient`), and one
+  a loopback framed control API (`operon.pool_service.PoolClient`), and one
   workspace session can close without cancelling another.
 - The workspace-scoped `JobService` coordinator takeover remains available for
   a single workspace, but the multi-workspace path uses the dedicated pool
@@ -104,7 +104,7 @@ New package `biopipe/engine/` with transport-independent, tested implementation:
   `workspace.stop` is the separate stop-accepting-work operation.  A workspace
   service is no longer shut down by a client session close.
 - The ordinary `Application`/`TaskService` boundary can be configured for the
-  pool with `BIOPIPE_POOL_ADDRESS/TOKEN/PRINCIPAL`: launch, submit, details,
+  pool with `OPERON_POOL_ADDRESS/TOKEN/PRINCIPAL`: launch, submit, details,
   cancel and events go to the pool authority; the application has no local
   HostAdmission, coordinator or scheduler and a pool failure returns
   `engine_unavailable` without a local fallback.  CLI, API, MCP and SSH adapters
@@ -127,21 +127,21 @@ New package `biopipe/engine/` with transport-independent, tested implementation:
 - Catalog refresh replaces the catalog by object identity and increments a
   generation counter; catalog-dependent reads and refresh serialize on the
   existing lock.
-- `biopipe/application.py` `TaskService.submit` uses the durable engine request
+- `operon/application.py` `TaskService.submit` uses the durable engine request
   claim when enabled.  A definite rollback returns `engine_unavailable`; an
   unknown commit probes and either reuses or returns `submission_uncertain`; it
   never uses the file path as a second launcher.  The per-request file receipt
   remains a compatibility mirror.
-- `biopipe/remote/server.py` uses the bounded `ControlLoop`, pins transfer
+- `operon/remote/server.py` uses the bounded `ControlLoop`, pins transfer
   leases against timeout cleanup, claims remote `run` identities atomically in
   SQLite, and gates registry refresh / repair with the environment guard.
   `events` and `engine_status` operations are available to newer clients.
-- `biopipe/remote/handshake.py` advertises optional engine capabilities
+- `operon/remote/handshake.py` advertises optional engine capabilities
   separately; required base capabilities are unchanged so new clients still
   connect to older servers through documented legacy paths.  History/resources
   are read before the catalog/dependency locks to remove a lock-order inversion.
-- `biopipe/control_api.py` and `biopipe/cli.py` expose
-  `biopipe engine status` and `biopipe engine events --after ...`.
+- `operon/control_api.py` and `operon/cli.py` expose
+  `operon engine status` and `operon engine events --after ...`.
 - `src/task/runner.py` applies pending elastic-budget commands only at task
   boundaries after a successful step.
 - `src/web/execution_plan.py` supports opt-in
@@ -152,7 +152,7 @@ New package `biopipe/engine/` with transport-independent, tested implementation:
   payload is not moved and retention pins it as an external payload.
 - The physical pool identity is `capacity domain + control scope`.  Scheduling
   principal, project, client and workspace are not part of it; a different
-  `BIOPIPE_ENGINE_PRINCIPAL` cannot obtain a second full-machine pool.
+  `OPERON_ENGINE_PRINCIPAL` cannot obtain a second full-machine pool.
 
 ## 2. Module / product / end-to-end status
 
@@ -180,7 +180,7 @@ three dimensions are recorded separately.
 ### What this round changed
 
 - Added a dedicated multi-workspace pool service with a loopback framed control
-  API and CLI (`biopipe pool serve/status/submit/cancel`).  The service owns the
+  API and CLI (`operon pool serve/status/submit/cancel`).  The service owns the
   single coordinator and admission domain; each workspace keeps its own job
   directory, frozen parameters, plugin lock and worker cwd.
 - Added independent pool sessions and workspace lifecycle.  Closing a client
@@ -258,7 +258,7 @@ three dimensions are recorded separately.
    submission returns `engine_unavailable` without launching; if the commit
    outcome is unknown, it probes and either reuses the durable request or
    returns `submission_uncertain`.  It does **not** fall back to the legacy file
-   submission path while the engine is enabled.  Only `BIOPIPE_ENGINE_DISABLE`
+   submission path while the engine is enabled.  Only `OPERON_ENGINE_DISABLE`
    selects the file-only path.
 
 3. **Process credits are not reclaimed by managed shrink.**
@@ -268,9 +268,9 @@ three dimensions are recorded separately.
    verifier succeeds; normal reclaim occurs at confirmed process exit.
 
 4. **Coordinator takeover is real and explicit.**
-   Single-workspace `BIOPIPE_ENGINE_MODE=coordinator` still performs a real
+   Single-workspace `OPERON_ENGINE_MODE=coordinator` still performs a real
    takeover, but true multi-workspace operation uses the dedicated
-   `biopipe pool serve` process.  Both claim the admission ownership record,
+   `operon pool serve` process.  Both claim the admission ownership record,
    refuse dirty legacy state, and never start the legacy scheduler beside an
    active coordinator.  The default remains `legacy`.
 5. **Pool ownership is atomic, not scan-based.**
@@ -306,7 +306,7 @@ three dimensions are recorded separately.
 
 9. **Physical capacity vs. fairness identity.**
    `capacity_domain` is host + OS account (+ uid) and the engine control scope;
-   `PoolSpec.principal` is the OS pool owner.  `BIOPIPE_ENGINE_PRINCIPAL` only
+   `PoolSpec.principal` is the OS pool owner.  `OPERON_ENGINE_PRINCIPAL` only
    changes the scheduling/fairness identity of runs, so it cannot create a
    second full-machine pool.  A workspace, client or project is never part of
    the physical pool identity.
@@ -450,17 +450,17 @@ New optional environment/configuration inputs:
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `BIOPIPE_ENGINE_MODE` | `legacy` | `legacy`, `shadow`, `coordinator`.  `coordinator` drains/inventories and starts the real coordinator; it fails explicitly when legacy state or another launcher is present.  Default remains legacy until acceptance decides |
-| `BIOPIPE_ENGINE_DIR` | `<admission-dir>/engine` | Control database location; shared by all workspaces in the same authorized pool, independent of a workspace path, and must be local (not NFS) |
-| `BIOPIPE_ENGINE_PRINCIPAL` | OS user | Scheduling/fairness identity only; it does not change the physical pool owner or capacity |
-| `BIOPIPE_ENGINE_METRICS` | off | Enable local histograms/counters |
-| `BIOPIPE_ENGINE_DISABLE` | off | Disable the engine journal and coordinator entirely (emergency rollback to the legacy file path) |
-| `BIOPIPE_ENVIRONMENT_GATE` | `<admission-dir>/../environment-gate.json` | Interpreter-identity mutual-exclusion marker shared by repair/install and running attempts |
-| `BIOPIPE_POOL_TOKEN` | none | Local pool control token; `pool serve --config` can generate `<root>/pool-token` instead |
-| `BIOPIPE_CONTROL_HANDLERS` | 32 | Bounded control handlers |
-| `BIOPIPE_CONTROL_FRAME_BYTES` | 128 MiB | Per-frame maximum |
-| `BIOPIPE_CONTROL_INFLIGHT_BYTES` | 512 MiB | Aggregate body-byte admission |
-| `BIOPIPE_CONTROL_INACTIVITY` / `BIOPIPE_CONTROL_DEADLINE` | 30 s / 120 s | Inactivity and absolute request deadlines |
+| `OPERON_ENGINE_MODE` | `legacy` | `legacy`, `shadow`, `coordinator`.  `coordinator` drains/inventories and starts the real coordinator; it fails explicitly when legacy state or another launcher is present.  Default remains legacy until acceptance decides |
+| `OPERON_ENGINE_DIR` | `<admission-dir>/engine` | Control database location; shared by all workspaces in the same authorized pool, independent of a workspace path, and must be local (not NFS) |
+| `OPERON_ENGINE_PRINCIPAL` | OS user | Scheduling/fairness identity only; it does not change the physical pool owner or capacity |
+| `OPERON_ENGINE_METRICS` | off | Enable local histograms/counters |
+| `OPERON_ENGINE_DISABLE` | off | Disable the engine journal and coordinator entirely (emergency rollback to the legacy file path) |
+| `OPERON_ENVIRONMENT_GATE` | `<admission-dir>/../environment-gate.json` | Interpreter-identity mutual-exclusion marker shared by repair/install and running attempts |
+| `OPERON_POOL_TOKEN` | none | Local pool control token; `pool serve --config` can generate `<root>/pool-token` instead |
+| `OPERON_CONTROL_HANDLERS` | 32 | Bounded control handlers |
+| `OPERON_CONTROL_FRAME_BYTES` | 128 MiB | Per-frame maximum |
+| `OPERON_CONTROL_INFLIGHT_BYTES` | 512 MiB | Aggregate body-byte admission |
+| `OPERON_CONTROL_INACTIVITY` / `OPERON_CONTROL_DEADLINE` | 30 s / 120 s | Inactivity and absolute request deadlines |
 
 The pool ceiling is frozen from the existing `HostAdmission` startup snapshot
 (90% of detected available memory by default).  The engine never rescans free
@@ -475,7 +475,7 @@ extra capacity.
 - The engine database is created beside the existing data directory; existing
   `job.json` records remain readable and authoritative for legacy work.  No
   old job or frozen parameter file is rewritten.
-- Rollback for local work: set `BIOPIPE_ENGINE_DISABLE=1` (or remove the engine
+- Rollback for local work: set `OPERON_ENGINE_DISABLE=1` (or remove the engine
   directory after backing it up) and restart the service.  The existing file
   receipts and job directories continue to work.  Do not downgrade a live
   coordinator lease database; drain and stop owned workers first.
@@ -540,7 +540,7 @@ Known unimplemented boundaries (explicit, not hidden):
 
 ## 8. Files changed (summary)
 
-New: `biopipe/engine/*` (21 modules), `biopipe/pool_service.py`,
+New: `operon/engine/*` (21 modules), `operon/pool_service.py`,
 `scripts/benchmarks/control_plane.py`, `scripts/acceptance/*`,
 `tests/test_engine_*.py`, `tests/test_control_limits.py`,
 `tests/test_remote_concurrency.py`, `tests/test_application_engine_requests.py`,
@@ -555,10 +555,10 @@ New: `biopipe/engine/*` (21 modules), `biopipe/pool_service.py`,
 this document, evidence JSON.
 
 Modified: `src/web/service.py`, `src/web/execution.py`,
-`src/web/execution_plan.py`, `src/web/admission.py`, `biopipe/application.py`,
-`biopipe/cli.py`, `biopipe/readiness.py`,
-`biopipe/remote/server.py`, `biopipe/remote/handshake.py`,
-`biopipe/remote/client.py`, `biopipe/control_api.py`,
+`src/web/execution_plan.py`, `src/web/admission.py`, `operon/application.py`,
+`operon/cli.py`, `operon/readiness.py`,
+`operon/remote/server.py`, `operon/remote/handshake.py`,
+`operon/remote/client.py`, `operon/control_api.py`,
 `src/task/runner.py`, `tests/test_execution_plan.py`,
 `tests/test_job_admission.py`, `docs/README.md`, `docs/agent_operations.md`,
 `docs/V3_IMPLEMENTATION.md`.

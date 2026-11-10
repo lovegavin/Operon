@@ -11,7 +11,7 @@ from ._influence66_common import influence_ols
 
 
 class CovratioStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'covratio.CovratioStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'covratio',

@@ -31,7 +31,7 @@ class PcaStep(Step):
         n_components : number of components to keep (default 10)
         output       : context key for the result (default: step name)
     """
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'pca.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'pca',

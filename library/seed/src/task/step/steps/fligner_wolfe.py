@@ -12,7 +12,7 @@ from ._order_rank_common import align_ordered, finite_groups
 
 
 class FlignerWolfeStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Rank test comparing every treatment group with a control group.
 
     The implementation follows ``PMCMRplus::flignerWolfeTest`` with

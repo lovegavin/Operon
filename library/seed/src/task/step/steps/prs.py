@@ -24,7 +24,7 @@ from ._ext_common import axis_labels, labels_in_order, make_form, reorder, requi
 
 
 class PrsStep(Step):
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'prs.PrsStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'prs',

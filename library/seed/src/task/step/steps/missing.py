@@ -18,7 +18,7 @@ class MissingStep(Step):
         threshold : maximum allowed missing rate
         output    : context key for the result (default: step name)
     """
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'missing.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'missing',

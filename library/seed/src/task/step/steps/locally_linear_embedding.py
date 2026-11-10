@@ -14,7 +14,7 @@ from ._matrix_common import matrix, projection
 
 
 class LocallyLinearEmbeddingStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'locally_linear_embedding.LocallyLinearEmbeddingStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'locally_linear_embedding',

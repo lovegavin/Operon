@@ -10,7 +10,7 @@ from ._matrix_common import matrix
 
 
 class MutualInformationStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'mutual_information.MutualInformationStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'mutual_information',

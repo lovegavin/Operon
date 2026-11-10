@@ -5,7 +5,7 @@ from ._ml_common import _ClassificationBase
 
 
 class LdaClassifierStep(_ClassificationBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'lda_classifier.LdaClassifierStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'lda_classifier',

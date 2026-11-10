@@ -221,7 +221,7 @@ def _export_summary(form) -> dict:
     }
 
 class ProteinmpnnMaskedInterfaceScoreStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "proteinmpnn_masked_interface_score."
         "ProteinmpnnMaskedInterfaceScoreStep.parameters.json"
@@ -290,7 +290,7 @@ class ProteinmpnnMaskedInterfaceScoreStep(Step):
             )
         repo = Path(
             str(params.get("proteinmpnn_path", "") or "").strip()
-            or os.environ.get("BIOPIPE_PROTEINMPNN_PATH", "")
+            or os.environ.get("OPERON_PROTEINMPNN_PATH", "")
         ).expanduser()
         if not (repo / "protein_mpnn_run.py").is_file():
             raise StepError(

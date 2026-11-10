@@ -14,7 +14,7 @@ from src.reader.readers._table_common import table_form
 
 
 class BedpeReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Paired-end BED reader."""
     parameters_file = 'bedpe_reader.BedpeReader.parameters.json'
     definition = {

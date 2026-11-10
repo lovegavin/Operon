@@ -10,7 +10,7 @@ from ._matrix_common import matrix
 
 
 class TTestOneSampleStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'ttest_one_sample.TTestOneSampleStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'ttest_one_sample',

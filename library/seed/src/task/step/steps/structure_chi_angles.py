@@ -107,7 +107,7 @@ def chi_rows(form: Form, atom_dim: str, field_dim: str) -> list[dict]:
 
 
 class StructureChiAnglesStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_chi_angles.StructureChiAnglesStep.parameters.json"
 
     definition = {

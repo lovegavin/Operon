@@ -5,7 +5,7 @@ from ._ml_common import _RegressionBase
 
 
 class DecisionTreeRegressorStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'decision_tree_regressor.DecisionTreeRegressorStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'decision_tree_regressor',

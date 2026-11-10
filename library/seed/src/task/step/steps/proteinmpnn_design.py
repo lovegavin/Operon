@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import csv
-from biopipe.bytecode import io_path
+from operon.bytecode import io_path
 import math
 import os
 import re
@@ -134,7 +134,7 @@ def _parse_header(header: str, sequence: str) -> dict | None:
 class ProteinMpnnDesignStep(Step):
     """Design sequences for a PDB structure with ProteinMPNN."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = (
         'proteinmpnn_design.ProteinMpnnDesignStep.parameters.json'
     )
@@ -181,7 +181,7 @@ class ProteinMpnnDesignStep(Step):
         structure_path = Path(str(params.get("structure_path", "")).strip()).expanduser()
         proteinmpnn_path = Path(
             str(params.get("proteinmpnn_path", "")).strip()
-            or os.environ.get("BIOPIPE_PROTEINMPNN_PATH", "")
+            or os.environ.get("OPERON_PROTEINMPNN_PATH", "")
         ).expanduser()
         weights_path_text = str(params.get("weights_path", "")).strip()
         python_executable = str(params.get("python_executable", "")).strip()
@@ -210,7 +210,7 @@ class ProteinMpnnDesignStep(Step):
         if not proteinmpnn_path.is_dir():
             raise StepError(
                 f"proteinmpnn_design: proteinmpnn_path '{proteinmpnn_path}' is "
-                "not a directory (set BIOPIPE_PROTEINMPNN_PATH or the "
+                "not a directory (set OPERON_PROTEINMPNN_PATH or the "
                 "proteinmpnn_path parameter)"
             )
         runner = proteinmpnn_path / "protein_mpnn_run.py"
@@ -275,7 +275,7 @@ class ProteinMpnnDesignStep(Step):
                 chain: numbers for chain, numbers in fixed_positions.items() if numbers
             }
 
-        out_dir = Path(tempfile.mkdtemp(prefix="biopipe-proteinmpnn-"))
+        out_dir = Path(tempfile.mkdtemp(prefix="operon-proteinmpnn-"))
         started = time.monotonic()
         fixed_jsonl: Path | None = None
         try:

@@ -124,7 +124,7 @@ def cavity_rows(components, lo, spacing, shapes, min_volume):
 
 
 class StructureCavityScanStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_cavity_scan.StructureCavityScanStep.parameters.json"
 
     definition: dict[str, Any] = {

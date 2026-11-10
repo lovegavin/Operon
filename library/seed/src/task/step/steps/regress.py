@@ -46,7 +46,7 @@ class RegressStep(Step):
         method     : "ols" | "logit" | "auto" (default)
         output     : context key for the result
     """
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'regress.parameters.json'
     definition = {
      'dependencies': ['statsmodels>=0.14'],

@@ -11,7 +11,7 @@ from ._matrix_common import matrix
 
 
 class OpticsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Order samples by reachability and extract density clusters with OPTICS."""
     parameters_file = 'optics.OpticsStep.parameters.json'
     definition = {'protocol_version': 3,

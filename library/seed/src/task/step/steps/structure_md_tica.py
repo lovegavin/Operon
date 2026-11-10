@@ -58,7 +58,7 @@ def implied_timescales(eigenvalues: np.ndarray, lag: int, frame_time_ps: float, 
 
 
 class StructureMdTicaStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_tica.StructureMdTicaStep.parameters.json"
     definition = {
         "protocol_version": 3,

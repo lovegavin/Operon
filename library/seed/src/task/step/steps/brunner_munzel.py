@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class BrunnerMunzelStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'brunner_munzel.BrunnerMunzelStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'brunner_munzel',

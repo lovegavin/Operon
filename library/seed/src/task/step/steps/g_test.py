@@ -12,7 +12,7 @@ from ._stats20_common import scalar_form, table
 
 
 class GTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'g_test.GTestStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'g_test',

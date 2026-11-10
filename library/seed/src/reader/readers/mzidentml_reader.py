@@ -16,7 +16,7 @@ _COLUMNS = [
 
 
 class MzidentmlReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'mzidentml_reader.MzidentmlReader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'MzidentmlReader',

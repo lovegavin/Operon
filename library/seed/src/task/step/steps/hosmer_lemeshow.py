@@ -13,7 +13,7 @@ from ._ext_common import make_form
 
 
 class HosmerLemeshowStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'hosmer_lemeshow.HosmerLemeshowStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

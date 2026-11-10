@@ -1,6 +1,6 @@
 using Microsoft.Win32;
 
-namespace BioPipe.Desktop;
+namespace Operon.Desktop;
 
 // Operon never registers Python at login. Older builds or manual experiments may
 // have left an entry behind; remove only names that belong to this product so a
@@ -8,9 +8,9 @@ namespace BioPipe.Desktop;
 internal static class Autostart
 {
     private static readonly string[] Values =
-        { "Operon Studio", "OperonStudio", "BioPipe Studio", "BioPipeStudio" };
+        { "Operon Studio", "OperonStudio" };
     private static readonly string[] Links =
-        { "Operon Studio.lnk", "BioPipe Studio.lnk" };
+        { "Operon Studio.lnk" };
 
     public static void RemoveOwnEntries()
     {

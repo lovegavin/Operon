@@ -172,7 +172,7 @@ def kabat_regions(sequence: str) -> list[tuple[str, int, int, str]]:
 
 
 class AntibodyCdrKabatStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Kabat CDR and framework boundaries for a VH/VHH sequence."""
     parameters_file = 'antibody_cdr_kabat.AntibodyCdrKabatStep.parameters.json'
     definition = {'protocol_version': 3,

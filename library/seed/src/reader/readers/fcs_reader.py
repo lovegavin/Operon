@@ -77,7 +77,7 @@ def _decode_float(raw: bytes, big_endian: bool, double: bool) -> float:
 
 
 class FcsReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for .fcs flow-cytometry files."""
     parameters_file = 'fcs_reader.FcsReader.parameters.json'
     definition = {

@@ -22,7 +22,7 @@ _STATISTICS = (
 class SmilesStandardizeStep(Step):
     """Canonicalize SMILES strings and report basic composition statistics."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'smiles_standardize.SmilesStandardizeStep.parameters.json'
     definition = {
         'protocol_version': 3,

@@ -11,7 +11,7 @@ from ._influence66_common import influence_ols
 
 
 class DffitsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'dffits.DffitsStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'dffits',

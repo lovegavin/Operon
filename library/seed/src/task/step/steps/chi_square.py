@@ -10,7 +10,7 @@ from src.task.step.base import Step
 
 
 class ChiSquareStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'chi_square.ChiSquareStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'chi_square',

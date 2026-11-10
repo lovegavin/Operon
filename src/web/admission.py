@@ -94,8 +94,8 @@ def cpu_capacity():
 
 class HostAdmission:
     def __init__(self, directory=None, *, available_bytes=None, cpu_threads=None, preserve_snapshot=False):
-        self.directory = Path(directory or os.environ.get('BIOPIPE_ADMISSION_DIR') or
-                              Path.home() / '.biopipe' / 'admission' / socket.gethostname())
+        self.directory = Path(directory or os.environ.get('OPERON_ADMISSION_DIR') or
+                              Path.home() / '.operon' / 'admission' / socket.gethostname())
         self.path = self.directory / 'resources.json'
         self.lock = FileLock(self.directory / 'resources.lock')
         self.identity = process_identity()

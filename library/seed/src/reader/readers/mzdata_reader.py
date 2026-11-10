@@ -10,7 +10,7 @@ from ._xml20_common import attributes, children, descendants, frame_form, numeri
 
 
 class MzdataReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'mzdata_reader.MzdataReader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'MzdataReader',

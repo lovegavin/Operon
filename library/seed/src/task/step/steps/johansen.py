@@ -23,7 +23,7 @@ _COLUMNS = [
 
 
 class JohansenStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'johansen.JohansenStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'johansen',

@@ -106,7 +106,7 @@ def zinc_sites(
 class StructureZincSitesStep(Step):
     """Structural zinc sites from Cys/His coordination geometry."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = (
         "structure_zinc_sites.StructureZincSitesStep.parameters.json"

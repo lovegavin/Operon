@@ -8,7 +8,7 @@ from ._table_common import read_whitespace, table_form
 
 
 class BroadPeakReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for broadPeak files; output is region x field."""
     parameters_file = 'broadpeak_reader.BroadPeakReader.parameters.json'
     definition = {'protocol_version': 3,

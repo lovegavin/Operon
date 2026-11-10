@@ -58,7 +58,7 @@ def kmer_row(sequence: str, k: int) -> dict:
 
 
 class SequenceKmerProfileStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_kmer_profile.SequenceKmerProfileStep.parameters.json"
 
     definition = {

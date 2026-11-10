@@ -77,7 +77,7 @@ def contact_table(
 
 
 class StructureMdContactOccupancyStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_contact_occupancy.StructureMdContactOccupancyStep.parameters.json"
     definition = {
         "protocol_version": 3,

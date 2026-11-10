@@ -62,7 +62,7 @@ _METRICS = (
 
 class DistanceMatrixStep(Step):
     """Pairwise distance matrix along one axis."""
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'distance_matrix.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

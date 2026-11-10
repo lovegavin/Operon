@@ -17,7 +17,7 @@ _ATOMIC_MASS = {
 
 
 class MolReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Read one MDL MOL V2000 file and summarize its atom/bond block."""
     parameters_file = 'mol_reader.MolReader.parameters.json'
     definition = {

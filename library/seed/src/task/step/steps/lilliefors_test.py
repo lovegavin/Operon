@@ -12,7 +12,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class LillieforsTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'lilliefors_test.LillieforsTestStep.parameters.json'
     definition = {
         'protocol_version': 3,

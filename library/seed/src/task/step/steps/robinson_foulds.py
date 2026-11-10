@@ -25,7 +25,7 @@ from ._stats20_common import scalar_form
 
 
 class RobinsonFouldsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'robinson_foulds.RobinsonFouldsStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'robinson_foulds',

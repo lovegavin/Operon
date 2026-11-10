@@ -148,7 +148,7 @@ def segment_rows(states: list[str], residues: list[str]) -> list[dict]:
 class StructureSecondaryStructureStep(Step):
     """Approximate three-state secondary structure from phi/psi angles."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "structure_secondary_structure.StructureSecondaryStructureStep.parameters.json"
 

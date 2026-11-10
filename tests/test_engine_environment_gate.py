@@ -6,16 +6,16 @@ import time
 
 import pytest
 
-from biopipe.engine.environment import EnvironmentBusy, EnvironmentGuard, EnvironmentGuardError
-from biopipe.engine.facade import owner_identity
-from biopipe.engine.supervisor import identity_for_pid
+from operon.engine.environment import EnvironmentBusy, EnvironmentGuard, EnvironmentGuardError
+from operon.engine.facade import owner_identity
+from operon.engine.supervisor import identity_for_pid
 from src.web.models import Graph
 
 
 def test_selected_interpreter_identity_is_independent_of_manager_prefix(tmp_path, monkeypatch):
     import subprocess
     import sys
-    from biopipe.engine.environment import environment_identity
+    from operon.engine.environment import environment_identity
     original = environment_identity(sys.executable)
     monkeypatch.setattr(sys, 'prefix', str(tmp_path / 'another-manager'))
     assert environment_identity(sys.executable) == original
@@ -92,7 +92,7 @@ def service(tmp_path, monkeypatch):
     monkeypatch.setattr(module, 'HostAdmission',
                         lambda path: HostAdmission(path, available_bytes=2048 * MIB, cpu_threads=2))
     gate = tmp_path / 'environment-gate.json'
-    monkeypatch.setenv('BIOPIPE_ENVIRONMENT_GATE', str(gate))
+    monkeypatch.setenv('OPERON_ENVIRONMENT_GATE', str(gate))
     code = tmp_path / 'code'
     (code / 'scripts').mkdir(parents=True)
     (code / 'scripts/run.py').write_text('''import json,os,sys,time
@@ -129,8 +129,8 @@ def test_job_lifecycle_holds_and_releases_environment_lease(service):
 def test_readiness_repair_is_blocked_while_a_job_holds_the_gate(service):
     result, gate = service
     from types import SimpleNamespace
-    from biopipe.documents import CommandError
-    from biopipe.readiness import ReadinessService
+    from operon.documents import CommandError
+    from operon.readiness import ReadinessService
     token = result.environment_guard.begin(owner=result.owner, kind='test')
     try:
         with pytest.raises(CommandError) as error:
@@ -157,7 +157,7 @@ def test_new_work_is_rejected_while_repair_holds_the_gate(service):
     wait_until(lambda: result.details(job['id'])['logs_complete'])
 
 def test_different_environment_identities_do_not_block_each_other(tmp_path):
-    from biopipe.engine.environment import EnvironmentGuard, EnvironmentBusy
+    from operon.engine.environment import EnvironmentGuard, EnvironmentBusy
     guard = EnvironmentGuard(tmp_path / 'gate.json')
     first = guard.begin(owner={'pid': os.getpid(), 'created': __import__('psutil').Process().create_time()},
                         kind='repair', environment='env-a')

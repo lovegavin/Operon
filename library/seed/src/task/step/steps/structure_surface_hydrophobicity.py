@@ -41,7 +41,7 @@ def _text(form: Form, field_dim: str, name: str) -> list[str]:
 
 
 class StructureSurfaceHydrophobicityStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_surface_hydrophobicity.StructureSurfaceHydrophobicityStep.parameters.json"
 
     definition = {

@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class AnscombeGlynnStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Anscombe-Glynn test for sample kurtosis."""
     parameters_file = 'anscombe_glynn.AnscombeGlynnStep.parameters.json'
     definition = {'protocol_version': 3,

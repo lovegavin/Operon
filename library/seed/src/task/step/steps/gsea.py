@@ -59,7 +59,7 @@ def _enrichment_score(rank_values, hits, weight):
 
 
 class GseaStep(Step):
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'gsea.GseaStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'gsea',

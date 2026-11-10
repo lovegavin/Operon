@@ -66,7 +66,7 @@ def residue_sasa(form: Form, atom_dim: str, field_dim: str) -> dict[str, tuple[f
 class StructureGlycosylationSitesStep(Step):
     """Detect N-/O-linked glycosylation sequons and their surface exposure."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "structure_glycosylation_sites.StructureGlycosylationSitesStep.parameters.json"
     )

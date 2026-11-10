@@ -28,7 +28,7 @@ from src.task.step.steps.esm_if_redesign import _fixed_partial
 
 
 class EsmIfInterfaceRedesignStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "esm_if_interface_redesign.EsmIfInterfaceRedesignStep.parameters.json"
     )

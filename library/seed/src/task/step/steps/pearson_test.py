@@ -14,7 +14,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class PearsonTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'pearson_test.PearsonTestStep.parameters.json'
     definition = {
         'protocol_version': 3,

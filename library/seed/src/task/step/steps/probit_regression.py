@@ -14,7 +14,7 @@ _STATISTICS = ["coef", "se", "z", "P", "CI_low", "CI_high"]
 
 
 class ProbitRegressionStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fit a binomial probit regression by maximum likelihood."""
     parameters_file = 'probit_regression.ProbitRegressionStep.parameters.json'
     definition = {'protocol_version': 3,

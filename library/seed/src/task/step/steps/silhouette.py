@@ -34,7 +34,7 @@ def _target_labels(form, sample_dim: str, label_dim: str, target: str):
 
 
 class SilhouetteStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'silhouette.SilhouetteStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'silhouette',

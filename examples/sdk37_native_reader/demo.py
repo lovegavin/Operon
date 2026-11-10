@@ -5,7 +5,7 @@ import json
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from biopipe_sdk import Reader, NativeArray
+from operon_sdk import Reader, NativeArray
 
 
 class MappedReader(Reader):
@@ -31,7 +31,7 @@ class MappedReader(Reader):
 
 def main(output):
     import numpy as np
-    from biopipe_sdk.native_array import reader_output
+    from operon_sdk.native_array import reader_output
     from src.task import Context, run
     output.mkdir(parents=True, exist_ok=True)
     path = output / 'synthetic.npy'

@@ -14,7 +14,7 @@ from src.reader.readers._table_common import table_form
 
 
 class BamReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Binary Alignment/Map reader."""
     parameters_file = 'bam_reader.BamReader.parameters.json'
     definition = {'protocol_version': 3,

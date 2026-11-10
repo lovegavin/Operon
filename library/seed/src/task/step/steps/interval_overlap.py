@@ -89,7 +89,7 @@ def _extract(form, region_dim, field_dim, chrom_field, start_field, end_field,
 
 class IntervalOverlapStep(Step):
     """Pairwise overlap of intervals between two BED forms."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'interval_overlap.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'interval_overlap',

@@ -19,7 +19,7 @@ from src.reader.readers._table_common import table_form
 
 
 class PedReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """PLINK PED reader."""
     parameters_file = 'ped_reader.PedReader.parameters.json'
     definition = {

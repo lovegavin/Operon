@@ -25,7 +25,7 @@ from ._ext_common import (
 
 
 class RemoveBatchEffectStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'remove_batch_effect.RemoveBatchEffectStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'remove_batch_effect',

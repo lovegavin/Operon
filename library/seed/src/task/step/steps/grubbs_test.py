@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class GrubbsTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Grubbs (extreme studentized deviate) test for one outlier.
 
     The most extreme observation (largest absolute deviation from the sample

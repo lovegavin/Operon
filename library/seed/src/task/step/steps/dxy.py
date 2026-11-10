@@ -19,7 +19,7 @@ from ._popgen_group_common import group_indices
 
 
 class DxyStep(Step):
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'dxy.DxyStep.parameters.json'
     definition = {'protocol_version': 3,
                   'id': 'dxy',

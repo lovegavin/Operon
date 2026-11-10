@@ -10,7 +10,7 @@ from ._matrix_common import matrix
 
 
 class VifStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'vif.VifStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'vif',

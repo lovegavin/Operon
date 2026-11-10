@@ -181,7 +181,7 @@ def probe_rows(
 class EsmEmbeddingRidgeProbeStep(Step):
     """Predict a continuous property from ESM embeddings with ridge regression."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_embedding_ridge_probe.EsmEmbeddingRidgeProbeStep.parameters.json"
     definition = {
         "protocol_version": 3,

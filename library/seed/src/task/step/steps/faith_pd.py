@@ -19,7 +19,7 @@ from src.task.step.steps._phylo_common import (
 class FaithPdStep(Step):
     """Faith's phylogenetic diversity: branch length spanned by the observed taxa."""
 
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'faith_pd.FaithPdStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11', 'statsmodels>=0.14'],

@@ -108,7 +108,7 @@ def cluster_tables(
 class VinaPoseClusterStep(Step):
     """Group docked poses into binding modes."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "vina_pose_cluster.VinaPoseClusterStep.parameters.json"
 

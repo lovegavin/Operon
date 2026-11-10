@@ -10,7 +10,7 @@ from src.task.step.steps._agreement68_common import coefficient, observed_agreem
 
 
 class BrennanPredigerStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'brennan_prediger.BrennanPredigerStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'brennan_prediger',

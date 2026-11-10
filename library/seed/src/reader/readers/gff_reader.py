@@ -11,7 +11,7 @@ from ._table_common import table_form
 
 
 class GffReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for 9-column GFF files; output is feature x field."""
     parameters_file = 'gff_reader.GffReader.parameters.json'
     definition = {

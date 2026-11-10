@@ -50,7 +50,7 @@ _METHODS = ("min", "median", "mean")
 
 class ImputeStep(Step):
     """Fill missing values in a form."""
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'impute.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'impute',

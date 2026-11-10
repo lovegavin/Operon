@@ -66,7 +66,7 @@ def distance_matrix(entries: list[dict]) -> np.ndarray:
 class StructureCaDistanceMatrixStep(Step):
     """Pairwise CA-CA distances with an optional chain filter."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "structure_ca_distance_matrix.StructureCaDistanceMatrixStep.parameters.json"
     )

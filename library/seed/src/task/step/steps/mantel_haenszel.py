@@ -12,7 +12,7 @@ from ._ext_common import make_form
 
 
 class MantelHaenszelStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'mantel_haenszel.MantelHaenszelStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

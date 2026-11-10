@@ -80,7 +80,7 @@ def outlier_rows(distances: np.ndarray) -> list[tuple[float, float, float]]:
 class EsmEmbeddingOutlierScanStep(Step):
     """Ranks embeddings by Mahalanobis or k-nearest-neighbour distance."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_embedding_outlier_scan.EsmEmbeddingOutlierScanStep.parameters.json"
 
     definition = {

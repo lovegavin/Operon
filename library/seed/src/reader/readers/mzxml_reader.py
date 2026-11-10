@@ -59,7 +59,7 @@ def _peak_count(element) -> int:
 
 
 class MzxmlReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """One row per mzXML scan; peak arrays are only counted."""
     parameters_file = 'mzxml_reader.MzxmlReader.parameters.json'
     definition = {

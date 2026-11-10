@@ -17,7 +17,7 @@ def _segment_rss(y: np.ndarray, x: np.ndarray, start: int, stop: int) -> float:
 
 
 class BaiPerronStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'bai_perron.BaiPerronStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'bai_perron',

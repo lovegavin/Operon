@@ -32,7 +32,7 @@ def _natural_groups(values: list[str]) -> list[str]:
 
 
 class JonckheereTerpstraStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Rank-based test for a monotone trend across ordered groups.
 
     The p-value uses the normal approximation, matching

@@ -15,7 +15,7 @@ _STATISTICS = ("mean_plddt", "min_plddt", "max_plddt", "n_atoms")
 class StructurePlddtProfileStep(Step):
     """Mean B-factor (pLDDT) per residue of a predicted PDB structure."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "structure_plddt_profile.StructurePlddtProfileStep.parameters.json"
 

@@ -33,7 +33,7 @@ class PcnmStep(Step):
     convention used by ``vegan::pcnm``.
     """
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
 
     parameters_file = 'pcnm.PcnmStep.parameters.json'
     definition = {'protocol_version': 3,

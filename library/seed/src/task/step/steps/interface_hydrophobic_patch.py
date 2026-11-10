@@ -76,7 +76,7 @@ def cluster_residues(anchors: np.ndarray, cutoff: float) -> list[list[int]]:
 class InterfaceHydrophobicPatchStep(Step):
     """Group hydrophobic binder residues that contact a target into surface patches."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "interface_hydrophobic_patch.InterfaceHydrophobicPatchStep.parameters.json"
 
     definition = {

@@ -54,7 +54,7 @@ _STAT_LABELS = ("start", "end", "gc", "at", "gc_skew", "cumulative_skew", "cumul
 
 
 class GcSkewProfileStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """GC / AT composition and cumulative GC skew over sliding windows."""
     parameters_file = 'gc_skew_profile.GcSkewProfileStep.parameters.json'
     definition = {'protocol_version': 3,

@@ -45,7 +45,7 @@ _INNER_MODES = ("box", "quartile", "point", "none")
 
 class ViolinStep(Step):
     """Draw violin plots of a value column grouped by a label."""
-    provider = 'biopipe-plots'
+    provider = 'operon-plots'
     parameters_file = 'violin.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

@@ -11,7 +11,7 @@ from ._ext_common import group_values, labels_in_order, make_form, reorder
 
 
 class FstStep(Step):
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'fst.FstStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'fst',

@@ -9,7 +9,7 @@ from ._matrix_common import matrix, projection
 
 
 class FactorAnalysisStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'factor_analysis.FactorAnalysisStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'factor_analysis',

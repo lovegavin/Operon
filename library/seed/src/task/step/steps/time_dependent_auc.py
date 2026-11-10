@@ -9,7 +9,7 @@ from src.task.step.base import Step
 
 
 class TimeDependentAucStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Kaplan-Meier cumulative/dynamic AUC at one prediction time."""
     parameters_file = 'time_dependent_auc.TimeDependentAucStep.parameters.json'
     definition = {'protocol_version': 3,

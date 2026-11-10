@@ -13,7 +13,7 @@ from ._tests50_common import grouped_expression
 
 
 class CochranCTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Cochran's C test for homogeneity of variances with equal group sizes."""
     parameters_file = 'cochran_c_test.CochranCTestStep.parameters.json'
     definition = {'protocol_version': 3,

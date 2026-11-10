@@ -80,7 +80,7 @@ def pairwise_identity(sequences: list[str]) -> float:
 
 
 class ProteinmpnnTemperatureLadderStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "proteinmpnn_temperature_ladder"
         ".ProteinmpnnTemperatureLadderStep.parameters.json"
@@ -131,7 +131,7 @@ class ProteinmpnnTemperatureLadderStep(Step):
             )
         repo = str(params.get("proteinmpnn_path", "")).strip()
         if not repo:
-            repo = os.environ.get("BIOPIPE_PROTEINMPNN_PATH", "").strip()
+            repo = os.environ.get("OPERON_PROTEINMPNN_PATH", "").strip()
         if not repo:
             raise StepError(
                 "proteinmpnn_temperature_ladder: proteinmpnn_path is required; point it "
@@ -191,7 +191,7 @@ class ProteinmpnnTemperatureLadderStep(Step):
         per_temperature: dict[str, list[str]] = {}
         started = time.monotonic()
         for temperature in temperatures:
-            out_dir = Path(tempfile.mkdtemp(prefix="biopipe-ladder-"))
+            out_dir = Path(tempfile.mkdtemp(prefix="operon-ladder-"))
             try:
                 command = [
                     _python(params),

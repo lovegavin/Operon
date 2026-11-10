@@ -109,7 +109,7 @@ def _chain_index(chains: list[str], chain: str) -> int:
 class StructureInterfaceCoreStep(Step):
     """Classify interface residues into rim and core from buried surface area."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "structure_interface_core.StructureInterfaceCoreStep.parameters.json"
 

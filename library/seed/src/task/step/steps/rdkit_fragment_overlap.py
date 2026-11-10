@@ -54,7 +54,7 @@ def overlap_matrix(first: list[set[str]], second: list[set[str]]) -> np.ndarray:
 class RdkitFragmentOverlapStep(Step):
     """Jaccard overlap of BRICS fragment sets between two molecule groups."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "rdkit_fragment_overlap.RdkitFragmentOverlapStep.parameters.json"
 

@@ -85,7 +85,7 @@ def recovery_rows(native: str, designs: list[str]) -> list[dict]:
 class ProteinmpnnNativeRecoveryScanStep(Step):
     """Report per-position native recovery across ProteinMPNN designs."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "proteinmpnn_native_recovery_scan.ProteinmpnnNativeRecoveryScanStep.parameters.json"
 
     def estimate_memory(self, inputs, params, profiles):
@@ -128,7 +128,7 @@ class ProteinmpnnNativeRecoveryScanStep(Step):
     def run(self, ctx: Context, inputs: list[Form]) -> None:
         params = ctx.step_params
         structure = Path(str(params.get("structure_path") or "")).expanduser()
-        repo = Path(str(params.get("proteinmpnn_path") or os.environ.get("BIOPIPE_PROTEINMPNN_PATH") or "")).expanduser()
+        repo = Path(str(params.get("proteinmpnn_path") or os.environ.get("OPERON_PROTEINMPNN_PATH") or "")).expanduser()
         model = str(params.get("model_name") or "v_48_020")
         chains = str(params.get("chains") or "")
         count = int(params.get("num_seq_per_target", 16))
@@ -162,7 +162,7 @@ class ProteinmpnnNativeRecoveryScanStep(Step):
         python = str(params.get("python_executable") or "") or sys.executable
 
         started = time.time()
-        work = Path(tempfile.mkdtemp(prefix="biopipe-native-recovery-"))
+        work = Path(tempfile.mkdtemp(prefix="operon-native-recovery-"))
         try:
             out_dir = work / "out"
             out_dir.mkdir()

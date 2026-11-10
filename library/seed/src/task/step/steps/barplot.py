@@ -58,7 +58,7 @@ from src.task.step.steps._plot_helpers import save_figure, setup_style, figure_r
 
 class BarplotStep(Step):
     """Stacked bar plot of a matrix along one axis."""
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'barplot.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

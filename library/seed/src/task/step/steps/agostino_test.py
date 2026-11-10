@@ -12,7 +12,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class AgostinoTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'agostino_test.AgostinoTestStep.parameters.json'
     definition = {
         'protocol_version': 3,

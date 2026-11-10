@@ -9,7 +9,7 @@ from src.reader.readers._gsea_common import parse_phenotype, phenotype_form
 
 
 class ClsReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for GSEA .cls categorical phenotype files.
 
     The output is ``[sample, feature]`` with one encoded ``class`` column.

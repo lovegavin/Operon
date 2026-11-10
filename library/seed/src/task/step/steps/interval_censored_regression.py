@@ -79,7 +79,7 @@ def _exact_log_density(
 
 
 class IntervalCensoredRegressionStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fit a Weibull AFT model to interval-censored observations.
 
     Each row supplies a lower and upper observation time.  ``lower < upper``

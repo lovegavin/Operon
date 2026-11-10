@@ -47,12 +47,12 @@ print(value.get('host', '127.0.0.1'), int(value['port']), value['token'])
 PY
 )
 
-"$PY" -m biopipe pool serve --config "$CONFIG" --port "$PORT" >"$LOG" 2>&1 &
+"$PY" -m operon pool serve --config "$CONFIG" --port "$PORT" >"$LOG" 2>&1 &
 PID=$!
 
 "$PY" - "$HOST" "$PORT" "$TOKEN" <<'PY'
 import sys, time
-from biopipe.pool_service import PoolClient
+from operon.pool_service import PoolClient
 host, port, token = sys.argv[1], int(sys.argv[2]), sys.argv[3]
 client = PoolClient((host, port), token, timeout=2)
 deadline = time.monotonic() + 90

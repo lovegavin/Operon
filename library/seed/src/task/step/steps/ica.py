@@ -9,7 +9,7 @@ from ._matrix_common import matrix, projection
 
 
 class IcaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'ica.IcaStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'ica',

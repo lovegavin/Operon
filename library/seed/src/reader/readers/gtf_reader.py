@@ -64,7 +64,7 @@ _GTF_COLUMNS = [
 
 class GtfReader(Reader):
     """Reader for .gtf files."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'gtf_reader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'GtfReader',

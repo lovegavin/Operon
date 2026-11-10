@@ -8,8 +8,8 @@ from copy import deepcopy
 import heapq
 from pathlib import Path, PurePosixPath
 
-from biopipe.file_formats import primary_ext, uncompressed_path
-from biopipe.pins import identity, equivalent, released_replacements
+from operon.file_formats import primary_ext, uncompressed_path
+from operon.pins import identity, equivalent, released_replacements
 from .graph import GraphError
 from .routes import output_names
 
@@ -163,7 +163,7 @@ def _metadata(graph, infos, stat_file, warnings, *, dependencies_only=False, req
     for name, variants in {**operators, **readers}.items():
         schemas[name] = {key for spec in variants
                          for key, field in spec.get('parameters_schema', {}).get('properties', {}).items()
-                         if field.get('x-biopipe-path')}
+                         if field.get('x-operon-path')}
     reader_by_ext = {}
     for name, variants in readers.items():
         for extension in {ext for spec in variants for ext in spec.get('extensions', [])}:
@@ -419,7 +419,7 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False, dependenci
     units, owner = [], {}
     split_branches = config.get('split_independent_branches', False)
     if split_branches:
-        from biopipe.engine.dag import split_chains
+        from operon.engine.dag import split_chains
         plan_nodes = [node.id for node in graph.nodes]
         plan_edges = [(edge.source, edge.target) for edge in graph.edges]
         sources = {node.id for node in graph.nodes if node.kind == 'source'}

@@ -28,7 +28,7 @@ def service(tmp_path, monkeypatch):
     import src.web.service as module
     monkeypatch.setattr(module, 'HostAdmission',
                         lambda path: HostAdmission(path, available_bytes=2048 * MIB, cpu_threads=2))
-    monkeypatch.setenv('BIOPIPE_ENVIRONMENT_GATE', str(tmp_path / 'gate.json'))
+    monkeypatch.setenv('OPERON_ENVIRONMENT_GATE', str(tmp_path / 'gate.json'))
     code = tmp_path / 'code'
     (code / 'scripts').mkdir(parents=True)
     (code / 'scripts/run.py').write_text('''import json,os,sys,time

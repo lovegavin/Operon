@@ -4,7 +4,7 @@ from ._ml_common import _RegressionBase
 
 
 class RidgeRegressionStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'ridge_regression.RidgeRegressionStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'ridge_regression',

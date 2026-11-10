@@ -21,7 +21,7 @@ CHAIN_COLUMNS = [
 
 
 class ChainReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """UCSC chain alignment reader."""
     parameters_file = 'chain_reader.ChainReader.parameters.json'
     definition = {

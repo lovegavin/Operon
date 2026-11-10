@@ -39,7 +39,7 @@ class _PlsRegressor(BaseEstimator, RegressorMixin):
 
 
 class PlsRegressionStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'pls_regression.PlsRegressionStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'pls_regression',

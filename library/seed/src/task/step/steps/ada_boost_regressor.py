@@ -5,7 +5,7 @@ from ._ml_common import _RegressionBase
 
 
 class AdaBoostRegressorStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'ada_boost_regressor.AdaBoostRegressorStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'ada_boost_regressor',

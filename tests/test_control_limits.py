@@ -6,7 +6,7 @@ import struct
 import threading
 import time
 
-from biopipe.engine.control import ControlLimits, ControlLoop
+from operon.engine.control import ControlLimits, ControlLoop
 
 
 def start_loop(dispatch, **limits):

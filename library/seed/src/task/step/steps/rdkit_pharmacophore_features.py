@@ -45,7 +45,7 @@ def _feature_file() -> str:
     except UnicodeEncodeError:
         pass
     base = os.environ.get("ProgramData") or os.environ.get("PUBLIC") or tempfile.gettempdir()
-    target = os.path.join(base, "biopipe", "BaseFeatures.fdef")
+    target = os.path.join(base, "operon", "BaseFeatures.fdef")
     if not os.path.isfile(target):
         os.makedirs(os.path.dirname(target), exist_ok=True)
         shutil.copyfile(path, target)
@@ -81,7 +81,7 @@ def feature_row(molecule) -> list[float]:
 class RdkitPharmacophoreFeaturesStep(Step):
     """Count pharmacophore feature families for a SMILES list."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "rdkit_pharmacophore_features.RdkitPharmacophoreFeaturesStep.parameters.json"
 
     def estimate_memory(self, inputs, params, profiles):

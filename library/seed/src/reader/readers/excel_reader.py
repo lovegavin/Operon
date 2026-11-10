@@ -11,7 +11,7 @@ from ._table_common import table_form
 
 
 class ExcelReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for .xlsx and .xlsm workbooks."""
     parameters_file = 'excel_reader.ExcelReader.parameters.json'
     definition = {'protocol_version': 3,

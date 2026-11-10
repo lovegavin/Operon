@@ -20,7 +20,7 @@ from ._ext_common import axis_labels, labels_in_order, make_form, reorder, requi
 
 
 class DoubletDetectStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'doublet_detect.DoubletDetectStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'doublet_detect',

@@ -168,7 +168,7 @@ def _align(target: str, query: str, match: float, mismatch: float,
 class PairwiseAlignmentStep(Step):
     """Align exactly two sequences and report score and alignment counts."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'pairwise_alignment.PairwiseAlignmentStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'pairwise_alignment',

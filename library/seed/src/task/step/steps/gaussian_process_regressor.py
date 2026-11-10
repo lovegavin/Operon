@@ -11,7 +11,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class GaussianProcessRegressorStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fit a Gaussian-process regressor with a fixed RBF kernel.
 
     The kernel length scale and noise level are fixed by the user; no

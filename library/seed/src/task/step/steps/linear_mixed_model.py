@@ -10,7 +10,7 @@ from ._stats21_common import design_matrix, numeric_column, table_frame
 
 
 class LinearMixedModelStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Random-intercept linear mixed model via statsmodels MixedLM."""
     parameters_file = 'linear_mixed_model.LinearMixedModelStep.parameters.json'
     definition = {'protocol_version': 3,

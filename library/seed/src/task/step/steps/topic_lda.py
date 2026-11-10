@@ -14,7 +14,7 @@ from ._matrix_common import matrix, projection
 
 
 class TopicLdaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'topic_lda.TopicLdaStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'topic_lda',

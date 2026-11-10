@@ -20,7 +20,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class Iv2slsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'iv_2sls.Iv2slsStep.parameters.json'
     definition = {
         'protocol_version': 3,

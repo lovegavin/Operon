@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class LjungBoxStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'ljung_box.LjungBoxStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

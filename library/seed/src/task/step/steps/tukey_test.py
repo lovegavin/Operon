@@ -13,7 +13,7 @@ from ._posthoc57_common import finite_group_values, pairs
 
 
 class TukeyTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Tukey HSD all-pairwise comparisons for every feature.
 
     The statistic follows ``PMCMRplus::tukeyTest``: the pooled within-group

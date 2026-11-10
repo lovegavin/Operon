@@ -49,7 +49,7 @@ def spectral_embedding(matrix: np.ndarray, k: int = 8, components: int = 2) -> n
 
 
 class EsmEmbeddingUmapProjectionStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_embedding_umap_projection.EsmEmbeddingUmapProjectionStep.parameters.json"
 
     definition = {

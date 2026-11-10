@@ -13,7 +13,7 @@ _STATISTICS = ["coef", "se", "t", "p"]
 
 
 class VarModelStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Estimate a VAR(p) model with a deterministic OLS fit."""
     parameters_file = 'var_model.VarModelStep.parameters.json'
     definition = {'protocol_version': 3,

@@ -40,7 +40,7 @@ def count_matches(molecule, query, unique: bool) -> int:
 class RdkitSmartsMatchesStep(Step):
     """Count SMARTS pattern matches for every molecule in a SMILES list."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "rdkit_smarts_matches.RdkitSmartsMatchesStep.parameters.json"
 
     definition = {

@@ -12,7 +12,7 @@ from ._metric_common import label_series
 
 
 class SilhouetteSamplesStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Silhouette coefficient for each sample in a clustering."""
     parameters_file = 'silhouette_samples.SilhouetteSamplesStep.parameters.json'
     definition = {'protocol_version': 3,

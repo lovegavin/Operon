@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class AnovaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'anova.AnovaStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'anova',

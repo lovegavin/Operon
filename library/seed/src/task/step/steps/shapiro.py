@@ -11,7 +11,7 @@ from ._matrix_common import matrix
 
 
 class ShapiroStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'shapiro.ShapiroStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'shapiro',

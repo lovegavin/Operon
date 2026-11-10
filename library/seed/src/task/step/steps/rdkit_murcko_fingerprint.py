@@ -41,7 +41,7 @@ def _integer(params: dict, name: str, default: int, low: int, high: int) -> int:
 
 
 class RdkitMurckoFingerprintStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "rdkit_murcko_fingerprint.RdkitMurckoFingerprintStep.parameters.json"
 
     definition = {

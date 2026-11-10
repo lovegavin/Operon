@@ -37,7 +37,7 @@ def parse_m8(text: str) -> list[dict]:
 
 
 class FoldseekSearchStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "foldseek_search.FoldseekSearchStep.parameters.json"
 
     definition = {

@@ -31,12 +31,12 @@ _COMPRESSION = {
 
 
 def _from_packages():
-    from biopipe.packages import bundled_entries, load_entry
-    from biopipe.lazy import reader_proxy
+    from operon.packages import bundled_entries, load_entry
+    from operon.lazy import reader_proxy
     return [reader_proxy(d, lambda d=d: load_entry(d)) for _, d in bundled_entries("reader")]
 
 
-READERS: list[Reader] = [] if os.getenv("BIOPIPE_REGISTRY_MAINTENANCE") == "1" else _from_packages()
+READERS: list[Reader] = [] if os.getenv("OPERON_REGISTRY_MAINTENANCE") == "1" else _from_packages()
 
 
 def pick_reader(path: Path, name: str | None = None) -> Reader:
@@ -49,7 +49,7 @@ def pick_reader(path: Path, name: str | None = None) -> Reader:
     """
     path = Path(path)
     if name is not None:
-        from biopipe.reader_selection import candidates as select
+        from operon.reader_selection import candidates as select
         descriptors = [{**getattr(reader, '_declaration', {}),
                         'id': getattr(reader, '_declaration', {}).get('id', type(reader).__name__),
                         **{key: getattr(reader, key) for key in ('extensions', 'requires_siblings', 'excludes_siblings', 'handles_compression', 'file_input')}}
@@ -65,7 +65,7 @@ def pick_reader(path: Path, name: str | None = None) -> Reader:
 
     if not candidates:
         ext = primary_ext(path)
-        from biopipe.file_formats import COMPRESSION_SUFFIXES, compression_extensions
+        from operon.file_formats import COMPRESSION_SUFFIXES, compression_extensions
         matching = [r for r in READERS if ext in r.extensions]
         if path.suffix.lower() in COMPRESSION_SUFFIXES and matching and all(
                 path.suffix.lower() not in compression_extensions({
@@ -99,7 +99,7 @@ def _decompressed(path: Path):
 
     # Keep parser-generated indexes in the same disposable directory. Some
     # binary readers generate sidecars, which a single mkstemp file leaked.
-    with tempfile.TemporaryDirectory(prefix="biopipe-reader-") as directory:
+    with tempfile.TemporaryDirectory(prefix="operon-reader-") as directory:
         tmp_path = Path(directory) / path.with_suffix("").name
         try:
             with _COMPRESSION[suffix](path, "rb") as src, open(tmp_path, "wb") as dst:
@@ -127,7 +127,7 @@ def read_source(
     reader = pick_reader(path, reader_id)
     if reader.parameters_schema is None:
         raise ReaderError("Protocol v3 requires a Reader parameter schema; migrate the declaration first")
-    from biopipe_sdk.protocol import validate_parameters
+    from operon_sdk.protocol import validate_parameters
     args = validate_parameters(reader.parameters_schema, args)
 
     if reader.handles_compression:
@@ -135,7 +135,7 @@ def read_source(
     else:
         with _decompressed(path) as real_path:
             form = reader.read(real_path, dims, labels, **args)
-    from biopipe_sdk.native_array import reader_output
+    from operon_sdk.native_array import reader_output
     form = reader_output(form, getattr(reader, '_declaration', {}) or getattr(reader, 'definition', {}))
     from src.core.contracts import validate_form, validate_output, source_schema
     validate_form(form, reader.output_contract, f"reader {type(reader).__name__} output")

@@ -22,7 +22,7 @@ def _profile(p, alpha):
 
 
 class RenyiStep(Step):
-    provider = "biopipe-microbiome"
+    provider = "operon-microbiome"
     parameters_file = "renyi.RenyiStep.parameters.json"
     definition = {
         "protocol_version": 3,

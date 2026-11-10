@@ -18,7 +18,7 @@ _NAMES = [
 
 
 class ConcordanceCorrelationStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'concordance_correlation.ConcordanceCorrelationStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'concordance_correlation',

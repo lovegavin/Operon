@@ -20,7 +20,7 @@ _STATISTICS = ("present", "size_mb")
 class ResourcePreflightStep(Step):
     """Check the files of one or all large resources and report remedies."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "resource_preflight.ResourcePreflightStep.parameters.json"
 

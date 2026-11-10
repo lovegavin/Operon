@@ -11,7 +11,7 @@ from ._matrix_common import matrix
 
 
 class JarqueBeraStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'jarque_bera.JarqueBeraStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'jarque_bera',

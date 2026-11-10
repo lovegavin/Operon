@@ -80,7 +80,7 @@ def sasa_rows(values: np.ndarray, labels: list[str], *, exposed_threshold: float
 
 
 class StructureMdSasaOccupancyStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_sasa_occupancy.StructureMdSasaOccupancyStep.parameters.json"
     definition = {
         "protocol_version": 3,

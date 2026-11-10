@@ -11,7 +11,7 @@ from ._sequence_common import decode_sequences, reverse_complement
 
 
 class ReverseComplementStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'reverse_complement.ReverseComplementStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'reverse_complement',

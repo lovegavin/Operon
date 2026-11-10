@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class SignTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'sign_test.SignTestStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'sign_test',

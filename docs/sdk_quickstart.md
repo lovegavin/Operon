@@ -6,11 +6,11 @@ defaults, constraints and form hints. The registry is a generated index.
 
 ## 0–5 minutes: scaffold
 
-Use the same Python environment as BioPipe:
+Use the same Python environment as Operon:
 
 ```text
 python -m pip install -e ".[agent,dev]"
-python -m biopipe plugin init ./lab_scale
+python -m operon plugin init ./lab_scale
 ```
 
 The project contains:
@@ -27,7 +27,7 @@ lab_scale/
   README.md
 ```
 
-`biopipe` and `python -m biopipe` are equivalent. No fixed machine path is needed.
+`operon` and `python -m operon` are equivalent. No fixed machine path is needed.
 For a Reader use `plugin init ./lab_array --template reader`.
 
 ## 5–15 minutes: implement and declare
@@ -81,13 +81,13 @@ same Python. See [dependency isolation](dependency_isolation.md).
 ## 15–20 minutes: check and test
 
 ```text
-biopipe plugin check ./lab_scale
-biopipe plugin test ./lab_scale
+operon plugin check ./lab_scale
+operon plugin test ./lab_scale
 ```
 
 Checking reads source and JSON without executing imports. It rejects invalid
 contracts, schema errors, missing parameters and duplicate/invalid identities.
-Tests execute the real runner through `biopipe_sdk.testing.run_operator`.
+Tests execute the real runner through `operon_sdk.testing.run_operator`.
 Add fixtures for missing data, invalid inputs and metadata propagation.
 Streaming/disk capability claims must be backed by real implementations; see
 [resource protocols](resource_runtime.md).
@@ -95,9 +95,9 @@ Streaming/disk capability claims must be backed by real implementations; see
 ## 20–25 minutes: build and install
 
 ```text
-biopipe plugin build ./lab_scale
-biopipe plugin install ./lab_scale/dist/lab_scale-0.1.0-py3-none-any.whl
-biopipe operators describe example.lab_scale
+operon plugin build ./lab_scale
+operon plugin install ./lab_scale/dist/lab_scale-0.1.0-py3-none-any.whl
+operon operators describe example.lab_scale
 ```
 
 Build returns the exact wheel path. It embeds a generated descriptor, checks

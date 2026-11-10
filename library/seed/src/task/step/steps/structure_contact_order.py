@@ -81,7 +81,7 @@ def contact_order(ca: np.ndarray, cutoff: float, min_separation: int) -> tuple[d
 class StructureContactOrderStep(Step):
     """Absolute and relative contact order of a single-chain structure."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "structure_contact_order.StructureContactOrderStep.parameters.json"
 

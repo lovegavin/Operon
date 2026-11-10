@@ -1,8 +1,8 @@
 # Importing independently published libraries and routes
 
 Use **Add operators → Import package** for `.whl`, `.operon-library.zip` or legacy
-`.biopipe-library.zip` files. The two library suffixes are transport aliases for
-the same v3 library envelope, with either `operon.library` or `biopipe.library`
+`.operon-library.zip` files. The two library suffixes are transport aliases for
+the same v3 library envelope, with either `operon.library` or `operon.library`
 as its format. Archive checksums, safe paths, protocol requirements and the
 source-to-wheel reproducibility check are still required.
 
@@ -11,17 +11,17 @@ then select the individual `routes/*.operon.zip` bundles in **File → Import** 
 **Add operators → Route operators**. Submitting the collection or a library
 bundle to the workflow importer now identifies the wrong archive type.
 
-Individual `.operon`, `.operon.zip`, `.biopipe`, `.biopipe.zip` and `.zip` bundles
+Individual `.operon`, `.operon.zip`, `.operon`, `.operon.zip` and `.zip` bundles
 use the same validated archive path. Both branded and legacy parameter/execution
 sidecars are supported. Names do not change frozen parameters, memory budgets,
 source paths or graph topology. The CLI accepts the same suffix aliases. YAML
-uses `operon.workflow`; old `biopipe.workflow` documents and sidecars remain valid.
+uses `operon.workflow`; old `operon.workflow` documents and sidecars remain valid.
 
 ## Provider ownership and source-authored pins
 
 Seven official distribution renames are recognized for ownership and replacement:
 `core`, `readers`, `expression`, `genetics`, `plots`, `microbiome`, and `hic`, with
-either the `biopipe-` or `operon-` prefix. Installing the renamed distribution
+either the `operon-` or `operon-` prefix. Installing the renamed distribution
 replaces that provider once and preserves its disabled state. This does not give
 arbitrary `operon-*` packages permission to claim built-in IDs, nor does it allow
 one official provider to claim another provider's IDs. Historical packages and

@@ -13,7 +13,7 @@ from ._stats21_common import table_frame
 
 
 class CochranQStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Test equality of binary responses across three or more conditions."""
     parameters_file = 'cochran_q.CochranQStep.parameters.json'
     definition = {'protocol_version': 3,

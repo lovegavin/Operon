@@ -1,4 +1,4 @@
-from biopipe.engine.cache_environment import inspect
+from operon.engine.cache_environment import inspect
 
 
 def test_same_version_dependency_code_change_invalidates_fingerprint(tmp_path, monkeypatch):

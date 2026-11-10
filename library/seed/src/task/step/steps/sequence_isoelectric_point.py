@@ -48,7 +48,7 @@ def isoelectric_point(sequence: str, *, low: float = 0.0, high: float = 14.0, to
 
 
 class SequenceIsoelectricPointStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_isoelectric_point.SequenceIsoelectricPointStep.parameters.json"
 
     definition = {

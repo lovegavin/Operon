@@ -4,7 +4,7 @@ import time
 
 import pytest
 
-from biopipe.application import Application
+from operon.application import Application
 from src.web.models import Graph
 from src.web.operator_catalog import catalog_from_descriptors
 from src.web.service import Settings

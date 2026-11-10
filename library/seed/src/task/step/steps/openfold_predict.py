@@ -79,7 +79,7 @@ def find_prediction(out_dir: Path) -> Path:
 
 
 class OpenfoldPredictStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "openfold_predict.OpenfoldPredictStep.parameters.json"
     definition = {
         "protocol_version": 3,

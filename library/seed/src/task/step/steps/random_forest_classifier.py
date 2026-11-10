@@ -4,7 +4,7 @@ from ._ml_common import _ClassificationBase
 
 
 class RandomForestClassifierStep(_ClassificationBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'random_forest_classifier.RandomForestClassifierStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'random_forest_classifier',

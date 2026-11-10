@@ -9,7 +9,7 @@ from ._stats20_common import scalar_form
 
 
 class KendallWStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Kendall's W with column-wise ranks and no tie correction."""
     parameters_file = 'kendall_w.KendallWStep.parameters.json'
     definition = {'protocol_version': 3,

@@ -13,7 +13,7 @@ from ._tests39_common import select_groups
 
 
 class HotellingT2Step(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'hotelling_t2.HotellingT2Step.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'hotelling_t2',

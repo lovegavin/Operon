@@ -13,7 +13,7 @@ from ._posthoc57_common import finite_group_values, pairs
 
 
 class TamhaneT2Step(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Tamhane T2 comparisons with Welch degrees of freedom and Sidak correction."""
     parameters_file = 'tamhane_t2.TamhaneT2Step.parameters.json'
     definition = {'protocol_version': 3,

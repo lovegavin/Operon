@@ -12,7 +12,7 @@ from ._ext_common import make_form
 
 
 class BlandAltmanStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'bland_altman.BlandAltmanStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

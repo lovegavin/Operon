@@ -12,7 +12,7 @@ from ._matrix_common import matrix, projection
 
 
 class GaussianRandomProjectionStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'gaussian_random_projection.GaussianRandomProjectionStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'gaussian_random_projection',

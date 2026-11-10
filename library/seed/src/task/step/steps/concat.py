@@ -8,7 +8,7 @@ from src.task.step.base import Step
 
 class ConcatStep(Step):
     """Concatenate inputs on axis; align other axes by label or a unique key."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'concat.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'concat',

@@ -103,7 +103,7 @@ def select_chains(params: dict, chain: np.ndarray) -> tuple[set[str], set[str]]:
 
 
 class StructureMdInterfaceOccupancyStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_interface_occupancy.StructureMdInterfaceOccupancyStep.parameters.json"
 
     definition = {

@@ -57,7 +57,7 @@ def coordination_shell(ions, ligands, ion_coords, ligand_coords, cutoff: float) 
 
 
 class StructureMetalCoordinationStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_metal_coordination.StructureMetalCoordinationStep.parameters.json"
 
     definition = {

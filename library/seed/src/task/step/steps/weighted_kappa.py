@@ -12,7 +12,7 @@ from ._stats20_common import scalar_form
 
 
 class WeightedKappaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'weighted_kappa.WeightedKappaStep.parameters.json'
     definition = {
         'protocol_version': 3,

@@ -88,7 +88,7 @@ def salt_bridges(
 
 
 class StructureSaltBridgesStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_salt_bridges.StructureSaltBridgesStep.parameters.json"
     definition = {
         "protocol_version": 3,

@@ -65,7 +65,7 @@ _METHODS = ("sum", "mean", "median", "min", "max", "count")
 
 class AggregateStep(Step):
     """Aggregate positions along one axis by group."""
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'aggregate.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'aggregate',

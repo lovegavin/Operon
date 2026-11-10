@@ -11,7 +11,7 @@ from ._ext_common import labels_in_order, reorder
 
 
 class PcaLoadingsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'pca_loadings.PcaLoadingsStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'pca_loadings',

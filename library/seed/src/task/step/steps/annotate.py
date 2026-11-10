@@ -52,7 +52,7 @@ from src.task.step.base import Step
 
 class AnnotateStep(Step):
     """Attach reference fields onto a target by key label."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'annotate.parameters.json'
     definition = {
      'dependencies': ['pandas>=2.0'],

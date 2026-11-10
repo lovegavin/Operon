@@ -99,7 +99,7 @@ def occupancy_table(
 
 
 class StructureMdDihedralOccupancyStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_dihedral_occupancy.StructureMdDihedralOccupancyStep.parameters.json"
     definition = {
         "protocol_version": 3,

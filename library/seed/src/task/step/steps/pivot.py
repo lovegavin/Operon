@@ -51,7 +51,7 @@ _MAX_CELLS = 200_000_000_0
 
 class PivotStep(Step):
     """Pivot a long 2D table into a wide matrix by two categorical columns."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'pivot.parameters.json'
     definition = {
      'dependencies': ['pandas>=2.0'],

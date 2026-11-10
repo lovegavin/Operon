@@ -73,7 +73,7 @@ def hotspot_mask(rows: list[dict], top_n: int = 0) -> dict[str, list[int]]:
 class ProteinmpnnHotspotMaskedDesignStep(Step):
     """Design the hotspot residues of a binder-target interface."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "proteinmpnn_hotspot_masked_design.ProteinmpnnHotspotMaskedDesignStep.parameters.json"
     )

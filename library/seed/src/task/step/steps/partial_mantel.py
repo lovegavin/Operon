@@ -16,7 +16,7 @@ def _residual(values: np.ndarray, control: np.ndarray) -> np.ndarray:
 
 
 class PartialMantelStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'partial_mantel.PartialMantelStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'partial_mantel',

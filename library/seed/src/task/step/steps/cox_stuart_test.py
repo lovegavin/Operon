@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class CoxStuartTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Cox-Stuart sign test for a monotone trend.
 
     The series is split into two halves after dropping the middle value of an

@@ -112,7 +112,7 @@ def _score_file(model, antiscripts, structure_path: Path, chain: str, batch_size
 
 
 class AntifoldScoreStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "antifold_score.AntifoldScoreStep.parameters.json"
 
     definition = {

@@ -30,7 +30,7 @@ jobs:
         shell: bash
         run: |
           version=$(python -c 'import json; print(json.load(open("library/release.json"))["build_application"])')
-          python -m pip install "https://github.com/lovegavin/BioPipe/releases/download/v${version}/biopipe_studio-${version}-py3-none-any.whl" pytest h5py scikit-learn biopython rdkit
+          python -m pip install "https://github.com/lovegavin/Operon/releases/download/v${version}/operon_studio-${version}-py3-none-any.whl" pytest h5py scikit-learn biopython rdkit
           python -m pip install "torch>=2.0" --index-url https://download.pytorch.org/whl/cpu
       - name: Validate release rules
         run: python -I -m pytest tests/test_library_release.py -q --import-mode=importlib
@@ -53,12 +53,12 @@ jobs:
           python -m pip install build
           python -m build --wheel --outdir build/library library
           cd build/library
-          sha256sum biopipe_builtin_library-*.whl > SHA256SUMS-seed.txt
+          sha256sum operon_builtin_library-*.whl > SHA256SUMS-seed.txt
       - uses: actions/upload-artifact@v4
         with:
           name: library-${{ matrix.os }}
           path: |
-            build/library/*.biopipe-library.zip
+            build/library/*.operon-library.zip
             build/library/*.whl
             build/library/SHA256SUMS-*.txt
             build/library/verification-*.json
@@ -83,6 +83,6 @@ jobs:
         run: |
           cat artifacts/SHA256SUMS-*.txt > artifacts/SHA256SUMS.txt
           gh release create "$GITHUB_REF_NAME" --verify-tag --latest=false \
-            --title "BioPipe Operator Library ${GITHUB_REF_NAME#library-v}" \
+            --title "Operon Operator Library ${GITHUB_REF_NAME#library-v}" \
             --notes-file "docs/releases/${GITHUB_REF_NAME}.md" \
-            artifacts/*.biopipe-library.zip artifacts/*.whl artifacts/SHA256SUMS.txt artifacts/verification-*.json
+            artifacts/*.operon-library.zip artifacts/*.whl artifacts/SHA256SUMS.txt artifacts/verification-*.json

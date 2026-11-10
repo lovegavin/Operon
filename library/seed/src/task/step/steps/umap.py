@@ -13,7 +13,7 @@ from ._matrix_common import matrix, projection
 
 
 class UmapStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'umap.UmapStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'umap',

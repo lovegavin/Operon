@@ -29,7 +29,7 @@ def render(source, cls, declaration, module_doc=None):
     if requirements:
         environment = ('Declared Python requirements: ' + ', '.join('`' + d + '`' for d in requirements) +
                        '. Prepare them explicitly in the selected execution environment; registration and application startup do not install them.\n\n' + environment)
-    return f'''<!-- biopipe:generated -->
+    return f'''<!-- operon:generated -->
 # {declaration.get('title') or name}
 
 ## Purpose
@@ -81,9 +81,9 @@ Implementation: `{source}` (`{cls.name}`).
 
 
 def build(root, *, check=False):
-    from biopipe_sdk.declarations import source_declarations
-    from biopipe_sdk.documentation import relative_path
-    from biopipe.library_location import source_root
+    from operon_sdk.declarations import source_declarations
+    from operon_sdk.documentation import relative_path
+    from operon.library_location import source_root
     root = source_root(root)
     changed, preserved, pages, errors = [], [], [], []
     indexes = {'operator': [], 'reader': []}
@@ -108,12 +108,12 @@ def build(root, *, check=False):
                     if destination.exists():
                         existing_bytes = destination.read_bytes()
                         existing = destination.read_text(encoding='utf-8')
-                        if '<!-- biopipe:generated -->' not in existing:
+                        if '<!-- operon:generated -->' not in existing:
                             preserved.append(destination.relative_to(root).as_posix())
                             text = existing
                     else:
                         existing = None
-                    generated = '<!-- biopipe:generated -->' in text
+                    generated = '<!-- operon:generated -->' in text
                     if existing != text or generated and existing_bytes != text.encode('utf-8'):
                         changed.append(destination.relative_to(root).as_posix())
                         if not check:
@@ -126,7 +126,7 @@ def build(root, *, check=False):
                         'category': descriptor.get('category'), 'version': descriptor['version'],
                         'description': descriptor.get('description', ''),
                         'doc': destination.relative_to(root).as_posix(),
-                        'status': 'generated' if '<!-- biopipe:generated -->' in text else 'authored'})
+                        'status': 'generated' if '<!-- operon:generated -->' in text else 'authored'})
             except (OSError, ValueError, KeyError, SyntaxError) as error:
                 errors.append({'source': relative, 'error': str(error)})
     for kind, entries in indexes.items():

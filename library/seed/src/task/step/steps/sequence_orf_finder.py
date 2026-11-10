@@ -66,7 +66,7 @@ def find_orfs(sequence: str, min_length: int, require_start: bool) -> list[dict]
 
 
 class SequenceOrfFinderStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_orf_finder.SequenceOrfFinderStep.parameters.json"
 
     definition = {

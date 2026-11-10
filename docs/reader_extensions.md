@@ -7,7 +7,7 @@ For a no-copy native-array wrapper, see the
 Save this implementation as `npy_reader.py`:
 
 ```python
-from biopipe_sdk import Reader, Form
+from operon_sdk import Reader, Form
 
 class NpyReader(Reader):
     parameters_file = "npy_reader.parameters.json"
@@ -51,7 +51,7 @@ Add `npy_reader.md` describing expected dtype, dimensions, labels, missing value
 compression and resource limits. Parameter tables are generated from JSON;
 see [documentation and retrieval](operator_documentation.md). Add the files
 through the Reader directory and refresh. Alternatively,
-`biopipe plugin init lab_reader --template reader` generates a complete project.
+`operon plugin init lab_reader --template reader` generates a complete project.
 The file picker, contracts and worker all use the same generated descriptor.
 
 A source can explicitly select this registered Reader using `source.reader`, for

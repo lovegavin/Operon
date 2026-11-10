@@ -5,7 +5,7 @@ from ._ml_common import _ClassificationBase
 
 
 class DecisionTreeClassifierStep(_ClassificationBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'decision_tree_classifier.DecisionTreeClassifierStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'decision_tree_classifier',

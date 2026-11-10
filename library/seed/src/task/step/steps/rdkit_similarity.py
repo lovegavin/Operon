@@ -26,7 +26,7 @@ def similarity_function(metric: str):
 class RdkitSimilarityStep(Step):
     """Symmetric similarity matrix across a molecule set."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'rdkit_similarity.RdkitSimilarityStep.parameters.json'
     definition = {
         'protocol_version': 3,

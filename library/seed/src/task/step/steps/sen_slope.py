@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class SenSlopeStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Sen's median pairwise slope with a Theil-Sen confidence interval.
 
     ``scipy.stats.theilslopes`` is the reference implementation: it forms all

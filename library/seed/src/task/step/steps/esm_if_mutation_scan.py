@@ -98,7 +98,7 @@ def mutation_rows(
 class EsmIfMutationScanStep(Step):
     """Score all single-residue substitutions of a backbone chain with ESM-IF1."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_if_mutation_scan.EsmIfMutationScanStep.parameters.json"
 
     definition = {

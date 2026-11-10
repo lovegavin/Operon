@@ -27,7 +27,7 @@ from src.core.forms.metadata import project_metadata
 
 class LogTransformStep(Step):
     """Apply log_base(x + pseudocount) elementwise."""
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'log_transform.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'log_transform',

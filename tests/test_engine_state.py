@@ -7,13 +7,13 @@ import threading
 
 import pytest
 
-from biopipe.engine.contracts import (
+from operon.engine.contracts import (
     AttemptState, InfeasibleResourcesError, PoolSpec, ResourceRequest, RunState, StaleRevisionError,
     UnavailableStateError,
 )
-from biopipe.engine.events import EventStream
-from biopipe.engine.resources import PoolResources
-from biopipe.engine.state import StateStore
+from operon.engine.events import EventStream
+from operon.engine.resources import PoolResources
+from operon.engine.state import StateStore
 
 
 def spec(**values):

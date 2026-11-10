@@ -14,7 +14,7 @@ _STATISTICS = ("mean_pae", "max_pae", "fraction_below")
 class StructurePaeSummaryStep(Step):
     """Per-residue mean/max PAE and the fraction of residues below a threshold."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "structure_pae_summary.StructurePaeSummaryStep.parameters.json"
 

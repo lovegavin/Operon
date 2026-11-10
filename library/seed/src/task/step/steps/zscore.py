@@ -11,7 +11,7 @@ from src.task.step.base import Step
 
 
 class ZscoreStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'zscore.ZscoreStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'zscore',

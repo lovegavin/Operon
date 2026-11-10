@@ -15,7 +15,7 @@ from src.task.step.steps._agreement68_common import (
 
 
 class GwetAc1Step(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'gwet_ac1.GwetAc1Step.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'gwet_ac1',

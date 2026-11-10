@@ -18,7 +18,7 @@ class MafStep(Step):
         threshold : minimum allowed MAF
         output    : context key for the result
     """
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'maf.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'maf',

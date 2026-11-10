@@ -49,7 +49,7 @@ from src.reader.readers._labels import unique_labels
 
 class H5adReader(Reader):
     """Reader for .h5ad files."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'h5ad_reader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'H5adReader',

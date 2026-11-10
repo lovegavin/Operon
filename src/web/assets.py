@@ -8,7 +8,7 @@ import uuid
 from .graph import GraphError, project_path
 from .storage import atomic_json
 from .service import read_json
-from biopipe.file_formats import reader_extensions, uncompressed_path
+from operon.file_formats import reader_extensions, uncompressed_path
 
 
 def safe_filename(name):
@@ -38,7 +38,7 @@ def plan_input(names, catalog, reader_id=None):
     if len({name.casefold() for name in names}) != len(names):
         raise GraphError('同组文件不能重名（不区分大小写）。')
     present = set(names)
-    from biopipe.reader_selection import candidates as select
+    from operon.reader_selection import candidates as select
     selected_readers = select(catalog['readers'], '', reader_id) if reader_id else catalog['readers']
     candidates, incomplete = [], []
     for name in names:

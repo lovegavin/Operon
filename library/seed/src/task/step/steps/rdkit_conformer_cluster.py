@@ -94,7 +94,7 @@ def cluster_conformers(distances: np.ndarray, cutoff: float) -> list[list[int]]:
 
 
 class RdkitConformerClusterStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "rdkit_conformer_cluster.RdkitConformerClusterStep.parameters.json"
     )

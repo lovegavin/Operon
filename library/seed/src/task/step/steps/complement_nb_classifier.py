@@ -6,7 +6,7 @@ from ._nb_common import ComplementNBWithCoef
 
 
 class ComplementNBClassifierStep(_ClassificationBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'complement_nb_classifier.ComplementNBClassifierStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'complement_nb_classifier',

@@ -14,7 +14,7 @@ from ._matrix_common import matrix, projection
 
 
 class TsneStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'tsne.TsneStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'tsne',

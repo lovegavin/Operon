@@ -12,7 +12,7 @@ from ._metric_common import binary_truth, label_series, score_series
 
 
 class YoudenIndexStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'youden_index.YoudenIndexStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'youden_index',

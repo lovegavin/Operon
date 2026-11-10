@@ -38,7 +38,7 @@ _STAT_LABELS = ("gap_length", "left_start", "left_end",
 
 class AnnotationGapsStep(Step):
     """Inter-gene gap lengths for GFF3/GTF annotation QC."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'annotation_gaps.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'annotation_gaps',

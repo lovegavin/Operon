@@ -1,2 +1,2 @@
-"""Public application name; historical biopipe imports remain supported."""
-from biopipe import __version__
+"""Operon application interfaces. Public extension API: operon_sdk."""
+__version__ = "3.1.8"

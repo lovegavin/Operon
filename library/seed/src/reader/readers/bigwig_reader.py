@@ -11,7 +11,7 @@ from src.reader.readers._table_common import table_form
 
 
 class BigWigReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for .bw / .bigwig coverage tracks."""
     parameters_file = 'bigwig_reader.BigWigReader.parameters.json'
     definition = {'protocol_version': 3,

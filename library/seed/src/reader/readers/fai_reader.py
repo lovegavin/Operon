@@ -8,7 +8,7 @@ from ._table_common import read_whitespace, table_form
 
 
 class FaiReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for 5-column .fai sequence index files."""
     parameters_file = 'fai_reader.FaiReader.parameters.json'
     definition = {'protocol_version': 3,

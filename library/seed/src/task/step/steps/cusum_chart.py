@@ -11,7 +11,7 @@ from ._control74_common import moving_range_sigma, single_series
 
 
 class CusumChartStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Tabular CUSUM chart with a moving-range sigma estimate.
 
     The chart is a deterministic, table-valued control chart: each output row

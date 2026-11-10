@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from biopipe.remote.server import RemoteService
+from operon.remote.server import RemoteService
 
 
 def graph_payload():
@@ -24,13 +24,13 @@ def readiness(service, ids, *, graph=None, scripts=None, repair=False):
 def remote(tmp_path, monkeypatch):
     # These fault-injection cases exercise the in-process legacy request journal.
     # The shipping shared-pool SSH entry is covered by test_managed_pool.
-    monkeypatch.setenv('BIOPIPE_ENGINE_MODE', 'legacy')
+    monkeypatch.setenv('OPERON_ENGINE_MODE', 'legacy')
     root = tmp_path / 'server'
     root.mkdir()
-    monkeypatch.setenv('BIOPIPE_ADMISSION_DIR', str(tmp_path / 'admission'))
-    monkeypatch.setenv('BIOPIPE_ENGINE_DIR', str(tmp_path / 'engine'))
+    monkeypatch.setenv('OPERON_ADMISSION_DIR', str(tmp_path / 'admission'))
+    monkeypatch.setenv('OPERON_ENGINE_DIR', str(tmp_path / 'engine'))
     service = RemoteService(str(root))
-    monkeypatch.setattr('biopipe.readiness.inspect_declared_environment', readiness)
+    monkeypatch.setattr('operon.readiness.inspect_declared_environment', readiness)
     calls = []
     lock = threading.Lock()
 
@@ -124,7 +124,7 @@ def test_remote_claim_failure_never_falls_back_to_launch(remote, monkeypatch):
 
 
 def test_remote_unknown_commit_never_falls_back_to_launch(remote, monkeypatch):
-    from biopipe.engine.contracts import CommitOutcomeUnknown
+    from operon.engine.contracts import CommitOutcomeUnknown
     service, calls, _ = remote
     journal = service._journal()
     original = journal.claim

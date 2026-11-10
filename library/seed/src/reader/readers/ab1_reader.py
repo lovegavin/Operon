@@ -107,7 +107,7 @@ def _shorts(raw: bytes, entry: dict) -> np.ndarray:
 
 
 class Ab1Reader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for ABI .ab1 Sanger trace files."""
     parameters_file = 'ab1_reader.Ab1Reader.parameters.json'
     definition = {

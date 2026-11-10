@@ -9,7 +9,7 @@ from ._matrix_common import matrix, projection
 
 
 class TruncatedSvdStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'truncated_svd.TruncatedSvdStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'truncated_svd',

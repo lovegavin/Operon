@@ -46,7 +46,7 @@ validates parameters and supplies defaults before dispatch. A default is not a
 required parameter; add a name to the schema's `required` array to require input.
 
 See the complete [Step](step_extensions.md) and [Reader](reader_extensions.md)
-examples. `biopipe plugin init` creates these files and an executable test.
+examples. `operon plugin init` creates these files and an executable test.
 
 ## Optional v3.5 language pack
 
@@ -80,7 +80,7 @@ Maintenance reads the Python AST and JSON; it never executes module top-level co
 | `documentation` | Optional SDK-generated Markdown metadata: relative path, content hash, summary and section index; requires SDK 3.1 |
 
 Use namespaced IDs for external providers, such as `lab.scale`. A bundled provider
-can retain its existing IDs. `provider = "biopipe-core"` chooses ownership for a
+can retain its existing IDs. `provider = "operon-core"` chooses ownership for a
 source-library implementation; updates cannot steal another provider's IDs.
 Entry points and hashes are generated, not written by authors.
 
@@ -103,7 +103,7 @@ private directories and subprocesses. See [dependency isolation](dependency_isol
 
 ## One generated index, several consumers
 
-`library/seed/biopipe/builtin_packages.json` and profile `plugins/registry.json` are generated
+`library/seed/operon/builtin_packages.json` and profile `plugins/registry.json` are generated
 indexes. They combine each class definition and its parameter JSON into a
 snapshot descriptor. The frontend, graph compiler, contract checker, memory
 planner, CLI and MCP consume that descriptor. Do not edit the generated index to
@@ -170,7 +170,7 @@ Full desktop packaging compiles sources with its bundled Python 3.11; Lite does
 not ship interpreter-specific application bytecode. Development source remains
 normal checked source; never precompile mutable development folders unchecked.
 
-`biopipe registry check` validates schemas/contracts, checks literal parameter reads
+`operon registry check` validates schemas/contracts, checks literal parameter reads
 against JSON properties, and compares the generated index. Unknown literal keys
 are errors; dynamic keys and parameters forwarded to helpers generate warnings.
 This is conservative static checking, not proof about arbitrary Python execution.

@@ -25,7 +25,7 @@ def _logical_lines(text: str) -> list[str]:
 
 
 class OffReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Parse an ASCII OFF polygon mesh into an element x field table."""
     parameters_file = 'off_reader.OffReader.parameters.json'
     definition = {'protocol_version': 3,

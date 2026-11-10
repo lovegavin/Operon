@@ -4,7 +4,7 @@ from ._ml_common import _ClassificationBase
 
 
 class SvmClassifierStep(_ClassificationBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'svm_classifier.SvmClassifierStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'svm_classifier',

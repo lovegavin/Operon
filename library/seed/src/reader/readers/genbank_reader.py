@@ -20,7 +20,7 @@ _LOCUS_LENGTH = re.compile(r"\b(\d+)\s+bp\b", re.IGNORECASE)
 
 
 class GenBankReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Summary reader for GenBank (.gb/.gbk/.gbff) flat files."""
     parameters_file = 'genbank_reader.GenBankReader.parameters.json'
     definition = {

@@ -79,7 +79,7 @@ _STAT_LABELS = {
 
 class CompareGroupsStep(Step):
     """Compare groups along one dimension."""
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'compare_groups.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'compare_groups',

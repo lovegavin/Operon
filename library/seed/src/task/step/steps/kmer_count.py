@@ -40,7 +40,7 @@ _BASES = ("A", "C", "G", "T")
 
 class KmerCountStep(Step):
     """Count k-mers per sequence for any sequence-codes Form."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'kmer_count.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'kmer_count',

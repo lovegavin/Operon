@@ -229,7 +229,7 @@ def imgt_rows(sequence: str) -> list[dict]:
 class AntibodyNumberingImgtStep(Step):
     """Number a VH/VHH sequence with the IMGT scheme."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "antibody_numbering_imgt.AntibodyNumberingImgtStep.parameters.json"
     definition = {
         "protocol_version": 3,

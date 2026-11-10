@@ -5,7 +5,7 @@ from ._ml_common import _RegressionBase
 
 
 class ElasticNetRegressorStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'elastic_net_regressor.ElasticNetRegressorStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'elastic_net_regressor',

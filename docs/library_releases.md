@@ -1,6 +1,6 @@
 # Independent operator library releases
 
-BioPipe Studio and the operator library are **separate release products**. Adding
+Operon Studio and the operator library are **separate release products**. Adding
 or fixing compatible operators and Readers does not require rebuilding Lite,
 Full, the desktop host, the frontend, or the application wheel. Protocol v3,
 independent workflow parameter JSON and the existing memory/streaming runtime
@@ -9,7 +9,7 @@ remain unchanged.
 | Product | Version/tag | Distribution | Installation |
 | --- | --- | --- | --- |
 | Studio application | `v2.0.4`, then application SemVer | Lite, Full, application wheel | Upgrade application |
-| Operator library | `library-v2026.11.4`, then independent calendar version | `.biopipe-library.zip` | Library manager **Import package**, or CLI |
+| Operator library | `library-v2026.11.4`, then independent calendar version | `.operon-library.zip` | Library manager **Import package**, or CLI |
 | One provider | provider version | `.whl` | Same library manager |
 | Saved route | route's own revision | saved route and frozen parameter JSON | Import route |
 
@@ -22,13 +22,13 @@ does not overwrite an independently installed profile library.
 
 ## For users
 
-Download the **Windows** or **Linux** `.biopipe-library.zip` matching the host from a **BioPipe Operator Library** release. The v2.0.4 installer uses native wheel archive comparison, so separate envelopes are required although their library source is the same.
+Download the **Windows** or **Linux** `.operon-library.zip` matching the host from a **Operon Operator Library** release. The v2.0.4 installer uses native wheel archive comparison, so separate envelopes are required although their library source is the same.
 In Studio open **算子库管理 → 导入包 (Import package)** and select the ZIP. The
 installation publishes a new registry generation and the canvas can use the
 new entries without replacing or restarting the EXE. The equivalent command is:
 
 ```bash
-biopipe plugin install ./BioPipe-Library-v2026.11.4-Windows.biopipe-library.zip
+operon plugin install ./Operon-Library-v2026.11.4-Windows.operon-library.zip
 ```
 
 Use the profile used by Studio. **Refresh** scans the editable local source
@@ -49,10 +49,10 @@ install a database or make a Linux tool run natively on Windows.
 ## For library maintainers
 
 1. Write v3 code, adjacent parameter JSON and Markdown. Update the static indexes
-   with `python -m biopipe registry build` and `python scripts/build_operator_docs.py`.
+   with `python -m operon registry build` and `python scripts/build_operator_docs.py`.
 2. Change only the library version in `library/release.json` and `library/pyproject.toml` (calendar
    `YYYY.M.D`, optional `.N` for another release that day). Do not bump
-   `pyproject.toml`, `biopipe/__init__.py` or the desktop version for operator-only
+   `pyproject.toml`, `operon/__init__.py` or the desktop version for operator-only
    changes. Individual operator/provider versions still express their contracts.
 3. Set `minimum_application` to the oldest **actually tested** released engine.
    `build_application` must equal it. A new SDK/runtime feature may require a
@@ -61,7 +61,7 @@ install a database or make a Linux tool run natively on Windows.
 
    ```bash
    python -I scripts/release_library.py --output build/library --tag library-v2026.11.4
-   python -I scripts/verify_library_release.py --bundle build/library/BioPipe-Library-v2026.11.4-Windows.biopipe-library.zip --work build/library-verify
+   python -I scripts/verify_library_release.py --bundle build/library/Operon-Library-v2026.11.4-Windows.operon-library.zip --work build/library-verify
    ```
 
    Do not use `pip install -e .` in this environment. `-I` excludes checkout/user

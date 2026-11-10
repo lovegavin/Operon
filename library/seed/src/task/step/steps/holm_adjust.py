@@ -7,7 +7,7 @@ from ._p_adjust_common import adjust
 
 
 class HolmAdjustStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Holm step-down p-value adjustment; output feature x qvalue."""
     parameters_file = 'holm_adjust.HolmAdjustStep.parameters.json'
     definition = {'protocol_version': 3,

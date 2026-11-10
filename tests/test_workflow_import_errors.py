@@ -5,19 +5,19 @@ import pytest
 import yaml
 from fastapi.testclient import TestClient
 
-from biopipe.workflow_spec import compile_spec
+from operon.workflow_spec import compile_spec
 from src.web.api import create_app
 from src.web.service import Settings
 
 
 def document():
-    return {'format': 'biopipe.workflow', 'schema_version': 1, 'sources': {}, 'steps': {}}
+    return {'format': 'operon.workflow', 'schema_version': 1, 'sources': {}, 'steps': {}}
 
 
 @pytest.mark.parametrize('name', ['route.operon', 'route.OPERON', 'route.operon.zip',
-                                  'route.biopipe', 'route.biopipe.zip', 'route.zip'])
+                                  'route.operon', 'route.operon.zip', 'route.zip'])
 def test_cli_imports_bundle_aliases_without_changing_saved_values(tmp_path, name):
-    from biopipe.cli import read_graph_file
+    from operon.cli import read_graph_file
     from src.web.models import Graph
     from src.web.parameters import export_bundle
 

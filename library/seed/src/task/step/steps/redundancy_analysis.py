@@ -40,7 +40,7 @@ def _align(response, explanatory, sample_dim, response_dim, predictor_dim, label
 
 
 class RedundancyAnalysisStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Constrained ordination of a response matrix by explanatory variables."""
     parameters_file = 'redundancy_analysis.RedundancyAnalysisStep.parameters.json'
     definition = {'protocol_version': 3,

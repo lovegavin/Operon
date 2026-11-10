@@ -51,7 +51,7 @@ _SIZE_FACTOR_METHODS = ("cpm", "total", "median_of_ratios")
 
 class NormalizeStep(Step):
     """Normalize a Form along one dimension."""
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'normalize.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'normalize',

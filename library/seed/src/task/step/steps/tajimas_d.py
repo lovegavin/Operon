@@ -43,7 +43,7 @@ COLUMNS = ["start", "end", "n_variants", "n_segregating", "pi", "theta_w", "taji
 
 
 class TajimasDStep(Step):
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'tajimas_d.TajimasDStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'tajimas_d',

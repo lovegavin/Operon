@@ -83,7 +83,7 @@ def run_duplex(
 
 
 class SequenceRnaDuplexStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_rna_duplex.SequenceRnaDuplexStep.parameters.json"
     definition = {
         "protocol_version": 3,

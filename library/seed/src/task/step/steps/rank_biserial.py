@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class RankBiserialStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Per-feature rank-biserial correlation, positive when group0 tends larger."""
     parameters_file = 'rank_biserial.RankBiserialStep.parameters.json'
     definition = {'protocol_version': 3,

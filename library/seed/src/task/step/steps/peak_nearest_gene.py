@@ -112,7 +112,7 @@ def _read_intervals(form, region_dim, field_dim, chrom_field,
 
 class PeakNearestGeneStep(Step):
     """Assign every BED interval to its nearest annotated gene."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'peak_nearest_gene.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'peak_nearest_gene',

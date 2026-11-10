@@ -79,7 +79,7 @@ def best_summary(summaries: list[dict]) -> dict:
 
 
 class BoltzAffinitySummaryStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "boltz_affinity_summary.BoltzAffinitySummaryStep.parameters.json"
     definition = {
         "protocol_version": 3,

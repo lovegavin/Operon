@@ -1,7 +1,7 @@
 """Existing-payload artifacts are references plus verifiable content."""
 from pathlib import Path
 
-from biopipe.engine.artifacts import ArtifactCommitter
+from operon.engine.artifacts import ArtifactCommitter
 
 
 def attempt():
@@ -49,7 +49,7 @@ def test_commit_existing_refuses_links_and_empty_payload(tmp_path):
 
 
 def test_existing_payload_supports_long_windows_paths(tmp_path):
-    from biopipe.bytecode import io_path
+    from operon.bytecode import io_path
     source = tmp_path / ('segment-' + 'a' * 50) / ('segment-' + 'b' * 50) / ('segment-' + 'c' * 50)
     io_path(source).mkdir(parents=True)
     io_path(source / 'table.csv').write_text('x,y\n1,2\n', encoding='utf-8')
@@ -62,7 +62,7 @@ def test_existing_payload_supports_long_windows_paths(tmp_path):
     assert not committer.verify_existing(receipt)['valid']
 
 def test_executor_never_acknowledges_completion_while_tree_is_alive(tmp_path):
-    from biopipe.engine.executor import ExecutionContext, JobServiceExecutor
+    from operon.engine.executor import ExecutionContext, JobServiceExecutor
     class FakeService:
         def details(self, key):
             return {'status': 'complete', 'logs_complete': True, 'tree_exited': False}

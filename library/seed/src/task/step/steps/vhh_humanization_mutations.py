@@ -72,7 +72,7 @@ def humanization_mutations(sequence: str) -> tuple[list[dict], str]:
 class VhhHumanizationMutationsStep(Step):
     """List the framework substitutions that humanize a VHH."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "vhh_humanization_mutations.VhhHumanizationMutationsStep.parameters.json"
     )

@@ -9,7 +9,7 @@ from ._stats20_common import scalar_form
 
 
 class SomersDStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Somers' D with the row or column variable as dependent."""
     parameters_file = 'somers_d.SomersDStep.parameters.json'
     definition = {'protocol_version': 3,

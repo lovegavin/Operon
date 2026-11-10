@@ -72,7 +72,7 @@ def ring_row(molecule) -> list[float]:
 class RdkitRingSystemsStep(Step):
     """Ring counts, fused systems and size statistics per molecule."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "rdkit_ring_systems.RdkitRingSystemsStep.parameters.json"
 
     definition = {

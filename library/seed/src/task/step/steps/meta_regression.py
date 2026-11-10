@@ -23,7 +23,7 @@ _COLUMNS = ("coef", "se", "z", "P", "CI_low", "CI_high")
 
 
 class MetaRegressionStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'meta_regression.MetaRegressionStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'meta_regression',

@@ -15,10 +15,10 @@ import sys
 
 
 def application_digest():
-    import biopipe
-    root = Path(biopipe.__file__).resolve().parent.parent
+    import operon
+    root = Path(operon.__file__).resolve().parent.parent
     digest = hashlib.sha256()
-    for folder in ('biopipe', 'biopipe_sdk', 'src'):
+    for folder in ('operon', 'operon_sdk', 'src'):
         for path in sorted((root / folder).rglob('*')):
             if path.is_file() and path.suffix in {'.py', '.json'}:
                 digest.update(path.relative_to(root).as_posix().encode() + b'\0' + path.read_bytes())
@@ -26,9 +26,9 @@ def application_digest():
 
 
 def probe(lock, work):
-    from biopipe.bytecode import filesystem_path
-    from biopipe.targets import activate
-    from biopipe.plugins import load_runtime
+    from operon.bytecode import filesystem_path
+    from operon.targets import activate
+    from operon.plugins import load_runtime
     state = json.loads(lock.read_text(encoding='utf-8'))
     activate(state)
     load_runtime(state)
@@ -42,7 +42,7 @@ def probe(lock, work):
     for item in state['packages']:
         if item.get('origin') != 'wheel':
             continue
-        module = 'biopipe_library_' + item['name'].replace('-', '_').replace('.', '_')
+        module = 'operon_library_' + item['name'].replace('-', '_').replace('.', '_')
         helper = importlib.import_module(module + '.steps._resources_common')
         assert helper.manifest_path().is_relative_to(profile), str(helper.manifest_path())
         assert {'rfam', 'amrfinder', 'antismash'} <= set(helper.load_resources())
@@ -72,21 +72,21 @@ def verify(source, bundle, work):
         os.environ[key] = str(temporary)
     import tempfile
     tempfile.tempdir = str(temporary)
-    os.environ['BIOPIPE_RUNTIME_CONFIG'] = str(work / 'runtime.json')
-    os.environ['BIOPIPE_ADMISSION_DIR'] = str(work / 'admission')
-    from biopipe.plugins import PluginManager
-    from biopipe.library_bundle import sha256
+    os.environ['OPERON_RUNTIME_CONFIG'] = str(work / 'runtime.json')
+    os.environ['OPERON_ADMISSION_DIR'] = str(work / 'admission')
+    from operon.plugins import PluginManager
+    from operon.library_bundle import sha256
     from src.web.models import Graph
     before_files = application_digest()
     manager = PluginManager(work / 'profile')
     old = manager.state()
     old_graph = manager.pin(Graph.model_validate({'nodes': [{'id': 'pca', 'kind': 'operator', 'operator': 'pca',
         'position': {'x': 0, 'y': 0}, 'params': {'n_components': 2}}], 'edges': []}))
-    manager.manage('biopipe-microbiome', 'disable')
+    manager.manage('operon-microbiome', 'disable')
     state = manager.install(bundle)
     assert state['library_release']['version'] == config['version']
     assert manager.source_root.is_relative_to(work / 'profile')
-    assert next(p for p in state['packages'] if p['name'] == 'biopipe-microbiome')['enabled'] is False
+    assert next(p for p in state['packages'] if p['name'] == 'operon-microbiome')['enabled'] is False
     assert manager.install(bundle)['generation'] == state['generation']
     historical = manager.snapshot(old_graph)
     pinned_pca = next(d for d in historical['descriptors'] if d['id'] == 'pca')
@@ -125,7 +125,7 @@ def verify(source, bundle, work):
                 'runtime': {'memory': {'enabled': True, 'budget_mb': 4, 'chunk_mb': .01}}}
     (job / 'task.yaml').write_text(yaml.safe_dump(manifest), encoding='utf-8')
     (job / 'plugins.lock.json').write_text(json.dumps(state), encoding='utf-8')
-    subprocess.run([sys.executable, '-I', '-m', 'biopipe.worker', str(job)], cwd=work, check=True)
+    subprocess.run([sys.executable, '-I', '-m', 'operon.worker', str(job)], cwd=work, check=True)
     summary = json.loads((job / 'output/run_summary.json').read_text(encoding='utf-8'))
     memory = json.loads(Path(summary['memory_report']).read_text(encoding='utf-8'))
     assert summary['steps'] and memory['plans'][0]['mode'] == 'stream'

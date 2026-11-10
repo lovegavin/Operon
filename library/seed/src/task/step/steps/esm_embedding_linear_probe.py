@@ -138,7 +138,7 @@ def probe_rows(
 class EsmEmbeddingLinearProbeStep(Step):
     """Stratified logistic-regression probe on a protein embedding form."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = (
         "esm_embedding_linear_probe."

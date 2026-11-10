@@ -11,7 +11,7 @@ from ._table_common import table_form
 
 
 class OboReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for [Term] stanzas in OBO files; output is term x field."""
     parameters_file = 'obo_reader.OboReader.parameters.json'
     definition = {

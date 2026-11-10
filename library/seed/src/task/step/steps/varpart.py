@@ -34,7 +34,7 @@ def _fit(response, predictors, ss_total, label):
 
 
 class VarpartStep(Step):
-    provider = "biopipe-microbiome"
+    provider = "operon-microbiome"
     parameters_file = "varpart.VarpartStep.parameters.json"
     definition = {
         "protocol_version": 3,

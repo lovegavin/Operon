@@ -15,7 +15,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class TurningPointTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Turning point test for serial randomness.
 
     Counts local maxima/minima in the observed order. Under randomness,

@@ -21,7 +21,7 @@ _STATISTICS = [
 
 
 class SplineRegressionStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fit an ordinary least-squares model on a cubic B-spline basis.
 
     The basis is built with :func:`patsy.bs`, which uses the same quantile

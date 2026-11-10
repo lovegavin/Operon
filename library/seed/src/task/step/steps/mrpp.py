@@ -48,7 +48,7 @@ def _delta(distances: np.ndarray, codes: np.ndarray) -> float:
 class MrppStep(Step):
     """Multi-response permutation procedure with chance correction."""
 
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'mrpp.MrppStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'mrpp',

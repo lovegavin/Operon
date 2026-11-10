@@ -11,7 +11,7 @@ from ._cluster_agreement import paired_labels
 
 
 class AdjustedRandIndexStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Adjusted Rand index between two partitions of the same samples."""
     parameters_file = 'adjusted_rand_index.AdjustedRandIndexStep.parameters.json'
     definition = {'protocol_version': 3,

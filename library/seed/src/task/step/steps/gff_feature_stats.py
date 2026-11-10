@@ -40,7 +40,7 @@ _STAT_LABELS = (
 
 class GffFeatureStatsStep(Step):
     """Per-feature-type length and count statistics for GFF3/GTF."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'gff_feature_stats.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'gff_feature_stats',

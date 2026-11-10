@@ -9,7 +9,7 @@ from ._stats20_common import scalar_form
 
 
 class GoodmanKruskalGammaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Goodman-Kruskal gamma, the symmetric ordinal association measure."""
     parameters_file = 'goodman_kruskal_gamma.GoodmanKruskalGammaStep.parameters.json'
     definition = {'protocol_version': 3,

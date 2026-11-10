@@ -13,7 +13,7 @@ from ._stats21_common import design_matrix, numeric_column, table_frame
 
 
 class WhiteTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'white_test.WhiteTestStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

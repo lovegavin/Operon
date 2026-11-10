@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class LeveneStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'levene.LeveneStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'levene',

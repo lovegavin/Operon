@@ -11,7 +11,7 @@ from ._stats21_common import design_matrix, table_frame
 
 
 class OrdinalLogisticStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Proportional-odds ordinal regression via statsmodels OrderedModel."""
     parameters_file = 'ordinal_logistic.OrdinalLogisticStep.parameters.json'
     definition = {'protocol_version': 3,

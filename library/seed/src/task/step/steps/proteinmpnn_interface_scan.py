@@ -46,7 +46,7 @@ def parse_cutoffs(text: str) -> list[float]:
 
 
 class ProteinmpnnInterfaceScanStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "proteinmpnn_interface_scan.ProteinmpnnInterfaceScanStep.parameters.json"
 
     definition = {

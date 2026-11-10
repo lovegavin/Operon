@@ -12,7 +12,7 @@ from ._ext_common import make_form
 
 
 class McnemarStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'mcnemar.McnemarStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

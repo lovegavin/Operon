@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using BioPipe.Setup;
+using Operon.Setup;
 
 internal static class UpgradeTests
 {
@@ -19,7 +19,7 @@ internal static class UpgradeTests
         if (args.FirstOrDefault() != "--upgrade-host") return false;
         var profile = args[1];
         Directory.CreateDirectory(profile);
-        using var lease = new InstallLease("Local\\BioPipeStudio-" + InstallLease.Identity(profile));
+        using var lease = new InstallLease("Local\\OperonStudio-" + InstallLease.Identity(profile));
         using var listener = new TcpListener(IPAddress.Loopback, 0);
         listener.Start();
         File.WriteAllText(Path.Combine(profile, "port.txt"), ((IPEndPoint)listener.LocalEndpoint).Port.ToString());
@@ -74,7 +74,7 @@ internal static class UpgradeTests
             var first = await Start("first"); var unrelated = await Start("unrelated");
             targets.Add(first.Target);
             var lines = new List<string>();
-            var discovery = Path.Combine(root, "test-home", ".biopipe", "admission", Environment.MachineName, "managed-pool");
+            var discovery = Path.Combine(root, "test-home", ".operon", "admission", Environment.MachineName, "managed-pool");
             Directory.CreateDirectory(discovery);
             File.WriteAllText(Path.Combine(discovery, "instance.json"), JsonSerializer.Serialize(new {
                 owner = new { pid = first.Host.Id, created = new DateTimeOffset(first.Host.StartTime).ToUnixTimeMilliseconds() / 1000.0 } }));
@@ -97,7 +97,7 @@ internal static class UpgradeTests
             check(File.Exists(saved + ".ready"), "detached background fixture not ready");
             // The old installer only calls CleanVersion: a live profile is rejected,
             // proving that merely retrying deletion never closes the old window.
-            try { using var blocked = new InstallLease("Local\\BioPipeStudio-" + InstallLease.Identity(first.Target.Profile));
+            try { using var blocked = new InstallLease("Local\\OperonStudio-" + InstallLease.Identity(first.Target.Profile));
                 throw new Exception("baseline unexpectedly acquired an active profile"); }
             catch (InvalidOperationException) { check(!first.Host.HasExited, "baseline should leave host alive"); }
 
@@ -107,7 +107,7 @@ internal static class UpgradeTests
                 check(pool.HasExited, "upgrade did not wait for detached background exit");
                 check(File.Exists(Path.Combine(first.Target.Profile, "draft-saved")), "upgrade bypassed normal draft saving");
                 check(!unrelated.Host.HasExited, "upgrade closed another installation");
-                try { using var held = new InstallLease("Local\\BioPipeStudio-" + InstallLease.Identity(first.Target.Profile));
+                try { using var held = new InstallLease("Local\\OperonStudio-" + InstallLease.Identity(first.Target.Profile));
                     throw new Exception("upgrade did not hold the profile until commit"); }
                 catch (InvalidOperationException) { check(true, "profile held"); }
             }

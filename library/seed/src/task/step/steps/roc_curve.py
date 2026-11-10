@@ -11,7 +11,7 @@ from ._metric_common import binary_truth, label_series, score_series
 
 
 class RocCurveStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """ROC curve points (FPR, TPR, threshold) for a binary target."""
     parameters_file = 'roc_curve.RocCurveStep.parameters.json'
     definition = {'protocol_version': 3,

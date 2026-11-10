@@ -5,7 +5,7 @@ import threading
 
 import pytest
 
-from biopipe import readiness
+from operon import readiness
 from src.web.models import Graph
 
 
@@ -105,7 +105,7 @@ def test_remote_script_probed_on_selected_host_and_connection_rechecked(app, mon
         calls.append((target, method, payload))
         return {'entries': {'CSV': {'status': 'passed'}}, 'scripts': {'op': {'status': 'passed'}}}
     app.service.remotes = SimpleNamespace(call=call)
-    from biopipe import script_operators
+    from operon import script_operators
     monkeypatch.setattr(script_operators, 'inspect_script_environment', lambda value: pytest.fail('Must not inspect remote scripts locally'))
     plan = {'execution_plan': {'units': [{'target': {'kind': 'ssh', 'profile_id': 'server'}, 'node_ids': ['op']}]}}
     for _ in range(2):
@@ -135,8 +135,8 @@ def test_scoped_pins_do_not_require_other_hosts_operators():
 
 
 def test_remote_dispatch_validates_scripts_and_never_installs_implicitly(app, monkeypatch):
-    from biopipe.remote.server import RemoteService
-    from biopipe import script_operators
+    from operon.remote.server import RemoteService
+    from operon import script_operators
     monkeypatch.setattr(script_operators, 'inspect_script_environment',
                         lambda value: {'status': 'passed', 'language': value['language']})
     remote = RemoteService.__new__(RemoteService)
@@ -150,7 +150,7 @@ def test_remote_dispatch_validates_scripts_and_never_installs_implicitly(app, mo
 
 
 def test_application_validation_can_reach_explicit_repair_after_failed_placement(app, monkeypatch):
-    from biopipe.application import Application
+    from operon.application import Application
     from src.web import execution
     from src.web.graph import GraphError
     graph = workflow()
@@ -219,7 +219,7 @@ def test_dependency_check_needs_no_data_and_full_check_reuses_success(app, monke
 
 def test_script_success_reused_but_code_change_rechecks(app, monkeypatch):
     calls = []
-    monkeypatch.setattr('biopipe.script_operators.inspect_script_environment',
+    monkeypatch.setattr('operon.script_operators.inspect_script_environment',
                         lambda value: calls.append(value['code']) or {'status': 'passed'})
     graph = workflow()
     graph.nodes[1] = graph.nodes[1].model_copy(update={'kind': 'script', 'operator': None,

@@ -22,7 +22,7 @@ See `installer/InstallUpgrade.cs`, `installer/InstallEngine.cs`, and
 
 Further process-lifetime testing reproduced a second Windows defect: console
 detachment did not remove the managed pool from the desktop's kill-on-close Job
-Object. `biopipe/managed_pool.py` now requests explicit Job Object breakaway. The
+Object. `operon/managed_pool.py` now requests explicit Job Object breakaway. The
 regression test closes the real host Job Object while a second client has work,
 then verifies the original pool and worker survive without restart and finish.
 Setup additionally checks the owned pool's registered workspaces before closing

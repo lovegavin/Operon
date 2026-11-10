@@ -14,7 +14,7 @@ _CODES = {"A": 0, "C": 1, "G": 2, "T": 3, "U": 3, "N": 4}
 
 
 class StockholmReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for Stockholm alignments."""
     parameters_file = 'stockholm_reader.StockholmReader.parameters.json'
     definition = {'protocol_version': 3,

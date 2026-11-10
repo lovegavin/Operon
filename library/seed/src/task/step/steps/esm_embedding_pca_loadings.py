@@ -45,7 +45,7 @@ def pca_loadings(matrix: np.ndarray, n_components: int) -> dict:
 
 
 class EsmEmbeddingPcaLoadingsStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_embedding_pca_loadings.EsmEmbeddingPcaLoadingsStep.parameters.json"
 
     definition = {

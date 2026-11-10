@@ -23,7 +23,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class SeasonalDecomposeStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'seasonal_decompose.SeasonalDecomposeStep.parameters.json'
     definition = {'protocol_version': 3,
                   'id': 'seasonal_decompose',

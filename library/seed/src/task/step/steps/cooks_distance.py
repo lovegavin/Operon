@@ -11,7 +11,7 @@ from ._influence66_common import influence_ols
 
 
 class CooksDistanceStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'cooks_distance.CooksDistanceStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'cooks_distance',

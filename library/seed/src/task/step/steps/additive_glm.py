@@ -21,7 +21,7 @@ _STATISTICS = [
 
 
 class AdditiveGlmStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fit an additive GLM with one cubic B-spline per predictor.
 
     Binomial and Poisson families are supported.  The basis uses

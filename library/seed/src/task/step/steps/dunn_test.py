@@ -12,7 +12,7 @@ from ._matrix_common import grouped
 
 
 class DunnTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Pairwise Dunn comparisons with tie correction."""
     parameters_file = 'dunn_test.DunnTestStep.parameters.json'
     definition = {'protocol_version': 3,

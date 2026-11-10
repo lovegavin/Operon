@@ -96,7 +96,7 @@ def lifetime_rows(
 
 
 class StructureMdHbondLifetimeStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_hbond_lifetime.StructureMdHbondLifetimeStep.parameters.json"
     definition = {
         "protocol_version": 3,

@@ -11,7 +11,7 @@ from ._ext_common import labels_in_order, make_form, reorder
 
 
 class GowerDistanceStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'gower_distance.GowerDistanceStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'gower_distance',

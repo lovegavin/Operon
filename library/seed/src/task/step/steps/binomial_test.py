@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class BinomialTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Exact binomial test of ``k`` successes out of ``n`` trials.
 
     The p-value is the exact binomial tail (or two-sided sum of tails) and the

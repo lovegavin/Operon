@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class BoxPierceStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'box_pierce.BoxPierceStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'box_pierce',

@@ -10,7 +10,7 @@ from ._matrix_common import grouped
 
 
 class CliffsDeltaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Per-feature Cliff's delta, positive when group0 tends larger."""
     parameters_file = 'cliffs_delta.CliffsDeltaStep.parameters.json'
     definition = {'protocol_version': 3,

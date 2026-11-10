@@ -78,7 +78,7 @@ def lining_rows(
 
 
 class StructureCavityLiningStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_cavity_lining.StructureCavityLiningStep.parameters.json"
 
     definition: dict[str, Any] = {

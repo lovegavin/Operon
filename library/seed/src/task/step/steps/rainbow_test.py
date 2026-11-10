@@ -11,7 +11,7 @@ from ._regression54_common import ols_rss, rainbow_slice, regression_series
 
 
 class RainbowTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'rainbow_test.RainbowTestStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'rainbow_test',

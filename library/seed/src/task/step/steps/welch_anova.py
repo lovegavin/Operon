@@ -10,7 +10,7 @@ from ._matrix_common import grouped
 
 
 class WelchAnovaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Per-feature Welch one-way ANOVA."""
     parameters_file = 'welch_anova.WelchAnovaStep.parameters.json'
     definition = {'protocol_version': 3,

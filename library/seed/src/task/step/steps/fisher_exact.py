@@ -10,7 +10,7 @@ from src.task.step.base import Step
 
 
 class FisherExactStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'fisher_exact.FisherExactStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'fisher_exact',

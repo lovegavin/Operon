@@ -36,7 +36,7 @@ def _descriptor_functions():
 class RdkitDescriptorsStep(Step):
     """Compute twelve RDKit molecular descriptors for a SMILES list."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'rdkit_descriptors.RdkitDescriptorsStep.parameters.json'
     definition = {
         'protocol_version': 3,

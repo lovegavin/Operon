@@ -11,7 +11,7 @@ _NAMES = ["chrom", "start", "end", "name", "score", "strand",
 
 
 class NarrowPeakReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for 10-column ENCODE narrowPeak files."""
     parameters_file = 'narrowpeak_reader.NarrowPeakReader.parameters.json'
     definition = {'protocol_version': 3,

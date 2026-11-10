@@ -11,7 +11,7 @@ from ._stats21_common import design_matrix, numeric_column, table_frame
 
 
 class ZeroInflatedNegativeBinomialStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Zero-inflated NB2 regression with logit inflation and log count links."""
     parameters_file = 'zero_inflated_negative_binomial.ZeroInflatedNegativeBinomialStep.parameters.json'
     definition = {'protocol_version': 3,

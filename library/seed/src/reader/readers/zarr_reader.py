@@ -12,7 +12,7 @@ from src.reader.readers._labels import unique_labels
 
 
 class ZarrReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Read a two-dimensional numeric Zarr array or group member."""
     parameters_file = 'zarr_reader.ZarrReader.parameters.json'
     definition = {'protocol_version': 3,

@@ -12,7 +12,7 @@ from ._ext_common import make_form
 
 
 class ResetTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'reset_test.ResetTestStep.parameters.json'
     definition = {
      'dependencies': ['statsmodels>=0.14'],

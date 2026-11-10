@@ -11,7 +11,7 @@ from ._control74_common import moving_range_sigma, single_series
 
 
 class EwmaChartStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Exponentially weighted moving-average chart with time-varying limits.
 
     Sigma is estimated from the average moving range, matching the convention

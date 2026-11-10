@@ -10,7 +10,7 @@ from src.task.step.steps._ext_common import reorder, require_dims
 
 
 class RdaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'rda.RdaStep.parameters.json'
     definition = {
         'protocol_version': 3,

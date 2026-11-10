@@ -33,7 +33,7 @@ from src.task.step.base import Step
 
 class ExplodeStep(Step):
     """Expand a multi-valued info field into separate positions."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'explode.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'explode',

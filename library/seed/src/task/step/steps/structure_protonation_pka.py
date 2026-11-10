@@ -103,7 +103,7 @@ def run_pdb2pqr(binary: str, pdb_path: Path, out_pqr: Path, ph: float, timeout: 
 
 
 class StructureProtonationPkaStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_protonation_pka.StructureProtonationPkaStep.parameters.json"
 
     definition = {

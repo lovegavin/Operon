@@ -47,7 +47,7 @@ def _swap(distances: np.ndarray, medoids: np.ndarray, max_iter: int) -> tuple[np
 
 
 class PamStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'pam.PamStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'pam',

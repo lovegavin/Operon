@@ -7,9 +7,9 @@ import time
 import numpy as np
 import pytest
 
-from biopipe.application import Application
-from biopipe.developer import scaffold, build
-from biopipe.pool_service import PoolService, PoolControlServer
+from operon.application import Application
+from operon.developer import scaffold, build
+from operon.pool_service import PoolService, PoolControlServer
 from src.web.models import Graph
 from src.web.service import Settings
 
@@ -45,7 +45,7 @@ def finish(app, key, timeout=90):
 
 @pytest.mark.parametrize('publication_failure', [False, True])
 def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, publication_failure):
-    monkeypatch.setenv('BIOPIPE_ENVIRONMENT_GATE', str(tmp_path / 'gate.json'))
+    monkeypatch.setenv('OPERON_ENVIRONMENT_GATE', str(tmp_path / 'gate.json'))
     workspace = tmp_path / 'workspace'; workspace.mkdir()
     data = np.array([[1., 2.], [3., 4.]])
     np.save(workspace / 'input.npy', data)
@@ -60,12 +60,12 @@ def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, 
             service.plugins.install(cached_package(tmp_path, name, reader))
         service.refresh_catalog()
         if publication_failure:
-            from biopipe.engine.artifacts import ArtifactError
+            from operon.engine.artifacts import ArtifactError
             def fail_publish(*args):
                 raise ArtifactError('injected publication failure')
             monkeypatch.setattr(service, '_commit_job_artifacts', fail_publish)
         # Reload through the normal registry, never inject into the catalog.
-        from biopipe.plugins import PluginManager
+        from operon.plugins import PluginManager
         state = PluginManager(workspace / '.studio').state()
         for entry in state['descriptors']:
             if entry['id'] in ('example.cache_reader', 'example.cache_scale'):
@@ -106,7 +106,7 @@ def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, 
         report = service.details(child)
         assert report['summary']['steps']
         # Exported exchange is a safe array packet produced by the actual worker.
-        from biopipe.bytecode import io_path
+        from operon.bytecode import io_path
         arrays = list(io_path(service.jobs_dir / child / 'output').rglob('*.npy'))
         assert arrays, list((service.jobs_dir / child / 'output').rglob('*'))
         assert any(np.array_equal(np.load(p, allow_pickle=False), data * 3) for p in arrays)
@@ -125,7 +125,7 @@ def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, 
 
 
 def test_cache_declaration_is_strict_and_optional():
-    from biopipe_sdk.protocol import CacheContract
+    from operon_sdk.protocol import CacheContract
     with pytest.raises(ValueError):
         CacheContract.model_validate({**CACHE, 'deterministic': 'yes'})
     with pytest.raises(ValueError):
@@ -135,7 +135,7 @@ def test_cache_declaration_is_strict_and_optional():
 @pytest.mark.parametrize('resource', [{'external_tools': ['bwa']}, {'r': {}}, {'environment': 'other'}])
 def test_external_environments_are_not_assumed_cache_verified(resource):
     from types import SimpleNamespace
-    from biopipe.engine.cache_environment import fingerprint
+    from operon.engine.cache_environment import fingerprint
     state = {'descriptors': [{'id': 'op', 'resources': resource}]}
     service = SimpleNamespace(pool_remote=False, plugins=SimpleNamespace(snapshot=lambda graph: state))
     result = fingerprint(service, SimpleNamespace(plugin_lock={'op': {}}))
@@ -145,7 +145,7 @@ def test_external_environments_are_not_assumed_cache_verified(resource):
 def test_studio_bootstrap_uses_pool_capacity(tmp_path, monkeypatch):
     from fastapi.testclient import TestClient
     from src.web.api import create_app
-    monkeypatch.setenv('BIOPIPE_ENVIRONMENT_GATE', str(tmp_path / 'gate.json'))
+    monkeypatch.setenv('OPERON_ENVIRONMENT_GATE', str(tmp_path / 'gate.json'))
     workspace = tmp_path / 'workspace'
     pool = PoolService(root=tmp_path / 'pool', admission_dir=tmp_path / 'admission',
                        workspaces=[{'root': workspace, 'principal': 'test'}], code_root=ROOT,
@@ -166,7 +166,7 @@ def test_studio_bootstrap_uses_pool_capacity(tmp_path, monkeypatch):
 
 
 def test_transfer_bytes_share_the_worker_pool(tmp_path):
-    from biopipe.engine.transport import transport_admission
+    from operon.engine.transport import transport_admission
     pool = PoolService(root=tmp_path / 'pool', admission_dir=tmp_path / 'admission',
                        workspaces=[{'root': tmp_path / 'workspace', 'principal': 'test'}],
                        code_root=ROOT, capacity_bytes=1024**3, cpu_threads=2)

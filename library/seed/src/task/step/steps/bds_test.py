@@ -12,7 +12,7 @@ from ._timeseries63_common import numeric_series
 
 
 class BdsTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'bds_test.BdsTestStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'bds_test',

@@ -11,7 +11,7 @@ from ._epi64_common import corrected_table, count_table, risk_ratio
 
 
 class RiskRatioStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'risk_ratio.RiskRatioStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'risk_ratio',

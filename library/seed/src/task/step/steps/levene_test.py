@@ -12,7 +12,7 @@ from ._tests50_common import grouped_expression
 
 
 class LeveneTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Levene test for each feature.
 
     ``center="mean"`` is Levene's test; ``center="median"`` is the

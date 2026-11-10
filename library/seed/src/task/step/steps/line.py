@@ -29,7 +29,7 @@ class LineStep(Step):
         ylabel   : optional y-axis label (default: y_label)
         sort     : sort points by x before drawing (default True)
     """
-    provider = 'biopipe-plots'
+    provider = 'operon-plots'
     parameters_file = 'line.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

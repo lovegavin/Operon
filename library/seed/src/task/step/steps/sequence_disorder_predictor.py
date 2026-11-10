@@ -85,7 +85,7 @@ def disorder_segments(
 
 
 class SequenceDisorderPredictorStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_disorder_predictor.SequenceDisorderPredictorStep.parameters.json"
 
     definition = {

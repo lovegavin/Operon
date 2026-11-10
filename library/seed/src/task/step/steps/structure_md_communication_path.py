@@ -68,7 +68,7 @@ def shortest_path(weights: np.ndarray, source: int, target: int) -> tuple[list[i
 
 
 class StructureMdCommunicationPathStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_communication_path.StructureMdCommunicationPathStep.parameters.json"
     definition = {
         "protocol_version": 3,

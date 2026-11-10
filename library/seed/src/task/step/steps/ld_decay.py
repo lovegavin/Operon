@@ -34,7 +34,7 @@ COLUMNS = ["bin_start", "bin_end", "n_pairs", "mean_r2", "median_r2"]
 
 
 class LdDecayStep(Step):
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'ld_decay.LdDecayStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'ld_decay',

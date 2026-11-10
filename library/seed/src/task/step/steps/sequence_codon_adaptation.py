@@ -117,7 +117,7 @@ def adaptation_index(
 
 
 class SequenceCodonAdaptationStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_codon_adaptation.SequenceCodonAdaptationStep.parameters.json"
 
     definition: dict[str, Any] = {

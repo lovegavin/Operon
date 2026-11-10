@@ -147,7 +147,7 @@ def _export_summary(form) -> dict:
     }
 
 class LigandPdbqtPrepareStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "ligand_pdbqt_prepare.LigandPdbqtPrepareStep.parameters.json"
     definition = {
         "protocol_version": 3,

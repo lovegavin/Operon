@@ -3,7 +3,7 @@ from src.reader.base import Reader
 
 
 class CoolerReader(Reader):
-    provider = 'biopipe-hic'
+    provider = 'operon-hic'
     parameters_file = 'cooler.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'CoolerReader',

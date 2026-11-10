@@ -13,7 +13,7 @@ from src.reader.readers._table_common import read_whitespace, table_form
 
 
 class CytobandReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Cytogenetic band reader."""
     parameters_file = 'cytoband_reader.CytobandReader.parameters.json'
     definition = {

@@ -50,7 +50,7 @@ from src.task.step.steps._plot_helpers import save_figure, setup_style, figure_r
 
 class HeatmapStep(Step):
     """Draw a heatmap of a 2D form."""
-    provider = 'biopipe-plots'
+    provider = 'operon-plots'
     parameters_file = 'heatmap.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8', 'scipy>=1.11'],

@@ -41,7 +41,7 @@ def pairing_rows(positions: list[int], *, scheme: str = "adjacent") -> list[dict
 
 
 class SequenceCysteinePairingStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_cysteine_pairing.SequenceCysteinePairingStep.parameters.json"
 
     definition = {

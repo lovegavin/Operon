@@ -58,7 +58,7 @@ _STAT_LABELS = {
 
 class CoxRegressionStep(Step):
     """Fit a Cox proportional hazards model."""
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'cox_regression.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'cox_regression',

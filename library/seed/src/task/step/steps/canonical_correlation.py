@@ -12,7 +12,7 @@ from ._multivariate35_common import aligned_matrices
 
 
 class CanonicalCorrelationStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Canonical correlations via reduced QR and an SVD cross-product."""
     parameters_file = 'canonical_correlation.CanonicalCorrelationStep.parameters.json'
     definition = {'protocol_version': 3,

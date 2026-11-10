@@ -14,7 +14,7 @@ from src.reader.readers._alignment_common import alignment_form, read_clustal
 
 
 class ClustalReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for .aln / .clustal block alignments."""
     parameters_file = 'clustal_reader.ClustalReader.parameters.json'
     definition = {

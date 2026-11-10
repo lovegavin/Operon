@@ -15,7 +15,7 @@ _STATISTICS = ["Species", "chao", "chao.se", "jack1", "jack1.se",
 
 
 class SpecpoolStep(Step):
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'specpool.SpecpoolStep.parameters.json'
     definition = {
         'protocol_version': 3,

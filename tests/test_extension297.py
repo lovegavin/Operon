@@ -10,7 +10,7 @@ pytest.importorskip("pdbfixer")
 from src.core.errors import StepError
 from src.task.step.steps import interface_alanine_scan as module
 
-FIXTURE = "/home/gavin/BioPipe/tests/fixtures/vhh_1mel.pdb"
+FIXTURE = "/home/gavin/Operon/tests/fixtures/vhh_1mel.pdb"
 
 
 def _complex_text(tmp_path):

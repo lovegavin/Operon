@@ -2,13 +2,13 @@
 from collections import deque
 
 from src.core.contracts import VERSION, compatible, infer_output, resolve, source_schema, unknown
-from biopipe.file_formats import primary_ext
-from biopipe_sdk.formats import effective_formats
+from operon.file_formats import primary_ext
+from operon_sdk.formats import effective_formats
 
 
 def analyze_graph(graph, catalog, root, *, source_overrides=None, ancestry=(), input_roots=None):
     if any(node.kind == "script" for node in graph.nodes):
-        from biopipe.script_operators import prepare_script_graph
+        from operon.script_operators import prepare_script_graph
         graph, catalog = prepare_script_graph(graph, catalog)
     source_overrides = {**graph.runtime.get("exchange_contracts", {}), **(source_overrides or {})}
     from .graph import GraphError, project_path
@@ -117,7 +117,7 @@ def analyze_graph(graph, catalog, root, *, source_overrides=None, ancestry=(), i
                     result = compatible(inputs[index], ports[key]["inputs"][index])
                 except (TypeError, ValueError, KeyError):
                     result = {"status": "unknown", "reasons": ["请完善算子参数后检查契约"]}
-                from biopipe.conversions import plan_conversion
+                from operon.conversions import plan_conversion
                 source_format = inputs[index].get("data_format")
                 required_format = (ports[key]["inputs"][index] or {}).get("data_format")
                 rule = ports[key]['inputs'][index] or {}

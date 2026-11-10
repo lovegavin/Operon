@@ -22,7 +22,7 @@ from ._tree_build_common import TreeNode, _InternalNamer, build_tree_form, dista
 
 
 class NeighborJoiningStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'neighbor_joining.NeighborJoiningStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'neighbor_joining',

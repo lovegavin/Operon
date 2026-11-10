@@ -42,7 +42,7 @@ from src.task.step.steps._plot_helpers import save_figure, setup_style, figure_r
 
 class BoxplotStep(Step):
     """Boxplot of one value column split by groups."""
-    provider = 'biopipe-plots'
+    provider = 'operon-plots'
     parameters_file = 'boxplot.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

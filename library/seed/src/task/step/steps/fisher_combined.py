@@ -16,7 +16,7 @@ from src.task.step.base import Step
 
 
 class FisherCombinedStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'fisher_combined.FisherCombinedStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'fisher_combined',

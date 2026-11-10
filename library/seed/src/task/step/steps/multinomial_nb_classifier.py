@@ -6,7 +6,7 @@ from ._nb_common import MultinomialNBWithCoef
 
 
 class MultinomialNBClassifierStep(_ClassificationBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'multinomial_nb_classifier.MultinomialNBClassifierStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'multinomial_nb_classifier',

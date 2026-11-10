@@ -12,7 +12,7 @@ from ._ext_common import make_form
 
 
 class NetReclassificationImprovementStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'net_reclassification_improvement.NetReclassificationImprovementStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'net_reclassification_improvement',

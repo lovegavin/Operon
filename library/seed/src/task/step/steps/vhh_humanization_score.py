@@ -131,7 +131,7 @@ def _export_summary(form) -> dict:
     }
 
 class VhhHumanizationScoreStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "vhh_humanization_score.VhhHumanizationScoreStep.parameters.json"
     definition = {
         "protocol_version": 3,

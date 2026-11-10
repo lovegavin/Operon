@@ -121,7 +121,7 @@ def paratope_rows(
 class StructureParatopePredictStep(Step):
     """Report CDR residues that touch the antigen in a complex."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_paratope_predict.StructureParatopePredictStep.parameters.json"
     definition = {
         "protocol_version": 3,

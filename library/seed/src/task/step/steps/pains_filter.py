@@ -42,7 +42,7 @@ def pain_alerts(molecules, catalogue: str) -> list[list[str]]:
 class PainsFilterStep(Step):
     """Flag PAINS substructures molecule by molecule."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'pains_filter.PainsFilterStep.parameters.json'
     definition = {
         'protocol_version': 3,

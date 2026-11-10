@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class ChiSquareGofStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """One-sample chi-square test against expected relative frequencies."""
     parameters_file = 'chi_square_gof.ChiSquareGofStep.parameters.json'
     definition = {'protocol_version': 3,

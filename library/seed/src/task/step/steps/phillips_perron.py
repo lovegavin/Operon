@@ -11,7 +11,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class PhillipsPerronStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Phillips-Perron Z-tau test with Newey-West long-run variance."""
     parameters_file = 'phillips_perron.PhillipsPerronStep.parameters.json'
     definition = {'protocol_version': 3,

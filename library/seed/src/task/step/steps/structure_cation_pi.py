@@ -47,7 +47,7 @@ def cation_pi_bonds(
 
 
 class StructureCationPiStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_cation_pi.StructureCationPiStep.parameters.json"
     definition = {
         "protocol_version": 3,

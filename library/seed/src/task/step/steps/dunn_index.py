@@ -12,7 +12,7 @@ from ._metric_common import label_series
 
 
 class DunnIndexStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Ratio of the smallest between-cluster distance to the largest diameter."""
     parameters_file = 'dunn_index.DunnIndexStep.parameters.json'
     definition = {'protocol_version': 3,

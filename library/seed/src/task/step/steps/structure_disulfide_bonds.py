@@ -39,7 +39,7 @@ def disulfide_pairs(
 
 
 class StructureDisulfideBondsStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_disulfide_bonds.StructureDisulfideBondsStep.parameters.json"
     definition = {
         "protocol_version": 3,

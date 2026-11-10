@@ -46,7 +46,7 @@ def repeat_rows(sequence: str, *, min_period: int = 2, max_period: int = 6, min_
 
 
 class SequenceRepeatFinderStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_repeat_finder.SequenceRepeatFinderStep.parameters.json"
 
     definition: dict[str, Any] = {

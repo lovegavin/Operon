@@ -74,7 +74,7 @@ def accessibility_rows(matrix: np.ndarray, *, threshold: float = 0.5, min_length
 
 
 class SequenceRnaAccessibilityStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_rna_accessibility.SequenceRnaAccessibilityStep.parameters.json"
     definition = {
         "protocol_version": 3,

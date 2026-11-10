@@ -11,7 +11,7 @@ from ._ext_common import make_form
 
 
 class NelsonAalenStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'nelson_aalen.NelsonAalenStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'nelson_aalen',

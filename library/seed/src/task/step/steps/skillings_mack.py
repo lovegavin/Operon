@@ -13,7 +13,7 @@ from ._ext_common import make_form
 
 
 class SkillingsMackTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Skillings-Mack test for an arbitrary incomplete block design.
 
     Blocks may contain different numbers of treatments and cells may be

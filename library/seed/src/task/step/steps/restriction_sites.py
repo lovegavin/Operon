@@ -18,7 +18,7 @@ _DEFAULT_ENZYMES = {
 
 
 class RestrictionSitesStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'restriction_sites.RestrictionSitesStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'restriction_sites',

@@ -9,7 +9,7 @@ from src.task.step.base import Step
 
 
 class KrippendorffAlphaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'krippendorff_alpha.KrippendorffAlphaStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'krippendorff_alpha',

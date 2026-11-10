@@ -12,7 +12,7 @@ from ._timeseries63_common import numeric_series
 
 
 class DifferenceSignStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'difference_sign.DifferenceSignStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'difference_sign',

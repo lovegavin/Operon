@@ -26,7 +26,7 @@ from src.core.contracts import validate_form, validate_output, source_schema
 
 class TxtReader(Reader):
     """Read generic text files by delegating to another reader."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'txt_reader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'TxtReader',

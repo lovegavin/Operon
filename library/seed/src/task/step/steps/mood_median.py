@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class MoodMedianStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'mood_median.MoodMedianStep.parameters.json'
     definition = {
         'protocol_version': 3,

@@ -57,7 +57,7 @@ def _detect_order(raw: bytes, layout: str):
 
 
 class MrcReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Read MRC/CCP4 volumes as a slice by flattened-voxel matrix."""
     parameters_file = 'mrc_reader.MrcReader.parameters.json'
     definition = {'protocol_version': 3,

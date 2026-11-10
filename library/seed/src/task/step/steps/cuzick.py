@@ -20,7 +20,7 @@ class CuzickTestStep(Step):
     ties are present and a tie-corrected variance otherwise.
     """
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
 
     parameters_file = 'cuzick.CuzickTestStep.parameters.json'
     definition = {'protocol_version': 3,

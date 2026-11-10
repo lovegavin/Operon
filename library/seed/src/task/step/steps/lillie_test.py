@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class LillieTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Lilliefors (Kolmogorov-Smirnov) normality test."""
     parameters_file = 'lillie_test.LillieTestStep.parameters.json'
     definition = {'protocol_version': 3,

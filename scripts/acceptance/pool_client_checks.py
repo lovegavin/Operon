@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from biopipe.pool_service import PoolClient
+from operon.pool_service import PoolClient
 
 
 def read_graph(path):

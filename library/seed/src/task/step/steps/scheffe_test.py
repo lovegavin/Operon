@@ -12,7 +12,7 @@ from ._matrix_common import grouped
 
 
 class ScheffeTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """All-pairwise Scheffe comparisons for every feature.
 
     The family-wise confidence intervals and p-values use the ANOVA residual

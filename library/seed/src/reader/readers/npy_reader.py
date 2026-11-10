@@ -12,7 +12,7 @@ from src.reader.readers._labels import unique_labels
 
 
 class NpyReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for 2D numeric .npy/.npz arrays; output is sample x feature."""
     parameters_file = 'npy_reader.NpyReader.parameters.json'
     definition = {'protocol_version': 3,

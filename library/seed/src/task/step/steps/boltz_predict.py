@@ -125,7 +125,7 @@ def parse_affinity(path: Path | None) -> dict:
 
 
 class BoltzPredictStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "boltz_predict.BoltzPredictStep.parameters.json"
 
     definition = {

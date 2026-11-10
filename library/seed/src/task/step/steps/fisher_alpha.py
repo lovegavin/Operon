@@ -38,7 +38,7 @@ class FisherAlphaStep(Step):
     contain only singletons have no finite solution and report ``inf``.
     """
 
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
 
     parameters_file = 'fisher_alpha.FisherAlphaStep.parameters.json'
     definition = {'protocol_version': 3,

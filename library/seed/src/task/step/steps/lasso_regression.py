@@ -4,7 +4,7 @@ from ._ml_common import _RegressionBase
 
 
 class LassoRegressionStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'lasso_regression.LassoRegressionStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'lasso_regression',

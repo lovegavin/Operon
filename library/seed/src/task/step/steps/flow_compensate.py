@@ -11,7 +11,7 @@ from ._ext_common import labels_in_order, reorder, require_dims
 
 
 class FlowCompensateStep(Step):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'flow_compensate.FlowCompensateStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'flow_compensate',

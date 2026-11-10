@@ -48,7 +48,7 @@ def bend_row(points: np.ndarray, window: int = 4) -> list[float]:
 
 
 class StructureHelixBendStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_helix_bend.StructureHelixBendStep.parameters.json"
 
     definition = {

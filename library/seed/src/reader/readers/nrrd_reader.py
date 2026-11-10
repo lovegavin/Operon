@@ -78,7 +78,7 @@ def _header(raw: bytes):
 
 class NrrdReader(Reader):
     """Read NRRD volumes as slices by flattened voxels."""
-    provider = "biopipe-readers"
+    provider = "operon-readers"
     parameters_file = "nrrd_reader.NrrdReader.parameters.json"
     definition = {
         "protocol_version": 3,

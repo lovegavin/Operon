@@ -41,7 +41,7 @@ def _number(value: str, default: float = float("nan")) -> float:
 class PdbmlReader(Reader):
     """Read the coordinate table of a PDBML document."""
 
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'pdbml_reader.PdbmlReader.parameters.json'
     definition = {
      'dependencies': ['pandas>=2.0'],

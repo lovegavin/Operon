@@ -4,11 +4,11 @@ import threading
 
 import pytest
 
-from biopipe.engine.contracts import IdempotencyConflictError, ResourceRequest
-from biopipe.engine.coordinator import Coordinator
-from biopipe.engine.executor import ExecutionResult
-from biopipe.engine.facade import EngineRuntime
-from biopipe.engine.state import StateStore
+from operon.engine.contracts import IdempotencyConflictError, ResourceRequest
+from operon.engine.coordinator import Coordinator
+from operon.engine.executor import ExecutionResult
+from operon.engine.facade import EngineRuntime
+from operon.engine.state import StateStore
 
 
 class FakeExecutor:

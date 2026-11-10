@@ -1,6 +1,6 @@
 from types import SimpleNamespace
-from biopipe.remote.client import SSHConnection
-from biopipe.remote import server
+from operon.remote.client import SSHConnection
+from operon.remote import server
 
 
 def test_bridge_exit_does_not_stop_shared_service(tmp_path, monkeypatch):
@@ -8,7 +8,7 @@ def test_bridge_exit_does_not_stop_shared_service(tmp_path, monkeypatch):
     calls=[]
     monkeypatch.setattr(sys,'argv',['remote','--workspace',str(tmp_path)])
     monkeypatch.setattr(server,'ensure_daemon',lambda workspace:calls.append('ensure'))
-    monkeypatch.setattr(server,'TerminalInput',lambda:SimpleNamespace(line=lambda:'BIOPIPE_REMOTE_CLOSE 1'))
+    monkeypatch.setattr(server,'TerminalInput',lambda:SimpleNamespace(line=lambda:'OPERON_REMOTE_CLOSE 1'))
     monkeypatch.setattr(server,'rpc',lambda *a: calls.append('unexpected-rpc'))
     server.main()
     assert calls==['ensure']
@@ -21,7 +21,7 @@ def test_client_close_signals_bridge_then_closes_channel():
         shutdown_write=lambda:calls.append('eof'),close=lambda:calls.append('channel'))
     connection.client=SimpleNamespace(close=lambda:calls.append('ssh'))
     connection.close()
-    assert calls==[b'BIOPIPE_REMOTE_CLOSE 1\n','eof','channel','ssh']
+    assert calls==[b'OPERON_REMOTE_CLOSE 1\n','eof','channel','ssh']
 
 def test_dispatch_recovers_missing_daemon_once_with_same_request(monkeypatch):
     calls, ensured, logs = [], [], []
@@ -78,7 +78,7 @@ def test_dispatch_reports_recovery_failure_without_a_second_user_request(monkeyp
     assert [item['event'] for item in logs] == ['daemon_missing', 'daemon_recovery_failed']
 
 def test_diagnostic_logging_redacts_secret_shaped_text(tmp_path):
-    from biopipe.remote.server import _event_log, _sanitize_diagnostic
+    from operon.remote.server import _event_log, _sanitize_diagnostic
     text = _sanitize_diagnostic('password=hunter2 token: abc123 https://user:pass@example.test')
     assert 'hunter2' not in text and 'abc123' not in text and 'user:pass' not in text
     _event_log(tmp_path, 'bridge.events.jsonl', {'event': 'failure',

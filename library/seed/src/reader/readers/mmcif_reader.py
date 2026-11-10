@@ -12,7 +12,7 @@ from ._table_common import table_form
 
 
 class MmcifReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for mmCIF atom_site loops; output is atom x field."""
     parameters_file = 'mmcif_reader.MmcifReader.parameters.json'
     definition = {

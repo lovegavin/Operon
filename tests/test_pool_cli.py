@@ -9,7 +9,7 @@ import time
 
 import pytest
 
-from biopipe.pool_service import PoolClient
+from operon.pool_service import PoolClient
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -41,7 +41,7 @@ def test_pool_serve_cli_and_status_client(tmp_path):
     log = tmp_path / 'pool.log'
     with log.open('wb') as output:
         process = subprocess.Popen(
-            [sys.executable, '-m', 'biopipe', 'pool', 'serve', '--config', str(config_path),
+            [sys.executable, '-m', 'operon', 'pool', 'serve', '--config', str(config_path),
              '--port', '0'],
             cwd=ROOT, env=env, stdin=subprocess.DEVNULL,
             stdout=output, stderr=subprocess.STDOUT)
@@ -65,7 +65,7 @@ def test_pool_serve_cli_and_status_client(tmp_path):
         assert status['workspaces'][0]['root'] == str(workspace)
         assert status['pool']['mode'] == 'coordinator'
         cli = subprocess.run(
-            [sys.executable, '-m', 'biopipe', 'pool', 'status',
+            [sys.executable, '-m', 'operon', 'pool', 'status',
              '--address', f'127.0.0.1:{port}', '--token', 'cli-pool-token'],
             cwd=ROOT, env=env, capture_output=True, text=True, timeout=30)
         assert cli.returncode == 0, cli.stderr

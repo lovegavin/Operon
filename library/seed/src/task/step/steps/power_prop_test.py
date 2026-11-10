@@ -11,7 +11,7 @@ from ._power77_common import floating, form, integer
 
 
 class PowerPropTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Compute achieved power for a two-sided two-proportion test."""
     parameters_file = 'power_prop_test.PowerPropTestStep.parameters.json'
     definition = {'protocol_version': 3,

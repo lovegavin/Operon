@@ -53,7 +53,7 @@ def cdr_rows(sequence: str) -> dict:
 
 
 class AntibodyCdrLengthProfileStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "antibody_cdr_length_profile.AntibodyCdrLengthProfileStep.parameters.json"
 
     definition = {

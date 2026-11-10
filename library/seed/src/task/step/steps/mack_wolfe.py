@@ -12,7 +12,7 @@ from ._order_rank_common import align_ordered, finite_groups
 
 
 class MackWolfeStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Rank test for a monotone rise to a known peak and fall afterwards.
 
     The implementation follows ``PMCMRplus::mackWolfeTest`` with a known

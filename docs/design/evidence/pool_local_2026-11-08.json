@@ -28,8 +28,8 @@
   "mcp": "blocked: Windows CreateNamedPipe PermissionError in sandbox",
   "real_linux_ssh": "not_run: no authorized server profile/credential; see pool_linux_not_run_2026-11-08.json",
   "artifacts": {
-    "pool_service": "biopipe/pool_service.py",
-    "pool_cli": "biopipe/cli.py",
+    "pool_service": "operon/pool_service.py",
+    "pool_cli": "operon/cli.py",
     "pool_tests": "tests/test_pool_service.py, tests/test_pool_cli.py",
     "cache_tests": "tests/test_execution_cache.py",
     "stream_adapter_test": "tests/test_engine_stream_execution.py",

@@ -20,7 +20,7 @@ _STATISTICS = [
 
 
 class AdditiveSplineRegressionStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fit an additive OLS model with one cubic B-spline per predictor.
 
     The basis uses :func:`patsy.bs`; for a given ``df`` it has the same

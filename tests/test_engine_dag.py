@@ -7,12 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from biopipe.engine.contracts import PoolSpec
-from biopipe.engine.coordinator import Coordinator
-from biopipe.engine.dag import decide_branches, parallel_estimate, split_chains
-from biopipe.engine.executor import ExecutionResult, ProcessExecutor
-from biopipe.engine.state import StateStore
-from biopipe.engine.supervisor import LaunchSpec
+from operon.engine.contracts import PoolSpec
+from operon.engine.coordinator import Coordinator
+from operon.engine.dag import decide_branches, parallel_estimate, split_chains
+from operon.engine.executor import ExecutionResult, ProcessExecutor
+from operon.engine.state import StateStore
+from operon.engine.supervisor import LaunchSpec
 
 
 class InstantExecutor:

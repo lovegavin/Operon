@@ -81,7 +81,7 @@ def cluster_matrix(
 class RdkitMcsClusterStep(Step):
     """Group molecules by maximum common substructure similarity."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "rdkit_mcs_cluster.RdkitMcsClusterStep.parameters.json"
 
     definition = {

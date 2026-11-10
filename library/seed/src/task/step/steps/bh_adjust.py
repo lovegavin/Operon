@@ -9,7 +9,7 @@ from src.task.step.base import Step
 
 
 class BhAdjustStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'bh_adjust.BhAdjustStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'bh_adjust',

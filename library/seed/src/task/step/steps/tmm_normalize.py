@@ -21,7 +21,7 @@ from src.task.step.steps._ext_common import labels_in_order, reorder
 
 
 class TmmNormalizeStep(Step):
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     """Normalize a count matrix with edgeR-style TMM factors."""
     parameters_file = 'tmm_normalize.TmmNormalizeStep.parameters.json'
     definition = {

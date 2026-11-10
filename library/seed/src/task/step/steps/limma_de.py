@@ -71,7 +71,7 @@ def _prior(s2: np.ndarray, df: int, prior_df: int | None):
 
 
 class LimmaDeStep(Step):
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'limma_de.LimmaDeStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

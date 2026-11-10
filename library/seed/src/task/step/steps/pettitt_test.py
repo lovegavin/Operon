@@ -15,7 +15,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class PettittTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Pettitt's non-parametric single change-point test.
 
     The statistic is ``U = max_k |2 sum_{i<=k} rank(x_i) - k(n+1)|`` and the

@@ -13,7 +13,7 @@ _STATISTICS = ["x", "y", "fitted", "residual"]
 
 
 class IsotonicStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fit a monotone (increasing or decreasing) least-squares curve."""
     parameters_file = 'isotonic.IsotonicStep.parameters.json'
     definition = {'protocol_version': 3,

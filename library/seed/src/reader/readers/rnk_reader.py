@@ -13,7 +13,7 @@ from src.reader.readers._table_common import labels_for
 
 
 class RnkReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for GSEA .rnk ranked gene lists.
 
     The output is ``[gene, feature]`` with a single numeric ``score``

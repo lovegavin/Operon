@@ -4,7 +4,7 @@ from ._ml_common import _ClassificationBase
 
 
 class LogisticRegressionStep(_ClassificationBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'logistic_regression.LogisticRegressionStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'logistic_regression',

@@ -15,7 +15,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class MosesTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Moses two-sample test for extreme reactions."""
     parameters_file = 'moses_test.MosesTestStep.parameters.json'
     definition = {'protocol_version': 3,

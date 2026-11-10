@@ -47,7 +47,7 @@ def consensus_sequence(sequences: list[str], members: list[int]) -> str:
 
 
 class ProteinmpnnDesignClusterStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "proteinmpnn_design_cluster.ProteinmpnnDesignClusterStep.parameters.json"
 
     definition = {

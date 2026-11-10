@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class FlignerKruskalStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'fligner_kruskal.FlignerKruskalStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'fligner_kruskal',

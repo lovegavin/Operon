@@ -11,7 +11,7 @@ from src.task.step.base import Step
 
 
 class MinMaxScaleStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'min_max_scale.MinMaxScaleStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'min_max_scale',

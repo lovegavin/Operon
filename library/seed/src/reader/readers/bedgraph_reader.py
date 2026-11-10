@@ -8,7 +8,7 @@ from ._table_common import read_whitespace, table_form
 
 
 class BedGraphReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for 4-column bedGraph files; output is region x field."""
     parameters_file = 'bedgraph_reader.BedGraphReader.parameters.json'
     definition = {'protocol_version': 3,

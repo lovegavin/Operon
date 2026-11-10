@@ -12,7 +12,7 @@ from ._matrix_common import grouped
 
 
 class NemenyiTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """All-pairwise Nemenyi comparisons using mean ranks.
 
     The two-sided p-values use the studentized range distribution with

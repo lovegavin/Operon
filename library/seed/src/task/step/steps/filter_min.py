@@ -28,7 +28,7 @@ from src.task.step.base import Step
 
 class FilterMinStep(Step):
     """Drop positions that do not reach a minimum value."""
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'filter_min.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'filter_min',

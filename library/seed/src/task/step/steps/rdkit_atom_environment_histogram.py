@@ -38,7 +38,7 @@ def environment_row(molecule, radius: int) -> dict:
 
 
 class RdkitAtomEnvironmentHistogramStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "rdkit_atom_environment_histogram.RdkitAtomEnvironmentHistogramStep.parameters.json"
 
     definition = {

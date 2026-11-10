@@ -10,7 +10,7 @@ from src.task.step.base import Step
 
 
 class QuadeTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Quade rank test for a complete block design.
 
     Each block is ranked internally, blocks are weighted by their range, and

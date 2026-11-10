@@ -11,7 +11,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class ArchLmStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """ARCH LM test on a residual or return series.
 
     The input is treated as residuals; the operator does not fit a mean model.

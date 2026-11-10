@@ -65,7 +65,7 @@ def ligand_rmsd_series(frames: np.ndarray, receptor: np.ndarray, ligand: np.ndar
 
 
 class StructureMdLigandRmsdStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_ligand_rmsd.StructureMdLigandRmsdStep.parameters.json"
     definition = {
         "protocol_version": 3,

@@ -4,13 +4,13 @@ from pathlib import Path
 
 import pytest
 
-from biopipe.engine.budget import (
+from operon.engine.budget import (
     ResizeCommand, ResizeController, read_ack, step_boundary_resize, write_command,
 )
-from biopipe.engine.contracts import PoolSpec, ResourceRequest
-from biopipe.engine.policy import water_fill
-from biopipe.engine.resources import PoolResources
-from biopipe.engine.state import StateStore
+from operon.engine.contracts import PoolSpec, ResourceRequest
+from operon.engine.policy import water_fill
+from operon.engine.resources import PoolResources
+from operon.engine.state import StateStore
 
 
 class FakeMemory:
@@ -88,7 +88,7 @@ def add_run(store, index, *, managed, process, cpu=1, capability='cooperative-re
 
 
 def test_device_leases_cannot_overlap(tmp_path):
-    from biopipe.engine.contracts import InfeasibleResourcesError
+    from operon.engine.contracts import InfeasibleResourcesError
     store, spec = pool_setup(tmp_path)
     resources = PoolResources(store, *store.pool('pool-resize'))
     a = add_run(store, 1, managed=8, process=8)[1]

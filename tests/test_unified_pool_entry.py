@@ -5,8 +5,8 @@ import time
 
 import pytest
 
-from biopipe.application import Application
-from biopipe.pool_service import PoolClient, PoolControlServer, PoolService
+from operon.application import Application
+from operon.pool_service import PoolClient, PoolControlServer, PoolService
 from src.web.models import Graph
 from src.web.operator_catalog import catalog_from_descriptors
 from src.web.service import Settings
@@ -53,7 +53,7 @@ while not (task / 'finish').exists():
 (output / 'run_summary.json').write_text(json.dumps({'status': 'complete'}))
 ''', encoding='utf-8')
     gate = tmp_path / 'environment-gate.json'
-    monkeypatch.setenv('BIOPIPE_ENVIRONMENT_GATE', str(gate))
+    monkeypatch.setenv('OPERON_ENVIRONMENT_GATE', str(gate))
     pool = PoolService(root=tmp_path / 'pool', admission_dir=tmp_path / 'admission',
                        workspaces=[{'root': workspace, 'principal': 'alice'}],
                        code_root=code, capacity_bytes=256 * MIB, cpu_threads=4,
@@ -102,7 +102,7 @@ while not (task / 'finish').exists():
         pool.shutdown()
 
 def test_unavailable_pool_returns_explicit_error_without_local_job(tmp_path):
-    from biopipe.documents import CommandError
+    from operon.documents import CommandError
     workspace = tmp_path / 'workspace'; workspace.mkdir()
     (workspace / 'input.csv').write_text('a,b\n1,2\n', encoding='utf-8')
     code = tmp_path / 'code'; (code / 'scripts').mkdir(parents=True)

@@ -3,9 +3,9 @@ import io
 from pathlib import Path
 import tarfile
 
-from biopipe.build_identity import build_identity, matches
-from biopipe.remote.library import changes
-from biopipe.remote.provision import source_archive
+from operon.build_identity import build_identity, matches
+from operon.remote.library import changes
+from operon.remote.provision import source_archive
 
 
 ROOT = Path(__file__).resolve().parents[1]

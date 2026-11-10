@@ -122,7 +122,7 @@ def rmsd_rows(
 class VinaPoseRmsdStep(Step):
     """Compare docked poses with a reference binding pose."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "vina_pose_rmsd.VinaPoseRmsdStep.parameters.json"
     definition = {
         "protocol_version": 3,

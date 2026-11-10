@@ -19,7 +19,7 @@ _PSL_COLUMNS = [
 
 
 class PslReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """UCSC PSL reader, one row per alignment."""
     parameters_file = 'psl_reader.PslReader.parameters.json'
     definition = {

@@ -10,7 +10,7 @@ from ._metric_common import label_series
 
 
 class ConfusionMatrixStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Binary confusion matrix with actual rows and predicted columns."""
     parameters_file = 'confusion_matrix.ConfusionMatrixStep.parameters.json'
     definition = {'protocol_version': 3,

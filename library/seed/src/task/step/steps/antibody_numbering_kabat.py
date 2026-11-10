@@ -220,7 +220,7 @@ def numbering_rows(
 class AntibodyNumberingKabatStep(Step):
     """Number a VH/VHH sequence with the Kabat scheme."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "antibody_numbering_kabat.AntibodyNumberingKabatStep.parameters.json"
     definition = {
         "protocol_version": 3,

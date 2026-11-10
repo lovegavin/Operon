@@ -17,7 +17,7 @@ class RenameDimStep(Step):
         to     : new dim name
         output : context key for the result
     """
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'rename_dim.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'rename_dim',

@@ -30,7 +30,7 @@ from ._ext_common import (
 
 
 class CombatStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'combat.CombatStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'combat',

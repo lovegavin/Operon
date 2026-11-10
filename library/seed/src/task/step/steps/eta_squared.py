@@ -10,7 +10,7 @@ from ._matrix_common import grouped
 
 
 class EtaSquaredStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Per-feature eta-squared, the between-group share of total variance."""
     parameters_file = 'eta_squared.EtaSquaredStep.parameters.json'
     definition = {'protocol_version': 3,

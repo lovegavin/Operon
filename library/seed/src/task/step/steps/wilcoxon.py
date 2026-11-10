@@ -14,7 +14,7 @@ from ._matrix_common import grouped
 
 
 class WilcoxonStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'wilcoxon.WilcoxonStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'wilcoxon',

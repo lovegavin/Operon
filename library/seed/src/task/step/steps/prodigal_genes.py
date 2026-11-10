@@ -199,7 +199,7 @@ def _export_summary(form) -> dict:
     }
 
 class ProdigalGenesStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "prodigal_genes.ProdigalGenesStep.parameters.json"
     definition = {
         "protocol_version": 3,
@@ -259,7 +259,7 @@ class ProdigalGenesStep(Step):
         if not sequences:
             raise StepError("prodigal_genes: the input carries no sequence")
         binary_text = str(params.get("prodigal_path", "") or "").strip() or os.environ.get(
-            "BIOPIPE_PRODIGAL_PATH", ""
+            "OPERON_PRODIGAL_PATH", ""
         )
         binary = Path(binary_text).expanduser() if binary_text else Path("prodigal")
         genes, proteins = run_prodigal(

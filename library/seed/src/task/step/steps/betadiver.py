@@ -74,7 +74,7 @@ def _pair_values(a, b, c, method):
 
 
 class BetadiverStep(Step):
-    provider = "biopipe-microbiome"
+    provider = "operon-microbiome"
     parameters_file = "betadiver.BetadiverStep.parameters.json"
     definition = {
         "protocol_version": 3,

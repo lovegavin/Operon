@@ -80,7 +80,7 @@ def _apply_op(op, data, valid):
 
 
 class QcMetricsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Per-sample summary metrics along a feature axis."""
     parameters_file = 'qc_metrics.QcMetricsStep.parameters.json'
     definition = {'protocol_version': 3,

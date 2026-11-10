@@ -13,7 +13,7 @@ from ._stats20_common import scalar_form
 
 
 class MauchlyTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Mauchly's sphericity test with the chi-square approximation."""
     parameters_file = 'mauchly_test.MauchlyTestStep.parameters.json'
     definition = {'protocol_version': 3,

@@ -8,7 +8,7 @@ from src.task.step.base import Step
 from ._matrix_common import matrix
 
 class IsolationForestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Isolation Forest anomaly scores."""
     parameters_file = 'isolation_forest.IsolationForestStep.parameters.json'
     definition = {'protocol_version': 3,

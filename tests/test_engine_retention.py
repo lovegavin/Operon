@@ -5,10 +5,10 @@ from pathlib import Path
 
 import pytest
 
-from biopipe.engine.artifacts import ArtifactCommitter
-from biopipe.engine.contracts import PoolSpec
-from biopipe.engine.retention import QuotaExceeded, RetentionManager
-from biopipe.engine.state import StateStore
+from operon.engine.artifacts import ArtifactCommitter
+from operon.engine.contracts import PoolSpec
+from operon.engine.retention import QuotaExceeded, RetentionManager
+from operon.engine.state import StateStore
 
 
 def setup(tmp_path, *, state='running'):

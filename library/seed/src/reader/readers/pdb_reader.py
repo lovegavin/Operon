@@ -16,7 +16,7 @@ _FIELDS = (
 
 
 class PdbReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """ATOM/HETATM coordinate reader using fixed PDB columns."""
     parameters_file = 'pdb_reader.PdbReader.parameters.json'
     definition = {

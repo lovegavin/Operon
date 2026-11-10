@@ -41,7 +41,7 @@ A Reader may declare `logical_type: "form"` with
 `representations: ["native.ndarray"]` and return the SDK's `NativeArray`:
 
 ```python
-from biopipe_sdk import NativeArray
+from operon_sdk import NativeArray
 payload = NativeArray(array, ["sample", "feature"], labels,
                       {"missing_code": float("nan")}, axis_info)
 ```
@@ -127,7 +127,7 @@ The common runner applies them before the existing input-contract validation.
 Both the graph and its execution plan are required for diagnostics; the badge is
 not the execution mechanism.
 
-The NPY kernels in `biopipe/converter_kernels.py` depend only on NumPy and Python's
+The NPY kernels in `operon/converter_kernels.py` depend only on NumPy and Python's
 standard library. A portable exporter can include this module, locked NumPy,
 sidecar metadata and the actual invocation. It must validate the complete converter
 closure; an exporter that cannot include a converter must reject the workflow.
@@ -135,4 +135,4 @@ Copying only visible scientific nodes is not a valid standalone export.
 
 See `tests/test_format_adaptation.py` for numeric/metadata round-trips, bounded
 search, policy errors, actual runner execution, cancellation and an independent
-kernel subprocess without BioPipe imports.
+kernel subprocess without Operon imports.

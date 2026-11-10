@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class MoodMedianTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Mood's median test for equal group medians.
 
     Counts observations above/below the pooled median and applies a

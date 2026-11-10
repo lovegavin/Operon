@@ -122,7 +122,7 @@ _STATISTICS = (
 class SequenceSignalPeptideStep(Step):
     """Detect secretory signal peptides with a SignalP-style heuristic."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "sequence_signal_peptide.SequenceSignalPeptideStep.parameters.json"
 

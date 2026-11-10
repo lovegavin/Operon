@@ -164,7 +164,7 @@ def test_runner_failure_reports_exit_code(tmp_path: Path) -> None:
     reason="the official ProteinMPNN checkout and weights are required",
 )
 def test_official_runner_perplexity(tmp_path: Path) -> None:
-    structure = Path("/home/gavin/BioPipe/tests/fixtures/backbone_1bc8_c60_75.pdb")
+    structure = Path("/home/gavin/Operon/tests/fixtures/backbone_1bc8_c60_75.pdb")
     if not structure.is_file():
         pytest.skip("fixture is missing")
     step = _run(

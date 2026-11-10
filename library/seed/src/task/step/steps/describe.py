@@ -14,7 +14,7 @@ class DescribeStep(Step):
 
     Params: none.
     """
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'describe.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'describe',

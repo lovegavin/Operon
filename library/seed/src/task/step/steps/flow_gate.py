@@ -13,7 +13,7 @@ from ._ext_common import labels_in_order, reorder, require_dims
 
 
 class FlowGateStep(Step):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'flow_gate.FlowGateStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'flow_gate',

@@ -18,7 +18,7 @@ _NAMES = [
 
 
 class IntraclassCorrelationStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'intraclass_correlation.IntraclassCorrelationStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'intraclass_correlation',

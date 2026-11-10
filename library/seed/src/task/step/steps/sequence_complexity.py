@@ -81,7 +81,7 @@ def complexity_row(sequence: str, *, window: int = 20, threshold: float = 2.0) -
 
 
 class SequenceComplexityStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_complexity.SequenceComplexityStep.parameters.json"
     definition = {
         "protocol_version": 3,

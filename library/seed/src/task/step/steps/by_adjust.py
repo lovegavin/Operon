@@ -7,7 +7,7 @@ from ._p_adjust_common import adjust
 
 
 class ByAdjustStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Benjamini-Yekutieli p-value adjustment; output feature x qvalue."""
     parameters_file = 'by_adjust.ByAdjustStep.parameters.json'
     definition = {'protocol_version': 3,

@@ -15,7 +15,7 @@ from src.task.step.steps._agreement68_common import (
 
 
 class CongerKappaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'conger_kappa.CongerKappaStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'conger_kappa',

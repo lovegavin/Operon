@@ -13,7 +13,7 @@ from ._ext_common import labels_in_order, reorder, require_dims
 
 
 class DurbinWatsonStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'durbin_watson.DurbinWatsonStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'durbin_watson',

@@ -179,7 +179,7 @@ def _ligand_rmsd(model: AtomTable, native: AtomTable, receptor_chains: set[str],
 
 
 class StructureDockqStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_dockq.StructureDockqStep.parameters.json"
     definition = {
         "protocol_version": 3,

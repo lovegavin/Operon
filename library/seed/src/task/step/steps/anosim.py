@@ -24,7 +24,7 @@ def _statistic(ranks: np.ndarray, codes: np.ndarray) -> float:
 
 
 class AnosimStep(Step):
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'anosim.AnosimStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'anosim',

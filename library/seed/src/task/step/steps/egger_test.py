@@ -17,7 +17,7 @@ _NAMES = [
 
 
 class EggerTestStep(Step):
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'egger_test.EggerTestStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'egger_test',

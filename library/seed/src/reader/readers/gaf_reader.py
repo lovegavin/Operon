@@ -89,7 +89,7 @@ _N_COLUMNS = len(_GAF_COLUMNS)
 
 class GafReader(Reader):
     """Reader for GO Annotation Files (.gaf)."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'gaf_reader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'GafReader',

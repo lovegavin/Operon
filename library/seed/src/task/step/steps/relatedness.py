@@ -11,7 +11,7 @@ from ._ext_common import labels_in_order, make_form, reorder
 
 
 class RelatednessStep(Step):
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'relatedness.RelatednessStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'relatedness',

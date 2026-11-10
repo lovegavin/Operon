@@ -16,7 +16,7 @@ from src.task.step.steps._sequence_common import decode_sequences
 class EsmEmbeddingStep(Step):
     """Embed protein sequences with a local ESM checkpoint."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'esm_embedding.EsmEmbeddingStep.parameters.json'
     definition = {
         'protocol_version': 3,

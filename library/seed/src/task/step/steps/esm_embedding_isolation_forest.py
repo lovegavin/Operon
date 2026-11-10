@@ -32,7 +32,7 @@ def novelty_scores(data: np.ndarray, *, n_estimators: int = 100, contamination: 
 
 
 class EsmEmbeddingIsolationForestStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_embedding_isolation_forest.EsmEmbeddingIsolationForestStep.parameters.json"
 
     definition = {

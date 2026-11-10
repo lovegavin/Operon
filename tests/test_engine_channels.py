@@ -5,12 +5,12 @@ import time
 
 import pytest
 
-from biopipe.engine.channels import (
+from operon.engine.channels import (
     BoundedJoin, Channel, ChannelBudget, SyntheticAdapter, admit_group,
 )
-from biopipe.engine.contracts import InfeasibleResourcesError, PoolSpec, ResourceRequest
-from biopipe.engine.resources import PoolResources
-from biopipe.engine.state import StateStore
+from operon.engine.contracts import InfeasibleResourcesError, PoolSpec, ResourceRequest
+from operon.engine.resources import PoolResources
+from operon.engine.state import StateStore
 
 
 def test_producer_blocks_at_the_byte_ceiling_and_consumer_ack_releases(tmp_path):
@@ -22,7 +22,7 @@ def test_producer_blocks_at_the_byte_ceiling_and_consumer_ack_releases(tmp_path)
     def produce():
         for chunk in adapter.chunks:
             credit = channel.reserve(len(chunk) + len(adapter.metadata))
-            from biopipe.engine.channels import OwnedBlock
+            from operon.engine.channels import OwnedBlock
             block = OwnedBlock(block_id=f'b{len(produced)}', sequence=len(produced), generation=1,
                                data=chunk, metadata=adapter.metadata)
             channel.publish(credit, block)
@@ -60,7 +60,7 @@ def test_credit_is_reserved_before_value_materialization():
     credit = channel.reserve(len(b'abcd') + len(adapter.metadata))
     assert not materialized
     data = allocate(b'abcd')
-    from biopipe.engine.channels import OwnedBlock
+    from operon.engine.channels import OwnedBlock
     channel.publish(credit, OwnedBlock('b1', 0, 1, data, adapter.metadata))
     assert materialized == [b'abcd']
 
@@ -70,7 +70,7 @@ def test_fanout_returns_physical_credits_only_after_every_consumer_acks():
     first = Channel(budget, name='branch-a')
     second = Channel(budget, name='branch-b')
     producer = Channel(budget, name='producer')
-    from biopipe.engine.channels import OwnedBlock
+    from operon.engine.channels import OwnedBlock
     block = OwnedBlock('shared', 0, 1, b'data', b'meta')
     credit = producer.reserve(block.charged_bytes)
     producer.publish(credit, block, subscribers=[first, second])
@@ -87,7 +87,7 @@ def test_duplicate_or_delayed_ack_never_double_releases():
     budget = ChannelBudget(max_bytes=4, max_blocks=1)
     channel = Channel(budget, name='pipe')
     credit = channel.reserve(1)
-    from biopipe.engine.channels import OwnedBlock
+    from operon.engine.channels import OwnedBlock
     block = OwnedBlock('b', 0, 1, b'x')
     channel.publish(credit, block)
     received = channel.receive(timeout=1)
@@ -100,7 +100,7 @@ def test_duplicate_or_delayed_ack_never_double_releases():
 def test_join_waits_with_a_deadline_and_enforces_bounded_buffers():
     budget = ChannelBudget(max_bytes=64, max_blocks=8)
     join = BoundedJoin(['left', 'right'], budget, max_items=2)
-    from biopipe.engine.channels import OwnedBlock
+    from operon.engine.channels import OwnedBlock
     join.put('left', 'k1', OwnedBlock('l1', 0, 1, b'a'))
     with pytest.raises(TimeoutError):
         join.take('k1', timeout=0.1)

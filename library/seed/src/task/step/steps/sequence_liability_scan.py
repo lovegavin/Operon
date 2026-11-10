@@ -82,7 +82,7 @@ def liability_rows(
 class SequenceLiabilityScanStep(Step):
     """Report deamidation, isomerisation, oxidation and glycosylation sites."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "sequence_liability_scan.SequenceLiabilityScanStep.parameters.json"
     )

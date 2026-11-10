@@ -17,7 +17,7 @@ FIELDS = [
 
 
 class InterProScanReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """InterProScan tabular output reader."""
     parameters_file = 'interproscan_reader.InterProScanReader.parameters.json'
     definition = {

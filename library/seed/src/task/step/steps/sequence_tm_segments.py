@@ -87,7 +87,7 @@ def tm_segments(
 class SequenceTmSegmentsStep(Step):
     """Membrane-span candidates from sliding-window hydropathy."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = (
         "sequence_tm_segments.SequenceTmSegmentsStep.parameters.json"

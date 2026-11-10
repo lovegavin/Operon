@@ -115,7 +115,7 @@ def _finite_range(values: np.ndarray) -> list[float] | None:
 class StructurePhiPsiStep(Step):
     """Per-residue backbone dihedrals and coarse Ramachandran classes."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_phi_psi.StructurePhiPsiStep.parameters.json"
 
     definition = {

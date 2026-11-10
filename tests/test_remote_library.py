@@ -6,9 +6,9 @@ import time
 
 import pytest
 
-from biopipe.plugins import PluginManager
-from biopipe.remote.library import compare, inventory, export_provider, install_selected
-from biopipe.remote.transfers import TransferStore
+from operon.plugins import PluginManager
+from operon.remote.library import compare, inventory, export_provider, install_selected
+from operon.remote.transfers import TransferStore
 from src.web.transfers import TransferClient
 from src.web.remote_service import RemoteManager
 from extension_fixtures import write_extension
@@ -41,7 +41,7 @@ def test_never_overwrite_disabled_custom_or_other_provider(existing, reason):
 
 def test_same_provider_supplement_discloses_whole_package_update_and_aliases():
     result = compare(inventory(state(('old', 'new'), name='operon-core')),
-                     inventory(state(('old',), name='biopipe-core')))
+                     inventory(state(('old',), name='operon-core')))
     assert result['packages'][0]['selectable']
     assert result['packages'][0]['replaces'] == 1
     assert [d['id'] for d in result['packages'][0]['missing']] == ['new']
@@ -49,10 +49,10 @@ def test_same_provider_supplement_discloses_whole_package_update_and_aliases():
 
 @pytest.fixture
 def wheel(tmp_path):
-    from biopipe.dropins import single_file_wheel
+    from operon.dropins import single_file_wheel
     source = tmp_path/'addition.py'
-    write_extension(source, '''BIOPIPE_PLUGIN = {'name': 'remote-library-example'}
-from biopipe_sdk import Step
+    write_extension(source, '''OPERON_PLUGIN = {'name': 'remote-library-example'}
+from operon_sdk import Step
 raise AssertionError('Registration must never import provider code')
 class Addition(Step):
     name = 'test.remote_addition'
@@ -78,7 +78,7 @@ def test_real_upload_static_install_and_stale_revision_rollback(tmp_path, wheel,
     manager = PluginManager(tmp_path/'remote', source_root=None)
     previous = manager.state()
     transfers, item = upload(wheel, tmp_path)
-    monkeypatch.setattr('biopipe.targets.TargetBuilder.prepare', forbidden)
+    monkeypatch.setattr('operon.targets.TargetBuilder.prepare', forbidden)
     payload = {'files': [item], 'remote_revision': inventory(previous)['revision']}
     install_selected(manager, transfers, payload)
     installed = manager.state()
@@ -104,7 +104,7 @@ def test_corrupt_or_unverified_transfer_cannot_change_registry(tmp_path, wheel):
 
 
 def test_bundled_provider_export_uses_registered_source_without_import(tmp_path):
-    from biopipe.install_targets import wheel_entries
+    from operon.install_targets import wheel_entries
     manager = PluginManager(tmp_path/'local')
     original = manager.state()
     name = original['packages'][0]['name']
@@ -136,7 +136,7 @@ def test_connection_checks_once_and_explicit_selected_install_closes_loop(remote
         assert checked['missing_count'] == 1
         assert calls == ['library_manifest']
         assert not remote.handshake.maintenance_running
-        monkeypatch.setattr('biopipe.targets.TargetBuilder.prepare', forbidden)
+        monkeypatch.setattr('operon.targets.TargetBuilder.prepare', forbidden)
         manager.start_library_install(key, {**checked, 'packages': ['remote-library-example']})
         deadline = time.monotonic()+90
         while manager.library_status(key)['status'] == 'running' and time.monotonic() < deadline:

@@ -12,7 +12,7 @@ describe("copy and paste subgraphs",()=>{
   it('writes Operon fragments and imports old fragments without losing frozen parameters',()=>{
     const fragment=copyFragment(graph,['pca']);
     expect(fragment.format).toBe('operon/graph-fragment-v1');
-    const old=JSON.stringify({...fragment,format:'biopipe/graph-fragment-v1'});
+    const old=JSON.stringify({...fragment,format:'operon/graph-fragment-v1'});
     expect(isFragmentText(old)).toBe(true);
     expect(parseFragment(old)).toEqual(fragment);
     expect(graph.nodes[1].params.dim).toBe('feature');
@@ -39,7 +39,7 @@ describe("copy and paste subgraphs",()=>{
     expect(runSignature(pasted.graph)).not.toBe(signature);
     expect(withRoute.nodes[3].route!.graph.nodes[1].params.dim).toBe("feature");
   });
-  it("rejects non-BioPipe clipboard data",()=>expect(()=>parseFragment('{"nodes":[]}')).toThrow());
+  it("rejects non-Operon clipboard data",()=>expect(()=>parseFragment('{"nodes":[]}')).toThrow());
   it("preserves the input file when copying across different relative base directories",()=>{
     const source=structuredClone(graph), target=structuredClone(graph);
     source.base_dir="experiments/one"; target.base_dir="experiments/two";

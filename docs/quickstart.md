@@ -160,8 +160,8 @@ operon --workspace /absolute/path/to/project mcp --allow-run
 Editing is enabled by default; `--read-only` restricts the connection to reads,
 and omitting `--allow-run` prevents task submission. The selected environment
 needs the application's `agent` extra for MCP. Start
-with `operon help` or the MCP `biopipe_guide` tool, then retrieve only relevant
-operators and documentation. Tool IDs keep the `biopipe_` compatibility prefix.
+with `operon help` or the MCP `operon_guide` tool, then retrieve only relevant
+operators and documentation. Tool IDs keep the `operon_` compatibility prefix.
 In the desktop, selected nodes provide context; an agent can submit a batch of
 canvas edits that the user can undo together. Running a task is a separate action.
 See [agent guide](agent_operations.md) and [third-party HTTP API tutorial](api_quickstart.md).

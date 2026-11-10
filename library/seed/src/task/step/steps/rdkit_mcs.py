@@ -54,7 +54,7 @@ def count_matches(molecule, query) -> tuple[int, int]:
 class RdkitMcsStep(Step):
     """Maximum common substructure across a set of molecules."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'rdkit_mcs.RdkitMcsStep.parameters.json'
     definition = {
         'protocol_version': 3,

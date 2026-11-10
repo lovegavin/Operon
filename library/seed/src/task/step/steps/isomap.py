@@ -9,7 +9,7 @@ from ._matrix_common import matrix, projection
 
 
 class IsomapStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'isomap.IsomapStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'isomap',

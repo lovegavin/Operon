@@ -37,7 +37,7 @@ def hydrophobic_moment(sequence: str) -> tuple[float, float, np.ndarray]:
 
 
 class SequenceHydrophobicMomentStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_hydrophobic_moment.SequenceHydrophobicMomentStep.parameters.json"
 
     definition = {

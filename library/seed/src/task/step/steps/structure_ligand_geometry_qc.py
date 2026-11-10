@@ -97,7 +97,7 @@ def clash_summary(ligand: np.ndarray, protein: np.ndarray, cutoff: float = 2.0) 
 
 
 class StructureLigandGeometryQcStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_ligand_geometry_qc.StructureLigandGeometryQcStep.parameters.json"
     definition = {
         "protocol_version": 3,

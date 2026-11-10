@@ -11,7 +11,7 @@ _NAMES = ["slope", "intercept", "n"]
 
 
 class PassingBablokStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'passing_bablok.PassingBablokStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'passing_bablok',

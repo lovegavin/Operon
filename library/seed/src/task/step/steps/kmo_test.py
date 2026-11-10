@@ -12,7 +12,7 @@ from ._stats20_common import scalar_form
 
 
 class KmoTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """KMO overall and per-variable measures of sampling adequacy."""
     parameters_file = 'kmo_test.KmoTestStep.parameters.json'
     definition = {'protocol_version': 3,

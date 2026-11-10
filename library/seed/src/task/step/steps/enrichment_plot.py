@@ -36,7 +36,7 @@ from src.task.step.steps._plot_helpers import setup_style, save_figure, figure_r
 
 class EnrichmentPlotStep(Step):
     """Horizontal bar plot of enrichment results."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'enrichment_plot.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

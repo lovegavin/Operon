@@ -11,7 +11,7 @@ from ._multivariate35_common import frame_matrix
 
 
 class Chao1Step(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Estimate the number of unobserved species with the Chao1 estimator."""
     parameters_file = 'chao1.Chao1Step.parameters.json'
     definition = {'protocol_version': 3,

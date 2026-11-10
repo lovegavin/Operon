@@ -60,7 +60,7 @@ def _isoelectric(seq: str) -> float:
 
 
 class ProteinPropertiesStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'protein_properties.ProteinPropertiesStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'protein_properties',

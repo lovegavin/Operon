@@ -11,7 +11,7 @@ from ._epi64_common import cohens_h, count_table
 
 
 class CohensHStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'cohens_h.CohensHStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'cohens_h',

@@ -73,7 +73,7 @@ def _numeric_hessian(function, point, step=1e-4):
 
 
 class TobitStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Normal regression with left-censoring at a fixed threshold."""
     parameters_file = 'tobit.TobitStep.parameters.json'
     definition = {'protocol_version': 3,

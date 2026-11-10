@@ -1,4 +1,4 @@
-<!-- biopipe:generated -->
+<!-- operon:generated -->
 # H5adReader
 
 ## Purpose
@@ -65,11 +65,11 @@ or statistical assumptions for a particular dataset.
 
 Declared Python requirements: `anndata>=0.10`, `h5py>=3.9`, `scipy>=1.11`. Prepare them explicitly in the selected execution environment; registration and application startup do not install them.
 
-Runs in the shared BioPipe interpreter.
+Runs in the shared Operon interpreter.
 
 ## Limitations
 
-Declared memory modes: full, disk. BioPipe retains the existing planner, disk-backed
+Declared memory modes: full, disk. Operon retains the existing planner, disk-backed
 inputs and emergency spill behavior; full-mode operators still require their
 declared working set. This generated reference has not been independently
 scientifically reviewed.

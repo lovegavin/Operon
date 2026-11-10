@@ -9,7 +9,7 @@ from ._power77_common import floating, form, integer
 
 
 class PowerAnovaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Compute achieved power for a balanced one-way ANOVA."""
     parameters_file = 'power_anova.PowerAnovaStep.parameters.json'
     definition = {'protocol_version': 3,

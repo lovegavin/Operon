@@ -30,7 +30,7 @@ def _kernel_weights(u: np.ndarray, kernel: str) -> np.ndarray:
 
 
 class RddStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'rdd.RddStep.parameters.json'
     definition = {
         'protocol_version': 3,

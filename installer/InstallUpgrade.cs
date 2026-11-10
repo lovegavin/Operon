@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.Json;
 
-namespace BioPipe.Setup;
+namespace Operon.Setup;
 
 internal sealed record UpgradeTarget(string Directory, string Profile);
 
@@ -18,7 +18,7 @@ internal sealed class InstallUpgrade : IDisposable
         {
             var directory = InstallFiles.Inside(root, relative);
             if (!Directory.Exists(directory)) continue;
-            var marker = Path.Combine(directory, "biopipe-install.json");
+            var marker = Path.Combine(directory, "operon-install.json");
             if (!File.Exists(marker)) continue; // Already cleaned; unknown files are retained.
             using var document = JsonDocument.Parse(File.ReadAllText(marker));
             var id = document.RootElement.GetProperty("profile_id").GetString();
@@ -49,7 +49,7 @@ internal sealed class InstallUpgrade : IDisposable
         return result;
     }
 
-    private static bool IsHost(OwnedProcess process) => new[] { "Operon Studio.exe", "BioPipe Studio.exe" }
+    private static bool IsHost(OwnedProcess process) => new[] { "Operon Studio.exe", "Operon Studio.exe" }
         .Contains(Path.GetFileName(process.Executable), StringComparer.OrdinalIgnoreCase);
 
     internal static void CheckRecordedTasks(string profile)
@@ -99,7 +99,7 @@ internal sealed class InstallUpgrade : IDisposable
         foreach (var home in targets.Select(t => Directory.GetParent(t.Profile)?.Parent?.Parent?.FullName).Distinct())
         {
             if (home is null) continue;
-            var pool = Path.Combine(home, ".biopipe", "admission", Environment.MachineName, "managed-pool");
+            var pool = Path.Combine(home, ".operon", "admission", Environment.MachineName, "managed-pool");
             var instance = Path.Combine(pool, "instance.json");
             if (!File.Exists(instance)) continue;
             InstallFiles.NoLinks(instance);
@@ -181,7 +181,7 @@ internal sealed class InstallUpgrade : IDisposable
                 if (!leased && !processes.Any(IsHost))
                 {
                     foreach (var profile in targets.Select(t => t.Profile).Distinct(StringComparer.OrdinalIgnoreCase))
-                        session.leases.Add(new InstallLease("Local\\BioPipeStudio-" + InstallLease.Identity(profile)));
+                        session.leases.Add(new InstallLease("Local\\OperonStudio-" + InstallLease.Identity(profile)));
                     leased = true; // Prevent the old shortcuts from reopening during the switch.
                 }
                 if (leased && processes.Count == 0) return session;

@@ -94,7 +94,7 @@ def run_rnafold(
 
 
 class SequenceRnaFoldStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_rna_fold.SequenceRnaFoldStep.parameters.json"
     definition = {
         "protocol_version": 3,

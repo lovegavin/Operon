@@ -38,7 +38,7 @@ from src.task.step.steps._plot_helpers import save_figure, setup_style, figure_r
 
 class ForestPlotStep(Step):
     """Draw a forest plot of hazard ratios."""
-    provider = 'biopipe-plots'
+    provider = 'operon-plots'
     parameters_file = 'forest_plot.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

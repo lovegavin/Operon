@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class CramerVonMisesStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Per-feature two-sample Cramer-von Mises test."""
     parameters_file = 'cramer_von_mises.CramerVonMisesStep.parameters.json'
     definition = {'protocol_version': 3,

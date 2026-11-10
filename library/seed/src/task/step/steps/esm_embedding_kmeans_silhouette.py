@@ -60,7 +60,7 @@ def silhouette(matrix: np.ndarray, labels: np.ndarray) -> float:
 
 
 class EsmEmbeddingKmeansSilhouetteStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_embedding_kmeans_silhouette.EsmEmbeddingKmeansSilhouetteStep.parameters.json"
 
     definition = {

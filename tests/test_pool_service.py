@@ -6,8 +6,8 @@ import time
 
 import pytest
 
-from biopipe.engine.environment import EnvironmentBusy
-from biopipe.pool_service import PoolClient, PoolControlServer, PoolService
+from operon.engine.environment import EnvironmentBusy
+from operon.pool_service import PoolClient, PoolControlServer, PoolService
 from src.web.models import Graph
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -270,8 +270,8 @@ def test_two_sessions_same_workspace_are_independent(pool):
     wait_until(lambda: service.details(wsa, c['id'], principal='alice')['status'] == 'complete')
 
 def test_pool_submission_failure_is_visible_and_pool_recovers(pool, monkeypatch):
-    from biopipe.engine.contracts import UnavailableStateError
-    from biopipe.pool_service import PoolClientError
+    from operon.engine.contracts import UnavailableStateError
+    from operon.pool_service import PoolClientError
     service, server, wsa, _ = pool
     client = PoolClient(server.address, 'test-token')
     original = service.coordinator.submit
@@ -295,7 +295,7 @@ def test_pool_submission_failure_is_visible_and_pool_recovers(pool, monkeypatch)
     wait_until(lambda: service.details(wsa, job['id'], principal='alice')['status'] == 'complete')
 
 def test_artifact_publication_failure_is_distinct_from_compute_success(pool, monkeypatch):
-    from biopipe.engine.artifacts import ArtifactError
+    from operon.engine.artifacts import ArtifactError
     service, server, wsa, _ = pool
     alpha = service.resolve(wsa)
     def fail(_payload, _result):
@@ -331,7 +331,7 @@ def test_client_reopens_lost_subscription_without_relaunch(pool):
 
 
 def test_workspace_stop_is_explicit_and_does_not_cancel_running_work(pool):
-    from biopipe.pool_service import PoolClientError
+    from operon.pool_service import PoolClientError
     service, server, wsa, _ = pool
     client = PoolClient(server.address, 'test-token')
     session = client.open_session(wsa, principal='alice')

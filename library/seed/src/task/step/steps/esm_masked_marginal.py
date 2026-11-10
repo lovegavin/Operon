@@ -101,7 +101,7 @@ def masked_marginal(
 
 
 class EsmMaskedMarginalStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Score substitution effects with ESM masked marginals."""
     parameters_file = 'esm_masked_marginal.EsmMaskedMarginalStep.parameters.json'
     definition = {

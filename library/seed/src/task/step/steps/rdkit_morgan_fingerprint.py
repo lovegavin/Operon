@@ -15,7 +15,7 @@ from src.task.step.steps._rdkit_common import (
 class RdkitMorganFingerprintStep(Step):
     """Compute Morgan fingerprints for a SMILES list."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = (
         'rdkit_morgan_fingerprint.RdkitMorganFingerprintStep.parameters.json'
     )

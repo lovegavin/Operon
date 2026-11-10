@@ -104,7 +104,7 @@ def signal_rows(sequences, **kwargs) -> list[dict]:
 class SequenceSignalPeptideV2Step(Step):
     """Classify signal peptides as Sec/Tat and secretory/lipoprotein."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_signal_peptide_v2.SequenceSignalPeptideV2Step.parameters.json"
     definition = {
         "protocol_version": 3,

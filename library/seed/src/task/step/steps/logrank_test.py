@@ -42,7 +42,7 @@ _STAT_LABELS = {"chi2": 0, "df": 1, "P": 2}
 
 class LogrankTestStep(Step):
     """Log-rank test for survival differences across groups."""
-    provider = 'biopipe-expression'
+    provider = 'operon-expression'
     parameters_file = 'logrank_test.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'logrank_test',

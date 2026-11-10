@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class ShapiroWilkStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Shapiro-Wilk W test for univariate normality."""
     parameters_file = 'shapiro_wilk.ShapiroWilkStep.parameters.json'
     definition = {'protocol_version': 3,

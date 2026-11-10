@@ -14,7 +14,7 @@ from src.reader.readers._table_common import table_form
 
 
 class CramReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Compressed Reference-oriented Alignment/Map reader."""
     parameters_file = 'cram_reader.CramReader.parameters.json'
     definition = {'protocol_version': 3,

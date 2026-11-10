@@ -9,7 +9,7 @@ from ._matrix_common import matrix, projection
 
 
 class MdsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'mds.MdsStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'mds',

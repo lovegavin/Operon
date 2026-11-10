@@ -11,7 +11,7 @@ from ._cluster_agreement import paired_labels
 
 
 class FowlkesMallowsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Geometric mean of pairwise precision and recall between two partitions."""
     parameters_file = 'fowlkes_mallows.FowlkesMallowsStep.parameters.json'
     definition = {'protocol_version': 3,

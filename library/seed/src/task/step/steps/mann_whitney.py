@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class MannWhitneyStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'mann_whitney.MannWhitneyStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'mann_whitney',

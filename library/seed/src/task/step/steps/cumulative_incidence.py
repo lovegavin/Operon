@@ -11,7 +11,7 @@ from ._ext_common import make_form
 
 
 class CumulativeIncidenceStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'cumulative_incidence.CumulativeIncidenceStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'cumulative_incidence',

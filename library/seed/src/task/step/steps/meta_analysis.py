@@ -34,7 +34,7 @@ _CORRECTIONS = ("fdr", "bonferroni", "holm", "hommel", "fdr_by")
 
 
 class MetaAnalysisStep(Step):
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'meta_analysis.MetaAnalysisStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

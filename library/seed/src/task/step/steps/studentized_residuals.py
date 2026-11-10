@@ -11,7 +11,7 @@ from ._influence66_common import influence_ols
 
 
 class StudentizedResidualsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'studentized_residuals.StudentizedResidualsStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'studentized_residuals',

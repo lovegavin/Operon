@@ -66,7 +66,7 @@ def _affine(header, order, pixdim, qform_code, sform_code):
 
 class NiftiReader(Reader):
     """Read single-file NIfTI-1 volumes as slices by flattened voxels."""
-    provider = "biopipe-readers"
+    provider = "operon-readers"
     parameters_file = "nifti_reader.NiftiReader.parameters.json"
     definition = {
         "protocol_version": 3,

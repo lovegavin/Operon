@@ -105,7 +105,7 @@ def composition_row(sequence: str, window: int = 50) -> tuple[tuple[float, ...],
 class SequenceGcProfileStep(Step):
     """Nucleotide composition summary with a sliding GC window profile."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_gc_profile.SequenceGcProfileStep.parameters.json"
 
     definition = {

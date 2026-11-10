@@ -12,7 +12,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class AdfTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'adf_test.AdfTestStep.parameters.json'
     definition = {
      'dependencies': ['statsmodels>=0.14'],

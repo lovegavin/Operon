@@ -13,7 +13,7 @@ from src.reader.readers._labels import unique_labels
 
 
 class NewickReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Parse a Newick tree into a node x field table."""
     parameters_file = 'newick_reader.NewickReader.parameters.json'
     definition = {'protocol_version': 3,

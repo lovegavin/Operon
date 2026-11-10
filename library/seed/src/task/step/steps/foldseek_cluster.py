@@ -115,7 +115,7 @@ def cluster_rows(pairs: list[tuple[str, str]]) -> tuple[list[str], np.ndarray, d
 
 
 class FoldseekClusterStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "foldseek_cluster.FoldseekClusterStep.parameters.json"
 
     definition = {

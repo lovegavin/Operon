@@ -140,7 +140,7 @@ def _fit_conditional_logistic(
 
 
 class ConditionalLogisticStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fit a conditional logistic model for matched case-control strata."""
     parameters_file = 'conditional_logistic.ConditionalLogisticStep.parameters.json'
     definition = {'protocol_version': 3,

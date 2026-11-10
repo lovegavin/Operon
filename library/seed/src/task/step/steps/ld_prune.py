@@ -19,7 +19,7 @@ class LdPruneStep(Step):
         r2     : r^2 threshold
         output : context key for the result
     """
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'ld_prune.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'ld_prune',

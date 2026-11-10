@@ -165,7 +165,7 @@ def ligand_atoms(
 class StructureLigandPoseRmsdStep(Step):
     """Symmetry-corrected ligand pose RMSD with per-atom deviations."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "structure_ligand_pose_rmsd.StructureLigandPoseRmsdStep.parameters.json"
 

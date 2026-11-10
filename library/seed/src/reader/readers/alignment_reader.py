@@ -3,7 +3,7 @@ from src.reader.base import Reader
 
 
 class AlignmentReader(Reader):
-    provider = 'biopipe-hic'
+    provider = 'operon-hic'
     parameters_file = 'alignment.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'AlignmentReader',

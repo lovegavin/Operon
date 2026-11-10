@@ -66,7 +66,7 @@ def clash_rows(
 
 
 class StructureLigandClashStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_ligand_clash.StructureLigandClashStep.parameters.json"
 
     definition = {

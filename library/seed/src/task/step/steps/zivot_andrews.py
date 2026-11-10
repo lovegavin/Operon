@@ -12,7 +12,7 @@ from ._stats20_common import scalar_form
 
 
 class ZivotAndrewsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'zivot_andrews.ZivotAndrewsStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'zivot_andrews',

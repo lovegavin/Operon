@@ -8,7 +8,7 @@ from src.task.step.base import Step
 from ._matrix_common import matrix
 
 class DbscanStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Density-based spatial clustering (DBSCAN)."""
     parameters_file = 'dbscan.DbscanStep.parameters.json'
     definition = {'protocol_version': 3,

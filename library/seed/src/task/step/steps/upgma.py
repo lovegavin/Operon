@@ -18,7 +18,7 @@ from ._tree_build_common import TreeNode, _InternalNamer, build_tree_form, dista
 
 
 class UpgmaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'upgma.UpgmaStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'upgma',

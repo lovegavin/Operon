@@ -12,7 +12,7 @@ from ._stats21_common import design_matrix, numeric_column, table_frame
 
 
 class ConditionalLogitStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fixed-effects logistic regression for matched case-control strata."""
     parameters_file = 'conditional_logit.ConditionalLogitStep.parameters.json'
     definition = {'protocol_version': 3,

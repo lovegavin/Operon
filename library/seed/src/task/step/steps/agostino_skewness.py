@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class AgostinoSkewnessStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """D'Agostino test for sample skewness."""
     parameters_file = 'agostino_skewness.AgostinoSkewnessStep.parameters.json'
     definition = {'protocol_version': 3,

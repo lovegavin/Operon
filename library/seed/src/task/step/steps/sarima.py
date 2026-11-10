@@ -15,7 +15,7 @@ _STATISTICS = ["coef", "se", "z", "P", "CI_low", "CI_high"]
 
 
 class SarimaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Fit a seasonal ARIMA(p, d, q)(P, D, Q)s model by maximum likelihood."""
     parameters_file = 'sarima.SarimaStep.parameters.json'
     definition = {'protocol_version': 3,

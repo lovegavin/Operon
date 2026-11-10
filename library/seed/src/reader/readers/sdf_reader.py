@@ -17,7 +17,7 @@ _MASS = {
 
 
 class SdfReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for SDF records; output is molecule x [atoms, bonds, molecular_weight]."""
     parameters_file = 'sdf_reader.SdfReader.parameters.json'
     definition = {

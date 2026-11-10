@@ -69,7 +69,7 @@ def _log_posterior(x, means, covs, priors):
 
 
 class QdaStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "qda.QdaStep.parameters.json"
     definition = {
         "protocol_version": 3,

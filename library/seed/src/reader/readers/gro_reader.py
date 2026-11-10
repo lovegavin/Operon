@@ -11,7 +11,7 @@ from src.reader.readers._table_common import table_form
 
 
 class GroReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """GROMACS GRO reader, one row per atom."""
     parameters_file = 'gro_reader.GroReader.parameters.json'
     definition = {

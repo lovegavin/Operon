@@ -13,7 +13,7 @@ from ._matrix_common import matrix, projection
 
 
 class SpectralEmbeddingStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'spectral_embedding.SpectralEmbeddingStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'spectral_embedding',

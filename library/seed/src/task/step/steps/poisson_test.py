@@ -37,7 +37,7 @@ def _two_sided(counts, expected):
     return np.clip(p, 0.0, 1.0)
 
 class PoissonTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'poisson_test.PoissonTestStep.parameters.json'
     definition = {
         'protocol_version': 3,

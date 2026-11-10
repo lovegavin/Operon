@@ -12,7 +12,7 @@ from ._stats20_common import scalar_form
 
 
 class BoschlooExactStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Boschloo's exact test for association in a 2x2 contingency table.
 
     Boschloo's p-value is the maximum conditional Fisher p-value over tables

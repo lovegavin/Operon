@@ -12,7 +12,7 @@ from ._metric_common import binary_truth, label_series, score_series
 
 
 class RocComparisonStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Compare two AUCs measured on the same samples (DeLong)."""
     parameters_file = 'roc_comparison.RocComparisonStep.parameters.json'
     definition = {'protocol_version': 3,

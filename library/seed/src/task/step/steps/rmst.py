@@ -12,7 +12,7 @@ from ._ext_common import group_values, make_form
 
 
 class RmstStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'rmst.RmstStep.parameters.json'
     definition = {
      'dependencies': ['scipy>=1.11'],

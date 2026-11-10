@@ -10,7 +10,7 @@ from ._xml20_common import attributes, descendants, frame_form, numeric
 
 
 class ProtxmlReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'protxml_reader.ProtxmlReader.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'ProtxmlReader',

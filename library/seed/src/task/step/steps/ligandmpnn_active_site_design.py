@@ -146,7 +146,7 @@ def fixed_positions(residues: dict[str, dict], active: list[dict]) -> list[str]:
 class LigandmpnnActiveSiteDesignStep(Step):
     """Redesign ligand-proximal residues while keeping the rest of the protein fixed."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "ligandmpnn_active_site_design.LigandmpnnActiveSiteDesignStep.parameters.json"
     )
@@ -245,7 +245,7 @@ class LigandmpnnActiveSiteDesignStep(Step):
         active_labels = [
             f"{atom['chain']}{atom['number']}{atom['icode']}".strip() for atom in active
         ]
-        out_dir = Path(tempfile.mkdtemp(prefix="biopipe-ligandmpnn-active-"))
+        out_dir = Path(tempfile.mkdtemp(prefix="operon-ligandmpnn-active-"))
         try:
             command = [
                 python,

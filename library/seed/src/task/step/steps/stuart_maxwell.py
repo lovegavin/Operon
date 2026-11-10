@@ -13,7 +13,7 @@ from ._ext_common import make_form
 
 
 class StuartMaxwellStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Test whether two raters have the same marginal distribution."""
     parameters_file = 'stuart_maxwell.StuartMaxwellStep.parameters.json'
     definition = {

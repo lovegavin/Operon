@@ -32,7 +32,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from biopipe.engine.control import ControlLimits, ControlLoop  # noqa: E402
+from operon.engine.control import ControlLimits, ControlLoop  # noqa: E402
 
 
 def recv_exact(connection, size):

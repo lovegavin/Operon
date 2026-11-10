@@ -12,7 +12,7 @@ from ._stats21_common import ordered_labels
 
 
 class CorrespondenceAnalysisStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Row and column principal coordinates from a contingency table."""
     parameters_file = 'correspondence_analysis.CorrespondenceAnalysisStep.parameters.json'
     definition = {'protocol_version': 3,

@@ -14,7 +14,7 @@ METHODS = ("wilson", "clopper_pearson", "agresti_coull", "jeffreys", "wald")
 
 
 class ProportionCiStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'proportion_ci.ProportionCiStep.parameters.json'
     definition = {
         'protocol_version': 3,

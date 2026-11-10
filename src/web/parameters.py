@@ -4,7 +4,7 @@ from io import BytesIO
 import json
 from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile
 
-from biopipe.file_formats import primary_ext
+from operon.file_formats import primary_ext
 from .models import Graph
 
 
@@ -26,7 +26,7 @@ def freeze_graph(graph, catalog, root, *, bound=False, depth=0, input_roots=None
     operators = {item["id"]: item for item in catalog["operators"]}
     for node in result.nodes:
         if node.kind == 'script':
-            from biopipe.script_operators import validate_script
+            from operon.script_operators import validate_script
             node.script = validate_script(node.script)
             node.params = _defaults(node.script, node.params)
         elif node.kind == "operator":
@@ -76,7 +76,7 @@ def restore_graph(topology, values):
     """Hydrate a strict pair, without consulting the current operator catalog."""
     graph = Graph.model_validate(topology)
     if (not isinstance(values, dict) or set(values) != {"format", "schema_version", "params", "nodes"}
-            or values["format"] not in ("biopipe.graph-parameters", "operon.graph-parameters") or values["schema_version"] != 1
+            or values["format"] not in ("operon.graph-parameters", "operon.graph-parameters") or values["schema_version"] != 1
             or not isinstance(values["params"], dict) or not isinstance(values["nodes"], dict)
             or set(values["nodes"]) != {node.id for node in graph.nodes}
             or len(graph.nodes) != len(values["nodes"]) or graph.params):
@@ -122,7 +122,7 @@ def import_bundle(content):
             names = sorted(archive.namelist())
             if 'library.json' in names:
                 raise ValueError('This is an operator library, not a workflow. Use Operator Library > Add operators > Import package.')
-            if any(name.lower().endswith(('.operon.zip', '.biopipe.zip')) for name in names):
+            if any(name.lower().endswith(('.operon.zip', '.operon.zip')) for name in names):
                 raise ValueError('This is a collection of workflows. Extract it and select the individual .operon.zip files in the routes folder.')
             if names not in (["graph.json", "parameters.json"], ["execution.json", "graph.json", "parameters.json"]):
                 raise ValueError("Workflow bundle must contain graph.json, parameters.json and optional execution.json only")
@@ -153,7 +153,7 @@ def restore_execution(topology, config):
     topology = deepcopy(topology)
     routes = {node["id"]: node for node in topology["nodes"] if node.get("route")}
     if (not isinstance(config, dict) or set(config) != {"format", "schema_version", "memory", "execution", "routes"}
-            or config["format"] not in ("biopipe.graph-execution", "operon.graph-execution") or config["schema_version"] != 1
+            or config["format"] not in ("operon.graph-execution", "operon.graph-execution") or config["schema_version"] != 1
             or not all(isinstance(config[k], dict) for k in ("memory", "execution", "routes"))
             or set(routes) != set(config["routes"])):
         raise ValueError("Execution settings do not match the saved graph")

@@ -98,7 +98,7 @@ def enumerate_pairs(
 class RdkitReactionPairwiseEnumerateStep(Step):
     """Enumerate two-component reaction products across two libraries."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = (
         "rdkit_reaction_pairwise_enumerate."
         "RdkitReactionPairwiseEnumerateStep.parameters.json"

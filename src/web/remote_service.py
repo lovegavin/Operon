@@ -13,7 +13,7 @@ from .models import StrictModel, Graph
 from .storage import atomic_json
 from .service import read_json
 from .source_paths import remote_profile
-from biopipe.remote.client import SSHConnection, HostKeyRequired, RemoteError
+from operon.remote.client import SSHConnection, HostKeyRequired, RemoteError
 
 
 class ConnectionProfile(StrictModel):
@@ -75,7 +75,7 @@ class RemoteManager:
         """Identity of the application and operator library this desktop ships."""
         if self._build is None:
             try:
-                from biopipe.build_identity import build_identity
+                from operon.build_identity import build_identity
                 root = getattr(self.service.settings, 'code_root', None) or self.service.root
                 self._build = build_identity(root)
             except Exception:  # noqa: BLE001 - old checkouts and isolated tests
@@ -83,7 +83,7 @@ class RemoteManager:
         return deepcopy(self._build)
 
     def build(self, key):
-        from biopipe.build_identity import matches
+        from operon.build_identity import matches
         connection = self.connections.get(key)
         if not connection or not connection.connected:
             raise RemoteError('请先连接服务器。', code='remote_disconnected')
@@ -238,7 +238,7 @@ class RemoteManager:
             return deepcopy(self.progress.get(key, {'running': False, 'lines': [], 'error': ''}))
 
     def check_library(self, key):
-        from biopipe.remote.library import inventory, compare
+        from operon.remote.library import inventory, compare
         connection = self.connections.get(key)
         if not connection or not connection.connected:
             raise RemoteError('请先连接服务器。', code='remote_disconnected')
@@ -257,7 +257,7 @@ class RemoteManager:
         remote_build = remote.get('build') or connection.info.get('build') or {}
         local_build = self.local_build()
         try:
-            from biopipe.build_identity import matches
+            from operon.build_identity import matches
             same_build = bool(local_build and remote_build and matches(local_build, remote_build))
         except Exception:  # noqa: BLE001 - malformed old receipts simply need an upgrade
             same_build = False
@@ -297,8 +297,8 @@ class RemoteManager:
 
     def _install_library(self, key, connection, payload):
         from tempfile import TemporaryDirectory
-        from biopipe.remote.library import inventory, export_provider
-        from biopipe.engine.transport import transport_admission
+        from operon.remote.library import inventory, export_provider
+        from operon.engine.transport import transport_admission
         from .transfers import TransferClient
         lease = 'transfer-' + uuid.uuid4().hex
         admission = None
@@ -414,7 +414,7 @@ class RemoteManager:
             raise RemoteError('服务端算子库与本地版本不一致，请先安装 / 升级服务端后再运行。',
                               code='library_replacement_required')
         graph = graph.model_copy(deep=True)
-        from biopipe.pins import graphs
+        from operon.pins import graphs
         for part in graphs(graph):
             used = {node.operator for node in part.nodes if node.kind == 'operator'}
             # Readers are keyed by file extension; the server resolves ambiguous
@@ -489,7 +489,7 @@ class RemoteManager:
     def fetch_output(self, profile, job_id, kind, **fields):
         """Resolve an authorized job output, then reuse the resumable transfer cache."""
         from .transfers import TransferClient
-        from biopipe.remote.transfers import basename
+        from operon.remote.transfers import basename
         self.profile(profile)
         result = self.call(profile, 'output_file', {'job_id': job_id, 'kind': kind, **fields})
         name = basename(result['name'])

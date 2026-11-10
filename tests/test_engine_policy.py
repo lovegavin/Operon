@@ -3,8 +3,8 @@ import random
 
 import pytest
 
-from biopipe.engine.contracts import ResourceRequest
-from biopipe.engine.policy import FairnessPolicy, Demand, Usage, select_ready, water_fill
+from operon.engine.contracts import ResourceRequest
+from operon.engine.policy import FairnessPolicy, Demand, Usage, select_ready, water_fill
 
 
 def demand(key, principal='alice', project='p', ram=10, cpu=1, age=0.0, submitted=None):

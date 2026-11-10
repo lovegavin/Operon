@@ -18,7 +18,7 @@ class DropStep(Step):
         labels : list of label names to remove
         output : context key for the result
     """
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'drop.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'drop',

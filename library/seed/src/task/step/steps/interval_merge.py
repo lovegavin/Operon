@@ -49,7 +49,7 @@ _STAT_LABELS = ("start", "end", "length", "n_intervals")
 
 class IntervalMergeStep(Step):
     """Merge overlapping BED intervals per chromosome."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'interval_merge.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'interval_merge',

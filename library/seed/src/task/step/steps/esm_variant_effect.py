@@ -107,7 +107,7 @@ def masked_position_log_probs(model, alphabet, torch, sequence: str,
 
 
 class EsmVariantEffectStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Zero-shot amino-acid substitution effects from masked ESM predictions."""
     parameters_file = 'esm_variant_effect.EsmVariantEffectStep.parameters.json'
     definition = {'protocol_version': 3,

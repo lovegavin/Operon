@@ -57,7 +57,7 @@ from src.reader.readers._labels import unique_labels
 
 class MtxReader(Reader):
     """Reader for MatrixMarket .mtx files."""
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     parameters_file = 'mtx_reader.parameters.json'
     definition = {
      'dependencies': ['pandas>=2.0', 'scipy>=1.11'],

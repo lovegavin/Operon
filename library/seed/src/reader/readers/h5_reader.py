@@ -12,7 +12,7 @@ from src.reader.base import Reader
 
 
 class H5Reader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Read a 2D numeric dataset from an .hdf5 file."""
     parameters_file = 'h5_reader.H5Reader.parameters.json'
     definition = {'protocol_version': 3,

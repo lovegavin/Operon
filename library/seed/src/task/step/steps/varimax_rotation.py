@@ -11,7 +11,7 @@ from ._ext_common import labels_in_order, reorder
 
 
 class VarimaxRotationStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Orthogonal varimax rotation, matching ``stats::varimax``."""
     parameters_file = 'varimax_rotation.VarimaxRotationStep.parameters.json'
     definition = {'protocol_version': 3,

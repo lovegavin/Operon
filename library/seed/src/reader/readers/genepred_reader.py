@@ -17,7 +17,7 @@ _GENEPRED_COLUMNS = [
 
 
 class GenePredReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """UCSC genePred reader, one row per gene/transcript."""
     parameters_file = 'genepred_reader.GenePredReader.parameters.json'
     definition = {

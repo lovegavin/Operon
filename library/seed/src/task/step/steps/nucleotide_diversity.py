@@ -40,7 +40,7 @@ COLUMNS = ["start", "end", "n_variants", "n_bases", "pi", "pi_per_site",
 
 
 class NucleotideDiversityStep(Step):
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'nucleotide_diversity.NucleotideDiversityStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'nucleotide_diversity',

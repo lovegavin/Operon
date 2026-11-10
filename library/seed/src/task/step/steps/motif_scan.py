@@ -46,7 +46,7 @@ _IUPAC = {
 
 class MotifScanStep(Step):
     """Count IUPAC motif occurrences per sequence."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'motif_scan.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'motif_scan',

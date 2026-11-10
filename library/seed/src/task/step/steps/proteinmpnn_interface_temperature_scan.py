@@ -57,7 +57,7 @@ def scan_rows(records: list[dict], temperature: float) -> dict:
 
 
 class ProteinmpnnInterfaceTemperatureScanStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "proteinmpnn_interface_temperature_scan.ProteinmpnnInterfaceTemperatureScanStep.parameters.json"
 
     definition = {

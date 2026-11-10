@@ -9,7 +9,7 @@ from src.task.step.base import Step
 
 
 class SoftmaxStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'softmax.SoftmaxStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'softmax',

@@ -32,7 +32,7 @@ def _boxcox(values: np.ndarray, lam: float) -> np.ndarray:
 
 
 class BoxCoxStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Box-Cox transform each feature, optionally estimating lambda."""
     parameters_file = 'box_cox.BoxCoxStep.parameters.json'
     definition = {'protocol_version': 3,

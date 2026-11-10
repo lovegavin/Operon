@@ -104,7 +104,7 @@ def enrichment_rows(
 class SequenceKmerEnrichmentStep(Step):
     """K-mer log-odds enrichment of query sequences against a background."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "sequence_kmer_enrichment.SequenceKmerEnrichmentStep.parameters.json"
 

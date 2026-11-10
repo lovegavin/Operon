@@ -8,8 +8,8 @@ import sys
 import numpy as np
 import pytest
 
-from biopipe.conversions import converter_registry, execute_conversion, plan_conversion
-from biopipe_sdk.formats import Adaptation, DataFormats
+from operon.conversions import converter_registry, execute_conversion, plan_conversion
+from operon_sdk.formats import Adaptation, DataFormats
 from src.core import Form
 
 
@@ -180,20 +180,20 @@ def test_runner_executes_frozen_converter_and_disk_quota(tmp_path, monkeypatch):
         ctx.memory.close('complete')
 
 
-def test_kernel_exports_without_biopipe(tmp_path):
-    from biopipe import converter_kernels
+def test_kernel_exports_without_operon(tmp_path):
+    from operon import converter_kernels
     target = tmp_path / 'converter_kernels.py'
     target.write_text(Path(converter_kernels.__file__).read_text(encoding='utf-8'), encoding='utf-8')
     script = tmp_path / 'run.py'
     script.write_text('import sys\nimport numpy as np\nfrom converter_kernels import array_to_npy\n'
                       'a=array_to_npy(np.arange(12).reshape(3,4), "out.npy", buffer_bytes=16)\n'
-                      'assert a.sum()==66\nassert not any(k.startswith("biopipe") for k in sys.modules)\n')
+                      'assert a.sum()==66\nassert not any(k.startswith("operon") for k in sys.modules)\n')
     result = subprocess.run([sys.executable, str(script)], cwd=tmp_path, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
 
 
 def test_optional_sdk_36_capabilities_keep_old_descriptors_unchanged():
-    from biopipe_sdk.protocol import validate_declaration
+    from operon_sdk.protocol import validate_declaration
     value = {'protocol_version': 3, 'id': 'format_test', 'version': '1.0.0', 'kind': 'operator',
              'entry_point': 'sample:Step', 'code_sha': 'a' * 64, 'declaration_sha': 'b' * 64,
              'title': 'Format test', 'parameters_schema': {'type': 'object'},
@@ -215,7 +215,7 @@ def test_optional_sdk_36_capabilities_keep_old_descriptors_unchanged():
 def test_failed_converter_reservation_does_not_leak_or_underflow(tmp_path):
     from types import SimpleNamespace
     import threading
-    from biopipe.conversions import apply_step_conversions
+    from operon.conversions import apply_step_conversions
     from src.task.memory.config import MemoryBudgetError
     def denied(*args):
         raise MemoryBudgetError('insufficient memory')
@@ -229,8 +229,8 @@ def test_failed_converter_reservation_does_not_leak_or_underflow(tmp_path):
 
 
 def test_sdk37_requires_formats_and_preserves_legacy_model():
-    from biopipe.packages import bundled_entries
-    from biopipe_sdk.protocol import Descriptor, validate_declaration
+    from operon.packages import bundled_entries
+    from operon_sdk.protocol import Descriptor, validate_declaration
     descriptor = deepcopy(next(d for _, d in bundled_entries('operator') if d['id'] == 'pca'))
     Descriptor.model_validate(descriptor)
     descriptor['protocol_revision'] = '3.7'
@@ -254,7 +254,7 @@ def test_form_identity_keeps_payload_and_metadata_without_scratch(tmp_path):
 
 def test_native_reader_form_bridge_runs_legacy_operator(tmp_path, monkeypatch):
     from types import SimpleNamespace
-    from biopipe_sdk.native_array import NativeArray
+    from operon_sdk.native_array import NativeArray
     import src.reader as readers
     from src.task import Context, run
     original = form()
@@ -280,7 +280,7 @@ def test_native_reader_form_bridge_runs_legacy_operator(tmp_path, monkeypatch):
 
 
 def test_native_bridge_requires_metadata_and_checks_reader_container():
-    from biopipe_sdk.native_array import NativeArray, as_form, reader_output
+    from operon_sdk.native_array import NativeArray, as_form, reader_output
     with pytest.raises(ValueError, match='explicit Form metadata'):
         as_form(np.zeros((2, 2)))
     with pytest.raises(Exception):
@@ -291,7 +291,7 @@ def test_native_bridge_requires_metadata_and_checks_reader_container():
 
 
 def test_legacy_projection_is_read_only_and_does_not_invent_matrix_semantics():
-    from biopipe_sdk.formats import effective_formats
+    from operon_sdk.formats import effective_formats
     legacy = {'inputs_arity': 1, 'outputs': ['x'], 'contracts': {'inputs': [{'numeric': True}], 'output': {'mode': 'pca'}}}
     before = deepcopy(legacy)
     assert effective_formats(legacy)['inputs'][0]['logical_type'] == 'form'
@@ -304,8 +304,8 @@ def test_legacy_projection_is_read_only_and_does_not_invent_matrix_semantics():
 
 
 def test_sdk37_requires_both_arrays_even_for_report():
-    from biopipe.packages import bundled_entries
-    from biopipe_sdk.protocol import Descriptor
+    from operon.packages import bundled_entries
+    from operon_sdk.protocol import Descriptor
     descriptor = deepcopy(next(d for _, d in bundled_entries('operator') if d['id'] == 'pca'))
     descriptor.update(protocol_revision='3.7', inputs_arity=0, outputs=[], output_parameter=None, data_formats={})
     with pytest.raises(ValueError, match='inputs and outputs'):
@@ -315,8 +315,8 @@ def test_sdk37_requires_both_arrays_even_for_report():
 
 
 def test_real_file_readers_project_file_artifact_not_form():
-    from biopipe.packages import bundled_entries
-    from biopipe_sdk.formats import effective_formats
+    from operon.packages import bundled_entries
+    from operon_sdk.formats import effective_formats
     readers = {d['id']: d for _, d in bundled_entries('reader')}
     checked = []
     for name, descriptor in readers.items():
@@ -392,7 +392,7 @@ def test_legacy_route_interface_does_not_persist_inferred_formats(tmp_path):
 
 
 def test_format_value_rejects_rank_and_storage_mismatch(tmp_path):
-    from biopipe_sdk.native_array import validate_format_value
+    from operon_sdk.native_array import validate_format_value
     from src.core import FileArtifact
     path = tmp_path / 'data.txt'; path.write_text('x')
     with pytest.raises(ValueError, match='container'):
@@ -428,7 +428,7 @@ def test_generic_form_identity_keeps_disk_reducer_streaming(tmp_path, monkeypatc
 
 
 def test_legacy_parameter_choice_tracks_frozen_values():
-    from biopipe_sdk.formats import effective_formats
+    from operon_sdk.formats import effective_formats
     descriptor = {'inputs_arity': 0, 'output_parameter': 'output', 'contracts': {
         'output': {'mode': 'choose', 'param': 'method', 'default': 'matrix',
                    'cases': {'matrix': {'mode': 'declare', 'schema': {'kind': 'form'}}},

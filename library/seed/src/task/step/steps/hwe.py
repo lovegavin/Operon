@@ -25,7 +25,7 @@ class HweStep(Step):
         threshold : minimum allowed p-value
         output    : context key for the result
     """
-    provider = 'biopipe-genetics'
+    provider = 'operon-genetics'
     parameters_file = 'hwe.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'hwe',

@@ -10,7 +10,7 @@ from ._matrix_common import grouped
 
 
 class TukeyHsdStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Tukey HSD across groups for every feature."""
     parameters_file = 'tukey_hsd.TukeyHsdStep.parameters.json'
     definition = {'protocol_version': 3,

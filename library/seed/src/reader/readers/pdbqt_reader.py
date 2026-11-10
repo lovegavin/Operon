@@ -46,7 +46,7 @@ def _charge_and_type(line: str) -> tuple[float, str]:
 
 
 class PdbqtReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """AutoDock PDBQT coordinate reader with partial charges and atom types."""
     parameters_file = 'pdbqt_reader.PdbqtReader.parameters.json'
     definition = {

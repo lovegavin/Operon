@@ -56,7 +56,7 @@ def _revcomp(seq: str) -> str:
 
 class FindOrfsStep(Step):
     """Locate complete ATG..stop ORFs on both strands."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'find_orfs.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'find_orfs',

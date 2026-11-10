@@ -9,13 +9,13 @@ from pathlib import Path
 
 import pytest
 
-from biopipe.engine.contracts import BusyError, PoolSpec, ResourceRequest, RunState, UnauthorizedError
-from biopipe.engine.coordinator import Coordinator
-from biopipe.engine.executor import ExecutionResult, ProcessExecutor
-from biopipe.engine.facade import EngineRuntime
-from biopipe.engine.recovery import recover
-from biopipe.engine.state import StateStore
-from biopipe.engine.supervisor import LaunchSpec, ProcessSupervisor
+from operon.engine.contracts import BusyError, PoolSpec, ResourceRequest, RunState, UnauthorizedError
+from operon.engine.coordinator import Coordinator
+from operon.engine.executor import ExecutionResult, ProcessExecutor
+from operon.engine.facade import EngineRuntime
+from operon.engine.recovery import recover
+from operon.engine.state import StateStore
+from operon.engine.supervisor import LaunchSpec, ProcessSupervisor
 
 
 class FakeExecutor:
@@ -203,7 +203,7 @@ def test_unknown_live_ownership_is_quarantined_with_its_lease_charged(tmp_path):
     assert store.attempt(attempt['id'])['state'] == 'recovery_required'
     assert store.lease(attempt['id'])['state'] != 'released'
 def test_standalone_pool_snapshot_respects_container_memory_and_cpu(tmp_path, monkeypatch):
-    from biopipe.engine.facade import pool_from_host
+    from operon.engine.facade import pool_from_host
     from src.task.memory.config import AUTO_BUDGET_FRACTION
     monkeypatch.setattr('src.task.memory.system.available_memory', lambda: 128 * 1024**2)
     monkeypatch.setattr('src.web.admission.cpu_capacity', lambda: 2)

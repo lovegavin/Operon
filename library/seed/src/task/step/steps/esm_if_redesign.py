@@ -37,7 +37,7 @@ def designed_recovery(native: str, designed: str, design_positions: list[int]) -
 
 
 class EsmIfRedesignStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_if_redesign.EsmIfRedesignStep.parameters.json"
     definition = {
         "protocol_version": 3,

@@ -34,12 +34,12 @@ telemetry may suspend new admissions and trigger existing emergency mechanisms.
 
 | Current source | Verified behavior | Consequence |
 | --- | --- | --- |
-| `biopipe/remote/server.py:serve` | One accept/read/dispatch/reply sequence at a time for a workspace daemon | A slow dispatch or client can delay unrelated control requests |
-| `biopipe/remote/client.py:SSHConnection.call` | One locked request/reply exchange per connection | Long work and transfers can delay cancellation/status on that channel |
+| `operon/remote/server.py:serve` | One accept/read/dispatch/reply sequence at a time for a workspace daemon | A slow dispatch or client can delay unrelated control requests |
+| `operon/remote/client.py:SSHConnection.call` | One locked request/reply exchange per connection | Long work and transfers can delay cancellation/status on that channel |
 | `src/web/admission.py:HostAdmission` | File-locked CPU/RAM reservation ledger shared under the same OS user; fixed live-session ceiling | Prevents some oversubscription, but is not a central fair queue |
 | `src/web/service.py:_dispatch` | FIFO within the owning launcher, stopping at the first reservation that cannot fit | Idle resources and competition between workspaces are possible |
 | `src/task/runner.py:run` | Fixed step order in each scientific worker | Multiple jobs/stages can run, but this is not general node-level DAG scheduling |
-| `biopipe/isolation.py` and `biopipe/remote/protocol.py` | Pull/acknowledgement at selected chunk/frame boundaries | Local flow control exists; whole-DAG backpressure does not |
+| `operon/isolation.py` and `operon/remote/protocol.py` | Pull/acknowledgement at selected chunk/frame boundaries | Local flow control exists; whole-DAG backpressure does not |
 
 These are code findings, not measured latency regressions. Existing reservation
 accounting must not be described as either absent or a complete dynamic engine.
@@ -411,7 +411,7 @@ failure during result publication, and a consumer that never reads. Verify both
 control responsiveness and numerical/artifact equivalence. Preserve existing CLI,
 MCP, desktop, memory/spill, streaming, SSH and frozen-parameter regression tests.
 
-Initial placement for new application modules is `biopipe/engine/` with bounded
+Initial placement for new application modules is `operon/engine/` with bounded
 responsibilities: `state`, `coordinator`, `resources`, `policy`, `executors`,
 `channels`, `artifacts`, `recovery`, and `events`. These are proposed interfaces,
 not existing files. Extract adapters from the current services incrementally;

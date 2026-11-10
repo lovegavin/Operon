@@ -114,7 +114,7 @@ def strain_energy(
 class StructureLigandStrainStep(Step):
     """Estimate the internal strain of a bound ligand conformation."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_ligand_strain.StructureLigandStrainStep.parameters.json"
     definition = {
         "protocol_version": 3,

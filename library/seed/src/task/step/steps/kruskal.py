@@ -11,7 +11,7 @@ from ._matrix_common import grouped
 
 
 class KruskalStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'kruskal.KruskalStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'kruskal',

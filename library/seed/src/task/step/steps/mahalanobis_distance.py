@@ -12,7 +12,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class MahalanobisDistanceStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Squared Mahalanobis distance from the sample mean.
 
     The covariance is the sample covariance with ``ddof=1``; distances are

@@ -11,7 +11,7 @@ from ._ext_common import labels_in_order, make_form, reorder, require_dims
 
 
 class CellCycleScoreStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'cell_cycle_score.CellCycleScoreStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'cell_cycle_score',

@@ -24,7 +24,7 @@ from ._stats20_common import distance, scalar_form
 class CopheneticCorrelationStep(Step):
     """Pearson correlation between tree patristic and observed distances."""
 
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'cophenetic_correlation.CopheneticCorrelationStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'cophenetic_correlation',

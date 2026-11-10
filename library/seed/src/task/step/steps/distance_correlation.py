@@ -34,7 +34,7 @@ def _dcor(u: np.ndarray, v: np.ndarray) -> float:
 
 
 class DistanceCorrelationStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'distance_correlation.DistanceCorrelationStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'distance_correlation',

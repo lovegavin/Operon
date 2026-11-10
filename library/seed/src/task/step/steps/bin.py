@@ -79,7 +79,7 @@ _STATS = ("mean", "median", "min", "max", "first")
 
 class BinStep(Step):
     """Discretize a continuous axis into bins."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'bin.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'bin',

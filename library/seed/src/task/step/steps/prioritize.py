@@ -40,7 +40,7 @@ from src.task.step.base import Step
 
 class PrioritizeStep(Step):
     """Keep the top positions along a dimension, ranked by an info field."""
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'prioritize.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'prioritize',

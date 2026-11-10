@@ -14,7 +14,7 @@ from src.reader.readers._table_common import read_whitespace
 
 
 class MapReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Reader for the four-column PLINK .map format."""
     parameters_file = 'map_reader.MapReader.parameters.json'
     definition = {

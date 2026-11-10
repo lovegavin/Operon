@@ -62,7 +62,7 @@ def reconstruction_errors(
 
 
 class EsmEmbeddingAutoencoderStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_embedding_autoencoder.EsmEmbeddingAutoencoderStep.parameters.json"
 
     definition = {

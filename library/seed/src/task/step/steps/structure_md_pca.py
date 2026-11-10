@@ -82,7 +82,7 @@ def pca_modes(matrix: np.ndarray, n_modes: int) -> tuple[np.ndarray, np.ndarray]
 
 
 class StructureMdPcaStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_pca.StructureMdPcaStep.parameters.json"
     definition = {
         "protocol_version": 3,

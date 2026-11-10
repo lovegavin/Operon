@@ -14,7 +14,7 @@ from src.task.step.steps._structure_common import atom_coords, field_columns, pi
 class InterfaceDistanceHistogramStep(Step):
     """Histogram binder-target heavy-atom pair distances."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "interface_distance_histogram.InterfaceDistanceHistogramStep.parameters.json"
 

@@ -63,7 +63,7 @@ def _apply_recycles(model, num_recycles: int) -> None:
 class EsmfoldPredictStep(Step):
     """Predict one structure with ESMFold and report its confidence."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "esmfold_predict.EsmfoldPredictStep.parameters.json"
 
@@ -76,7 +76,7 @@ class EsmfoldPredictStep(Step):
         "description": (
             "Fold one amino-acid sequence with the official ESMFold implementation shipped in "
             "fair-esm (esm.pretrained.esmfold_v1) and return the predicted PDB together with its "
-            "mean pLDDT. The 3B checkpoint is downloaded on first use; set BIOPIPE_ESMFOLD_WEIGHTS "
+            "mean pLDDT. The 3B checkpoint is downloaded on first use; set OPERON_ESMFOLD_WEIGHTS "
             "or pre-populate the torch hub cache to run offline."
         ),
         "category": "Machine Learning",
@@ -145,7 +145,7 @@ class EsmfoldPredictStep(Step):
         if not pdb_text or "ATOM" not in pdb_text:
             raise StepError("esmfold_predict: the model produced no atom records")
 
-        workdir = Path(tempfile.mkdtemp(prefix="biopipe_esmfold_"))
+        workdir = Path(tempfile.mkdtemp(prefix="operon_esmfold_"))
         try:
             path = workdir / "prediction.pdb"
             path.write_text(pdb_text, encoding="utf-8")

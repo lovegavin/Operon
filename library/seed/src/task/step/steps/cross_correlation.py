@@ -12,7 +12,7 @@ from ._timeseries63_common import aligned_series
 
 
 class CrossCorrelationStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'cross_correlation.CrossCorrelationStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'cross_correlation',

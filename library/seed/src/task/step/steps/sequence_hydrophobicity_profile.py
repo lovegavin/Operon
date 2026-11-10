@@ -76,7 +76,7 @@ def hydrophobic_segments(profile: np.ndarray, threshold: float) -> list[tuple[in
 class SequenceHydrophobicityProfileStep(Step):
     """Sliding-window Kyte-Doolittle profile per sequence position."""
 
-    provider = "biopipe-core"
+    provider = "operon-core"
 
     parameters_file = "sequence_hydrophobicity_profile.SequenceHydrophobicityProfileStep.parameters.json"
 

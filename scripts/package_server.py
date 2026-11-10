@@ -9,9 +9,9 @@ import zipfile
 def build(root, application, library, output):
     root, application, library, output = map(Path, (root, application, library, output))
     version = tomllib.loads((root / 'pyproject.toml').read_text(encoding='utf-8'))['project']['version']
-    if application.name != f'biopipe_studio-{version}-py3-none-any.whl':
+    if application.name != f'operon_studio-{version}-py3-none-any.whl':
         raise ValueError('Application wheel must match the source release version')
-    if not library.name.startswith('biopipe_builtin_library-') or library.suffix != '.whl':
+    if not library.name.startswith('operon_builtin_library-') or library.suffix != '.whl':
         raise ValueError('Expected the independently versioned factory library wheel')
     files = {'wheels/' + p.name: p.read_bytes() for p in (application, library)}
     for name in ('LICENSE', 'NOTICE', 'scripts/install_server.py', 'scripts/install_server.sh'):

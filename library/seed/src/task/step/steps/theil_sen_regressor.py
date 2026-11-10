@@ -5,7 +5,7 @@ from ._ml_common import _RegressionBase
 
 
 class TheilSenRegressorStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'theil_sen_regressor.TheilSenRegressorStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'theil_sen_regressor',

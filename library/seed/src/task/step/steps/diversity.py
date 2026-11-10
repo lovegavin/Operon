@@ -42,7 +42,7 @@ _METRICS = ("shannon", "simpson", "richness", "evenness", "gini")
 
 class DiversityStep(Step):
     """Compute diversity metrics along one axis."""
-    provider = 'biopipe-microbiome'
+    provider = 'operon-microbiome'
     parameters_file = 'diversity.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'diversity',

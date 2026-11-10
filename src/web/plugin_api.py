@@ -22,7 +22,7 @@ def mount_plugins(app, service):
         result["packages"] = [{**p, "source_managed": p["name"] in source_managed} for p in state["packages"]]
         result["bundled_packages"] = service.plugins.bundled_state()["packages"]
         result["inbox"] = str(service.plugins.inbox)
-        from biopipe.source_library import directories
+        from operon.source_library import directories
         result["source_directories"] = {kind: str(path) for kind, path in directories(service.plugins.source_root).items()}
         result['dependencies'] = service.dependencies.snapshot()
         return result
@@ -109,7 +109,7 @@ def mount_plugins(app, service):
     @app.post("/api/plugins/open-folder")
     def open_folder(payload: dict):
         # The request cannot select arbitrary paths or executable files.
-        from biopipe.source_library import directories
+        from operon.source_library import directories
         paths = {**directories(service.plugins.source_root), "extra": service.plugins.inbox}
         kind = payload.get("kind", "operator")
         if not isinstance(kind, str) or kind not in paths:
@@ -126,11 +126,11 @@ def mount_plugins(app, service):
 
     @app.post("/api/plugins/install")
     async def install(request: Request, filename: str):
-        from biopipe.library_bundle import is_library_bundle
+        from operon.library_bundle import is_library_bundle
         check_idle()
         if (Path(filename).name != filename or any(c in filename for c in '\\/:*?"<>|')
                 or not (filename.lower().endswith('.whl') or is_library_bundle(filename))):
-            raise HTTPException(422, "请选择 .whl、.operon-library.zip 或 .biopipe-library.zip 算子库包。")
+            raise HTTPException(422, "请选择 .whl、.operon-library.zip 或 .operon-library.zip 算子库包。")
         key = uuid.uuid4().hex
         active.add(key)
         temporary = service.plugins.directory / "incoming" / key

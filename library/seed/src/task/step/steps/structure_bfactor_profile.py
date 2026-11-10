@@ -52,7 +52,7 @@ def residue_profile(form: Form, field_dim: str, exclude: set[str]) -> list[tuple
 
 
 class StructureBfactorProfileStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_bfactor_profile.StructureBfactorProfileStep.parameters.json"
     definition = {
         "protocol_version": 3,

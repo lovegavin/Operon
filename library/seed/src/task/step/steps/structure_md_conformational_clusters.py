@@ -48,7 +48,7 @@ def cluster_frames(matrix: np.ndarray, cutoff: float) -> tuple[np.ndarray, int]:
 
 
 class StructureMdConformationalClustersStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_md_conformational_clusters.StructureMdConformationalClustersStep.parameters.json"
     definition = {
         "protocol_version": 3,

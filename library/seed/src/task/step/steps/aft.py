@@ -12,7 +12,7 @@ from ._stats21_common import design_matrix, numeric_column, table_frame
 
 
 class AftStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Weibull accelerated failure time model with right censoring."""
     parameters_file = 'aft.AftStep.parameters.json'
     definition = {'protocol_version': 3,

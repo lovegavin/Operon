@@ -18,7 +18,7 @@ _COLUMNS = [
 
 
 class PoissonMeansTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'poisson_means_test.PoissonMeansTestStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'poisson_means_test',

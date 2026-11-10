@@ -72,7 +72,7 @@ def encode_batch(model, sequences: list[str], device: str) -> list[np.ndarray]:
 
 
 class Esm3EmbeddingStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm3_embedding.Esm3EmbeddingStep.parameters.json"
     definition = {
         "protocol_version": 3,

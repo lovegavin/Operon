@@ -11,7 +11,7 @@ from ._matrix_common import matrix
 
 
 class BirchStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Cluster samples with BIRCH (balanced iterative reducing and clustering)."""
     parameters_file = 'birch.BirchStep.parameters.json'
     definition = {'protocol_version': 3,

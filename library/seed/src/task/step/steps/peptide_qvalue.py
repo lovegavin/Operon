@@ -11,7 +11,7 @@ from ._ext_common import labels_in_order, make_form
 
 
 class PeptideQvalueStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'peptide_qvalue.PeptideQvalueStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'peptide_qvalue',

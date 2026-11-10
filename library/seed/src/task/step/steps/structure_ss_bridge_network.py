@@ -70,7 +70,7 @@ def bridge_rows(segments: list[dict], ca: np.ndarray, residue_index: dict[str, i
 
 
 class StructureSsBridgeNetworkStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_ss_bridge_network.StructureSsBridgeNetworkStep.parameters.json"
 
     definition: dict[str, Any] = {

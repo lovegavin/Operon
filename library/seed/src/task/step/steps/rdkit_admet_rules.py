@@ -30,7 +30,7 @@ _GHOSE_MR = (40.0, 130.0)
 
 
 class RdkitAdmetRulesStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Lipinski, Veber and Ghose drug-likeness rules per molecule."""
     parameters_file = 'rdkit_admet_rules.RdkitAdmetRulesStep.parameters.json'
     definition = {'protocol_version': 3,

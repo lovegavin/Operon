@@ -12,7 +12,7 @@ from ._metric_common import label_series
 
 
 class SilhouetteScoreStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Mean silhouette coefficient for a clustering."""
     parameters_file = 'silhouette_score.SilhouetteScoreStep.parameters.json'
     definition = {'protocol_version': 3,

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
-from biopipe.headless import create_headless_app
+from operon.headless import create_headless_app
 from src.web.service import Settings
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,15 +11,15 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def auth(client, app):
     response = client.post('/api/agent/connect',
-                           headers={'X-BioPipe-Bridge': app.state.bridge.secret},
+                           headers={'X-Operon-Bridge': app.state.bridge.secret},
                            json={'name': 'engine-status', 'scopes': ['context']})
     assert response.status_code == 200, response.text
     return {'Authorization': 'Bearer ' + response.json()['token']}
 
 
 def test_headless_service_exposes_coordinator_mode(tmp_path, monkeypatch):
-    monkeypatch.setenv('BIOPIPE_ADMISSION_DIR', str(tmp_path / 'admission'))
-    monkeypatch.setenv('BIOPIPE_ENGINE_DIR', str(tmp_path / 'engine'))
+    monkeypatch.setenv('OPERON_ADMISSION_DIR', str(tmp_path / 'admission'))
+    monkeypatch.setenv('OPERON_ENGINE_DIR', str(tmp_path / 'engine'))
     app = create_headless_app(Settings(tmp_path, tmp_path / '.studio', tmp_path / 'none',
                                        testing=True, code_root=ROOT,
                                        engine_mode='coordinator'))
@@ -36,8 +36,8 @@ def test_headless_service_exposes_coordinator_mode(tmp_path, monkeypatch):
 
 
 def test_headless_service_exposes_engine_status_and_events(tmp_path, monkeypatch):
-    monkeypatch.setenv('BIOPIPE_ADMISSION_DIR', str(tmp_path / 'admission'))
-    monkeypatch.setenv('BIOPIPE_ENGINE_DIR', str(tmp_path / 'engine'))
+    monkeypatch.setenv('OPERON_ADMISSION_DIR', str(tmp_path / 'admission'))
+    monkeypatch.setenv('OPERON_ENGINE_DIR', str(tmp_path / 'engine'))
     app = create_headless_app(Settings(tmp_path, tmp_path / '.studio', tmp_path / 'none',
                                        testing=True, code_root=ROOT))
     with TestClient(app, base_url='http://127.0.0.1') as client:

@@ -13,7 +13,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class BonettSeierStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Bonett-Seier test that Geary kurtosis equals sqrt(2/pi)."""
     parameters_file = 'bonett_seier.BonettSeierStep.parameters.json'
     definition = {'protocol_version': 3,

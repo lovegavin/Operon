@@ -14,7 +14,7 @@ from src.reader.readers._table_common import table_form
 
 
 class HmmReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """HMMER3 profile reader."""
     parameters_file = 'hmm_reader.HmmReader.parameters.json'
     definition = {

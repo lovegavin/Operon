@@ -11,7 +11,7 @@ from ._cointegration_common import variables_matrix
 
 
 class VecmStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Estimate a VECM and expose the Johansen trace/eigen diagnostics.
 
     The Johansen eigenvalues and trace statistics use the constant-in-model

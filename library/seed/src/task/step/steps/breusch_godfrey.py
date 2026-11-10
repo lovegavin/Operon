@@ -11,7 +11,7 @@ from ._ext_common import make_form
 
 
 class BreuschGodfreyStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'breusch_godfrey.BreuschGodfreyStep.parameters.json'
     definition = {
      'dependencies': ['statsmodels>=0.14'],

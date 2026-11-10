@@ -11,7 +11,7 @@ from ._cluster_agreement import paired_labels
 
 
 class AdjustedMutualInfoStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Adjusted mutual information between two partitions."""
     parameters_file = 'adjusted_mutual_info.AdjustedMutualInfoStep.parameters.json'
     definition = {'protocol_version': 3,

@@ -39,7 +39,7 @@ def _loglik(params, x, y, codes, n_groups):
 
 
 class GlmmLogisticStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "glmm_logistic.GlmmLogisticStep.parameters.json"
     definition = {
         "protocol_version": 3,

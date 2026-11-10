@@ -11,7 +11,7 @@ from ._metric_common import binary_truth, label_series, score_series
 
 
 class DeLongAucStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """AUC with the DeLong variance and normal confidence interval."""
     parameters_file = 'delong_auc.DeLongAucStep.parameters.json'
     definition = {'protocol_version': 3,

@@ -94,7 +94,7 @@ def design_rows(sequences: list[str], native: str) -> list[dict]:
 
 
 class Esm3InverseFoldingStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm3_inverse_folding.Esm3InverseFoldingStep.parameters.json"
     definition = {
         "protocol_version": 3,

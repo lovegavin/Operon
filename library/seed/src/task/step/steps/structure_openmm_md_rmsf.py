@@ -193,7 +193,7 @@ def simulate(
 
 
 class StructureOpenmmMdRmsfStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "structure_openmm_md_rmsf.StructureOpenmmMdRmsfStep.parameters.json"
     definition = {
         "protocol_version": 3,

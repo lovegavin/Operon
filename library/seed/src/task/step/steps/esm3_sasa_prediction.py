@@ -63,7 +63,7 @@ def predict_sasa(model, sequence: str, *, num_steps: int) -> np.ndarray:
 
 
 class Esm3SasaPredictionStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm3_sasa_prediction.Esm3SasaPredictionStep.parameters.json"
 
     definition = {

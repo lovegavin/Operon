@@ -7,8 +7,8 @@ import threading
 
 import pytest
 
-from biopipe.remote.server import RemoteService
-from biopipe.documents import CommandError
+from operon.remote.server import RemoteService
+from operon.documents import CommandError
 from src.web.admission import HostAdmission, AdmissionConflict, process_identity
 
 
@@ -79,13 +79,13 @@ def test_conflict_names_live_processes_and_does_not_discard_the_ledger(tmp_path)
 
 @pytest.mark.parametrize('allowed', [True, False])
 def test_explicit_upgrade_restarts_only_after_daemon_acknowledges_idle(tmp_path, monkeypatch, allowed):
-    import biopipe.remote.server as module
-    from biopipe import __version__
+    import operon.remote.server as module
+    from operon import __version__
     address = tmp_path / 'daemon.sock'
     address.touch()
     monkeypatch.setitem(sys.modules, 'fcntl', SimpleNamespace(LOCK_EX=1, flock=lambda *a: None))
     monkeypatch.setattr(module, 'socket_path', lambda workspace: address)
-    monkeypatch.setattr('biopipe.remote.handshake.validate_daemon_response', lambda result: result['value'])
+    monkeypatch.setattr('operon.remote.handshake.validate_daemon_response', lambda result: result['value'])
     calls, launches = [], []
     def rpc(workspace, request):
         calls.append(request['method'])
@@ -109,10 +109,10 @@ def test_explicit_upgrade_restarts_only_after_daemon_acknowledges_idle(tmp_path,
 
 
 def test_ordinary_connection_reuses_other_compatible_installation(tmp_path, monkeypatch):
-    import biopipe.remote.server as module
+    import operon.remote.server as module
     monkeypatch.setitem(sys.modules, 'fcntl', SimpleNamespace(LOCK_EX=1, flock=lambda *a: None))
     monkeypatch.setattr(module, 'socket_path', lambda workspace: tmp_path / 'daemon.sock')
-    monkeypatch.setattr('biopipe.remote.handshake.validate_daemon_response', lambda value: value)
+    monkeypatch.setattr('operon.remote.handshake.validate_daemon_response', lambda value: value)
     calls = []
     monkeypatch.setattr(module, 'rpc', lambda workspace, request: calls.append(request['method']) or {})
     module.ensure_daemon(tmp_path)
@@ -120,7 +120,7 @@ def test_ordinary_connection_reuses_other_compatible_installation(tmp_path, monk
 
 
 def test_new_pool_waits_for_previous_idle_owner_before_spawning(tmp_path, monkeypatch):
-    from biopipe import managed_pool as module
+    from operon import managed_pool as module
     import json
     root=tmp_path/'managed';root.mkdir()
     old={'implementation':'previous','owner':{'pid':1}}

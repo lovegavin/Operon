@@ -11,7 +11,7 @@ from ._influence66_common import influence_ols
 
 
 class StandardizedResidualsStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'standardized_residuals.StandardizedResidualsStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'standardized_residuals',

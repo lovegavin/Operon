@@ -5,7 +5,7 @@ from ._ml_common import _RegressionBase
 
 
 class SgdRegressorStep(_RegressionBase):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     parameters_file = 'sgd_regressor.SgdRegressorStep.parameters.json'
     definition = {'protocol_version': 3,
      'id': 'sgd_regressor',

@@ -12,7 +12,7 @@ from ._stats20_common import scalar_form
 
 
 class HurstExponentStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Simple R/S Hurst exponent, matching R pracma::hurstexp(x)$Hs.
 
     ``hurstexp`` pads an odd-length series with the mean of its last two

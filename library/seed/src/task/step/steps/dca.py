@@ -11,7 +11,7 @@ from ._stats21_common import numeric_column, table_frame
 
 
 class DcaStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Net benefit of a binary prediction rule across probability thresholds.
 
     The net benefit follows the standard decision-curve formulation

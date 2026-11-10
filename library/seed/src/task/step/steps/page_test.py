@@ -16,7 +16,7 @@ from ._stats20_common import scalar_form
 
 
 class PageTestStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Page's L test for a monotone ordered alternative.
 
     The input is a complete ``[block, treatment]`` matrix with exactly one

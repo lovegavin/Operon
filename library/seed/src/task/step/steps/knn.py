@@ -47,7 +47,7 @@ def _knn_predict(x_train, y_train, x_test, k, weights):
 
 
 class KnnStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "knn.KnnStep.parameters.json"
     definition = {
         "protocol_version": 3,

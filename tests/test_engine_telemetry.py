@@ -3,7 +3,7 @@ import json
 import os
 import time
 
-from biopipe.engine.telemetry import Histogram, Metrics, bind_correlation, correlation, redact, span
+from operon.engine.telemetry import Histogram, Metrics, bind_correlation, correlation, redact, span
 
 
 def test_histogram_reports_nearest_rank_percentiles_and_bounds_samples():
@@ -18,12 +18,12 @@ def test_histogram_reports_nearest_rank_percentiles_and_bounds_samples():
 
 
 def test_metrics_are_disabled_unless_opted_in(monkeypatch):
-    monkeypatch.delenv('BIOPIPE_ENGINE_METRICS', raising=False)
+    monkeypatch.delenv('OPERON_ENGINE_METRICS', raising=False)
     disabled = Metrics()
     disabled.observe('x', 1)
     disabled.increment('y')
     assert disabled.snapshot()['histograms'] == {} and disabled.snapshot()['counters'] == {}
-    monkeypatch.setenv('BIOPIPE_ENGINE_METRICS', '1')
+    monkeypatch.setenv('OPERON_ENGINE_METRICS', '1')
     enabled = Metrics()
     enabled.observe('x', 4)
     enabled.observe('x', 8)

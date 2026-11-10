@@ -11,7 +11,7 @@ from ._metric_common import label_series
 
 
 class AdjustedRandStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Adjusted Rand index between two label columns on the same samples."""
     parameters_file = 'adjusted_rand.AdjustedRandStep.parameters.json'
     definition = {'protocol_version': 3,

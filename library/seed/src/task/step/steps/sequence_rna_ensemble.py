@@ -108,7 +108,7 @@ def run_rnafold_ensemble(
 
 
 class SequenceRnaEnsembleStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "sequence_rna_ensemble.SequenceRnaEnsembleStep.parameters.json"
     definition = {
         "protocol_version": 3,

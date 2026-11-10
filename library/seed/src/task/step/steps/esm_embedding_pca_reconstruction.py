@@ -34,7 +34,7 @@ def reconstruction_errors(data: np.ndarray, *, n_components: int = 2, standardiz
 
 
 class EsmEmbeddingPcaReconstructionStep(Step):
-    provider = "biopipe-core"
+    provider = "operon-core"
     parameters_file = "esm_embedding_pca_reconstruction.EsmEmbeddingPcaReconstructionStep.parameters.json"
 
     definition = {

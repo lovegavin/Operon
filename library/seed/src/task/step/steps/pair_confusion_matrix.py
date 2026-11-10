@@ -11,7 +11,7 @@ from ._cluster_agreement import paired_labels
 
 
 class PairConfusionMatrixStep(Step):
-    provider = 'biopipe-core'
+    provider = 'operon-core'
     """Pair-count confusion matrix behind Rand-type agreement scores."""
     parameters_file = 'pair_confusion_matrix.PairConfusionMatrixStep.parameters.json'
     definition = {'protocol_version': 3,

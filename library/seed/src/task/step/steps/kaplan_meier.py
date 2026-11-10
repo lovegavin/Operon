@@ -39,7 +39,7 @@ from src.task.step.steps._plot_helpers import save_figure, setup_style, figure_r
 
 class KaplanMeierStep(Step):
     """Draw Kaplan-Meier survival curves."""
-    provider = 'biopipe-plots'
+    provider = 'operon-plots'
     parameters_file = 'kaplan_meier.parameters.json'
     definition = {
      'dependencies': ['matplotlib>=3.8'],

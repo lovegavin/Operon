@@ -96,7 +96,7 @@ def _merge(vertices: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
 
 class StlReader(Reader):
-    provider = 'biopipe-readers'
+    provider = 'operon-readers'
     """Parse a binary or ASCII STL mesh into an element x field table."""
     parameters_file = 'stl_reader.StlReader.parameters.json'
     definition = {'protocol_version': 3,
