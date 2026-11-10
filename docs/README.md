@@ -75,6 +75,7 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 - [Library installation and maintenance](plugins.md)
 - [Independent software and operator-library releases](library_releases.md)
 - [Operator library release standard](library_release_standard.md)
+- [Five-layer library test standard](verification/five-layer-test-standard.md)
 - [Library 3.x full verification](verification/library-3.0.0-full.md)
 - [Operon 4.0.0 release](releases/v4.0.0.md)
 - [Biological evidence for 4.0.0](verification/biological-evidence-4.0.0.md)

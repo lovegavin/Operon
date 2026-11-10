@@ -1,0 +1,32 @@
+{
+  "layer": "L5",
+  "commit": "62a0f5a86412d077ee3bae406874d14a2647b21a",
+  "application_versions": ["3.1.9", "4.0.0"],
+  "minimum_install": {
+    "version": "3.1.9",
+    "status": "PASS",
+    "command": "/tmp/cienv319/bin/python -I scripts/verify_library_release.py --bundle /tmp/build801/Operon-Library-v8.0.1-Linux.operon-library.zip --work /tmp/verify801",
+    "key_output": "passed=true; application=3.1.9; library=8.0.1; operators=1063; readers=108; idempotent_install=true"
+  },
+  "target_install": {
+    "version": "4.0.0",
+    "status": "PASS",
+    "command": "cd /home/gavin/Operon-3.1.6 && python -m operon --profile-dir /tmp/prof401 plugin install /tmp/build801/Operon-Library-v8.0.1-Linux.operon-library.zip",
+    "key_output": "exit 0; 1171 descriptors installed"
+  },
+  "routes_zip": {
+    "asset": "Operon-Routes-v8.0.1.zip",
+    "sha256": "a73576832e7fddd7535eae30af00cca386f46809a9e5a9ddc4c48bc0a7a9b397",
+    "bundles": 79,
+    "three_file_bundles": 79,
+    "valid": 79,
+    "invalid": 0,
+    "command": "python -m operon --profile-dir /tmp/prof401 workflow validate <bundle>",
+    "key_output": "valid_true=79 invalid=0",
+    "readiness_note": "Some routes report readiness=blocked for optional external dependencies; bundle validity and graph registration are unaffected."
+  },
+  "studio_ui": {
+    "status": "SKIP",
+    "reason": "Studio UI automation was not run; this evidence does not claim UI verification."
+  }
+}

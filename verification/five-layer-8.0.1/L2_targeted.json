@@ -1,0 +1,19 @@
+{
+  "layer": "L2",
+  "commit": "62a0f5a86412d077ee3bae406874d14a2647b21a",
+  "command": "TMPDIR=/home/gavin/tmpL2 /home/gavin/bp-numpy21/bin/python -m pytest -q --tb=short tests/test_upstream_operators.py tests/test_builtin_routes.py tests/test_contracts.py tests/test_library_release.py",
+  "summary": {
+    "passed": 45,
+    "failed": 0,
+    "skipped": 0,
+    "deselected": 0
+  },
+  "failed_tests": [],
+  "skipped_tests": [],
+  "targeted": {
+    "survival_route": "PASS",
+    "builtin_routes": "PASS",
+    "contracts": "PASS",
+    "release_tests": "PASS"
+  }
+}

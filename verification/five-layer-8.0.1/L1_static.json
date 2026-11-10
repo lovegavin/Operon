@@ -1,0 +1,60 @@
+{
+  "layer": "L1",
+  "commit": "62a0f5a86412d077ee3bae406874d14a2647b21a",
+  "checks": [
+    {
+      "name": "repro_all_routes",
+      "status": "PASS",
+      "command": "cd /home/gavin/Operon-7015-native && /home/gavin/bp-numpy21/bin/python /tmp/repro_all.py",
+      "key_output": "RESULT 79 0 79 (exit 0)",
+      "error": ""
+    },
+    {
+      "name": "registry_check",
+      "status": "PASS",
+      "command": "cd /home/gavin/Operon-7015-native && /home/gavin/bp-numpy21/bin/python -m operon registry check --json",
+      "key_output": "errors=0; descriptors=1171 (operators=1063, readers=108); packages=7; routes=79; warnings=292 (No direct parameter read, non-fatal); changed=0; written=0",
+      "error": ""
+    },
+    {
+      "name": "operator_docs_check",
+      "status": "PASS",
+      "command": "cd /home/gavin/Operon-7015-native && /home/gavin/bp-numpy21/bin/python scripts/build_operator_docs.py --check",
+      "key_output": "pages=1171; changed=0; errors=0; authored_preserved=162 (exit 0)",
+      "error": ""
+    },
+    {
+      "name": "portability_audit",
+      "status": "PASS",
+      "command": "cd /home/gavin/Operon-7015-native && /home/gavin/bp-numpy21/bin/python scripts/audit_portability.py",
+      "key_output": "{\"checked\": 4603, \"findings\": []} (exit 0)",
+      "error": ""
+    },
+    {
+      "name": "git_diff_check",
+      "status": "PASS",
+      "command": "cd /home/gavin/Operon-7015-native && git diff --check",
+      "key_output": "no whitespace errors (exit 0)",
+      "error": ""
+    },
+    {
+      "name": "git_status_porcelain",
+      "status": "PASS",
+      "command": "cd /home/gavin/Operon-7015-native && git status --porcelain --untracked-files=all",
+      "key_output": "empty output; 0 entries; worktree clean",
+      "error": ""
+    },
+    {
+      "name": "descriptor_code_sha",
+      "status": "PASS",
+      "command": "/home/gavin/bp-numpy21/bin/python with 4.0.0 /home/gavin/Operon-3.1.6 src.web.operator_catalog.catalog_from_descriptors + operon_sdk.declarations.code_hash(entry_point, /home/gavin/Operon-7015-native/library/seed)",
+      "key_output": "acf/missing/kaplan_meier all code_sha=a227413bfe92...; catalog code_sha identical; recomputed code_hash identical (match=True); all 1171 descriptors share this single code_sha because code_hash hashes the whole builtin steps/readers tree per entry_point",
+      "error": ""
+    }
+  ],
+  "summary": {
+    "pass": 7,
+    "fail": 0,
+    "skip": 0
+  }
+}

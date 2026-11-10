@@ -1,0 +1,1134 @@
+{
+  "valid": true,
+  "order": [
+    "kaplan_meier_1",
+    "logrank_test_2",
+    "cox_regression_3",
+    "forest_plot_4",
+    "describe_5"
+  ],
+  "manifest": {
+    "name": "生存分析",
+    "sources": {
+      "clinical": {
+        "reader": "TsvReader",
+        "path": "/tmp/prof401/workspace/.studio/builtin-inputs/survival/input/tcga_brca_clinical_raw.tsv",
+        "dims": [
+          "sample",
+          "feature"
+        ],
+        "labels": {
+          "feature": "builtin",
+          "sample": {
+            "feature": 0
+          }
+        },
+        "args": {
+          "header": true,
+          "reader": "csv",
+          "sep": "\t"
+        }
+      }
+    },
+    "steps": [
+      {
+        "name": "kaplan_meier",
+        "inputs": [
+          "clinical"
+        ],
+        "params": {
+          "xlabel": "Time (days)",
+          "ylabel": "Survival probability",
+          "show_censors": true,
+          "show_ci": false,
+          "figure_dpi": 300,
+          "figure_font_size": 8,
+          "event_label": "OS_event_nature2012",
+          "filename": "km_stage.png",
+          "group_label": "AJCC_Stage_nature2012",
+          "group_map": {
+            "Stage IA": "Stage I",
+            "Stage IB": "Stage I",
+            "Stage IIA": "Stage II",
+            "Stage IIB": "Stage II",
+            "Stage IIIA": "Stage III",
+            "Stage IIIB": "Stage III",
+            "Stage IIIC": "Stage III",
+            "Stage IV": "Stage IV"
+          },
+          "groups": [
+            "Stage I",
+            "Stage II",
+            "Stage III",
+            "Stage IV"
+          ],
+          "time_label": "OS_Time_nature2012",
+          "title": "TCGA BRCA: overall survival by AJCC stage"
+        },
+        "conversions": [
+          {
+            "port": 0,
+            "edge_id": "clinical-kaplan_meier_1-0",
+            "plan": {
+              "logical_type": "form",
+              "source": {
+                "logical_type": "form",
+                "representations": [
+                  "form"
+                ],
+                "metadata": {}
+              },
+              "target": {
+                "logical_type": "form",
+                "representations": [
+                  "form"
+                ],
+                "metadata": {}
+              },
+              "representation": "form",
+              "converters": []
+            }
+          }
+        ]
+      },
+      {
+        "name": "logrank_test",
+        "inputs": [
+          "clinical"
+        ],
+        "params": {
+          "pairwise": true,
+          "event_label": "OS_event_nature2012",
+          "group_label": "AJCC_Stage_nature2012",
+          "group_map": {
+            "Stage IA": "Stage I",
+            "Stage IB": "Stage I",
+            "Stage IIA": "Stage II",
+            "Stage IIB": "Stage II",
+            "Stage IIIA": "Stage III",
+            "Stage IIIB": "Stage III",
+            "Stage IIIC": "Stage III",
+            "Stage IV": "Stage IV"
+          },
+          "groups": [
+            "Stage I",
+            "Stage II",
+            "Stage III",
+            "Stage IV"
+          ],
+          "output": "logrank_result",
+          "time_label": "OS_Time_nature2012"
+        },
+        "conversions": [
+          {
+            "port": 0,
+            "edge_id": "clinical-logrank_test_2-0",
+            "plan": {
+              "logical_type": "form",
+              "source": {
+                "logical_type": "form",
+                "representations": [
+                  "form"
+                ],
+                "metadata": {}
+              },
+              "target": {
+                "logical_type": "form",
+                "representations": [
+                  "form"
+                ],
+                "metadata": {}
+              },
+              "representation": "form",
+              "converters": []
+            }
+          }
+        ]
+      },
+      {
+        "name": "cox_regression",
+        "inputs": [
+          "clinical"
+        ],
+        "params": {
+          "categorical": [
+            "AJCC_Stage_nature2012",
+            "Gender_nature2012"
+          ],
+          "covariates": [
+            "Age_at_Initial_Pathologic_Diagnosis_nature2012",
+            "AJCC_Stage_nature2012",
+            "Gender_nature2012"
+          ],
+          "event_label": "OS_event_nature2012",
+          "output": "cox_result",
+          "time_label": "OS_Time_nature2012"
+        },
+        "conversions": [
+          {
+            "port": 0,
+            "edge_id": "clinical-cox_regression_3-0",
+            "plan": {
+              "logical_type": "form",
+              "source": {
+                "logical_type": "form",
+                "representations": [
+                  "form"
+                ],
+                "metadata": {}
+              },
+              "target": {
+                "logical_type": "form",
+                "representations": [
+                  "form"
+                ],
+                "metadata": {}
+              },
+              "representation": "form",
+              "converters": []
+            }
+          }
+        ]
+      },
+      {
+        "name": "forest_plot",
+        "inputs": [
+          "cox_result"
+        ],
+        "params": {
+          "dim": "covariate",
+          "stat_dim": "statistic",
+          "hr_label": "HR",
+          "low_label": "CI_low",
+          "high_label": "CI_high",
+          "p_label": "P",
+          "xlabel": "Hazard ratio (95% CI)",
+          "color_sig": "#D62728",
+          "color_ns": "#4C72B0",
+          "sort_by": "p",
+          "log_scale": true,
+          "figure_dpi": 300,
+          "figure_font_size": 8,
+          "filename": "forest.png",
+          "title": "TCGA BRCA: multivariable Cox regression"
+        },
+        "conversions": [
+          {
+            "port": 0,
+            "edge_id": "cox_regression_3-forest_plot_4-0",
+            "plan": {
+              "logical_type": "form",
+              "source": {
+                "logical_type": "form",
+                "representations": [
+                  "form"
+                ],
+                "metadata": {}
+              },
+              "target": {
+                "logical_type": "form",
+                "representations": [
+                  "form"
+                ],
+                "metadata": {}
+              },
+              "representation": "form",
+              "converters": []
+            }
+          }
+        ]
+      },
+      {
+        "name": "describe",
+        "inputs": [
+          "logrank_result"
+        ],
+        "params": {},
+        "conversions": [
+          {
+            "port": 0,
+            "edge_id": "logrank_test_2-describe_5-0",
+            "plan": {
+              "logical_type": "form",
+              "source": {
+                "logical_type": "form",
+                "representations": [
+                  "form"
+                ],
+                "metadata": {}
+              },
+              "target": {
+                "logical_type": "form",
+                "representations": [
+                  "form"
+                ],
+                "metadata": {}
+              },
+              "representation": "form",
+              "converters": []
+            }
+          }
+        ]
+      }
+    ],
+    "params": {},
+    "runtime": {
+      "memory": {
+        "enabled": false
+      }
+    }
+  },
+  "contracts": {
+    "version": 1,
+    "nodes": {
+      "clinical": {
+        "inputs": [],
+        "outputs": [
+          {
+            "version": 1,
+            "ndim": 2,
+            "numeric": true,
+            "dims": [
+              "sample",
+              "feature"
+            ],
+            "labels": {
+              "sample": null,
+              "feature": null
+            },
+            "info": {
+              "missing_code": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "encoders": {
+                "type": "object",
+                "optional": true
+              }
+            },
+            "info_open": false,
+            "axis_info_open": false,
+            "axis_info": {},
+            "reader": "TsvReader",
+            "_format_explicit": true,
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            }
+          }
+        ]
+      },
+      "kaplan_meier_1": {
+        "inputs": [
+          {
+            "version": 1,
+            "numeric": true,
+            "info": {},
+            "dims": [],
+            "labels": [],
+            "parallel": [],
+            "ndim": 2,
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            }
+          }
+        ],
+        "outputs": []
+      },
+      "logrank_test_2": {
+        "inputs": [
+          {
+            "version": 1,
+            "numeric": true,
+            "info": {},
+            "dims": [],
+            "labels": [],
+            "parallel": [],
+            "ndim": 2,
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "version": 1,
+            "ndim": 2,
+            "numeric": true,
+            "dims": [
+              "comparison",
+              "statistic"
+            ],
+            "labels": {
+              "comparison": null,
+              "statistic": [
+                "chi2",
+                "df",
+                "P"
+              ]
+            },
+            "info": {
+              "missing_code": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "representation": {
+                "type": "string",
+                "const": "logrank_test"
+              }
+            },
+            "info_open": false,
+            "axis_info_open": false,
+            "axis_info": {},
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "_format_explicit": true
+          }
+        ]
+      },
+      "cox_regression_3": {
+        "inputs": [
+          {
+            "version": 1,
+            "numeric": true,
+            "info": {},
+            "dims": [],
+            "labels": [],
+            "parallel": [],
+            "ndim": 2,
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            }
+          }
+        ],
+        "outputs": [
+          {
+            "version": 1,
+            "ndim": 2,
+            "numeric": true,
+            "dims": [
+              "covariate",
+              "statistic"
+            ],
+            "labels": {
+              "covariate": null,
+              "statistic": [
+                "coef",
+                "HR",
+                "se",
+                "z",
+                "P",
+                "CI_low",
+                "CI_high"
+              ]
+            },
+            "info": {
+              "missing_code": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "representation": {
+                "type": "string",
+                "const": "cox_regression"
+              }
+            },
+            "info_open": false,
+            "axis_info_open": false,
+            "axis_info": {},
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "_format_explicit": true
+          }
+        ]
+      },
+      "forest_plot_4": {
+        "inputs": [
+          {
+            "version": 1,
+            "numeric": true,
+            "info": {},
+            "dims": [
+              "covariate",
+              "statistic"
+            ],
+            "labels": [
+              {
+                "dim": "statistic",
+                "values": [
+                  "HR",
+                  "CI_low",
+                  "CI_high",
+                  "P"
+                ]
+              }
+            ],
+            "parallel": [],
+            "ndim": 2,
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            }
+          }
+        ],
+        "outputs": []
+      },
+      "describe_5": {
+        "inputs": [
+          {
+            "version": 1,
+            "numeric": true,
+            "info": {},
+            "dims": [],
+            "labels": [],
+            "parallel": [],
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            }
+          }
+        ],
+        "outputs": []
+      }
+    },
+    "edges": [
+      {
+        "id": "clinical-kaplan_meier_1-0",
+        "source": "clinical",
+        "target": "kaplan_meier_1",
+        "status": "compatible",
+        "reasons": [],
+        "conversion_plan": {
+          "logical_type": "form",
+          "source": {
+            "logical_type": "form",
+            "representations": [
+              "form"
+            ],
+            "metadata": {}
+          },
+          "target": {
+            "logical_type": "form",
+            "representations": [
+              "form"
+            ],
+            "metadata": {}
+          },
+          "representation": "form",
+          "converters": []
+        }
+      },
+      {
+        "id": "clinical-logrank_test_2-0",
+        "source": "clinical",
+        "target": "logrank_test_2",
+        "status": "compatible",
+        "reasons": [],
+        "conversion_plan": {
+          "logical_type": "form",
+          "source": {
+            "logical_type": "form",
+            "representations": [
+              "form"
+            ],
+            "metadata": {}
+          },
+          "target": {
+            "logical_type": "form",
+            "representations": [
+              "form"
+            ],
+            "metadata": {}
+          },
+          "representation": "form",
+          "converters": []
+        }
+      },
+      {
+        "id": "clinical-cox_regression_3-0",
+        "source": "clinical",
+        "target": "cox_regression_3",
+        "status": "compatible",
+        "reasons": [],
+        "conversion_plan": {
+          "logical_type": "form",
+          "source": {
+            "logical_type": "form",
+            "representations": [
+              "form"
+            ],
+            "metadata": {}
+          },
+          "target": {
+            "logical_type": "form",
+            "representations": [
+              "form"
+            ],
+            "metadata": {}
+          },
+          "representation": "form",
+          "converters": []
+        }
+      },
+      {
+        "id": "logrank_test_2-describe_5-0",
+        "source": "logrank_test_2",
+        "target": "describe_5",
+        "status": "compatible",
+        "reasons": [],
+        "conversion_plan": {
+          "logical_type": "form",
+          "source": {
+            "logical_type": "form",
+            "representations": [
+              "form"
+            ],
+            "metadata": {}
+          },
+          "target": {
+            "logical_type": "form",
+            "representations": [
+              "form"
+            ],
+            "metadata": {}
+          },
+          "representation": "form",
+          "converters": []
+        }
+      },
+      {
+        "id": "cox_regression_3-forest_plot_4-0",
+        "source": "cox_regression_3",
+        "target": "forest_plot_4",
+        "status": "compatible",
+        "reasons": [],
+        "conversion_plan": {
+          "logical_type": "form",
+          "source": {
+            "logical_type": "form",
+            "representations": [
+              "form"
+            ],
+            "metadata": {}
+          },
+          "target": {
+            "logical_type": "form",
+            "representations": [
+              "form"
+            ],
+            "metadata": {}
+          },
+          "representation": "form",
+          "converters": []
+        }
+      }
+    ]
+  },
+  "graph": {
+    "schema_version": 2,
+    "name": "生存分析",
+    "base_dir": ".studio/builtin-inputs/survival",
+    "nodes": [
+      {
+        "id": "clinical",
+        "kind": "source",
+        "script": null,
+        "operator": null,
+        "title": "clinical",
+        "position": {
+          "x": 70.0,
+          "y": 100.0
+        },
+        "params": {},
+        "context_params": {},
+        "source": {
+          "reader": "TsvReader",
+          "path": "input/tcga_brca_clinical_raw.tsv",
+          "dims": [
+            "sample",
+            "feature"
+          ],
+          "labels": {
+            "feature": "builtin",
+            "sample": {
+              "feature": 0
+            }
+          },
+          "args": {
+            "header": true,
+            "reader": "csv",
+            "sep": "\t"
+          },
+          "location": null
+        },
+        "input_count": 1,
+        "route": null
+      },
+      {
+        "id": "kaplan_meier_1",
+        "kind": "operator",
+        "script": null,
+        "operator": "kaplan_meier",
+        "title": "KM",
+        "position": {
+          "x": 360.0,
+          "y": 100.0
+        },
+        "params": {
+          "xlabel": "Time (days)",
+          "ylabel": "Survival probability",
+          "show_censors": true,
+          "show_ci": false,
+          "figure_dpi": 300,
+          "figure_font_size": 8,
+          "event_label": "OS_event_nature2012",
+          "filename": "km_stage.png",
+          "group_label": "AJCC_Stage_nature2012",
+          "group_map": {
+            "Stage IA": "Stage I",
+            "Stage IB": "Stage I",
+            "Stage IIA": "Stage II",
+            "Stage IIB": "Stage II",
+            "Stage IIIA": "Stage III",
+            "Stage IIIB": "Stage III",
+            "Stage IIIC": "Stage III",
+            "Stage IV": "Stage IV"
+          },
+          "groups": [
+            "Stage I",
+            "Stage II",
+            "Stage III",
+            "Stage IV"
+          ],
+          "time_label": "OS_Time_nature2012",
+          "title": "TCGA BRCA: overall survival by AJCC stage"
+        },
+        "context_params": {},
+        "source": null,
+        "input_count": 1,
+        "route": null
+      },
+      {
+        "id": "logrank_test_2",
+        "kind": "operator",
+        "script": null,
+        "operator": "logrank_test",
+        "title": "Log-rank",
+        "position": {
+          "x": 360.0,
+          "y": 310.0
+        },
+        "params": {
+          "pairwise": true,
+          "event_label": "OS_event_nature2012",
+          "group_label": "AJCC_Stage_nature2012",
+          "group_map": {
+            "Stage IA": "Stage I",
+            "Stage IB": "Stage I",
+            "Stage IIA": "Stage II",
+            "Stage IIB": "Stage II",
+            "Stage IIIA": "Stage III",
+            "Stage IIIB": "Stage III",
+            "Stage IIIC": "Stage III",
+            "Stage IV": "Stage IV"
+          },
+          "groups": [
+            "Stage I",
+            "Stage II",
+            "Stage III",
+            "Stage IV"
+          ],
+          "output": "logrank_result",
+          "time_label": "OS_Time_nature2012"
+        },
+        "context_params": {},
+        "source": null,
+        "input_count": 1,
+        "route": null
+      },
+      {
+        "id": "cox_regression_3",
+        "kind": "operator",
+        "script": null,
+        "operator": "cox_regression",
+        "title": "Cox",
+        "position": {
+          "x": 360.0,
+          "y": 520.0
+        },
+        "params": {
+          "categorical": [
+            "AJCC_Stage_nature2012",
+            "Gender_nature2012"
+          ],
+          "covariates": [
+            "Age_at_Initial_Pathologic_Diagnosis_nature2012",
+            "AJCC_Stage_nature2012",
+            "Gender_nature2012"
+          ],
+          "event_label": "OS_event_nature2012",
+          "output": "cox_result",
+          "time_label": "OS_Time_nature2012"
+        },
+        "context_params": {},
+        "source": null,
+        "input_count": 1,
+        "route": null
+      },
+      {
+        "id": "forest_plot_4",
+        "kind": "operator",
+        "script": null,
+        "operator": "forest_plot",
+        "title": "Forest plot",
+        "position": {
+          "x": 650.0,
+          "y": 100.0
+        },
+        "params": {
+          "dim": "covariate",
+          "stat_dim": "statistic",
+          "hr_label": "HR",
+          "low_label": "CI_low",
+          "high_label": "CI_high",
+          "p_label": "P",
+          "xlabel": "Hazard ratio (95% CI)",
+          "color_sig": "#D62728",
+          "color_ns": "#4C72B0",
+          "sort_by": "p",
+          "log_scale": true,
+          "figure_dpi": 300,
+          "figure_font_size": 8,
+          "filename": "forest.png",
+          "title": "TCGA BRCA: multivariable Cox regression"
+        },
+        "context_params": {},
+        "source": null,
+        "input_count": 1,
+        "route": null
+      },
+      {
+        "id": "describe_5",
+        "kind": "operator",
+        "script": null,
+        "operator": "describe",
+        "title": "数据概览",
+        "position": {
+          "x": 650.0,
+          "y": 310.0
+        },
+        "params": {},
+        "context_params": {},
+        "source": null,
+        "input_count": 1,
+        "route": null
+      }
+    ],
+    "edges": [
+      {
+        "adaptation": null,
+        "id": "clinical-kaplan_meier_1-0",
+        "source": "clinical",
+        "target": "kaplan_meier_1",
+        "sourceHandle": "out",
+        "targetHandle": "in-0"
+      },
+      {
+        "adaptation": null,
+        "id": "clinical-logrank_test_2-0",
+        "source": "clinical",
+        "target": "logrank_test_2",
+        "sourceHandle": "out",
+        "targetHandle": "in-0"
+      },
+      {
+        "adaptation": null,
+        "id": "clinical-cox_regression_3-0",
+        "source": "clinical",
+        "target": "cox_regression_3",
+        "sourceHandle": "out",
+        "targetHandle": "in-0"
+      },
+      {
+        "adaptation": null,
+        "id": "cox_regression_3-forest_plot_4-0",
+        "source": "cox_regression_3",
+        "target": "forest_plot_4",
+        "sourceHandle": "out",
+        "targetHandle": "in-0"
+      },
+      {
+        "adaptation": null,
+        "id": "logrank_test_2-describe_5-0",
+        "source": "logrank_test_2",
+        "target": "describe_5",
+        "sourceHandle": "out",
+        "targetHandle": "in-0"
+      }
+    ],
+    "memory": {
+      "enabled": false
+    },
+    "params": {},
+    "runtime": {},
+    "manifest_extra": {},
+    "interface": {
+      "version": 1,
+      "inputs": [
+        {
+          "node_id": "clinical",
+          "label": "clinical",
+          "contract": {
+            "version": 1,
+            "ndim": 2,
+            "numeric": true,
+            "dims": [
+              "sample",
+              "feature"
+            ],
+            "labels": [],
+            "info": {
+              "missing_code": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "encoders": {
+                "type": "object",
+                "optional": true
+              }
+            },
+            "info_open": false,
+            "axis_info_open": false,
+            "_format_explicit": true,
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "parallel": []
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "node_id": "logrank_test_2",
+          "handle": "out",
+          "label": "Log-rank",
+          "contract": {
+            "version": 1,
+            "ndim": 2,
+            "numeric": true,
+            "dims": [
+              "comparison",
+              "statistic"
+            ],
+            "labels": {
+              "comparison": null,
+              "statistic": [
+                "chi2",
+                "df",
+                "P"
+              ]
+            },
+            "info": {
+              "missing_code": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "representation": {
+                "type": "string",
+                "const": "logrank_test"
+              }
+            },
+            "info_open": false,
+            "axis_info_open": false,
+            "axis_info": {},
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "_format_explicit": true
+          }
+        },
+        {
+          "node_id": "cox_regression_3",
+          "handle": "out",
+          "label": "Cox",
+          "contract": {
+            "version": 1,
+            "ndim": 2,
+            "numeric": true,
+            "dims": [
+              "covariate",
+              "statistic"
+            ],
+            "labels": {
+              "covariate": null,
+              "statistic": [
+                "coef",
+                "HR",
+                "se",
+                "z",
+                "P",
+                "CI_low",
+                "CI_high"
+              ]
+            },
+            "info": {
+              "missing_code": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "representation": {
+                "type": "string",
+                "const": "cox_regression"
+              }
+            },
+            "info_open": false,
+            "axis_info_open": false,
+            "axis_info": {},
+            "data_format": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "_format_explicit": true
+          }
+        }
+      ]
+    },
+    "plugin_lock": {
+      "TsvReader": {
+        "version": "1.0.0",
+        "sha256": "0eee5eb0ef72ca2b6089093be7a1e80debd4edaa535f80e7ddf4f4efd0de8300",
+        "package": "operon-readers",
+        "code_sha": "a227413bfe92ea273f141469313f8110d874951a4c7fc5966ce4e52cb929e082",
+        "declaration_sha": "3abdc05a335cac3ff936c9b522f0a1f59858eb9cbadbdb34e5c7841f9350a0f8"
+      },
+      "kaplan_meier": {
+        "version": "1.0.0",
+        "sha256": "b5da98d427217133689e38aa7c0f132e4381b3b34e57d568a2c5a47abb966d0d",
+        "package": "operon-plots",
+        "code_sha": "a227413bfe92ea273f141469313f8110d874951a4c7fc5966ce4e52cb929e082",
+        "declaration_sha": "9849418b44d78cf1d37679c3b7d678512c6822113bdd08d261ce609d31b3cdc7"
+      },
+      "logrank_test": {
+        "version": "1.0.0",
+        "sha256": "4c8530926000a7d92753add5e89285cf8737239cfe1357418f4ea98f63502cdc",
+        "package": "operon-expression",
+        "code_sha": "a227413bfe92ea273f141469313f8110d874951a4c7fc5966ce4e52cb929e082",
+        "declaration_sha": "c46153292a92253f3ccc81d085f5bd4a920d560a9f3838d9e69a9196b5ab3ac8"
+      },
+      "cox_regression": {
+        "version": "1.0.0",
+        "sha256": "4c8530926000a7d92753add5e89285cf8737239cfe1357418f4ea98f63502cdc",
+        "package": "operon-expression",
+        "code_sha": "a227413bfe92ea273f141469313f8110d874951a4c7fc5966ce4e52cb929e082",
+        "declaration_sha": "4f80259ad549a13ce106feb303fa895b0e81348d12d3cd7cc61903918271ffc3"
+      },
+      "forest_plot": {
+        "version": "1.0.0",
+        "sha256": "b5da98d427217133689e38aa7c0f132e4381b3b34e57d568a2c5a47abb966d0d",
+        "package": "operon-plots",
+        "code_sha": "a227413bfe92ea273f141469313f8110d874951a4c7fc5966ce4e52cb929e082",
+        "declaration_sha": "1aa63c3f91044676ed262de4cef2c80b9eae8fe979fe9df5fdeeabdacfb33827"
+      },
+      "describe": {
+        "version": "1.0.0",
+        "sha256": "edb2eb7603ac26c67ef24e42c665eb641635d57935bed6f2293b3645ee161163",
+        "package": "operon-core",
+        "code_sha": "a227413bfe92ea273f141469313f8110d874951a4c7fc5966ce4e52cb929e082",
+        "declaration_sha": "e14fa38be613d73d0e3ba8f68ad5e7d8bd29f6452a8b2f6567df7d1385782e8a"
+      }
+    }
+  },
+  "readiness": {
+    "status": "ready",
+    "fingerprint": "2c25ae5d0691f2c6e91f02589e6de564994d2be7d64e21a8d4dc1e54ade02e69",
+    "checked_at": "2026-11-10T18:50:31.567250+00:00",
+    "targets": {
+      "local": {
+        "TsvReader": {
+          "status": "passed",
+          "error": ""
+        },
+        "cox_regression": {
+          "status": "passed",
+          "error": ""
+        },
+        "describe": {
+          "status": "passed",
+          "error": ""
+        },
+        "forest_plot": {
+          "status": "passed",
+          "error": ""
+        },
+        "kaplan_meier": {
+          "status": "passed",
+          "error": ""
+        },
+        "logrank_test": {
+          "status": "passed",
+          "error": ""
+        }
+      }
+    },
+    "blocked": [],
+    "require_files": false,
+    "cached": false,
+    "dependencies_cached": false,
+    "scope": "preflight",
+    "unresolved_sources": [],
+    "policy": "route-only; explicit preparation; no installation during validation"
+  }
+}

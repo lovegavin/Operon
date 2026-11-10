@@ -1,0 +1,34 @@
+{
+  "layer": "L3",
+  "commit": "62a0f5a86412d077ee3bae406874d14a2647b21a",
+  "routes": [
+    {
+      "id": "gwas",
+      "status": "PASS",
+      "seconds": 3.47,
+      "exit_code": 0,
+      "figures": 3,
+      "command": "/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/routes801/gwas",
+      "error": ""
+    },
+    {
+      "id": "survival",
+      "status": "PASS",
+      "seconds": 2.43,
+      "exit_code": 0,
+      "figures": 2,
+      "command": "/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/routes801/survival",
+      "error": ""
+    },
+    {
+      "id": "proteomics_de",
+      "status": "PASS",
+      "seconds": 3.71,
+      "exit_code": 0,
+      "figures": 3,
+      "command": "/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/routes801/proteomics_de",
+      "error": ""
+    }
+  ],
+  "notes": "Real scripts/run.py executed on WSL Ubuntu-24.04 in /home/gavin/Operon-7015-native (HEAD 62a0f5a8) with /home/gavin/bp-numpy21/bin/python; task dirs /tmp/routes801/<route> use synthetic inputs generated for this check; repository untouched. All three routes: --check exit 0 with CHECK OK, real run exit 0 and 'Task finished'. Explicit reader selection confirmed in check report: gwas geno=VcfReader, pheno/covar=CsvReader; survival clinical=TsvReader; proteomics_de proteins/meta=CsvReader (a .txt path has no extension fallback, so this exercises the 8.0.1 explicit-reader fix). missing info contract: gwas missing sample 30->30 then variant 40->40, then attach_info attached chrom/pos with 40 matched / 0 unmatched, so reader info arrays survived both subset steps; proteomics_de missing protein 40->38 (PROT001/PROT002 at 66.7% missing removed). survival runtime column reading: kaplan_meier groups n=15 each with events 10/12/14/13; logrank chi2=20.67 df=3 P=0.0001233; cox_regression 5 covariates, n=60, events=49, C-index=0.695. Artifacts: gwas 3 PNG (manhattan, pca_scatter, pvalue_hist); survival 2 PNG (km_stage, forest); proteomics_de 3 PNG (volcano, ma, heatmap), each with pdf/svg/figure.json plus output/steps/*.json and run_summary. parameters.json was generated mirroring task.yaml (duplicate missing steps included) but the three task.yamls declare no parameters_file and keep inline params, so it is an inert artifact. proteomics_de reports 0 significant proteins because sample-wise quantile normalization removes the synthetic global group shift; not a contract failure. Pre-existing uncommitted docs changes in the repo were not touched."
+}

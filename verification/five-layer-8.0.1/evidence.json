@@ -1,0 +1,77 @@
+{
+  "library_version": "8.0.1",
+  "commit": "62a0f5a86412d077ee3bae406874d14a2647b21a",
+  "tag": "library-v8.0.1",
+  "application": "3.1.9",
+  "target_application": "4.0.0",
+  "generated_at": "2026-11-11T02:55:00+08:00",
+  "layers": {
+    "L1": {
+      "status": "PASS",
+      "summary": {"pass": 7, "fail": 0, "skip": 0},
+      "checks": [
+        {"name": "repro_all_routes", "status": "PASS", "key_output": "RESULT 79 0 79"},
+        {"name": "registry_check", "status": "PASS", "key_output": "errors=0; descriptors=1171 (operators=1063, readers=108); packages=7; routes=79"},
+        {"name": "operator_docs_check", "status": "PASS", "key_output": "pages=1171; changed=0; errors=0"},
+        {"name": "portability_audit", "status": "PASS", "key_output": "checked=4603; findings=[]"},
+        {"name": "git_diff_check", "status": "PASS", "key_output": "no whitespace errors"},
+        {"name": "git_status_porcelain", "status": "PASS", "key_output": "worktree clean before test round"},
+        {"name": "descriptor_code_sha", "status": "PASS", "key_output": "code_sha=a227413b...; matches 4.0.0 catalog and recomputed source hash"}
+      ],
+      "evidence": "L1_static.json"
+    },
+    "L2": {
+      "status": "PASS",
+      "summary": {"passed": 45, "failed": 0, "skipped": 0},
+      "command": "TMPDIR=/home/gavin/tmpL2 /home/gavin/bp-numpy21/bin/python -m pytest -q --tb=short tests/test_upstream_operators.py tests/test_builtin_routes.py tests/test_contracts.py tests/test_library_release.py",
+      "targeted": {
+        "survival_route": "PASS",
+        "builtin_routes": "PASS",
+        "contracts": "PASS",
+        "release_tests": "PASS"
+      },
+      "evidence": ["L2_targeted.json", "L2_pytest.log"]
+    },
+    "L3": {
+      "status": "PASS",
+      "summary": {"routes": 3, "passed": 3, "failed": 0},
+      "routes": [
+        {"name": "gwas", "check_seconds": 0.56, "run_seconds": 3.47, "artifacts": 3, "readers": {"geno": "VcfReader", "pheno": "CsvReader", "covar": "CsvReader"}, "key_output": "missing 30->30 and 40->40; attach_info 40 matched / 0 unmatched"},
+        {"name": "survival", "check_seconds": 0.50, "run_seconds": 2.43, "artifacts": 2, "readers": {"clinical": "TsvReader"}, "key_output": "KM groups n=15; events 10/12/14/13; logrank chi2=20.67 df=3 p=0.0001233; Cox n=60 events=49 C-index=0.695"},
+        {"name": "proteomics_de", "check_seconds": 0.48, "run_seconds": 3.71, "artifacts": 3, "readers": {"proteins": "CsvReader", "meta": "CsvReader"}, "key_output": "missing 40->38; 0 significant after within-sample quantile normalization"}
+      ],
+      "mode": "synthetic",
+      "evidence": ["L3_routes.json", "L3_gwas.log", "L3_survival.log", "L3_proteomics_de.log"]
+    },
+    "L4": {
+      "status": "PASS",
+      "pytest": {"passed": 3722, "failed": 0, "skipped": 209, "duration_seconds": 2567.29},
+      "command": "cd /home/gavin/Operon-7015-native && TMPDIR=/home/gavin/tmp801b /home/gavin/bp-numpy21/bin/python -m pytest -q",
+      "environment_note": "The library worktree has no frontend/dist; a symlink to the Studio 4.0.0 frontend/dist was present for desktop/portability tests. The same six tests failed without it and passed 16/16 in the focused rerun.",
+      "evidence": "L4_pytest.log"
+    },
+    "L5": {
+      "status": "PASS",
+      "application_versions": ["3.1.9", "4.0.0"],
+      "install": {"minimum": "PASS", "target": "PASS"},
+      "routes": {"total": 79, "valid": 79, "invalid": 0},
+      "studio_ui": "SKIP: Studio UI automation was not run; no UI verification is claimed.",
+      "evidence": "L5_routes.json"
+    }
+  },
+  "release_facts": {
+    "ci_run": 42850787984,
+    "assets": 14,
+    "sha256sums_verified": "13/13",
+    "linux_bundle_sha256": "a5aa79ef...",
+    "windows_bundle_sha256": "e9024dcc...",
+    "routes_zip_sha256": "a73576832e7fddd7535eae30af00cca386f46809a9e5a9ddc4c48bc0a7a9b397"
+  },
+  "release_blocking": [],
+  "notes": [
+    "L1-L3 ran at the tagged commit 62a0f5a8 before any documentation changes.",
+    "L4 ran at the same code commit; the frontend symlink is a test prerequisite, not a library change.",
+    "The 209 pytest skips are pre-existing optional-dependency/feature skips; they are not failures.",
+    "L5 proves bundle install and route zip import/validation under 3.1.9 and 4.0.0; it does not prove UI behavior."
+  ]
+}
