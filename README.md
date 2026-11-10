@@ -42,7 +42,7 @@ AI agent through CLI or MCP. Operon itself does not supply an AI service.
 Existing `biopipe` Python modules, CLI commands, MCP tools and protocol identifiers
 remain compatible; see [rebranding and compatibility](docs/rebranding.md).
 
-The **v3.1.6 application** and independently versioned **2026.11.6.1 operator library**
+The **v3.1.7 application** and independently versioned **2026.11.7.1 operator library**
 share this repository. The reference library includes **717 operators, 101 Readers, seven
 provider packages and 24 route templates**. Operators and Readers use **protocol
 v3 / SDK 3.7**, separate parameter JSON and adjacent Markdown documentation.
