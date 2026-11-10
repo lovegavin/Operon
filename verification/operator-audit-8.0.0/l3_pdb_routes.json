@@ -1,0 +1,15 @@
+{
+  "version": "7.0.10",
+  "note": "PdbReader geometry routes on 1MEL",
+  "executed": 8,
+  "passed": [
+    "structure_anm_modes",
+    "structure_disorder_profile",
+    "structure_domain_boundary",
+    "structure_glycosylation_sites",
+    "structure_gnm_flexibility",
+    "structure_plddt_profile",
+    "structure_protonation_pka",
+    "structure_protonation_sites"
+  ]
+}
