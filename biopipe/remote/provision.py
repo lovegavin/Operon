@@ -96,7 +96,7 @@ class Shell:
                  ' | sha256sum -c - && rm -- ' + shlex.quote(staging) + '/* && rmdir -- ' + shlex.quote(staging))
 
 
-def locate(connection, profile, progress, cancel):
+def locate(connection, profile, progress, cancel, expected=None):
     """Read one server-owned receipt; never build/upload code or repair packages."""
     from .client import RemoteError
     from .installation import MAX_RECEIPT_BYTES, validate
@@ -123,13 +123,19 @@ def locate(connection, profile, progress, cancel):
         value = validate(json.loads(document))
     except (ValueError, TypeError, KeyError) as exc:
         raise RemoteError('服务端安装登记无效，请重新登记或修复安装。', code='server_installation_invalid') from exc
+    build = value.get('build')
+    if expected is not None:
+        from biopipe.build_identity import matches
+        if not matches(expected, build):
+            raise RemoteError('服务端代码或算子库与桌面端不一致；请安装 / 升级服务端后再连接。',
+                              code='stale_build')
     progress('复用已安装的服务端；不上传程序、不安装依赖')
     return {**profile, 'app_dir': value['app_dir'], 'python': value['python'],
             'workspace': profile.get('workspace') or value['workspace'], 'managed_root': base,
-            'installation_id': value['server_id']}
+            'installation_id': value['server_id'], 'build': build}
 
 
-def provision(connection, profile, progress, cancel, root=None):
+def provision(connection, profile, progress, cancel, root=None, expected=None):
     from .client import RemoteError
     shell = Shell(connection, progress, cancel)
     progress('检查服务器系统与部署目录')
@@ -147,6 +153,10 @@ def provision(connection, profile, progress, cancel, root=None):
     shell.run('umask 077; mkdir -p -- ' + q(managed))
     data = source_archive(root or Path(__file__).resolve().parents[2])
     digest = hashlib.sha256(data).hexdigest()
+    from biopipe.build_identity import build_identity
+    identity = build_identity(root or Path(__file__).resolve().parents[2], source_sha256=digest)
+    if expected is not None and expected.get('build_id') != identity['build_id']:
+        raise RemoteError('本地程序在准备期间发生变化，请重试。', code='build_changed')
     code = managed + '/code-' + digest[:20]
     archive = managed + '/source-' + digest[:20] + '.tar.gz'
     log = managed + '/setup-' + digest[:20] + '.log'
@@ -163,6 +173,7 @@ def provision(connection, profile, progress, cancel, root=None):
         shell.run('bash -o pipefail -c ' + q(extract + ' 2>&1 | tee -a ' + q(log)))
     env = managed + '/env-' + digest[:20]
     python = env + '/bin/python'
+    workspace = profile.get('workspace') or base + '/workspace'
     installer = code + '/biopipe/remote/install_linux.py'
     # micromamba is static: the server does not need Python, Conda, sudo or a compiler.
     # Some package post-link hooks require the executable basename `micromamba`.
@@ -200,7 +211,7 @@ export PATH={q(env + '/bin')}:"$PATH"
 export PYTHONNOUSERSITE=1
 unset PYTHONPATH PYTHONHOME
 export BIOPIPE_MAMBA={q(mamba)}
-{q(python)} -I {q(installer)} --code {q(code)} --digest {q(digest)}
+{q(python)} -I {q(installer)} --code {q(code)} --digest {q(digest)} --workspace {q(workspace)} --build {q(json.dumps(identity, separators=(',', ':')))}
 '''
     # Redirect noisy resolver output on the server, but show bounded live lines.
     # The lock prevents two desktops from mutating the same target environment.
@@ -217,12 +228,12 @@ export BIOPIPE_MAMBA={q(mamba)}
         shell.run(command, timeout=3600)
     except RemoteError as exc:
         raise RemoteError(str(exc) + '\n完整安装日志：' + log, code=exc.code) from exc
-    workspace = profile.get('workspace') or base + '/workspace'
     # Publish a stable, server-owned entry point only after successful setup.
     # Other desktop versions read this document without uploading their code.
     shell.run(q(python) + ' -I -m biopipe.remote.installation register --base ' + q(base)
               + ' --app-dir ' + q(code) + ' --workspace ' + q(workspace)
-              + ' --source-sha256 ' + q(digest))
+              + ' --source-sha256 ' + q(digest)
+              + ' --build ' + q(json.dumps(identity, separators=(',', ':'))))
     progress('环境就绪，正在连接运行服务')
     return {**profile, 'python': python, 'app_dir': code, 'workspace': workspace,
-            'setup_log': log, 'managed_root': base}
+            'setup_log': log, 'managed_root': base, 'build': identity}

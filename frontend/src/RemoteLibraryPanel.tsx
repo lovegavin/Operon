@@ -9,6 +9,7 @@ const reasons: Record<string, string> = {
   remote_package_disabled: '服务端已禁用此包，请在服务端管理。',
   remote_only_entries: '服务端含本地没有的算子，为避免丢失，不能覆盖此包。',
   different_provider: '同名算子属于不同的包，请先解决冲突。',
+  implementation_changed: '服务端算子实现与本地不一致，需要整包替换。',
 };
 const phases: Record<string, string> = {checking: '核对算子库', packaging: '准备算子包', hashing: '校验算子包',
   uploading: '上传算子包', verifying: '验证上传', resumed: '复用上传', installing: '注册服务端算子'};
@@ -77,7 +78,9 @@ export function RemoteLibraryPanel({id, initial, disabled, onBusyChange, onUpdat
       <button type="button" className="subtle-button" disabled={locked} onClick={() => void inspect()}>
         {busy ? t('检查中') : t('检查算子库')}</button></div>
     {check && !check.error && <div role="status">{check.missing_count ? t('服务端缺少 {count} 个本地算子 / Reader', {count: check.missing_count}) : t('服务端没有缺少的本地算子')}
-      {check.supported === false && <p>{t(reasons.server_upgrade_required)}</p>}</div>}
+      {!!check.changed_count && <p>{t('服务端有 {count} 个算子实现与本地不一致，需要整体替换。', {count: check.changed_count})}</p>}
+      {check.supported === false && <p>{t(reasons.server_upgrade_required)}</p>}
+      {check.supported !== false && check.replacement_required && <p>{t('服务端构建与本地不一致，请安装 / 升级服务端以整体替换算子库。')}</p>}</div>}
     {!!check?.packages?.length && <div className="remote-library-packages">
       {check.packages.map(pkg => <div className="remote-library-package" key={pkg.name}>
         <label><input type="checkbox" disabled={locked || !pkg.selectable} checked={selected.includes(pkg.name)}

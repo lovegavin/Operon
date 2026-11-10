@@ -69,6 +69,28 @@ class RemoteManager:
         self.connecting, self.progress = {}, {}
         self.library_operations = {}
         self.lock = threading.RLock()
+        self._build = None
+
+    def local_build(self):
+        """Identity of the application and operator library this desktop ships."""
+        if self._build is None:
+            try:
+                from biopipe.build_identity import build_identity
+                root = getattr(self.service.settings, 'code_root', None) or self.service.root
+                self._build = build_identity(root)
+            except Exception:  # noqa: BLE001 - old checkouts and isolated tests
+                self._build = {}
+        return deepcopy(self._build)
+
+    def build(self, key):
+        from biopipe.build_identity import matches
+        connection = self.connections.get(key)
+        if not connection or not connection.connected:
+            raise RemoteError('请先连接服务器。', code='remote_disconnected')
+        local = self.local_build()
+        remote = connection.call('build_info', {})
+        return {'local': local, 'remote': remote,
+                'matches': bool(local and remote.get('build') and matches(local, remote['build']))}
 
     def persist(self):
         with self.lock:
@@ -114,6 +136,8 @@ class RemoteManager:
             if key in self.connecting:
                 raise RemoteError('此服务器正在连接或准备环境。')
             profile = deepcopy(self.profile(key))
+            build = self.local_build()
+            profile['build'] = build
             if install and profile.get('environment') != 'managed':
                 raise RemoteError('已有环境请由服务端管理员维护；自动安装仅用于托管安装目录。')
             secret = credentials or self.credentials.get(key, {})
@@ -128,6 +152,11 @@ class RemoteManager:
         try:
             report('正在连接 SSH')
             cached = read_json(self.directory/(key+'.catalog.json'))
+            if cached and build.get('build_id') != (cached.get('build_id') or
+                                                    cached.get('handshake', {}).get('build_id')):
+                # A catalog cached against another local build cannot be used
+                # to migrate execution pins; force a fresh handshake catalog.
+                cached = None
             connection = (self.factory(profile, secret, progress=report, cancel=cancel,
                                        install=install, cached_info=cached)
                           if self.factory is SSHConnection else self.factory(profile, secret))
@@ -139,6 +168,7 @@ class RemoteManager:
                 info = connection.info
                 if not self.profile(key)['workspace']:
                     self.profile(key)['workspace'] = info['workspace']
+                if info.get('build'): info.setdefault('build_id', info['build'].get('build_id', ''))
                 atomic_json(self.directory/(key+'.catalog.json'), info)
                 for job in info.get('history', []): self.wrap_job(key, job)
                 self.persist()
@@ -224,6 +254,18 @@ class RemoteManager:
                        (('operator', 'operators'), ('reader', 'readers')) for d in catalog.get(field, [])]
             remote = {'revision': '', 'packages': [{'name': 'older-server', 'enabled': True, 'entries': entries}]}
         result = compare(local, remote, supported=supported)
+        remote_build = remote.get('build') or connection.info.get('build') or {}
+        local_build = self.local_build()
+        try:
+            from biopipe.build_identity import matches
+            same_build = bool(local_build and remote_build and matches(local_build, remote_build))
+        except Exception:  # noqa: BLE001 - malformed old receipts simply need an upgrade
+            same_build = False
+        result['build'] = {'local': local_build.get('build_id', ''),
+                           'remote': remote_build.get('build_id', ''),
+                           'matches': same_build}
+        managed = self.profile(key).get('environment') == 'managed'
+        result['replacement_required'] = bool(result.get('changed_count')) or (managed and not same_build)
         with self.lock:
             if self.connections.get(key) is not connection:
                 raise RemoteError('连接已改变，请重新检查。', code='remote_disconnected')
@@ -366,6 +408,11 @@ class RemoteManager:
         from .parameters import freeze_graph
         from .routes import prepare_interface
         catalog = self.catalog(graph)
+        state = read_json(self.directory/(remote_profile(graph)+'.catalog.json')) or {}
+        check = state.get('library_check') or {}
+        if check.get('replacement_required'):
+            raise RemoteError('服务端算子库与本地版本不一致，请先安装 / 升级服务端后再运行。',
+                              code='library_replacement_required')
         graph = graph.model_copy(deep=True)
         from biopipe.pins import graphs
         for part in graphs(graph):
@@ -380,7 +427,14 @@ class RemoteManager:
                                 input_roots=self.service.settings.input_roots))
             for descriptor in catalog['operators'] + catalog.get('readers', []):
                 if descriptor['id'] in used and descriptor.get('implementation'):
-                    part.plugin_lock.setdefault(descriptor['id'], deepcopy(descriptor['implementation']))
+                    current = deepcopy(descriptor['implementation'])
+                    previous = part.plugin_lock.get(descriptor['id'])
+                    if previous != current:
+                        if previous is not None:
+                            # Keep the old pin as a string: plugin_lock values are
+                            # dict[str, str] and must survive JSON round-trips.
+                            current['migrated_from'] = json.dumps(previous, sort_keys=True)
+                        part.plugin_lock[descriptor['id']] = current
         # Saved canvas snapshots remain editable offline. Fresh server pins are
         # resolved on submission; existing pins are never silently discarded.
         return prepare_interface(freeze_graph(graph, catalog, self.service.root,

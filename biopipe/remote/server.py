@@ -272,8 +272,16 @@ class RemoteService:
         if method in ('handshake', 'bootstrap'):
             return self.handshake.response(params, legacy=method == 'bootstrap')
         if method == 'library_manifest':
+            from copy import deepcopy
             from .library import inventory
-            return inventory(self.service.plugins.state())
+            return {**inventory(self.service.plugins.state()),
+                    'build': deepcopy(self.handshake.build),
+                    'build_id': self.handshake.build.get('build_id', '')}
+        if method == 'build_info':
+            from copy import deepcopy
+            return {'build': deepcopy(self.handshake.build),
+                    'build_id': self.handshake.build.get('build_id', ''),
+                    'library': deepcopy(self.handshake.build.get('library', {}))}
         if method == 'library_install':
             # JobService wraps _install_many in the shared environment gate.
             # Acquiring it here too would reject our own install as concurrent

@@ -231,8 +231,11 @@ export type RemoteInfo = {catalog: Catalog; history: Job[]; system: string; vers
 export type RemoteStatus = {profile: RemoteProfile; fingerprint?: string; connected: boolean; info?: RemoteInfo};
 export type RemoteLibraryEntry = {id: string; kind: string; title?: string};
 export type RemoteLibraryCheck = {error?: string; local_revision?: string; remote_revision?: string; supported?: boolean;
-  missing_count?: number; packages?: {name: string; version: string; remote_version: string | null;
-    missing: RemoteLibraryEntry[]; disabled: RemoteLibraryEntry[]; replaces: number; selectable: boolean; reason?: string | null}[]};
+  missing_count?: number; changed_count?: number; replacement_required?: boolean;
+  build?: {local: string; remote: string; matches: boolean};
+  packages?: {name: string; version: string; remote_version: string | null;
+    missing: RemoteLibraryEntry[]; disabled: RemoteLibraryEntry[]; changed?: RemoteLibraryEntry[];
+    replaces: number; selectable: boolean; reason?: string | null}[]};
 export type RemoteLibraryOperation = {status: 'idle' | 'running' | 'complete' | 'failed'; phase?: string;
   package?: string; index?: number; total?: number; bytes_done?: number; bytes_total?: number;
   error?: string; result?: RemoteLibraryCheck};

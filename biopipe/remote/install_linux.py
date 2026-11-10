@@ -341,12 +341,22 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--code', type=Path, required=True)
     parser.add_argument('--digest', required=True)
+    parser.add_argument('--workspace', type=Path)
+    parser.add_argument('--build', default='')
     args = parser.parse_args()
     code = args.code.resolve()
     sys.path.insert(0, str(code))
     prefix = Path(sys.prefix).resolve()
     if sys.platform != 'linux' or not prefix.name.startswith('env-') or prefix.parent.name != 'managed-v1':
         raise ValueError('Installer only writes to a Operon managed Linux environment')
+    from biopipe.build_identity import build_identity
+    expected = json.loads(args.build) if args.build else None
+    # A source archive always carries the library. A bare application tree
+    # (tests, legacy repair) still installs code and reports readiness.
+    has_library = (code / 'library/pyproject.toml').is_file()
+    identity = build_identity(code, source_sha256=args.digest) if has_library else None
+    if expected and identity and expected.get('build_id') != identity['build_id']:
+        raise ValueError('The extracted application and library do not match the desktop build')
     specs, entries = requirements(code)
     environment_failures = ensure_requirements(specs, prefix / 'biopipe-requirements.txt', code / 'biopipe' / 'bundled') or {}
     # Install the SDK distribution metadata (without altering the dependency plan).
@@ -357,6 +367,16 @@ def main():
         if (code / 'library/pyproject.toml').is_file():
             subprocess.run([sys.executable, '-I', '-m', 'pip', '--isolated', 'install', '--no-deps', str(code / 'library')], check=True)
     subprocess.run([sys.executable, '-I', '-m', 'pip', 'check'], check=True)
+    # A managed build owns the complete operator/Reader library. Replace any
+    # wheel-installed providers from an older deployment in one transaction.
+    if identity is not None:
+        from biopipe.library_bundle import install_source
+        from biopipe.plugins import PluginManager
+        workspace = (args.workspace or (prefix.parent.parent / 'workspace')).resolve()
+        manager = PluginManager(workspace / '.studio', manifest_only=True,
+                                python=sys.executable)
+        install_source(manager, code, version=identity['library']['library_version'], replace=True)
+        print('Operator library replaced from the application build', flush=True)
     from biopipe.dependencies import probe, scope
     allowed = scope()
     if allowed:
@@ -385,6 +405,7 @@ def main():
             raise ValueError(name + ' check failed: ' + (result.stdout + result.stderr)[-2000:])
         print(name + ': ready', flush=True)
     value = {'source_sha256': args.digest, 'python': sys.version, 'operators_checked': len(results),
+             'build': identity or {},
              'packages': {d.metadata['Name']: d.version for d in metadata.distributions()}}
     from biopipe.remote.handshake import installation_readiness
     value['dependency_readiness'] = installation_readiness(entries, results)

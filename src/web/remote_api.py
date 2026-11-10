@@ -43,6 +43,10 @@ def mount_remote(app, service):
             raise RemoteError('verify_all must be boolean')
         return manager.refresh(key, verify_all=value)
 
+    @app.get('/api/remote/{key}/build')
+    def build(key: str):
+        return manager.build(key)
+
     @app.get('/api/remote/{key}/setup')
     def setup(key: str):
         return manager.setup_status(key)

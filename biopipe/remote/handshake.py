@@ -184,7 +184,15 @@ class ManifestHandshake:
         self.saved = _read(self.receipt_path)
         if self.saved.get('version') != 1:
             self.saved = {}
-        self.installed = _read(Path(sys.prefix) / 'biopipe-ready.json').get('dependency_readiness', {})
+        self.install_receipt = _read(Path(sys.prefix) / 'biopipe-ready.json')
+        self.build = self.install_receipt.get('build') or {}
+        if not self.build:
+            try:
+                from biopipe.build_identity import build_identity
+                self.build = build_identity(self.service.settings.code_root or self.service.root)
+            except Exception:  # noqa: BLE001 - old or partial installs still handshake
+                self.build = {}
+        self.installed = self.install_receipt.get('dependency_readiness', {})
         if (not isinstance(self.installed, dict) or self.installed.get('version') != 1
                 or not runtime_compatible(self.installed.get('runtime'), self.runtime)):
             self.installed = {}
@@ -323,6 +331,8 @@ class ManifestHandshake:
                           'engine_capabilities': list(ENGINE_CAPABILITIES),
                           'library_capabilities': ['library_sync_v1'],
                           'operator_protocol': OPERATOR_PROTOCOL},
+            'build': deepcopy(self.build),
+            'build_id': self.build.get('build_id', ''),
         }
         try:
             engine = self.service._engine_status()
@@ -332,7 +342,9 @@ class ManifestHandshake:
                                'capabilities': engine.get('capabilities', [])}
         except Exception:  # noqa: BLE001 - the catalog handshake must still succeed
             value['engine'] = {'available': False}
-        unchanged = not legacy and params.get('known_catalog_digest') == self.catalog_digest
+        known_build = params.get('build_id')
+        unchanged = (not legacy and params.get('known_catalog_digest') == self.catalog_digest
+                     and (not known_build or known_build == self.build.get('build_id')))
         value['catalog_unchanged'] = unchanged
         if not unchanged:
             value['catalog'] = deepcopy(self.service.catalog)

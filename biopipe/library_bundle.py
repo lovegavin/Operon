@@ -136,7 +136,8 @@ def unpack_bundle(path, destination):
     return document
 
 
-def install_bundle(manager, bundle):
+def install_bundle(manager, bundle, *, replace=False):
+    """Install a verified bundle; ``replace`` also prunes stale bundled providers."""
     from biopipe.source_library import snapshot_sources
     manager.state()
     with manager.lock:
@@ -148,7 +149,7 @@ def install_bundle(manager, bundle):
             document = unpack_bundle(bundle, temporary / 'incoming')
             # Do not hide unrefreshed author edits behind a new source pointer.
             previous = current.get('source_library') or {}
-            if manager.managed_sources and manager.source_root.exists():
+            if not replace and manager.managed_sources and manager.source_root.exists():
                 fingerprint = snapshot_sources(manager.source_root, temporary / 'existing')
                 seed = manager.source_root / '.seed.json'
                 expected = previous.get('sha256') or (json.loads(seed.read_text(encoding='utf-8'))['sha256'] if seed.is_file() else None)
@@ -181,6 +182,20 @@ def install_bundle(manager, bundle):
             from biopipe_sdk.declarations import code_hash
             manifest = json.loads((incoming / 'sources/biopipe/builtin_packages.json').read_text(encoding='utf-8'))
             first = next(d for p in manifest['packages'] for d in p['descriptors'])
+            if replace:
+                # A managed upgrade owns the complete builtin provider set.
+                # Providers that disappeared from the new library must not
+                # survive as wheel-installed overlays.
+                families = ('core', 'readers', 'genetics', 'expression', 'plots', 'microbiome', 'hic')
+                known = {f'biopipe-{family}' for family in families} | {f'operon-{family}' for family in families}
+                keep = {package['name'] for package in document['packages']}
+                stale = {package['name'] for package in current['packages']
+                         if package['name'] in known and package['name'] not in keep}
+                if stale:
+                    from copy import deepcopy as _deepcopy
+                    current = _deepcopy(current)
+                    current['packages'] = [package for package in current['packages']
+                                           if package['name'] not in stale]
             receipt = {'root': relative, 'sha256': fingerprint,
                        'code_sha': code_hash(first['entry_point'], incoming / 'sources'),
                        'packages': [p['name'] for p in document['packages']]}
@@ -195,3 +210,15 @@ def install_bundle(manager, bundle):
             atomic_json(manager.directory / 'environments' / state['generation'] / 'lock.json', state)
             atomic_json(manager.registry, state)
             return state
+
+
+def install_source(manager, root, version=None, *, replace=True):
+    """Build the library carried by an application tree and install it whole."""
+    from biopipe.build_identity import library_identity
+    version = version or library_identity(root)['library_version']
+    if not version:
+        raise ValueError('The application does not carry a versioned library')
+    staging = manager.directory / 'staging' / 'source-library'
+    staging.mkdir(parents=True, exist_ok=True)
+    built = build_bundle(root, staging, version)
+    return install_bundle(manager, built['bundle'], replace=replace)

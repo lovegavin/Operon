@@ -30,6 +30,7 @@ class SSHConnection:
     def __init__(self, profile, credentials, *, progress=None, cancel=None, install=False, cached_info=None):
         import paramiko
         self.profile, self.lock = profile, threading.RLock()
+        self.build = profile.get('build')
         self.channel = None
         self.client = paramiko.SSHClient()
         self.buffer, self.lines, self.stderr = b'', deque(), ''
@@ -72,7 +73,8 @@ class SSHConnection:
             if managed:
                 from .provision import locate, provision
                 action = provision if install else locate
-                profile = action(self, profile, progress or (lambda message: None), cancel or threading.Event())
+                profile = action(self, profile, progress or (lambda message: None),
+                                 cancel or threading.Event(), self.build or None)
                 self.profile = profile
                 self.channel.sendall((bridge_command() + '\n').encode())
             deadline = time.monotonic()+90
@@ -97,12 +99,16 @@ class SSHConnection:
         from .handshake import CAPABILITIES, ENGINE_CAPABILITIES
         capabilities = list(CAPABILITIES)
         cached_info = cached_info or {}
+        build = getattr(self, 'build', None)
+        managed = (getattr(self, 'profile', None) or {}).get('environment') == 'managed'
         known = cached_info.get('handshake', {}).get('catalog_digest')
         params = {'version': 1, 'protocol_version': VERSION, 'operator_protocol': PROTOCOL_VERSION,
                   'required_capabilities': capabilities,
                   'optional_capabilities': list(ENGINE_CAPABILITIES)}
         if known and cached_info.get('catalog'):
             params['known_catalog_digest'] = known
+        if build:
+            params['build_id'] = build['build_id']
         try:
             info = self.call('handshake', params)
         except RemoteError as exc:
@@ -119,9 +125,17 @@ class SSHConnection:
         # lacks them and the client uses the documented legacy paths.
         info['engine_capabilities'] = sorted(set(handshake.get('engine_capabilities', [])) &
                                              set(ENGINE_CAPABILITIES))
+        remote_build = info.get('build') or handshake.get('build') or {}
+        if managed and build and remote_build:
+            from biopipe.build_identity import matches
+            if not matches(build, remote_build):
+                raise RemoteError('服务端代码或算子库与桌面端不一致；请安装 / 升级服务端后再连接。',
+                                  code='stale_build')
         if info.get('catalog_unchanged'):
             if not known or handshake.get('catalog_digest') != known or not cached_info.get('catalog'):
                 raise RemoteError('服务端清单缓存无法确认，请重新连接。', code='handshake_incompatible')
+            if managed and build and not remote_build:
+                raise RemoteError('服务端未报告构建身份，请安装 / 升级服务端。', code='stale_build')
             info['catalog'] = cached_info['catalog']
         if not isinstance(info.get('catalog'), dict):
             raise RemoteError('服务端未提供有效算子清单。', code='handshake_incompatible')

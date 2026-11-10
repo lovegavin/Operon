@@ -48,6 +48,9 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
     } else if (['server_incompatible', 'handshake_incompatible', 'capability_missing'].includes(issue.code || '')) {
       setMaintenance(true);
       setError(guidance || (profile.environment === 'managed' ? t("服务端不兼容，请安装 / 升级服务端后重试。") : t("服务端不兼容，请升级指定环境中的 Operon 后重试。")));
+    } else if (['stale_build', 'build_changed'].includes(issue.code || '')) {
+      setMaintenance(true);
+      setError(guidance || t("服务端代码或算子库与本地版本不一致，请安装 / 升级服务端后重试。"));
     } else if (issue.code === 'handshake_required') {
       setMaintenance(true);
       setError(guidance || t("此服务端需要一次性升级后重新连接。"));

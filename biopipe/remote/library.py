@@ -14,7 +14,8 @@ from .handshake import digest
 def inventory(state):
     packages = []
     for package in state['packages']:
-        entries = [{key: d.get(key) for key in ('id', 'kind', 'title', 'code_sha', 'declaration_sha')}
+        entries = [{key: d.get(key) for key in ('id', 'kind', 'title', 'version', 'code_sha',
+                                                'declaration_sha', 'implementation')}
                    for d in state['descriptors'] if d['distribution'] == package['name']]
         packages.append({**{key: package.get(key) for key in ('name', 'version', 'origin', 'sha256')},
                          'enabled': package.get('enabled', True),
@@ -23,9 +24,28 @@ def inventory(state):
     return {**value, 'revision': digest(value)}
 
 
+def changes(local, remote):
+    """Descriptors whose known implementation changed under the same identity."""
+    remote_entries = {(entry['kind'], entry['id']): (package, entry)
+                      for package in remote['packages'] for entry in package['entries']}
+    result = []
+    for package in local['packages']:
+        for entry in package['entries']:
+            found = remote_entries.get((entry['kind'], entry['id']))
+            if not found:
+                continue
+            current = found[1]
+            before, after = entry.get('implementation') or {}, current.get('implementation') or {}
+            if before.get('sha256') and after.get('sha256') and before['sha256'] != after['sha256']:
+                result.append({'id': entry['id'], 'kind': entry['kind'], 'package': package['name'],
+                               'previous': before, 'current': after})
+    return sorted(result, key=lambda item: (item['kind'], item['id']))
+
+
 def compare(local, remote, *, supported=True):
     remote_packages = {provider_identity(p['name']): p for p in remote['packages']}
     present = {(e['kind'], e['id']): p for p in remote['packages'] for e in p['entries']}
+    remote_entries = {(e['kind'], e['id']): e for p in remote['packages'] for e in p['entries']}
     groups = []
     for package in local['packages']:
         if not package['enabled']:
@@ -35,7 +55,12 @@ def compare(local, remote, *, supported=True):
         missing = [e for e in package['entries'] if (e['kind'], e['id']) not in present]
         disabled = [e for e in package['entries'] if (e['kind'], e['id']) in present
                     and not present[e['kind'], e['id']]['enabled']]
-        if not missing and not disabled:
+        changed = [entry for entry in package['entries']
+                   if (entry.get('implementation') or {}).get('sha256')
+                   and (remote_entries.get((entry['kind'], entry['id'])) or {}).get('implementation', {}).get('sha256')
+                   and entry['implementation']['sha256'] !=
+                   remote_entries[entry['kind'], entry['id']]['implementation']['sha256']]
+        if not missing and not disabled and not changed:
             continue
         reason = None
         keys = {(e['kind'], e['id']) for e in package['entries']}
@@ -47,14 +72,17 @@ def compare(local, remote, *, supported=True):
             reason = 'remote_only_entries'
         elif any(provider_identity(present[key]['name']) != owner for key in keys if key in present):
             reason = 'different_provider'
+        elif changed:
+            reason = 'implementation_changed'
         groups.append({'name': package['name'], 'version': package['version'],
                        'remote_version': previous['version'] if previous else None,
-                       'missing': missing, 'disabled': disabled,
+                       'missing': missing, 'disabled': disabled, 'changed': changed,
                        'replaces': len(previous['entries']) if previous else 0,
                        'selectable': bool(missing) and reason is None, 'reason': reason})
     return {'local_revision': local['revision'], 'remote_revision': remote['revision'],
             'supported': supported, 'packages': groups,
-            'missing_count': sum(len(p['missing']) for p in groups)}
+            'missing_count': sum(len(p['missing']) for p in groups),
+            'changed_count': sum(len(p['changed']) for p in groups)}
 
 
 def export_provider(manager, state, name, directory):
