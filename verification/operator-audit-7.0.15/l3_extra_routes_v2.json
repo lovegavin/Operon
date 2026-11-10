@@ -1,0 +1,33 @@
+{
+  "version": "7.0.15",
+  "batches": {
+    "peak_narrowpeak": [
+      "peak_gap_stats",
+      "peak_nearest_gene",
+      "peak_overlap_count",
+      "peak_signal_stats",
+      "peak_summit_offset",
+      "peak_tss_distance",
+      "peak_width_signal_correlation"
+    ],
+    "stats_advanced": [
+      "crispr_mit_specificity",
+      "flow_compensate",
+      "mantel",
+      "mantel_haenszel"
+    ],
+    "ligand_chain_and_pdbqt": [
+      "ligand_adduct_mz",
+      "ligand_dbe",
+      "ligand_formula_parse",
+      "ligand_mass_fraction",
+      "ligand_nitrogen_rule",
+      "ligand_pdbqt_flexible",
+      "ligand_pdbqt_prepare"
+    ],
+    "flow_and_ptm": [
+      "flow_transform",
+      "ptm_localization_score"
+    ]
+  }
+}
