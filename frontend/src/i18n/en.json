@@ -79,6 +79,7 @@
   "例如 tasks/demo": "e.g. tasks/demo",
   "例如 tasks/demo/input/data.csv": "e.g. tasks/demo/input/data.csv",
   "依赖": "Dependencies",
+  "依赖按需安装": "Dependencies install on demand",
   "依赖就绪": "Dependencies ready",
   "依赖未就绪": "Dependencies not ready",
   "依赖检测完成，部分算子需要处理。": "Dependency checks finished. Some operators need attention.",

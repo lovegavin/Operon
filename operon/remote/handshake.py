@@ -285,6 +285,10 @@ class ManifestHandshake:
     def persist(self):
         from src.web.storage import atomic_json
         snapshot = self.service.dependencies.snapshot()
+        snapshot["deferred"] = bool(self.installed.get("deferred"))
+        if snapshot["deferred"]:
+            # Nothing to count: optional dependencies are installed on demand.
+            snapshot["entries"] = []
         entries = {entry['id']: {**entry, 'runtime_key': self.runtime_keys[entry['id']]}
                    for entry in snapshot['entries'] if entry['status'] in ('passed', 'failed')}
         value = {'version': 1, 'runtime': self.runtime, 'entries': entries,

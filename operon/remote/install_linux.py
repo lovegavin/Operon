@@ -354,9 +354,21 @@ def main():
     # A source archive always carries the library. A bare application tree
     # (tests, legacy repair) still installs code and reports readiness.
     has_library = (code / 'library/pyproject.toml').is_file()
-    identity = build_identity(code, source_sha256=args.digest) if has_library else None
-    if expected and identity and expected.get('build_id') != identity['build_id']:
-        raise ValueError('The extracted application and library do not match the desktop build')
+    computed = build_identity(code, source_sha256=args.digest) if has_library else None
+    identity = computed
+    if expected and expected.get('library') and computed:
+        expected_library = expected['library']
+        actual_library = computed['library']
+        if (expected_library.get('bundle_sha256')
+                and expected_library['bundle_sha256'] != actual_library.get('bundle_sha256')):
+            raise ValueError('The extracted operator library does not match the desktop build')
+        # The desktop owns the application source identity. Recomputing it from
+        # an extracted archive makes every managed server look like another
+        # build even when the library is byte-identical.
+        identity = dict(expected)
+    if identity is not None:
+        identity['environment'] = {'python': f'{sys.version_info.major}.{sys.version_info.minor}',
+                                     'platform': sys.platform}
     specs, entries = requirements(code)
     environment_failures = ensure_requirements(specs, prefix / 'operon-requirements.txt', code / 'operon' / 'bundled') or {}
     # Install the SDK distribution metadata (without altering the dependency plan).
@@ -377,38 +389,18 @@ def main():
                                 python=sys.executable)
         install_source(manager, code, version=identity['library']['library_version'], replace=True)
         print('Operator library replaced from the application build', flush=True)
-    from operon.dependencies import probe, scope
-    allowed = scope()
-    if allowed:
-        entries = [entry for entry in entries if entry['id'] in allowed]
-        print(f'dependency scope active: checking {len(entries)} entries', flush=True)
-    results = probe(entries)
-    for entry in entries:
-        environment = (entry.get('resources') or {}).get('environment')
-        if environment in environment_failures:
-            results[entry['id']] = {'status': 'failed', 'error': environment + ': ' + environment_failures[environment]}
-    # pip check validates the base environment; explicit native Hi-C smoke
-    # checks below remain mandatory. Optional library failures stay visible.
-    required, optional = split_failures(results, entries, required_ids=set())
-    if required:
-        raise ValueError('Operator dependency checks failed: ' + json.dumps(required))
-    if optional:
-        print('Optional operator capabilities are unavailable; affected workflows require repair:', flush=True)
-        for name, error in sorted(optional.items()):
-            print(f'  {name}: {error}', flush=True)
-    for name, command, allowed in [
-        ('bwa', ['bwa'], (1,)), ('samtools', ['samtools', '--version'], (0,)),
-        ('pairtools', ['pairtools', '--version'], (0,)), ('cooler', ['cooler', '--version'], (0,)),
-        ('cooltools', ['cooltools', '--version'], (0,))]:
-        result = subprocess.run(command, capture_output=True, text=True, timeout=60)
-        if result.returncode not in allowed:
-            raise ValueError(name + ' check failed: ' + (result.stdout + result.stderr)[-2000:])
-        print(name + ': ready', flush=True)
-    value = {'source_sha256': args.digest, 'python': sys.version, 'operators_checked': len(results),
-             'build': identity or {},
-             'packages': {d.metadata['Name']: d.version for d in metadata.distributions()}}
-    from operon.remote.handshake import installation_readiness
-    value['dependency_readiness'] = installation_readiness(entries, results)
+    # Dependency probing is deliberately deferred. The server is an execution
+    # host, not an eager installation of every optional model/tool; probing here
+    # also collides with a shared pool owned by another Operon generation.
+    # Install readiness is the application/library identity only.
+    from operon.remote.handshake import runtime_identity
+    value = {"source_sha256": args.digest, "python": sys.version,
+             "operators_checked": 0,
+             "build": identity or {},
+             "packages": {d.metadata["Name"]: d.version for d in metadata.distributions()}}
+    value["dependency_readiness"] = {
+        "version": 1, "runtime": runtime_identity(), "entries": {}, "deferred": True,
+    }
     temporary = receipt.with_suffix('.tmp')
     temporary.write_text(json.dumps(value, indent=2), encoding='utf-8')
     os.replace(temporary, receipt)

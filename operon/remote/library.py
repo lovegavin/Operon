@@ -47,6 +47,7 @@ def compare(local, remote, *, supported=True):
     present = {(e['kind'], e['id']): p for p in remote['packages'] for e in p['entries']}
     remote_entries = {(e['kind'], e['id']): e for p in remote['packages'] for e in p['entries']}
     groups = []
+    library_differs = local.get("revision") != remote.get("revision")
     for package in local['packages']:
         if not package['enabled']:
             continue
@@ -55,12 +56,12 @@ def compare(local, remote, *, supported=True):
         missing = [e for e in package['entries'] if (e['kind'], e['id']) not in present]
         disabled = [e for e in package['entries'] if (e['kind'], e['id']) in present
                     and not present[e['kind'], e['id']]['enabled']]
-        changed = [entry for entry in package['entries']
-                   if (entry.get('implementation') or {}).get('sha256')
-                   and (remote_entries.get((entry['kind'], entry['id'])) or {}).get('implementation', {}).get('sha256')
-                   and entry['implementation']['sha256'] !=
-                   remote_entries[entry['kind'], entry['id']]['implementation']['sha256']]
-        if not missing and not disabled and not changed:
+        # Provider-wheel and bundled-source origins legitimately use different
+        # implementation hash domains. Library identity is checked once at the
+        # package/bundle level; per-entry hashes must not turn 1,171 entries into
+        # a false whole-library replacement.
+        changed = []
+        if not missing and not disabled and not changed and not library_differs:
             continue
         reason = None
         keys = {(e['kind'], e['id']) for e in package['entries']}
@@ -78,7 +79,7 @@ def compare(local, remote, *, supported=True):
                        'remote_version': previous['version'] if previous else None,
                        'missing': missing, 'disabled': disabled, 'changed': changed,
                        'replaces': len(previous['entries']) if previous else 0,
-                       'selectable': bool(missing) and reason is None, 'reason': reason})
+                       'selectable': (bool(missing) or library_differs) and reason is None, 'reason': reason})
     return {'local_revision': local['revision'], 'remote_revision': remote['revision'],
             'supported': supported, 'packages': groups,
             'missing_count': sum(len(p['missing']) for p in groups),

@@ -122,13 +122,15 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
           <div className="remote-status-heading"><span className="status-dot complete"/><strong title={info?.python}>{info ? `Operon ${info.version}` : t("已连接")}</strong><span>{info?.system}</span>
             <button type="button" className="subtle-button" disabled={!!busy || !!trust} onClick={() => void refresh()}>{busy === 'refresh' ? <><CircleNotch className="spin" size={14}/>{t("刷新中")}</> : t("刷新算子与依赖")}</button></div>
           {info && <div className="remote-status-counts"><span>{t("算子")} {info.catalog.operators.length}</span>
-            {info.dependencies && <span>{t("依赖")} {info.dependencies.entries.filter(entry => entry.status === 'passed').length}/{info.dependencies.entries.length} {t("已通过")}{info.dependencies.running ? t(" · 检查中") : ''}</span>}
+            {info.dependencies && (info.dependencies.deferred
+              ? <span>{t("依赖按需安装")}</span>
+              : <span>{t("依赖")} {info.dependencies.entries.filter(entry => entry.status === 'passed').length}/{info.dependencies.entries.length} {t("已通过")}{info.dependencies.running ? t(" · 检查中") : ''}</span>)}
             {!!Object.keys(info.tools || {}).length && <span>{t("工具")} {Object.values(info.tools).filter(Boolean).length}/{Object.keys(info.tools).length} {t("可用")}</span>}
           </div>}
         </div>}
         {selected?.connected && profile.id && <RemoteLibraryPanel key={profile.id} id={profile.id}
           initial={info?.library_check} disabled={!!trust || (!!busy && busy !== 'library')}
-          onBusyChange={libraryBusy} onUpdate={onUpdate}/>}
+          onBusyChange={libraryBusy} onUpdate={onUpdate} onInstall={() => void connect("install")}/>}
         <footer>
           {(busy === 'connect' || busy === 'install') && profile.id && <button type="button" className="subtle-button" onClick={() => {void api.disconnectRemote(profile.id!).catch(e => setError(e.message));}}>{busy === 'install' ? t("取消安装") : t("取消连接")}</button>}
           {profile.id && <button type="button" className="subtle-button" disabled={!!busy} onClick={() => {void api.disconnectRemote(profile.id!).then(onUpdate).catch(e => setError(e.message));}}>{t("断开")}</button>}

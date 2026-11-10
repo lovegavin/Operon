@@ -27,11 +27,12 @@ function text(node: ReactNode): string {
 }
 function trigger(element: Element, event: string, value: unknown = {}) {(element.props[event] as (value: unknown) => void)(value);}
 const sample: RemoteLibraryCheck = {local_revision: 'local', remote_revision: 'server', supported: true, missing_count: 2,
+  changed_count: 1, replacement_required: true,
   packages: ['package-a', 'package-b'].map(name => ({name, version: '1', remote_version: null, missing: [{id: name + '.operator', kind: 'operator'}],
     disabled: [], replaces: 0, selectable: true}))};
-const onUpdate = vi.fn(async () => {}), onBusyChange = vi.fn();
+const onUpdate = vi.fn(async () => {}), onBusyChange = vi.fn(), onInstall = vi.fn();
 let initial: RemoteLibraryCheck | undefined;
-function render() {hooks.cursor = 0; hooks.effects = []; return RemoteLibraryPanel({id: 'server', initial, disabled: false, onUpdate, onBusyChange});}
+function render() {hooks.cursor = 0; hooks.effects = []; return RemoteLibraryPanel({id: 'server', initial, disabled: false, onUpdate, onBusyChange, onInstall});}
 function button(label: string) {return elements(render()).find(e => e.type === 'button' && text(e.props.children as ReactNode).startsWith(label))!;}
 beforeEach(() => {
   hooks.values = []; hooks.effects = []; hooks.cursor = 0; vi.clearAllMocks(); initial = structuredClone(sample);
@@ -39,54 +40,35 @@ beforeEach(() => {
   vi.mocked(api.remoteLibraryStatus).mockResolvedValue({status: 'idle'});
   vi.mocked(api.installRemoteLibrary).mockResolvedValue({status: 'running', phase: 'checking'});
 });
-describe('server library selection', () => {
-  it('displays connection results without installing or selecting anything', () => {
-    expect(text(render())).toContain('服务端缺少 2 个本地算子 / Reader');
-    expect(button('补齐所选算子包').props.disabled).toBe(true);
+describe('server library status', () => {
+  it('shows the comparison and offers only a whole-server install', () => {
+    const tree = render();
+    expect(text(tree)).toContain('服务端缺少 2 个本地算子 / Reader');
+    expect(text(tree)).toContain('服务端有 1 个算子实现与本地不一致');
+    expect(text(tree)).toContain('安装 / 升级服务端');
+    expect(elements(tree).some(e => e.type === 'input')).toBe(false);
     expect(api.installRemoteLibrary).not.toHaveBeenCalled();
+    trigger(button('安装 / 升级服务端'), 'onClick');
+    expect(onInstall).toHaveBeenCalledOnce();
   });
-  it('sends only selected providers and both comparison revisions', async () => {
-    const checkbox = elements(render()).find(e => e.type === 'input')!;
-    trigger(checkbox, 'onChange', {target: {checked: true}});
-    trigger(button('补齐所选算子包'), 'onClick');
-    await vi.waitFor(() => expect(api.installRemoteLibrary).toHaveBeenCalledExactlyOnceWith('server',
-      {packages: ['package-a'], local_revision: 'local', remote_revision: 'server'}));
-    expect(button('补齐所选算子包').props.disabled).toBe(true);
-  });
-  it('prevents disabled/remote-only replacements and discloses package updates', () => {
-    initial!.packages![0] = {...initial!.packages![0], selectable: false, reason: 'remote_only_entries', replaces: 7};
-    expect(elements(render()).find(e => e.type === 'input')!.props.disabled).toBe(true);
-    expect(text(render())).toContain('服务端含本地没有的算子');
-    expect(text(render())).toContain('同时更新服务端已有的 7 个算子');
-  });
-  it('shows legacy-server guidance without starting a server installation', () => {
+  it('shows legacy-server guidance without starting an installation', () => {
     initial = {...sample, supported: false, packages: []};
     expect(text(render())).toContain('请先安装 / 升级服务端以补齐算子。');
     expect(api.installRemoteLibrary).not.toHaveBeenCalled();
+    expect(onInstall).not.toHaveBeenCalled();
   });
   it('checks on opening an existing connection only when its handshake has no comparison', async () => {
     initial = undefined; render();
     const cleanup = hooks.effects[2]();
     await vi.waitFor(() => expect(api.checkRemoteLibrary).toHaveBeenCalledExactlyOnceWith('server'));
     expect(api.installRemoteLibrary).not.toHaveBeenCalled();
+    expect(api.remoteLibraryStatus).not.toHaveBeenCalled();
     (cleanup as () => void)();
   });
-  it('reuses the automatic connection comparison and recovers a pending operation', async () => {
-    vi.mocked(api.remoteLibraryStatus).mockResolvedValue({status: 'running', phase: 'installing'});
-    render(); const cleanup = hooks.effects[2]();
-    await vi.waitFor(() => expect(api.remoteLibraryStatus).toHaveBeenCalled());
-    await Promise.resolve();
-    expect(api.checkRemoteLibrary).not.toHaveBeenCalled();
-    expect(text(render())).toContain('注册服务端算子');
-    (cleanup as () => void)();
-  });
-  it('manual recheck clears obsolete selections and exposes recoverable errors', async () => {
-    trigger(elements(render()).find(e => e.type === 'input')!, 'onChange', {target: {checked: true}});
-    vi.mocked(api.checkRemoteLibrary).mockResolvedValue({...sample, packages: [], missing_count: 0});
-    trigger(button('检查算子库'), 'onClick');
-    await vi.waitFor(() => expect(text(render())).toContain('服务端没有缺少的本地算子'));
+  it('surfaces a failed manual recheck without installing', async () => {
     vi.mocked(api.checkRemoteLibrary).mockRejectedValue(new Error('Connection lost'));
     trigger(button('检查算子库'), 'onClick');
     await vi.waitFor(() => expect(text(render())).toContain('Connection lost'));
+    expect(api.installRemoteLibrary).not.toHaveBeenCalled();
   });
 });

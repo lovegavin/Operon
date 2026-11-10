@@ -39,6 +39,17 @@ def test_never_overwrite_disabled_custom_or_other_provider(existing, reason):
     assert not result['packages'][0]['selectable']
 
 
+def test_identical_ids_but_changed_library_are_selectable_for_whole_replacement():
+    local = inventory(state(("old", "new"), name="operon-core"))
+    remote_state = state(("old", "new"), name="operon-core")
+    remote_state["packages"][0]["sha256"] = "b"
+    remote = inventory(remote_state)
+    result = compare(local, remote)
+    assert result["missing_count"] == 0
+    assert result["packages"][0]["selectable"] is True
+    assert result["packages"][0]["missing"] == []
+
+
 def test_same_provider_supplement_discloses_whole_package_update_and_aliases():
     result = compare(inventory(state(('old', 'new'), name='operon-core')),
                      inventory(state(('old',), name='operon-core')))

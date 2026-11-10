@@ -187,7 +187,7 @@ def install_bundle(manager, bundle, *, replace=False):
                 # Providers that disappeared from the new library must not
                 # survive as wheel-installed overlays.
                 families = ('core', 'readers', 'genetics', 'expression', 'plots', 'microbiome', 'hic')
-                known = {f'operon-{family}' for family in families} | {f'operon-{family}' for family in families}
+                known = {f"operon-{family}" for family in families} | {f"biopipe-{family}" for family in families}
                 keep = {package['name'] for package in document['packages']}
                 stale = {package['name'] for package in current['packages']
                          if package['name'] in known and package['name'] not in keep}

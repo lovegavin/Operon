@@ -56,7 +56,7 @@ class ConnectionProfile(StrictModel):
 def _has_dependency_status(info):
     """True when the handshake already carries a populated dependency snapshot."""
     dependencies = (info or {}).get('dependencies') or {}
-    return bool(isinstance(dependencies, dict) and dependencies.get('entries'))
+    return bool(isinstance(dependencies, dict) and (dependencies.get('entries') or dependencies.get('deferred')))
 
 
 class RemoteManager:
@@ -173,13 +173,9 @@ class RemoteManager:
                 for job in info.get('history', []): self.wrap_job(key, job)
                 self.persist()
                 report('已连接')
-            if install or not _has_dependency_status(info):
-                try:
-                    report('正在核对依赖状态')
-                    info = self.refresh(key, verify_all=True)
-                    report('依赖状态已更新')
-                except RemoteError as exc:
-                    report(f'依赖状态将在刷新后更新：{exc}')
+            # Dependency readiness is advisory and runtime-installed. Ordinary
+            # connect and server installation never probe it; an explicit
+            # maintenance refresh remains available.
             if hasattr(self.service, 'plugins'):
                 try:
                     self.check_library(key)
@@ -256,16 +252,20 @@ class RemoteManager:
         result = compare(local, remote, supported=supported)
         remote_build = remote.get('build') or connection.info.get('build') or {}
         local_build = self.local_build()
-        try:
-            from operon.build_identity import matches
-            same_build = bool(local_build and remote_build and matches(local_build, remote_build))
-        except Exception:  # noqa: BLE001 - malformed old receipts simply need an upgrade
-            same_build = False
+        local_library = local_build.get('library') or {}
+        remote_library = remote_build.get('library') or {}
+        local_catalog = local_build.get('catalog') or {}
+        remote_catalog = remote_build.get('catalog') or {}
+        same_library = bool(
+            local_library.get('bundle_sha256')
+            and local_library.get('bundle_sha256') == remote_library.get('bundle_sha256')
+            and local_library.get('descriptor_count') == remote_library.get('descriptor_count')
+            and local_catalog.get('digest') == remote_catalog.get('digest'))
         result['build'] = {'local': local_build.get('build_id', ''),
                            'remote': remote_build.get('build_id', ''),
-                           'matches': same_build}
-        managed = self.profile(key).get('environment') == 'managed'
-        result['replacement_required'] = bool(result.get('changed_count')) or (managed and not same_build)
+                           'matches': same_library,
+                           'library_matches': same_library}
+        result['replacement_required'] = bool(result.get('changed_count')) or (bool(remote_build) and not same_library)
         with self.lock:
             if self.connections.get(key) is not connection:
                 raise RemoteError('连接已改变，请重新检查。', code='remote_disconnected')
