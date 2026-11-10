@@ -103,9 +103,11 @@ def test_managed_transport_invokes_only_requested_install_action(monkeypatch, in
     client = SimpleNamespace(set_missing_host_key_policy=lambda p: None, connect=lambda *a, **k: None,
                              get_transport=lambda: transport, close=lambda: None)
     monkeypatch.setattr(paramiko, 'SSHClient', lambda: client)
+    seen = {}
     def action(name):
-        def run(connection, profile, *args):
+        def run(connection, profile, *args, **kwargs):
             calls.append(name)
+            seen[name] = (args, kwargs)
             return {**profile, 'app_dir': '/shared/app', 'python': '/shared/bin/python', 'workspace': '/shared/work'}
         return run
     monkeypatch.setattr(provision, 'locate', action('locate'))
@@ -113,9 +115,12 @@ def test_managed_transport_invokes_only_requested_install_action(monkeypatch, in
     monkeypatch.setattr(SSHConnection, '_line', lambda *a: 'OPERON_REMOTE_READY 1')
     monkeypatch.setattr(SSHConnection, 'handshake', lambda *a: info())
     profile = {'host': 'example.org', 'port': 22, 'username': 'researcher', 'auth': 'password',
-               'environment': 'managed', 'mode': 'exec'}
+               'environment': 'managed', 'mode': 'exec', 'build': {'build_id': 'build-1'}}
     connection = SSHConnection(profile, {}, install=install)
     assert calls == ['install' if install else 'locate']
+    positional, keywords = seen[calls[0]]
+    assert len(positional) == 2
+    assert keywords == {'expected': {'build_id': 'build-1'}}
     assert '/shared/app' in sent[-1].decode()
     connection.close()
 

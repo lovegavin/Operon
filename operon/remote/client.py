@@ -74,7 +74,7 @@ class SSHConnection:
                 from .provision import locate, provision
                 action = provision if install else locate
                 profile = action(self, profile, progress or (lambda message: None),
-                                 cancel or threading.Event(), self.build or None)
+                                 cancel or threading.Event(), expected=self.build or None)
                 self.profile = profile
                 self.channel.sendall((bridge_command() + '\n').encode())
             deadline = time.monotonic()+90
