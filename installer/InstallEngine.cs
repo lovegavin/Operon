@@ -576,6 +576,14 @@ internal sealed class InstallEngine
             }
             File.Delete(Path.Combine(version, "package-manifest.json")); File.Delete(Path.Combine(version, ".operon-install.json"));
             File.Delete(Path.Combine(version, "operon-install.json"));
+            // Python creates __pycache__ after installation. It is generated
+            // software state, not a user file, and would otherwise keep the
+            // version directory and the uninstall root alive.
+            foreach (var cache in Directory.EnumerateDirectories(version, "__pycache__", SearchOption.AllDirectories).ToList())
+            {
+                try { InstallFiles.NoLinks(cache); Directory.Delete(cache, true); }
+                catch (Exception e) { Console.Error.WriteLine("Cache retained: " + e.Message); }
+            }
             void EmptyDirectories(string directory) {
                 foreach (var child in Directory.EnumerateDirectories(directory)) { InstallFiles.NoLinks(child); EmptyDirectories(child); }
                 if (!Directory.EnumerateFileSystemEntries(directory).Any()) Directory.Delete(directory);
