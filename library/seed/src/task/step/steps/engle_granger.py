@@ -13,7 +13,11 @@ from ._cointegration_common import pair_series
 class EngleGrangerStep(Step):
     provider = 'operon-core'
     parameters_file = 'engle_granger.EngleGrangerStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'engle_granger',
      'version': '1.0.0',
      'kind': 'operator',

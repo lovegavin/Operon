@@ -137,7 +137,7 @@ export const api = {
     return value;
   },
   saveWorkflow: (graph: Graph, id?: string, expected_version?: number) => request<SavedWorkflow>("/api/workflows/save", {graph, id, expected_version}),
-  importRouteArchive: async (file: File): Promise<RouteDefinition[]> => {
+  importRouteArchive: async (file: File): Promise<{routes: RouteDefinition[]; failed: {name: string; error: string}[]}> => {
     const response = await fetch(base + '/api/routes/import-archive', {
       method: 'POST', headers: {'X-Studio-Token': token, 'Content-Type': 'application/zip'}, body: file,
     });

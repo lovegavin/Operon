@@ -232,6 +232,9 @@ class AntibodyNumberingImgtStep(Step):
     provider = "operon-core"
     parameters_file = "antibody_numbering_imgt.AntibodyNumberingImgtStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "antibody_numbering_imgt",
         "version": "1.0.0",

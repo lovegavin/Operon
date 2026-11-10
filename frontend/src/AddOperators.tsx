@@ -33,8 +33,15 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
         return;
       }
       try {
-        await api.importRouteArchive(containers[0]);
-        onMessage(t('路线算子已添加，即刻可用。'));
+        const imported = await api.importRouteArchive(containers[0]);
+        if (imported.failed.length) {
+          onError(t('已添加 {count} 条路线；{failed} 条不兼容：{reason}', {
+            count: imported.routes.length, failed: imported.failed.length,
+            reason: imported.failed[0].error,
+          }));
+        } else {
+          onMessage(t('路线算子已添加，即刻可用。'));
+        }
       } catch (error) {
         onError(t('路线未添加：{reason}', {reason: (error as Error).message}));
       } finally {

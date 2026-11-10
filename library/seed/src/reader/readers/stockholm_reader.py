@@ -17,7 +17,11 @@ class StockholmReader(Reader):
     provider = 'operon-readers'
     """Reader for Stockholm alignments."""
     parameters_file = 'stockholm_reader.StockholmReader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'StockholmReader',
      'version': '1.0.0',
      'kind': 'reader',

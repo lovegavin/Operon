@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "kmer",
+      "title": "Row dimension"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field dimension"
+    },
+    "k": {
+      "type": "integer",
+      "default": 21,
+      "minimum": 5,
+      "maximum": 31
+    }
+  }
+}

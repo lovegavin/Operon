@@ -39,9 +39,10 @@ class EnrichmentPlotStep(Step):
     provider = 'operon-core'
     parameters_file = 'enrichment_plot.parameters.json'
     definition = {
-     'dependencies': ['matplotlib>=3.8'],
-     'dependency_imports': ['matplotlib'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': []},
+        'protocol_version': 3,
      'id': 'enrichment_plot',
      'version': '1.0.0',
      'kind': 'operator',

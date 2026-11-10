@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "out"
+    },
+    "min_snr": {
+      "type": "number",
+      "default": 3.0,
+      "minimum": 0.5
+    },
+    "smoothing": {
+      "type": "integer",
+      "default": 3,
+      "minimum": 1,
+      "maximum": 31
+    },
+    "scan_dim": {
+      "type": "string",
+      "default": "scan"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "apex_rt": {
+      "type": "string",
+      "default": "apex_rt"
+    },
+    "apex_intensity": {
+      "type": "string",
+      "default": "apex_intensity"
+    },
+    "area": {
+      "type": "string",
+      "default": "area"
+    },
+    "start_rt": {
+      "type": "string",
+      "default": "start_rt"
+    },
+    "end_rt": {
+      "type": "string",
+      "default": "end_rt"
+    },
+    "snr": {
+      "type": "string",
+      "default": "snr"
+    }
+  }
+}

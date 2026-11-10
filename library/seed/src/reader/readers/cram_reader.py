@@ -17,7 +17,11 @@ class CramReader(Reader):
     provider = 'operon-readers'
     """Compressed Reference-oriented Alignment/Map reader."""
     parameters_file = 'cram_reader.CramReader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'CramReader',
      'version': '1.0.0',
      'kind': 'reader',
@@ -36,8 +40,8 @@ class CramReader(Reader):
                               'axis_fields': [],
                               'info_open': False}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False},
-     'dependencies': ['pandas>=2.0', 'pysam'],
-     'dependency_imports': ['pandas', 'pysam'],
+     'dependencies': ['pysam'],
+     'dependency_imports': ['pysam'],
      'description': 'Compressed Reference-oriented Alignment/Map reader.',
      'extensions': ['.cram'],
      'requires_siblings': [],

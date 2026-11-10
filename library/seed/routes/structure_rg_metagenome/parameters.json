@@ -1,0 +1,84 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_1mel": {},
+    "counts": {}
+  },
+  "steps": [
+    {
+      "name": "structure_radius_of_gyration",
+      "inputs": [
+        "structure_1mel"
+      ],
+      "params": {
+        "atom_dim": "atom",
+        "field_dim": "field",
+        "output": "rg"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "rg"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "rg"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "metagenomics_bray_curtis",
+      "inputs": [
+        "counts"
+      ],
+      "params": {
+        "row_dim": "sample",
+        "field_dim": "feature",
+        "output": "bc"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "bc"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "bc"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "metagenomics_clr",
+      "inputs": [
+        "counts"
+      ],
+      "params": {
+        "row_dim": "sample",
+        "field_dim": "feature",
+        "pseudocount": 0.5,
+        "output": "clr"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "clr"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "clr"
+      },
+      "context_params": {}
+    }
+  ]
+}

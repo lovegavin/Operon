@@ -33,7 +33,11 @@ class RdkitAdmetRulesStep(Step):
     provider = 'operon-core'
     """Lipinski, Veber and Ghose drug-likeness rules per molecule."""
     parameters_file = 'rdkit_admet_rules.RdkitAdmetRulesStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'rdkit_admet_rules',
      'version': '1.0.0',
      'kind': 'operator',

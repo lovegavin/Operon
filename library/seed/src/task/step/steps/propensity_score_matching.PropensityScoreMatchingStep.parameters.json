@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "propensity_score_matching_out"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "treatment_column": {
+      "type": "string",
+      "default": "t"
+    },
+    "outcome_column": {
+      "type": "string",
+      "default": "y"
+    },
+    "covariate_columns": {
+      "type": "string",
+      "default": "x1,x2"
+    },
+    "caliper": {
+      "type": "number",
+      "default": 0.1
+    }
+  }
+}

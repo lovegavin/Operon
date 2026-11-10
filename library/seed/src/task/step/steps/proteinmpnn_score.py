@@ -97,7 +97,11 @@ class ProteinmpnnScoreStep(Step):
     provider = 'operon-core'
     """ProteinMPNN negative log-likelihood for a structure/sequence pair."""
     parameters_file = 'proteinmpnn_score.ProteinmpnnScoreStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'proteinmpnn_score',
      'version': '1.0.0',
      'kind': 'operator',

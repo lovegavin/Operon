@@ -69,6 +69,10 @@ class LdaStep(Step):
     provider = "operon-core"
     parameters_file = "lda.LdaStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "lda",
         "version": "1.0.0",

@@ -63,6 +63,9 @@ class ProteinmpnnDesignProfileStep(Step):
         "proteinmpnn_design_profile.ProteinmpnnDesignProfileStep.parameters.json"
     )
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "proteinmpnn_design_profile",
         "version": "1.0.0",

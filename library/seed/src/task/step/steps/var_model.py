@@ -16,7 +16,11 @@ class VarModelStep(Step):
     provider = 'operon-core'
     """Estimate a VAR(p) model with a deterministic OLS fit."""
     parameters_file = 'var_model.VarModelStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'var_model',
      'version': '1.0.0',
      'kind': 'operator',
@@ -110,9 +114,15 @@ class VarModelStep(Step):
             dims=["equation", "term"],
             labels={
                 "equation": {
-                    name: index for index, name in enumerate(equations)
+                    f"{equation}:{term}": index
+                    for index, (equation, term) in enumerate(
+                        (eq, term) for eq in equations for term in terms
+                    )
                 },
-                "term": {name: index for index, name in enumerate(terms)},
+                "term": {
+                    name: index
+                    for index, name in enumerate(["coef", "se", "t", "p"])
+                },
             },
             info={
                 "method": "VAR",

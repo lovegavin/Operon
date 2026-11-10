@@ -20,7 +20,12 @@ _COLUMNS = [
 class PoissonMeansTestStep(Step):
     provider = 'operon-core'
     parameters_file = 'poisson_means_test.PoissonMeansTestStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'poisson_means_test',
      'version': '1.0.0',
      'kind': 'operator',
@@ -49,8 +54,8 @@ class PoissonMeansTestStep(Step):
                                          'info_open': True,
                                          'axis_info_open': True}}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
-     'dependencies': ['scipy>=1.11'],
-     'dependency_imports': ['scipy'],
+     'dependencies': [],
+     'dependency_imports': [],
      'inputs_arity': 2,
      'outputs': [],
      'output_parameter': 'output',

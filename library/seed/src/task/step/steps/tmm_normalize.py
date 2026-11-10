@@ -25,9 +25,10 @@ class TmmNormalizeStep(Step):
     """Normalize a count matrix with edgeR-style TMM factors."""
     parameters_file = 'tmm_normalize.TmmNormalizeStep.parameters.json'
     definition = {
-     'dependencies': ['scipy>=1.11', 'statsmodels>=0.14'],
-     'dependency_imports': ['scipy', 'statsmodels'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'tmm_normalize',
      'version': '1.0.0',
      'kind': 'operator',

@@ -121,6 +121,10 @@ class SequenceCodonAdaptationStep(Step):
     parameters_file = "sequence_codon_adaptation.SequenceCodonAdaptationStep.parameters.json"
 
     definition: dict[str, Any] = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "sequence_codon_adaptation",
         "version": "1.0.0",

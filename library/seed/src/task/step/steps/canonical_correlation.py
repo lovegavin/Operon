@@ -15,7 +15,12 @@ class CanonicalCorrelationStep(Step):
     provider = 'operon-core'
     """Canonical correlations via reduced QR and an SVD cross-product."""
     parameters_file = 'canonical_correlation.CanonicalCorrelationStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'canonical_correlation',
      'version': '1.0.0',
      'kind': 'operator',

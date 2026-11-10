@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string"
+    },
+    "process_var": {
+      "type": "number",
+      "default": 1.0,
+      "description": "state innovation variance"
+    },
+    "obs_var": {
+      "type": "number",
+      "default": 1.0,
+      "description": "observation variance"
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}

@@ -81,7 +81,11 @@ class Plink1Reader(Reader):
     """Reader for PLINK 1.x .bed / .bim / .fam triplets."""
     provider = 'operon-readers'
     parameters_file = 'plink1_reader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'Plink1Reader',
      'version': '1.0.0',
      'kind': 'reader',
@@ -104,8 +108,8 @@ class Plink1Reader(Reader):
                               'axis_fields': [{'axis': 0, 'fields': ['chrom', 'pos']}],
                               'info_open': False}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False},
-     'dependencies': ['bed-reader>=1.0', 'pandas>=2.0'],
-     'dependency_imports': ['bed_reader', 'pandas'],
+     'dependencies': ['bed-reader>=1.0'],
+     'dependency_imports': ['bed_reader'],
      'extensions': ['.bed'],
      'requires_siblings': ['.bim', '.fam'],
      'excludes_siblings': [],
@@ -187,7 +191,11 @@ class Plink2Reader(Reader):
     """Reader for PLINK 2.x .pgen / .pvar / .psam triplets."""
     provider = 'operon-readers'
     parameters_file = 'plink2_reader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'Plink2Reader',
      'version': '1.0.0',
      'kind': 'reader',
@@ -210,8 +218,8 @@ class Plink2Reader(Reader):
                               'axis_fields': [{'axis': 0, 'fields': ['chrom', 'pos']}],
                               'info_open': False}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False},
-     'dependencies': ['pandas>=2.0', 'pgenlib>=0.90'],
-     'dependency_imports': ['pandas', 'pgenlib'],
+     'dependencies': ['pgenlib>=0.90'],
+     'dependency_imports': ['pgenlib'],
      'extensions': ['.pgen'],
      'requires_siblings': ['.pvar', '.psam'],
      'excludes_siblings': [],

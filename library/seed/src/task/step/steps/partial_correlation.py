@@ -13,7 +13,13 @@ from ._matrix_common import matrix
 class PartialCorrelationStep(Step):
     provider = 'operon-core'
     parameters_file = 'partial_correlation.PartialCorrelationStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'partial_correlation',
      'version': '1.0.0',
      'kind': 'operator',
@@ -50,8 +56,8 @@ class PartialCorrelationStep(Step):
                                          'info_open': True,
                                          'axis_info_open': True}}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
-     'dependencies': ['scipy>=1.11'],
-     'dependency_imports': ['scipy'],
+     'dependencies': [],
+     'dependency_imports': [],
      'inputs_arity': 3,
      'outputs': [],
      'output_parameter': 'output',

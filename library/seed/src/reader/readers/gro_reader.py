@@ -15,9 +15,10 @@ class GroReader(Reader):
     """GROMACS GRO reader, one row per atom."""
     parameters_file = 'gro_reader.GroReader.parameters.json'
     definition = {
-     'dependencies': ['pandas>=2.0'],
-     'dependency_imports': ['pandas'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'GroReader',
      'version': '1.0.0',
      'kind': 'reader',

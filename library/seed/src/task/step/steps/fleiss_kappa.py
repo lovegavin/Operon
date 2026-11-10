@@ -13,7 +13,11 @@ from ._stats20_common import scalar_form, table
 class FleissKappaStep(Step):
     provider = 'operon-core'
     parameters_file = 'fleiss_kappa.FleissKappaStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'fleiss_kappa',
      'version': '1.0.0',
      'kind': 'operator',
@@ -48,6 +52,9 @@ class FleissKappaStep(Step):
         )
         if np.any(data < 0):
             raise StepError("fleiss_kappa: cell counts must be non-negative")
+        totals = data.sum(axis=1)
+        if np.any(totals <= 0) or not np.allclose(totals, totals[0]):
+            raise StepError("fleiss_kappa: every subject must have the same positive number of ratings")
         method = ctx.step_params.get("method", "fleiss")
         kappa = float(fleiss_kappa(data, method=method))
         form = scalar_form([kappa, len(subjects), len(categories)],

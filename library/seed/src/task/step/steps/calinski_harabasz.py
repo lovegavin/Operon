@@ -15,7 +15,12 @@ class CalinskiHarabaszStep(Step):
     provider = 'operon-core'
     """Calinski-Harabasz index for features and a label column."""
     parameters_file = 'calinski_harabasz.CalinskiHarabaszStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'calinski_harabasz',
      'version': '1.0.0',
      'kind': 'operator',

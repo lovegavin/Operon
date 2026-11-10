@@ -20,7 +20,11 @@ class BoschlooExactStep(Step):
     test. The odds ratio is the sample odds ratio.
     """
     parameters_file = 'boschloo_exact.BoschlooExactStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'boschloo_exact',
      'version': '1.0.0',
      'kind': 'operator',

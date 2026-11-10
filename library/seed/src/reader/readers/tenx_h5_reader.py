@@ -56,7 +56,11 @@ class TenxH5Reader(Reader):
     provider = 'operon-readers'
     """Reader for 10x Cell Ranger h5 count matrices."""
     parameters_file = 'tenx_h5_reader.TenxH5Reader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'TenxH5Reader',
      'version': '1.0.0',
      'kind': 'reader',

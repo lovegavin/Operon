@@ -67,6 +67,9 @@ class Esm3SasaPredictionStep(Step):
     parameters_file = "esm3_sasa_prediction.Esm3SasaPredictionStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "esm3_sasa_prediction",
         "version": "1.0.0",

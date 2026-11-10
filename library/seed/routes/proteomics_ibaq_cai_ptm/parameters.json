@@ -1,0 +1,87 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "peptides": {},
+    "cds": {},
+    "weights": {},
+    "ptm": {}
+  },
+  "steps": [
+    {
+      "name": "proteomics_ibaq",
+      "inputs": [
+        "peptides"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "output": "ibaq"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "ibaq"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "ibaq"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "sequence_cai",
+      "inputs": [
+        "cds",
+        "weights"
+      ],
+      "params": {
+        "seq_dim": "seq",
+        "codon_dim": "codon",
+        "field_dim": "field",
+        "output": "cai"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "cai"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "cai"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "ptm_occupancy",
+      "inputs": [
+        "ptm"
+      ],
+      "params": {
+        "row_dim": "site",
+        "field_dim": "field",
+        "output": "occupancy"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "occupancy"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "occupancy"
+      },
+      "context_params": {}
+    }
+  ]
+}

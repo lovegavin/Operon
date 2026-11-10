@@ -13,7 +13,11 @@ _NAMES = ["slope", "intercept", "n"]
 class PassingBablokStep(Step):
     provider = 'operon-core'
     parameters_file = 'passing_bablok.PassingBablokStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'passing_bablok',
      'version': '1.0.0',
      'kind': 'operator',
@@ -34,8 +38,8 @@ class PassingBablokStep(Step):
                                          'info_open': True,
                                          'axis_info_open': True}}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
-     'dependencies': ['numpy>=1.24', 'scipy>=1.11', 'statsmodels>=0.14'],
-     'dependency_imports': ['numpy', 'scipy', 'statsmodels'],
+     'dependencies': ['numpy>=1.24'],
+     'dependency_imports': ['numpy'],
      'inputs_arity': 1,
      'outputs': [],
      'output_parameter': 'output',

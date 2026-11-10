@@ -37,12 +37,15 @@ class ScatterStep(Step):
     provider = 'operon-plots'
     parameters_file = 'scatter.parameters.json'
     definition = {
-     'dependencies': ['matplotlib>=3.8'],
-     'dependency_imports': ['matplotlib'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': []},
+        'protocol_version': 3,
      'id': 'scatter',
      'version': '1.0.0',
      'kind': 'operator',
+    'dependencies': ['matplotlib>=3.8'],
+    'dependency_imports': ['matplotlib'],
      'title': '散点图',
      'description': '选择两个标签绘制散点图。',
      'category': '可视化',

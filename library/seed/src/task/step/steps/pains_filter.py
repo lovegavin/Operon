@@ -45,6 +45,9 @@ class PainsFilterStep(Step):
     provider = 'operon-core'
     parameters_file = 'pains_filter.PainsFilterStep.parameters.json'
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         'protocol_version': 3,
         'id': 'pains_filter',
         'version': '1.0.0',

@@ -16,7 +16,11 @@ _NAMES = ["kappa", "std_kappa", "z", "p", "ci_low", "ci_high"]
 class CohensKappaStep(Step):
     provider = 'operon-core'
     parameters_file = 'cohens_kappa.CohensKappaStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'cohens_kappa',
      'version': '1.0.0',
      'kind': 'operator',
@@ -49,6 +53,8 @@ class CohensKappaStep(Step):
             inputs[0], ctx.step_params.get("row_dim", "rater_a"),
             ctx.step_params.get("col_dim", "rater_b"), "cohens_kappa",
         )
+        if data.ndim != 2 or data.shape[0] != data.shape[1]:
+            raise StepError("cohens_kappa: the contingency table must be square")
         if np.any(data < 0):
             raise StepError("cohens_kappa: cell counts must be non-negative")
         weights = ctx.step_params.get("weights", "none")

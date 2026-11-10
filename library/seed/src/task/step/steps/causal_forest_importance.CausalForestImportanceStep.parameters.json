@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "causal_forest_importance_out"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "y_column": {
+      "type": "string",
+      "default": "y"
+    },
+    "t_column": {
+      "type": "string",
+      "default": "t"
+    },
+    "n_estimators": {
+      "type": "integer",
+      "default": 200
+    },
+    "min_samples_leaf": {
+      "type": "integer",
+      "default": 5
+    },
+    "seed": {
+      "type": "integer",
+      "default": 7
+    }
+  }
+}

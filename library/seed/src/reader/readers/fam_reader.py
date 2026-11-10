@@ -15,9 +15,10 @@ class FamReader(Reader):
     """PLINK FAM reader (six standard columns)."""
     parameters_file = 'fam_reader.FamReader.parameters.json'
     definition = {
-     'dependencies': ['pandas>=2.0'],
-     'dependency_imports': ['pandas'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'FamReader',
      'version': '1.0.0',
      'kind': 'reader',

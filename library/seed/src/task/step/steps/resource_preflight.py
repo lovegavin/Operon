@@ -25,6 +25,9 @@ class ResourcePreflightStep(Step):
     parameters_file = "resource_preflight.ResourcePreflightStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "resource_preflight",
         "version": "1.0.0",

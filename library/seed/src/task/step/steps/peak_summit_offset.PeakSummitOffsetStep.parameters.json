@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "region_dim": {
+      "type": "string",
+      "default": "region",
+      "title": "Region dimension",
+      "description": "Name of the peak axis in the input form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 10
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field dimension",
+      "description": "Name of the field axis holding narrowPeak columns.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 20
+    },
+    "output": {
+      "type": "string",
+      "default": "peak_summit_offset",
+      "title": "Output name",
+      "description": "Context name of the output form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 90
+    },
+    "center_tolerance_bp": {
+      "type": "integer",
+      "default": 50,
+      "minimum": 0,
+      "title": "Center tolerance (bp)",
+      "description": "Distance from the interval center counted as centered.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 30
+    }
+  }
+}

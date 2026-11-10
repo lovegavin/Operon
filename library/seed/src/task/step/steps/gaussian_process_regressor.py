@@ -20,7 +20,11 @@ class GaussianProcessRegressorStep(Step):
     the closed-form GP equations.
     """
     parameters_file = 'gaussian_process_regressor.GaussianProcessRegressorStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'gaussian_process_regressor',
      'version': '1.0.0',
      'kind': 'operator',

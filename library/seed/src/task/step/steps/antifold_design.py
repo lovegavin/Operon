@@ -185,6 +185,9 @@ class AntifoldDesignStep(Step):
     provider = "operon-core"
     parameters_file = "antifold_design.AntifoldDesignStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "antifold_design",
         "version": "1.0.0",

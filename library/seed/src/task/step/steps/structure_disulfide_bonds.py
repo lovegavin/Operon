@@ -42,6 +42,9 @@ class StructureDisulfideBondsStep(Step):
     provider = "operon-core"
     parameters_file = "structure_disulfide_bonds.StructureDisulfideBondsStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_disulfide_bonds",
         "version": "1.0.0",

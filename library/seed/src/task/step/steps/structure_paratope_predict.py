@@ -124,6 +124,9 @@ class StructureParatopePredictStep(Step):
     provider = "operon-core"
     parameters_file = "structure_paratope_predict.StructureParatopePredictStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_paratope_predict",
         "version": "1.0.0",

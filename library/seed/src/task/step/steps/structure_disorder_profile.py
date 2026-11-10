@@ -105,6 +105,9 @@ class StructureDisorderProfileStep(Step):
     )
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_disorder_profile",
         "version": "1.0.0",
@@ -151,8 +154,8 @@ class StructureDisorderProfileStep(Step):
             "supports_cuda": False,
             "estimate": "estimate_memory",
         },
-        "dependencies": ['numpy>=1.24', 'scipy>=1.11'],
-        "dependency_imports": ['scipy'],
+        "dependencies": ["numpy>=1.24"],
+        "dependency_imports": [],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",

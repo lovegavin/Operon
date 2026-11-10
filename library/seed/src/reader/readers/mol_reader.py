@@ -21,9 +21,10 @@ class MolReader(Reader):
     """Read one MDL MOL V2000 file and summarize its atom/bond block."""
     parameters_file = 'mol_reader.MolReader.parameters.json'
     definition = {
-     'dependencies': ['pandas>=2.0'],
-     'dependency_imports': ['pandas'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'MolReader',
      'version': '1.0.0',
      'kind': 'reader',

@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import json
 import csv
-from operon.bytecode import io_path
+try:
+    from operon.bytecode import io_path
+except ImportError:  # legacy application (<=3.1.0)
+    from operon.bytecode import io_path
 import math
 import os
 import re
@@ -139,6 +142,9 @@ class ProteinMpnnDesignStep(Step):
         'proteinmpnn_design.ProteinMpnnDesignStep.parameters.json'
     )
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         'protocol_version': 3,
         'id': 'proteinmpnn_design',
         'version': '1.0.0',

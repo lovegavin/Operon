@@ -80,6 +80,9 @@ class InterfaceHydrophobicPatchStep(Step):
     parameters_file = "interface_hydrophobic_patch.InterfaceHydrophobicPatchStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "interface_hydrophobic_patch",
         "version": "1.0.0",

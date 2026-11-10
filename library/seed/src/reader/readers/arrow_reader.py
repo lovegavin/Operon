@@ -36,7 +36,11 @@ class ArrowReader(Reader):
 
     provider = 'operon-readers'
     parameters_file = 'arrow_reader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
                   'id': 'ArrowReader',
                   'version': '1.0.0',
                   'kind': 'reader',
@@ -56,8 +60,8 @@ class ArrowReader(Reader):
                                            'axis_fields': [],
                                            'info_open': False}},
                   'resources': {'memory_modes': ['full'], 'supports_cuda': False},
-                  'dependencies': ['pandas>=2.0', 'pyarrow>=14'],
-                  'dependency_imports': ['pandas', 'pyarrow'],
+                  'dependencies': ['pyarrow>=14'],
+                  'dependency_imports': ['pyarrow'],
                   'extensions': ['.arrow', '.feather', '.ipc', '.orc'],
                   'requires_siblings': [],
                   'excludes_siblings': [],

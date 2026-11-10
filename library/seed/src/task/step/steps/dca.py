@@ -19,7 +19,11 @@ class DcaStep(Step):
     strategies are reported on the same threshold grid.
     """
     parameters_file = 'dca.DcaStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'dca',
      'version': '1.0.0',
      'kind': 'operator',
@@ -102,7 +106,7 @@ class DcaStep(Step):
             net_benefit = tp / n - (fp / n) * odds
             treat_all = prevalence - (1.0 - prevalence) * odds
             rows.append(
-                [float(threshold), net_benefit, treat_all, 0.0, float(tp), float(fp), float(n)]
+                [net_benefit, treat_all, 0.0, float(tp), float(fp), float(n)]
             )
 
         metric_names = [

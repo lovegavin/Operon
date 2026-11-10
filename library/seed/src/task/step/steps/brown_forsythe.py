@@ -10,7 +10,12 @@ class BrownForsytheStep(LeveneTestStep):
     provider = 'operon-core'
     """Median-centered Levene test, known as the Brown-Forsythe test."""
     parameters_file = 'brown_forsythe.BrownForsytheStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'brown_forsythe',
      'version': '1.0.0',
      'kind': 'operator',

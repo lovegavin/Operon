@@ -21,7 +21,11 @@ class ApproxEntropyStep(Step):
     quantity reported by R ``pracma::approx_entropy``.
     """
     parameters_file = 'approx_entropy.ApproxEntropyStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'approx_entropy',
      'version': '1.0.0',
      'kind': 'operator',

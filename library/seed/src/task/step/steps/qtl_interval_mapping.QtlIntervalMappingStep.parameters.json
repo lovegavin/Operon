@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "title": "Output name",
+      "description": "Name for the output value.",
+      "default": "output",
+      "x-ui-order": 90
+    },
+    "individual_dim": {
+      "type": "string",
+      "title": "Individual dimension",
+      "description": "Axis of genotype rows.",
+      "default": "individual",
+      "x-ui-group": "Input fields",
+      "x-ui-order": 0
+    },
+    "marker_dim": {
+      "type": "string",
+      "title": "Marker dimension",
+      "description": "Axis of genotype columns.",
+      "default": "marker",
+      "x-ui-group": "Input fields",
+      "x-ui-order": 1
+    },
+    "trait_dim": {
+      "type": "string",
+      "title": "Trait dimension",
+      "description": "Axis of phenotype rows.",
+      "default": "trait",
+      "x-ui-group": "Input fields",
+      "x-ui-order": 2
+    },
+    "phenotype_field": {
+      "type": "string",
+      "title": "Phenotype field",
+      "description": "Named phenotype column.",
+      "default": "phenotype",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 3
+    },
+    "field_dim": {
+      "type": "string",
+      "title": "Field dimension",
+      "description": "Axis holding column fields.",
+      "default": "field",
+      "x-ui-group": "Input fields",
+      "x-ui-order": 20
+    }
+  }
+}

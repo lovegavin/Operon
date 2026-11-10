@@ -28,6 +28,9 @@ class NestednessStep(Step):
     provider = "operon-core"
     parameters_file = "nestedness.NestednessStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "nestedness",
         "version": "1.0.0",
@@ -98,7 +101,7 @@ class NestednessStep(Step):
                                          key=lambda kv: kv[1])]
         if axis == 1:
             row_names, col_names = col_names, row_names
-        data_out = np.asarray([[n_columns, n_rows, nodf, fill]], dtype=np.float32)
+        data_out = np.asarray([[n_columns], [n_rows], [nodf], [fill]], dtype=np.float32)
         ctx[out_name] = Form(
             data=data_out,
             dims=["statistic", "value"],

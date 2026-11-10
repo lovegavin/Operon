@@ -182,6 +182,9 @@ class StructureDockqStep(Step):
     provider = "operon-core"
     parameters_file = "structure_dockq.StructureDockqStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_dockq",
         "version": "1.0.0",
@@ -209,8 +212,8 @@ class StructureDockqStep(Step):
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ['scipy>=1.11'],
-        "dependency_imports": ['scipy'],
+        "dependencies": [],
+        "dependency_imports": [],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",

@@ -14,12 +14,16 @@ class ExcelReader(Reader):
     provider = 'operon-readers'
     """Reader for .xlsx and .xlsm workbooks."""
     parameters_file = 'excel_reader.ExcelReader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'ExcelReader',
      'version': '1.0.0',
      'kind': 'reader',
-     'dependencies': ['openpyxl>=3.1', 'pandas>=2.0'],
-     'dependency_imports': ['openpyxl', 'pandas'],
+     'dependencies': ['openpyxl>=3.1'],
+     'dependency_imports': ['openpyxl'],
      'title': 'Reader for .xlsx and .xlsm workbooks',
      'category': 'Data',
      'contracts': {'version': 1,

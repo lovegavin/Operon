@@ -74,6 +74,9 @@ class StructureAromaticStackingStep(Step):
         "structure_aromatic_stacking.StructureAromaticStackingStep.parameters.json"
     )
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_aromatic_stacking",
         "version": "1.0.0",
@@ -174,6 +177,14 @@ class StructureAromaticStackingStep(Step):
             else np.zeros((0, len(_STATISTICS)), dtype=np.float32)
         )
         bond_dim = str(params.get("bond_dim") or "bond")
+        seen_bonds = {}
+        for row in rows:
+            base = row["bond"]
+            if base in seen_bonds:
+                seen_bonds[base] += 1
+                row["bond"] = f"{base}#{seen_bonds[base]}"
+            else:
+                seen_bonds[base] = 0
         out_name = params["output"]
         form_out = Form(
             data=data,

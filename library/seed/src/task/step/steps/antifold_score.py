@@ -116,6 +116,9 @@ class AntifoldScoreStep(Step):
     parameters_file = "antifold_score.AntifoldScoreStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "antifold_score",
         "version": "1.0.0",
@@ -139,8 +142,8 @@ class AntifoldScoreStep(Step):
             },
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory", "environment": "antifold"},
-        "dependencies": ['pandas>=2.0'],
-        "dependency_imports": ['antifold', 'pandas', 'torch'],
+        "dependencies": [],
+        "dependency_imports": ["antifold", "pandas", "torch"],
         "inputs_arity": 0,
         "outputs": [],
         "output_parameter": "output",

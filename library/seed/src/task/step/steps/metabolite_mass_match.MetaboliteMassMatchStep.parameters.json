@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "metabolite_mass_match",
+      "title": "Output name"
+    },
+    "feature_dim": {
+      "type": "string",
+      "default": "feature"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "entry_dim": {
+      "type": "string",
+      "default": "entry"
+    },
+    "database_field_dim": {
+      "type": "string",
+      "default": "database_field"
+    },
+    "tolerance_ppm": {
+      "type": "number",
+      "default": 10.0
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "process_variance": {
+      "type": "number",
+      "default": 1.0,
+      "minimum": 0.0
+    },
+    "observation_variance": {
+      "type": "number",
+      "default": 1.0,
+      "minimum": 0.0
+    }
+  },
+  "required": []
+}

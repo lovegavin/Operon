@@ -16,6 +16,7 @@ const categoryAliases: Record<string, string> = {
   "machine learning": "machine_learning", ml: "machine_learning",
   genetics: "omics", genome: "omics", genomics: "omics", transcriptomics: "omics", proteomics: "omics",
   "single cell": "omics", single_cell: "omics", microbiome: "omics", metagenomics: "omics",
+  epigenomics: "omics", epigenomic: "omics", "表观遗传学": "omics",
   sequence: "omics", expression: "omics", "微生物组": "omics",
   plugins: "other", extensions: "other", "扩展算子": "other",
 };

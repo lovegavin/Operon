@@ -51,6 +51,9 @@ class RdkitScaffoldDiversityStep(Step):
     parameters_file = "rdkit_scaffold_diversity.RdkitScaffoldDiversityStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "rdkit_scaffold_diversity",
         "version": "1.0.0",
@@ -83,8 +86,9 @@ class RdkitScaffoldDiversityStep(Step):
         "output_parameter": "output",
     }
 
-    def estimate_memory(self, inputs, params, profiles):
-        return {"full": 64 * 1024 * 1024}
+    @classmethod
+    def estimate_memory(cls, inputs, params, profiles):
+        return (64 * 1024 * 1024, 0)
 
     def run(self, ctx, inputs) -> None:
         from src.task.step.steps._rdkit_common import build_molecules, molecule_labels, parse_smiles_text

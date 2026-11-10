@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "treatment_column": {
+      "type": "string",
+      "default": "treatment"
+    },
+    "outcome_column": {
+      "type": "string",
+      "default": "outcome"
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}

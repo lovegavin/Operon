@@ -107,6 +107,9 @@ class StructureMdInterfaceOccupancyStep(Step):
     parameters_file = "structure_md_interface_occupancy.StructureMdInterfaceOccupancyStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_md_interface_occupancy",
         "version": "1.0.0",
@@ -124,8 +127,8 @@ class StructureMdInterfaceOccupancyStep(Step):
             },
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ['scipy>=1.11'],
-        "dependency_imports": ['numpy', 'scipy'],
+        "dependencies": [],
+        "dependency_imports": ["numpy", "scipy"],
         "inputs_arity": 0,
         "outputs": [],
         "output_parameter": "output",
@@ -133,7 +136,10 @@ class StructureMdInterfaceOccupancyStep(Step):
 
     def run(self, ctx, inputs):
         params = ctx.step_params
-        frames = load_frames(str(params.get("trajectory_path", "")))
+        trajectory = str(params.get("trajectory_path", "") or "").strip()
+        if not trajectory:
+            raise StepError("structure_md_interface_occupancy: trajectory_path is required")
+        frames = load_frames(trajectory)
         labels, chain, heavy = topology_table(str(params.get("topology_path", "")))
         binder, target = select_chains(params, chain)
         cutoff = float(params.get("cutoff", 5.0))

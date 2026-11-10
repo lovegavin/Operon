@@ -14,7 +14,11 @@ class BirchStep(Step):
     provider = 'operon-core'
     """Cluster samples with BIRCH (balanced iterative reducing and clustering)."""
     parameters_file = 'birch.BirchStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'birch',
      'version': '1.0.0',
      'kind': 'operator',

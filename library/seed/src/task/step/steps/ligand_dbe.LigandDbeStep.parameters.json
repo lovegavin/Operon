@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Ligand double-bond equivalents parameters",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "molecule_dim": {
+      "type": "string",
+      "default": "molecule",
+      "title": "Molecule dimension",
+      "description": "Name of the molecule axis."
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field dimension",
+      "description": "Name of the input field axis."
+    },
+    "output": {
+      "type": "string",
+      "default": "dbe",
+      "title": "Output name",
+      "description": "Name of the output Form in the workflow."
+    },
+    "statistic_dim": {
+      "type": "string",
+      "default": "statistic",
+      "title": "Statistic dimension",
+      "description": "Name of the input statistic axis."
+    }
+  }
+}

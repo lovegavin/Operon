@@ -14,7 +14,11 @@ class OrdinalLogisticStep(Step):
     provider = 'operon-core'
     """Proportional-odds ordinal regression via statsmodels OrderedModel."""
     parameters_file = 'ordinal_logistic.OrdinalLogisticStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'ordinal_logistic',
      'version': '1.0.0',
      'kind': 'operator',
@@ -35,8 +39,8 @@ class OrdinalLogisticStep(Step):
                                          'info_open': True,
                                          'axis_info_open': True}}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
-     'dependencies': ['scipy>=1.11', 'statsmodels>=0.14'],
-     'dependency_imports': ['scipy', 'statsmodels'],
+     'dependencies': ['statsmodels>=0.14'],
+     'dependency_imports': ['statsmodels'],
      'inputs_arity': 1,
      'outputs': [],
      'output_parameter': 'output',

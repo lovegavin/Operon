@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "father_label": {
+      "type": "string",
+      "default": "father"
+    },
+    "mother_label": {
+      "type": "string",
+      "default": "mother"
+    },
+    "child_label": {
+      "type": "string",
+      "default": "child"
+    },
+    "variant_dim": {
+      "type": "string",
+      "default": "variant"
+    },
+    "sample_dim": {
+      "type": "string",
+      "default": "sample"
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string",
+      "default": "lightgbm_classifier"
+    },
+    "label_column": {
+      "type": "string",
+      "default": "label"
+    },
+    "n_estimators": {
+      "type": "integer",
+      "default": 30
+    },
+    "num_leaves": {
+      "type": "integer",
+      "default": 7
+    },
+    "learning_rate": {
+      "type": "number",
+      "default": 0.3
+    },
+    "seed": {
+      "type": "integer",
+      "default": 7
+    },
+    "min_child_samples": {
+      "type": "integer",
+      "default": 1
+    }
+  },
+  "required": [
+    "label_column",
+    "n_estimators",
+    "num_leaves",
+    "learning_rate",
+    "seed"
+  ]
+}

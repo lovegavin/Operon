@@ -20,7 +20,11 @@ class VecmStep(Step):
     cointegrating relation is fixed to one.
     """
     parameters_file = 'vecm.VecmStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'vecm',
      'version': '1.0.0',
      'kind': 'operator',

@@ -45,9 +45,11 @@ class BoxplotStep(Step):
     provider = 'operon-plots'
     parameters_file = 'boxplot.parameters.json'
     definition = {
-     'dependencies': ['matplotlib>=3.8'],
-     'dependency_imports': ['matplotlib'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': []},
+        'protocol_version': 3,
      'id': 'boxplot',
      'version': '1.0.0',
      'kind': 'operator',

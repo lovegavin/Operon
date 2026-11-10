@@ -44,7 +44,11 @@ COLUMNS = ["start", "end", "n_variants", "n_bases", "n_segregating", "theta_w",
 class WattersonThetaStep(Step):
     provider = 'operon-genetics'
     parameters_file = 'watterson_theta.WattersonThetaStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'watterson_theta',
      'version': '1.0.0',
      'kind': 'operator',

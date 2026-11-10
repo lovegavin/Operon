@@ -19,7 +19,11 @@ class CusumChartStep(Step):
     not draw a plot, so the result can be inspected or plotted by the caller.
     """
     parameters_file = 'cusum_chart.CusumChartStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'cusum_chart',
      'version': '1.0.0',
      'kind': 'operator',

@@ -41,7 +41,11 @@ class FisherAlphaStep(Step):
     provider = 'operon-microbiome'
 
     parameters_file = 'fisher_alpha.FisherAlphaStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'fisher_alpha',
      'version': '1.0.0',
      'kind': 'operator',

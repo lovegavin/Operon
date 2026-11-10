@@ -109,6 +109,9 @@ class SequenceGcProfileStep(Step):
     parameters_file = "sequence_gc_profile.SequenceGcProfileStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "sequence_gc_profile",
         "version": "1.0.0",
@@ -157,8 +160,9 @@ class SequenceGcProfileStep(Step):
         "output_parameter": "output",
     }
 
-    def estimate_memory(self, inputs, params, profiles):
-        return {"full": 32 * 1024 * 1024}
+    @classmethod
+    def estimate_memory(cls, inputs, params, profiles):
+        return (32 * 1024 * 1024, 0)
 
     def run(self, ctx, inputs) -> None:
         params = ctx.step_params

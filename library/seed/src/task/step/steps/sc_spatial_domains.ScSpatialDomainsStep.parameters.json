@@ -1,0 +1,39 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "k": {
+      "type": "integer",
+      "default": 6,
+      "minimum": 1,
+      "maximum": 50
+    },
+    "n_domains": {
+      "type": "integer",
+      "default": 3,
+      "minimum": 1,
+      "maximum": 20
+    },
+    "iterations": {
+      "type": "integer",
+      "default": 50,
+      "minimum": 1,
+      "maximum": 1000
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}

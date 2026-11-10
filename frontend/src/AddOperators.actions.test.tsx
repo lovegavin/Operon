@@ -63,7 +63,7 @@ it('reports a rejected workflow without clearing its selection or claiming succe
 });
 
 it('imports one route collection archive through a single request',async()=>{
-  vi.mocked(api.importRouteArchive).mockResolvedValue([]);
+  vi.mocked(api.importRouteArchive).mockResolvedValue({routes: [], failed: []});
   const file=new File([new Uint8Array([80,75,3,4])],'routes.zip');
   triggerFiles([file]);
   await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));

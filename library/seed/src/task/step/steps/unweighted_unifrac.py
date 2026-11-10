@@ -22,9 +22,10 @@ class UnweightedUnifracStep(Step):
     provider = 'operon-microbiome'
     parameters_file = 'unweighted_unifrac.UnweightedUnifracStep.parameters.json'
     definition = {
-     'dependencies': ['scipy>=1.11', 'statsmodels>=0.14'],
-     'dependency_imports': ['scipy', 'statsmodels'],
-
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         'protocol_version': 3,
         'id': 'unweighted_unifrac',
         'version': '1.0.0',

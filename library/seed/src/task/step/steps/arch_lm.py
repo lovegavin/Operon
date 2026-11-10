@@ -17,7 +17,11 @@ class ArchLmStep(Step):
     The input is treated as residuals; the operator does not fit a mean model.
     """
     parameters_file = 'arch_lm.ArchLmStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'arch_lm',
      'version': '1.0.0',
      'kind': 'operator',

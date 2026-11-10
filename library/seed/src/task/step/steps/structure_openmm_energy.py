@@ -125,6 +125,9 @@ class StructureOpenmmEnergyStep(Step):
     parameters_file = "structure_openmm_energy.StructureOpenmmEnergyStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_openmm_energy",
         "version": "1.0.0",
@@ -149,8 +152,8 @@ class StructureOpenmmEnergyStep(Step):
             "outputs": [],
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ['scipy>=1.11'],
-        "dependency_imports": ['openmm', 'pdbfixer', 'scipy'],
+        "dependencies": [],
+        "dependency_imports": ["openmm", "pdbfixer"],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",

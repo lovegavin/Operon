@@ -11,6 +11,7 @@ from src.core.forms import Form
 from src.task.step.base import Step
 from src.task.step.steps._protein_common import decode_column
 from src.task.step.steps.vina_dock_python import ad4_type
+from src.task.step.steps._native_results import output_directory, remember_native, result_file
 
 BACKBONE = {"N", "CA", "C", "O", "OXT"}
 
@@ -208,6 +209,9 @@ class StructurePdbqtFlexibleReceptorStep(Step):
     provider = "operon-core"
     parameters_file = "structure_pdbqt_flexible_receptor.StructurePdbqtFlexibleReceptorStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_pdbqt_flexible_receptor",
         "version": "1.0.0",
@@ -235,8 +239,8 @@ class StructurePdbqtFlexibleReceptorStep(Step):
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ['scipy>=1.11'],
-        "dependency_imports": ['scipy'],
+        "dependencies": [],
+        "dependency_imports": [],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
@@ -252,6 +256,11 @@ class StructurePdbqtFlexibleReceptorStep(Step):
         if not selected:
             raise StepError("structure_pdbqt_flexible_receptor: no residue carries a flexible side chain")
         result = build_pair(form, field_dim, selected)
+        directory = output_directory(ctx, "pdbqt_receptor")
+        native_rigid = directory / "receptor.pdbqt"
+        native_flex = directory / "flex.pdbqt"
+        native_rigid.write_text(result["rigid"])
+        native_flex.write_text(result["flex"])
         rigid_path = str(params.get("output_path", "")).strip()
         flex_path = str(params.get("flex_output_path", "")).strip()
         if rigid_path:
@@ -281,10 +290,15 @@ class StructurePdbqtFlexibleReceptorStep(Step):
                 "flex_atoms": result["n_flex_atoms"],
                 "n_torsions": result["n_torsions"],
                 "output_path": rigid_path,
+                "native_rigid_path": str(native_rigid),
+                "native_flex_path": str(native_flex),
                 "flex_output_path": flex_path,
             },
         )
+        result_files = [result_file("receptor", native_rigid, "pdbqt", "Rigid receptor"), result_file("flex", native_flex, "pdbqt", "Flexible receptor")]
+        remember_native(ctx, out_name, result_files)
         self._export_data = {
+            "result_files": result_files,
             "rigid": result["rigid"],
             "flex": result["flex"],
             "residues": result["residues"],

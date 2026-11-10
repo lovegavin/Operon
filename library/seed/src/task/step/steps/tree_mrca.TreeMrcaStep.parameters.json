@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name"
+    },
+    "newick": {
+      "type": "string",
+      "default": "(A:1,B:1);",
+      "title": "Newick tree"
+    },
+    "taxon_a": {
+      "type": "string",
+      "default": "",
+      "title": "taxon a"
+    },
+    "taxon_b": {
+      "type": "string",
+      "default": "",
+      "title": "taxon b"
+    }
+  }
+}

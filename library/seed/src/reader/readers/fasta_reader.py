@@ -81,7 +81,11 @@ class FastaReader(Reader):
     """Reader for .fasta / .fa / .fna / .faa files."""
     provider = 'operon-readers'
     parameters_file = 'fasta_reader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'FastaReader',
      'version': '1.0.0',
      'kind': 'reader',
@@ -95,7 +99,8 @@ class FastaReader(Reader):
                                        'alphabet': {'type': 'string'},
                                        'representation': {'type': 'string', 'const': 'sequence_codes'},
                                        'alphabet_map': {'type': 'object'},
-                                       'unknown_code': {'type': 'integer'}},
+                                       'unknown_code': {'type': 'integer'},
+                                       'sequences': {'type': 'array', 'optional': True}},
                               'dims': [],
                               'labels': [],
                               'parallel': [],
@@ -178,6 +183,7 @@ class FastaReader(Reader):
 
         info: dict = {
             "missing_code": np.nan,
+            "sequences": list(seqs),
             "alphabet": alphabet,
             "representation": "sequence_codes",
             "alphabet_map": dict(codes),

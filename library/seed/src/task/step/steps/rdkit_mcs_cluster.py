@@ -85,6 +85,9 @@ class RdkitMcsClusterStep(Step):
     parameters_file = "rdkit_mcs_cluster.RdkitMcsClusterStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "rdkit_mcs_cluster",
         "version": "1.0.0",

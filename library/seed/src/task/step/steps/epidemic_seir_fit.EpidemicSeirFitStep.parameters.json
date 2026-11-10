@@ -1,0 +1,56 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "time_dim": {
+      "type": "string",
+      "default": "time",
+      "title": "Time dimension",
+      "description": "Axis holding observation times.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 10
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field dimension",
+      "description": "Axis holding table columns.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 20
+    },
+    "cases_field": {
+      "type": "string",
+      "default": "cases",
+      "title": "Cases field",
+      "description": "Field label of the incidence column.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 30
+    },
+    "population_size": {
+      "type": "number",
+      "default": 1000000,
+      "title": "Population size",
+      "description": "Closed population used by the model.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 40,
+      "minimum": 1
+    },
+    "sigma": {
+      "type": "number",
+      "default": 0.2,
+      "title": "Incubation rate",
+      "description": "Rate E to I (per day); the mean incubation is 1/sigma.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 50,
+      "minimum": 0.01
+    },
+    "output": {
+      "type": "string",
+      "default": "epidemic_seir_fit_result",
+      "title": "Output name",
+      "description": "Context name of the output form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 90
+    }
+  }
+}

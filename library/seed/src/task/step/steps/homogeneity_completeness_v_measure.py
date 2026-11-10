@@ -14,7 +14,12 @@ class HomogeneityCompletenessVMeasureStep(Step):
     provider = 'operon-core'
     """Three entropy-based agreement scores for two partitions."""
     parameters_file = 'homogeneity_completeness_v_measure.HomogeneityCompletenessVMeasureStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'homogeneity_completeness_v_measure',
      'version': '1.0.0',
      'kind': 'operator',

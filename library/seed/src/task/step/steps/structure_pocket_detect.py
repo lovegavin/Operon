@@ -120,6 +120,9 @@ class StructurePocketDetectStep(Step):
     provider = "operon-core"
     parameters_file = "structure_pocket_detect.StructurePocketDetectStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_pocket_detect",
         "version": "1.0.0",
@@ -147,8 +150,8 @@ class StructurePocketDetectStep(Step):
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ['scipy>=1.11'],
-        "dependency_imports": ['scipy'],
+        "dependencies": [],
+        "dependency_imports": [],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
@@ -165,6 +168,11 @@ class StructurePocketDetectStep(Step):
         numbers = decode_column(form, field_dim, "residue_number")
         names = decode_column(form, field_dim, "atom_name")
         elements = decode_column(form, field_dim, "element")
+        missing = [name for name, value in (("resname", resnames), ("chain", chains),
+                                            ("residue_number", numbers), ("atom_name", names),
+                                            ("element", elements)) if value is None]
+        if missing:
+            raise StepError("structure_pocket_detect: missing structure columns: " + ", ".join(missing))
         heavy = np.asarray([str(value).strip().upper() != "H" for value in elements])
         if not heavy.any():
             raise StepError("structure_pocket_detect: the structure form carries no heavy atoms")

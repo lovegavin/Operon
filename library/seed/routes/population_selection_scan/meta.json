@@ -1,0 +1,7 @@
+{
+  "key": "population_selection_scan",
+  "title": "Population selection scan",
+  "summary": "Effective population size, LD haplotype blocks and iHS selection statistics on a small genotype panel.",
+  "organism": "synthetic",
+  "steps": 10
+}

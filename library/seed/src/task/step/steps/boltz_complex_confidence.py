@@ -18,6 +18,7 @@ from src.reader import read_source
 from src.task.step.base import Step
 from src.task.step.steps._protein_common import column_index, residue_labels
 from src.task.step.steps._sequence_common import decode_sequences
+from src.task.step.steps._native_results import output_directory, remember_native, result_file
 
 _YAML = """version: 1
 sequences:
@@ -180,6 +181,9 @@ class BoltzComplexConfidenceStep(Step):
     parameters_file = "boltz_complex_confidence.BoltzComplexConfidenceStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "boltz_complex_confidence",
         "version": "1.0.0",
@@ -206,8 +210,8 @@ class BoltzComplexConfidenceStep(Step):
             },
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory", "environment": "boltz"},
-        "dependencies": ['scipy>=1.11'],
-        "dependency_imports": ['boltz', 'scipy'],
+        "dependencies": [],
+        "dependency_imports": ["boltz"],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
@@ -241,6 +245,10 @@ class BoltzComplexConfidenceStep(Step):
             timeout=int(params.get("timeout_seconds", 3600)),
         )
         pdb_path, json_path = find_outputs(out_dir)
+        directory = output_directory(ctx, "boltz_complex")
+        native_pdb = directory / "prediction.pdb"
+        shutil.copyfile(pdb_path, native_pdb)
+        pdb_path = native_pdb
         confidence = parse_confidence(json_path) if json_path is not None else {"confidence_score": 0.0, "ptm": 0.0, "iptm": 0.0, "complex_plddt": 0.0, "complex_iplddt": 0.0, "complex_pde": 0.0, "chain_pair_iptm": 0.0}
         cutoff = float(params.get("interface_cutoff", 8.0))
         order, mean_plddt, interface, summary = summarise(pdb_path, confidence, cutoff=cutoff)
@@ -263,8 +271,11 @@ class BoltzComplexConfidenceStep(Step):
             labels={**labels, "statistic": {"plddt": 0, "is_interface": 1}},
             info=info,
         )
+        result_files = [result_file("structure", pdb_path, "pdb", "Boltz complex prediction")]
+        remember_native(ctx, str(out), result_files)
         self._export_data = {
             "output": out,
+            "result_files": result_files,
             "iptm": float(summary.get("chain_pair_iptm", 0.0)),
             "n_interface": int(summary.get("n_interface", 0)),
             "mean_interface_plddt": float(summary.get("mean_interface_plddt", 0.0)),

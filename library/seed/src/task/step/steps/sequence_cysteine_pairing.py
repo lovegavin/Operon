@@ -45,6 +45,9 @@ class SequenceCysteinePairingStep(Step):
     parameters_file = "sequence_cysteine_pairing.SequenceCysteinePairingStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "sequence_cysteine_pairing",
         "version": "1.0.0",

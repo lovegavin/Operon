@@ -30,6 +30,16 @@
     "status": "generated"
   },
   {
+    "id": "BamFileReader",
+    "kind": "reader",
+    "title": "BamFileReader",
+    "category": "Data",
+    "version": "1.0.0",
+    "description": "Reference a BAM file without loading or decoding its records.",
+    "doc": "src/reader/readers/bam_file_reader.BamFileReader.md",
+    "status": "generated"
+  },
+  {
     "id": "BamReader",
     "kind": "reader",
     "title": "Binary Alignment/Map reader",
@@ -150,6 +160,16 @@
     "status": "generated"
   },
   {
+    "id": "ChainFileReader",
+    "kind": "reader",
+    "title": "ChainFileReader",
+    "category": "Data",
+    "version": "1.0.0",
+    "description": "Reference a UCSC chain file without parsing it in the reader layer.",
+    "doc": "src/reader/readers/chain_file_reader.ChainFileReader.md",
+    "status": "generated"
+  },
+  {
     "id": "ChainReader",
     "kind": "reader",
     "title": "UCSC chain alignment reader",
@@ -260,6 +280,16 @@
     "status": "generated"
   },
   {
+    "id": "FastaFileReader",
+    "kind": "reader",
+    "title": "FastaFileReader",
+    "category": "Data",
+    "version": "1.0.0",
+    "description": "Reference a FASTA file without loading or decoding its sequences.",
+    "doc": "src/reader/readers/fasta_file_reader.FastaFileReader.md",
+    "status": "generated"
+  },
+  {
     "id": "FastaReader",
     "kind": "reader",
     "title": "FastaReader",
@@ -347,6 +377,16 @@
     "version": "1.0.0",
     "description": "",
     "doc": "src/reader/readers/gff3_reader.Gff3Reader.md",
+    "status": "generated"
+  },
+  {
+    "id": "GffFileReader",
+    "kind": "reader",
+    "title": "GffFileReader",
+    "category": "Data",
+    "version": "1.0.0",
+    "description": "Reference a GFF3 annotation file without parsing it into a table.",
+    "doc": "src/reader/readers/gff_file_reader.GffFileReader.md",
     "status": "generated"
   },
   {
@@ -890,6 +930,16 @@
     "status": "generated"
   },
   {
+    "id": "SbmlFileReader",
+    "kind": "reader",
+    "title": "SbmlFileReader",
+    "category": "Data",
+    "version": "1.0.0",
+    "description": "Reference an SBML metabolic model without parsing it.",
+    "doc": "src/reader/readers/sbml_file_reader.SbmlFileReader.md",
+    "status": "generated"
+  },
+  {
     "id": "SdfReader",
     "kind": "reader",
     "title": "Reader for SDF records; output is molecule x [atoms, bonds, molecular_weight]",
@@ -950,6 +1000,16 @@
     "status": "generated"
   },
   {
+    "id": "TsvFileReader",
+    "kind": "reader",
+    "title": "TsvFileReader",
+    "category": "Data",
+    "version": "1.0.0",
+    "description": "Reference a TSV/whitespace table without loading or decoding it.",
+    "doc": "src/reader/readers/tsv_file_reader.TsvFileReader.md",
+    "status": "generated"
+  },
+  {
     "id": "TsvReader",
     "kind": "reader",
     "title": "TsvReader",
@@ -967,6 +1027,16 @@
     "version": "1.0.0",
     "description": "",
     "doc": "src/reader/readers/txt_reader.TxtReader.md",
+    "status": "generated"
+  },
+  {
+    "id": "VcfFileReader",
+    "kind": "reader",
+    "title": "VcfFileReader",
+    "category": "Data",
+    "version": "1.0.0",
+    "description": "Reference a VCF file without loading or decoding its records.",
+    "doc": "src/reader/readers/vcf_file_reader.VcfFileReader.md",
     "status": "generated"
   },
   {

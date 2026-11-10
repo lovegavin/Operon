@@ -2,14 +2,16 @@
 
 from __future__ import annotations
 
-import tempfile
-from pathlib import Path
-
 import numpy as np
 
+try:
+    from operon.bytecode import io_path
+except ImportError:  # legacy application (<=3.1.0)
+    from operon.bytecode import io_path
 from src.core.errors import StepError
 from src.reader import read_source
 from src.task.step.base import Step
+from src.task.step.steps._native_results import output_directory, remember_native, result_file
 from src.task.step.steps._protein_common import column_index, has_column
 from src.task.step.steps._resources_common import remedy, check_resource, load_resources
 from src.task.step.steps._sequence_common import decode_sequences
@@ -68,6 +70,9 @@ class EsmfoldPredictStep(Step):
     parameters_file = "esmfold_predict.EsmfoldPredictStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "esmfold_predict",
         "version": "1.0.0",
@@ -103,8 +108,8 @@ class EsmfoldPredictStep(Step):
             },
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ['numpy>=1.24', 'scipy>=1.11'],
-        "dependency_imports": ['numpy', 'scipy'],
+        "dependencies": ["numpy>=1.24"],
+        "dependency_imports": ["numpy"],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
@@ -145,29 +150,26 @@ class EsmfoldPredictStep(Step):
         if not pdb_text or "ATOM" not in pdb_text:
             raise StepError("esmfold_predict: the model produced no atom records")
 
-        workdir = Path(tempfile.mkdtemp(prefix="operon_esmfold_"))
-        try:
-            path = workdir / "prediction.pdb"
-            path.write_text(pdb_text, encoding="utf-8")
-            form = read_source(path, ["atom", "field"], {"atom": "auto", "field": "builtin"})
-            mean_plddt = float("nan")
-            if has_column(form, "field", "bfactor"):
-                values = np.asarray(form.data[:, column_index(form, "field", "bfactor")], dtype=np.float64)
-                finite = np.isfinite(values)
-                if finite.any():
-                    mean_plddt = float(values[finite].mean())
-            form.info.update(
-                {
-                    "mean_plddt": mean_plddt,
-                    "sequence": sequence,
-                    "num_recycles": num_recycles,
-                    "model": "esmfold_3B_v1",
-                }
-            )
-        finally:
-            import shutil
-
-            shutil.rmtree(workdir, ignore_errors=True)
+        path = output_directory(ctx, "esmfold") / "prediction.pdb"
+        io_path(path).write_text(pdb_text, encoding="utf-8")
+        form = read_source(path, ["atom", "field"], {"atom": "auto", "field": "builtin"})
+        mean_plddt = float("nan")
+        if has_column(form, "field", "bfactor"):
+            values = np.asarray(form.data[:, column_index(form, "field", "bfactor")], dtype=np.float64)
+            finite = np.isfinite(values)
+            if finite.any():
+                mean_plddt = float(values[finite].mean())
+        form.info.update(
+            {
+                "mean_plddt": mean_plddt,
+                "sequence": sequence,
+                "num_recycles": num_recycles,
+                "model": "esmfold_3B_v1",
+            }
+        )
+        result_files = [result_file("structure", path, "pdb", "ESMFold prediction")]
+        remember_native(ctx, out_name, result_files)
+        self._result_files = result_files
 
         ctx[out_name] = form
         self._export_data = {
@@ -178,4 +180,6 @@ class EsmfoldPredictStep(Step):
         print(f"[esmfold_predict] {len(sequence)} residues, mean pLDDT {mean_plddt:.2f}")
 
     def export(self, ctx) -> dict:
-        return getattr(self, "_export_data", {})
+        data = dict(getattr(self, "_export_data", {}))
+        data["result_files"] = getattr(self, "_result_files", [])
+        return data

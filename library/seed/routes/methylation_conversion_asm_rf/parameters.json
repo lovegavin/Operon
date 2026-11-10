@@ -1,0 +1,80 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "bisulfite": {},
+    "asm": {},
+    "tree_a": {},
+    "tree_b": {}
+  },
+  "steps": [
+    {
+      "name": "bisulfite_conversion_rate",
+      "inputs": [
+        "bisulfite"
+      ],
+      "params": {
+        "output": "conversion",
+        "row_dim": "row",
+        "field_dim": "field"
+      }
+    },
+    {
+      "name": "allele_specific_methylation",
+      "inputs": [
+        "asm"
+      ],
+      "params": {
+        "output": "asm_out",
+        "row_dim": "row",
+        "field_dim": "field"
+      }
+    },
+    {
+      "name": "tree_robinson_foulds",
+      "inputs": [
+        "tree_a",
+        "tree_b"
+      ],
+      "params": {
+        "output": "rf",
+        "row_dim": "row",
+        "field_dim": "field"
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "conversion"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "conversion"
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "asm_out"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "asm"
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "rf"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "rf"
+      }
+    }
+  ]
+}

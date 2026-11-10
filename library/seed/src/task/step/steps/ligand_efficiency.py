@@ -85,6 +85,9 @@ class LigandEfficiencyStep(Step):
     provider = 'operon-core'
     parameters_file = 'ligand_efficiency.LigandEfficiencyStep.parameters.json'
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         'protocol_version': 3,
         'id': 'ligand_efficiency',
         'version': '1.0.0',

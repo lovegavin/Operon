@@ -14,9 +14,9 @@ from src.core.forms import Form
 from src.task.step.base import Step
 from src.task.step.steps._sequence_common import decode_sequences
 
-_ENERGY = re.compile(r"\(\s*(?P<energy>-?\d+(?:\.\d+)?)\s*\)")
+_ENERGY = re.compile(r"[\(\[]\s*(?P<energy>-?\d+(?:\.\d+)?)\s*[\)\]]")
 _FREQ = re.compile(r"frequency of mfe structure in ensemble\s+(?P<freq>\d+(?:\.\d+)?);\s*delta G binding=\s*(?P<binding>-?\d+(?:\.\d+)?)")
-_STRUCTURE = re.compile(r"^[.(){}[\]]+&[.(){}[\]]+$")
+_STRUCTURE = re.compile(r"^[.(){}()\[\],]+&[.(){}()\[\],]+$")
 
 
 def parse_cofold(text: str) -> dict:
@@ -92,6 +92,9 @@ class SequenceRnaCofoldStep(Step):
     provider = "operon-core"
     parameters_file = "sequence_rna_cofold.SequenceRnaCofoldStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "sequence_rna_cofold",
         "version": "1.0.0",

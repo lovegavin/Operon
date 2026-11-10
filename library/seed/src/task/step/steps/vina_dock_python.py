@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -11,6 +12,7 @@ from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
 from src.task.step.steps._protein_common import decode_column
+from src.task.step.steps._native_results import output_directory, remember_native, result_file
 
 _AD4 = {
     "C": "A",
@@ -146,6 +148,9 @@ class VinaDockPythonStep(Step):
     provider = "operon-core"
     parameters_file = "vina_dock_python.VinaDockPythonStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "vina_dock_python",
         "version": "1.0.0",
@@ -172,8 +177,8 @@ class VinaDockPythonStep(Step):
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ['scipy>=1.11', 'vina>=1.2'],
-        "dependency_imports": ['scipy', 'vina'],
+        "dependencies": ["vina>=1.2"],
+        "dependency_imports": ["vina"],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
@@ -210,13 +215,16 @@ class VinaDockPythonStep(Step):
             size=size,
             exhaustiveness=int(params.get("exhaustiveness", 8)),
             num_modes=int(params.get("num_modes", 9)),
-            seed=int(params.get("seed", 0)),
+            seed=int(params.get("seed", 42)),
             cpu=int(params.get("cpu", 1)),
             scoring=str(params.get("scoring", "vina")),
             flex_path=flex_path,
             workdir=Path(tempfile.mkdtemp(prefix="vina_")),
         )
         energies = result["energies"]
+        directory = output_directory(ctx, "vina")
+        native_pose = directory / "poses.pdbqt"
+        shutil.copyfile(result["pose_file"], native_pose)
         pose_dim = str(params.get("pose_dim", "pose"))
         out_name = str(params.get("output", "docking"))
         columns = _STATISTICS[: energies.shape[1]]
@@ -235,18 +243,21 @@ class VinaDockPythonStep(Step):
                 "size": [float(value) for value in result["size"]],
                 "ligand_path": str(ligand_path),
                 "flex_path": str(flex_path) if flex_path is not None else "",
-                "pose_file": result["pose_file"],
+                "pose_file": str(native_pose),
                 "receptor_file": result["receptor_file"],
                 "scoring": str(params.get("scoring", "vina")),
             },
         )
+        result_files = [result_file("poses", native_pose, "pdbqt", "Vina docking poses")]
+        remember_native(ctx, out_name, result_files)
         self._export_data = {
             "poses": [
                 {"pose": f"pose{index + 1}", "total": float(row[0]), "terms": [float(value) for value in row]}
                 for index, row in enumerate(energies)
             ],
             "best_affinity": float(energies[0, 0]),
-            "pose_file": result["pose_file"],
+            "pose_file": str(native_pose),
+            "result_files": result_files,
         }
 
     def export(self, ctx):

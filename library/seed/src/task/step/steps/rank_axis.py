@@ -69,7 +69,11 @@ class RankAxisStep(Step):
     """Rank positions along one axis by a statistic."""
     provider = 'operon-core'
     parameters_file = 'rank_axis.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'rank_axis',
      'version': '1.0.0',
      'kind': 'operator',

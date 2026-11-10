@@ -62,7 +62,11 @@ def _isoelectric(seq: str) -> float:
 class ProteinPropertiesStep(Step):
     provider = 'operon-core'
     parameters_file = 'protein_properties.ProteinPropertiesStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'protein_properties',
      'version': '1.0.0',
      'kind': 'operator',
@@ -101,7 +105,7 @@ class ProteinPropertiesStep(Step):
         for seq in seqs:
             clean = "".join(aa for aa in seq if aa in _MW)
             n = len(clean)
-            mw = sum(_MW[aa] for aa in clean) + (18.01524 if n else 0.0)
+            mw = sum(_MW[aa] for aa in clean) - (18.01524 * (n - 1) if n else 0.0)
             gravy = (sum(_GRAVY[aa] for aa in clean) / n) if n else float("nan")
             aromatic = (sum(1 for aa in clean if aa in "FWY") / n) if n else float("nan")
             rows.append([float(n), float(mw), float(_isoelectric(clean) if clean else 7.0), float(gravy), float(aromatic)])

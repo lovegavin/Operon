@@ -20,7 +20,11 @@ class MissingStep(Step):
     """
     provider = 'operon-genetics'
     parameters_file = 'missing.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'missing',
      'version': '1.0.0',
      'kind': 'operator',
@@ -35,7 +39,11 @@ class MissingStep(Step):
                                'dims': [{'param': 'dim', 'default': None}],
                                'labels': [],
                                'parallel': []}],
-                   'output': {'mode': 'subset'}},
+                   'output': {'mode': 'subset',
+                              'info': {'missing_code': {'type': ['number', 'null']},
+                                       'ploidy': {'type': 'integer', 'optional': True},
+                                       'representation': {'type': 'string',
+                                                          'optional': True}}}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
      'inputs_arity': 1,
      'outputs': [],

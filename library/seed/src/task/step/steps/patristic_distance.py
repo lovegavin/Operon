@@ -16,9 +16,9 @@ class PatristicDistanceStep(Step):
     provider = 'operon-core'
     parameters_file = 'patristic_distance.PatristicDistanceStep.parameters.json'
     definition = {
-     'dependencies': ['scipy>=1.11', 'statsmodels>=0.14'],
-     'dependency_imports': ['scipy', 'statsmodels'],
-
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         'protocol_version': 3,
         'id': 'patristic_distance',
         'version': '1.0.0',

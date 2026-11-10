@@ -69,6 +69,7 @@ def liability_rows(
         rows.append(
             {
                 "position": int(position),
+                "residue": text[position - 1],
                 "kind": kind,
                 "severity": severity,
                 "severity_code": _SEVERITY_CODES[severity],
@@ -88,6 +89,9 @@ class SequenceLiabilityScanStep(Step):
     )
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "sequence_liability_scan",
         "version": "1.0.0",

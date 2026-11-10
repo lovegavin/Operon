@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "image_gaussian_blur_out"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "sigma": {
+      "type": "number",
+      "default": 1.5
+    },
+    "truncate": {
+      "type": "number",
+      "default": 4.0
+    }
+  }
+}

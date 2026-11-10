@@ -16,9 +16,10 @@ class MgfReader(Reader):
     """MGF reader returning one row per spectrum (peak lists are summarized)."""
     parameters_file = 'mgf_reader.MgfReader.parameters.json'
     definition = {
-     'dependencies': ['pandas>=2.0'],
-     'dependency_imports': ['pandas'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'MgfReader',
      'version': '1.0.0',
      'kind': 'reader',

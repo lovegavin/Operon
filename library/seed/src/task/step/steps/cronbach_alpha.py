@@ -15,7 +15,11 @@ class CronbachAlphaStep(Step):
     provider = 'operon-core'
     """Cronbach's alpha for a set of continuous items."""
     parameters_file = 'cronbach_alpha.CronbachAlphaStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'cronbach_alpha',
      'version': '1.0.0',
      'kind': 'operator',

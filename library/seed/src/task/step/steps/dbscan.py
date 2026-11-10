@@ -11,7 +11,11 @@ class DbscanStep(Step):
     provider = 'operon-core'
     """Density-based spatial clustering (DBSCAN)."""
     parameters_file = 'dbscan.DbscanStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'dbscan',
      'version': '1.0.0',
      'kind': 'operator',

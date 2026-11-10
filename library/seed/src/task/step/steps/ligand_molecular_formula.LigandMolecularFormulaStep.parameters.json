@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "molecule_dim": {
+      "type": "string",
+      "default": "molecule",
+      "title": "Molecule dimension",
+      "description": "Name of the molecule axis in the input form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 10
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field dimension",
+      "description": "Name of the field axis holding encoded SMILES in the input form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 20
+    },
+    "output": {
+      "type": "string",
+      "default": "formula",
+      "title": "Output name",
+      "description": "Context name of the output form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 30
+    }
+  }
+}

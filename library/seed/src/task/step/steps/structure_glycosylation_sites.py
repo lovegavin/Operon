@@ -71,6 +71,9 @@ class StructureGlycosylationSitesStep(Step):
         "structure_glycosylation_sites.StructureGlycosylationSitesStep.parameters.json"
     )
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_glycosylation_sites",
         "version": "1.0.0",

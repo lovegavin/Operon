@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "hidden": {
+      "type": "integer",
+      "default": 8,
+      "minimum": 2,
+      "maximum": 512
+    },
+    "latent": {
+      "type": "integer",
+      "default": 2,
+      "minimum": 1,
+      "maximum": 64
+    },
+    "epochs": {
+      "type": "integer",
+      "default": 300,
+      "minimum": 1,
+      "maximum": 5000
+    },
+    "learning_rate": {
+      "type": "number",
+      "default": 0.01,
+      "minimum": 0.0001,
+      "maximum": 1.0
+    },
+    "seed": {
+      "type": "integer",
+      "default": 7,
+      "minimum": 0,
+      "maximum": 1000000
+    },
+    "output": {
+      "type": "string",
+      "default": "vae_anomaly"
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}

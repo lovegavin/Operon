@@ -1,0 +1,60 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "out"
+    },
+    "ppm_tolerance": {
+      "type": "number",
+      "default": 10.0,
+      "minimum": 0.1,
+      "maximum": 100.0
+    },
+    "polarity": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "negative"
+      ],
+      "default": "positive"
+    },
+    "feature_dim": {
+      "type": "string",
+      "default": "feature"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "entry_dim": {
+      "type": "string",
+      "default": "entry"
+    },
+    "db_field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "neutral_mass": {
+      "type": "string",
+      "default": "neutral_mass"
+    },
+    "best_entry_index": {
+      "type": "string",
+      "default": "best_entry_index"
+    },
+    "ppm_error": {
+      "type": "string",
+      "default": "ppm_error"
+    },
+    "adduct_code": {
+      "type": "string",
+      "default": "adduct_code"
+    },
+    "matched": {
+      "type": "string",
+      "default": "matched"
+    }
+  }
+}

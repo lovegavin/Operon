@@ -1,0 +1,51 @@
+{
+ "format": "operon.task",
+ "version": 1,
+ "name": "vhh_cdr_quantification",
+ "sources": {
+  "pdb": {
+   "reader": "PdbReader",
+   "path": "input/vhh_1mel.pdb",
+   "dims": [
+    "atom",
+    "field"
+   ],
+   "labels": {}
+  }
+ },
+ "parameters_file": "parameters.json",
+ "steps": [
+  {
+   "name": "structure_interface_core",
+   "inputs": [
+    "pdb"
+   ]
+  },
+  {
+   "name": "structure_paratope_predict",
+   "inputs": [
+    "pdb"
+   ]
+  },
+  {
+   "name": "join",
+   "inputs": [
+    "interface_all",
+    "paratope"
+   ]
+  },
+  {
+   "name": "aggregate",
+   "inputs": [
+    "joined",
+    "paratope"
+   ]
+  },
+  {
+   "name": "export_results",
+   "inputs": [
+    "bsa_by_cdr"
+   ]
+  }
+ ]
+}

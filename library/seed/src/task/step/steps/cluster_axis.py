@@ -50,7 +50,11 @@ class ClusterAxisStep(Step):
     """Cluster positions along one axis."""
     provider = 'operon-core'
     parameters_file = 'cluster_axis.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'cluster_axis',
      'version': '1.0.0',
      'kind': 'operator',
@@ -72,8 +76,8 @@ class ClusterAxisStep(Step):
                               'keep_dims': [{'param': 'dim', 'default': None}],
                               'append_dims': [{'name': 'cluster', 'labels': ['cluster']}]}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
-     'dependencies': ['networkx>=3.2', 'scikit-learn>=1.5', 'scipy>=1.11'],
-     'dependency_imports': ['networkx', 'scipy', 'sklearn'],
+     'dependencies': ['networkx>=3.2', 'scikit-learn>=1.5'],
+     'dependency_imports': ['networkx', 'sklearn'],
      'inputs_arity': 1,
      'outputs': [],
      'output_parameter': 'output'}

@@ -141,6 +141,9 @@ class ProteinmpnnOmitDesignStep(Step):
     provider = "operon-core"
     parameters_file = "proteinmpnn_omit_design.ProteinmpnnOmitDesignStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "proteinmpnn_omit_design",
         "version": "1.0.0",

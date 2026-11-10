@@ -14,7 +14,11 @@ class ZeroInflatedNegativeBinomialStep(Step):
     provider = 'operon-core'
     """Zero-inflated NB2 regression with logit inflation and log count links."""
     parameters_file = 'zero_inflated_negative_binomial.ZeroInflatedNegativeBinomialStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'zero_inflated_negative_binomial',
      'version': '1.0.0',
      'kind': 'operator',

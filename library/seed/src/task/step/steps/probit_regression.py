@@ -17,7 +17,11 @@ class ProbitRegressionStep(Step):
     provider = 'operon-core'
     """Fit a binomial probit regression by maximum likelihood."""
     parameters_file = 'probit_regression.ProbitRegressionStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'probit_regression',
      'version': '1.0.0',
      'kind': 'operator',
@@ -38,8 +42,8 @@ class ProbitRegressionStep(Step):
                                          'info_open': True,
                                          'axis_info_open': True}}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
-     'dependencies': ['pandas>=2.0', 'statsmodels>=0.14'],
-     'dependency_imports': ['pandas', 'statsmodels'],
+     'dependencies': ['statsmodels>=0.14'],
+     'dependency_imports': ['statsmodels'],
      'inputs_arity': 1,
      'outputs': [],
      'output_parameter': 'output',

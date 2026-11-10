@@ -14,7 +14,12 @@ class FowlkesMallowsStep(Step):
     provider = 'operon-core'
     """Geometric mean of pairwise precision and recall between two partitions."""
     parameters_file = 'fowlkes_mallows.FowlkesMallowsStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'fowlkes_mallows',
      'version': '1.0.0',
      'kind': 'operator',

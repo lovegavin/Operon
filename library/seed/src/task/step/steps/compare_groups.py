@@ -81,7 +81,12 @@ class CompareGroupsStep(Step):
     """Compare groups along one dimension."""
     provider = 'operon-expression'
     parameters_file = 'compare_groups.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'compare_groups',
      'version': '1.0.0',
      'kind': 'operator',
@@ -108,8 +113,8 @@ class CompareGroupsStep(Step):
                                'labels_any': [{'param': 'group_label', 'default': None}]}],
                    'output': {'mode': 'compare_groups'}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
-     'dependencies': ['pandas>=2.0', 'pydeseq2==0.5.4', 'scipy>=1.11'],
-     'dependency_imports': ['pandas', 'pydeseq2', 'scipy'],
+     'dependencies': ['pydeseq2==0.5.4'],
+     'dependency_imports': ['pydeseq2'],
      'inputs_arity': 2,
      'outputs': [],
      'output_parameter': 'output'}

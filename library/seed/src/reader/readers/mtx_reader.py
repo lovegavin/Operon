@@ -60,9 +60,10 @@ class MtxReader(Reader):
     provider = 'operon-readers'
     parameters_file = 'mtx_reader.parameters.json'
     definition = {
-     'dependencies': ['pandas>=2.0', 'scipy>=1.11'],
-     'dependency_imports': ['pandas', 'scipy'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'MtxReader',
      'version': '1.0.0',
      'kind': 'reader',

@@ -64,6 +64,9 @@ class RdkitScaffoldTreeStep(Step):
     parameters_file = "rdkit_scaffold_tree.RdkitScaffoldTreeStep.parameters.json"
 
     definition: dict[str, Any] = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "rdkit_scaffold_tree",
         "version": "1.0.0",

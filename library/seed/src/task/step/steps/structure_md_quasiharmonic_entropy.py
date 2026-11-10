@@ -31,6 +31,9 @@ class StructureMdQuasiharmonicEntropyStep(Step):
     provider = "operon-core"
     parameters_file = "structure_md_quasiharmonic_entropy.StructureMdQuasiharmonicEntropyStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_md_quasiharmonic_entropy",
         "version": "1.0.0",

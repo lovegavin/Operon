@@ -20,7 +20,11 @@ _DEFAULT_ENZYMES = {
 class RestrictionSitesStep(Step):
     provider = 'operon-core'
     parameters_file = 'restriction_sites.RestrictionSitesStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'restriction_sites',
      'version': '1.0.0',
      'kind': 'operator',

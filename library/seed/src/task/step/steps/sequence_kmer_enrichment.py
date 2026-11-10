@@ -109,6 +109,10 @@ class SequenceKmerEnrichmentStep(Step):
     parameters_file = "sequence_kmer_enrichment.SequenceKmerEnrichmentStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "sequence_kmer_enrichment",
         "version": "1.0.0",

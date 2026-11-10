@@ -99,7 +99,11 @@ class StlReader(Reader):
     provider = 'operon-readers'
     """Parse a binary or ASCII STL mesh into an element x field table."""
     parameters_file = 'stl_reader.StlReader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'StlReader',
      'version': '1.0.0',
      'kind': 'reader',

@@ -21,7 +21,11 @@ class TpedReader(Reader):
 
     provider = 'operon-readers'
     parameters_file = 'tped_reader.TpedReader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'TpedReader',
      'version': '1.0.0',
      'kind': 'reader',

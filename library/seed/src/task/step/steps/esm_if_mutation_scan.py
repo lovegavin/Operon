@@ -102,6 +102,9 @@ class EsmIfMutationScanStep(Step):
     parameters_file = "esm_if_mutation_scan.EsmIfMutationScanStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "esm_if_mutation_scan",
         "version": "1.0.0",
@@ -171,8 +174,9 @@ class EsmIfMutationScanStep(Step):
             raise StepError("max_positions must be at least 1")
         return atom_dim, field_dim, chain, model_path, positions_text, max_positions
 
-    def estimate_memory(self, inputs, params, profiles) -> int:
-        return 8 * 1024**3
+    @classmethod
+    def estimate_memory(cls, inputs, params, profiles):
+        return (8 * 1024**3, 0)
 
     def run(self, ctx: Context, inputs) -> None:
         self.ctx = ctx

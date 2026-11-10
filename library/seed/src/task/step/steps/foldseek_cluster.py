@@ -119,6 +119,9 @@ class FoldseekClusterStep(Step):
     parameters_file = "foldseek_cluster.FoldseekClusterStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "foldseek_cluster",
         "version": "1.0.0",

@@ -10,7 +10,10 @@ import numpy as np
 from src.core import FileArtifact, Form, StepError
 from src.task.step.base import Step
 from src.task.step.steps._native_results import output_directory, result_file
-from operon.bytecode import io_path
+try:
+    from operon.bytecode import io_path
+except ImportError:  # legacy application (<=3.1.0)
+    from operon.bytecode import io_path
 
 
 def canonical_format(value):

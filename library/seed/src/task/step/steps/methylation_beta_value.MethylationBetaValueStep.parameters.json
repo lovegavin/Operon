@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "probe_dim": {
+      "type": "string",
+      "default": "probe"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "min_coverage": {
+      "type": "number",
+      "default": 10,
+      "minimum": 0
+    }
+  }
+}

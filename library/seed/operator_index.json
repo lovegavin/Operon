@@ -160,6 +160,46 @@
     "status": "generated"
   },
   {
+    "id": "alignment_coverage",
+    "kind": "operator",
+    "title": "alignment_coverage",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Summarise mapped depth across the reference (samtools coverage compatible).",
+    "doc": "src/task/step/steps/alignment_coverage.AlignmentCoverageStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "alignment_insert_size",
+    "kind": "operator",
+    "title": "alignment_insert_size",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Summarise paired-read insert sizes (samtools stats compatible).",
+    "doc": "src/task/step/steps/alignment_insert_size.AlignmentInsertSizeStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "allele_specific_methylation",
+    "kind": "operator",
+    "title": "Allele-specific methylation",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Test allele-specific methylation from methylated and unmethylated read counts per allele using Fisher's exact test with BH correction.",
+    "doc": "src/task/step/steps/allele_specific_methylation.AlleleSpecificMethylationStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "alternative_polyadenylation",
+    "kind": "operator",
+    "title": "Alternative polyadenylation",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "Proximal poly(A) site usage from proximal/distal read counts.",
+    "doc": "src/task/step/steps/alternative_polyadenylation.AlternativePolyadenylationStep.md",
+    "status": "authored"
+  },
+  {
     "id": "amrfinder_plus",
     "kind": "operator",
     "title": "AMRFinderPlus resistance genes",
@@ -200,6 +240,16 @@
     "status": "generated"
   },
   {
+    "id": "ani_from_kmers",
+    "kind": "operator",
+    "title": "ANI from shared k-mer counts",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "ANI from shared k-mer counts.",
+    "doc": "src/task/step/steps/ani_from_kmers.AniFromKmersStep.md",
+    "status": "authored"
+  },
+  {
     "id": "annotate",
     "kind": "operator",
     "title": "annotate",
@@ -210,6 +260,16 @@
     "status": "generated"
   },
   {
+    "id": "annotation_completeness",
+    "kind": "operator",
+    "title": "Annotation completeness",
+    "category": "Genome annotation",
+    "version": "1.0.0",
+    "description": "Marker completeness per genome from presence and copy counts.",
+    "doc": "src/task/step/steps/annotation_completeness.AnnotationCompletenessStep.md",
+    "status": "authored"
+  },
+  {
     "id": "annotation_gaps",
     "kind": "operator",
     "title": "annotation_gaps",
@@ -218,6 +278,26 @@
     "description": "Inter-gene gap lengths for GFF3/GTF annotation QC.",
     "doc": "src/task/step/steps/annotation_gaps.AnnotationGapsStep.md",
     "status": "generated"
+  },
+  {
+    "id": "annotation_gene_length",
+    "kind": "operator",
+    "title": "Gene length profile",
+    "category": "Genome annotation",
+    "version": "1.0.0",
+    "description": "Per-gene length, log length and short/long flags from a gene table.",
+    "doc": "src/task/step/steps/annotation_gene_length.AnnotationGeneLengthStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "annotation_overlap_check",
+    "kind": "operator",
+    "title": "Gene overlap check",
+    "category": "Genome annotation",
+    "version": "1.0.0",
+    "description": "Count pairwise overlaps between gene intervals in one table.",
+    "doc": "src/task/step/steps/annotation_overlap_check.AnnotationOverlapCheckStep.md",
+    "status": "authored"
   },
   {
     "id": "anosim",
@@ -440,6 +520,66 @@
     "status": "generated"
   },
   {
+    "id": "assembly_contig_stats",
+    "kind": "operator",
+    "title": "Assembly contig statistics",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Compute length, GC fraction, N fraction and gap-run counts for every contig of a FASTA assembly.",
+    "doc": "src/task/step/steps/assembly_contig_stats.AssemblyContigStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "assembly_contiguity",
+    "kind": "operator",
+    "title": "Assembly contiguity metrics",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Summarise N50/L50, N90/L90, auN, length distribution and weighted GC from an assembly contig table.",
+    "doc": "src/task/step/steps/assembly_contiguity.AssemblyContiguityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "assembly_gap_stats",
+    "kind": "operator",
+    "title": "Assembly gap statistics",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Count N gaps, gap bases and the largest gap for every contig of a FASTA assembly, plus genome-wide gap totals.",
+    "doc": "src/task/step/steps/assembly_gap_stats.AssemblyGapStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "assembly_length_bins",
+    "kind": "operator",
+    "title": "Contig length bins",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Bin assembly contigs by length and report counts and bases per bin.",
+    "doc": "src/task/step/steps/assembly_length_bins.AssemblyLengthBinsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "assembly_ngx_curve",
+    "kind": "operator",
+    "title": "Assembly Nx curve",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Compute the Nx curve (contig length threshold and cumulative coverage) for an assembly.",
+    "doc": "src/task/step/steps/assembly_ngx_curve.AssemblyNgxCurveStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "assembly_ngx_metrics",
+    "kind": "operator",
+    "title": "Assembly NGx and auN metrics",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Compute NGx/NAx thresholds, N50/L50 and area-under-the-Nx-curve metrics for a genome assembly.",
+    "doc": "src/task/step/steps/assembly_ngx_metrics.AssemblyNgxMetricsStep.md",
+    "status": "generated"
+  },
+  {
     "id": "assembly_stats",
     "kind": "operator",
     "title": "Assembly quality metrics (QUAST)",
@@ -447,6 +587,46 @@
     "version": "1.0.0",
     "description": "Run the official QUAST report on contigs and return assembly metrics, optionally against a reference genome.",
     "doc": "src/task/step/steps/assembly_stats.AssemblyStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "atac_fragment_size",
+    "kind": "operator",
+    "title": "atac_fragment_size",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Fragment length histogram and NFR/mono/dinucleosome fractions (ATAC-seq QC).",
+    "doc": "src/task/step/steps/atac_fragment_size.AtacFragmentSizeStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "atac_peak_call",
+    "kind": "operator",
+    "title": "atac_peak_call",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Call ATAC/ChIP peaks from a BAM file with a local Poisson model and BH q-values.",
+    "doc": "src/task/step/steps/atac_peak_call.AtacPeakCallStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "atac_peak_quality",
+    "kind": "operator",
+    "title": "atac_peak_quality",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "FRiP and peak width statistics for ATAC-seq (BAM + peak BED).",
+    "doc": "src/task/step/steps/atac_peak_quality.AtacPeakQualityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "atac_tss_enrichment",
+    "kind": "operator",
+    "title": "atac_tss_enrichment",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Per-TSS fragment-density matrix and TSS enrichment score (ATAC-seq QC).",
+    "doc": "src/task/step/steps/atac_tss_enrichment.AtacTssEnrichmentStep.md",
     "status": "generated"
   },
   {
@@ -460,6 +640,16 @@
     "status": "generated"
   },
   {
+    "id": "autoencoder_anomaly",
+    "kind": "operator",
+    "title": "Score rows with a bottleneck autoencoder",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Trains a small autoencoder (torch) and reports reconstruction-error statistics plus a mean+3sd anomaly threshold.",
+    "doc": "src/task/step/steps/autoencoder_anomaly.AutoencoderAnomalyStep.md",
+    "status": "authored"
+  },
+  {
     "id": "bai_perron",
     "kind": "operator",
     "title": "Bai-Perron multiple structural breaks",
@@ -467,6 +657,66 @@
     "version": "1.0.0",
     "description": "Bai-Perron multiple structural breaks：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、Response Label、Predictors、N Breaks、Min Segment。",
     "doc": "src/task/step/steps/bai_perron.BaiPerronStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "bam_alignment_summary",
+    "kind": "operator",
+    "title": "BAM alignment summary",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Read counts, mapping fractions, duplicates, pairing and clipping.",
+    "doc": "src/task/step/steps/bam_alignment_summary.BamAlignmentSummaryStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "bam_flagstat",
+    "kind": "operator",
+    "title": "bam_flagstat",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Summarise BAM alignment flags like samtools flagstat (counts only).",
+    "doc": "src/task/step/steps/bam_flagstat.BamFlagstatStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "bam_gene_bias",
+    "kind": "operator",
+    "title": "bam_gene_bias",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "5' versus 3' alignment density bias across annotated genes.",
+    "doc": "src/task/step/steps/bam_gene_bias.BamGeneBiasStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "bam_gene_counts",
+    "kind": "operator",
+    "title": "bam_gene_counts",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Per-gene alignment counts, gene length and CPM from a BAM and GFF/GTF.",
+    "doc": "src/task/step/steps/bam_gene_counts.BamGeneCountsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "bam_mapq_distribution",
+    "kind": "operator",
+    "title": "BAM MAPQ distribution",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Histogram of mapping quality for primary mapped reads.",
+    "doc": "src/task/step/steps/bam_mapq_distribution.BamMapqDistributionStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "bam_read_length_stats",
+    "kind": "operator",
+    "title": "BAM read length statistics",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Histogram and summary statistics of primary mapped read lengths.",
+    "doc": "src/task/step/steps/bam_read_length_stats.BamReadLengthStatsStep.md",
     "status": "generated"
   },
   {
@@ -520,6 +770,16 @@
     "status": "generated"
   },
   {
+    "id": "bayesian_linear_regression",
+    "kind": "operator",
+    "title": "Bayesian linear regression",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Gibbs sampling for a normal-inverse-gamma linear model with weakly informative priors.",
+    "doc": "src/task/step/steps/bayesian_linear_regression.BayesianLinearRegressionStep.md",
+    "status": "authored"
+  },
+  {
     "id": "bayesian_ridge_regressor",
     "kind": "operator",
     "title": "Bayesian ridge regressor",
@@ -528,6 +788,16 @@
     "description": "Bayesian ridge regressor：接收 2 个输入，输出 Form；主要参数：样本维度、特征维度、标签维度、目标字段、测试集比例、交叉验证折数。",
     "doc": "src/task/step/steps/bayesian_ridge_regressor.BayesianRidgeRegressorStep.md",
     "status": "generated"
+  },
+  {
+    "id": "bcr_clonotype",
+    "kind": "operator",
+    "title": "BCR clonotype grouping and expansion",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Groups BCR sequences by V gene and CDR3 amino-acid sequence and reports clone sizes.",
+    "doc": "src/task/step/steps/bcr_clonotype.BcrClonotypeStep.md",
+    "status": "authored"
   },
   {
     "id": "bds_test",
@@ -628,6 +898,16 @@
     "description": "Balanced iterative reducing and clustering using hierarchies (BIRCH).",
     "doc": "src/task/step/steps/birch.BirchStep.md",
     "status": "generated"
+  },
+  {
+    "id": "bisulfite_conversion_rate",
+    "kind": "operator",
+    "title": "Bisulfite conversion rate",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Estimate bisulfite conversion efficiency from converted and unconverted cytosine counts with a Wilson interval.",
+    "doc": "src/task/step/steps/bisulfite_conversion_rate.BisulfiteConversionRateStep.md",
+    "status": "authored"
   },
   {
     "id": "bland_altman",
@@ -750,6 +1030,16 @@
     "status": "generated"
   },
   {
+    "id": "bracken_reestimate",
+    "kind": "operator",
+    "title": "Bracken genome-length abundance",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Bracken genome-length abundance.",
+    "doc": "src/task/step/steps/bracken_reestimate.BrackenReestimateStep.md",
+    "status": "authored"
+  },
+  {
     "id": "brennan_prediger",
     "kind": "operator",
     "title": "Brennan-Prediger coefficient",
@@ -870,6 +1160,36 @@
     "status": "generated"
   },
   {
+    "id": "causal_forest_ate",
+    "kind": "operator",
+    "title": "Causal forest average treatment effect",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Estimates the average treatment effect with a CausalForestDML and reports a 95% interval.",
+    "doc": "src/task/step/steps/causal_forest_ate.CausalForestAteStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "causal_forest_cate",
+    "kind": "operator",
+    "title": "Causal forest conditional effects",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Per-sample conditional average treatment effects with 95% confidence intervals.",
+    "doc": "src/task/step/steps/causal_forest_cate.CausalForestCateStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "causal_forest_importance",
+    "kind": "operator",
+    "title": "Causal forest feature importance",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Ranks covariates by their contribution to treatment-effect heterogeneity in a causal forest.",
+    "doc": "src/task/step/steps/causal_forest_importance.CausalForestImportanceStep.md",
+    "status": "authored"
+  },
+  {
     "id": "cca",
     "kind": "operator",
     "title": "Canonical correspondence analysis",
@@ -877,6 +1197,26 @@
     "version": "1.0.0",
     "description": "Constrained correspondence analysis of a count table.",
     "doc": "src/task/step/steps/cca.CcaStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "cdr3_properties",
+    "kind": "operator",
+    "title": "CDR3 amino-acid composition and properties",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Reports length, charged fraction, hydrophobic fraction, cysteine count and aromatic fraction per CDR3.",
+    "doc": "src/task/step/steps/cdr3_properties.Cdr3PropertiesStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "cell_communication",
+    "kind": "operator",
+    "title": "cell_communication",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Ligand-receptor communication scores between cell clusters.",
+    "doc": "src/task/step/steps/cell_communication.CellCommunicationStep.md",
     "status": "generated"
   },
   {
@@ -900,6 +1240,26 @@
     "status": "generated"
   },
   {
+    "id": "chain_coverage_summary",
+    "kind": "operator",
+    "title": "Chain coverage summary",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Per-chromosome aligned bases and non-redundant chain coverage.",
+    "doc": "src/task/step/steps/chain_coverage_summary.ChainCoverageSummaryStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "changepoint_pelt",
+    "kind": "operator",
+    "title": "Change-point detection by exact penalised segmentation",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Exact penalised least-squares segmentation of a univariate series.",
+    "doc": "src/task/step/steps/changepoint_pelt.ChangepointPeltStep.md",
+    "status": "authored"
+  },
+  {
     "id": "chao1",
     "kind": "operator",
     "title": "Chao1 richness estimator",
@@ -908,6 +1268,16 @@
     "description": "Estimate the number of unobserved species with the Chao1 estimator.",
     "doc": "src/task/step/steps/chao1.Chao1Step.md",
     "status": "generated"
+  },
+  {
+    "id": "checkm_quality_parse",
+    "kind": "operator",
+    "title": "CheckM/CheckM2 genome quality score",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "CheckM/CheckM2 genome quality score.",
+    "doc": "src/task/step/steps/checkm_quality_parse.CheckmQualityParseStep.md",
+    "status": "authored"
   },
   {
     "id": "chi_square",
@@ -960,6 +1330,26 @@
     "status": "generated"
   },
   {
+    "id": "chromatin_state_segmentation",
+    "kind": "operator",
+    "title": "Threshold-run chromatin segmentation",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Threshold-run chromatin segmentation",
+    "doc": "src/task/step/steps/chromatin_state_segmentation.ChromatinStateSegmentationStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "circrna_detect",
+    "kind": "operator",
+    "title": "Circular RNA junction detection",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "Flags back-spliced junctions and reports circular length.",
+    "doc": "src/task/step/steps/circrna_detect.CircrnaDetectStep.md",
+    "status": "authored"
+  },
+  {
     "id": "classification_metrics",
     "kind": "operator",
     "title": "Classification metrics",
@@ -988,6 +1378,16 @@
     "description": "Cluster positions along one axis.",
     "doc": "src/task/step/steps/cluster_axis.ClusterAxisStep.md",
     "status": "generated"
+  },
+  {
+    "id": "cnn_image_classifier",
+    "kind": "operator",
+    "title": "CNN image classifier",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Two-layer convolutional classifier for flattened square grayscale images. (batch b88).",
+    "doc": "src/task/step/steps/cnn_image_classifier.CnnImageClassifierStep.md",
+    "status": "authored"
   },
   {
     "id": "cochran_armitage",
@@ -1020,6 +1420,56 @@
     "status": "generated"
   },
   {
+    "id": "coding_variant_filter",
+    "kind": "operator",
+    "title": "coding_variant_filter",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Keep annotated VCF records with coding or splice-site consequences.",
+    "doc": "src/task/step/steps/coding_variant_filter.CodingVariantFilterStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "codon_adaptation",
+    "kind": "operator",
+    "title": "Codon adaptation index",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Relative adaptiveness weighted CAI for each CDS against a reference CDS set.",
+    "doc": "src/task/step/steps/codon_adaptation.CodonAdaptationStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "codon_design_qc",
+    "kind": "operator",
+    "title": "Codon design QC",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Report CAI, GC content, homopolymers and forbidden sites for designed CDS sequences.",
+    "doc": "src/task/step/steps/codon_design_qc.CodonDesignQcStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "codon_gc_harmonize",
+    "kind": "operator",
+    "title": "Codon GC harmonisation",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Move coding sequences toward a target GC content with synonymous codon swaps.",
+    "doc": "src/task/step/steps/codon_gc_harmonize.CodonGcHarmonizeStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "codon_optimize",
+    "kind": "operator",
+    "title": "Codon optimisation",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Reverse-translate proteins with reference codon usage while avoiding motifs and homopolymers.",
+    "doc": "src/task/step/steps/codon_optimize.CodonOptimizeStep.md",
+    "status": "generated"
+  },
+  {
     "id": "codon_usage",
     "kind": "operator",
     "title": "Codon usage",
@@ -1027,6 +1477,26 @@
     "version": "1.0.0",
     "description": "Codon usage：接收 1 个输入，输出 Form；主要参数：序列维度、位置维度、Frame。",
     "doc": "src/task/step/steps/codon_usage.CodonUsageStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "codon_usage_bias",
+    "kind": "operator",
+    "title": "Codon usage bias",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Effective number of codons (Wright) and GC3s for each coding sequence.",
+    "doc": "src/task/step/steps/codon_usage_bias.CodonUsageBiasStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "coexpression_modules",
+    "kind": "operator",
+    "title": "Co-expression modules from topological overlap",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Builds the signed adjacency and topological overlap matrix, cuts an average-linkage dendrogram at a fixed height, merges modules with correlated eigengenes and assigns small modules to grey.",
+    "doc": "src/task/step/steps/coexpression_modules.CoexpressionModulesStep.md",
     "status": "generated"
   },
   {
@@ -1150,6 +1620,26 @@
     "status": "generated"
   },
   {
+    "id": "conformal_classification_sets",
+    "kind": "operator",
+    "title": "Split conformal prediction sets for binary classification",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Split-conformal binary prediction sets with a calibrated score threshold.",
+    "doc": "src/task/step/steps/conformal_classification_sets.ConformalClassificationSetsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "conformal_split_regression",
+    "kind": "operator",
+    "title": "Split conformal prediction intervals for regression",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Distribution-free split-conformal regression intervals with finite-sample coverage.",
+    "doc": "src/task/step/steps/conformal_split_regression.ConformalSplitRegressionStep.md",
+    "status": "authored"
+  },
+  {
     "id": "confusion_matrix",
     "kind": "operator",
     "title": "Confusion matrix",
@@ -1180,6 +1670,26 @@
     "status": "generated"
   },
   {
+    "id": "consensus_sequence",
+    "kind": "operator",
+    "title": "consensus_sequence",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Build a majority-allele consensus FASTA from a BAM pileup and reference.",
+    "doc": "src/task/step/steps/consensus_sequence.ConsensusSequenceStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "conserved_gene_order",
+    "kind": "operator",
+    "title": "Conserved gene order between two genomes",
+    "category": "Comparative genomics",
+    "version": "1.0.0",
+    "description": "Conserved gene order between two genomes",
+    "doc": "src/task/step/steps/conserved_gene_order.ConservedGeneOrderStep.md",
+    "status": "authored"
+  },
+  {
     "id": "cooks_distance",
     "kind": "operator",
     "title": "Cook's distance",
@@ -1198,6 +1708,16 @@
     "description": "Pearson correlation between tree patristic and observed sample distances.",
     "doc": "src/task/step/steps/cophenetic_correlation.CopheneticCorrelationStep.md",
     "status": "generated"
+  },
+  {
+    "id": "core_genome_size",
+    "kind": "operator",
+    "title": "Core genome size and fractions",
+    "category": "Comparative genomics",
+    "version": "1.0.0",
+    "description": "Summarises core and accessory gene counts from a presence/absence matrix.",
+    "doc": "src/task/step/steps/core_genome_size.CoreGenomeSizeStep.md",
+    "status": "authored"
   },
   {
     "id": "correction",
@@ -1237,6 +1757,16 @@
     "version": "1.0.0",
     "description": "Row and column principal coordinates from a contingency table.",
     "doc": "src/task/step/steps/correspondence_analysis.CorrespondenceAnalysisStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "counts_normalize",
+    "kind": "operator",
+    "title": "counts_normalize",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "TPM, FPKM and CPM from a gene count table with lengths.",
+    "doc": "src/task/step/steps/counts_normalize.CountsNormalizeStep.md",
     "status": "generated"
   },
   {
@@ -1308,6 +1838,16 @@
     "description": "Detect CRISPR arrays with the official minced tool and report repeat counts, repeat/spacer lengths and consensus repeats.",
     "doc": "src/task/step/steps/crispr_array_detect.CrisprArrayDetectStep.md",
     "status": "generated"
+  },
+  {
+    "id": "crispr_mit_specificity",
+    "kind": "operator",
+    "title": "CRISPR MIT specificity",
+    "category": "Genome editing",
+    "version": "1.0.0",
+    "description": "Compute the Hsu 2013 position-weighted MIT specificity score for guide/off-target pairs.",
+    "doc": "src/task/step/steps/crispr_mit_specificity.CrisprMitSpecificityStep.md",
+    "status": "authored"
   },
   {
     "id": "cronbach_alpha",
@@ -1440,6 +1980,26 @@
     "status": "generated"
   },
   {
+    "id": "deep_quantile_regressor",
+    "kind": "operator",
+    "title": "Linear quantile regressor",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Linear pinball-loss quantile regression solved as a linear program, reporting the fitted slope and intercept.",
+    "doc": "src/task/step/steps/deep_quantile_regressor.DeepQuantileRegressorStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "deep_survival",
+    "kind": "operator",
+    "title": "DeepSurv Cox proportional hazards network",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "DeepSurv Cox proportional hazards network (batch b87).",
+    "doc": "src/task/step/steps/deep_survival.DeepSurvivalStep.md",
+    "status": "authored"
+  },
+  {
     "id": "delong_auc",
     "kind": "operator",
     "title": "DeLong AUC",
@@ -1500,6 +2060,16 @@
     "status": "generated"
   },
   {
+    "id": "difference_in_differences",
+    "kind": "operator",
+    "title": "Difference-in-differences estimate",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Two-way fixed-effect style DiD from outcome, treatment and post columns with HC1 inference.",
+    "doc": "src/task/step/steps/difference_in_differences.DifferenceInDifferencesStep.md",
+    "status": "generated"
+  },
+  {
     "id": "difference_sign",
     "kind": "operator",
     "title": "Difference-sign test",
@@ -1540,6 +2110,16 @@
     "status": "generated"
   },
   {
+    "id": "dmr_window_scan",
+    "kind": "operator",
+    "title": "Differentially methylated window scan",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Scan fixed-width windows for mean beta difference and Welch t statistic.",
+    "doc": "src/task/step/steps/dmr_window_scan.DmrWindowScanStep.md",
+    "status": "authored"
+  },
+  {
     "id": "dotplot",
     "kind": "operator",
     "title": "Dot plot",
@@ -1557,6 +2137,16 @@
     "version": "1.0.0",
     "description": "Doublet detection：接收 1 个输入，输出 Form；主要参数：Cell Dim、Gene Dim、Expected Doublet Rate、随机种子、阈值、N Prin Comps。",
     "doc": "src/task/step/steps/doublet_detect.DoubletDetectStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "doubly_robust_ate",
+    "kind": "operator",
+    "title": "Doubly robust ATE (AIPW)",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "AIPW average treatment effect with logistic propensity and linear outcome models.",
+    "doc": "src/task/step/steps/doubly_robust_ate.DoublyRobustAteStep.md",
     "status": "generated"
   },
   {
@@ -1620,6 +2210,16 @@
     "status": "generated"
   },
   {
+    "id": "effective_population_size",
+    "kind": "operator",
+    "title": "Effective population size from temporal allele frequencies",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Effective population size from temporal allele frequencies",
+    "doc": "src/task/step/steps/effective_population_size.EffectivePopulationSizeStep.md",
+    "status": "authored"
+  },
+  {
     "id": "egger_test",
     "kind": "operator",
     "title": "Egger's test",
@@ -1678,6 +2278,66 @@
     "description": "Environmental vector fitting：接收 2 个输入，输出 Form；主要参数：样本维度、Component Dim、特征维度。",
     "doc": "src/task/step/steps/envfit.EnvfitStep.md",
     "status": "generated"
+  },
+  {
+    "id": "epidemic_case_fatality",
+    "kind": "operator",
+    "title": "Case fatality ratio",
+    "category": "Epidemiology",
+    "version": "1.0.0",
+    "description": "Compute the crude case fatality ratio with a Wilson confidence interval.",
+    "doc": "src/task/step/steps/epidemic_case_fatality.EpidemicCaseFatalityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "epidemic_growth_rate",
+    "kind": "operator",
+    "title": "Early epidemic growth rate",
+    "category": "Epidemiology",
+    "version": "1.0.0",
+    "description": "Fit exponential growth to the early phase of an incidence series.",
+    "doc": "src/task/step/steps/epidemic_growth_rate.EpidemicGrowthRateStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "epidemic_r0",
+    "kind": "operator",
+    "title": "Basic reproduction number from growth",
+    "category": "Epidemiology",
+    "version": "1.0.0",
+    "description": "Estimate R0 from the early exponential growth rate and a generation time.",
+    "doc": "src/task/step/steps/epidemic_r0.EpidemicR0Step.md",
+    "status": "generated"
+  },
+  {
+    "id": "epidemic_seir_fit",
+    "kind": "operator",
+    "title": "SEIR model fit",
+    "category": "Epidemiology",
+    "version": "1.0.0",
+    "description": "Fit a closed SEIR model with a fixed incubation period to an incidence series.",
+    "doc": "src/task/step/steps/epidemic_seir_fit.EpidemicSeirFitStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "epidemic_sir_fit",
+    "kind": "operator",
+    "title": "SIR model fit",
+    "category": "Epidemiology",
+    "version": "1.0.0",
+    "description": "Fit a closed SIR model to an incidence series by least squares.",
+    "doc": "src/task/step/steps/epidemic_sir_fit.EpidemicSirFitStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "epitope_conservation",
+    "kind": "operator",
+    "title": "Per-position conservation of aligned epitope sequences",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Per-position conservation of aligned epitope sequences",
+    "doc": "src/task/step/steps/epitope_conservation.EpitopeConservationStep.md",
+    "status": "authored"
   },
   {
     "id": "esm3_embedding",
@@ -2000,6 +2660,16 @@
     "status": "generated"
   },
   {
+    "id": "event_study",
+    "kind": "operator",
+    "title": "Event-study coefficients",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Two-way within-transformed event-study regression on a balanced panel.",
+    "doc": "src/task/step/steps/event_study.EventStudyStep.md",
+    "status": "generated"
+  },
+  {
     "id": "ewma_chart",
     "kind": "operator",
     "title": "EWMA control chart",
@@ -2008,6 +2678,16 @@
     "description": "Exponentially weighted moving-average chart with time-varying limits.",
     "doc": "src/task/step/steps/ewma_chart.EwmaChartStep.md",
     "status": "generated"
+  },
+  {
+    "id": "exon_skipping",
+    "kind": "operator",
+    "title": "Exon skipping",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "Per-exon inclusion ratio and deviation from the gene mean.",
+    "doc": "src/task/step/steps/exon_skipping.ExonSkippingStep.md",
+    "status": "authored"
   },
   {
     "id": "explode",
@@ -2067,6 +2747,136 @@
     "version": "1.0.0",
     "description": "Faith's PD：接收 2 个输入，输出 Form；主要参数：样本维度、类群维度、节点维度、字段维度。",
     "doc": "src/task/step/steps/faith_pd.FaithPdStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fastq_adapter_scan",
+    "kind": "operator",
+    "title": "fastq_adapter_scan",
+    "category": "Quality Control",
+    "version": "1.0.1",
+    "description": "Count reads containing known sequencing adapter prefixes.",
+    "doc": "src/task/step/steps/fastq_adapter_scan.FastqAdapterScanStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fastq_adapter_trim",
+    "kind": "operator",
+    "title": "fastq_adapter_trim",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Trim a 3-prime adapter using an exact, no-indel match.",
+    "doc": "src/task/step/steps/fastq_adapter_trim.FastqAdapterTrimStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fastq_deduplicate",
+    "kind": "operator",
+    "title": "fastq_deduplicate",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Collapse duplicate sequences, keeping the first read and its order.",
+    "doc": "src/task/step/steps/fastq_deduplicate.FastqDeduplicateStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fastq_duplication_profile",
+    "kind": "operator",
+    "title": "fastq_duplication_profile",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Histogram of read duplication levels with deduplicated percentage.",
+    "doc": "src/task/step/steps/fastq_duplication_profile.FastqDuplicationProfileStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fastq_gc_distribution",
+    "kind": "operator",
+    "title": "fastq_gc_distribution",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Histogram of per-read GC percentages with summary statistics.",
+    "doc": "src/task/step/steps/fastq_gc_distribution.FastqGcDistributionStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fastq_overrepresented",
+    "kind": "operator",
+    "title": "fastq_overrepresented",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "List sequences exceeding a fraction threshold with optional adapter source.",
+    "doc": "src/task/step/steps/fastq_overrepresented.FastqOverrepresentedStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fastq_quality_profile",
+    "kind": "operator",
+    "title": "fastq_quality_profile",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Per-cycle mean base quality of a FASTQ/FASTQ.gz file.",
+    "doc": "src/task/step/steps/fastq_quality_profile.FastqQualityProfileStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fastq_quality_trim",
+    "kind": "operator",
+    "title": "fastq_quality_trim",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Trim low-quality 3-prime ends using the BWA/cutadapt running-score rule.",
+    "doc": "src/task/step/steps/fastq_quality_trim.FastqQualityTrimStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fastq_stats",
+    "kind": "operator",
+    "title": "fastq_stats",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Read count, length, GC fraction and base quality of a FASTQ/FASTQ.gz file.",
+    "doc": "src/task/step/steps/fastq_stats.FastqStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fba_flux_balance",
+    "kind": "operator",
+    "title": "Flux balance analysis",
+    "category": "Metabolic modelling",
+    "version": "1.0.0",
+    "description": "Solve a steady-state flux balance linear program from a stoichiometric matrix and bounds.",
+    "doc": "src/task/step/steps/fba_flux_balance.FbaFluxBalanceStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "fba_flux_distribution",
+    "kind": "operator",
+    "title": "FBA flux distribution",
+    "category": "Metabolism",
+    "version": "1.0.0",
+    "description": "Solve a flux balance model and report the optimal flux of every reaction.",
+    "doc": "src/task/step/steps/fba_flux_distribution.FbaFluxDistributionStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fba_flux_variability",
+    "kind": "operator",
+    "title": "FBA flux variability",
+    "category": "Metabolism",
+    "version": "1.0.0",
+    "description": "Report the minimum and maximum flux of every reaction at a fraction of optimal growth.",
+    "doc": "src/task/step/steps/fba_flux_variability.FbaFluxVariabilityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "fba_gene_knockout",
+    "kind": "operator",
+    "title": "FBA gene knockout",
+    "category": "Metabolism",
+    "version": "1.0.0",
+    "description": "Delete each gene in turn and report the resulting growth rate and essentiality.",
+    "doc": "src/task/step/steps/fba_gene_knockout.FbaGeneKnockoutStep.md",
     "status": "generated"
   },
   {
@@ -2290,6 +3100,16 @@
     "status": "generated"
   },
   {
+    "id": "fst_outlier_scan",
+    "kind": "operator",
+    "title": "Fst outlier scan",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Hudson Fst per variant with local smoothing and outlier flags.",
+    "doc": "src/task/step/steps/fst_outlier_scan.FstOutlierScanStep.md",
+    "status": "generated"
+  },
+  {
     "id": "g_test",
     "kind": "operator",
     "title": "G-test of independence",
@@ -2370,6 +3190,16 @@
     "status": "generated"
   },
   {
+    "id": "gcn_node_classifier",
+    "kind": "operator",
+    "title": "GCN node classifier",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Two-layer graph convolutional network for semi-supervised node classification on a synthetic homophilous graph.",
+    "doc": "src/task/step/steps/gcn_node_classifier.GcnNodeClassifierStep.md",
+    "status": "authored"
+  },
+  {
     "id": "gene_list_to_hits",
     "kind": "operator",
     "title": "gene_list_to_hits",
@@ -2390,6 +3220,196 @@
     "status": "generated"
   },
   {
+    "id": "genome_alignment_stats",
+    "kind": "operator",
+    "title": "Genome alignment statistics",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Align two assemblies with minimap2 and summarise aligned bases, coverage and identity.",
+    "doc": "src/task/step/steps/genome_alignment_stats.GenomeAlignmentStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genome_cds_check",
+    "kind": "operator",
+    "title": "CDS translation check",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Translate every CDS from the genome FASTA and report frame, start codon, stop codon and internal stop statistics.",
+    "doc": "src/task/step/steps/genome_cds_check.GenomeCdsCheckStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genome_gene_density",
+    "kind": "operator",
+    "title": "Windowed gene density",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Count genes or CDS features per fixed window on every sequence and report the aligned fraction of each window.",
+    "doc": "src/task/step/steps/genome_gene_density.GenomeGeneDensityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genome_intergenic_regions",
+    "kind": "operator",
+    "title": "Intergenic regions",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Merge genes (or CDS) on every sequence and report the regions between them, excluding the sequence ends.",
+    "doc": "src/task/step/steps/genome_intergenic_regions.GenomeIntergenicRegionsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genome_kmer_similarity",
+    "kind": "operator",
+    "title": "Genome k-mer Jaccard similarity",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Compare two genomes by the exact Jaccard index and bidirectional containment of their canonical k-mer sets.",
+    "doc": "src/task/step/steps/genome_kmer_similarity.GenomeKmerSimilarityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genome_kmer_spectrum",
+    "kind": "operator",
+    "title": "Genome k-mer spectrum",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Count canonical k-mers across a genome and report the multiplicity spectrum used to estimate genome size and repeats.",
+    "doc": "src/task/step/steps/genome_kmer_spectrum.GenomeKmerSpectrumStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genome_mash_distance",
+    "kind": "operator",
+    "title": "Mash distance and ANI",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Compute the Mash distance and average nucleotide identity from the exact canonical k-mer Jaccard index of two genomes.",
+    "doc": "src/task/step/steps/genome_mash_distance.GenomeMashDistanceStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genome_promoter_extract",
+    "kind": "operator",
+    "title": "Promoter window extraction",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Extract the upstream window of every gene or CDS, reverse complementing minus-strand features, and return an aligned sequence Form with FASTA-ready info.sequences.",
+    "doc": "src/task/step/steps/genome_promoter_extract.GenomePromoterExtractStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genome_rearrangement",
+    "kind": "operator",
+    "title": "Rearrangement breakpoints between two genomes",
+    "category": "Comparative genomics",
+    "version": "1.0.0",
+    "description": "Rearrangement breakpoints between two genomes",
+    "doc": "src/task/step/steps/genome_rearrangement.GenomeRearrangementStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "genome_rearrangement_summary",
+    "kind": "operator",
+    "title": "Genome rearrangement summary",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Summarise inversions, translocations and breakpoints from synteny blocks.",
+    "doc": "src/task/step/steps/genome_rearrangement_summary.GenomeRearrangementSummaryStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genome_synteny_blocks",
+    "kind": "operator",
+    "title": "Genome synteny blocks",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Chain minimap2 alignments into collinear synteny blocks between two assemblies.",
+    "doc": "src/task/step/steps/genome_synteny_blocks.GenomeSyntenyBlocksStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genomic_selection_rrblup",
+    "kind": "operator",
+    "title": "Genomic selection (rrBLUP)",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Ridge-regression genomic prediction from a marker matrix.",
+    "doc": "src/task/step/steps/genomic_selection_rrblup.GenomicSelectionRrblupStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genotype_allele_balance",
+    "kind": "operator",
+    "title": "Genotype allele balance",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Binomial allele-balance test from reference and alternate read counts.",
+    "doc": "src/task/step/steps/genotype_allele_balance.GenotypeAlleleBalanceStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genotype_call_rate_qc",
+    "kind": "operator",
+    "title": "Per-sample genotype call rate",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Reports called fraction and a pass flag per sample.",
+    "doc": "src/task/step/steps/genotype_call_rate_qc.GenotypeCallRateQcStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "genotype_filter",
+    "kind": "operator",
+    "title": "genotype_filter",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Filter genotype variants by minor allele frequency and missing-call rate.",
+    "doc": "src/task/step/steps/genotype_filter.GenotypeFilterStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genotype_grm",
+    "kind": "operator",
+    "title": "Genotype relationship matrix",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "PLINK-style genetic relationship matrix (Z Z^T / M) over biallelic SNPs.",
+    "doc": "src/task/step/steps/genotype_grm.GenotypeGrmStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genotype_mendelian_error",
+    "kind": "operator",
+    "title": "Trio Mendelian error scan",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Counts child genotypes incompatible with both parents.",
+    "doc": "src/task/step/steps/genotype_mendelian_error.GenotypeMendelianErrorStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "genotype_pca",
+    "kind": "operator",
+    "title": "Genotype PCA",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Principal components of a genetic relationship matrix built from biallelic SNPs.",
+    "doc": "src/task/step/steps/genotype_pca.GenotypePcaStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "genotype_pca_loadings",
+    "kind": "operator",
+    "title": "Genotype PCA loadings",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Per-variant loadings of the genotype principal components (PLINK allele weights).",
+    "doc": "src/task/step/steps/genotype_pca_loadings.GenotypePcaLoadingsStep.md",
+    "status": "generated"
+  },
+  {
     "id": "gff_feature_stats",
     "kind": "operator",
     "title": "gff_feature_stats",
@@ -2407,6 +3427,36 @@
     "version": "1.0.0",
     "description": "Binary logistic regression with a random intercept fitted by Laplace approximation (lme4 glmer nAGQ=1).",
     "doc": "src/task/step/steps/glmm_logistic.GlmmLogisticStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "go_gene_similarity",
+    "kind": "operator",
+    "title": "GO gene semantic similarity",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Best-match-average Resnik similarity between gene pairs annotated with Gene Ontology terms.",
+    "doc": "src/task/step/steps/go_gene_similarity.GoGeneSimilarityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "go_ic_profile",
+    "kind": "operator",
+    "title": "GO information content profile",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Information content, annotated gene count and depth for GO terms in an annotation corpus.",
+    "doc": "src/task/step/steps/go_ic_profile.GoIcProfileStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "go_term_similarity",
+    "kind": "operator",
+    "title": "GO term semantic similarity",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Resnik, Lin and ancestor Jaccard similarity for GO term pairs using corpus information content.",
+    "doc": "src/task/step/steps/go_term_similarity.GoTermSimilarityStep.md",
     "status": "generated"
   },
   {
@@ -2470,6 +3520,16 @@
     "status": "generated"
   },
   {
+    "id": "graph_pseudotime",
+    "kind": "operator",
+    "title": "Graph pseudotime",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Graph-geodesic pseudotime from a PCA space and a k-nearest-neighbour graph.",
+    "doc": "src/task/step/steps/graph_pseudotime.GraphPseudotimeStep.md",
+    "status": "authored"
+  },
+  {
     "id": "grubbs_test",
     "kind": "operator",
     "title": "Grubbs outlier test",
@@ -2500,6 +3560,46 @@
     "status": "generated"
   },
   {
+    "id": "gtdb_taxonomy_parse",
+    "kind": "operator",
+    "title": "GTDB taxonomy rank completeness",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "GTDB taxonomy rank completeness.",
+    "doc": "src/task/step/steps/gtdb_taxonomy_parse.GtdbTaxonomyParseStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "gwas_association",
+    "kind": "operator",
+    "title": "GWAS association testing",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Fit a per-variant additive linear or logistic model and report effect size, standard error and p-value.",
+    "doc": "src/task/step/steps/gwas_association.GwasAssociationStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "gwas_inflation",
+    "kind": "operator",
+    "title": "GWAS genomic inflation",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Compute the genomic control inflation factor and summary of the association p-values.",
+    "doc": "src/task/step/steps/gwas_inflation.GwasInflationStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "gwas_top_hits",
+    "kind": "operator",
+    "title": "GWAS top hits",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Select independent lead variants below a p-value threshold using distance-based clumping.",
+    "doc": "src/task/step/steps/gwas_top_hits.GwasTopHitsStep.md",
+    "status": "generated"
+  },
+  {
     "id": "gwet_ac1",
     "kind": "operator",
     "title": "Gwet's AC1",
@@ -2508,6 +3608,26 @@
     "description": "Gwet's AC1：接收 1 个输入，输出 Form；主要参数：Subject Dim、Rater Dim。",
     "doc": "src/task/step/steps/gwet_ac1.GwetAc1Step.md",
     "status": "generated"
+  },
+  {
+    "id": "haplotype_blocks",
+    "kind": "operator",
+    "title": "Haplotype blocks from adjacent linkage disequilibrium",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Haplotype blocks from adjacent linkage disequilibrium",
+    "doc": "src/task/step/steps/haplotype_blocks.HaplotypeBlocksStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "haplotype_diversity",
+    "kind": "operator",
+    "title": "Haplotype and nucleotide diversity",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Haplotype and nucleotide diversity.",
+    "doc": "src/task/step/steps/haplotype_diversity.HaplotypeDiversityStep.md",
+    "status": "authored"
   },
   {
     "id": "hardy_weinberg",
@@ -2540,6 +3660,16 @@
     "status": "generated"
   },
   {
+    "id": "hdbscan_cluster",
+    "kind": "operator",
+    "title": "HDBSCAN density clustering",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Cluster a numeric table with HDBSCAN and return per-point cluster, probability and outlier score.",
+    "doc": "src/task/step/steps/hdbscan_cluster.HdbscanClusterStep.md",
+    "status": "authored"
+  },
+  {
     "id": "heatmap",
     "kind": "operator",
     "title": "Heatmap",
@@ -2560,6 +3690,46 @@
     "status": "generated"
   },
   {
+    "id": "hic_contact_matrix",
+    "kind": "operator",
+    "title": "hic_contact_matrix",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Bin cis Hi-C pairs into a long-form contact table at a fixed resolution.",
+    "doc": "src/task/step/steps/hic_contact_matrix.HicContactMatrixStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "hic_distance_decay",
+    "kind": "operator",
+    "title": "hic_distance_decay",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Aggregate contact counts by genomic distance into a decay curve.",
+    "doc": "src/task/step/steps/hic_distance_decay.HicDistanceDecayStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "hic_pair_stats",
+    "kind": "operator",
+    "title": "hic_pair_stats",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Count cis and trans contacts in a Hi-C pairs file.",
+    "doc": "src/task/step/steps/hic_pair_stats.HicPairStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "hidden_markov_viterbi",
+    "kind": "operator",
+    "title": "Viterbi decoding for a discrete hidden Markov model",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Most probable hidden state path for a discrete-emission HMM.",
+    "doc": "src/task/step/steps/hidden_markov_viterbi.HiddenMarkovViterbiStep.md",
+    "status": "authored"
+  },
+  {
     "id": "hierarchical_clustering",
     "kind": "operator",
     "title": "Hierarchical clustering",
@@ -2578,6 +3748,16 @@
     "description": "查看指定数值标签的分布。",
     "doc": "src/task/step/steps/histogram.HistogramStep.md",
     "status": "generated"
+  },
+  {
+    "id": "hmm_baum_welch",
+    "kind": "operator",
+    "title": "Baum-Welch HMM training",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Fit a discrete hidden Markov model with scaled Baum-Welch EM and report the final log-likelihood, iteration count and transition/emission matrices.",
+    "doc": "src/task/step/steps/hmm_baum_welch.HmmBaumWelchStep.md",
+    "status": "authored"
   },
   {
     "id": "hmmer_domains",
@@ -2640,6 +3820,26 @@
     "status": "generated"
   },
   {
+    "id": "humann_pathway_abundance",
+    "kind": "operator",
+    "title": "HUMAnN pathway abundance summary",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "HUMAnN pathway abundance summary.",
+    "doc": "src/task/step/steps/humann_pathway_abundance.HumannPathwayAbundanceStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "humann_pathway_collapse",
+    "kind": "operator",
+    "title": "Collapse stratified HUMAnN pathways to community totals",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Sum stratified pathway rows (pathway|taxon) into one row per pathway.",
+    "doc": "src/task/step/steps/humann_pathway_collapse.HumannPathwayCollapseStep.md",
+    "status": "authored"
+  },
+  {
     "id": "hurst_exponent",
     "kind": "operator",
     "title": "Hurst exponent (simple R/S)",
@@ -2670,6 +3870,16 @@
     "status": "generated"
   },
   {
+    "id": "ibd_segments",
+    "kind": "operator",
+    "title": "Identity-by-descent segments from IBS calls",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Identity-by-descent segments from IBS calls",
+    "doc": "src/task/step/steps/ibd_segments.IbdSegmentsStep.md",
+    "status": "authored"
+  },
+  {
     "id": "ica",
     "kind": "operator",
     "title": "ICA",
@@ -2678,6 +3888,66 @@
     "description": "ICA：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、主成分数、Whiten、Max Iter、随机种子。",
     "doc": "src/task/step/steps/ica.IcaStep.md",
     "status": "generated"
+  },
+  {
+    "id": "ihs_selection",
+    "kind": "operator",
+    "title": "Integrated haplotype score from biallelic haplotypes",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Integrated haplotype score from biallelic haplotypes",
+    "doc": "src/task/step/steps/ihs_selection.IhsSelectionStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "image_connected_components",
+    "kind": "operator",
+    "title": "Connected components",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Labels binary foreground regions with four-connectivity and filters by area.",
+    "doc": "src/task/step/steps/image_connected_components.ImageConnectedComponentsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "image_gaussian_blur",
+    "kind": "operator",
+    "title": "Gaussian image blur",
+    "category": "Imaging",
+    "version": "1.0.0",
+    "description": "Separable Gaussian blur with reflect padding for 2D image matrices.",
+    "doc": "src/task/step/steps/image_gaussian_blur.ImageGaussianBlurStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "image_histogram_equalization",
+    "kind": "operator",
+    "title": "Histogram equalization",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Global histogram equalization of a 2D image.",
+    "doc": "src/task/step/steps/image_histogram_equalization.ImageHistogramEqualizationStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "image_otsu_threshold",
+    "kind": "operator",
+    "title": "Otsu image threshold",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Computes a global Otsu threshold and the corresponding between-class variance.",
+    "doc": "src/task/step/steps/image_otsu_threshold.ImageOtsuThresholdStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "image_sobel_gradient",
+    "kind": "operator",
+    "title": "Sobel gradient magnitude",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Computes the Sobel gradient magnitude of a 2D image.",
+    "doc": "src/task/step/steps/image_sobel_gradient.ImageSobelGradientStep.md",
+    "status": "authored"
   },
   {
     "id": "impute",
@@ -2800,6 +4070,26 @@
     "status": "generated"
   },
   {
+    "id": "interpro_domain_summary",
+    "kind": "operator",
+    "title": "InterPro domain summary",
+    "category": "Genome annotation",
+    "version": "1.0.0",
+    "description": "Per-protein domain count, covered bases and best e-value.",
+    "doc": "src/task/step/steps/interpro_domain_summary.InterproDomainSummaryStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "interval_annotate",
+    "kind": "operator",
+    "title": "Annotate intervals by feature class",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Assign every BED interval to the highest-priority genomic feature class it overlaps (for example promoter before exon before intron), and report the number of classes and overlapped bases.",
+    "doc": "src/task/step/steps/interval_annotate.IntervalAnnotateStep.md",
+    "status": "generated"
+  },
+  {
     "id": "interval_censored_regression",
     "kind": "operator",
     "title": "Interval-censored Weibull AFT",
@@ -2807,6 +4097,26 @@
     "version": "1.0.0",
     "description": "Fit a Weibull AFT model to interval-censored observations.",
     "doc": "src/task/step/steps/interval_censored_regression.IntervalCensoredRegressionStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "interval_coverage",
+    "kind": "operator",
+    "title": "Coverage of feature classes by intervals",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "For every genomic feature class (promoter, exon, intron, ...) compute how many bases are covered by a set of intervals and the fraction of the class that is covered.",
+    "doc": "src/task/step/steps/interval_coverage.IntervalCoverageStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "interval_jaccard",
+    "kind": "operator",
+    "title": "Jaccard similarity of two interval sets",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Merge two BED interval sets, then report intersection and union bases, Jaccard similarity, the number of intervals overlapping the other set, and reciprocal covered fractions.",
+    "doc": "src/task/step/steps/interval_jaccard.IntervalJaccardStep.md",
     "status": "generated"
   },
   {
@@ -2850,6 +4160,16 @@
     "status": "generated"
   },
   {
+    "id": "intron_retention",
+    "kind": "operator",
+    "title": "Intron retention",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "Length-normalised intron retention ratio per intron.",
+    "doc": "src/task/step/steps/intron_retention.IntronRetentionStep.md",
+    "status": "authored"
+  },
+  {
     "id": "inverse_gaussian_regression",
     "kind": "operator",
     "title": "Inverse Gaussian regression",
@@ -2870,6 +4190,16 @@
     "status": "generated"
   },
   {
+    "id": "isoform_quantification_em",
+    "kind": "operator",
+    "title": "Isoform quantification (EM)",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "EM over an isoform/exon compatibility matrix and exon read counts.",
+    "doc": "src/task/step/steps/isoform_quantification_em.IsoformQuantificationEmStep.md",
+    "status": "authored"
+  },
+  {
     "id": "isolation_forest",
     "kind": "operator",
     "title": "Isolation Forest",
@@ -2878,6 +4208,16 @@
     "description": "Isolation Forest anomaly scores.",
     "doc": "src/task/step/steps/isolation_forest.IsolationForestStep.md",
     "status": "generated"
+  },
+  {
+    "id": "isolation_forest_anomaly",
+    "kind": "operator",
+    "title": "Isolation-forest anomaly scores",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Builds a deterministic isolation forest from random splits and scores every row by expected path length.",
+    "doc": "src/task/step/steps/isolation_forest_anomaly.IsolationForestAnomalyStep.md",
+    "status": "authored"
   },
   {
     "id": "isomap",
@@ -2950,6 +4290,26 @@
     "status": "generated"
   },
   {
+    "id": "kalman_local_level",
+    "kind": "operator",
+    "title": "Kalman filter for a local-level state-space model",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Local-level Kalman filter with filtered states and Gaussian log-likelihood.",
+    "doc": "src/task/step/steps/kalman_local_level.KalmanLocalLevelStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "kalman_smoother",
+    "kind": "operator",
+    "title": "Rauch-Tung-Striebel Kalman smoother",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Run the Rauch-Tung-Striebel smoother for a local-level model and report filtered and smoothed state estimates with their variances.",
+    "doc": "src/task/step/steps/kalman_smoother.KalmanSmootherStep.md",
+    "status": "authored"
+  },
+  {
     "id": "kaplan_meier",
     "kind": "operator",
     "title": "KM",
@@ -2990,6 +4350,16 @@
     "status": "generated"
   },
   {
+    "id": "kernel_shap",
+    "kind": "operator",
+    "title": "KernelSHAP linear attribution",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Exact Shapley attribution for a ridge model (closed form for linear models). (batch b88).",
+    "doc": "src/task/step/steps/kernel_shap.KernelShapStep.md",
+    "status": "authored"
+  },
+  {
     "id": "kmer_count",
     "kind": "operator",
     "title": "kmer_count",
@@ -3028,6 +4398,16 @@
     "description": "KPSS stationarity test：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、数值字段、Regression、Lags。",
     "doc": "src/task/step/steps/kpss_test.KpssTestStep.md",
     "status": "generated"
+  },
+  {
+    "id": "kraken_kreport_parse",
+    "kind": "operator",
+    "title": "Kraken kreport rank summary",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Kraken kreport rank summary.",
+    "doc": "src/task/step/steps/kraken_kreport_parse.KrakenKreportParseStep.md",
+    "status": "authored"
   },
   {
     "id": "krippendorff_alpha",
@@ -3077,6 +4457,16 @@
     "version": "1.0.0",
     "description": "LD decay: binned mean r^2 between variant dosages by distance.",
     "doc": "src/task/step/steps/ld_decay.LdDecayStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ld_matrix",
+    "kind": "operator",
+    "title": "ld_matrix",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Pairwise linkage-disequilibrium r^2 matrix (plink2 --r2-unphased compatible).",
+    "doc": "src/task/step/steps/ld_matrix.LdMatrixStep.md",
     "status": "generated"
   },
   {
@@ -3150,6 +4540,66 @@
     "status": "generated"
   },
   {
+    "id": "lfq_median_normalize",
+    "kind": "operator",
+    "title": "Median-normalize an LFQ matrix",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Divide each sample column by its median and rescale to the global median of medians.",
+    "doc": "src/task/step/steps/lfq_median_normalize.LfqMedianNormalizeStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "lfq_quantile_normalize",
+    "kind": "operator",
+    "title": "Quantile-normalize an LFQ matrix",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Rank-align every sample column to the mean empirical quantile distribution.",
+    "doc": "src/task/step/steps/lfq_quantile_normalize.LfqQuantileNormalizeStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "liftover_intervals",
+    "kind": "operator",
+    "title": "liftOver intervals",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Map BED intervals to another assembly with a UCSC chain file.",
+    "doc": "src/task/step/steps/liftover_intervals.LiftoverIntervalsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "liftover_variants",
+    "kind": "operator",
+    "title": "liftOver variants",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Map VCF records to another assembly with a UCSC chain file.",
+    "doc": "src/task/step/steps/liftover_variants.LiftoverVariantsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ligand_adduct_mz",
+    "kind": "operator",
+    "title": "Ligand adduct m/z",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Neutral monoisotopic mass and five common adduct m/z values for a Hill formula.",
+    "doc": "src/task/step/steps/ligand_adduct_mz.LigandAdductMzStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "ligand_brics_fragments",
+    "kind": "operator",
+    "title": "Ligand BRICS fragments",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "BRICS decomposition of each molecule with fragment counts and fragment heavy-atom statistics.",
+    "doc": "src/task/step/steps/ligand_brics_fragments.LigandBricsFragmentsStep.md",
+    "status": "generated"
+  },
+  {
     "id": "ligand_contact_profile",
     "kind": "operator",
     "title": "Ligand contact profile",
@@ -3160,6 +4610,16 @@
     "status": "generated"
   },
   {
+    "id": "ligand_dbe",
+    "kind": "operator",
+    "title": "Ligand double-bond equivalents",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Ring-plus-double-bond equivalents and their integrality from formula element counts.",
+    "doc": "src/task/step/steps/ligand_dbe.LigandDbeStep.md",
+    "status": "authored"
+  },
+  {
     "id": "ligand_efficiency",
     "kind": "operator",
     "title": "Ligand efficiency metrics",
@@ -3168,6 +4628,66 @@
     "description": "Parse SMILES with an assay potency, convert the potency to pActivity and a binding free energy, then report ligand efficiency, lipophilic ligand efficiency and the binding efficiency index.",
     "doc": "src/task/step/steps/ligand_efficiency.LigandEfficiencyStep.md",
     "status": "generated"
+  },
+  {
+    "id": "ligand_exact_mass",
+    "kind": "operator",
+    "title": "Ligand exact mass",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Monoisotopic, average and nominal molecular mass, formal charge and heavy-atom count per molecule.",
+    "doc": "src/task/step/steps/ligand_exact_mass.LigandExactMassStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ligand_formula_parse",
+    "kind": "operator",
+    "title": "Ligand formula parse",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Element counts, heavy-atom and total-atom counts parsed from a Hill molecular formula.",
+    "doc": "src/task/step/steps/ligand_formula_parse.LigandFormulaParseStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "ligand_isotope_pattern",
+    "kind": "operator",
+    "title": "Ligand isotope pattern",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Theoretical isotope envelope (m/z and relative abundance) from natural isotope abundances.",
+    "doc": "src/task/step/steps/ligand_isotope_pattern.LigandIsotopePatternStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ligand_mass_fraction",
+    "kind": "operator",
+    "title": "Ligand element mass fraction",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Average-mass fraction of each element in a Hill formula.",
+    "doc": "src/task/step/steps/ligand_mass_fraction.LigandMassFractionStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "ligand_molecular_formula",
+    "kind": "operator",
+    "title": "Ligand molecular formula",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Hill-notation molecular formula and per-element atom counts for every molecule in a SMILES form.",
+    "doc": "src/task/step/steps/ligand_molecular_formula.LigandMolecularFormulaStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ligand_nitrogen_rule",
+    "kind": "operator",
+    "title": "Ligand nitrogen rule",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Nominal mass and nitrogen-rule parity test for a neutral Hill formula.",
+    "doc": "src/task/step/steps/ligand_nitrogen_rule.LigandNitrogenRuleStep.md",
+    "status": "authored"
   },
   {
     "id": "ligand_pdbqt_flexible",
@@ -3187,6 +4707,16 @@
     "version": "1.0.0",
     "description": "Embed a SMILES ligand in 3D with RDKit, assign Gasteiger charges and AutoDock 4 atom types, return the atom table and optionally write a PDBQT file ready for vina_dock.",
     "doc": "src/task/step/steps/ligand_pdbqt_prepare.LigandPdbqtPrepareStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ligand_rgroup_decomposition",
+    "kind": "operator",
+    "title": "Ligand R-group decomposition",
+    "category": "Chemistry",
+    "version": "1.0.0",
+    "description": "Match molecules to a dummy-labelled scaffold and report heavy-atom counts for every R group.",
+    "doc": "src/task/step/steps/ligand_rgroup_decomposition.LigandRgroupDecompositionStep.md",
     "status": "generated"
   },
   {
@@ -3228,6 +4758,16 @@
     "description": "Run the official LigandMPNN side-chain packer on a backbone PDB and return the packed structure as an atom table.  The packer needs the LigandMPNN repository and its side-chain checkpoint.",
     "doc": "src/task/step/steps/ligandmpnn_side_chain_packing.LigandmpnnSideChainPackingStep.md",
     "status": "generated"
+  },
+  {
+    "id": "lightgbm_classifier",
+    "kind": "operator",
+    "title": "LightGBM binary classifier",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Fit a deterministic LightGBM gradient-boosted classifier and report training diagnostics.",
+    "doc": "src/task/step/steps/lightgbm_classifier.LightgbmClassifierStep.md",
+    "status": "authored"
   },
   {
     "id": "lillie_test",
@@ -3308,6 +4848,16 @@
     "description": "Locally linear embedding：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、主成分数、邻居数、方法、随机种子。",
     "doc": "src/task/step/steps/locally_linear_embedding.LocallyLinearEmbeddingStep.md",
     "status": "generated"
+  },
+  {
+    "id": "lof_outlier_score",
+    "kind": "operator",
+    "title": "Local outlier factor",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Computes k-distance, local reachability density and the local outlier factor for every row.",
+    "doc": "src/task/step/steps/lof_outlier_score.LofOutlierScoreStep.md",
+    "status": "authored"
   },
   {
     "id": "log_transform",
@@ -3500,6 +5050,16 @@
     "status": "generated"
   },
   {
+    "id": "mediation_analysis",
+    "kind": "operator",
+    "title": "Mediation analysis",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Product-of-coefficients mediation with delta-method inference.",
+    "doc": "src/task/step/steps/mediation_analysis.MediationAnalysisStep.md",
+    "status": "generated"
+  },
+  {
     "id": "meta_analysis",
     "kind": "operator",
     "title": "Meta-analysis",
@@ -3518,6 +5078,116 @@
     "description": "Meta-regression：接收 1 个输入，输出 Form；主要参数：Study Dim、特征维度、Effect Label、Variance Label、Moderators、分类协变量。",
     "doc": "src/task/step/steps/meta_regression.MetaRegressionStep.md",
     "status": "generated"
+  },
+  {
+    "id": "metabolite_adduct_annotation",
+    "kind": "operator",
+    "title": "Metabolite adduct annotation",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Convert feature m/z values into neutral masses for common adducts and match a database.",
+    "doc": "src/task/step/steps/metabolite_adduct_annotation.MetaboliteAdductAnnotationStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "metabolite_mass_match",
+    "kind": "operator",
+    "title": "Metabolite mass match",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Match observed m/z values to a metabolite database within a ppm tolerance.",
+    "doc": "src/task/step/steps/metabolite_mass_match.MetaboliteMassMatchStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "metabolite_set_enrichment",
+    "kind": "operator",
+    "title": "Metabolite set enrichment",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Hypergeometric over-representation of metabolite sets among detected features.",
+    "doc": "src/task/step/steps/metabolite_set_enrichment.MetaboliteSetEnrichmentStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "metagenomics_bray_curtis",
+    "kind": "operator",
+    "title": "Bray-Curtis dissimilarity",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Pairwise Bray-Curtis dissimilarity matrix of a sample by feature abundance table.",
+    "doc": "src/task/step/steps/metagenomics_bray_curtis.MetagenomicsBrayCurtisStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "metagenomics_clr",
+    "kind": "operator",
+    "title": "Centered log-ratio transform",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Centered log-ratio transform of a non-negative count table with a pseudocount.",
+    "doc": "src/task/step/steps/metagenomics_clr.MetagenomicsClrStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "metaphlan_profile_merge",
+    "kind": "operator",
+    "title": "Merge two MetaPhlAn profiles",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Union taxa from two profiles and concatenate their sample columns.",
+    "doc": "src/task/step/steps/metaphlan_profile_merge.MetaphlanProfileMergeStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "metaphlan_profile_parse",
+    "kind": "operator",
+    "title": "MetaPhlAn rank profile summary",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "MetaPhlAn rank profile summary.",
+    "doc": "src/task/step/steps/metaphlan_profile_parse.MetaphlanProfileParseStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "methylation_beta_value",
+    "kind": "operator",
+    "title": "Methylation beta values",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Compute per-probe beta values for two groups from methylated and unmethylated counts.",
+    "doc": "src/task/step/steps/methylation_beta_value.MethylationBetaValueStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "methylation_m_value",
+    "kind": "operator",
+    "title": "Methylation M values",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Compute log2 methylated/unmethylated M values for two groups.",
+    "doc": "src/task/step/steps/methylation_m_value.MethylationMValueStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "mhc_anchor_score",
+    "kind": "operator",
+    "title": "Heuristic MHC-I anchor score for 9-mer peptides",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Heuristic MHC-I anchor score for 9-mer peptides",
+    "doc": "src/task/step/steps/mhc_anchor_score.MhcAnchorScoreStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "mhc_binding_motif",
+    "kind": "operator",
+    "title": "MHC anchor binding score",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Score peptide MHC-I anchors at P2 and P9.",
+    "doc": "src/task/step/steps/mhc_binding_motif.MhcBindingMotifStep.md",
+    "status": "authored"
   },
   {
     "id": "min_max_scale",
@@ -3540,6 +5210,16 @@
     "status": "generated"
   },
   {
+    "id": "mismatch_distribution",
+    "kind": "operator",
+    "title": "Mismatch distribution",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Mismatch distribution.",
+    "doc": "src/task/step/steps/mismatch_distribution.MismatchDistributionStep.md",
+    "status": "authored"
+  },
+  {
     "id": "missing",
     "kind": "operator",
     "title": "缺失值过滤",
@@ -3547,6 +5227,126 @@
     "version": "1.0.0",
     "description": "按指定维度过滤缺失比例过高的样本或特征。",
     "doc": "src/task/step/steps/missing.MissingStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ml_feature_ablation",
+    "kind": "operator",
+    "title": "ml_feature_ablation",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Drop-one feature importance by refitting the logistic model.",
+    "doc": "src/task/step/steps/ml_feature_ablation.MlFeatureAblationStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ml_grid_search",
+    "kind": "operator",
+    "title": "ml_grid_search",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Exhaustive cross-validated search over logistic-regression C values.",
+    "doc": "src/task/step/steps/ml_grid_search.MlGridSearchStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ml_learning_curve",
+    "kind": "operator",
+    "title": "ml_learning_curve",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Training and test scores as a function of training-set size, stratified K-fold.",
+    "doc": "src/task/step/steps/ml_learning_curve.MlLearningCurveStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ml_logistic_fit",
+    "kind": "operator",
+    "title": "ml_logistic_fit",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Binary logistic regression with L2 penalty and fit diagnostics.",
+    "doc": "src/task/step/steps/ml_logistic_fit.MlLogisticFitStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ml_partial_dependence",
+    "kind": "operator",
+    "title": "Partial dependence curve",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Ridge-model partial dependence for one feature on a grid.",
+    "doc": "src/task/step/steps/ml_partial_dependence.MlPartialDependenceStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "ml_stratified_folds",
+    "kind": "operator",
+    "title": "ml_stratified_folds",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Stratified K-fold assignment with sklearn-compatible fold allocation.",
+    "doc": "src/task/step/steps/ml_stratified_folds.MlStratifiedFoldsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ml_train_test_split",
+    "kind": "operator",
+    "title": "ml_train_test_split",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Stratified train/test split with a reproducible seed.",
+    "doc": "src/task/step/steps/ml_train_test_split.MlTrainTestSplitStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "mlp_classifier",
+    "kind": "operator",
+    "title": "Train a small MLP classifier",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Fits a two-layer perceptron (torch) on a labelled feature table and reports training accuracy and cross-entropy loss.",
+    "doc": "src/task/step/steps/mlp_classifier.MlpClassifierStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "mlp_regressor",
+    "kind": "operator",
+    "title": "Train a small MLP regressor",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Fits a two-layer perceptron (torch) on a feature table with a target column and reports RMSE, MAE and R2.",
+    "doc": "src/task/step/steps/mlp_regressor.MlpRegressorStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "mlst_typing",
+    "kind": "operator",
+    "title": "MLST sequence type assignment",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "MLST sequence type assignment.",
+    "doc": "src/task/step/steps/mlst_typing.MlstTypingStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "module_eigengenes",
+    "kind": "operator",
+    "title": "Module eigengenes",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Computes the first principal component of every module after per-gene scaling, sign-aligns it to the module average expression and reports the explained variance per module.",
+    "doc": "src/task/step/steps/module_eigengenes.ModuleEigengenesStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "module_trait_correlation",
+    "kind": "operator",
+    "title": "Module-trait correlations",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Correlates every module eigengene with every sample trait, reports Pearson r, the two-sided p-value and the sample count, and returns the strongest association.",
+    "doc": "src/task/step/steps/module_trait_correlation.ModuleTraitCorrelationStep.md",
     "status": "generated"
   },
   {
@@ -3610,6 +5410,26 @@
     "status": "generated"
   },
   {
+    "id": "motif_discovery_em",
+    "kind": "operator",
+    "title": "Motif discovery by EM",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Discovers a fixed-width motif PWM from sequences.",
+    "doc": "src/task/step/steps/motif_discovery_em.MotifDiscoveryEmStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "motif_enrichment",
+    "kind": "operator",
+    "title": "Motif enrichment",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "One-sided Fisher exact test of motif occurrence in foreground versus background sequences.",
+    "doc": "src/task/step/steps/motif_enrichment.MotifEnrichmentStep.md",
+    "status": "authored"
+  },
+  {
     "id": "motif_scan",
     "kind": "operator",
     "title": "motif_scan",
@@ -3620,6 +5440,16 @@
     "status": "generated"
   },
   {
+    "id": "motif_scan_pwm",
+    "kind": "operator",
+    "title": "Scan sequences with a position weight matrix",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Scan sequences with a position weight matrix",
+    "doc": "src/task/step/steps/motif_scan_pwm.MotifScanPwmStep.md",
+    "status": "authored"
+  },
+  {
     "id": "mrpp",
     "kind": "operator",
     "title": "MRPP",
@@ -3627,6 +5457,96 @@
     "version": "1.0.0",
     "description": "MRPP chance-corrected within-group agreement with a permutation p-value.",
     "doc": "src/task/step/steps/mrpp.MrppStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ms1_feature_detect",
+    "kind": "operator",
+    "title": "MS1 feature detection",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Detect local intensity maxima in profile-mode MS1 scans.",
+    "doc": "src/task/step/steps/ms1_feature_detect.Ms1FeatureDetectStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ms1_isotope_pattern",
+    "kind": "operator",
+    "title": "MS1 isotope pattern",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Compare an observed isotope envelope with a theoretical formula distribution.",
+    "doc": "src/task/step/steps/ms1_isotope_pattern.Ms1IsotopePatternStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ms2_cosine_similarity",
+    "kind": "operator",
+    "title": "MS2 cosine similarity against a library spectrum",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "MS2 cosine similarity against a library spectrum",
+    "doc": "src/task/step/steps/ms2_cosine_similarity.Ms2CosineSimilarityStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "ms2_spectral_angle",
+    "kind": "operator",
+    "title": "MS2 spectral angle",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Spectral angle in degrees between two centroid peak lists using square-root intensities and greedy m/z matching.",
+    "doc": "src/task/step/steps/ms2_spectral_angle.Ms2SpectralAngleStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "ms_missing_filter",
+    "kind": "operator",
+    "title": "Filter proteins by missing-value fraction",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Remove proteins whose missing fraction exceeds a threshold and report counts.",
+    "doc": "src/task/step/steps/ms_missing_filter.MsMissingFilterStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "msa_column_stats",
+    "kind": "operator",
+    "title": "Alignment column statistics",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Compute per-column gap fraction, Shannon entropy (bits), conservation (1 - H/log2 alphabet) and majority residue fraction for a multiple sequence alignment.",
+    "doc": "src/task/step/steps/msa_column_stats.MsaColumnStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "msa_consensus",
+    "kind": "operator",
+    "title": "Alignment consensus sequence",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Build a consensus sequence from an alignment, emitting the majority residue per column unless the column is too gappy or the majority is too weak (then N for nucleotides, X for protein).",
+    "doc": "src/task/step/steps/msa_consensus.MsaConsensusStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "msa_identity_matrix",
+    "kind": "operator",
+    "title": "Alignment identity matrix",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Compute pairwise sequence identity over columns where both sequences have a residue (gaps ignored), returning a square matrix.",
+    "doc": "src/task/step/steps/msa_identity_matrix.MsaIdentityMatrixStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "msa_trim",
+    "kind": "operator",
+    "title": "Trim alignment columns and rows",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Drop alignment columns whose gap fraction exceeds a threshold and rows that do not cover enough of the retained columns; writes a trimmed aligned FASTA artifact.",
+    "doc": "src/task/step/steps/msa_trim.MsaTrimStep.md",
     "status": "generated"
   },
   {
@@ -3648,6 +5568,16 @@
     "description": "Multinomial Naive Bayes classifier：接收 2 个输入，输出 Form；主要参数：样本维度、特征维度、标签维度、目标字段、测试集比例、交叉验证折数。",
     "doc": "src/task/step/steps/multinomial_nb_classifier.MultinomialNBClassifierStep.md",
     "status": "generated"
+  },
+  {
+    "id": "mutational_signature_decomposition",
+    "kind": "operator",
+    "title": "Mutational signature decomposition",
+    "category": "Genomics",
+    "version": "1.0.0",
+    "description": "Mutational signature decomposition (batch b87).",
+    "doc": "src/task/step/steps/mutational_signature_decomposition.MutationalSignatureDecompositionStep.md",
+    "status": "authored"
   },
   {
     "id": "mutual_information",
@@ -3720,6 +5650,36 @@
     "status": "generated"
   },
   {
+    "id": "network_centrality",
+    "kind": "operator",
+    "title": "Network centrality",
+    "category": "Network",
+    "version": "1.0.0",
+    "description": "Degree, betweenness, closeness, eigenvector and PageRank centrality for every node.",
+    "doc": "src/task/step/steps/network_centrality.NetworkCentralityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "network_communities",
+    "kind": "operator",
+    "title": "Network communities",
+    "category": "Network",
+    "version": "1.0.0",
+    "description": "Greedy modularity (Clauset-Newman-Moore) communities for an undirected network.",
+    "doc": "src/task/step/steps/network_communities.NetworkCommunitiesStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "network_summary",
+    "kind": "operator",
+    "title": "Network topology summary",
+    "category": "Network",
+    "version": "1.0.0",
+    "description": "Summarise an undirected network: size, density, components, diameter and clustering.",
+    "doc": "src/task/step/steps/network_summary.NetworkSummaryStep.md",
+    "status": "generated"
+  },
+  {
     "id": "nmds",
     "kind": "operator",
     "title": "Non-metric multidimensional scaling",
@@ -3760,6 +5720,16 @@
     "status": "generated"
   },
   {
+    "id": "normalizing_flow_density",
+    "kind": "operator",
+    "title": "RealNVP normalizing flow density",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "RealNVP affine-coupling flow trained by maximum likelihood on a 2-D table, reporting latent Gaussianity and parameters.",
+    "doc": "src/task/step/steps/normalizing_flow_density.NormalizingFlowDensityStep.md",
+    "status": "authored"
+  },
+  {
     "id": "normaltest",
     "kind": "operator",
     "title": "D'Agostino-Pearson normality test",
@@ -3770,6 +5740,16 @@
     "status": "generated"
   },
   {
+    "id": "nucleosome_positioning",
+    "kind": "operator",
+    "title": "Nucleosome positioning periodicity",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Autocorrelation of a signal track to estimate nucleosome repeat length.",
+    "doc": "src/task/step/steps/nucleosome_positioning.NucleosomePositioningStep.md",
+    "status": "authored"
+  },
+  {
     "id": "nucleotide_diversity",
     "kind": "operator",
     "title": "Nucleotide diversity",
@@ -3778,6 +5758,26 @@
     "description": "Nucleotide diversity over the whole input or fixed genomic windows.",
     "doc": "src/task/step/steps/nucleotide_diversity.NucleotideDiversityStep.md",
     "status": "generated"
+  },
+  {
+    "id": "nucleotide_transformer_embedding",
+    "kind": "operator",
+    "title": "Nucleotide Transformer embeddings",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Mean-pooled 512-d embeddings from the Nucleotide Transformer v2 50M multi-species model.",
+    "doc": "src/task/step/steps/nucleotide_transformer_embedding.NucleotideTransformerEmbeddingStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "nucleotide_transformer_variant_effect",
+    "kind": "operator",
+    "title": "Nucleotide Transformer variant effect",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Embeds reference and alternate windows and reports cosine distance and embedding shift.",
+    "doc": "src/task/step/steps/nucleotide_transformer_variant_effect.NucleotideTransformerVariantEffectStep.md",
+    "status": "authored"
   },
   {
     "id": "odds_ratio",
@@ -3840,6 +5840,16 @@
     "status": "generated"
   },
   {
+    "id": "ortholog_cluster",
+    "kind": "operator",
+    "title": "Ortholog clustering by presence-pattern similarity",
+    "category": "Comparative genomics",
+    "version": "1.0.0",
+    "description": "Clusters genes into ortholog groups by Jaccard similarity of their presence patterns.",
+    "doc": "src/task/step/steps/ortholog_cluster.OrthologClusterStep.md",
+    "status": "authored"
+  },
+  {
     "id": "pacf",
     "kind": "operator",
     "title": "Partial autocorrelation function",
@@ -3847,6 +5857,16 @@
     "version": "1.0.0",
     "description": "Partial autocorrelation function：接收 1 个输入，输出 Form；主要参数：样本维度、特征维度、数值字段、Lags、显著性水平。",
     "doc": "src/task/step/steps/pacf.PacfStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "paga_connectivity",
+    "kind": "operator",
+    "title": "paga_connectivity",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "PAGA-style connectivity between clusters on a cell embedding.",
+    "doc": "src/task/step/steps/paga_connectivity.PagaConnectivityStep.md",
     "status": "generated"
   },
   {
@@ -3900,6 +5920,26 @@
     "status": "generated"
   },
   {
+    "id": "pangenome_curve",
+    "kind": "operator",
+    "title": "Pangenome accumulation curve",
+    "category": "Comparative genomics",
+    "version": "1.0.0",
+    "description": "Estimates the pangenome size for each number of genomes by resampling genome orders.",
+    "doc": "src/task/step/steps/pangenome_curve.PangenomeCurveStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "pangenome_matrix",
+    "kind": "operator",
+    "title": "Pangenome core and accessory summary",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Pangenome core and accessory summary.",
+    "doc": "src/task/step/steps/pangenome_matrix.PangenomeMatrixStep.md",
+    "status": "authored"
+  },
+  {
     "id": "partial_correlation",
     "kind": "operator",
     "title": "Partial correlation",
@@ -3918,6 +5958,16 @@
     "description": "Partial Mantel test：接收 3 个输入，输出 Form；主要参数：样本维度、Sample B Dim、N Perm、随机种子。",
     "doc": "src/task/step/steps/partial_mantel.PartialMantelStep.md",
     "status": "generated"
+  },
+  {
+    "id": "particle_filter_bootstrap",
+    "kind": "operator",
+    "title": "Bootstrap particle filter",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Bootstrap particle filter for a local-level model with seeded resampling; reports the filtered mean, variance, effective sample size and log-likelihood.",
+    "doc": "src/task/step/steps/particle_filter_bootstrap.ParticleFilterBootstrapStep.md",
+    "status": "authored"
   },
   {
     "id": "passing_bablok",
@@ -3990,6 +6040,56 @@
     "status": "generated"
   },
   {
+    "id": "peak_annotate",
+    "kind": "operator",
+    "title": "Annotate peaks with the nearest same-chromosome gene",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Annotate peaks with the nearest same-chromosome gene",
+    "doc": "src/task/step/steps/peak_annotate.PeakAnnotateStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "peak_chrom_summary",
+    "kind": "operator",
+    "title": "Peak chromosome concentration",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarize how narrowPeak intervals distribute over chromosomes.",
+    "doc": "src/task/step/steps/peak_chrom_summary.PeakChromSummaryStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peak_density_profile",
+    "kind": "operator",
+    "title": "Peak density in fixed windows",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Counts peaks and covered bases per genomic window.",
+    "doc": "src/task/step/steps/peak_density_profile.PeakDensityProfileStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "peak_gap_stats",
+    "kind": "operator",
+    "title": "Inter-peak gap statistics",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarize distances between consecutive narrowPeak intervals on the same chromosome.",
+    "doc": "src/task/step/steps/peak_gap_stats.PeakGapStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peak_merge",
+    "kind": "operator",
+    "title": "peak_merge",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Merge peaks that overlap or are closer than max_gap on the same chromosome.",
+    "doc": "src/task/step/steps/peak_merge.PeakMergeStep.md",
+    "status": "generated"
+  },
+  {
     "id": "peak_nearest_gene",
     "kind": "operator",
     "title": "peak_nearest_gene",
@@ -3997,6 +6097,106 @@
     "version": "1.0.0",
     "description": "Assign every BED interval to its nearest annotated gene.",
     "doc": "src/task/step/steps/peak_nearest_gene.PeakNearestGeneStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peak_overlap_count",
+    "kind": "operator",
+    "title": "Count peaks overlapping genes",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Counts how many peaks overlap any gene feature.",
+    "doc": "src/task/step/steps/peak_overlap_count.PeakOverlapCountStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "peak_overlap_matrix",
+    "kind": "operator",
+    "title": "Pairwise peak overlap matrix",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Pairwise peak overlap matrix",
+    "doc": "src/task/step/steps/peak_overlap_matrix.PeakOverlapMatrixStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "peak_peak_distance",
+    "kind": "operator",
+    "title": "Nearest peak distance",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "For each peak, report the distance to the closest other peak midpoint.",
+    "doc": "src/task/step/steps/peak_peak_distance.PeakPeakDistanceStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "peak_signal_stats",
+    "kind": "operator",
+    "title": "Peak signal and confidence summary",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarize ENCODE narrowPeak signalValue, pValue and qValue columns.",
+    "doc": "src/task/step/steps/peak_signal_stats.PeakSignalStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peak_strand_bias",
+    "kind": "operator",
+    "title": "Peak strand balance",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Count plus, minus and unstranded narrowPeak intervals.",
+    "doc": "src/task/step/steps/peak_strand_bias.PeakStrandBiasStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peak_summit_offset",
+    "kind": "operator",
+    "title": "Peak summit offset",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarize the narrowPeak summit offset relative to the interval start and center.",
+    "doc": "src/task/step/steps/peak_summit_offset.PeakSummitOffsetStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peak_tss_distance",
+    "kind": "operator",
+    "title": "Distance from peaks to nearest TSS",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarizes peak distance to the nearest gene TSS.",
+    "doc": "src/task/step/steps/peak_tss_distance.PeakTssDistanceStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "peak_tss_enrichment",
+    "kind": "operator",
+    "title": "Distance-to-TSS bin enrichment",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Distance-to-TSS bin enrichment",
+    "doc": "src/task/step/steps/peak_tss_enrichment.PeakTssEnrichmentStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "peak_width_signal_correlation",
+    "kind": "operator",
+    "title": "Peak width versus signal",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Correlate narrowPeak widths with signalValue.",
+    "doc": "src/task/step/steps/peak_width_signal_correlation.PeakWidthSignalCorrelationStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peak_width_stats",
+    "kind": "operator",
+    "title": "Peak width distribution",
+    "category": "Epigenomics",
+    "version": "1.0.0",
+    "description": "Summarize narrowPeak interval widths in base pairs.",
+    "doc": "src/task/step/steps/peak_width_stats.PeakWidthStatsStep.md",
     "status": "generated"
   },
   {
@@ -4010,6 +6210,66 @@
     "status": "generated"
   },
   {
+    "id": "pedigree_inbreeding",
+    "kind": "operator",
+    "title": "Inbreeding coefficients from a numeric pedigree",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Inbreeding coefficients from a numeric pedigree",
+    "doc": "src/task/step/steps/pedigree_inbreeding.PedigreeInbreedingStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "peptide_coverage",
+    "kind": "operator",
+    "title": "Peptide coverage",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Merge peptide intervals per protein and report covered residues, coverage fractions and peptide counts.",
+    "doc": "src/task/step/steps/peptide_coverage.PeptideCoverageStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peptide_fragment_ions",
+    "kind": "operator",
+    "title": "Peptide fragment ions",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Compute theoretical b/y fragment ion m/z values for peptides with charge 1..N.",
+    "doc": "src/task/step/steps/peptide_fragment_ions.PeptideFragmentIonsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peptide_isotope_envelope",
+    "kind": "operator",
+    "title": "Peptide isotope envelope",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Compute the top theoretical isotope peaks (m/z, fraction, relative intensity) per peptide.",
+    "doc": "src/task/step/steps/peptide_isotope_envelope.PeptideIsotopeEnvelopeStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peptide_mass",
+    "kind": "operator",
+    "title": "Peptide mass and m/z",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Compute monoisotopic peptide masses from the sequences carried by a peptide Form and convert them to m/z for a given charge.",
+    "doc": "src/task/step/steps/peptide_mass.PeptideMassStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "peptide_modified_mass",
+    "kind": "operator",
+    "title": "Modified peptide mass",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Compute unmodified and fixed-modification precursor masses for peptides.",
+    "doc": "src/task/step/steps/peptide_modified_mass.PeptideModifiedMassStep.md",
+    "status": "generated"
+  },
+  {
     "id": "peptide_qvalue",
     "kind": "operator",
     "title": "Peptide q-values",
@@ -4018,6 +6278,16 @@
     "description": "Peptide q-values：接收 1 个输入，输出 Form；主要参数：Psm Dim、特征维度、Score Label、Decoy Label、Decoy Values。",
     "doc": "src/task/step/steps/peptide_qvalue.PeptideQvalueStep.md",
     "status": "generated"
+  },
+  {
+    "id": "peptide_spectrum_annotation",
+    "kind": "operator",
+    "title": "Peptide spectrum annotation",
+    "category": "Proteomics MS",
+    "version": "1.0.0",
+    "description": "Theoretical b/y ion matching and coverage for each peptide.",
+    "doc": "src/task/step/steps/peptide_spectrum_annotation.PeptideSpectrumAnnotationStep.md",
+    "status": "authored"
   },
   {
     "id": "periodogram",
@@ -4060,6 +6330,16 @@
     "status": "generated"
   },
   {
+    "id": "pfam_architecture",
+    "kind": "operator",
+    "title": "Pfam architecture",
+    "category": "Genome annotation",
+    "version": "1.0.0",
+    "description": "Ordered Pfam architecture string and domain counts per protein.",
+    "doc": "src/task/step/steps/pfam_architecture.PfamArchitectureStep.md",
+    "status": "authored"
+  },
+  {
     "id": "phillips_perron",
     "kind": "operator",
     "title": "Phillips-Perron unit-root test",
@@ -4067,6 +6347,126 @@
     "version": "1.0.0",
     "description": "Phillips-Perron Z-tau test with Newey-West long-run variance.",
     "doc": "src/task/step/steps/phillips_perron.PhillipsPerronStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "phylo_ancestral",
+    "kind": "operator",
+    "title": "phylo_ancestral",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "REML ancestral states for a continuous trait on a tree.",
+    "doc": "src/task/step/steps/phylo_ancestral.PhyloAncestralStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "phylo_bootstrap",
+    "kind": "operator",
+    "title": "phylo_bootstrap",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Bootstrap support for a neighbour-joining tree (JC69).",
+    "doc": "src/task/step/steps/phylo_bootstrap.PhyloBootstrapStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "phylo_contrasts",
+    "kind": "operator",
+    "title": "phylo_contrasts",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Felsenstein independent contrasts for a continuous trait.",
+    "doc": "src/task/step/steps/phylo_contrasts.PhyloContrastsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "phylo_distance_matrix",
+    "kind": "operator",
+    "title": "Phylogenetic distance matrix",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Compute pairwise p-distance, JC69 or K2P distances from aligned sequences, with complete or pairwise gap deletion.",
+    "doc": "src/task/step/steps/phylo_distance_matrix.PhyloDistanceMatrixStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "phylo_lambda",
+    "kind": "operator",
+    "title": "phylo_lambda",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Maximum-likelihood Pagel's lambda for a continuous trait.",
+    "doc": "src/task/step/steps/phylo_lambda.PhyloLambdaStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "phylo_neighbor_joining",
+    "kind": "operator",
+    "title": "Neighbour-joining tree",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Build a neighbour-joining tree from a square distance matrix and emit a node/field tree table plus a Newick representation.",
+    "doc": "src/task/step/steps/phylo_neighbor_joining.PhyloNeighborJoiningStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "phylo_support_filter",
+    "kind": "operator",
+    "title": "phylo_support_filter",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Collapse bootstrap splits below a support threshold.",
+    "doc": "src/task/step/steps/phylo_support_filter.PhyloSupportFilterStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "phylo_support_summary",
+    "kind": "operator",
+    "title": "phylo_support_summary",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Counts and quantiles of bootstrap split support.",
+    "doc": "src/task/step/steps/phylo_support_summary.PhyloSupportSummaryStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "phylo_tree_distance",
+    "kind": "operator",
+    "title": "Tree topology distance",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Compare two trees on the same tips: Robinson-Foulds distance, normalised RF and Kuhner-Felsenstein branch score.",
+    "doc": "src/task/step/steps/phylo_tree_distance.PhylotreeDistanceStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "phylogenetics_gtr_likelihood",
+    "kind": "operator",
+    "title": "GTR tree likelihood",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Felsenstein pruning log-likelihood of an alignment on a fixed Newick tree under a general time-reversible model with fixed exchangeabilities and base frequencies.",
+    "doc": "src/task/step/steps/phylogenetics_gtr_likelihood.PhylogeneticsGtrLikelihoodStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "phylogenetics_jc69_likelihood",
+    "kind": "operator",
+    "title": "JC69 tree likelihood",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Felsenstein pruning log-likelihood of an aligned nucleotide matrix on a fixed Newick tree under the JC69 model.",
+    "doc": "src/task/step/steps/phylogenetics_jc69_likelihood.PhylogeneticsJc69LikelihoodStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "pileup_variants",
+    "kind": "operator",
+    "title": "pileup_variants",
+    "category": "Quality Control",
+    "version": "1.0.0",
+    "description": "Call simple threshold-based variants from a BAM pileup and write a VCF.",
+    "doc": "src/task/step/steps/pileup_variants.PileupVariantsStep.md",
     "status": "generated"
   },
   {
@@ -4078,6 +6478,16 @@
     "description": "Pivot a long 2D table into a wide matrix by two categorical columns.",
     "doc": "src/task/step/steps/pivot.PivotStep.md",
     "status": "generated"
+  },
+  {
+    "id": "plasmid_contig_filter",
+    "kind": "operator",
+    "title": "Plasmid-like contig filter",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Plasmid-like contig filter.",
+    "doc": "src/task/step/steps/plasmid_contig_filter.PlasmidContigFilterStep.md",
+    "status": "authored"
   },
   {
     "id": "pls_regression",
@@ -4180,6 +6590,36 @@
     "status": "generated"
   },
   {
+    "id": "primer_design",
+    "kind": "operator",
+    "title": "Primer pair design",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Enumerate primer pairs flanking a target interval, filter by length, melting temperature and GC content, and rank pairs by a weighted penalty on Tm, length, GC and product size.",
+    "doc": "src/task/step/steps/primer_design.PrimerDesignStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "primer_specificity",
+    "kind": "operator",
+    "title": "Primer specificity (in-silico PCR)",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Search a genome for amplicons produced by a primer pair on both strands, allowing a bounded number of mismatches per primer, and report every product within the configured size window.",
+    "doc": "src/task/step/steps/primer_specificity.PrimerSpecificityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "primer_tm",
+    "kind": "operator",
+    "title": "Primer melting temperature",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Compute nearest-neighbour melting temperatures (SantaLucia 1998) with an entropy salt correction, plus GC fraction and the enthalpy/entropy terms for each input oligo.",
+    "doc": "src/task/step/steps/primer_tm.PrimerTmStep.md",
+    "status": "generated"
+  },
+  {
     "id": "prioritize",
     "kind": "operator",
     "title": "prioritize",
@@ -4220,6 +6660,26 @@
     "status": "generated"
   },
   {
+    "id": "propensity_score",
+    "kind": "operator",
+    "title": "propensity_score",
+    "category": "Causal Inference",
+    "version": "1.0.0",
+    "description": "Logistic propensity score for a binary treatment with covariates.",
+    "doc": "src/task/step/steps/propensity_score.PropensityScoreStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "propensity_score_matching",
+    "kind": "operator",
+    "title": "Propensity-score ATT matching",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Logistic propensity scores with one-to-one nearest-neighbour ATT matching.",
+    "doc": "src/task/step/steps/propensity_score_matching.PropensityScoreMatchingStep.md",
+    "status": "authored"
+  },
+  {
     "id": "proportion_ci",
     "kind": "operator",
     "title": "Binomial proportion confidence interval",
@@ -4240,6 +6700,146 @@
     "status": "generated"
   },
   {
+    "id": "protein_aliphatic_index",
+    "kind": "operator",
+    "title": "Protein aliphatic index",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Aliphatic index (Ikai 1980) from A, V, I and L composition.",
+    "doc": "src/task/step/steps/protein_aliphatic_index.ProteinAliphaticIndexStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_charge_curve",
+    "kind": "operator",
+    "title": "Protein charge versus pH",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Compute the net charge at pH 3 to 11 using standard residue pKa values.",
+    "doc": "src/task/step/steps/protein_charge_curve.ProteinChargeCurveStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "protein_composition",
+    "kind": "operator",
+    "title": "Protein amino-acid composition",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Counts the 20 standard amino acids for every protein sequence.",
+    "doc": "src/task/step/steps/protein_composition.ProteinCompositionStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_digest",
+    "kind": "operator",
+    "title": "Protein digest",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Digest a protein FASTA with a site-specific protease using the standard cleavage rule (K/R unless followed by P) and report peptide coordinates, missed cleavages and monoisotopic masses.",
+    "doc": "src/task/step/steps/protein_digest.ProteinDigestStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_er_retention",
+    "kind": "operator",
+    "title": "Protein ER retention motif",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Detect C-terminal KDEL/HDEL/DDEL endoplasmic-reticulum retention motifs.",
+    "doc": "src/task/step/steps/protein_er_retention.ProteinErRetentionStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "protein_extinction",
+    "kind": "operator",
+    "title": "Protein A280 extinction coefficients",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Computes molar extinction coefficients and A280 (1 mg/ml) from Trp, Tyr and cystine.",
+    "doc": "src/task/step/steps/protein_extinction.ProteinExtinctionStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_gravy_window",
+    "kind": "operator",
+    "title": "Protein GRAVY sliding window",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Summarize Kyte-Doolittle GRAVY over 9-residue windows.",
+    "doc": "src/task/step/steps/protein_gravy_window.ProteinGravyWindowStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "protein_inference",
+    "kind": "operator",
+    "title": "Protein inference",
+    "category": "Proteomics MS",
+    "version": "1.0.0",
+    "description": "Peptide evidence summarised to proteins with unique-peptide counts.",
+    "doc": "src/task/step/steps/protein_inference.ProteinInferenceStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "protein_instability",
+    "kind": "operator",
+    "title": "Protein instability index",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Computes the Guruprasad 1990 instability index (values above 40 indicate instability).",
+    "doc": "src/task/step/steps/protein_instability.ProteinInstabilityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_kinase_motifs",
+    "kind": "operator",
+    "title": "Protein kinase motifs",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Count minimal PKA (RRxS/T), CK2 (S/TxxD/E) and CDK (S/T-P-x-K/R) motifs.",
+    "doc": "src/task/step/steps/protein_kinase_motifs.ProteinKinaseMotifsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_mitochondrial_targeting",
+    "kind": "operator",
+    "title": "Protein mitochondrial presequence score",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Score an N-terminal mitochondrial presequence from charge and amphipathic moment.",
+    "doc": "src/task/step/steps/protein_mitochondrial_targeting.ProteinMitochondrialTargetingStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "protein_nglyc_sequons",
+    "kind": "operator",
+    "title": "Protein N-glycosylation sequons",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Count N-X-S/T sequons (X not proline) and report density per 100 residues.",
+    "doc": "src/task/step/steps/protein_nglyc_sequons.ProteinNGlycSequonsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_nls_motifs",
+    "kind": "operator",
+    "title": "Protein NLS motifs",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Count monopartite and bipartite nuclear localization signal motifs.",
+    "doc": "src/task/step/steps/protein_nls_motifs.ProteinNlsMotifsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_nuclear_export_signal",
+    "kind": "operator",
+    "title": "Protein nuclear export signal",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Detect leucine-rich nuclear export signals and report their positions.",
+    "doc": "src/task/step/steps/protein_nuclear_export_signal.ProteinNuclearExportSignalStep.md",
+    "status": "generated"
+  },
+  {
     "id": "protein_properties",
     "kind": "operator",
     "title": "Protein properties",
@@ -4247,6 +6847,16 @@
     "version": "1.0.0",
     "description": "Protein properties：接收 1 个输入，输出 Form；主要参数：序列维度、位置维度。",
     "doc": "src/task/step/steps/protein_properties.ProteinPropertiesStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "protein_pts1_signal",
+    "kind": "operator",
+    "title": "Protein PTS1 signal",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Detect the C-terminal peroxisomal targeting signal PTS1 (S/A/C-K/R/H-L/M).",
+    "doc": "src/task/step/steps/protein_pts1_signal.ProteinPts1SignalStep.md",
     "status": "generated"
   },
   {
@@ -4510,6 +7120,16 @@
     "status": "generated"
   },
   {
+    "id": "proteomics_ibaq",
+    "kind": "operator",
+    "title": "iBAQ protein abundance",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Per-protein iBAQ from peptide intensities: summed intensity divided by the number of observable peptides.",
+    "doc": "src/task/step/steps/proteomics_ibaq.ProteomicsIbaqStep.md",
+    "status": "authored"
+  },
+  {
     "id": "prs",
     "kind": "operator",
     "title": "Polygenic risk score",
@@ -4520,6 +7140,36 @@
     "status": "generated"
   },
   {
+    "id": "prs_af_filter",
+    "kind": "operator",
+    "title": "prs_af_filter",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Drop PRS weights whose variants are monomorphic, missing or too rare.",
+    "doc": "src/task/step/steps/prs_af_filter.PrsAfFilterStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "prs_harmonize",
+    "kind": "operator",
+    "title": "prs_harmonize",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Match score-file weights to VCF variants and orient them to the ALT allele.",
+    "doc": "src/task/step/steps/prs_harmonize.PrsHarmonizeStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "prs_ld_clump",
+    "kind": "operator",
+    "title": "prs_ld_clump",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Keep the strongest weights per LD window using genotype r-squared.",
+    "doc": "src/task/step/steps/prs_ld_clump.PrsLdClumpStep.md",
+    "status": "generated"
+  },
+  {
     "id": "pseudobulk",
     "kind": "operator",
     "title": "Pseudobulk aggregation",
@@ -4527,6 +7177,96 @@
     "version": "1.0.0",
     "description": "Pseudobulk aggregation：接收 2 个输入，输出 Form；主要参数：Cell Dim、Gene Dim、分组字段、方法。",
     "doc": "src/task/step/steps/pseudobulk.PseudobulkStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "pseudotime_dpt",
+    "kind": "operator",
+    "title": "pseudotime_dpt",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Diffusion pseudotime over a low-dimensional cell embedding.",
+    "doc": "src/task/step/steps/pseudotime_dpt.PseudotimeDptStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "psm_balance",
+    "kind": "operator",
+    "title": "psm_balance",
+    "category": "Causal Inference",
+    "version": "1.0.0",
+    "description": "Covariate balance diagnostics for a matched sample.",
+    "doc": "src/task/step/steps/psm_balance.PsmBalanceStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "psm_effect",
+    "kind": "operator",
+    "title": "psm_effect",
+    "category": "Causal Inference",
+    "version": "1.0.0",
+    "description": "Matched difference in means with OLS standard error.",
+    "doc": "src/task/step/steps/psm_effect.PsmEffectStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "psm_match",
+    "kind": "operator",
+    "title": "psm_match",
+    "category": "Causal Inference",
+    "version": "1.0.0",
+    "description": "Caliper nearest-neighbour matching on propensity scores.",
+    "doc": "src/task/step/steps/psm_match.PsmMatchStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "ptm_localization_score",
+    "kind": "operator",
+    "title": "Phospho-site localization probability from delta scores",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Phospho-site localization probability from delta scores",
+    "doc": "src/task/step/steps/ptm_localization_score.PtmLocalizationScoreStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "ptm_occupancy",
+    "kind": "operator",
+    "title": "PTM site occupancy",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Site occupancy computed from modified and unmodified peptide intensities.",
+    "doc": "src/task/step/steps/ptm_occupancy.PtmOccupancyStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "pwm_from_counts",
+    "kind": "operator",
+    "title": "pwm_from_counts",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Build a log-odds PWM and information content from a PFM.",
+    "doc": "src/task/step/steps/pwm_from_counts.PwmFromCountsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "pwm_information",
+    "kind": "operator",
+    "title": "pwm_information",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Compute per-position information content and consensus of a PWM.",
+    "doc": "src/task/step/steps/pwm_information.PwmInformationStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "pwm_scan",
+    "kind": "operator",
+    "title": "pwm_scan",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Scan sequences for PWM matches above a log-odds threshold.",
+    "doc": "src/task/step/steps/pwm_scan.PwmScanStep.md",
     "status": "generated"
   },
   {
@@ -4547,6 +7287,16 @@
     "version": "1.0.0",
     "description": "Quadratic discriminant analysis with per-class covariance; reports test predictions, accuracy and confusion matrix.",
     "doc": "src/task/step/steps/qda.QdaStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "qtl_interval_mapping",
+    "kind": "operator",
+    "title": "QTL interval mapping",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Single-marker regression of a phenotype on marker dosage.",
+    "doc": "src/task/step/steps/qtl_interval_mapping.QtlIntervalMappingStep.md",
     "status": "generated"
   },
   {
@@ -4960,6 +7710,16 @@
     "status": "generated"
   },
   {
+    "id": "recombination_rate",
+    "kind": "operator",
+    "title": "Recombination rate from a genetic map",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Local cM per Mb rates from cumulative genetic map positions.",
+    "doc": "src/task/step/steps/recombination_rate.RecombinationRateStep.md",
+    "status": "generated"
+  },
+  {
     "id": "reduce",
     "kind": "operator",
     "title": "PCA / PCoA / UMAP / t-SNE",
@@ -4998,6 +7758,16 @@
     "description": "逐个特征拟合回归模型，可加入协变量。",
     "doc": "src/task/step/steps/regress.RegressStep.md",
     "status": "generated"
+  },
+  {
+    "id": "regression_discontinuity",
+    "kind": "operator",
+    "title": "Sharp regression discontinuity",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Local linear sharp RD jump at a cutoff with a triangular window.",
+    "doc": "src/task/step/steps/regression_discontinuity.RegressionDiscontinuityStep.md",
+    "status": "authored"
   },
   {
     "id": "relatedness",
@@ -5057,6 +7827,26 @@
     "version": "1.0.0",
     "description": "Verify that the weights, databases and official checkouts listed in src/task/step/steps/resources.json are installed. Emits one row per expected file with its presence and size, and records the installation command for anything missing.",
     "doc": "src/task/step/steps/resource_preflight.ResourcePreflightStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "restriction_digest",
+    "kind": "operator",
+    "title": "restriction_digest",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Restriction fragments for a panel of enzymes.",
+    "doc": "src/task/step/steps/restriction_digest.RestrictionDigestStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "restriction_fragment_stats",
+    "kind": "operator",
+    "title": "restriction_fragment_stats",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Summary statistics of restriction fragment lengths.",
+    "doc": "src/task/step/steps/restriction_fragment_stats.RestrictionFragmentStatsStep.md",
     "status": "generated"
   },
   {
@@ -5130,6 +7920,46 @@
     "status": "generated"
   },
   {
+    "id": "rna_editing_detect",
+    "kind": "operator",
+    "title": "RNA editing candidate detection",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "Flags A>G / T>C substitutions and reports editing fraction.",
+    "doc": "src/task/step/steps/rna_editing_detect.RnaEditingDetectStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "rna_structure_consensus",
+    "kind": "operator",
+    "title": "RNA 结构共识 (RNAsubopt 集合)",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Enumerate suboptimal structures with ViennaRNA RNAsubopt within an energy window, derive per-base-pair frequencies and a non-crossing consensus structure, and compare it with the minimum free energy structure.",
+    "doc": "src/task/step/steps/rna_structure_consensus.RnaStructureConsensusStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "rna_structure_distance",
+    "kind": "operator",
+    "title": "RNA 二级结构距离 (RNAfold 双温度)",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Fold each RNA with ViennaRNA RNAfold at two temperatures and report the base-pair distance, shared and union pairs, Hamming distance and the normalised base-pair distance between the two structures.",
+    "doc": "src/task/step/steps/rna_structure_distance.RnaStructureDistanceStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "rna_structure_features",
+    "kind": "operator",
+    "title": "RNA 二级结构特征 (环与茎)",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Fold each RNA with ViennaRNA RNAfold and count base pairs, stems, the longest stem, hairpins, bulges, internal loops, multiloops, stacked pairs and unpaired positions.",
+    "doc": "src/task/step/steps/rna_structure_features.RnaStructureFeaturesStep.md",
+    "status": "generated"
+  },
+  {
     "id": "robinson_foulds",
     "kind": "operator",
     "title": "Robinson-Foulds distance",
@@ -5180,6 +8010,36 @@
     "status": "generated"
   },
   {
+    "id": "roh_detect",
+    "kind": "operator",
+    "title": "Runs of homozygosity per sample",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Runs of homozygosity per sample",
+    "doc": "src/task/step/steps/roh_detect.RohDetectStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "rscu_table",
+    "kind": "operator",
+    "title": "Relative synonymous codon usage",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Aggregate codon counts and RSCU across a coding sequence set.",
+    "doc": "src/task/step/steps/rscu_table.RscuTableStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "rt_alignment",
+    "kind": "operator",
+    "title": "Align retention times between runs",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Align retention times between runs",
+    "doc": "src/task/step/steps/rt_alignment.RtAlignmentStep.md",
+    "status": "authored"
+  },
+  {
     "id": "runs_test",
     "kind": "operator",
     "title": "Runs test",
@@ -5200,6 +8060,16 @@
     "status": "generated"
   },
   {
+    "id": "sarimax_forecast",
+    "kind": "operator",
+    "title": "SARIMAX time-series forecast",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Fits a SARIMAX model to an ordered series and returns a multi-step forecast with confidence bounds.",
+    "doc": "src/task/step/steps/sarimax_forecast.SarimaxForecastStep.md",
+    "status": "authored"
+  },
+  {
     "id": "sasa_per_residue",
     "kind": "operator",
     "title": "Per-Residue SASA",
@@ -5208,6 +8078,136 @@
     "description": "Compute the Shrake-Rupley solvent-accessible surface area of every residue in a full-atom structure with Bondi van der Waals radii and a 1.4 A probe.",
     "doc": "src/task/step/steps/sasa_per_residue.SasaPerResidueStep.md",
     "status": "generated"
+  },
+  {
+    "id": "sc_batch_ilisi",
+    "kind": "operator",
+    "title": "Single-cell iLISI batch mixing",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Inverse Simpson index of neighbour batch labels on a cell graph.",
+    "doc": "src/task/step/steps/sc_batch_ilisi.ScBatchIlisiStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "sc_batch_kbet",
+    "kind": "operator",
+    "title": "Single-cell kBET batch mixing",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Neighbourhood chi-square test of batch mixing on a cell graph.",
+    "doc": "src/task/step/steps/sc_batch_kbet.ScBatchKbetStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "sc_cluster_profile",
+    "kind": "operator",
+    "title": "sc_cluster_profile",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Per-cluster mean expression and detection fraction.",
+    "doc": "src/task/step/steps/sc_cluster_profile.ScClusterProfileStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "sc_cnv_score",
+    "kind": "operator",
+    "title": "Per-cell CNV score",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Average absolute arm-level z-score per cell.",
+    "doc": "src/task/step/steps/sc_cnv_score.ScCnvScoreStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_deconvolution",
+    "kind": "operator",
+    "title": "NNLS cell-type deconvolution",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Non-negative least squares deconvolution of bulk expression against a signature matrix.",
+    "doc": "src/task/step/steps/sc_deconvolution.ScDeconvolutionStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_knn_graph",
+    "kind": "operator",
+    "title": "Single-cell kNN graph",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Build a symmetric kNN graph from a cell embedding.",
+    "doc": "src/task/step/steps/sc_knn_graph.ScKnnGraphStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_leiden_cluster",
+    "kind": "operator",
+    "title": "Leiden clustering",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Leiden community detection over a cell-cell graph.",
+    "doc": "src/task/step/steps/sc_leiden_cluster.ScLeidenClusterStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_marker_specificity",
+    "kind": "operator",
+    "title": "sc_marker_specificity",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Tau specificity and detection rates of genes across clusters.",
+    "doc": "src/task/step/steps/sc_marker_specificity.ScMarkerSpecificityStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "sc_pseudobulk_de",
+    "kind": "operator",
+    "title": "Pseudo-bulk differential expression",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Aggregate cells by group and test gene-wise mean differences.",
+    "doc": "src/task/step/steps/sc_pseudobulk_de.ScPseudobulkDeStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_rank_genes",
+    "kind": "operator",
+    "title": "sc_rank_genes",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Cluster-versus-rest Wilcoxon differential expression for single-cell matrices.",
+    "doc": "src/task/step/steps/sc_rank_genes.ScRankGenesStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "sc_spatial_domains",
+    "kind": "operator",
+    "title": "Spatial domain assignment",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Assign spatial domains by k-means on coordinates and report neighbour purity.",
+    "doc": "src/task/step/steps/sc_spatial_domains.ScSpatialDomainsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_spatial_neighbors",
+    "kind": "operator",
+    "title": "Spatial k-nearest-neighbour graph",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Build a Gaussian-weighted spatial kNN graph from cell coordinates.",
+    "doc": "src/task/step/steps/sc_spatial_neighbors.ScSpatialNeighborsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sc_spatial_variable_genes",
+    "kind": "operator",
+    "title": "Spatially variable genes (Moran's I)",
+    "category": "Single cell",
+    "version": "1.0.0",
+    "description": "Score each gene with Moran's I on a spatial kNN graph.",
+    "doc": "src/task/step/steps/sc_spatial_variable_genes.ScSpatialVariableGenesStep.md",
+    "status": "authored"
   },
   {
     "id": "scale_features",
@@ -5260,6 +8260,16 @@
     "status": "generated"
   },
   {
+    "id": "selection_index",
+    "kind": "operator",
+    "title": "Composite selection score from Fst, iHS and XP-EHH",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Composite selection score from Fst, iHS and XP-EHH",
+    "doc": "src/task/step/steps/selection_index.SelectionIndexStep.md",
+    "status": "authored"
+  },
+  {
     "id": "sen_slope",
     "kind": "operator",
     "title": "Sen's slope",
@@ -5288,6 +8298,16 @@
     "description": "",
     "doc": "src/task/step/steps/sequence_beta_propensity.SequenceBetaPropensityStep.md",
     "status": "generated"
+  },
+  {
+    "id": "sequence_cai",
+    "kind": "operator",
+    "title": "Codon adaptation index",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Codon adaptation index of coding sequences against caller-supplied relative adaptiveness weights.",
+    "doc": "src/task/step/steps/sequence_cai.SequenceCaiStep.md",
+    "status": "authored"
   },
   {
     "id": "sequence_codon_adaptation",
@@ -5338,6 +8358,26 @@
     "description": "",
     "doc": "src/task/step/steps/sequence_disorder_predictor.SequenceDisorderPredictorStep.md",
     "status": "generated"
+  },
+  {
+    "id": "sequence_dnds",
+    "kind": "operator",
+    "title": "dN/dS ratio (Nei-Gojobori)",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "dN/dS ratio (Nei-Gojobori).",
+    "doc": "src/task/step/steps/sequence_dnds.SequenceDndsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "sequence_g4_quadruplex_scan",
+    "kind": "operator",
+    "title": "G-quadruplex tract scan",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Counts G3+ tracts separated by short loops as a G-quadruplex propensity proxy.",
+    "doc": "src/task/step/steps/sequence_g4_quadruplex_scan.SequenceG4QuadruplexScanStep.md",
+    "status": "authored"
   },
   {
     "id": "sequence_gc_profile",
@@ -5770,6 +8810,36 @@
     "status": "generated"
   },
   {
+    "id": "spectral_entropy",
+    "kind": "operator",
+    "title": "Spectral entropy and peak complexity",
+    "category": "Proteomics",
+    "version": "1.0.0",
+    "description": "Spectral entropy and peak complexity",
+    "doc": "src/task/step/steps/spectral_entropy.SpectralEntropyStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "spectrum_library_match",
+    "kind": "operator",
+    "title": "Spectrum library match",
+    "category": "Proteomics MS",
+    "version": "1.0.0",
+    "description": "Cosine score of each query spectrum against a library of spectra.",
+    "doc": "src/task/step/steps/spectrum_library_match.SpectrumLibraryMatchStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "splicing_psi",
+    "kind": "operator",
+    "title": "Splicing PSI",
+    "category": "Transcriptomics",
+    "version": "1.0.0",
+    "description": "PSI = inclusion / (inclusion + skipping) per event with a Jeffreys interval.",
+    "doc": "src/task/step/steps/splicing_psi.SplicingPsiStep.md",
+    "status": "authored"
+  },
+  {
     "id": "spline_regression",
     "kind": "operator",
     "title": "B-spline regression",
@@ -5800,6 +8870,16 @@
     "status": "generated"
   },
   {
+    "id": "stats_fdr",
+    "kind": "operator",
+    "title": "stats_fdr",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Multiple-testing adjusted p-values and rejections (BH, BY, Holm, Bonferroni).",
+    "doc": "src/task/step/steps/stats_fdr.StatsFdrStep.md",
+    "status": "generated"
+  },
+  {
     "id": "storey_qvalue",
     "kind": "operator",
     "title": "Storey q-values",
@@ -5807,6 +8887,16 @@
     "version": "1.0.0",
     "description": "Storey's q-value procedure for a column of p-values.",
     "doc": "src/task/step/steps/storey_qvalue.StoreyQvalueStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "structure_altloc_inventory",
+    "kind": "operator",
+    "title": "Alternate conformer inventory",
+    "category": "Structure",
+    "version": "1.0.0",
+    "description": "Counts atoms and residues per altloc identifier and summarises occupancies, flagging structures that refine more than one conformer for a residue.",
+    "doc": "src/task/step/steps/structure_altloc_inventory.StructureAltlocInventoryStep.md",
     "status": "generated"
   },
   {
@@ -5907,6 +8997,16 @@
     "version": "1.0.0",
     "description": "Computes chi1, chi2 and chi3 side-chain torsion angles for every residue.",
     "doc": "src/task/step/steps/structure_chi_angles.StructureChiAnglesStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "structure_cis_peptides",
+    "kind": "operator",
+    "title": "Cis peptide bonds from omega dihedrals",
+    "category": "Structure",
+    "version": "1.0.0",
+    "description": "Computes the backbone omega dihedral of every consecutive peptide bond and flags bonds whose absolute angle is below the cis threshold. Bonds across missing-residue gaps are skipped.",
+    "doc": "src/task/step/steps/structure_cis_peptides.StructureCisPeptidesStep.md",
     "status": "generated"
   },
   {
@@ -6360,6 +9460,16 @@
     "status": "generated"
   },
   {
+    "id": "structure_missing_residues",
+    "kind": "operator",
+    "title": "Missing residues between chain segments",
+    "category": "Structure",
+    "version": "1.0.0",
+    "description": "Detects internal gaps in the residue numbering of every polymer chain and reports the missing range and length. Terminal truncation is not detectable from the coordinate form.",
+    "doc": "src/task/step/steps/structure_missing_residues.StructureMissingResiduesStep.md",
+    "status": "generated"
+  },
+  {
     "id": "structure_openmm_energy",
     "kind": "operator",
     "title": "OpenMM potential energy",
@@ -6478,6 +9588,16 @@
     "description": "",
     "doc": "src/task/step/steps/structure_protonation_sites.StructureProtonationSitesStep.md",
     "status": "generated"
+  },
+  {
+    "id": "structure_radius_of_gyration",
+    "kind": "operator",
+    "title": "Radius of gyration",
+    "category": "Structure",
+    "version": "1.0.0",
+    "description": "Radius of gyration and maximum atom radius of a PDB structure.",
+    "doc": "src/task/step/steps/structure_radius_of_gyration.StructureRadiusOfGyrationStep.md",
+    "status": "authored"
   },
   {
     "id": "structure_rmsd",
@@ -6600,6 +9720,16 @@
     "status": "generated"
   },
   {
+    "id": "synthetic_control",
+    "kind": "operator",
+    "title": "Synthetic control ATT",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Simplex-weighted donor pool fitted on pre-treatment periods, ATT on post periods.",
+    "doc": "src/task/step/steps/synthetic_control.SyntheticControlStep.md",
+    "status": "generated"
+  },
+  {
     "id": "tajimas_d",
     "kind": "operator",
     "title": "Tajima's D",
@@ -6618,6 +9748,26 @@
     "description": "Tamhane T2 comparisons with Welch degrees of freedom and Sidak correction.",
     "doc": "src/task/step/steps/tamhane_t2.TamhaneT2Step.md",
     "status": "generated"
+  },
+  {
+    "id": "taxon_abundance_collapse",
+    "kind": "operator",
+    "title": "Collapse a taxonomic abundance table to one rank",
+    "category": "Metagenomics",
+    "version": "1.0.0",
+    "description": "Aggregate taxa sharing a rank prefix (for example g__) across samples.",
+    "doc": "src/task/step/steps/taxon_abundance_collapse.TaxonAbundanceCollapseStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tcr_diversity",
+    "kind": "operator",
+    "title": "TCR repertoire diversity indices",
+    "category": "Immunology",
+    "version": "1.0.0",
+    "description": "Computes observed richness, Shannon, Simpson, Chao1 and Pielou evenness from clonotype counts.",
+    "doc": "src/task/step/steps/tcr_diversity.TcrDiversityStep.md",
+    "status": "authored"
   },
   {
     "id": "theil_sen_regressor",
@@ -6690,6 +9840,26 @@
     "status": "generated"
   },
   {
+    "id": "trajectory_gene_trends",
+    "kind": "operator",
+    "title": "trajectory_gene_trends",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Mean gene expression across equal-width pseudotime bins.",
+    "doc": "src/task/step/steps/trajectory_gene_trends.TrajectoryGeneTrendsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "transformer_classifier",
+    "kind": "operator",
+    "title": "Transformer classifier",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Multi-head self-attention encoder over tabular features with a class token head. (batch b88).",
+    "doc": "src/task/step/steps/transformer_classifier.TransformerClassifierStep.md",
+    "status": "authored"
+  },
+  {
     "id": "translate",
     "kind": "operator",
     "title": "Translate sequences",
@@ -6708,6 +9878,116 @@
     "description": "调整命名维度的排列顺序。",
     "doc": "src/task/step/steps/transpose.TransposeStep.md",
     "status": "generated"
+  },
+  {
+    "id": "tree_balance",
+    "kind": "operator",
+    "title": "Tree shape statistics",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Summarise the shape of a rooted tree: Sackin index, Colless index and normalised Colless (bifurcating trees only), cherry count and tip/internal node counts.",
+    "doc": "src/task/step/steps/tree_balance.TreeBalanceStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "tree_consensus",
+    "kind": "operator",
+    "title": "Tree split consensus",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Support of clades across a set of trees.",
+    "doc": "src/task/step/steps/tree_consensus.TreeConsensusStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_dating",
+    "kind": "operator",
+    "title": "Root-to-tip dating",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Root-to-tip regression against tip dates.",
+    "doc": "src/task/step/steps/tree_dating.TreeDatingStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_mrca",
+    "kind": "operator",
+    "title": "Most recent common ancestor of two tips",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Finds the MRCA node of two tip labels in a Newick tree and reports its height and pairwise distance.",
+    "doc": "src/task/step/steps/tree_mrca.TreeMrcaStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_outgroup_root",
+    "kind": "operator",
+    "title": "Outgroup rooting",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Re-root a Newick tree on the terminal branch of a named outgroup and report root geometry.",
+    "doc": "src/task/step/steps/tree_outgroup_root.TreeOutgroupRootStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_parsimony_score",
+    "kind": "operator",
+    "title": "Fitch parsimony score of a tree and character matrix",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Computes the Fitch parsimony score for a Newick tree and a tip-by-character matrix.",
+    "doc": "src/task/step/steps/tree_parsimony_score.TreeParsimonyScoreStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_prune_tips",
+    "kind": "operator",
+    "title": "Prune tree tips",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Remove the named tips from a rooted tree, drop internal nodes that lose every child and merge the two edges of any node left with a single child.",
+    "doc": "src/task/step/steps/tree_prune_tips.TreePruneTipsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "tree_quartet_support",
+    "kind": "operator",
+    "title": "Quartet topology support",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Tree-induced quartet topology against expected topologies.",
+    "doc": "src/task/step/steps/tree_quartet_support.TreeQuartetSupportStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_robinson_foulds",
+    "kind": "operator",
+    "title": "Robinson-Foulds distance",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Compute the Robinson-Foulds distance between two Newick trees with identical taxon sets.",
+    "doc": "src/task/step/steps/tree_robinson_foulds.TreeRobinsonFouldsStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "tree_root_midpoint",
+    "kind": "operator",
+    "title": "Midpoint root a tree",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Root the tree at the midpoint of its longest tip-to-tip path. When the midpoint falls inside an edge a new root node splits that edge into two lengths whose sum is preserved.",
+    "doc": "src/task/step/steps/tree_root_midpoint.TreeRootMidpointStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "tree_ultrametric",
+    "kind": "operator",
+    "title": "Ultrametricity check for a dated tree",
+    "category": "Phylogenetics",
+    "version": "1.0.0",
+    "description": "Tests whether all root-to-tip distances are equal within a tolerance.",
+    "doc": "src/task/step/steps/tree_ultrametric.TreeUltrametricStep.md",
+    "status": "authored"
   },
   {
     "id": "trnascan_se",
@@ -6840,6 +10120,36 @@
     "status": "generated"
   },
   {
+    "id": "uplift_qini_curve",
+    "kind": "operator",
+    "title": "Uplift Qini curve",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Sort samples by estimated uplift and report the cumulative Qini gain curve.",
+    "doc": "src/task/step/steps/uplift_qini_curve.UpliftQiniCurveStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "uplift_t_learner",
+    "kind": "operator",
+    "title": "Uplift T-learner",
+    "category": "Causal inference",
+    "version": "1.0.0",
+    "description": "Fit separate least-squares outcome models per treatment arm and report per-sample uplift.",
+    "doc": "src/task/step/steps/uplift_t_learner.UpliftTLearnerStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "vae_anomaly",
+    "kind": "operator",
+    "title": "Variational autoencoder anomaly score",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Variational autoencoder anomaly score (batch b87).",
+    "doc": "src/task/step/steps/vae_anomaly.VaeAnomalyStep.md",
+    "status": "authored"
+  },
+  {
     "id": "van_waerden",
     "kind": "operator",
     "title": "Van der Waerden test",
@@ -6880,6 +10190,26 @@
     "status": "generated"
   },
   {
+    "id": "variant_consequence",
+    "kind": "operator",
+    "title": "variant_consequence",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Annotate VCF records with the most severe transcript consequence.",
+    "doc": "src/task/step/steps/variant_consequence.VariantConsequenceStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "variant_impact_summary",
+    "kind": "operator",
+    "title": "variant_impact_summary",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Count consequence classes and genes in an annotated VCF.",
+    "doc": "src/task/step/steps/variant_impact_summary.VariantImpactSummaryStep.md",
+    "status": "generated"
+  },
+  {
     "id": "variation_of_information",
     "kind": "operator",
     "title": "Variation of information",
@@ -6907,6 +10237,106 @@
     "version": "1.0.0",
     "description": "Variance partitioning of a response matrix between two predictor tables, reported as adjusted R2 fractions [a], [b], [c] and [d] following vegan varpart.",
     "doc": "src/task/step/steps/varpart.VarpartStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "vcf_concat",
+    "kind": "operator",
+    "title": "vcf_concat",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Concatenate two VCFs with identical samples into a single VCF.",
+    "doc": "src/task/step/steps/vcf_concat.VcfConcatStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "vcf_concordance",
+    "kind": "operator",
+    "title": "vcf_concordance",
+    "category": "Genome",
+    "version": "1.0.1",
+    "description": "Site and genotype concordance between a query VCF and a truth VCF.",
+    "doc": "src/task/step/steps/vcf_concordance.VcfConcordanceStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "vcf_filter",
+    "kind": "operator",
+    "title": "vcf_filter",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Filter VCF records by quality, FILTER, variant type, depth, missingness and region.",
+    "doc": "src/task/step/steps/vcf_filter.VcfFilterStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "vcf_hardy_weinberg",
+    "kind": "operator",
+    "title": "Hardy-Weinberg exact test",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Per-site exact Hardy-Weinberg test with observed and expected heterozygotes.",
+    "doc": "src/task/step/steps/vcf_hardy_weinberg.VcfHardyWeinbergStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "vcf_merge",
+    "kind": "operator",
+    "title": "vcf_merge",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Merge two VCFs into a sample-aware union of sites (missing genotypes filled).",
+    "doc": "src/task/step/steps/vcf_merge.VcfMergeStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "vcf_normalize",
+    "kind": "operator",
+    "title": "VCF normalise",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Split multi-allelic records and left-align/trim indels against a reference FASTA.",
+    "doc": "src/task/step/steps/vcf_normalize.VcfNormalizeStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "vcf_relatedness",
+    "kind": "operator",
+    "title": "vcf_relatedness",
+    "category": "Genome",
+    "version": "1.0.1",
+    "description": "KING-robust between-family kinship coefficients between samples of a VCF (plink2 --make-king-table compatible).",
+    "doc": "src/task/step/steps/vcf_relatedness.VcfRelatednessStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "vcf_sample_stats",
+    "kind": "operator",
+    "title": "Per-sample VCF genotype statistics",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Per-sample call rate, genotype counts, heterozygosity ratio and Ti/Tv.",
+    "doc": "src/task/step/steps/vcf_sample_stats.VcfSampleStatsStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "vcf_site_missingness",
+    "kind": "operator",
+    "title": "Per-site VCF call rate",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Per-site called and missing sample counts with the call rate.",
+    "doc": "src/task/step/steps/vcf_site_missingness.VcfSiteMissingnessStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "vcf_stats",
+    "kind": "operator",
+    "title": "vcf_stats",
+    "category": "Genome",
+    "version": "1.0.0",
+    "description": "Allele-level summary statistics for a VCF/VCF.gz file.",
+    "doc": "src/task/step/steps/vcf_stats.VcfStatsStep.md",
     "status": "generated"
   },
   {
@@ -7070,6 +10500,16 @@
     "status": "generated"
   },
   {
+    "id": "wgcna_soft_threshold",
+    "kind": "operator",
+    "title": "Scale-free topology fit for soft-threshold powers",
+    "category": "Omics",
+    "version": "1.0.0",
+    "description": "Computes the signed correlation network for a range of powers, derives the connectivity distribution and reports the scale-free fit R^2, slope and truncated-exponential adjusted R^2, together with a suggested power.",
+    "doc": "src/task/step/steps/wgcna_soft_threshold.WgcnaSoftThresholdStep.md",
+    "status": "generated"
+  },
+  {
     "id": "white_test",
     "kind": "operator",
     "title": "White heteroskedasticity test",
@@ -7107,6 +10547,26 @@
     "version": "1.0.0",
     "description": "Woolf test for homogeneity of odds ratios across 2x2 strata.",
     "doc": "src/task/step/steps/woolf_test.WoolfTestStep.md",
+    "status": "generated"
+  },
+  {
+    "id": "xgboost_regressor",
+    "kind": "operator",
+    "title": "XGBoost regressor",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Fit a deterministic XGBoost histogram regressor and report training diagnostics.",
+    "doc": "src/task/step/steps/xgboost_regressor.XgboostRegressorStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "xic_extract",
+    "kind": "operator",
+    "title": "Extracted ion chromatogram peaks",
+    "category": "Metabolomics",
+    "version": "1.0.0",
+    "description": "Detect and integrate peaks in a single extracted-ion chromatogram.",
+    "doc": "src/task/step/steps/xic_extract.XicExtractStep.md",
     "status": "generated"
   },
   {

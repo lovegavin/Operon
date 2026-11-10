@@ -1,0 +1,89 @@
+{
+  "format": "operon.task",
+  "version": 1,
+  "name": "b78 JC69 likelihood and outgroup rooting",
+  "sources": {
+    "tree": {
+      "reader": "CsvReader",
+      "path": "input/tree.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      }
+    },
+    "aln": {
+      "reader": "CsvReader",
+      "path": "input/aln.csv",
+      "dims": [
+        "taxon",
+        "site"
+      ],
+      "labels": {
+        "taxon": {
+          "site": 0
+        },
+        "site": "builtin"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "phylogenetics_jc69_likelihood",
+      "inputs": [
+        "tree",
+        "aln"
+      ],
+      "params": {
+        "tree_dim": "row",
+        "field_dim": "field",
+        "taxon_dim": "taxon",
+        "site_dim": "site",
+        "output": "jc69"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "jc69"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "jc69"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "tree_outgroup_root",
+      "inputs": [
+        "tree"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "outgroup": "A",
+        "output": "rooted"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "rooted"
+      ],
+      "params": {
+        "output": "export",
+        "format": "csv",
+        "filename": "rooted"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output name"
+    },
+    "permutations": {
+      "type": "integer",
+      "default": 50,
+      "minimum": 1
+    },
+    "seed": {
+      "type": "integer",
+      "default": 7
+    },
+    "genome_dim": {
+      "type": "string",
+      "default": "genome"
+    },
+    "gene_dim": {
+      "type": "string",
+      "default": "gene"
+    }
+  }
+}

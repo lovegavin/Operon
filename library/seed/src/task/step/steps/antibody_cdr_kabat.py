@@ -175,7 +175,11 @@ class AntibodyCdrKabatStep(Step):
     provider = 'operon-core'
     """Kabat CDR and framework boundaries for a VH/VHH sequence."""
     parameters_file = 'antibody_cdr_kabat.AntibodyCdrKabatStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'antibody_cdr_kabat',
      'version': '1.0.0',
      'kind': 'operator',

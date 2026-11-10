@@ -29,7 +29,11 @@ class LogTransformStep(Step):
     """Apply log_base(x + pseudocount) elementwise."""
     provider = 'operon-expression'
     parameters_file = 'log_transform.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'log_transform',
      'version': '1.0.0',
      'kind': 'operator',

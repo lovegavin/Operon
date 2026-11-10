@@ -15,7 +15,13 @@ class RocComparisonStep(Step):
     provider = 'operon-core'
     """Compare two AUCs measured on the same samples (DeLong)."""
     parameters_file = 'roc_comparison.RocComparisonStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'roc_comparison',
      'version': '1.0.0',
      'kind': 'operator',

@@ -32,7 +32,12 @@ from ._ext_common import (
 class CombatStep(Step):
     provider = 'operon-core'
     parameters_file = 'combat.CombatStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'combat',
      'version': '1.0.0',
      'kind': 'operator',
@@ -62,8 +67,8 @@ class CombatStep(Step):
                                          'axis_info_open': False,
                                          'info': {'missing_code': {'type': ['number', 'null']}}}}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
-     'dependencies': ['anndata>=0.10', 'pandas>=2.0', 'scanpy>=1.10'],
-     'dependency_imports': ['anndata', 'pandas', 'scanpy'],
+     'dependencies': ['anndata>=0.10', 'scanpy>=1.10'],
+     'dependency_imports': ['anndata', 'scanpy'],
      'inputs_arity': 2,
      'outputs': [],
      'output_parameter': 'output',

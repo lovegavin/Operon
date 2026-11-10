@@ -62,7 +62,7 @@ def run_duplex(
             raise StepError(f"sequence_rna_duplex: sequence {index + 1} contains non-RNA characters (expected ACGUN)")
         cleaned.append(text)
     workdir = Path(tempfile.mkdtemp(prefix="rnaduplex_"))
-    command = [binary, "-e", str(energy_range)]
+    command = [binary, "-e", str(max(float(energy_range), 0.1))]
     try:
         completed = subprocess.run(
             command,
@@ -86,6 +86,9 @@ class SequenceRnaDuplexStep(Step):
     provider = "operon-core"
     parameters_file = "sequence_rna_duplex.SequenceRnaDuplexStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "sequence_rna_duplex",
         "version": "1.0.0",

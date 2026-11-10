@@ -21,7 +21,11 @@ class DurbinTestStep(Step):
     incomplete (``k < t``). Missing cells are represented by NaN.
     """
     parameters_file = 'durbin_test.DurbinTestStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'durbin_test',
      'version': '1.0.0',
      'kind': 'operator',

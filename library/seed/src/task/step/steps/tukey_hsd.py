@@ -13,7 +13,12 @@ class TukeyHsdStep(Step):
     provider = 'operon-core'
     """Tukey HSD across groups for every feature."""
     parameters_file = 'tukey_hsd.TukeyHsdStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'tukey_hsd',
      'version': '1.0.0',
      'kind': 'operator',

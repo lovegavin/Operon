@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string"
+    },
+    "ref_column": {
+      "type": "string",
+      "default": "ref"
+    },
+    "alt_column": {
+      "type": "string",
+      "default": "alt"
+    },
+    "model_path": {
+      "type": "string",
+      "default": ""
+    },
+    "max_length": {
+      "type": "integer",
+      "minimum": 16,
+      "default": 512
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim",
+    "alt_column",
+    "max_length",
+    "model_path",
+    "ref_column"
+  ]
+}

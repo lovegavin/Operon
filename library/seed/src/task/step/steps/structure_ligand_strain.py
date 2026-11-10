@@ -117,6 +117,9 @@ class StructureLigandStrainStep(Step):
     provider = "operon-core"
     parameters_file = "structure_ligand_strain.StructureLigandStrainStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_ligand_strain",
         "version": "1.0.0",
@@ -157,8 +160,8 @@ class StructureLigandStrainStep(Step):
             "supports_cuda": False,
             "estimate": "estimate_memory",
         },
-        "dependencies": ['numpy>=1.24', 'rdkit>=2023.3', 'scipy>=1.11'],
-        "dependency_imports": ['rdkit', 'scipy'],
+        "dependencies": ["numpy>=1.24", "rdkit>=2023.3"],
+        "dependency_imports": ["rdkit"],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",

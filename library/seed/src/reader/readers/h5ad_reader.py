@@ -51,7 +51,11 @@ class H5adReader(Reader):
     """Reader for .h5ad files."""
     provider = 'operon-readers'
     parameters_file = 'h5ad_reader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'H5adReader',
      'version': '1.0.0',
      'kind': 'reader',
@@ -71,8 +75,8 @@ class H5adReader(Reader):
      'resources': {'memory_modes': ['full', 'disk'],
                    'supports_cuda': False,
                    'disk_protocol': 'dense-writer-v1'},
-     'dependencies': ['anndata>=0.10', 'h5py>=3.9', 'scipy>=1.11'],
-     'dependency_imports': ['anndata', 'h5py', 'scipy'],
+     'dependencies': ['anndata>=0.10', 'h5py>=3.9'],
+     'dependency_imports': ['anndata', 'h5py'],
      'extensions': ['.h5ad'],
      'requires_siblings': [],
      'excludes_siblings': [],

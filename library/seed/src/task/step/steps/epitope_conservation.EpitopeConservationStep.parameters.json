@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "result"
+    },
+    "epitope_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    }
+  }
+}

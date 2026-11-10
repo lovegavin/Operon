@@ -93,6 +93,9 @@ class StructureLigandPoseQcStep(Step):
     provider = "operon-core"
     parameters_file = "structure_ligand_pose_qc.StructureLigandPoseQcStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_ligand_pose_qc",
         "version": "1.0.0",
@@ -120,8 +123,8 @@ class StructureLigandPoseQcStep(Step):
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ['posebusters>=0.3', 'scipy>=1.11'],
-        "dependency_imports": ['posebusters', 'scipy'],
+        "dependencies": ["posebusters>=0.3"],
+        "dependency_imports": ["posebusters"],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",

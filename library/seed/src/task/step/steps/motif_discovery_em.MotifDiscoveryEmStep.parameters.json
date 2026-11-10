@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "width": {
+      "type": "integer",
+      "default": 6
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}

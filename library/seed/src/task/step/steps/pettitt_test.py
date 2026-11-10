@@ -23,7 +23,11 @@ class PettittTestStep(Step):
     ``trend::pettitt.test``.
     """
     parameters_file = 'pettitt_test.PettittTestStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'pettitt_test',
      'version': '1.0.0',
      'kind': 'operator',

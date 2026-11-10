@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gene length profile",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "annotation_gene_length",
+      "title": "Output name",
+      "description": "Step output name."
+    },
+    "gene_dim": {
+      "type": "string",
+      "default": "gene",
+      "title": "Gene axis",
+      "description": "Row axis label."
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field axis",
+      "description": "Column axis label."
+    },
+    "short_bp": {
+      "type": "integer",
+      "default": 500,
+      "title": "Short bp",
+      "description": "short bp."
+    },
+    "long_bp": {
+      "type": "integer",
+      "default": 2000,
+      "title": "Long bp",
+      "description": "long bp."
+    }
+  }
+}

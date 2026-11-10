@@ -14,7 +14,12 @@ class DeLongAucStep(Step):
     provider = 'operon-core'
     """AUC with the DeLong variance and normal confidence interval."""
     parameters_file = 'delong_auc.DeLongAucStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'delong_auc',
      'version': '1.0.0',
      'kind': 'operator',

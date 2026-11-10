@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "collapsed",
+      "title": "Output name"
+    },
+    "relative": {
+      "type": "boolean",
+      "default": false
+    },
+    "taxon_dim": {
+      "type": "string",
+      "default": "taxon"
+    },
+    "sample_dim": {
+      "type": "string",
+      "default": "sample"
+    }
+  }
+}

@@ -44,6 +44,9 @@ class RdkitSmartsMatchesStep(Step):
     parameters_file = "rdkit_smarts_matches.RdkitSmartsMatchesStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "rdkit_smarts_matches",
         "version": "1.0.0",

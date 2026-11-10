@@ -95,6 +95,9 @@ class LigandMpnnScoreStep(Step):
     provider = "operon-core"
     parameters_file = "ligandmpnn_score.LigandMpnnScoreStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "ligandmpnn_score",
         "kind": "operator",

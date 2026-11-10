@@ -20,7 +20,11 @@ _NAMES = [
 class ConcordanceCorrelationStep(Step):
     provider = 'operon-core'
     parameters_file = 'concordance_correlation.ConcordanceCorrelationStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'concordance_correlation',
      'version': '1.0.0',
      'kind': 'operator',
@@ -41,8 +45,8 @@ class ConcordanceCorrelationStep(Step):
                                          'info_open': True,
                                          'axis_info_open': True}}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
-     'dependencies': ['scipy>=1.10', 'statsmodels>=0.14'],
-     'dependency_imports': ['scipy', 'statsmodels'],
+     'dependencies': ['scipy>=1.10'],
+     'dependency_imports': ['scipy'],
      'inputs_arity': 1,
      'outputs': [],
      'output_parameter': 'output',

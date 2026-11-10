@@ -23,9 +23,10 @@ class PslReader(Reader):
     """UCSC PSL reader, one row per alignment."""
     parameters_file = 'psl_reader.PslReader.parameters.json'
     definition = {
-     'dependencies': ['pandas>=2.0'],
-     'dependency_imports': ['pandas'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'PslReader',
      'version': '1.0.0',
      'kind': 'reader',

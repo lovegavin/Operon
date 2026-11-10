@@ -14,7 +14,12 @@ class PairConfusionMatrixStep(Step):
     provider = 'operon-core'
     """Pair-count confusion matrix behind Rand-type agreement scores."""
     parameters_file = 'pair_confusion_matrix.PairConfusionMatrixStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'pair_confusion_matrix',
      'version': '1.0.0',
      'kind': 'operator',

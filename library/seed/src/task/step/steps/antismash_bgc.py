@@ -83,6 +83,7 @@ def parse_antismash_json(text: str) -> dict:
             else:
                 clusters = [value for value in raw_clusters if isinstance(value, dict)]
             genes: list[dict] = []
+            seen_genes: set[tuple] = set()
             for feature in features:
                 if str(feature.get("type") or "") not in {"gene", "CDS"}:
                     continue
@@ -94,6 +95,15 @@ def parse_antismash_json(text: str) -> dict:
                 if gene_start < start or gene_end > end:
                     continue
                 qualifiers = feature.get("qualifiers") or {}
+                locus_tag = str((qualifiers.get("locus_tag") or [""])[0])
+                key = (
+                    ("tag", locus_tag)
+                    if locus_tag
+                    else ("span", gene_start, gene_end, span[2])
+                )
+                if key in seen_genes:
+                    continue
+                seen_genes.add(key)
                 genes.append({
                     "locus_tag": str((qualifiers.get("locus_tag") or [""])[0]),
                     "gene": str((qualifiers.get("gene") or [""])[0]),
@@ -182,6 +192,9 @@ class AntismashBgcStep(Step):
     provider = "operon-core"
     parameters_file = "antismash_bgc.AntismashBgcStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "antismash_bgc",
         "version": "1.0.0",

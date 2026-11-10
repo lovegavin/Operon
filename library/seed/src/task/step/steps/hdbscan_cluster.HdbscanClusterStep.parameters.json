@@ -1,0 +1,40 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string",
+      "default": "hdbscan_cluster"
+    },
+    "min_cluster_size": {
+      "type": "integer",
+      "default": 2
+    },
+    "min_samples": {
+      "type": "integer",
+      "default": 1
+    },
+    "metric": {
+      "type": "string",
+      "default": "euclidean"
+    },
+    "allow_single_cluster": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "min_cluster_size",
+    "min_samples",
+    "metric",
+    "allow_single_cluster"
+  ]
+}

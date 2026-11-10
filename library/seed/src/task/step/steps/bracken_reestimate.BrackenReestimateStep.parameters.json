@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "taxon"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    }
+  }
+}

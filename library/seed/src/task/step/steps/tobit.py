@@ -76,7 +76,11 @@ class TobitStep(Step):
     provider = 'operon-core'
     """Normal regression with left-censoring at a fixed threshold."""
     parameters_file = 'tobit.TobitStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'tobit',
      'version': '1.0.0',
      'kind': 'operator',

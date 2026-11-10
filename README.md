@@ -39,9 +39,9 @@ Operon is a local bioinformatics pipeline engine with a visual desktop workspace
 typed data contracts, bounded resource planning and an extensible operator SDK.
 Create branched workflows, reuse saved routes as operators, and connect your own
 AI agent through CLI or MCP. Operon itself does not supply an AI service.
-The **v3.1.9 application** and independently versioned **2026.11.8.1 operator library**
-share this repository. The reference library includes **717 operators, 101 Readers, seven
-provider packages and 24 route templates**. Operators and Readers use **protocol
+The **v4.0.0 application** and independently versioned **8.0.0 operator library** (compatible with 8.0.0+)
+share this repository. The reference library includes **1,063 operators, 108 Readers, seven
+provider packages and 79 route templates**. Operators and Readers use **protocol
 v3 / SDK 3.7**, separate parameter JSON and adjacent Markdown documentation.
 
 Operon 3.0 adds [editable workflow YAML](docs/workflow_yaml_v3.md),
@@ -78,7 +78,7 @@ errors and the extra token cost of generating code.
 
 The value rests on five supports:
 
-- **Contract-first operator library.** 717 operators and 101 Readers have explicit
+- **Contract-first operator library.** 1,063 operators and 108 Readers have explicit
   input/output contracts, parameter schemas, adjacent scientific documentation and
   regression tests; authoritative R oracles cover methods where R is the reference.
 - **First-class plugins.** Operators, Readers and ML models share one discovery,
@@ -785,7 +785,7 @@ Responsibilities:
 
 ## Built-in Readers
 
-Representative formats are shown below. The [complete searchable index](library/seed/reader_index.json) covers all 101 Readers.
+Representative formats are shown below. The [complete searchable index](library/seed/reader_index.json) covers all 108 Readers.
 
 | Reader | Extensions | Main layout | Notes |
 |---|---|---|---|

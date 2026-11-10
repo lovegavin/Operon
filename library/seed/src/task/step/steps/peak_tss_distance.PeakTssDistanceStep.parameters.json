@@ -1,0 +1,22 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "region_dim": {
+      "type": "string",
+      "default": "region"
+    },
+    "record_dim": {
+      "type": "string",
+      "default": "record"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    }
+  }
+}

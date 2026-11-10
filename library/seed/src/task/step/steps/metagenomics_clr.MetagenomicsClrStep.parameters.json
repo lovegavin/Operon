@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "title": "Centered log-ratio transform Parameters",
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "title": "行维度",
+      "default": "sample",
+      "x-ui-group": "basic",
+      "x-ui-order": 0
+    },
+    "field_dim": {
+      "type": "string",
+      "title": "字段维度",
+      "default": "feature",
+      "x-ui-group": "basic",
+      "x-ui-order": 10
+    },
+    "pseudocount": {
+      "type": "number",
+      "title": "伪计数",
+      "minimum": 1e-09,
+      "default": 0.5,
+      "x-ui-group": "advanced",
+      "x-ui-order": 20
+    },
+    "output": {
+      "type": "string",
+      "title": "输出名称",
+      "default": "clr",
+      "x-ui-group": "basic",
+      "x-ui-order": 90
+    }
+  },
+  "additionalProperties": false
+}

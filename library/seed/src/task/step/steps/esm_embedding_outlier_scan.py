@@ -84,6 +84,9 @@ class EsmEmbeddingOutlierScanStep(Step):
     parameters_file = "esm_embedding_outlier_scan.EsmEmbeddingOutlierScanStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "esm_embedding_outlier_scan",
         "version": "1.0.0",
@@ -129,8 +132,9 @@ class EsmEmbeddingOutlierScanStep(Step):
         "output_parameter": "output",
     }
 
-    def estimate_memory(self, inputs, params, profiles):
-        return {"full": 64 * 1024 * 1024}
+    @classmethod
+    def estimate_memory(cls, inputs, params, profiles):
+        return (64 * 1024 * 1024, 0)
 
     def run(self, ctx, inputs) -> None:
         params = ctx.step_params

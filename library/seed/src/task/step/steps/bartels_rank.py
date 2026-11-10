@@ -16,7 +16,11 @@ class BartelsRankStep(Step):
     provider = 'operon-core'
     """Bartels rank von Neumann ratio test, normal approximation."""
     parameters_file = 'bartels_rank.BartelsRankStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'bartels_rank',
      'version': '1.0.0',
      'kind': 'operator',

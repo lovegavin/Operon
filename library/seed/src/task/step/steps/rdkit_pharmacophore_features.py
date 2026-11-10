@@ -84,10 +84,14 @@ class RdkitPharmacophoreFeaturesStep(Step):
     provider = "operon-core"
     parameters_file = "rdkit_pharmacophore_features.RdkitPharmacophoreFeaturesStep.parameters.json"
 
-    def estimate_memory(self, inputs, params, profiles):
-        return {"bytes": 64 * 1024 * 1024}
+    @classmethod
+    def estimate_memory(cls, inputs, params, profiles):
+        return (64 * 1024 * 1024, 0)
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "rdkit_pharmacophore_features",
         "version": "1.0.0",

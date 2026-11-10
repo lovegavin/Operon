@@ -210,6 +210,9 @@ class ProteinmpnnTiedDesignStep(Step):
     parameters_file = "proteinmpnn_tied_design.ProteinmpnnTiedDesignStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "proteinmpnn_tied_design",
         "version": "1.0.0",

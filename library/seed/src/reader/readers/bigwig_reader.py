@@ -14,7 +14,11 @@ class BigWigReader(Reader):
     provider = 'operon-readers'
     """Reader for .bw / .bigwig coverage tracks."""
     parameters_file = 'bigwig_reader.BigWigReader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'BigWigReader',
      'version': '1.0.0',
      'kind': 'reader',
@@ -33,8 +37,8 @@ class BigWigReader(Reader):
                               'axis_fields': [],
                               'info_open': False}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False},
-     'dependencies': ['pandas>=2.0', 'pyBigWig'],
-     'dependency_imports': ['pandas', 'pyBigWig'],
+     'dependencies': ['pyBigWig'],
+     'dependency_imports': ['pyBigWig'],
      'description': 'Reader for .bw / .bigwig coverage tracks.',
      'extensions': ['.bw', '.bigwig'],
      'requires_siblings': [],

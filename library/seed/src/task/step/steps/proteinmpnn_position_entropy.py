@@ -166,6 +166,9 @@ class ProteinmpnnPositionEntropyStep(Step):
         "proteinmpnn_position_entropy.ProteinmpnnPositionEntropyStep.parameters.json"
     )
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "proteinmpnn_position_entropy",
         "version": "1.0.0",

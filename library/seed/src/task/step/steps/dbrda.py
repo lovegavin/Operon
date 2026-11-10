@@ -65,7 +65,12 @@ class DbrdaStep(Step):
     provider = 'operon-core'
     """Constrain a PCoA of a distance matrix by explanatory variables."""
     parameters_file = 'dbrda.DbrdaStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'dbrda',
      'version': '1.0.0',
      'kind': 'operator',

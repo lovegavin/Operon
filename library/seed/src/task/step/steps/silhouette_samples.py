@@ -15,7 +15,12 @@ class SilhouetteSamplesStep(Step):
     provider = 'operon-core'
     """Silhouette coefficient for each sample in a clustering."""
     parameters_file = 'silhouette_samples.SilhouetteSamplesStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'silhouette_samples',
      'version': '1.0.0',
      'kind': 'operator',

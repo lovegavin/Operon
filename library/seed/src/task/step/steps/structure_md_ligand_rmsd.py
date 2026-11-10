@@ -68,6 +68,9 @@ class StructureMdLigandRmsdStep(Step):
     provider = "operon-core"
     parameters_file = "structure_md_ligand_rmsd.StructureMdLigandRmsdStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_md_ligand_rmsd",
         "version": "1.0.0",

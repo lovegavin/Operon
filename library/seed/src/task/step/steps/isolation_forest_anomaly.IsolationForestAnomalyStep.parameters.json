@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "isolation_forest_anomaly_out"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "n_estimators": {
+      "type": "integer",
+      "default": 100,
+      "title": "n estimators"
+    },
+    "sample_size": {
+      "type": "integer",
+      "default": 64,
+      "title": "sample size"
+    },
+    "seed": {
+      "type": "integer",
+      "default": 7,
+      "title": "seed"
+    },
+    "threshold": {
+      "type": "number",
+      "default": 0.6,
+      "title": "threshold"
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}

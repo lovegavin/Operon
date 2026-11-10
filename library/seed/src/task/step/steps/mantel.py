@@ -24,7 +24,12 @@ def _aligned(form, dim: str, dim_b: str, name: str):
 class MantelStep(Step):
     provider = 'operon-core'
     parameters_file = 'mantel.MantelStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'mantel',
      'version': '1.0.0',
      'kind': 'operator',
@@ -99,7 +104,7 @@ class MantelStep(Step):
                 (int(np.sum(permuted <= observed)) + 1) / (n_perm + 1),
             )
         z = float(np.sum(x * y) / len(x))
-        out = np.array([[observed, p, z, float(len(common))]], dtype=np.float32)
+        out = np.array([[observed], [p], [z], [float(len(common))]], dtype=np.float32)
         ctx[ctx.step_params.get("output", self.name)] = Form(
             data=out, dims=["statistic", "value"],
             labels={"statistic": {"r": 0, "p": 1, "z": 2, "n": 3}, "value": {"value": 0}},

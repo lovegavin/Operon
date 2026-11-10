@@ -17,9 +17,10 @@ class StuartMaxwellStep(Step):
     """Test whether two raters have the same marginal distribution."""
     parameters_file = 'stuart_maxwell.StuartMaxwellStep.parameters.json'
     definition = {
-     'dependencies': ['scipy>=1.11'],
-     'dependency_imports': ['scipy'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'stuart_maxwell',
      'version': '1.0.0',
      'kind': 'operator',

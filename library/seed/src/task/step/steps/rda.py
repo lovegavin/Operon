@@ -13,6 +13,10 @@ class RdaStep(Step):
     provider = 'operon-core'
     parameters_file = 'rda.RdaStep.parameters.json'
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         'protocol_version': 3,
         'id': 'rda',
         'version': '1.0.0',
@@ -41,8 +45,8 @@ class RdaStep(Step):
         },
         'resources': {'memory_modes': ['full'], 'supports_cuda': False,
                       'estimate': 'estimate_memory'},
-        'dependencies': ['numpy>=1.24', 'scipy>=1.11', 'statsmodels>=0.14'],
-        'dependency_imports': ['numpy', 'scipy', 'statsmodels'],
+        'dependencies': ['numpy>=1.24'],
+        'dependency_imports': ['numpy'],
         'inputs_arity': 2,
         'outputs': [],
         'output_parameter': 'output',

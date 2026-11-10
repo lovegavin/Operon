@@ -132,7 +132,7 @@ operon/pins.py:173
 
 ```bash
 # 1. 从 library-v7.0.15 建分支
-git -C /home/gavin/Operon switch -c library/7.0.15-operon library-v7.0.15
+git -C the 7.0.15 source worktree switch -c library/7.0.15-operon library-v7.0.15
 
 # 2. 删除旧 seed
 rm -rf library/seed/biopipe
@@ -145,12 +145,12 @@ grep -RIl 'biopipe' library/seed/src library/seed/operon \
 grep -RIn 'biopipe' library/seed/src library/seed/operon
 
 # 5. 用 3.1.9 的打包器生成原生 bundle
-cd /home/gavin/Operon-3.1.6
+cd the 4.0 worktree
 PYTHONPATH=. python3 - <<'PY'
 from operon.library_bundle import build_bundle
 print(build_bundle(
-    '/home/gavin/Operon/library/seed',
-    '/home/gavin/lib7015-native',
+    'the 7.0.15 source library/seed',
+    'a local lib7015-native directory',
     '7.0.15',
 ))
 PY
@@ -159,7 +159,7 @@ PY
 本机已经用上述方式生成过一个验证包：
 
 ```text
-/home/gavin/lib7015-native/Operon-Library-v7.0.15.operon-library.zip
+a local lib7015-native directory/Operon-Library-v7.0.15.operon-library.zip
 sha256: 87fe054a0829d29efc58c773347f6067ebb617838b95ea52c6eca870740ec2c9
 packages: 7
 descriptors: 1171

@@ -68,7 +68,7 @@ def test_import_archive_saves_and_registers_every_route(studio):
     payload = collection([bootstrap['demo'], second])
     response = client.post('/api/routes/import-archive', content=payload, headers={'Content-Type': 'application/zip'})
     assert response.status_code == 200, response.text
-    registered = response.json()
+    registered = response.json()["routes"]
     assert len(registered) == 2
     assert len(client.get('/api/routes').json()) == 2
     assert {item['name'] for item in registered} == {first['name'], 'Second route'}

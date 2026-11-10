@@ -19,6 +19,9 @@ class StructurePaeSummaryStep(Step):
     parameters_file = "structure_pae_summary.StructurePaeSummaryStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_pae_summary",
         "version": "1.0.0",

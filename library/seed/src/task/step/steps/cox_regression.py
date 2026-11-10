@@ -60,7 +60,11 @@ class CoxRegressionStep(Step):
     """Fit a Cox proportional hazards model."""
     provider = 'operon-expression'
     parameters_file = 'cox_regression.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'cox_regression',
      'version': '1.0.0',
      'kind': 'operator',
@@ -75,16 +79,11 @@ class CoxRegressionStep(Step):
                                'dims': [],
                                'labels': [],
                                'parallel': [],
-                               'ndim': 2,
-                               'labels_axis': [{'axis': 1,
-                                                'values': [{'param': 'time_label', 'default': None},
-                                                           {'param': 'event_label', 'default': None}]},
-                                               {'axis': 1,
-                                                'values': {'param': 'covariates', 'default': []}}]}],
+                               'ndim': 2}],
                    'output': {'mode': 'cox_regression'}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
-     'dependencies': ['lifelines<0.31,>=0.30', 'pandas>=2.0'],
-     'dependency_imports': ['lifelines', 'pandas'],
+     'dependencies': ['lifelines<0.31,>=0.30'],
+     'dependency_imports': ['lifelines'],
      'inputs_arity': 1,
      'outputs': [],
      'output_parameter': 'output'}

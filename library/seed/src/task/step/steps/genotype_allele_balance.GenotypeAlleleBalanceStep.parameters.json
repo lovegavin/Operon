@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "title": "Output name",
+      "description": "Name for the output value.",
+      "default": "output",
+      "x-ui-order": 90
+    },
+    "variant_dim": {
+      "type": "string",
+      "title": "Variant dimension",
+      "description": "Axis holding one row per variant.",
+      "default": "variant",
+      "x-ui-group": "Input fields",
+      "x-ui-order": 0
+    },
+    "field_dim": {
+      "type": "string",
+      "title": "Field dimension",
+      "description": "Axis holding table columns.",
+      "default": "field",
+      "x-ui-group": "Input fields",
+      "x-ui-order": 1
+    },
+    "ref_field": {
+      "type": "string",
+      "title": "Reference count field",
+      "description": "Column with reference allele counts.",
+      "default": "ref_count",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 2
+    },
+    "alt_field": {
+      "type": "string",
+      "title": "Alternate count field",
+      "description": "Column with alternate allele counts.",
+      "default": "alt_count",
+      "x-ui-group": "Analysis",
+      "x-ui-order": 3
+    },
+    "p_threshold": {
+      "type": "number",
+      "title": "P-value threshold",
+      "description": "Binomial p-value below which the site is flagged.",
+      "default": 0.001,
+      "x-ui-group": "Analysis",
+      "x-ui-order": 4
+    }
+  }
+}

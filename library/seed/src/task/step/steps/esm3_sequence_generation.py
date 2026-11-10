@@ -101,6 +101,9 @@ class Esm3SequenceGenerationStep(Step):
     parameters_file = "esm3_sequence_generation.Esm3SequenceGenerationStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "esm3_sequence_generation",
         "version": "1.0.0",

@@ -17,7 +17,11 @@ class ObjReader(Reader):
     provider = 'operon-readers'
     """Parse a Wavefront OBJ mesh into an element x field table."""
     parameters_file = 'obj_reader.ObjReader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'ObjReader',
      'version': '1.0.0',
      'kind': 'reader',

@@ -66,6 +66,9 @@ class RdkitEsolStep(Step):
     parameters_file = "rdkit_esol.RdkitEsolStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "rdkit_esol",
         "version": "1.0.0",

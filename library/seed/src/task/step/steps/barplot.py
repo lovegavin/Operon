@@ -61,9 +61,10 @@ class BarplotStep(Step):
     provider = 'operon-microbiome'
     parameters_file = 'barplot.parameters.json'
     definition = {
-     'dependencies': ['matplotlib>=3.8'],
-     'dependency_imports': ['matplotlib'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': []},
+        'protocol_version': 3,
      'id': 'barplot',
      'version': '1.0.0',
      'kind': 'operator',
@@ -219,7 +220,7 @@ class BarplotStep(Step):
             max(6.0, 0.3 * n_samples + 2),
             max(4.0, 0.1 * n_stacks + 3),
         )
-        if figsize is None:
+        if not figsize:
             figsize = figsize_auto
 
         fig, ax = plt.subplots(figsize=tuple(figsize))

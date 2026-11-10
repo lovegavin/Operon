@@ -14,7 +14,11 @@ class BetaRegressionStep(Step):
     provider = 'operon-core'
     """Beta regression with a logit mean link and identity precision link."""
     parameters_file = 'beta_regression.BetaRegressionStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'beta_regression',
      'version': '1.0.0',
      'kind': 'operator',

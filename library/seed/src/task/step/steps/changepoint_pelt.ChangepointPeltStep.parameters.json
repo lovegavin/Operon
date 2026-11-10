@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "output": {
+      "type": "string",
+      "default": "output"
+    },
+    "penalty": {
+      "type": "number",
+      "default": 3.0,
+      "minimum": 0.0
+    },
+    "min_size": {
+      "type": "integer",
+      "default": 2,
+      "minimum": 1
+    }
+  },
+  "required": []
+}

@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "row_dim": {
+      "type": "string",
+      "default": "exon",
+      "title": "Row dimension"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Column dimension"
+    },
+    "output": {
+      "type": "string",
+      "default": "output",
+      "title": "Output parameter"
+    }
+  }
+}

@@ -11,7 +11,11 @@ class BedGraphReader(Reader):
     provider = 'operon-readers'
     """Reader for 4-column bedGraph files; output is region x field."""
     parameters_file = 'bedgraph_reader.BedGraphReader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'BedGraphReader',
      'version': '1.0.0',
      'kind': 'reader',

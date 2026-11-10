@@ -1,0 +1,45 @@
+{
+ "type": "object",
+ "additionalProperties": false,
+ "properties": {
+  "row_dim": {
+   "type": "string",
+   "default": "row"
+  },
+  "field_dim": {
+   "type": "string",
+   "default": "field"
+  },
+  "output": {
+   "type": "string"
+  },
+  "feature_column": {
+   "type": "string",
+   "default": "x"
+  },
+  "target_column": {
+   "type": "string",
+   "default": "y"
+  },
+  "quantile": {
+   "type": "number",
+   "default": 0.5
+  },
+  "epochs": {
+   "type": "integer",
+   "default": 500
+  },
+  "learning_rate": {
+   "type": "number",
+   "default": 0.05
+  },
+  "seed": {
+   "type": "integer",
+   "default": 0
+  }
+ },
+ "required": [
+  "feature_column",
+  "target_column"
+ ]
+}

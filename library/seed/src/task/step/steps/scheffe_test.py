@@ -20,7 +20,12 @@ class ScheffeTestStep(Step):
     ``DescTools::ScheffeTest(aov(x ~ g))``.
     """
     parameters_file = 'scheffe_test.ScheffeTestStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'scheffe_test',
      'version': '1.0.0',
      'kind': 'operator',

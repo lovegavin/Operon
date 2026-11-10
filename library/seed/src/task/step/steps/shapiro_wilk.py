@@ -16,7 +16,11 @@ class ShapiroWilkStep(Step):
     provider = 'operon-core'
     """Shapiro-Wilk W test for univariate normality."""
     parameters_file = 'shapiro_wilk.ShapiroWilkStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'shapiro_wilk',
      'version': '1.0.0',
      'kind': 'operator',

@@ -127,6 +127,9 @@ class ProteinmpnnMaskedDesignStep(Step):
     parameters_file = "proteinmpnn_masked_design.ProteinmpnnMaskedDesignStep.parameters.json"
 
     definition: dict[str, Any] = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "proteinmpnn_masked_design",
         "version": "1.0.0",

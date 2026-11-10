@@ -1,0 +1,7 @@
+{
+  "key": "structure_rg_metagenome",
+  "title": "Radius of gyration and metagenomic distance",
+  "summary": "All-atom radius of gyration of PDB 1mel plus Bray-Curtis and CLR transforms of a small abundance table.",
+  "organism": "synthetic + PDB 1mel",
+  "steps": 6
+}

@@ -170,6 +170,10 @@ class StructureLigandPoseRmsdStep(Step):
     parameters_file = "structure_ligand_pose_rmsd.StructureLigandPoseRmsdStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_ligand_pose_rmsd",
         "version": "1.0.0",

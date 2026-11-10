@@ -16,7 +16,11 @@ class CochranQStep(Step):
     provider = 'operon-core'
     """Test equality of binary responses across three or more conditions."""
     parameters_file = 'cochran_q.CochranQStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'cochran_q',
      'version': '1.0.0',
      'kind': 'operator',

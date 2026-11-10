@@ -1,0 +1,38 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "scaffold": {
+      "type": "string",
+      "default": "c1ccccc1[*:1]",
+      "title": "Scaffold SMILES",
+      "description": "Scaffold with labelled dummy atoms, for example c1ccccc1[*:1]. Every dummy must carry a map number.",
+      "x-ui-group": "basic",
+      "x-ui-order": 0
+    },
+    "molecule_dim": {
+      "type": "string",
+      "default": "molecule",
+      "title": "Molecule dimension",
+      "description": "Name of the molecule axis in the input form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 10
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field dimension",
+      "description": "Name of the field axis holding encoded SMILES in the input form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 20
+    },
+    "output": {
+      "type": "string",
+      "default": "rgroups",
+      "title": "Output name",
+      "description": "Context name of the output form.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 30
+    }
+  }
+}

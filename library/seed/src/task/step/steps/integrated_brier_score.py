@@ -14,7 +14,11 @@ class IntegratedBrierScoreStep(Step):
     provider = 'operon-core'
     """Trapezoidal integral of the Cox IPCW Brier score."""
     parameters_file = 'integrated_brier_score.IntegratedBrierScoreStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'integrated_brier_score',
      'version': '1.0.0',
      'kind': 'operator',

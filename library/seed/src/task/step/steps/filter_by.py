@@ -49,7 +49,12 @@ class FilterByStep(Step):
     """Keep positions along a dim that satisfy thresholds from another form."""
     provider = 'operon-core'
     parameters_file = 'filter_by.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+                    {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'filter_by',
      'version': '1.0.0',
      'kind': 'operator',

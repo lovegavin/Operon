@@ -12,7 +12,11 @@ class PowerAnovaStep(Step):
     provider = 'operon-core'
     """Compute achieved power for a balanced one-way ANOVA."""
     parameters_file = 'power_anova.PowerAnovaStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'power_anova',
      'version': '1.0.0',
      'kind': 'operator',

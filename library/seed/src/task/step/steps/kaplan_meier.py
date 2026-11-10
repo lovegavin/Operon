@@ -42,9 +42,10 @@ class KaplanMeierStep(Step):
     provider = 'operon-plots'
     parameters_file = 'kaplan_meier.parameters.json'
     definition = {
-     'dependencies': ['matplotlib>=3.8'],
-     'dependency_imports': ['matplotlib'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': []},
+        'protocol_version': 3,
      'id': 'kaplan_meier',
      'version': '1.0.0',
      'kind': 'operator',
@@ -59,12 +60,7 @@ class KaplanMeierStep(Step):
                                'dims': [],
                                'labels': [],
                                'parallel': [],
-                               'ndim': 2,
-                               'labels_axis': [{'axis': 1,
-                                                'values': [{'param': 'time_label', 'default': None},
-                                                           {'param': 'event_label', 'default': None},
-                                                           {'param': 'group_label',
-                                                            'default': None}]}]}],
+                               'ndim': 2}],
                    'output': {'mode': 'none'}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
      'inputs_arity': 1,

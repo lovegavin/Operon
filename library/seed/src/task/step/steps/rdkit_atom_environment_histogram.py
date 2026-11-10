@@ -42,6 +42,9 @@ class RdkitAtomEnvironmentHistogramStep(Step):
     parameters_file = "rdkit_atom_environment_histogram.RdkitAtomEnvironmentHistogramStep.parameters.json"
 
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "rdkit_atom_environment_histogram",
         "version": "1.0.0",

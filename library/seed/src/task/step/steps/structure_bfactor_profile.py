@@ -55,6 +55,9 @@ class StructureBfactorProfileStep(Step):
     provider = "operon-core"
     parameters_file = "structure_bfactor_profile.StructureBfactorProfileStep.parameters.json"
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_bfactor_profile",
         "version": "1.0.0",
@@ -97,8 +100,8 @@ class StructureBfactorProfileStep(Step):
             "memory_modes": ["full"],
             "estimate": "estimate_memory",
         },
-        "dependencies": ['numpy>=1.24', 'scipy>=1.11'],
-        "dependency_imports": ['numpy', 'scipy'],
+        "dependencies": ["numpy>=1.24"],
+        "dependency_imports": ["numpy"],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",

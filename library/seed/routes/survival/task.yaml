@@ -2,6 +2,7 @@ name: survival_demo
 
 sources:
   clinical:
+    reader: TsvReader
     path: input/tcga_brca_clinical_raw.tsv
     dims: [sample, feature]
     labels:

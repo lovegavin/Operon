@@ -42,7 +42,11 @@ class PrioritizeStep(Step):
     """Keep the top positions along a dimension, ranked by an info field."""
     provider = 'operon-core'
     parameters_file = 'prioritize.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'prioritize',
      'version': '1.0.0',
      'kind': 'operator',

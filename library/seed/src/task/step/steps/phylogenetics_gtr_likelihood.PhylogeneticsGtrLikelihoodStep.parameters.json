@@ -1,0 +1,46 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "base_freqs": {
+      "type": "string",
+      "default": "0.25,0.25,0.25,0.25"
+    },
+    "rates": {
+      "type": "string",
+      "default": "1.0,1.0,1.0,1.0,1.0,1.0"
+    },
+    "tree_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "taxon_dim": {
+      "type": "string",
+      "default": "taxon"
+    },
+    "site_dim": {
+      "type": "string",
+      "default": "site"
+    },
+    "output": {
+      "type": "string",
+      "default": "gtr"
+    },
+    "tree_column": {
+      "type": "string",
+      "default": "newick"
+    }
+  },
+  "required": [
+    "base_freqs",
+    "rates",
+    "tree_dim",
+    "field_dim",
+    "taxon_dim",
+    "site_dim"
+  ]
+}

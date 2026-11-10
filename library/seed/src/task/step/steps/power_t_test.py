@@ -12,7 +12,11 @@ class PowerTTestStep(Step):
     provider = 'operon-core'
     """Compute achieved power for a t test from effect size and sample size."""
     parameters_file = 'power_t_test.PowerTTestStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'power_t_test',
      'version': '1.0.0',
      'kind': 'operator',

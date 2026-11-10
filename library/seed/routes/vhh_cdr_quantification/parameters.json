@@ -1,0 +1,71 @@
+{
+ "format": "biopipe.task-parameters",
+ "schema_version": 1,
+ "params": {},
+ "sources": {
+  "pdb": {}
+ },
+ "steps": [
+  {
+   "name": "structure_interface_core",
+   "inputs": [
+    "pdb"
+   ],
+   "params": {
+    "output": "interface_all",
+    "binder_chains": "A",
+    "target_chains": "L"
+   },
+   "context_params": {}
+  },
+  {
+   "name": "structure_paratope_predict",
+   "inputs": [
+    "pdb"
+   ],
+   "params": {
+    "output": "paratope",
+    "binder_chains": "A",
+    "target_chains": "L"
+   },
+   "context_params": {}
+  },
+  {
+   "name": "join",
+   "inputs": [
+    "interface_all",
+    "paratope"
+   ],
+   "params": {
+    "output": "joined",
+    "dim": "residue"
+   },
+   "context_params": {}
+  },
+  {
+   "name": "aggregate",
+   "inputs": [
+    "joined",
+    "paratope"
+   ],
+   "params": {
+    "dim": "residue",
+    "group_col": "cdr_index",
+    "method": "sum",
+    "output": "bsa_by_cdr"
+   },
+   "context_params": {}
+  },
+  {
+   "name": "export_results",
+   "inputs": [
+    "bsa_by_cdr"
+   ],
+   "params": {
+    "format": "csv",
+    "filename": "bsa_by_cdr"
+   },
+   "context_params": {}
+  }
+ ]
+}

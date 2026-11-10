@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "regression_discontinuity_out"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "y_column": {
+      "type": "string",
+      "default": "y"
+    },
+    "running_column": {
+      "type": "string",
+      "default": "run"
+    },
+    "cutoff": {
+      "type": "number",
+      "default": 0.0
+    },
+    "bandwidth": {
+      "type": "number",
+      "default": 0.0
+    }
+  }
+}

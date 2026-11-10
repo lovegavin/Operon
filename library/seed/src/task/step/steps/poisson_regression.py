@@ -15,9 +15,10 @@ class PoissonRegressionStep(Step):
     provider = 'operon-core'
     parameters_file = 'poisson_regression.PoissonRegressionStep.parameters.json'
     definition = {
-     'dependencies': ['statsmodels>=0.14'],
-     'dependency_imports': ['statsmodels'],
-     'protocol_version': 3,
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'poisson_regression',
      'version': '1.0.0',
      'kind': 'operator',

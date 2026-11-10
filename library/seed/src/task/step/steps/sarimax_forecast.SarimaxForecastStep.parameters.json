@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "sarimax_forecast_out"
+    },
+    "row_dim": {
+      "type": "string",
+      "default": "row"
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field"
+    },
+    "time_column": {
+      "type": "string",
+      "default": "time",
+      "title": "time column"
+    },
+    "value_column": {
+      "type": "string",
+      "default": "value",
+      "title": "value column"
+    },
+    "order_p": {
+      "type": "integer",
+      "default": 1,
+      "title": "order p"
+    },
+    "order_d": {
+      "type": "integer",
+      "default": 0,
+      "title": "order d"
+    },
+    "order_q": {
+      "type": "integer",
+      "default": 0,
+      "title": "order q"
+    },
+    "steps": {
+      "type": "integer",
+      "default": 3,
+      "title": "steps"
+    },
+    "alpha": {
+      "type": "number",
+      "default": 0.05,
+      "title": "alpha"
+    }
+  },
+  "required": [
+    "row_dim",
+    "field_dim"
+  ]
+}

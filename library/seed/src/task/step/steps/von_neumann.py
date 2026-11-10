@@ -16,7 +16,11 @@ class VonNeumannStep(Step):
     provider = 'operon-core'
     """Von Neumann ratio test for serial randomness."""
     parameters_file = 'von_neumann.VonNeumannStep.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'von_neumann',
      'version': '1.0.0',
      'kind': 'operator',

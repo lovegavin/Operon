@@ -15,6 +15,9 @@ class CoxStuartStep(Step):
     provider = 'operon-core'
     parameters_file = 'cox_stuart.CoxStuartStep.parameters.json'
     definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         'protocol_version': 3,
         'id': 'cox_stuart',
         'version': '1.0.0',
@@ -74,7 +77,7 @@ class CoxStuartStep(Step):
              "value": {"pairs_increasing": 0, "n_pairs": 1, "p_value": 2}},
             {"method": "cox_stuart", "alternative": "two.sided"},
         )
-        self._export = {"statistic": statistic, "n_pairs": pairs, "p_value": p_value}
+        self._export = {"statistic": statistic, "n_pairs": int(pairs), "p_value": p_value}
         print(f"[cox_stuart] increasing={statistic} pairs={pairs} p={p_value:.6g}")
 
     def export(self, ctx: Context) -> dict:

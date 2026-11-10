@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "InterPro domain summary",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "output": {
+      "type": "string",
+      "default": "interpro_domain_summary",
+      "title": "Output name",
+      "description": "Step output name."
+    },
+    "hit_dim": {
+      "type": "string",
+      "default": "hit",
+      "title": "Hit axis",
+      "description": "Row axis label."
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "title": "Field axis",
+      "description": "Column axis label."
+    }
+  }
+}

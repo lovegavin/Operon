@@ -20,7 +20,11 @@ class MafStep(Step):
     """
     provider = 'operon-genetics'
     parameters_file = 'maf.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'maf',
      'version': '1.0.0',
      'kind': 'operator',

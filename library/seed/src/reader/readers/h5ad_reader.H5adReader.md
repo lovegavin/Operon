@@ -63,8 +63,6 @@ or statistical assumptions for a particular dataset.
 
 ## Runtime environment
 
-Declared Python requirements: `anndata>=0.10`, `h5py>=3.9`, `scipy>=1.11`. Prepare them explicitly in the selected execution environment; registration and application startup do not install them.
-
 Runs in the shared Operon interpreter.
 
 ## Limitations

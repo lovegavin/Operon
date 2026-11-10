@@ -11,7 +11,11 @@ class BroadPeakReader(Reader):
     provider = 'operon-readers'
     """Reader for broadPeak files; output is region x field."""
     parameters_file = 'broadpeak_reader.BroadPeakReader.parameters.json'
-    definition = {'protocol_version': 3,
+    definition = {
+        'protocol_revision': '3.7',
+        'data_formats': {'inputs': [],
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
+        'protocol_version': 3,
      'id': 'BroadPeakReader',
      'version': '1.0.0',
      'kind': 'reader',
