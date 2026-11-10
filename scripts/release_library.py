@@ -61,16 +61,12 @@ def released_application(root, config):
 
 
 def quickstart(root, output, version):
-    """Package the Quick Start documents and their example for the same release."""
-    example = root / 'examples/quickstart'
-    if not example.is_dir():
-        raise FileNotFoundError(f'Quickstart example is missing: {example}')
+    """Package only the bilingual Quick Start documents; examples are shipped separately."""
     documents = [root / 'QUICKSTART.md', root / 'QUICKSTART.zh.md']
     missing = [str(path) for path in documents if not path.is_file()]
     if missing:
         raise FileNotFoundError('Quickstart documents are missing: ' + ', '.join(missing))
-    sources = documents + sorted(path for path in example.rglob('*')
-                                 if path.is_file() and '__pycache__' not in path.parts)
+    sources = documents
     archive = output / f'Operon-Quickstart-v{version}.zip'
     with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as target:
         for source in sources:
@@ -138,7 +134,7 @@ def build(root, output, tag=None):
     result.update(sha256=sha256(path), minimum_application=config['minimum_application'],
                   build_application=config['build_application'], tag='library-v' + config['version'])
     # 4.0.x published a Quickstart asset next to the library; keep assembling it
-    # from the documents and example so it can never drift from this build.
+    # from the bilingual documents only; examples ship separately.
     archive = quickstart(root, output, config['version'])
     archive_sha256 = sha256(archive)
     result['quickstart'] = {'archive': str(archive), 'sha256': archive_sha256,
