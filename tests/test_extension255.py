@@ -36,7 +36,7 @@ def test_prepare_molecule() -> None:
 
 
 def test_run(tmp_path) -> None:
-    target = tmp_path / "ligand.pdbqt"
+    target = tmp_path / "outside" / "ligand.pdbqt"
     ctx = Context(str(tmp_path / "task"), {"params": {}})
     run(
         ctx,
@@ -58,9 +58,11 @@ def test_run(tmp_path) -> None:
     assert out.dims == ["atom", "statistic"]
     assert out.data.shape[0] == 13  # phenol: 7 heavy + 6 hydrogens
     assert out.info["n_atoms"] == 13
-    assert out.info["output_path"] == target.as_posix()
-    assert target.is_file()
-    text = target.read_text(encoding="utf-8")
+    written = Path(out.info["output_path"])
+    assert written.name == "ligand.pdbqt"
+    assert written.parent == Path(out.info["native_path"]).parent
+    assert not target.exists()
+    text = written.read_text(encoding="utf-8")
     assert text.count("ATOM") == 13
     assert " PHN " in text
 
