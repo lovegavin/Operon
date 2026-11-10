@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -13,6 +14,13 @@ import urllib.request
 
 from audit_portability import audit_files
 from biopipe.bytecode import io_path
+
+
+def _windows_path(path):
+    """PowerShell needs a Windows path when this builder runs under WSL."""
+    if os.name == 'nt' or not shutil.which('wslpath'):
+        return str(path)
+    return subprocess.check_output(['wslpath', '-w', str(path)], text=True).strip()
 
 
 def verify_frontend_versions(frontend):
@@ -72,7 +80,8 @@ def main():
                 shutil.copyfileobj(response, output)
         # Verify the executable's Authenticode signature before redistribution.
         subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File',
-                        root / 'scripts/verify_microsoft_signature.ps1', str(bootstrapper)], check=True)
+                        _windows_path(root / 'scripts/verify_microsoft_signature.ps1'),
+                        _windows_path(bootstrapper)], check=True)
         (destination / 'runtime/webview2.json').write_text(json.dumps({'source': url,
             'sha256': hashlib.sha256(bootstrapper.read_bytes()).hexdigest()}), encoding='utf-8')
     shutil.copytree(root / 'frontend/dist', destination / 'frontend')

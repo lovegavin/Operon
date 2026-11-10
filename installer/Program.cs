@@ -18,6 +18,7 @@ internal static class Program
                 Operon Setup
                 Operon_Setup.exe [--install] [--install-dir DIRECTORY]
                 Operon_Setup.exe --quiet --install-dir DIRECTORY [--result FILE.json] [--no-register]
+                Operon_Uninstall.exe [--uninstall] [--install-dir ACTUAL_DIRECTORY]
                 Operon_Setup.exe --uninstall --quiet --install-dir ACTUAL_DIRECTORY [--result FILE.json]
 
                 --cli             Alias for --quiet; no windows or application launch.
@@ -54,7 +55,9 @@ internal static class Program
             var options = new InstallOptions(values.GetValueOrDefault("--install-dir") ?? Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Operon Studio"),
                 values.GetValueOrDefault("--payload"), !flags.Contains("--no-register"));
-            bool uninstall = flags.Contains("--uninstall");
+            var programName = Path.GetFileNameWithoutExtension(Environment.ProcessPath) ?? string.Empty;
+            bool uninstall = flags.Contains("--uninstall") ||
+                (!flags.Contains("--install") && programName.Contains("uninstall", StringComparison.OrdinalIgnoreCase));
             // A running executable cannot remove itself. Only copy this small
             // helper when invoked from the installation that is being removed.
             if (uninstall && !unattended && !flags.Contains("--uninstall-worker") &&
@@ -193,6 +196,7 @@ internal sealed class SetupWindow : Form
                 }
                 Close(); return;
             }
+            if (uninstall && !ConfirmForceUninstall()) return;
             running = true; action.Text = uninstall ? "卸载中…" : "安装中…";
             action.Enabled = browse.Enabled = false; destination.ReadOnly = true; logs.Visible = true;
             progress.Value = 0; cancel.Text = "取消"; cancel.Enabled = true;
@@ -226,6 +230,18 @@ internal sealed class SetupWindow : Form
         };
         Controls.AddRange([title, subtitle, label, destination, browse, state, progress, logs, cancel, action]);
         FormClosing += (_, e) => { if (running) { e.Cancel = true; cancellation?.Cancel(); cancel.Enabled = false; } };
+    }
+
+    private bool ConfirmForceUninstall()
+    {
+        var answer = MessageBox.Show(this,
+            @"是否强制终止所有 Operon Studio 和 Python 进程，并完全卸载？
+
+选择“是”将结束占用安装目录的进程，然后删除本安装程序管理的软件文件。
+用户档案、路线、数据和任务记录会保留。选择“否”将取消卸载。",
+            "完全卸载 Operon Studio", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+            MessageBoxDefaultButton.Button2);
+        return answer == DialogResult.Yes;
     }
 
     private void SaveResult(InstallResult result)

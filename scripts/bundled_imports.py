@@ -6,6 +6,7 @@ their filenames can be longer than the importable package itself. No scientific
 imports or host policy edits.
 """
 import importlib.machinery as machinery
+import importlib.util
 import os
 import sys
 
@@ -45,6 +46,15 @@ class FallbackFinder:
     def find_spec(self, fullname, target=None):
         spec = self.ordinary.find_spec(fullname, target) if self.ordinary else None
         if spec is not None and spec.loader is not None:
+            # pip vendors distlib, whose resource registry keys on the exact
+            # standard loader type. Keep pip on the ordinary loader so pip can
+            # build and install wheels inside the long-path runtime.
+            if fullname == 'pip' or fullname.startswith('pip.'):
+                if isinstance(spec.loader, _SourceLoader):
+                    return importlib.util.spec_from_file_location(
+                        fullname, spec.origin,
+                        loader=machinery.SourceFileLoader(fullname, spec.origin),
+                        submodule_search_locations=spec.submodule_search_locations)
             # File discovery may honor Windows long-path policy while the DLL
             # loader still rejects the same unprefixed path (notably Python 3.11).
             if (isinstance(spec.loader, machinery.ExtensionFileLoader)

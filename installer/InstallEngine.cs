@@ -393,6 +393,11 @@ internal sealed class InstallEngine
     internal InstallResult Uninstall(string installDir)
     {
         string root = Path.GetFullPath(installDir).TrimEnd(Path.DirectorySeparatorChar);
+        // A running host or backend keeps files open and also holds the profile
+        // lease. End only processes that live under this installation, before
+        // the lease is requested, so a full uninstall can actually finish.
+        var stopped = TerminateManagedProcesses(root);
+        if (stopped > 0) Log($"Stopped {stopped} process(es) under the installation.");
         using var lease = new InstallLease("Local\\BioPipeSetup-" + InstallLease.Identity(root));
         var receipt = ReadReceipt(root) ?? throw new InvalidOperationException("此目录没有 Operon 安装记录。");
         using var profileLease = new InstallLease("Local\\BioPipeStudio-" + InstallLease.Identity(receipt.Profile));
@@ -418,8 +423,58 @@ internal sealed class InstallEngine
         File.Delete(Path.Combine(root, ".biopipe-setup.json"));
         var uninstaller = Path.Combine(root,"Operon_Uninstall.exe");
         if (File.Exists(uninstaller) && !string.Equals(uninstaller, Environment.ProcessPath, StringComparison.OrdinalIgnoreCase)) File.Delete(uninstaller);
+        try
+        {
+            var versions = Path.Combine(root, "versions");
+            if (Directory.Exists(versions) && !Directory.EnumerateFileSystemEntries(versions).Any()) Directory.Delete(versions);
+            if (Directory.Exists(root) && !Directory.EnumerateFileSystemEntries(root).Any()) Directory.Delete(root);
+        }
+        catch (Exception error) { Log("Install root retained: " + error.Message); }
         Report("已卸载 Operon；用户档案、路线、数据和任务记录均已保留。",100);
         return new("uninstalled", root, null, receipt.Profile, LogPath);
+    }
+
+    internal static int TerminateManagedProcesses(string installRoot)
+    {
+        var root = Path.GetFullPath(installRoot).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        var self = Environment.ProcessId;
+        var stopped = new HashSet<int>();
+        for (var attempt = 0; attempt < 3; attempt++)
+        {
+            foreach (var process in Process.GetProcesses())
+            {
+                if (process.Id == self) { process.Dispose(); continue; }
+                try
+                {
+                    var image = process.MainModule?.FileName;
+                    if (string.IsNullOrWhiteSpace(image)) continue;
+                    var full = Path.GetFullPath(image);
+                    if (!full.StartsWith(root, StringComparison.OrdinalIgnoreCase)) continue;
+                    process.Kill(entireProcessTree: true);
+                    process.WaitForExit(3000);
+                    stopped.Add(process.Id);
+                }
+                catch (Exception) { /* access denied or already exited */ }
+                finally { process.Dispose(); }
+            }
+            if (attempt < 2) Thread.Sleep(500);
+        }
+        // Verify that nothing under the installation survived; refusing here is
+        // safer than deleting a partially locked tree.
+        foreach (var process in Process.GetProcesses())
+        {
+            if (process.Id == self) { process.Dispose(); continue; }
+            try
+            {
+                var image = process.MainModule?.FileName;
+                if (!string.IsNullOrWhiteSpace(image) && Path.GetFullPath(image).StartsWith(root, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("仍有进程占用安装目录，无法完全卸载。请从任务管理器结束该进程后重试。");
+            }
+            catch (InvalidOperationException) { throw; }
+            catch (Exception) { }
+            finally { process.Dispose(); }
+        }
+        return stopped.Count;
     }
 
     private static bool ShortcutIsStale(string path, string root)
