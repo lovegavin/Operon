@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -273,6 +274,39 @@ def check_ttest():
     return {"pass": bool(delta < 1e-5), "delta": float(delta), "oracle": "scipy.stats.ttest_1samp"}
 
 
+
+def check_chi_square():
+    from scipy import stats
+    table = np.array([[12, 7, 9], [8, 15, 6]], dtype=float)
+    form = matrix(2, 3, ["c0", "c1", "c2"], table)
+    form.dims = ["row", "col"]
+    form.labels = {"row": {"r0": 0, "r1": 1}, "col": {"c0": 0, "c1": 1, "c2": 2}}
+    p = params_for(DESCRIPTORS["chi_square"], [], correction=True)
+    out = run(DESCRIPTORS["chi_square"], [form], p)
+    chi2, pv, dof, _ = stats.chi2_contingency(table, correction=True)
+    st = out.labels["statistic"]
+    got = [float(out.data[0, st[k]]) for k in ("chi2", "P", "dof")]
+    delta = float(max(abs(got[0] - chi2), abs(got[1] - pv), abs(got[2] - dof)))
+    return {"pass": bool(delta < 1e-5), "delta": delta,
+            "oracle": "scipy.stats.chi2_contingency(correction=True)"}
+
+
+def check_fisher_exact():
+    from scipy import stats
+    table = np.array([[3, 1], [1, 3]], dtype=float)
+    form = matrix(2, 2, ["c0", "c1"], table)
+    form.dims = ["row", "col"]
+    form.labels = {"row": {"r0": 0, "r1": 1}, "col": {"c0": 0, "c1": 1}}
+    p = params_for(DESCRIPTORS["fisher_exact"], [], alternative="two-sided")
+    out = run(DESCRIPTORS["fisher_exact"], [form], p)
+    odds, pv = stats.fisher_exact(table, alternative="two-sided")
+    st = out.labels["statistic"]
+    delta = float(max(abs(float(out.data[0, st["odds_ratio"]]) - odds),
+                      abs(float(out.data[0, st["P"]]) - pv)))
+    return {"pass": bool(delta < 1e-6), "delta": delta,
+            "oracle": "scipy.stats.fisher_exact(two-sided)"}
+
+
 CHECKS = [("kalman_local_level", check_kalman),
           ("image_gaussian_blur", check_blur),
           ("pca", check_pca),
@@ -283,8 +317,9 @@ CHECKS = [("kalman_local_level", check_kalman),
           ("genotype_call_rate_qc", check_call_rate),
           ("zscore", check_zscore),
           ("min_max_scale", check_minmax),
-          ("ttest_one_sample", check_ttest)]
-
+          ("ttest_one_sample", check_ttest),
+          ("chi_square", check_chi_square),
+          ("fisher_exact", check_fisher_exact)]
 
 def main():
     results = {}
@@ -295,9 +330,10 @@ def main():
             result = {"pass": False, "error": f"{type(exc).__name__}: {exc}"}
         results[operator_id] = result
         print(operator_id, result)
-    out_dir = ROOT / "verification" / "operator-audit-7.0.7"
+    version = os.environ.get("OPERON_AUDIT_VERSION", "7.0.7")
+    out_dir = ROOT / "verification" / f"operator-audit-{version}"
     out_dir.mkdir(parents=True, exist_ok=True)
-    payload = {"library_version": "7.0.7", "mode": "independent-oracle",
+    payload = {"library_version": version, "mode": "independent-oracle",
                "results": results, "passed": sum(1 for r in results.values() if r.get("pass")),
                "total": len(results)}
     (out_dir / "l2_oracle.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")

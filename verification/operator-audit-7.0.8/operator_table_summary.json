@@ -1,0 +1,18 @@
+{
+  "contract": {
+    "PASS": 358,
+    "SKIP_DOMAIN": 587,
+    "SKIP_EXTERNAL": 42,
+    "SKIP_FILE": 53,
+    "SKIP_HARNESS": 22,
+    "SKIP_TIMEOUT": 1
+  },
+  "l0_pass": 1171,
+  "operators": 1063,
+  "readers": 108,
+  "replay": {
+    "builtin_route": 247,
+    "generated_route": 275,
+    "no_route": 541
+  }
+}

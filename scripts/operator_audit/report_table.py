@@ -10,12 +10,14 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 from pathlib import Path
 
 import yaml
 
 REPO = Path(__file__).resolve().parents[2]
-EVIDENCE = REPO / "verification" / "operator-audit-7.0.7"
+VERSION = os.environ.get("OPERON_AUDIT_VERSION", "7.0.7")
+EVIDENCE = REPO / "verification" / f"operator-audit-{VERSION}"
 ROUTES = REPO / "library" / "seed" / "routes"
 
 
