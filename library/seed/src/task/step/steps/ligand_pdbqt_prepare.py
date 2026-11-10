@@ -205,8 +205,8 @@ class LigandPdbqtPrepareStep(Step):
         output_text = str(params.get("output_path", "") or "").strip()
         written: str | None = None
         if output_text:
-            path = Path(output_text).expanduser()
-            path.parent.mkdir(parents=True, exist_ok=True)
+            filename = Path(output_text).name or "ligand.pdbqt"
+            path = directory / filename
             path.write_text("\n".join(lines) + "\n", encoding="utf-8")
             written = path.as_posix()
 
