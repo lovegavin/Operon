@@ -165,7 +165,7 @@ packages: 7
 descriptors: 1171
 ```
 
-这个包还没有做安装和路线回归，下一步应先验证它。
+这个包已安装到 `/tmp/operon7015-test`，7 个 package 安装成功；但应用启动在内置路线编译阶段失败，见第六节。路线导入尚未开始。
 
 ## 五、验收清单
 
@@ -199,21 +199,44 @@ descriptors: 1171
 [ ] 路线可保存、可重新打开
 ```
 
-## 六、SSH 报错说明
+## 六、原生 7.0.15 安装后的启动错误
+
+原生 7.0.15 包可以安装成功，`plugin install` 返回 7 个 package，但 3.1.9 启动时会在内置路线编译阶段失败：
+
+```text
+src.web.graph.GraphError: 输入输出契约不兼容：需要数值张量；缺少 info.missing_code；Both ports must declare data_formats before format adaptation
+```
+
+堆栈位置：
+
+```text
+src/web/routes.py:461 install_builtins
+src/web/graph.py:256 compile_graph
+```
+
+原因不是 7.0.15 包损坏，而是 3.1.9 应用自带的 `src/web/builtin_routes.json` 路线模板，仍然按 3.1.9 内置算子的端口和 `data_formats` 编写。7.0.15 替换算子后，端口契约发生变化，这些应用内置路线无法再编译。
+
+原生 7.0.15 bundle 目前只包含算子包，不包含 `builtin_routes.json` 或路线模板，因此安装它不会替换 3.1.9 应用内置的旧路线。
+
+库侧需要从以下两种方式中选一种，并在发布前验证：
+
+1. 在 7.0.15 原生包中提供与 7.0.15 算子契约一致的 `builtin_routes.json`，由安装过程替换应用内置路线；或
+2. 先在库侧更新路线模板，再同步更新 3.1.9 应用的 `src/web/builtin_routes.json`。
+
+无论采用哪种方式，验收都必须覆盖：安装 7.0.15 后应用能启动、内置路线可编译、7.0.15 路线 zip 可导入和注册。
+
+## 七、SSH 报错说明
 
 SSH 的 `TypeError` **不是算子库问题**。
 
-`src/web/remote_service.py:198` 把非 `RemoteError` 异常统一包装成：
+根因在 `operon/remote/client.py:75`：它把 build identity 作为第 5 个位置参数传给 `provision()`，但 `provision(connection, profile, progress, cancel, root=None, expected=None)` 的第 5 个参数是 `root`。首次部署时 `root` 收到 dict，随后 `Path(dict)` 触发 `TypeError`，又被 `src/web/remote_service.py:198` 包装成 `SSH连接失败：TypeError`。
 
-```python
-f'SSH 连接失败：{type(exc).__name__}。请核对主机、认证方式及远端环境。'
-```
+已在 `release/3.1.10` 分支修复为 `expected=self.build or None`，并增加参数断言测试。`tests/test_remote_installation.py` 16 passed；远端相关测试合计 42 passed，3 个失败是既有的 remote fixture 版本不匹配，与本次修复无关。
 
-真实堆栈被吞掉了。等算子库更新完成后，需要单独用相同连接参数复现，拿到 `TypeError` 的具体文件和行号；这一步不需要改前端。
+## 八、当前建议
 
-## 七、当前建议
-
-1. 先按本文更新 7.0.15 算子库并生成原生 bundle。
-2. 在 3.1.9 上完成安装 + 路线导入验收。
-3. 算子库通过后，再处理 SSH TypeError 和卸载 MCP 提示。
-4. 最后整体发布 3.1.10，前端暂不改动。
+1. 先按本文更新 7.0.15 算子库，生成只含 `sources/operon/**` 的原生 bundle。
+2. 同时解决 7.0.15 算子契约与内置路线模板不兼容的问题，否则应用安装后会启动失败。
+3. 在 3.1.9 上完成安装、启动、路线导入验收。
+4. SSH 修复已在 3.1.10 分支完成；卸载时的 MCP 常驻提示仍待应用侧处理。
+5. 最后整体发布 3.1.10，前端暂不改动。
