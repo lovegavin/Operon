@@ -113,7 +113,7 @@
     },
     "route_f6f466bace35": {
       "path": "routes/gwas/task.yaml",
-      "sha256": "506bfa195cf9523de8fe6cc15ced7ce46bd2b94a07ec39f8c1fcc6950cd47407",
+      "sha256": "b4ad7006774d9291ae567620f0f7233eb24bed24087817229ca28651ba26b705",
       "commit": "ab439ab9af3a36220941d6a8b27c580a268b7c95"
     },
     "route_2b3fa787d12d": {
@@ -259,7 +259,7 @@
     },
     "route_88fb083f4238": {
       "path": "routes/proteomics_de/task.yaml",
-      "sha256": "92020573ced5e395004973b35656b8374fb3cd5a905105454971b36cf3b38963",
+      "sha256": "4f16643165a98a4843bf528101f2b9e12818e0e575e23fd232b5610b308f8b5e",
       "commit": "ab439ab9af3a36220941d6a8b27c580a268b7c95"
     },
     "route_b7d8f87c82b3": {
@@ -359,7 +359,7 @@
     },
     "route_bf78f7a6e12f": {
       "path": "routes/survival/task.yaml",
-      "sha256": "9155552512ad5b6f4c0f51086cd1cf3628c092ea7fbc4e81c0d2237baaa2e7f3",
+      "sha256": "5d6b1d11c0f281a8bc10b3d94b8ea8ee6ab86a42eaa49893e26b479db981baeb",
       "commit": "ab439ab9af3a36220941d6a8b27c580a268b7c95"
     },
     "route_bbed4509938d": {
@@ -22445,7 +22445,7 @@
     },
     {
       "id": "route_88fb083f4238",
-      "version": 9,
+      "version": 10,
       "name": "Proteomics DE",
       "graph": {
         "schema_version": 2,
@@ -22465,7 +22465,7 @@
             "params": {},
             "context_params": {},
             "source": {
-              "reader": null,
+              "reader": "CsvReader",
               "path": "input/clinical_raw.txt",
               "dims": [
                 "sample",
@@ -22499,7 +22499,7 @@
             "params": {},
             "context_params": {},
             "source": {
-              "reader": null,
+              "reader": "CsvReader",
               "path": "input/proteomics_raw.txt",
               "dims": [
                 "protein",
@@ -30956,7 +30956,7 @@
     },
     {
       "id": "route_bf78f7a6e12f",
-      "version": 8,
+      "version": 9,
       "name": "生存分析",
       "graph": {
         "schema_version": 2,
@@ -30976,7 +30976,7 @@
             "params": {},
             "context_params": {},
             "source": {
-              "reader": null,
+              "reader": "TsvReader",
               "path": "input/tcga_brca_clinical_raw.tsv",
               "dims": [
                 "sample",
@@ -37233,7 +37233,7 @@
     },
     {
       "id": "route_f6f466bace35",
-      "version": 9,
+      "version": 10,
       "name": "GWAS",
       "graph": {
         "schema_version": 2,
@@ -37253,7 +37253,7 @@
             "params": {},
             "context_params": {},
             "source": {
-              "reader": null,
+              "reader": "CsvReader",
               "path": "input/covariates.csv",
               "dims": [
                 "sample",
@@ -37284,7 +37284,7 @@
             "params": {},
             "context_params": {},
             "source": {
-              "reader": null,
+              "reader": "VcfReader",
               "path": "input/geno.vcf",
               "dims": [
                 "variant",
@@ -37313,7 +37313,7 @@
             "params": {},
             "context_params": {},
             "source": {
-              "reader": null,
+              "reader": "CsvReader",
               "path": "input/phenotype.csv",
               "dims": [
                 "sample",

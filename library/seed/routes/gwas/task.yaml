@@ -2,6 +2,7 @@ name: gwas_demo
 
 sources:
   geno:
+    reader: VcfReader
     path: input/geno.vcf
     dims: [variant, sample]
     labels:
@@ -9,6 +10,7 @@ sources:
       sample:  builtin
 
   pheno:
+    reader: CsvReader
     path: input/phenotype.csv
     dims: [sample, feature]
     labels:
@@ -16,6 +18,7 @@ sources:
       feature: builtin
 
   covar:
+    reader: CsvReader
     path: input/covariates.csv
     dims: [sample, feature]
     labels:

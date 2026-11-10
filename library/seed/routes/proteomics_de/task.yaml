@@ -2,6 +2,7 @@ name: proteomics_de_demo
 
 sources:
   proteins:
+    reader: CsvReader
     path: input/proteomics_raw.txt
     dims: [protein, sample]
     labels:
@@ -12,6 +13,7 @@ sources:
       sep: "\t"
 
   meta:
+    reader: CsvReader
     path: input/clinical_raw.txt
     dims: [sample, feature]
     labels:
