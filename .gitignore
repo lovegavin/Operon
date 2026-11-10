@@ -33,6 +33,7 @@ library/seed/routes/*/output/
 
 # 表格数据，按需保留
 *.csv
+!verification/**/operator_table.csv
 *.tsv
 *.xlsx
 *.xls
