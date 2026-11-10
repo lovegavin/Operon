@@ -1,0 +1,1088 @@
+{
+  "version": "7.0.14",
+  "uncovered": 269,
+  "categories": {
+    "external dependency or tool": 20,
+    "domain-specific fixture": 151,
+    "structure/reference data": 72,
+    "model checkpoint": 26
+  },
+  "reasons": {
+    "amrfinder_plus": {
+      "category": "external dependency or tool",
+      "reason": "domain-specific fixture required (amrfinder_plus: resource 'amrfinder' is missing; no candidate directory exists; set OPERON_AMRFINDER_DB to the directory that holds these files; install: amrfinder_update -d /path/to/amrfinder_db (installed with the amrfinder binary); https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/ info predicates 1/1 rejected)"
+    },
+    "annotate": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (annotate: 'fields' is required)"
+    },
+    "anosim": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (anosim: distance matrix must be square)"
+    },
+    "antibody_cdr_graft": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (antibody_cdr_graft: sequence of length 69 is too short for a VH/VHH domain (donor sequence) info predicates 1/1 rejected)"
+    },
+    "antibody_cdr_hydrophobicity": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "antibody_cdr_redesign": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (antibody_cdr_redesign: structure_path is required; point it at a PDB file)"
+    },
+    "antibody_numbering_kabat": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (antibody_numbering_kabat: expected exactly one VH/VHH sequence, got 24 info predicates 3/3 rejected)"
+    },
+    "antifold_design": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (antifold torch)"
+    },
+    "antifold_score": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (antifold_score: structure_path is required)"
+    },
+    "antismash_bgc": {
+      "category": "external dependency or tool",
+      "reason": "domain-specific fixture required (antismash_bgc: resource 'antismash' is missing; no candidate directory exists; set OPERON_ANTISMASH_DB to the directory that holds these files; install: download-antismash-databases --database-dir /path/to/antismash_db (the conda package ships no databases); https://dl.secondarymetabolites.org/releases/ info predicates 1/1 rejected)"
+    },
+    "assembly_stats": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (assembly_stats: the QUAST executable was not found; set quast_path to its location info predicates 1/1 rejected)"
+    },
+    "autoencoder_anomaly": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (numpy>=1.24 torch<3,>=2.4)"
+    },
+    "bin": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (bin: value_label requires at least two dims; input has only 'dim')"
+    },
+    "bioenv": {
+      "category": "domain-specific fixture",
+      "reason": "not executable under synthetic fixture (SKIP_TIMEOUT)"
+    },
+    "boltz_affinity_summary": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (boltz_affinity_summary: affinity_path is required)"
+    },
+    "boltz_complex_confidence": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "boltz_predict": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "calibration_curve": {
+      "category": "external dependency or tool",
+      "reason": "domain-specific fixture required (calibration_curve: true labels must be binary 0/1)"
+    },
+    "cell_cycle_score": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (cell_cycle_score: gene set 'protocol_revision' has no measured genes)"
+    },
+    "chao1": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (chao1: counts must be integers)"
+    },
+    "cnn_image_classifier": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (numpy>=1.24 torch<3,>=2.4)"
+    },
+    "cochran_c_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (only 0 shared samples between expression and metadata)"
+    },
+    "cohens_kappa": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (cohens_kappa: the contingency table must be square)"
+    },
+    "colabfold_predict": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (colabfold_predict: expected exactly one sequence, got 24 info predicates 2/2 rejected)"
+    },
+    "conditional_logistic": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (conditional_logistic: outcome must have exactly two levels)"
+    },
+    "cophenetic_correlation": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (cophenetic_correlation: tree: tree table is missing the 'parent' field)"
+    },
+    "crispr_array_detect": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (crispr_array_detect: the minced executable was not found; set minced_path to its location info predicates 1/1 rejected)"
+    },
+    "cuzick_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (metadata: group column 'protocol_revision' is not parallel to 'sample_1')"
+    },
+    "dbrda": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (dbrda: need more samples than predictors)"
+    },
+    "deep_survival": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (numpy>=1.24 torch<3,>=2.4)"
+    },
+    "dfgls": {
+      "category": "model checkpoint",
+      "reason": "domain-specific fixture required (domain precondition: The maximum lag you are considering (9) results in an ADF regression with a\nsingular regressor matrix after including 0 lags, and so a specification test be\nrun. This may occur if your series have little variation and so is locally constant,\nor may occur if you are attempting to test a very short series. You can manually set\nmaximum lag length to consider smaller models.)"
+    },
+    "dotplot": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (dotplot: 'features' is required)"
+    },
+    "drop": {
+      "category": "domain-specific fixture",
+      "reason": "not executable under synthetic fixture (PASS)"
+    },
+    "dxy": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (dxy: info['ploidy'] must be a positive integer)"
+    },
+    "envfit": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (envfit: too few finite samples for the number of components)"
+    },
+    "esm3_embedding": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable ()"
+    },
+    "esm3_fold": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable ()"
+    },
+    "esm3_inverse_folding": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable ()"
+    },
+    "esm3_sasa_prediction": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable ()"
+    },
+    "esm3_secondary_structure": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable ()"
+    },
+    "esm3_sequence_generation": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (esm torch)"
+    },
+    "esm_embedding": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (fair-esm>=2.0 numpy>=1.24 torch>=2.0)"
+    },
+    "esm_embedding_autoencoder": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable ()"
+    },
+    "esm_embedding_linear_probe": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (esm_embedding_linear_probe: labels are required; pass a comma-separated labels parameter or store them in info['labels'] info predicates 1/2 rejected)"
+    },
+    "esm_embedding_mlp_probe": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (esm_embedding_mlp_probe: labels are required; pass a comma-separated labels parameter or store them in info['labels'] info predicates 1/2 rejected)"
+    },
+    "esm_embedding_ridge_probe": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (esm_embedding_ridge_probe: targets are required; pass a comma-separated targets parameter or store them in info['targets'] info predicates 2/2 rejected)"
+    },
+    "esm_if_design": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0)"
+    },
+    "esm_if_interface_redesign": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (biotite>=0.37 fair-esm>=2.0 numpy>=1.24 scipy>=1.10 torch>=2.0)"
+    },
+    "esm_if_masked_region_scan": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0)"
+    },
+    "esm_if_mutation_scan": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0)"
+    },
+    "esm_if_position_entropy": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0)"
+    },
+    "esm_if_redesign": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0)"
+    },
+    "esm_if_score": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0)"
+    },
+    "esm_masked_marginal": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (fair-esm>=2.0 torch>=2.0)"
+    },
+    "esm_pseudo_likelihood": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (fair-esm>=2.0 numpy>=1.24 torch>=2.0)"
+    },
+    "esm_variant_effect": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (fair-esm>=2.0 numpy>=1.24 torch>=2.0)"
+    },
+    "esmfold_predict": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable (numpy>=1.24)"
+    },
+    "explode": {
+      "category": "domain-specific fixture",
+      "reason": "not executable under synthetic fixture (SKIP_HARNESS)"
+    },
+    "export_results": {
+      "category": "domain-specific fixture",
+      "reason": "not executable under synthetic fixture (SKIP_HARNESS)"
+    },
+    "faith_pd": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (faith_pd: tree table is missing the 'parent' field)"
+    },
+    "fba_flux_balance": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (fba_flux_balance: bounds must have one row per reaction)"
+    },
+    "flye_assemble": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (flye_assemble: the Flye executable was not found; set flye_path to its location info predicates 1/1 rejected)"
+    },
+    "foldseek_align": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (foldseek_align: query_path is required)"
+    },
+    "foldseek_cluster": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (foldseek_cluster: no structure file was found; set structure_dir or structure_paths)"
+    },
+    "foldseek_search": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (foldseek_search: query_path . is not a file)"
+    },
+    "fst": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (fst needs at least two genotyped samples in each group)"
+    },
+    "garch": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (garch: need at least 50 finite observations)"
+    },
+    "gc_skew_profile": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (gc_skew_profile: input must contain exactly one sequence, got 24. Use select on 'sequence' first. info predicates 5/5 rejected)"
+    },
+    "gcn_node_classifier": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable ()"
+    },
+    "genomic_selection_rrblup": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (population genetics input: missing field 'phenotype' in ['0', '1', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '2', '20', '21', '22', '23', '3', '4', '5', '6', '7', '8', '9'])"
+    },
+    "glmm_logistic": {
+      "category": "external dependency or tool",
+      "reason": "domain-specific fixture required (glmm_logistic: outcome must be binary 0/1)"
+    },
+    "granger_causality": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (domain precondition: The Granger causality test statistic cannot be computed because the VAR has a perfect fit of the data.)"
+    },
+    "haplotype_diversity": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (haplotype_diversity: sequences differ in length)"
+    },
+    "hardy_weinberg": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (hardy_weinberg: genotype column 'AA' must contain nonnegative integers)"
+    },
+    "heterozygosity": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (heterozygosity: info['ploidy'] must be a positive integer)"
+    },
+    "hmmer_domains": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (hmmer_domains: hmm_path is required; set it to a pressed Pfam-A.hmm (see docs/large_resources.md for the download instructions) info predicates 1/1 rejected)"
+    },
+    "interface_alanine_scan": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (source imports: openmm)"
+    },
+    "interface_mmgbsa_delta": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (source imports: openmm)"
+    },
+    "inverse_gaussian_regression": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (inverse_gaussian_regression: predictors must be a non-empty list)"
+    },
+    "isoform_quantification_em": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (isoform_quantification_em: compatibility matrix and counts differ)"
+    },
+    "johansen": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (johansen: Johansen computation failed: Singular matrix)"
+    },
+    "leave_one_out": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (leave_one_out: effect and variance columns must differ)"
+    },
+    "leverage": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (leverage: need more than 60 complete observations for influence statistics)"
+    },
+    "ligand_contact_profile": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (ligand_contact_profile: no ligand atoms named 'LIG'; available residue names: ['0.65', '0.663', '0.676', '0.689', '0.702', '0.715', '0.728', '0.741', '0.754', '0.767', '0.78', '0.793', '0.806', '0.819', '0.832', '0.845', '0.858', '0.871', '0.884', '0.897', '0.91', '0.923', '0.936', '0.949'] info predicates 0/1 rejected)"
+    },
+    "ligandmpnn_active_site_design": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (ligandmpnn_design: ligandmpnn_path is required; point it at a LigandMPNN checkout or set OPERON_LIGANDMPNN_PATH)"
+    },
+    "ligandmpnn_design": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable (numpy>=1.24)"
+    },
+    "ligandmpnn_score": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable (numpy>=1.24)"
+    },
+    "ligandmpnn_side_chain_packing": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (ligandmpnn_side_chain_packing: structure_path . is not a file)"
+    },
+    "line": {
+      "category": "domain-specific fixture",
+      "reason": "not executable under synthetic fixture (SKIP_HARNESS)"
+    },
+    "mack_wolfe": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (metadata: group column 'protocol_revision' is not parallel to 'sample_1')"
+    },
+    "mahalanobis_distance": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (mahalanobis_distance: need more samples than features)"
+    },
+    "manova": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (manova: every group needs >= 2 samples, got [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])"
+    },
+    "mardia_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (mardia_test: need more complete samples than features)"
+    },
+    "mauchly_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (mauchly_test: sample count must exceed feature count)"
+    },
+    "meta_regression": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (meta_regression: predictors must be a non-empty list)"
+    },
+    "mismatch_distribution": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (mismatch_distribution: sequences differ in length)"
+    },
+    "ml_partial_dependence": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (ml_partial_dependence: design matrix and response are inconsistent)"
+    },
+    "mlp_classifier": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (numpy>=1.24 torch<3,>=2.4)"
+    },
+    "mlp_regressor": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (numpy>=1.24 torch<3,>=2.4)"
+    },
+    "mlst_typing": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (mlst: column 'locus1' is required)"
+    },
+    "mood_scale": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (mood_scale: no samples in the requested groups)"
+    },
+    "moran": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (moran: distance matrix must be square)"
+    },
+    "moses_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (moses_test: each group needs at least two observations)"
+    },
+    "mrpp": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (metadata: group column 'group' is not parallel to 'sample_1')"
+    },
+    "neighbor_joining": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (neighbor_joining: distance matrix must be square)"
+    },
+    "nemenyi_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (metadata: group column 'tukey' is not parallel to 'sample_1')"
+    },
+    "nmds": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (nmds: distance matrix must be square)"
+    },
+    "normalizing_flow_density": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable ()"
+    },
+    "nucleotide_diversity": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (nucleotide_diversity: alt allele counts must be integers info predicates 3/3 rejected)"
+    },
+    "nucleotide_transformer_embedding": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (numpy>=1.24 torch<3,>=2.4 transformers<5,>=4.50)"
+    },
+    "nucleotide_transformer_variant_effect": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (numpy>=1.24 torch<3,>=2.4 transformers<5,>=4.50)"
+    },
+    "openfold_predict": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (torch)"
+    },
+    "ora": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (ora: no genes pass the hit thresholds)"
+    },
+    "order_axis": {
+      "category": "domain-specific fixture",
+      "reason": "not executable under synthetic fixture (SKIP_HARNESS)"
+    },
+    "page_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (page_test: ties within a block are not supported)"
+    },
+    "pairwise_alignment": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (pairwise_alignment: exactly two sequences are required, got 24 and 24 info predicates 6/6 rejected)"
+    },
+    "pam": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (pam: n_clusters must satisfy 2 <= n_clusters < n_samples, got 1 for 24 samples)"
+    },
+    "partial_correlation": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (not enough shared samples (24) for 63 covariates)"
+    },
+    "partial_mantel": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (partial_mantel A: distance matrix must be square)"
+    },
+    "patristic_distance": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (patristic_distance: tree table is missing the 'parent' field)"
+    },
+    "patterson_fst": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (patterson_fst: info['ploidy'] must be a positive integer)"
+    },
+    "pcnm": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (pcnm: distance matrix must be square)"
+    },
+    "pcoa": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (pcoa: distance matrix must be square)"
+    },
+    "pedigree_inbreeding": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (pedigree_inbreeding: pedigree contains a cycle)"
+    },
+    "permutation_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (metadata: group column 'protocol_revision' is not parallel to 'sample_1')"
+    },
+    "phylogenetics_gtr_likelihood": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (tree taxa missing from alignment: ['0.8500000000000001'])"
+    },
+    "poisson_means_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (poisson_means_test: no samples in the requested groups)"
+    },
+    "power_prop_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (power: parameter 'nobs1' must be at least 2)"
+    },
+    "precision_recall_curve": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (need exactly two classes, got ['0'])"
+    },
+    "press": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (press: need more than 60 complete observations for influence statistics)"
+    },
+    "prioritize": {
+      "category": "domain-specific fixture",
+      "reason": "not executable under synthetic fixture (SKIP_HARNESS)"
+    },
+    "prodigal_genes": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (prodigal_genes: the predictor failed with exit code 10: Error:  Sequence must be 20000 characters (only 1824 read). | (Consider running with the -p meta option or finding more contigs from the same genome.) info predicates 1/1 rejected)"
+    },
+    "proteinmpnn_bias_matrix": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_bias_matrix: structure_path . is not a file)"
+    },
+    "proteinmpnn_bias_scan": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_bias_scan: structure_path must point at a PDB file, got '.')"
+    },
+    "proteinmpnn_design": {
+      "category": "external dependency or tool",
+      "reason": "external dependency unavailable (numpy>=1.24)"
+    },
+    "proteinmpnn_design_cluster": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_design_cluster: structure_path is required)"
+    },
+    "proteinmpnn_design_diversity": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_design_diversity: structure_path is required)"
+    },
+    "proteinmpnn_design_profile": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (numpy>=1.24 torch>=2.0)"
+    },
+    "proteinmpnn_ensemble_score": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_ensemble_score: structure_path '.' is not a file)"
+    },
+    "proteinmpnn_hotspot_masked_design": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_hotspot_masked_design: structure_path is required info predicates 0/1 rejected)"
+    },
+    "proteinmpnn_interface_design": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_interface_design: structure_path '.' is not a file)"
+    },
+    "proteinmpnn_interface_redesign": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_interface_redesign: structure_path '.' does not exist)"
+    },
+    "proteinmpnn_interface_scan": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_interface_scan: the structure form has no 'z' column)"
+    },
+    "proteinmpnn_interface_temperature_scan": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_interface_temperature_scan: structure_path . is not a file)"
+    },
+    "proteinmpnn_masked_design": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_masked_design: structure_path is required)"
+    },
+    "proteinmpnn_masked_interface_design": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_masked_interface_design: structure_path is required (the PDB file the atom form was read from) info predicates 0/1 rejected)"
+    },
+    "proteinmpnn_masked_interface_score": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_masked_interface_score: structure_path '.' is not a file)"
+    },
+    "proteinmpnn_multi_model_consensus": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_multi_model_consensus: structure_path is required; point it at a PDB file)"
+    },
+    "proteinmpnn_native_recovery_scan": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_native_recovery_scan: structure_path '.' does not exist)"
+    },
+    "proteinmpnn_noise_robustness": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_noise_robustness: structure_path '.' is not a file)"
+    },
+    "proteinmpnn_omit_design": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_omit_design: structure_path x is not a file)"
+    },
+    "proteinmpnn_perplexity": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_perplexity: structure_path '.' is not a file)"
+    },
+    "proteinmpnn_position_entropy": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_position_entropy: structure_path must point at an existing PDB file)"
+    },
+    "proteinmpnn_probability_profile": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_probability_profile: structure_path '.' is not a file)"
+    },
+    "proteinmpnn_score": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_score: structure_path '.' is not a file)"
+    },
+    "proteinmpnn_temperature_ladder": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_temperature_ladder: structure_path is required; point it at a PDB file)"
+    },
+    "proteinmpnn_tied_design": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (proteinmpnn_tied_design: structure_path is required)"
+    },
+    "qtl_interval_mapping": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (population genetics input: missing field 'phenotype' in ['0', '1', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '2', '20', '21', '22', '23', '3', '4', '5', '6', '7', '8', '9'])"
+    },
+    "rainbow_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (rainbow_test: response and regressor must be different)"
+    },
+    "rarefaction": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (rarefaction: counts must be integers)"
+    },
+    "rdkit_fragment_overlap": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (rdkit_fragment_overlap: smiles_a is required; give one 'SMILES [name]' line per molecule)"
+    },
+    "rdkit_reaction_pairwise_enumerate": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (rdkit_reaction_pairwise_enumerate: cannot parse SMILES 'x' for molecule 'mol1')"
+    },
+    "reduce_axis": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (reduce_axis: 'stats' must be a non-empty list of statistic names)"
+    },
+    "redundancy_analysis": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (redundancy_analysis: fewer samples than variables)"
+    },
+    "remove_batch_effect": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (remove_batch_effect: 65 expression samples have no batch label)"
+    },
+    "renyi": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (renyi: scales must be a non-empty list of numbers)"
+    },
+    "rfam_scan": {
+      "category": "external dependency or tool",
+      "reason": "domain-specific fixture required (rfam_scan: resource 'rfam' is missing; no candidate directory exists; set OPERON_RFAM_DB to the directory that holds these files; install: download Rfam.cm.gz, gunzip it, then run 'cmpress Rfam.cm' in the same directory; https://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/Rfam.cm.gz info predicates 1/1 rejected)"
+    },
+    "rfdiffusion_design": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (rfdiffusion_design: contigs is required, for example 'A1-100' or '50-80 A1-100,0')"
+    },
+    "robinson_foulds": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (robinson_foulds: tree A: tree table is missing the 'parent' field)"
+    },
+    "roc_comparison": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (score: '0' not in ['axis_info_open', 'category', 'confidence', 'contracts', 'data_formats', 'declare', 'default', 'dependencies', 'dependency_imports', 'description', 'difference', 'dims', 'end', 'estimate', 'estimate_memory', 'form', 'full', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'label', 'label_dim', 'labels', 'logical_type', 'memory_modes', 'metadata', 'metric', 'missing_code', 'mode', 'n_neg', 'n_pos', 'ndim', 'numeric', 'operator', 'output', 'output_parameter', 'output)"
+    },
+    "roc_curve": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (need exactly two classes, got ['0'])"
+    },
+    "sc_batch_kbet": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sc_batch_kbet: graph rows and batch rows differ)"
+    },
+    "sc_leiden_cluster": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sc_leiden_cluster requires a square cell-by-cell adjacency matrix)"
+    },
+    "sc_pseudobulk_de": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (domain precondition: sc_pseudobulk_de requires exactly two groups)"
+    },
+    "sc_spatial_variable_genes": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sc_spatial_variable_genes: counts must have one column per spatial cell)"
+    },
+    "seasonal_decompose": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (seasonal_decompose: period must be at least 2)"
+    },
+    "sequence_aggregation_propensity": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_beta_propensity": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_cysteine_pairing": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_disorder_predictor": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_dnds": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence_dnds: 0 length is not a multiple of three)"
+    },
+    "sequence_hydrophobic_moment": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_isoelectric_point": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_net_charge": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_repeat_finder": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_rna_accessibility": {
+      "category": "external dependency or tool",
+      "reason": "external tool/database required (ViennaRNA>=2.6)"
+    },
+    "sequence_rna_cofold": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_rna_cofold_ensemble": {
+      "category": "external dependency or tool",
+      "reason": "external tool/database required (ViennaRNA>=2.6)"
+    },
+    "sequence_rna_duplex": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_rna_ensemble": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_rna_fold": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence input is not a sequence_codes Form)"
+    },
+    "sequence_tm_segments": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence_tm_segments: no transmembrane segment reaches the threshold 1.6 info predicates 4/4 rejected)"
+    },
+    "sequence_transmembrane_topology": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (sequence_transmembrane_topology: expected exactly one sequence, got 24 info predicates 2/3 rejected)"
+    },
+    "siegel_tukey": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (siegel_tukey: no samples in the requested groups)"
+    },
+    "simper": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (metadata: group column 'group' is not parallel to 'sample_1')"
+    },
+    "site_frequency_spectrum": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (site_frequency_spectrum: alt allele counts must be integers info predicates 3/3 rejected)"
+    },
+    "smiles_standardize": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (smiles_standardize: smiles is required; give one 'SMILES [name]' line per molecule)"
+    },
+    "snk_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (metadata: group column 'protocol_revision' is not parallel to 'sample_1')"
+    },
+    "standardized_residuals": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (standardized_residuals: need more than 60 complete observations for influence statistics)"
+    },
+    "storey_qvalue": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (storey_qvalue expects exactly one p-value column)"
+    },
+    "structure_dockq": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_dockq: native_path is required)"
+    },
+    "structure_dssp_segments": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_dssp_segments: structure_path . is not a file)"
+    },
+    "structure_halogen_bond_scan": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (structure_helix_helix_angle: the structure form has no 'z' column)"
+    },
+    "structure_interface_residue_energy": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (source imports: openmm)"
+    },
+    "structure_lddt": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_lddt: reference_path is required)"
+    },
+    "structure_ligand_burial": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (the PDB form has no 'z' column)"
+    },
+    "structure_ligand_clash": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (structure_ligand_clash: the structure form has no 'z' column)"
+    },
+    "structure_ligand_geometry_qc": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_ligand_geometry_qc: no atoms match residue names ['LIG'])"
+    },
+    "structure_ligand_interaction_fingerprint": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_ligand_interaction_fingerprint: no ligand atom matches the requested residue names)"
+    },
+    "structure_ligand_pose_qc": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_ligand_pose_qc: no atom carries the residue name 'LIG')"
+    },
+    "structure_ligand_pose_rmsd": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_ligand_pose_rmsd: the structure form has no 'z' column)"
+    },
+    "structure_ligand_redock_qc": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_ligand_redock_qc: complex_path . is not a file)"
+    },
+    "structure_ligand_residue_map": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (structure_ligand_residue_map: no ligand atom matches ligand_resnames 'LIG')"
+    },
+    "structure_ligand_strain": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_ligand_strain: the structure form has no 'z' column info predicates 0/1 rejected)"
+    },
+    "structure_md_communication_path": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_communication_path: trajectory_path . is not a file)"
+    },
+    "structure_md_conformational_clusters": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_conformational_clusters: trajectory_path . is not a file)"
+    },
+    "structure_md_contact_occupancy": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_contact_occupancy: trajectory_path . is not a file)"
+    },
+    "structure_md_dihedral_occupancy": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_dihedral_occupancy: trajectory_path . is not a file)"
+    },
+    "structure_md_dssp_transitions": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_ss_occupancy: trajectory_path . is not a file)"
+    },
+    "structure_md_free_energy_landscape": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_free_energy_landscape: trajectory_path . is not a file)"
+    },
+    "structure_md_hbond_lifetime": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_hbond_occupancy: trajectory_path . is not a file)"
+    },
+    "structure_md_hbond_occupancy": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_hbond_occupancy: trajectory_path . is not a file)"
+    },
+    "structure_md_interface_occupancy": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_interface_occupancy: trajectory_path is required)"
+    },
+    "structure_md_ligand_rmsd": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_ligand_rmsd: trajectory_path . is not a file)"
+    },
+    "structure_md_markov_states": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_markov_states: trajectory_path . is not a file)"
+    },
+    "structure_md_pca": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_pca: trajectory_path . is not a file)"
+    },
+    "structure_md_quasiharmonic_entropy": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_quasiharmonic_entropy: trajectory_path . is not a file)"
+    },
+    "structure_md_rotamer_states": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_rotamer_states: trajectory_path . is not a file)"
+    },
+    "structure_md_salt_bridge_occupancy": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_salt_bridge_occupancy: trajectory_path . is not a file)"
+    },
+    "structure_md_sasa_occupancy": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_sasa_occupancy: trajectory_path . is not a file)"
+    },
+    "structure_md_ss_occupancy": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_ss_occupancy: trajectory_path . is not a file)"
+    },
+    "structure_md_tica": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_md_tica: trajectory_path . is not a file)"
+    },
+    "structure_metal_coordination": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (structure_metal_coordination: the structure form has no 'z' column)"
+    },
+    "structure_openmm_energy": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (source imports: openmm)"
+    },
+    "structure_openmm_md_rmsf": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (external model dependency: openmm>=8.0 pdbfixer>=1.9)"
+    },
+    "structure_openmm_md_stability": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (external model dependency: openmm pdbfixer)"
+    },
+    "structure_pae_summary": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_pae_summary: expected a square PAE matrix, got 24x60)"
+    },
+    "structure_pocket_detect": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_pocket_detect: missing structure columns: resname, chain, residue_number, atom_name, element)"
+    },
+    "structure_rmsd": {
+      "category": "structure/reference data",
+      "reason": "domain-specific fixture required (structure_rmsd: the mobile form has no 'z' column info predicates 0/2 rejected)"
+    },
+    "structure_tm_score": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_tm_score: reference_path is required)"
+    },
+    "structure_zinc_sites": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (structure_zinc_sites: the structure form has no 'z' column)"
+    },
+    "stuart_maxwell": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (stuart_maxwell: rater columns not found)"
+    },
+    "stuart_maxwell_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (stuart_maxwell_test: table must be square)"
+    },
+    "studentized_residuals": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (studentized_residuals: need more than 60 complete observations for influence statistics)"
+    },
+    "tajimas_d": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (tajimas_d: alt allele counts must be integers info predicates 3/3 rejected)"
+    },
+    "tamhane_t2": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (metadata: group column 'protocol_revision' is not parallel to 'sample_1')"
+    },
+    "time_dependent_auc": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (time_dependent_auc: expected dims 'sample', 'feature', got ['d0', 'd1'])"
+    },
+    "transformer_classifier": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (numpy>=1.24 torch<3,>=2.4)"
+    },
+    "tree_mrca": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (domain precondition: both taxa must be leaves of the tree)"
+    },
+    "tsallis": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (tsallis: scales must be a non-empty list of numbers)"
+    },
+    "tukey_test": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (metadata: group column 'protocol_revision' is not parallel to 'sample_1')"
+    },
+    "unweighted_unifrac": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (unweighted_unifrac: tree table is missing the 'parent' field)"
+    },
+    "upgma": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (upgma: distance matrix must be square)"
+    },
+    "vae_anomaly": {
+      "category": "model checkpoint",
+      "reason": "model runtime/checkpoint required (numpy>=1.24 torch<3,>=2.4)"
+    },
+    "van_waerden": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (van_waerden: no samples in the requested groups)"
+    },
+    "var_model": {
+      "category": "model checkpoint",
+      "reason": "domain-specific fixture required (var_model: not enough complete observations)"
+    },
+    "vecm": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (vecm: VECM fit failed: Singular matrix)"
+    },
+    "vina_dock": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (vina_dock: receptor_path is required)"
+    },
+    "vina_dock_batch": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (vina_dock_batch: receptor_path is required)"
+    },
+    "vina_dock_python": {
+      "category": "external dependency or tool",
+      "reason": "external tool/database required (vina>=1.2)"
+    },
+    "vina_pose_cluster": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (vina_pose_cluster: the input has no 'z' column)"
+    },
+    "vina_pose_rmsd": {
+      "category": "structure/reference data",
+      "reason": "requires structure/trajectory/reference data (vina_pose_rmsd: reference_path x is not a file info predicates 0/1 rejected)"
+    },
+    "violin": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (violin: only 0 common samples on 'group_dim'.)"
+    },
+    "watterson_theta": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (watterson_theta: alt allele counts must be integers info predicates 3/3 rejected)"
+    },
+    "weighted_kappa": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (weighted_kappa: expected exactly two raters, got 62)"
+    },
+    "weighted_unifrac": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (weighted_unifrac: tree table is missing the 'parent' field)"
+    },
+    "youden_index": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (need exactly two classes, got ['0'])"
+    },
+    "zero_inflated_negative_binomial": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (zero_inflated_negative_binomial: both predictor lists must be non-empty)"
+    },
+    "zivot_andrews": {
+      "category": "domain-specific fixture",
+      "reason": "domain-specific fixture required (zivot_andrews: Zivot-Andrews computation failed: ZA: auxiliary exog matrix is not full rank.\n  cols (exc intercept) = 5  rank = 3.0)"
+    }
+  }
+}
