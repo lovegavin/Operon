@@ -137,6 +137,14 @@ export const api = {
     return value;
   },
   saveWorkflow: (graph: Graph, id?: string, expected_version?: number) => request<SavedWorkflow>("/api/workflows/save", {graph, id, expected_version}),
+  importRouteArchive: async (file: File): Promise<RouteDefinition[]> => {
+    const response = await fetch(base + '/api/routes/import-archive', {
+      method: 'POST', headers: {'X-Studio-Token': token, 'Content-Type': 'application/zip'}, body: file,
+    });
+    const value = await response.json();
+    if (!response.ok) throw new ApiError(value.message || value.detail || t("路线包导入失败"));
+    return value;
+  },
   routes: () => request<RouteDefinition[]>("/api/routes"),
   libraryState: () => request<LibraryState>("/api/library/state"),
   manageLibrary: (key: string, action: LibraryAction) => request<{routes: RouteDefinition[]; state: LibraryState}>("/api/library/manage", {key, action}),

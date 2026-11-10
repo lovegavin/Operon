@@ -186,6 +186,17 @@ def create_app(settings=None):
         except ValueError as exc:
             raise GraphError(str(exc)) from exc
 
+    @app.post("/api/routes/import-archive")
+    async def import_route_archive(request: Request):
+        from .route_archive import route_members
+        try:
+            members = route_members(await request.body())
+            graphs = [import_bundle(content) for _, content in members]
+            saved = [application.workflows.save(graph)["id"] for graph in graphs]
+            return service.routes.register(saved)
+        except (ValueError, KeyError) as exc:
+            raise GraphError(str(exc)) from exc
+
     @app.post("/api/workflows/save")
     def save_workflow(payload: SaveWorkflow):
         from operon.documents import CommandError

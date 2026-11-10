@@ -9,7 +9,7 @@ vi.mock('react',async original=>({...await original<typeof import('react')>(),us
   const i=hooks.cursor++; if(!(i in hooks.values))hooks.values[i]=initial;
   return [hooks.values[i],(next:unknown)=>{hooks.values[i]=typeof next==='function'?next(hooks.values[i]):next;}];
 }}));
-vi.mock('./api',()=>({api:{workflows:vi.fn(),importWorkflow:vi.fn(),saveWorkflow:vi.fn(),registerRoutes:vi.fn()}}));
+vi.mock('./api',()=>({api:{workflows:vi.fn(),importWorkflow:vi.fn(),importRouteArchive:vi.fn(),saveWorkflow:vi.fn(),registerRoutes:vi.fn()}}));
 const onChanged=vi.fn(async()=>{}),onPending=vi.fn(),onError=vi.fn(),onMessage=vi.fn();
 type Element={type:unknown;props:Record<string,unknown>};
 function elements(node:ReactNode):Element[] {
@@ -25,17 +25,17 @@ function triggerFiles(files: unknown[]) {
 const graph:Graph={schema_version:2,name:'Imported',base_dir:'.',nodes:[],edges:[],memory:{enabled:true}};
 beforeEach(()=>{hooks.values=[];hooks.cursor=0;vi.clearAllMocks();vi.mocked(api.workflows).mockResolvedValue([]);
   vi.mocked(api.saveWorkflow).mockResolvedValue({id:'saved',version:1,graph,updated_at:''});vi.mocked(api.registerRoutes).mockResolvedValue([]);});
-it.each(['route.operon.zip', 'route.operon.zip', 'route.operon', 'route.OPERON', 'route.operon'])('imports %s, saves its graph and registers it without opening or running a canvas',async name=>{
+it.each(['route.operon.zip', 'route.operon', 'route.OPERON'])('imports %s, saves its graph and registers it without opening or running a canvas',async name=>{
   vi.mocked(api.importWorkflow).mockResolvedValue(graph);
   const file=new File([new Uint8Array([80,75,3,4])],name);triggerFiles([file]);
   await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
   expect(api.importWorkflow).toHaveBeenCalledWith(file);expect(vi.mocked(api.saveWorkflow).mock.calls[0][0]).toMatchObject(graph);
   expect(api.registerRoutes).toHaveBeenCalledWith(['saved']);expect(onChanged).toHaveBeenCalledOnce();
 });
-it('allows Operon and compatible Operon bundles in the route file picker',()=>{
+it('allows only Operon route bundles and JSON in the route file picker',()=>{
   const field=elements(render()).find(n=>n.type==='input'&&n.props.type==='file')!;
   const extensions=String(field.props.accept).split(',');
-  expect(extensions).toEqual(expect.arrayContaining(['.operon','.operon','.zip','.json']));
+  expect(extensions).toEqual(expect.arrayContaining(['.zip','.operon.zip','.operon','.json']));
 });
 it('keeps successfully saved imports selected when a later file fails',async()=>{
   triggerFiles([{name:'one.json',text:async()=>JSON.stringify(graph)},{name:'bad.json',text:async()=>'{broken'}]);
@@ -60,4 +60,21 @@ it('reports a rejected workflow without clearing its selection or claiming succe
   expect(hooks.values[1]).toEqual(['incomplete']);
   expect(onMessage).not.toHaveBeenCalledWith('路线算子已添加，即刻可用。');
   expect(onChanged).toHaveBeenCalledOnce();
+});
+
+it('imports one route collection archive through a single request',async()=>{
+  vi.mocked(api.importRouteArchive).mockResolvedValue([]);
+  const file=new File([new Uint8Array([80,75,3,4])],'routes.zip');
+  triggerFiles([file]);
+  await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
+  expect(api.importRouteArchive).toHaveBeenCalledWith(file);
+  expect(api.importWorkflow).not.toHaveBeenCalled();
+  expect(api.registerRoutes).not.toHaveBeenCalled();
+  expect(onMessage).toHaveBeenCalledWith('路线算子已添加，即刻可用。');
+});
+it('rejects a collection mixed with individual route files',async()=>{
+  triggerFiles([new File([new Uint8Array([80,75,3,4])],'routes.zip'),new File(['{}'],'one.json')]);
+  await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
+  expect(onError).toHaveBeenCalledWith('路线压缩包请单独上传。');
+  expect(api.importRouteArchive).not.toHaveBeenCalled();
 });

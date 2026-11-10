@@ -86,7 +86,7 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 - [Reader extensions](reader_extensions.md) and [step extensions](step_extensions.md)
 - [Library installation and maintenance](plugins.md)
 - [Independent software and operator-library releases](library_releases.md)
-- [Library and route import compatibility](library_import_compatibility.md)
+- [Importing operator libraries and routes](library_import_compatibility.md)
 - [Static registry maintenance](registry_maintenance.md)
 - [Backend versioning](backend_versioning.md)
 - [Selective frontend integration](FRONTEND_MERGE.md)

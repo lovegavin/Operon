@@ -18,7 +18,7 @@ from operon_sdk.protocol import PROTOCOL_VERSION
 from operon.bytecode import filesystem_path
 
 
-LIBRARY_SUFFIXES = ('.operon-library.zip', '.operon-library.zip')
+LIBRARY_SUFFIXES = ('.operon-library.zip',)
 
 
 def is_library_bundle(path):
@@ -94,7 +94,7 @@ def unpack_bundle(path, destination):
                     or (info.external_attr >> 16) & 0o170000 == 0o120000):
                 raise ValueError(f"Invalid library archive path: {name}")
         document = json.loads(archive.read("library.json"))
-        if document.get("format") not in ("operon.library", "operon.library") or document.get("protocol_version") != PROTOCOL_VERSION:
+        if document.get("format") != "operon.library" or document.get("protocol_version") != PROTOCOL_VERSION:
             raise ValueError("A protocol v3 Operon library bundle is required; migrate old declarations first")
         Version(document['version'])
         if Version(__version__) < Version(document['minimum_application']):

@@ -2,27 +2,17 @@ import {afterEach, describe, expect, it, vi} from 'vitest';
 
 afterEach(() => {vi.unstubAllGlobals(); vi.resetModules();});
 describe('shared application preferences', () => {
-  it('reads the previous combined config and writes new choices without overwriting it', async () => {
-    const legacy=JSON.stringify({language:'en',theme:'dark'});
-    const values=new Map([['operon-studio-config-v1',legacy]]);
-    vi.stubGlobal('localStorage',{getItem:(key:string)=>values.get(key)??null,setItem:(key:string,value:string)=>values.set(key,value)});
-    const prefs=await import('./preferences');
-    expect(prefs.getPreferences()).toEqual({language:'en',theme:'dark'});
-    prefs.setPreferences({theme:'light'});
-    expect(values.get('operon-studio-config-v1')).toBe(legacy);
-    vi.resetModules();
-    expect((await import('./preferences')).getPreferences()).toEqual({language:'en',theme:'light'});
-  });
-  it('imports browser-only choices and then caches one configuration object', async () => {
-    const values = new Map([['operon-studio-theme-v1', 'dark'], ['operon-studio-language-v1', 'en']]);
+  it('reads and writes one current configuration object', async () => {
+    const initial = JSON.stringify({language: 'en', theme: 'dark'});
+    const values = new Map([['operon-studio-config-v1', initial]]);
     vi.stubGlobal('localStorage', {getItem: (key: string) => values.get(key) ?? null,
       setItem: (key: string, value: string) => values.set(key, value)});
     const prefs = await import('./preferences');
     expect(prefs.getPreferences()).toEqual({language: 'en', theme: 'dark'});
-    prefs.setPreferences({language: 'zh-CN'});
-    expect(JSON.parse(values.get('operon-studio-config-v1')!)).toEqual({language: 'zh-CN', theme: 'dark'});
+    prefs.setPreferences({theme: 'light'});
+    expect(JSON.parse(values.get('operon-studio-config-v1')!)).toEqual({language: 'en', theme: 'light'});
     vi.resetModules();
-    expect((await import('./preferences')).getPreferences()).toEqual({language: 'zh-CN', theme: 'dark'});
+    expect((await import('./preferences')).getPreferences()).toEqual({language: 'en', theme: 'light'});
   });
   it('serializes updates so a slow theme response cannot undo a newer language choice', async () => {
     const finish: ((value: unknown) => void)[] = [];

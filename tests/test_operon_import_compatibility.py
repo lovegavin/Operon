@@ -57,23 +57,6 @@ def wheel(tmp_path, package, identifier='describe'):
     return single_file_wheel(source, tmp_path / 'wheels')
 
 
-def test_provider_rename_replaces_once_preserves_disable_and_history_then_restores(tmp_path):
-    manager = PluginManager(tmp_path / 'profile', source_root=None, manifest_only=True)
-    previous = manager.manage('operon-core', 'disable')
-    old_path = manager.directory / 'snapshots' / (previous['generation'] + '.json')
-    original = old_path.read_bytes()
-    state = manager.install(wheel(tmp_path, 'operon-core'))
-    assert not any(p['name'] == 'operon-core' for p in state['packages'])
-    assert next(p for p in state['packages'] if p['name'] == 'operon-core')['enabled'] is False
-    assert len({d['id'] for d in state['descriptors']}) == len(state['descriptors'])
-    assert next(d for d in state['descriptors'] if d['id'] == 'describe')['implementation']['package'] == 'operon-core'
-    assert old_path.read_bytes() == original
-    restored = manager.manage('operon-core', 'restore')
-    assert not any(p['name'] == 'operon-core' for p in restored['packages'])
-    assert len({d['id'] for d in restored['descriptors']}) == len(restored['descriptors'])
-    assert old_path.read_bytes() == original
-
-
 @pytest.mark.parametrize('package,identifier', [('operon-core', 'CsvReader'), ('operon-unrelated', 'describe')])
 def test_rename_does_not_allow_stealing_another_providers_id(tmp_path, package, identifier):
     manager = PluginManager(tmp_path / 'profile', source_root=None, manifest_only=True)

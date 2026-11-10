@@ -101,6 +101,8 @@ internal sealed class StudioWindow : Form
     private readonly Label status = new() { AutoSize = false, Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleCenter,
         Font = new Font("Segoe UI", 14), Text = "Operon Studio\n\n正在启动工作台服务…" };
     private readonly HttpClient http = new(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(5) };
+    private const string ReadyPrefix = "OPERON_READY ";
+    private const string StartupErrorPrefix = "OPERON_STARTUP_ERROR ";
     private readonly TaskCompletionSource<string> ready = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly CancellationTokenSource stopped = new();
     private readonly DesktopLog desktopLog;
@@ -174,14 +176,14 @@ internal sealed class StudioWindow : Form
             backend = new Process { StartInfo = start, EnableRaisingEvents = true };
             backend.OutputDataReceived += (_, e) => {
                 if (e.Data is null) return;
-                if (e.Data.StartsWith("OPERON_READY "))
+                if (e.Data.StartsWith(ReadyPrefix))
                 {
-                    try { using var value = JsonDocument.Parse(e.Data[14..]); ready.TrySetResult(value.RootElement.GetProperty("url").GetString()!); }
+                    try { using var value = JsonDocument.Parse(e.Data[ReadyPrefix.Length..]); ready.TrySetResult(value.RootElement.GetProperty("url").GetString()!); }
                     catch (Exception error) { ready.TrySetException(error); }
                 }
-                else if (e.Data.StartsWith("OPERON_STARTUP_ERROR "))
+                else if (e.Data.StartsWith(StartupErrorPrefix))
                 {
-                    try { using var value = JsonDocument.Parse(e.Data[22..]); ready.TrySetException(new InvalidOperationException(value.RootElement.GetProperty("message").GetString())); }
+                    try { using var value = JsonDocument.Parse(e.Data[StartupErrorPrefix.Length..]); ready.TrySetException(new InvalidOperationException(value.RootElement.GetProperty("message").GetString())); }
                     catch (Exception error) { ready.TrySetException(error); }
                     Log("Backend: " + e.Data);
                 }

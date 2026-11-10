@@ -122,8 +122,8 @@ def import_bundle(content):
             names = sorted(archive.namelist())
             if 'library.json' in names:
                 raise ValueError('This is an operator library, not a workflow. Use Operator Library > Add operators > Import package.')
-            if any(name.lower().endswith(('.operon.zip', '.operon.zip')) for name in names):
-                raise ValueError('This is a collection of workflows. Extract it and select the individual .operon.zip files in the routes folder.')
+            if any(name.lower().endswith('.operon.zip') for name in names):
+                raise ValueError('This is a collection of workflows. Upload the whole zip in Route Operators instead of importing its members.')
             if names not in (["graph.json", "parameters.json"], ["execution.json", "graph.json", "parameters.json"]):
                 raise ValueError("Workflow bundle must contain graph.json, parameters.json and optional execution.json only")
             # Only JSON is read in memory. No archive path is extracted or executed.

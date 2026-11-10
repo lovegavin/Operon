@@ -18,7 +18,7 @@ def read_graph_file(path):
     if path.suffix.lower() in ('.yaml', '.yml'):
         from .workflow_spec import load_workflow
         return load_workflow(path)
-    if path.suffix.lower() in ('.zip', '.operon', '.operon'):
+    if path.suffix.lower() in ('.zip', '.operon'):
         from src.web.parameters import import_bundle
         return import_bundle(path.read_bytes()).model_dump(mode="json")
     value = json.loads(path.read_text(encoding="utf-8"))

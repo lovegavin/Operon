@@ -93,10 +93,18 @@ internal sealed class InstallEngine
         if (Available(root)) return root;
         for (int suffix = 1; ; suffix++)
         {
-            var child = Path.Combine(root, suffix == 1 ? "Operon" : $"Operon-{suffix}");
+            var child = Path.Combine(root, suffix == 1 ? "Operon Studio" : $"Operon Studio-{suffix}");
             InstallFiles.NoLinks(child);
             if (Available(child)) return child;
         }
+    }
+
+    internal static string NamedDestination(string selected)
+    {
+        var path = Path.TrimEndingDirectorySeparator(Path.GetFullPath(selected.Trim()));
+        return string.Equals(Path.GetFileName(path), "Operon Studio", StringComparison.OrdinalIgnoreCase)
+            ? path
+            : Path.Combine(path, "Operon Studio");
     }
 
     private static bool Available(string root)
@@ -532,14 +540,14 @@ internal sealed class InstallEngine
             using var run = Registry.CurrentUser.OpenSubKey(
                 @"Software\Microsoft\Windows\CurrentVersion\Run", writable: true);
             if (run is not null)
-                foreach (var value in new[] { "Operon Studio", "OperonStudio", "Operon Studio", "OperonStudio" })
+                foreach (var value in new[] { "Operon Studio", "OperonStudio" })
                     run.DeleteValue(value, throwOnMissingValue: false);
         }
         catch (Exception) { }
         try
         {
             var startup = Environment.GetFolderPath(Environment.SpecialFolder.Startup);
-            foreach (var name in new[] { "Operon Studio.lnk", "Operon Studio.lnk" })
+            foreach (var name in new[] { "Operon Studio.lnk" })
             {
                 var path = Path.Combine(startup, name);
                 if (File.Exists(path)) File.Delete(path);

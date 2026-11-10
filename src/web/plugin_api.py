@@ -130,7 +130,7 @@ def mount_plugins(app, service):
         check_idle()
         if (Path(filename).name != filename or any(c in filename for c in '\\/:*?"<>|')
                 or not (filename.lower().endswith('.whl') or is_library_bundle(filename))):
-            raise HTTPException(422, "请选择 .whl、.operon-library.zip 或 .operon-library.zip 算子库包。")
+            raise HTTPException(422, "请选择 .whl 或 .operon-library.zip 算子库包。")
         key = uuid.uuid4().hex
         active.add(key)
         temporary = service.plugins.directory / "incoming" / key

@@ -39,7 +39,7 @@ Operon is a local bioinformatics pipeline engine with a visual desktop workspace
 typed data contracts, bounded resource planning and an extensible operator SDK.
 Create branched workflows, reuse saved routes as operators, and connect your own
 AI agent through CLI or MCP. Operon itself does not supply an AI service.
-The **v3.1.8 application** and independently versioned **2026.11.8.1 operator library**
+The **v3.1.9 application** and independently versioned **2026.11.8.1 operator library**
 share this repository. The reference library includes **717 operators, 101 Readers, seven
 provider packages and 24 route templates**. Operators and Readers use **protocol
 v3 / SDK 3.7**, separate parameter JSON and adjacent Markdown documentation.
