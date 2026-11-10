@@ -261,7 +261,7 @@ internal sealed class InstallEngine
             Report("正在核对已安装文件…", 76); InstallFiles.VerifyPackage(stage, spec, token);
             var profileId = Guid.NewGuid().ToString("N");
             InstallFiles.AtomicJson(Path.Combine(stage, "operon-install.json"),
-                new { schema_version = 1, isolated = true, profile_id = profileId, product = "operon" });
+                new { schema_version = 1, isolated = true, profile_id = profileId, product = "operon", workspace = "workspace" });
             Report("正在验证独立运行环境…", 82);
             var inspection = await Inspect(stage, token);
             resolvedProfile = inspection.GetProperty("profile").GetProperty("profile_dir").GetString()

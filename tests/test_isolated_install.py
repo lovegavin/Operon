@@ -53,6 +53,27 @@ def test_unknown_product_fails_before_profile_creation_or_environment_mutation(t
     assert dict(os.environ) == original and not (tmp_path / 'home').exists()
 
 
+def test_install_owned_workspace_is_relative_to_installation_root(tmp_path):
+    install = tmp_path / 'install'
+    version = install / 'versions' / '4.0.1-test'
+    identity(version, workspace='workspace')
+    result = resolve_profile(version, home=tmp_path / 'home', environ={})
+    assert result.workspace == install / 'workspace'
+    assert result.data_dir == install / 'workspace/.studio'
+    assert result.profile_dir == tmp_path / 'home/.operon/profiles' / ('a' * 32)
+    assert resolve_profile(version, home=tmp_path / 'home', environ={},
+                           workspace=result.workspace, data_dir=result.data_dir) == result
+    with pytest.raises(ValueError, match='own profile'):
+        resolve_profile(version, home=tmp_path / 'home', environ={},
+                        workspace=tmp_path / 'outside')
+
+
+def test_install_workspace_cannot_escape_installation_root(tmp_path):
+    identity(tmp_path / 'install', workspace='../outside')
+    with pytest.raises(ValueError, match='workspace'):
+        resolve_profile(tmp_path / 'install', home=tmp_path / 'home', environ={})
+
+
 def test_isolated_profile_ignores_old_profiles_environment_and_cwd(tmp_path, monkeypatch):
     home, install = tmp_path / 'home', tmp_path / 'install'
     old = home / '.operon/studio/workspace/.studio/plugins/registry.json'

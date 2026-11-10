@@ -36,6 +36,25 @@ def profile_namespace(root):
     return '.' + product
 
 
+def workspace_root(root):
+    """Optional install-owned workspace; absent markers keep the legacy profile path."""
+    root = Path(root).resolve()
+    value = json.loads((root / 'operon-install.json').read_text(encoding='utf-8'))
+    raw = value.get('workspace')
+    if raw is None:
+        return None
+    if not isinstance(raw, str) or not raw.strip():
+        raise ValueError('Invalid installation workspace; rerun Operon Setup.')
+    base = root.parent.parent if root.parent.name == 'versions' else root
+    candidate = Path(os.path.expandvars(raw))
+    if not candidate.is_absolute():
+        candidate = base / candidate
+    candidate = candidate.resolve()
+    if candidate == base or not candidate.is_relative_to(base):
+        raise ValueError('Installation workspace must be inside the installation root; rerun Operon Setup.')
+    return candidate
+
+
 def configure_environment(code_root):
     """Also isolate direct CLI/MCP starts, which do not pass through the EXE."""
     root = isolated_root(code_root)
