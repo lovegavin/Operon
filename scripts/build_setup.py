@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import struct
@@ -70,9 +71,14 @@ def main():
     spec = payload_spec(payload)
     manifest = build / 'payload.json'
     manifest.write_text(json.dumps(spec, indent=2) + '\n', encoding='utf-8')
-    subprocess.run(['dotnet', 'publish', str(root / 'installer/BioPipeSetup.csproj'), '-c', 'Release',
-                    '-p:PayloadManifest=' + str(manifest), '-p:Version=' + spec['version'],
-                    '-o', str(build / 'host'), *(['--no-restore'] if args.no_restore else [])], check=True, cwd=root)
+    publish = ['dotnet', 'publish', str(root / 'installer/BioPipeSetup.csproj'), '-c', 'Release',
+               '-p:PayloadManifest=' + str(manifest), '-p:Version=' + spec['version'],
+               '-o', str(build / 'host')]
+    if os.name != 'nt':
+        publish.append('-p:EnableWindowsTargeting=true')
+    if args.no_restore:
+        publish.append('--no-restore')
+    subprocess.run(publish, check=True, cwd=root)
     append_payload(build / 'host/Operon_Setup.exe', payload, output)
     with output.open('rb') as source:
         digest = hashlib.file_digest(source, 'sha256').hexdigest()
