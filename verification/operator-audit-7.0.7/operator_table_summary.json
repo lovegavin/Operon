@@ -11,8 +11,8 @@
   "operators": 1063,
   "readers": 108,
   "replay": {
-    "builtin_route": 245,
+    "builtin_route": 247,
     "generated_route": 264,
-    "no_route": 554
+    "no_route": 552
   }
 }

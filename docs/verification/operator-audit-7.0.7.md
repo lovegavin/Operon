@@ -8,7 +8,7 @@ the exact scope is stated below.**
 
 > Coverage: built-in route graphs cover 245 operators (export_results is a
 > sink, not an operator), generated routes add 264 new operators, and the
-> union is 509 / 1063 with 554 operators uncovered. The
+> union is 511 / 1063 with 552 operators uncovered. The
 > per-operator table is verification/operator-audit-7.0.7/operator_table.csv
 > (1063 operators plus 108 Readers).
 
@@ -80,9 +80,9 @@ against manual NaN-aware arithmetic (delta 0).
 
 ## L3 - route replay
 
-Package: `scripts/package_routes.py --output <dir>` builds 78 bundles, each
+Package: `scripts/package_routes.py --output <dir>` builds 79 bundles, each
 containing exactly `graph.json`, `parameters.json`, `execution.json`. Import
-through `src.web.parameters.import_bundle(bytes)` succeeds for **78/78** on
+through `src.web.parameters.import_bundle(bytes)` succeeds for **79/79** on
 Studio 3.1.6.
 
 Replay on WSL with `python scripts/run.py library/seed/routes/<name>`:
@@ -97,7 +97,7 @@ the L1 fixtures and write a CSV-backed template plus `export_results` for
 operators whose L1 case passed. 348 templates were generated, 314 pass static
 validation and 305 execute successfully. The union of builtin route coverage
 (245 operators in the graphs) and executed generated routes is
-**509 / 1063** (41 overlap, 554 uncovered). 554 operators still have no passing route; the
+**511 / 1063** (41 overlap, 552 uncovered). 552 operators still have no passing route; the
 blocking reasons are one-dimensional Form ports that `CsvReader` cannot
 declare, sequence/`sequence_codes` Form ports that lose `info` through CSV,
 structure/atom tables requiring real records, file-only ports, and statistical
@@ -152,7 +152,7 @@ layer. Evidence: `l5_cli_parity.json`.
 ## L5 - entry points
 
 Route bundles import through the Studio 3.1.6 HTTP parameter API
-(`import_bundle(bytes)`, 78/78).
+(`import_bundle(bytes)`, 79/79).
 
 A three-way sample on the `correlation` route compares the direct development
 runner, two `operon run` CLI jobs and a repeated CLI job:

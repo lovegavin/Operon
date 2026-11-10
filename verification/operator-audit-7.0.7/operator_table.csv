@@ -1026,7 +1026,7 @@ structure_hbonds,operator,PASS,SKIP_DOMAIN,SKIP,,,no_route,not_measured,domain p
 structure_helix_bend,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_helix_helix_angle: the structure form has no 'atom_name' column | definition.outputs empty
 structure_helix_geometry,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_helix_geometry: at least three CA atoms are required | definition.outputs empty
 structure_helix_helix_angle,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_helix_helix_angle: the structure form has no 'z' column | definition.outputs empty
-structure_interface_core,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_interface_core: no 'z' column | definition.outputs empty
+structure_interface_core,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,structure_interface_core: no 'z' column | definition.outputs empty
 structure_interface_residue_energy,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: openmm | definition.outputs empty
 structure_lddt,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_lddt: reference_path is required | definition.outputs empty
 structure_ligand_burial,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
@@ -1063,7 +1063,7 @@ structure_openmm_md_rmsf,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measure
 structure_openmm_md_stability,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: openmm pdbfixer | definition.outputs empty
 structure_packing_density,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
 structure_pae_summary,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure_pae_summary: expected a square PAE matrix, got 24x60 | definition.outputs empty"
-structure_paratope_predict,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,the PDB form has no 'z' column | info predicates 0/1 rejected | definition.outputs empty
+structure_paratope_predict,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,the PDB form has no 'z' column | info predicates 0/1 rejected | definition.outputs empty
 structure_pdbqt_flexible_receptor,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_pdbqt_flexible_receptor: no residue carries a flexible side chain | definition.outputs empty
 structure_phi_psi,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
 structure_plddt_profile,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"

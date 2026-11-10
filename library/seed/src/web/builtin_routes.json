@@ -386,6 +386,11 @@
       "path": "routes/vcf_sample_qc/task.yaml",
       "sha256": "3baea066d0231843f6f7df1c8c199cbeaab375e17e23b368d03a2e1852972175",
       "parameters_sha256": "4338f3a67f1cfed0f00f97afa2324d9665bc43dc5f144fc42d2809afb89c3545"
+    },
+    "route_992997eadefb": {
+      "path": "routes/vhh_cdr_quantification/task.yaml",
+      "sha256": "7aa9f70c411999acf582e76933b1ecea3390832d679877e975a91273ae29f4d9",
+      "parameters_sha256": "a98f0963b80b6dc98184958242ae4138355705b5adbe9176147ac42dff57dfb2"
     }
   },
   "routes": [
@@ -903,7 +908,7 @@
     },
     {
       "id": "route_077bc98ade2b",
-      "version": 2,
+      "version": 3,
       "name": "16S Microbiome",
       "graph": {
         "schema_version": 2,
@@ -2142,16 +2147,8 @@
               "label": "重命名维度",
               "contract": {
                 "version": 1,
-                "ndim": 2,
-                "numeric": true,
-                "dims": [
-                  "site",
-                  "species"
-                ],
-                "labels": {
-                  "species": null,
-                  "site": null
-                },
+                "dims": null,
+                "labels": {},
                 "info": {
                   "missing_code": {
                     "type": [
@@ -2164,9 +2161,11 @@
                     "const": "aggregate"
                   }
                 },
-                "info_open": false,
-                "axis_info_open": false,
                 "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "ndim": 2,
+                "numeric": true,
                 "data_format": {
                   "logical_type": "form",
                   "representations": [
@@ -24021,6 +24020,296 @@
             },
             {
               "node_id": "export_results_8",
+              "handle": "out",
+              "label": "Export results",
+              "contract": {
+                "version": 1,
+                "dims": [],
+                "labels": {},
+                "info": {
+                  "representation": {
+                    "const": "exported_files"
+                  }
+                },
+                "axis_info": {},
+                "info_open": true,
+                "axis_info_open": true,
+                "kind": "file",
+                "numeric": false,
+                "ndim": 0
+              }
+            }
+          ]
+        },
+        "plugin_lock": {}
+      }
+    },
+    {
+      "id": "route_992997eadefb",
+      "version": 1,
+      "name": "VHH per-CDR interface quantification",
+      "graph": {
+        "schema_version": 2,
+        "name": "VHH per-CDR interface quantification",
+        "base_dir": ".studio/builtin-inputs/vhh_cdr_quantification",
+        "nodes": [
+          {
+            "id": "pdb",
+            "kind": "source",
+            "script": null,
+            "operator": null,
+            "title": "pdb",
+            "position": {
+              "x": 70.0,
+              "y": 100.0
+            },
+            "params": {},
+            "context_params": {},
+            "source": {
+              "reader": "PdbReader",
+              "path": "input/vhh_1mel.pdb",
+              "dims": [
+                "atom",
+                "field"
+              ],
+              "labels": {},
+              "args": {},
+              "location": null
+            },
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "structure_interface_core_1",
+            "kind": "operator",
+            "script": null,
+            "operator": "structure_interface_core",
+            "title": "Interface core residues",
+            "position": {
+              "x": 360.0,
+              "y": 100.0
+            },
+            "params": {
+              "atom_dim": "atom",
+              "field_dim": "field",
+              "binder_chains": "A",
+              "target_chains": "L",
+              "core_fraction": 0.5,
+              "probe_radius": 1.4,
+              "n_points": 92,
+              "output": "interface_all",
+              "include_nonpolymer": false
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "structure_paratope_predict_2",
+            "kind": "operator",
+            "script": null,
+            "operator": "structure_paratope_predict",
+            "title": "Paratope prediction",
+            "position": {
+              "x": 360.0,
+              "y": 310.0
+            },
+            "params": {
+              "atom_dim": "atom",
+              "field_dim": "field",
+              "binder_chains": "A",
+              "target_chains": "L",
+              "cutoff": 5.0,
+              "min_contacts": 1,
+              "output": "paratope"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          },
+          {
+            "id": "join_3",
+            "kind": "operator",
+            "script": null,
+            "operator": "join",
+            "title": "Join",
+            "position": {
+              "x": 650.0,
+              "y": 100.0
+            },
+            "params": {
+              "columns": "all",
+              "how": "inner",
+              "prefix": "",
+              "dim": "residue",
+              "output": "joined"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 2,
+            "route": null
+          },
+          {
+            "id": "aggregate_4",
+            "kind": "operator",
+            "script": null,
+            "operator": "aggregate",
+            "title": "Aggregate",
+            "position": {
+              "x": 940.0,
+              "y": 100.0
+            },
+            "params": {
+              "method": "sum",
+              "dim": "residue",
+              "group_col": "cdr_index",
+              "output": "bsa_by_cdr"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 2,
+            "route": null
+          },
+          {
+            "id": "export_results_5",
+            "kind": "operator",
+            "script": null,
+            "operator": "export_results",
+            "title": "Export results",
+            "position": {
+              "x": 1230.0,
+              "y": 100.0
+            },
+            "params": {
+              "format": "csv",
+              "filename": "bsa_by_cdr",
+              "include_labels": true,
+              "buffer_mb": 1,
+              "assembly": "",
+              "topology": "linear",
+              "value_column": 0,
+              "directed": false,
+              "output": "export_results"
+            },
+            "context_params": {},
+            "source": null,
+            "input_count": 1,
+            "route": null
+          }
+        ],
+        "edges": [
+          {
+            "adaptation": null,
+            "id": "pdb-structure_interface_core_1-0",
+            "source": "pdb",
+            "target": "structure_interface_core_1",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "pdb-structure_paratope_predict_2-0",
+            "source": "pdb",
+            "target": "structure_paratope_predict_2",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "structure_interface_core_1-join_3-0",
+            "source": "structure_interface_core_1",
+            "target": "join_3",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "structure_paratope_predict_2-join_3-1",
+            "source": "structure_paratope_predict_2",
+            "target": "join_3",
+            "sourceHandle": "out",
+            "targetHandle": "in-1"
+          },
+          {
+            "adaptation": null,
+            "id": "join_3-aggregate_4-0",
+            "source": "join_3",
+            "target": "aggregate_4",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          },
+          {
+            "adaptation": null,
+            "id": "structure_paratope_predict_2-aggregate_4-1",
+            "source": "structure_paratope_predict_2",
+            "target": "aggregate_4",
+            "sourceHandle": "out",
+            "targetHandle": "in-1"
+          },
+          {
+            "adaptation": null,
+            "id": "aggregate_4-export_results_5-0",
+            "source": "aggregate_4",
+            "target": "export_results_5",
+            "sourceHandle": "out",
+            "targetHandle": "in-0"
+          }
+        ],
+        "memory": {
+          "enabled": false
+        },
+        "params": {},
+        "runtime": {},
+        "manifest_extra": {
+          "format": "operon.task",
+          "version": 1
+        },
+        "interface": {
+          "version": 1,
+          "inputs": [
+            {
+              "node_id": "pdb",
+              "label": "pdb",
+              "contract": {
+                "version": 1,
+                "ndim": 2,
+                "numeric": true,
+                "dims": [
+                  "atom",
+                  "field"
+                ],
+                "labels": [],
+                "info": {
+                  "missing_code": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "encoders": {
+                    "type": "object",
+                    "optional": true
+                  }
+                },
+                "info_open": false,
+                "axis_info_open": false,
+                "_format_explicit": true,
+                "data_format": {
+                  "logical_type": "form",
+                  "representations": [
+                    "form"
+                  ],
+                  "metadata": {}
+                },
+                "parallel": []
+              }
+            }
+          ],
+          "outputs": [
+            {
+              "node_id": "export_results_5",
               "handle": "out",
               "label": "Export results",
               "contract": {

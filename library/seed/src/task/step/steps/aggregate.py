@@ -97,12 +97,12 @@ class AggregateStep(Step):
                                'ndim': 2,
                                'labels_axis': [{'axis': 1,
                                                 'values': [{'param': 'group_col', 'default': None}]}]}],
-                   'output': {'mode': 'project',
-                              'derived': True,
-                              'info': {'missing_code': {'type': ['number', 'null']},
-                                       'representation': {'type': 'string', 'const': 'aggregate'}},
-                              'drop_dims': [{'param': 'dim', 'default': None}],
-                              'prepend_dims': [{'input_axis': [1, 1]}]}},
+                   'output': {'mode': 'declare',
+                              'schema': {'ndim': 2,
+                                         'numeric': True,
+                                         'info': {'missing_code': {'type': ['number', 'null']},
+                                                  'representation': {'type': 'string', 'const': 'aggregate'}},
+                                         'labels': {}}}},
      'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'},
      'inputs_arity': 2,
      'outputs': [],
@@ -153,6 +153,14 @@ class AggregateStep(Step):
 
         other_dim = data_form.dims[1]
         group_dim = groups_form.dims[1]
+        # When the group table shares its column dimension with the data
+        # table (for example both are [residue, field]), the group column
+        # must be promoted to its own dimension.  Otherwise the output
+        # would carry two dimensions with the same name and Form would
+        # reject it.
+        promoted_group_dim = None
+        if group_dim == other_dim:
+            promoted_group_dim = group_col if group_col != other_dim else f"{group_dim}_group"
 
         if group_col not in groups_form.labels[group_dim]:
             raise StepError(
@@ -206,7 +214,13 @@ class AggregateStep(Step):
 
         n_groups = len(ordered_groups)
         n_other = data_form.data.shape[1]
-        out_data = np.full((n_groups, n_other), np.nan, dtype=np.float64)
+        # The grouping column itself is not a measurement: drop it from
+        # the output when the field dimension is shared with the groups.
+        keep_cols = list(range(n_other))
+        if promoted_group_dim is not None:
+            data_group_pos = data_form.labels.get(other_dim, {}).get(group_col, col_pos)
+            keep_cols = [i for i in range(n_other) if i != data_group_pos]
+        out_data = np.full((n_groups, len(keep_cols)), np.nan, dtype=np.float64)
 
         missing_code = data_form.info.get("missing_code", np.nan)
         if isinstance(missing_code, float) and np.isnan(missing_code):
@@ -229,27 +243,36 @@ class AggregateStep(Step):
 
             with np.errstate(invalid="ignore", divide="ignore"):
                 if method == "sum":
-                    out_data[gi] = np.nansum(masked, axis=0)
+                    reduced = np.nansum(masked, axis=0)
                 elif method == "mean":
-                    out_data[gi] = np.nanmean(masked, axis=0)
+                    reduced = np.nanmean(masked, axis=0)
                 elif method == "median":
-                    out_data[gi] = np.nanmedian(masked, axis=0)
+                    reduced = np.nanmedian(masked, axis=0)
                 elif method == "min":
-                    out_data[gi] = np.nanmin(masked, axis=0)
+                    reduced = np.nanmin(masked, axis=0)
                 elif method == "max":
-                    out_data[gi] = np.nanmax(masked, axis=0)
+                    reduced = np.nanmax(masked, axis=0)
                 elif method == "count":
-                    out_data[gi] = (~block_missing).sum(axis=0)
+                    reduced = (~block_missing).sum(axis=0)
+                out_data[gi] = reduced[keep_cols]
 
+        out_group_dim = promoted_group_dim or group_dim
+        data_col_labels = dict(data_form.labels.get(other_dim, {}))
+        if promoted_group_dim is not None:
+            data_col_labels = {
+                label: keep_cols.index(index)
+                for label, index in data_col_labels.items()
+                if index in keep_cols
+            }
         out_labels = {
-            group_dim: {g: i for i, g in enumerate(ordered_groups)},
-            other_dim: dict(data_form.labels[other_dim]),
+            out_group_dim: {g: i for i, g in enumerate(ordered_groups)},
+            other_dim: data_col_labels,
         }
 
         out_info, out_axes = metadata(data_form, [other_dim], "aggregate")
         ctx[out_name] = Form(
             data=out_data.astype(np.float32),
-            dims=[group_dim, other_dim],
+            dims=[out_group_dim, other_dim],
             labels=out_labels,
             info=out_info,
             axis_info=out_axes,
@@ -265,28 +288,30 @@ class AggregateStep(Step):
 
         self._export_data = {
             "dim": dim,
-            "group_dim": group_dim,
+            "group_dim": out_group_dim,
             "other_dim": other_dim,
             "method": method,
             "group_col": group_col,
             "n_input_rows": len(common),
             "n_groups": n_groups,
-            "n_other_features": n_other,
+            "n_other_features": len(keep_cols),
             "groups": ordered_groups,
             "group_sizes": group_sizes,
+            "promoted_group_dim": promoted_group_dim,
         }
 
         ctx.metadata.setdefault(self.name, {})[out_name] = {
             "dim": dim,
+            "group_dim": out_group_dim,
             "method": method,
             "n_groups": n_groups,
-            "n_other_features": n_other,
+            "n_other_features": len(keep_cols),
         }
 
         print(
             f"[aggregate] dim='{dim}' group_col='{group_col}' "
             f"method='{method}' {len(common)} rows -> "
-            f"{n_groups} groups x {n_other} features"
+            f"{n_groups} groups x {len(keep_cols)} features"
         )
 
     def export(self, ctx: Context) -> dict:
