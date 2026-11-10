@@ -177,6 +177,14 @@ class StructureAromaticStackingStep(Step):
             else np.zeros((0, len(_STATISTICS)), dtype=np.float32)
         )
         bond_dim = str(params.get("bond_dim") or "bond")
+        seen_bonds = {}
+        for row in rows:
+            base = row["bond"]
+            if base in seen_bonds:
+                seen_bonds[base] += 1
+                row["bond"] = f"{base}#{seen_bonds[base]}"
+            else:
+                seen_bonds[base] = 0
         out_name = params["output"]
         form_out = Form(
             data=data,
