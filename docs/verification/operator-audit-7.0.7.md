@@ -164,8 +164,16 @@ runner, two `operon run` CLI jobs and a repeated CLI job:
 The HTTP entry point (job `20261109T232242-811c4236`) and the MCP adapter
 (`operon_submit`, job `20261109T232353-fe429063`) both exported the same hash.
 CLI, HTTP, MCP and the direct runner are byte-identical for this route. Studio
-entry-point parity and `describe` contract equality are not yet measured.
-Evidence: `l5_cli_parity.json`.
+uses the same `POST /api/v1/operators/describe` handler; the UI dialog itself
+was not automated.
+
+A `describe` sample on `kalman_local_level` was compared across CLI, HTTP and
+MCP from one checkout and one service. The canonical subset (id, kind, title,
+parameters_schema, contracts, data_formats, outputs, inputs_arity,
+output_parameter) hashed to `e71d6fb91c3f7d0b` on all three. Evidence:
+`l5_describe_parity.json`. The installed 3.1.6 wheel speaks the legacy
+`biopipe` bridge header and cannot be mixed with this checkout's `operon`
+bridge in the same comparison.
 
 ## Defects fixed in 7.0.2-7.0.7
 
