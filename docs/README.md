@@ -80,9 +80,10 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 
 ## Extend and maintain
 
-- [SDK 3.6 logical types, representations and conversion plans](data_formats.md)
+- [SDK 3.7 logical types, representations and conversion plans](data_formats.md)
 - [SDK quickstart](sdk_quickstart.md) and [SDK reference](sdk_reference.md)
 - [Operator protocol](operator_protocol.md) and [package protocol](package_protocol.md)
+- [Operator library extension forms](library_extensions.md)
 - [Reader extensions](reader_extensions.md) and [step extensions](step_extensions.md)
 - [Library installation and maintenance](plugins.md)
 - [Independent software and operator-library releases](library_releases.md)
