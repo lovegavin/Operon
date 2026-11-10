@@ -8,7 +8,7 @@ from itertools import product
 try:
     from operon_sdk import StepError
 except ImportError:  # legacy application (<=3.1.0)
-    from biopipe_sdk import StepError
+    from operon_sdk import StepError
 
 PROTON = 1.007276466621
 WATER = 18.01056468403

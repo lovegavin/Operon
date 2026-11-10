@@ -8,7 +8,7 @@ from pathlib import Path
 try:
     from operon.bytecode import io_path
 except ImportError:  # legacy application (<=3.1.0)
-    from biopipe.bytecode import io_path
+    from operon.bytecode import io_path
 
 import matplotlib
 matplotlib.use("Agg")

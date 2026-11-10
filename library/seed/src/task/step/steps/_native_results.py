@@ -5,7 +5,7 @@ from uuid import uuid4
 try:
     from operon.bytecode import io_path
 except ImportError:  # legacy application (<=3.1.0)
-    from biopipe.bytecode import io_path
+    from operon.bytecode import io_path
 
 
 def output_directory(ctx, name):

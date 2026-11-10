@@ -9,7 +9,7 @@ import shutil
 try:
     from operon.bytecode import io_path
 except ImportError:  # legacy application (<=3.1.0)
-    from biopipe.bytecode import io_path
+    from operon.bytecode import io_path
 from pathlib import Path
 
 import numpy as np

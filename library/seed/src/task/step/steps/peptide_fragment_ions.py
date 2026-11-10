@@ -6,7 +6,7 @@ import numpy as np
 try:
     from operon_sdk import Form, Step, StepError
 except ImportError:  # legacy application (<=3.1.0)
-    from biopipe_sdk import Form, Step, StepError
+    from operon_sdk import Form, Step, StepError
 
 from ._ms_utils import fragment_ions
 

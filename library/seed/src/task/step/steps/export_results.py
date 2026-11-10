@@ -13,7 +13,7 @@ from src.task.step.steps._native_results import output_directory, result_file
 try:
     from operon.bytecode import io_path
 except ImportError:  # legacy application (<=3.1.0)
-    from biopipe.bytecode import io_path
+    from operon.bytecode import io_path
 
 
 def canonical_format(value):

@@ -7,7 +7,7 @@ from pathlib import Path
 try:
     from operon_sdk import FileArtifact, Step, StepError
 except ImportError:  # legacy application (<=3.1.0)
-    from biopipe_sdk import FileArtifact, Step, StepError
+    from operon_sdk import FileArtifact, Step, StepError
 
 from src.task.step.steps import _vcf_transform as tx
 from src.task.step.steps import _vcf_utils as vcf
