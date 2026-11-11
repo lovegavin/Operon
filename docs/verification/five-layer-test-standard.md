@@ -118,7 +118,9 @@ the same schema:
 - For every numeric 2D output and every declared dimension, `join`'s bound
   requirement (`dims: [<that dimension>]`) must return exactly `compatible`.
   `unknown` does not pass; a genuinely dynamic dimension must be excluded only
-  by a named allowlist entry with a reason.
+  by a named allowlist entry with a reason. The dimension must also survive one
+  real `JoinStep.run` call with two synthetic Forms, so a schema that says
+  `compatible` while row labels or encoders fail is still a failure.
 - For every label on the second dimension, `aggregate`'s bound requirement
   (`labels_axis: [{axis: 1, values: [<label>]}]`) must return exactly
   `compatible`.
