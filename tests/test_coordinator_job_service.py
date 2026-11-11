@@ -184,3 +184,36 @@ def test_coordinator_mode_refuses_a_dirty_legacy_queue(tmp_path, monkeypatch):
                        catalog_from_descriptors())
     finally:
         legacy.shutdown()
+
+
+def test_refresh_projects_a_terminal_coordinator_admission_failure(service, monkeypatch, tmp_path):
+    job = {'id': 'admission-failed', 'status': 'queued', 'scheduling': 'coordinator',
+           'created': '2026-11-11T00:00:00+00:00', 'order': [], 'name': 'admission'}
+    record = tmp_path / 'jobs' / 'admission-failed' / 'job.json'
+    record.parent.mkdir(parents=True)
+    record.write_text(json.dumps(job), encoding='utf-8')
+    service.jobs[job['id']] = job
+    monkeypatch.setattr(service.engine.store, 'run', lambda _: {
+        'status': 'failed', 'reason': 'infeasible_resources',
+        'error': 'The unit minimum exceeds the frozen pool ceiling',
+        'finished_at': '2026-11-11T00:01:00+00:00'})
+    service.jobs_dir = tmp_path / 'jobs'
+    service._refresh_jobs()
+    saved = json.loads(record.read_text(encoding='utf-8'))
+    assert saved['status'] == 'failed'
+    assert saved['logs_complete'] is True
+    assert saved['queued_reason'] is None
+    assert saved['admission']['reason'] == 'infeasible_resources'
+
+
+def test_refresh_does_not_override_a_live_coordinator_run(service, monkeypatch, tmp_path):
+    job = {'id': 'admission-live', 'status': 'queued', 'scheduling': 'coordinator',
+           'created': '2026-11-11T00:00:00+00:00', 'order': [], 'name': 'admission'}
+    record = tmp_path / 'jobs' / 'admission-live' / 'job.json'
+    record.parent.mkdir(parents=True)
+    record.write_text(json.dumps(job), encoding='utf-8')
+    service.jobs[job['id']] = job
+    monkeypatch.setattr(service.engine.store, 'run', lambda _: {'status': 'running'})
+    service.jobs_dir = tmp_path / 'jobs'
+    service._refresh_jobs()
+    assert json.loads(record.read_text(encoding='utf-8'))['status'] == 'queued'

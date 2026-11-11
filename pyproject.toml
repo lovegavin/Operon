@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "operon-studio"
-version = "4.0.6"
+version = "4.0.7"
 description = "Operon: typed bioinformatics workflows, desktop canvas and agent interfaces"
 readme = "README.md"
 license = {file = "LICENSE"}

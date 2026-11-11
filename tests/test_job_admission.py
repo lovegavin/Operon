@@ -58,7 +58,8 @@ def test_cpu_and_memory_limits_are_independent(tmp_path):
         with pytest.raises(ValueError, match='capacity'):
             pool.request({'runtime': {'memory': {'budget_mb': 4096}}})
         disabled = pool.request({'runtime': {'memory': {'enabled': False}}})
-        assert disabled['reserved_bytes'] == pool.capacity
+        assert disabled['reserved_bytes'] == 0
+        assert disabled['process_limit_bytes'] == 0
         assert disabled['cpu_threads'] == pool.cpus
     finally:
         pool.close()

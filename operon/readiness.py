@@ -348,6 +348,7 @@ class ReadinessService:
                 checked[target] = {}
                 blocked.append({'target': target, 'id': None, 'status': 'unavailable', 'message': str(exc)})
         record = {'status': 'blocked' if blocked else 'ready', 'fingerprint': fingerprint,
+                  'graph_digest': _digest(semantic_graph(graph)),
                   'checked_at': datetime.now(timezone.utc).isoformat(), 'targets': checked,
                   'blocked': blocked, 'require_files': require_files,
                   'cached': False, 'dependencies_cached': bool(reused) and all(reused) and not blocked,
@@ -367,3 +368,12 @@ class ReadinessService:
         if readiness.get('status') != 'ready':
             raise CommandError('environment_not_ready', 'The selected execution environment is not ready. Prepare dependencies explicitly, then validate again.',
                                409, readiness)
+        graph = result.get('graph')
+        checked_digest = readiness.get('graph_digest')
+        if graph is not None and checked_digest:
+            current = _digest(semantic_graph(graph))
+            if current != checked_digest:
+                raise CommandError(
+                    'environment_stale',
+                    'The graph changed after the run conditions were checked. Check the run conditions again before running.',
+                    409, {**readiness, 'current_graph_digest': current})

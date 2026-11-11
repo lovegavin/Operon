@@ -459,6 +459,33 @@ class JobService:
             self._catalog_stamp = stamp
             return changed
 
+    def _reconcile_coordinated_job(self, value, record):
+        """Project a terminal coordinator run onto its JobService record."""
+        if value.get('scheduling') != 'coordinator' or value.get('status') not in ('queued', 'preparing'):
+            return False
+        engine = getattr(self, 'engine', None)
+        store = getattr(engine, 'store', None)
+        if store is None:
+            return False
+        try:
+            run = store.run(value['id'])
+        except Exception:  # noqa: BLE001 - absence means the coordinator has no opinion yet
+            return False
+        status = str(run.get('status') or '')
+        if status not in ('failed', 'cancelled'):
+            return False
+        error = run.get('error') or ('The run was cancelled' if status == 'cancelled' else 'The run failed during admission')
+        reason = run.get('reason')
+        value['status'] = status
+        value['error'] = error
+        value['finished_at'] = run.get('finished_at') or datetime.now(timezone.utc).isoformat()
+        value['logs_complete'] = True
+        value['queued_reason'] = None
+        value['admission'] = {'status': status, 'reason': reason, 'error': error}
+        value['progress'] = self._progress(value)
+        write_json(record, value)
+        return True
+
     def _refresh_jobs(self, *, active_only=False):
         if getattr(self, 'pool_remote', False):
             # A pool client is a viewer; never kill/adopt workers or write a
@@ -476,6 +503,7 @@ class JobService:
         for record in records:
             value = read_json(record)
             if value:
+                self._reconcile_coordinated_job(value, record)
                 if value["status"] == "queued":
                     if not process_alive(value.get('owner', {})):
                         value['owner'] = self.owner

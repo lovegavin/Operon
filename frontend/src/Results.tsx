@@ -520,6 +520,7 @@ export function Results({
               ))}
             </div>
             <div className="preview-content">
+              {job.admission?.reason === "infeasible_resources" && <div className="result-warning" role="alert"><WarningCircle size={16}/><span>{t("服务器可用资源不足，任务未进入队列。请降低单步内存或 CPU，或调整服务器资源上限后重试。")}</span></div>}
               {job.error && <div className="result-warning" role="alert"><WarningCircle size={16}/><span>{job.error}</span><button className="text-button" onClick={() => onTab('logs')}>{t("查看日志")}</button></div>}
               {previewError ? <div className="result-warning" role="alert"><WarningCircle size={18}/><span>{previewError}</span><button className="text-button" onClick={() => step >= 0 ? void report(step) : setReload(value => value + 1)}>{t("重试")}</button></div> : step >= 0 ? (
                 <>
