@@ -13,11 +13,11 @@ CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
 The current source integrates **Operon Studio 4.0.7** with the independently
-versioned **8.0.3 operator library**: **1,063 operators, 108 Readers (1,171
+versioned **8.0.4 operator library**: **1,063 operators, 108 Readers (1,171
 descriptors), seven provider packages and 79 route templates**. Operators and
 Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
-Markdown documentation. Library 8.0.3 declares minimum application 3.1.9 and is
-the built-in library shipped with 4.0.7.
+Markdown documentation. Library 8.0.4 requires application 4.0.7 or newer and is the current
+library release.
 
 Operon does not bundle or require an AI model. Agent access is optional.
 
@@ -119,7 +119,7 @@ The old data remains under `%USERPROFILE%\.operon\profiles\<old-id>\workspace`;
 copy it into the new `<install root>/workspace` if you need it in the new
 installation.
 
-Application 4.0.7 and library 8.0.3 do not change the wire protocol (v3) or SDK
+Application 4.0.7 and library 8.0.4 do not change the wire protocol (v3) or SDK
 (3.7). Published tags and release assets are immutable.
 
 ## Open source
@@ -172,8 +172,8 @@ See [application/library boundary](docs/application_library_boundary.md) and
 
 ## Verification and status
 
-The 8.0.3 evidence is recorded in
-[the operator audit](docs/verification/operator-audit-8.0.3.md):
+The 8.0.4 evidence is recorded in
+[the operator audit](docs/verification/operator-audit-8.0.4.md):
 
 - L1 static contracts: **1,063 PASS, 0 FAIL, 0 SKIP**.
 - L2 unit/oracle evidence: **11 oracle, 8 smoke, 1,044 referenced unit tests;
@@ -181,9 +181,9 @@ The 8.0.3 evidence is recorded in
 - L3 execution/routing: **223 local executions, 47 server executions, 789
   compiled routes; 4 documented SKIP**.
 - L4 memory/determinism: **37 measured, 1,026 resource estimates; 0 SKIP**.
-- Focused 8.0.3 regression: **88 passed, 0 failed** (interface contracts,
-  exports, route parameters, and affected extension tests); this contract-only
-  patch did not rerun the full 3,722-test suite from 8.0.2.
+- Focused 8.0.4 regression: **37 passed, 0 failed** (composition matrix,
+  interface contracts, release, and route parameters); this metadata-and-test
+  patch did not rerun the full 3,722-test suite from 8.0.3.
 - The 1,063 operator and 108 Reader counts are the shipped library totals.
 
 Historical release notes, validation reports and design records keep the versions
