@@ -206,7 +206,7 @@ internal sealed class SetupWindow : Form
         void RefreshForceVisibility()
         {
             var candidate = InstallEngine.NamedDestination(destination.Text);
-            forceReinstall.Visible = !uninstall && engine.HasInstallation(candidate);
+            forceReinstall.Visible = !uninstall && completed is null && engine.HasInstallation(candidate);
         }
         destination.TextChanged += (_, _) => RefreshForceVisibility();
         RefreshForceVisibility();
@@ -242,6 +242,7 @@ internal sealed class SetupWindow : Form
                 completed = await Task.Run(async () => uninstall ? engine.Uninstall(target) :
                     await engine.Install(options with { InstallDir = target, ForceReinstall = forceReinstall.Checked }, cancellation.Token));
                 destination.Text = completed.InstallDir;
+                forceReinstall.Visible = false;
                 ExitCode = 0; action.Text = uninstall ? "完成" : "打开 Operon"; action.Enabled = true; cancel.Text = "关闭"; cancel.Enabled = true;
                 SaveResult(completed);
             }
@@ -249,6 +250,7 @@ internal sealed class SetupWindow : Form
             {
                 state.Text = error is OperationCanceledException ? "安装已取消。可修改目录后重试，原有文件已保留。" : "安装未完成。可修改目录后重试，详情见日志。";
                 SaveResult(new InstallResult("failed", destination.Text, null, null, engine.LogPath, error.Message));
+                RefreshForceVisibility();
                 if (error is not OperationCanceledException) MessageBox.Show(this, error.Message, "Operon Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally

@@ -35,7 +35,7 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
       try {
         const imported = await api.importRouteArchive(containers[0]);
         if (imported.failed.length) {
-          onError(t('已添加 {count} 条路线；{failed} 条不兼容：{reason}', {
+          onError(t('已添加 {count} 条路线；{failed} 条未导入。请先导入与路线同版本的算子库后重试：{reason}', {
             count: imported.routes.length, failed: imported.failed.length,
             reason: imported.failed[0].error,
           }));
@@ -43,7 +43,7 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
           onMessage(t('路线算子已添加，即刻可用。'));
         }
       } catch (error) {
-        onError(t('路线未添加：{reason}', {reason: (error as Error).message}));
+        onError(t('路线未添加：{reason} 请先导入与路线同版本的算子库后重试。', {reason: (error as Error).message}));
       } finally {
         try {setRoutes(await api.workflows()); await onChanged();}
         catch (error) {onError((error as Error).message);}
@@ -62,7 +62,7 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
       await api.registerRoutes(files ? saved : selected);
       setSelected([]);
       onMessage(t('路线算子已添加，即刻可用。'));
-    } catch (error) {onError(t('路线未添加：{reason}', {reason: (error as Error).message})); if (saved.length) setSelected(saved);}
+    } catch (error) {onError(t('路线未添加：{reason} 请先导入与路线同版本的算子库后重试。', {reason: (error as Error).message})); if (saved.length) setSelected(saved);}
     finally {
       try {setRoutes(await api.workflows()); await onChanged();}
       catch (error) {onError((error as Error).message);}

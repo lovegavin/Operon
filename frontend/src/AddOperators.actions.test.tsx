@@ -56,7 +56,7 @@ it('reports a rejected workflow without clearing its selection or claiming succe
   const button=elements(render()).find(n=>n.type==='button'&&Array.isArray(n.props.children)&&n.props.children.includes('添加到算子库'))!;
   (button.props.onClick as Function)();
   await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
-  expect(onError).toHaveBeenLastCalledWith('路线未添加：PCA needs 1 input.');
+  expect(onError).toHaveBeenLastCalledWith('路线未添加：PCA needs 1 input. 请先导入与路线同版本的算子库后重试。');
   expect(hooks.values[1]).toEqual(['incomplete']);
   expect(onMessage).not.toHaveBeenCalledWith('路线算子已添加，即刻可用。');
   expect(onChanged).toHaveBeenCalledOnce();
