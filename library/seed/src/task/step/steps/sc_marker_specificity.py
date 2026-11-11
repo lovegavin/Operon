@@ -56,6 +56,7 @@ class ScMarkerSpecificityStep(Step):
                     "dims": ["gene", "statistic"],
                     "info_open": True,
                     "axis_info_open": True,
+                    "labels": {"statistic": ["top_cluster", "specificity_tau", "max_mean", "max_detected_fraction", "overall_detected_fraction"]},
                 },
             },
         },

@@ -152,7 +152,7 @@ class StructureOpenmmEnergyStep(Step):
             "outputs": [],
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": [],
+        "dependencies": ["openmm>=8.0", "pdbfixer>=1.9"],
         "dependency_imports": ["openmm", "pdbfixer"],
         "inputs_arity": 1,
         "outputs": [],

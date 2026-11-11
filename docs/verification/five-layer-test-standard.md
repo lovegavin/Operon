@@ -79,8 +79,15 @@ Required checks:
    namespace, and `library.json` declares `format: operon.library`, the expected
    version and the expected `minimum_application`.
 8. `git diff --check` is clean and the worktree is clean at the recorded commit.
+9. Dependency declaration audit: every operator with `dependency_imports` must
+   also declare non-empty `dependencies`, or a named `resources.environment`
+   that owns those imports. An empty `dependencies` list with no environment is
+   a `FAIL`, even when the import happens to exist in the base interpreter.
+   Environment-managed operators are not required to duplicate the environment
+   file's pins in `dependencies`, but the environment name must be present in
+   the descriptor. Run the audit through `tests/test_contract_compositions.py`.
 
-Pass criterion: all eight checks pass. A route compile failure is `FAIL`, not
+Pass criterion: all nine checks pass. A route compile failure is `FAIL`, not
 `SKIP`: the route is shipped and the application will try to register it.
 
 ## 4. L2 — unit and oracle
@@ -102,10 +109,53 @@ Required checks:
    it does not replace L3 (file Readers and real paths).
 5. `tests/test_library_release.py` and the release archive tests must pass.
 
-Pass criterion: zero failures in the focused set; every skip has a concrete
-reason. A test that cannot run because an optional dependency is absent is
-`SKIP_DEP`; it does not fail the layer, but the affected operator cannot claim a
-numerical oracle in that environment.
+### 4.1 Composition matrix (normative)
+
+A contract is not verified by a single positive case. Every declared composition
+edge must be tested, because `join` and `aggregate` consume different parts of
+the same schema:
+
+- For every numeric 2D output and every declared dimension, `join`'s bound
+  requirement (`dims: [<that dimension>]`) must return exactly `compatible`.
+  `unknown` does not pass; a genuinely dynamic dimension must be excluded only
+  by a named allowlist entry with a reason.
+- For every label on the second dimension, `aggregate`'s bound requirement
+  (`labels_axis: [{axis: 1, values: [<label>]}]`) must return exactly
+  `compatible`.
+- Every label must also survive one real `AggregateStep.run` call with two
+  synthetic Forms. A schema that says `compatible` while the encoder rejects the
+  value is still a failure.
+- Any numeric 2D output whose second dimension is `statistic` or `score` must
+  declare that dimension's labels. A missing `labels` entry is a `FAIL`; code
+  that only sets labels at runtime is not sufficient, because the static
+  interface cannot prove the composition.
+- The matrix is generated from the shipped `STEPS` catalog, not from a
+  hand-written operator list. Adding an operator or a label extends the test
+  automatically.
+
+The executable form is `tests/test_contract_compositions.py`. Three PRS
+operators (`prs_af_filter`, `prs_harmonize`, `prs_ld_clump`) are allowlisted
+because their statistic column is named by the runtime `weight_label`
+parameter and cannot be fixed in the static schema. Data-defined matrices
+(`paga_connectivity`, `pseudotime_dpt`, `trajectory_gene_trends`) are outside
+the statistic/score rule because neither axis carries a fixed column label.
+Every allowlist entry must name the operator, the dimension and the reason, and
+must be re-reviewed whenever the output changes.
+
+### 4.2 Dependency audit (normative)
+
+`dependency_imports` is an import probe, not a package declaration. Every probe
+must have an owner: a non-empty `dependencies` list, or a named
+`resources.environment`. The audit covers the whole catalog, not only changed
+operators, and checks ownership rather than package-name normalization. This
+closes the class of defect where repair silently skips an operator because
+`dependencies` is empty.
+
+Pass criterion: zero failures in the focused set; the composition matrix and
+dependency audit pass for the whole catalog; every skip has a concrete reason.
+A test that cannot run because an optional dependency is absent is `SKIP_DEP`;
+it does not fail the layer, but the affected operator cannot claim a numerical
+oracle in that environment.
 
 ## 5. L3 — route runtime
 
@@ -197,8 +247,9 @@ Reader or contract, not only the route named in the release note.
 
 A release may be tagged only when:
 
-1. L1 and L4 are `PASS`.
-2. L2 is `PASS` for every changed operator/Reader.
+1. L1 and L4 are `PASS`, including the catalog-wide dependency audit.
+2. L2 is `PASS` for every changed operator/Reader, including the composition
+   matrix for every declared dimension and label.
 3. L3 is `PASS` for every changed route.
 4. L5 is `PASS` for every application version named in the release note.
 5. Any `SKIP` is listed in the release note with reason, owner and impact.
@@ -307,7 +358,8 @@ $PY -m operon registry check --json
 $PY scripts/build_operator_docs.py --check
 $PY scripts/audit_portability.py
 $PY -m pytest -q tests/test_upstream_operators.py tests/test_builtin_routes.py \
-  tests/test_contracts.py tests/test_library_release.py
+  tests/test_contracts.py tests/test_library_release.py \
+  tests/test_contract_compositions.py tests/test_interface_contracts.py
 $PY scripts/run.py /tmp/routes/gwas --check
 $PY scripts/run.py /tmp/routes/gwas
 $PY -m pytest -q

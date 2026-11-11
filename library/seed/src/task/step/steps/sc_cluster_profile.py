@@ -56,6 +56,7 @@ class ScClusterProfileStep(Step):
                     "dims": ["cluster_gene", "statistic"],
                     "info_open": True,
                     "axis_info_open": True,
+                    "labels": {"statistic": ["mean", "detected_fraction", "n_cells"]},
                 },
             },
         },

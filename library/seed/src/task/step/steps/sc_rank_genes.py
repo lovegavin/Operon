@@ -72,6 +72,7 @@ class ScRankGenesStep(Step):
                     "dims": ["test", "statistic"],
                     "info_open": True,
                     "axis_info_open": True,
+                    "labels": {"statistic": ["log2fc", "mean_in", "mean_out", "pct_in", "pct_out", "p_value", "adjusted_p", "rank"]},
                 },
             },
         },
