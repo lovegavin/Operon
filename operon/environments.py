@@ -8,13 +8,20 @@ import sys
 from pathlib import Path
 
 
-def manifest_path() -> Path:
+def manifest_path(root=None) -> Path:
+    """Prefer the active imported library source over the application seed."""
+    if root is None:
+        root = os.environ.get("OPERON_LIBRARY_SOURCE")
+    if root:
+        candidate = Path(root).expanduser() / "operon/environments.json"
+        if candidate.is_file():
+            return candidate
     from .library_location import asset_path
     return asset_path('operon/environments.json')
 
 
-def load() -> dict:
-    path = manifest_path()
+def load(root=None) -> dict:
+    path = manifest_path(root)
     return json.loads(path.read_text(encoding='utf-8')).get('environments', {}) if path.is_file() else {}
 
 
@@ -25,8 +32,8 @@ def root() -> Path:
     return Path(sys.prefix) / 'external'
 
 
-def describe(name: str) -> dict:
-    value = load().get(name)
+def describe(name: str, root=None) -> dict:
+    value = load(root).get(name)
     if value is None:
         raise ValueError(f'unknown isolated environment: {name}')
     return value
@@ -51,8 +58,8 @@ def resolve(name: str) -> Path | None:
     return None
 
 
-def probe(name: str, imports=None) -> tuple[bool, str, str]:
-    entry = describe(name)
+def probe(name: str, imports=None, root=None) -> tuple[bool, str, str]:
+    entry = describe(name, root)
     python = resolve(name)
     if python is None:
         return False, '', f'isolated environment {name!r} is not installed under {root() / name}'

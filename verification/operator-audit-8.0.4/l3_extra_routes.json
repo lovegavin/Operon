@@ -1,0 +1,217 @@
+{
+  "version": "7.0.13",
+  "batches": {
+    "statbatch2": {
+      "passed": 10,
+      "ids": [
+        "ansari_bradley",
+        "barnard_test",
+        "bartlett_sphericity",
+        "bh_adjust",
+        "bhapkar_test",
+        "bland_altman",
+        "boschloo_exact",
+        "breusch_pagan",
+        "brier_score",
+        "brown_forsythe"
+      ]
+    },
+    "statbatch3": {
+      "passed": 9,
+      "ids": [
+        "by_adjust",
+        "cochran_q",
+        "cohens_d",
+        "cohens_h",
+        "confusion_matrix",
+        "durbin_watson",
+        "fisher_exact",
+        "holm_adjust",
+        "levene_test"
+      ]
+    },
+    "statbatch4": {
+      "passed": 8,
+      "ids": [
+        "betadisper",
+        "box_m",
+        "canonical_correlation",
+        "cochran_armitage",
+        "durbin_test",
+        "fleiss_kappa",
+        "goldfeld_quandt",
+        "kmo_test"
+      ]
+    },
+    "statbatch5": {
+      "passed": 3,
+      "ids": [
+        "chisq_gof",
+        "cramer_von_mises",
+        "cuzick"
+      ]
+    },
+    "statbatch6": {
+      "passed": 4,
+      "ids": [
+        "chacko_test",
+        "fligner_killeen",
+        "fligner_wolfe",
+        "friedman"
+      ]
+    },
+    "rdkitroutes": {
+      "passed": 26,
+      "ids": [
+        "rdkit_admet_rules",
+        "rdkit_atom_environment_histogram",
+        "rdkit_charge_profile",
+        "rdkit_conformer_cluster",
+        "rdkit_conformer_energy",
+        "rdkit_descriptors",
+        "rdkit_esol",
+        "rdkit_fragment_profile",
+        "rdkit_functional_group_counts",
+        "rdkit_mcs",
+        "rdkit_mcs_cluster",
+        "rdkit_morgan_fingerprint",
+        "rdkit_murcko_fingerprint",
+        "rdkit_oral_bioavailability",
+        "rdkit_pharmacophore_features",
+        "rdkit_qed",
+        "rdkit_reaction_smarts_apply",
+        "rdkit_ring_systems",
+        "rdkit_sa_score",
+        "rdkit_scaffold",
+        "rdkit_scaffold_diversity",
+        "rdkit_scaffold_tree",
+        "rdkit_similarity",
+        "rdkit_smarts_matches",
+        "rdkit_smiles_augment",
+        "rdkit_tautomer"
+      ]
+    },
+    "mlbatch2": {
+      "passed": 4,
+      "ids": [
+        "conformal_classification_sets",
+        "conformal_split_regression",
+        "gaussian_process_regressor",
+        "hidden_markov_viterbi"
+      ]
+    },
+    "mlbatch3": {
+      "passed": 1,
+      "ids": [
+        "tsne"
+      ]
+    },
+    "ligandroutes": {
+      "passed": 5,
+      "ids": [
+        "ligand_brics_fragments",
+        "ligand_exact_mass",
+        "ligand_isotope_pattern",
+        "ligand_molecular_formula",
+        "ligand_rgroup_decomposition"
+      ]
+    },
+    "ligandroutes2": {
+      "passed": 5,
+      "ids": [
+        "ligand_adduct_mz",
+        "ligand_dbe",
+        "ligand_formula_parse",
+        "ligand_mass_fraction",
+        "ligand_nitrogen_rule"
+      ]
+    },
+    "diagroutes": {
+      "passed": 4,
+      "ids": [
+        "cooks_distance",
+        "covratio",
+        "dfbetas",
+        "dffits"
+      ]
+    },
+    "clsroutes": {
+      "passed": 4,
+      "ids": [
+        "canonical_correlation",
+        "cca",
+        "classification_metrics",
+        "delong_auc"
+      ]
+    },
+    "survroutes": {
+      "passed": 2,
+      "ids": [
+        "cumulative_incidence",
+        "integrated_brier_score"
+      ]
+    },
+    "pdbbatch2": {
+      "passed": 31,
+      "ids": [
+        "interface_bsa",
+        "interface_contact_map",
+        "interface_distance_histogram",
+        "interface_hbond_network",
+        "interface_hotspots",
+        "interface_hydrophobic_patch",
+        "minibinder_interface",
+        "sasa_per_residue",
+        "structure_amide_pi_bonds",
+        "structure_aromatic_stacking",
+        "structure_bfactor_profile",
+        "structure_ca_distance_matrix",
+        "structure_cation_pi",
+        "structure_cavity_druggability",
+        "structure_cavity_lining",
+        "structure_cavity_scan",
+        "structure_chi_angles",
+        "structure_contact_order",
+        "structure_contacts",
+        "structure_disulfide_bonds",
+        "structure_hbonds",
+        "structure_helix_bend",
+        "structure_helix_geometry",
+        "structure_helix_helix_angle",
+        "structure_packing_density",
+        "structure_pdbqt_flexible_receptor",
+        "structure_phi_psi",
+        "structure_salt_bridges",
+        "structure_secondary_structure",
+        "structure_ss_bridge_network",
+        "structure_surface_hydrophobicity"
+      ]
+    },
+    "causalroutes": {
+      "passed": 8,
+      "ids": [
+        "causal_forest_ate",
+        "causal_forest_cate",
+        "causal_forest_importance",
+        "doubly_robust_ate",
+        "propensity_score_matching",
+        "regression_discontinuity",
+        "synthetic_control",
+        "uplift_t_learner"
+      ]
+    },
+    "statbatch7": {
+      "passed": 8,
+      "ids": [
+        "concordance_index",
+        "mcnemar",
+        "odds_ratio",
+        "poisson_test",
+        "proportion_ci",
+        "risk_ratio",
+        "runs_test",
+        "woolf_test"
+      ]
+    }
+  }
+}

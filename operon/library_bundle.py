@@ -34,13 +34,23 @@ def sha256(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
-def build_bundle(root, output, version):
+def build_bundle(root, output, version, minimum_application=None):
     """Compile declarations statically; never import author operator modules."""
     from operon.registry import scan_sources, package_manifest, read_json
     from operon.source_library import snapshot_sources, provider_wheel
     logical_output = Path(output).resolve()
     root, output = _io_path(root), _io_path(output)
     version = str(Version(version))
+    release = {}
+    for candidate in (Path(root) / "library/release.json", Path(root).parent / "release.json"):
+        if candidate.is_file():
+            release = read_json(candidate, {})
+            break
+    if minimum_application is None and str(release.get("version")) == version:
+        minimum_application = release.get("minimum_application")
+    if minimum_application is None:
+        minimum_application = "2.0.1"
+    minimum_application = str(Version(str(minimum_application)))
     output.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="library-build-", dir=output) as temporary:
         staging = Path(temporary)
@@ -62,9 +72,10 @@ def build_bundle(root, output, version):
             raise ValueError("Library contains no operators or Readers")
         files = {p.relative_to(staging).as_posix(): sha256(p) for p in sorted(staging.rglob("*")) if p.is_file()}
         document = {"format": "operon.library", "version": version, "protocol_version": PROTOCOL_VERSION,
-                    # The bundled library can use the current engine's resource
-                    # and isolated-environment adapters, not just SDK syntax.
-                    "minimum_application": "2.0.1",
+                    # Bundled libraries declare the oldest application that
+                    # carries the adapters they need; release builds take this
+                    # value from library/release.json.
+                    "minimum_application": minimum_application,
                     "packages": packages, "files": files}
         archive_path = staging / "library.zip"
         with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
@@ -110,7 +121,9 @@ def unpack_bundle(path, destination):
         prefixes = [f"sources/{relative}/" for relative in SOURCE_DIRS.values()]
         for name, expected in files.items():
             wheel = name in wheel_paths and PurePosixPath(name).parent == PurePosixPath('packages') and name.endswith('.whl')
-            if not wheel and name != 'sources/operon/builtin_packages.json' and not any(name.startswith(p) for p in prefixes):
+            if (not wheel and name not in ('sources/operon/builtin_packages.json',
+                                           'sources/operon/environments.json')
+                    and not any(name.startswith(p) for p in prefixes)):
                 raise ValueError(f"Unexpected library file: {name}")
             target = destination / name
             target.parent.mkdir(parents=True, exist_ok=True)

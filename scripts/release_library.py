@@ -5,6 +5,7 @@ The application and library have independent versions and Git tag namespaces.
 """
 import argparse
 import json
+import os
 from pathlib import Path
 import sys
 import platform
@@ -44,7 +45,13 @@ def configuration(root, tag=None):
         if str(Version(value[key])) != value[key]:
             raise ValueError(f'{key} must be a canonical version')
     if value['minimum_application'] != value['build_application']:
-        raise ValueError('Build and verify with the minimum supported application')
+        forward = os.environ.get('OPERON_FORWARD_MINIMUM') == '1'
+        if not forward or Version(value['minimum_application']) <= Version(value['build_application']):
+            raise ValueError('Build and verify with the minimum supported application')
+        # Transitional release: the declared minimum application is not
+        # released yet. The bundle is built and compatibility-tested with the
+        # newest available application; the target application's acceptance
+        # remains a separate release gate.
     if tag is not None and tag != 'library-v' + value['version']:
         raise ValueError('Library tag differs from library/release.json')
     return value

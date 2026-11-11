@@ -56,8 +56,8 @@ def _load_openmm():
         from pdbfixer import PDBFixer
     except ImportError as exc:  # pragma: no cover - dependency guard
         raise StepError(
-            "structure_openmm_energy: openmm and pdbfixer are required; install them with "
-            "'python -m pip install openmm pdbfixer'"
+            "structure_openmm_energy: openmm is required; install them with "
+            "'python -m pip install openmm'"
         ) from exc
     return unit, LangevinMiddleIntegrator, Platform, Context, LocalEnergyMinimizer, ForceField, HBonds, NoCutoff, PDBFixer
 
@@ -85,6 +85,7 @@ def run_openmm(
     unit, LangevinMiddleIntegrator, Platform, Context, LocalEnergyMinimizer, ForceField, HBonds, NoCutoff, PDBFixer = _load_openmm()
 
     fixer = PDBFixer(filename=str(pdb_path))
+    fixer.removeHeterogens(False)
     fixer.findMissingResidues()
     fixer.findNonstandardResidues()
     fixer.replaceNonstandardResidues()
@@ -151,8 +152,8 @@ class StructureOpenmmEnergyStep(Step):
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
             "outputs": [],
         },
-        "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ["openmm>=8.0", "pdbfixer>=1.9"],
+        "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
+        "dependencies": ["openmm==8.1.1", "numpy==1.26.4"],
         "dependency_imports": ["openmm", "pdbfixer"],
         "inputs_arity": 1,
         "outputs": [],

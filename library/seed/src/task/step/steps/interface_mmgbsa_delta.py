@@ -65,6 +65,7 @@ def mmgbsa_terms(pdb_path: Path, *, forcefield_name: str, implicit: str, ph: flo
     from pdbfixer import PDBFixer
 
     fixer = PDBFixer(filename=str(pdb_path))
+    fixer.removeHeterogens(False)
     fixer.findMissingResidues()
     fixer.findNonstandardResidues()
     fixer.replaceNonstandardResidues()
@@ -128,8 +129,8 @@ class InterfaceMmgbsaDeltaStep(Step):
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "dims": [{"param": "term_dim", "default": "term"}, "statistic"], "info_open": True, "axis_info_open": False, "labels": {"statistic": ["complex_kj", "binder_kj", "target_kj", "delta_kj"]}}},
             "outputs": [],
         },
-        "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ["openmm>=8.0", "pdbfixer>=1.9"],
+        "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
+        "dependencies": ["openmm==8.1.1", "numpy==1.26.4"],
         "dependency_imports": ["openmm", "pdbfixer"],
         "inputs_arity": 1,
         "outputs": [],

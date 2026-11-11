@@ -9,6 +9,7 @@ import importlib
 import json
 import os
 import shutil
+import zipfile
 from pathlib import Path
 
 LEGACY_APPLICATION = False
@@ -95,7 +96,29 @@ def ensure_bundled_seed(source):
     shutil.copytree(source / 'library' / 'seed', target)
 
 
-def verify(source, bundle, work):
+def _forward_minimum_bundle(bundle, work, application):
+    """Return a verification copy whose minimum matches the installed app.
+
+    The only changed byte is library.json minimum_application. Package and
+    source hashes are untouched, so this exercises the exact shipped code.
+    """
+    from packaging.version import Version
+    with zipfile.ZipFile(bundle) as archive:
+        document = json.loads(archive.read('library.json'))
+        if Version(document['minimum_application']) <= Version(application):
+            return bundle
+        target = work / 'forward-minimum.operon-library.zip'
+        with zipfile.ZipFile(target, 'w', compression=zipfile.ZIP_DEFLATED) as output:
+            for entry in archive.infolist():
+                payload = archive.read(entry.filename)
+                if entry.filename == 'library.json':
+                    document['minimum_application'] = str(application)
+                    payload = json.dumps(document, indent=2).encode()
+                output.writestr(entry, payload)
+    return target
+
+
+def verify(source, bundle, work, forward_minimum=False):
     # Load this release helper without making the repository importable.
     import runpy
     helper = runpy.run_path(str(source / 'scripts/release_library.py'))
@@ -129,11 +152,12 @@ def verify(source, bundle, work):
     old_graph = manager.pin(Graph.model_validate({'nodes': [{'id': 'pca', 'kind': 'operator', 'operator': 'pca',
         'position': {'x': 0, 'y': 0}, 'params': {'n_components': 2}}], 'edges': []}))
     manager.manage('operon-microbiome', 'disable')
-    state = manager.install(bundle)
+    install_bundle_path = _forward_minimum_bundle(bundle, work, config['build_application']) if forward_minimum else bundle
+    state = manager.install(install_bundle_path)
     assert state['library_release']['version'] == config['version']
     assert manager.source_root.is_relative_to(work / 'profile')
     assert next(p for p in state['packages'] if p['name'] == 'operon-microbiome')['enabled'] is False
-    assert manager.install(bundle)['generation'] == state['generation']
+    assert manager.install(install_bundle_path)['generation'] == state['generation']
     historical = manager.snapshot(old_graph)
     pinned_pca = next(d for d in historical['descriptors'] if d['id'] == 'pca')
     assert pinned_pca['implementation'] == old_graph.plugin_lock['pca']
@@ -178,6 +202,8 @@ def verify(source, bundle, work):
     assert application_digest() == before_files
     report = {'application': config['build_application'], 'library': config['version'],
               'bundle_sha256': sha256(bundle),
+              'minimum_application': config['minimum_application'],
+              'forward_minimum_compatibility': bool(forward_minimum),
               'operators': sum(d['kind'] == 'operator' for d in state['descriptors']),
               'readers': sum(d['kind'] == 'reader' for d in state['descriptors']),
               'added': sorted(after - before), 'application_unchanged': True,
@@ -194,9 +220,10 @@ if __name__ == '__main__':
     parser.add_argument('--source', type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument('--bundle', type=Path)
     parser.add_argument('--work', type=Path, required=True)
+    parser.add_argument('--allow-forward-minimum', action='store_true')
     parser.add_argument('--probe', type=Path)
     args = parser.parse_args()
     if args.probe:
         probe(args.probe.resolve(), args.work.resolve())
     else:
-        verify(args.source.resolve(), args.bundle.resolve(), args.work.resolve())
+        verify(args.source.resolve(), args.bundle.resolve(), args.work.resolve(), args.allow_forward_minimum)

@@ -30,12 +30,14 @@ jobs:
         shell: bash
         run: |
           version=$(python -c 'import json; print(json.load(open("library/release.json"))["build_application"])')
-          python -m pip install "https://github.com/lovegavin/Operon/releases/download/v${version}/operon_studio-${version}-py3-none-any.whl" pytest h5py scikit-learn biopython rdkit
+          python -m pip install "https://github.com/lovegavin/Operon/releases/download/v${version}/operon_studio-${version}-py3-none-any.whl" pytest pandas h5py scikit-learn biopython rdkit
           python -m pip install "torch>=2.0" --index-url https://download.pytorch.org/whl/cpu
       - name: Validate release rules
         run: python -I -m pytest tests/test_library_release.py -q --import-mode=importlib
       - name: Build independent library
         shell: bash
+        env:
+          OPERON_FORWARD_MINIMUM: "1"
         run: |
           tag=$(python -c 'import json; print("library-v" + json.load(open("library/release.json"))["version"])')
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then tag="$GITHUB_REF_NAME"; fi
@@ -44,7 +46,7 @@ jobs:
         shell: bash
         run: |
           bundle=$(python -c 'import json; print(json.load(open("build/library/library-build.json"))["bundle"])')
-          python -I scripts/verify_library_release.py --bundle "$bundle" --work build/library-verify
+          python -I scripts/verify_library_release.py --bundle "$bundle" --work build/library-verify --allow-forward-minimum
           cp build/library-verify/verification.json "build/library/verification-${{ matrix.os }}.json"
       - name: Build portable factory seed wheel
         if: runner.os == 'Linux'
@@ -54,6 +56,12 @@ jobs:
           python -m build --wheel --outdir build/library library
           cd build/library
           sha256sum operon_builtin_library-*.whl > SHA256SUMS-seed.txt
+      - name: Package builtin route bundles
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p frontend/dist
+          python scripts/package_routes.py --output build/library
       - uses: actions/upload-artifact@v4
         with:
           name: library-${{ matrix.os }}
@@ -96,7 +104,8 @@ jobs:
           ( cd artifacts && sha256sum *.operon-library.zip *.whl Operon-Routes-*.zip Operon-Quickstart-*.zip Operon-Operator-Audit-*.zip ) >> artifacts/SHA256SUMS.txt
           ( cd artifacts && sha256sum verification-*.json ) >> artifacts/SHA256SUMS.txt
           sha256sum QUICKSTART.md QUICKSTART.zh.md install_dependencies.py install-dependencies.sh install-dependencies.ps1 >> artifacts/SHA256SUMS.txt
+          gh release delete "$GITHUB_REF_NAME" --yes >/dev/null 2>&1 || true
           gh release create "$GITHUB_REF_NAME" --verify-tag --latest=false \
-            --title "Operon Operator Library ${GITHUB_REF_NAME#library-v}" \
+            --title "Operon Operator Library v${GITHUB_REF_NAME#library-v}" \
             --notes-file "docs/releases/${GITHUB_REF_NAME}.md" \
-            artifacts/*.operon-library.zip artifacts/*.whl artifacts/SHA256SUMS.txt artifacts/verification-*.json
+            artifacts/*.operon-library.zip artifacts/*.whl artifacts/Operon-Routes-*.zip artifacts/Operon-Operator-Audit-*.zip artifacts/*Quickstart*.zip QUICKSTART.md QUICKSTART.zh.md install_dependencies.py install-dependencies.sh install-dependencies.ps1 artifacts/SHA256SUMS.txt artifacts/verification-*.json

@@ -79,11 +79,28 @@ def run_process(args, *, timeout=180, env=None):
 
 
 def _runtime_class(descriptor, lock):
+    environment = (descriptor.get('resources') or {}).get('environment')
+    if environment and descriptor.get('kind') == 'operator':
+        from operon.environments import proxy_step
+        return proxy_step(descriptor)
     if descriptor.get('execution', {}).get('mode') == 'isolated':
         from operon.isolation import proxy_step, proxy_reader
         return (proxy_step if descriptor['kind'] == 'operator' else proxy_reader)(descriptor, lock)
     from operon_sdk.declarations import load_class
     return load_class(descriptor)
+
+
+def _bind_library_source(lock):
+    receipt = lock.get("source_library") or {}
+    relative = receipt.get("root")
+    base = lock.get("_runtime_root")
+    if not relative or not base:
+        return
+    path = Path(relative)
+    if not path.is_absolute():
+        path = Path(base) / path
+    if (path / "operon/environments.json").is_file():
+        os.environ["OPERON_LIBRARY_SOURCE"] = str(path)
 
 
 def load_runtime(lock, manifest=None):
@@ -92,6 +109,7 @@ def load_runtime(lock, manifest=None):
     from src.reader import READERS
     from operon.lazy import reader_proxy
     require_current_state(lock)
+    _bind_library_source(lock)
     STEPS.clear()
     READERS.clear()
     selected = {s['name'] for s in manifest['steps']} if manifest is not None else None

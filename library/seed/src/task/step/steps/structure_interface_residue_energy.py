@@ -37,7 +37,7 @@ def prepare_structure(path: Path | str) -> dict:
     except ImportError:
         raise StepError(
             "structure_interface_residue_energy: OpenMM and PDBFixer are required; "
-            "install them with 'python -m pip install openmm pdbfixer'"
+            "install them with 'python -m pip install openmm'"
         ) from None
     source = Path(path).expanduser()
     if not source.is_file():
@@ -130,8 +130,8 @@ class StructureInterfaceResidueEnergyStep(Step):
             "inputs": [],
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "dims": ["residue", "statistic"], "info_open": True, "axis_info_open": False, "labels": {"statistic": ["coulomb_kj", "lj_kj", "total_kj", "n_contacts"]}}},
         },
-        "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ["openmm>=8.0", "pdbfixer>=1.9"],
+        "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
+        "dependencies": ["openmm==8.1.1", "numpy==1.26.4"],
         "dependency_imports": ["openmm", "pdbfixer"],
         "inputs_arity": 0,
         "outputs": [],

@@ -9,15 +9,15 @@ remain unchanged.
 | Product | Version/tag | Distribution | Installation |
 | --- | --- | --- | --- |
 | Studio application | `v4.0.8` (application SemVer) | Windows Setup, server ZIP, application wheel | Upgrade application |
-| Operator library | `library-v8.0.3`; `library-v<version>` for later releases | `.operon-library.zip` | Library manager **Import package**, or CLI |
+| Operator library | `library-v8.0.4`; `library-v<version>` for later releases | `.operon-library.zip` | Library manager **Import package**, or CLI |
 | One provider | provider version | `.whl` | Same library manager |
 | Saved route | route's own revision | saved route and frozen parameter JSON | Import route |
 
-Library 8.0.3 is the factory library bundled with application 4.0.8. Its
-`library/release.json` declares `minimum_application` and `build_application`
-`3.1.9`, so it also runs on later 4.x applications. The application version
-remains independent: operator-only library changes continue to use the library
-release process.
+Library 8.0.4 requires application 4.0.7 or newer; the 4.0.8 application line
+integrates it. Its `library/release.json` declares `minimum_application` and
+`build_application` `4.0.7`; 3.x applications are no longer supported. The
+application version remains independent: operator-only library changes continue
+to use the library release process.
 
 `main` is a source branch, not an instruction to replace installed software.
 The library release branch/tag identifies the exact library sources used; the
@@ -34,7 +34,7 @@ installation publishes a new registry generation and the canvas can use the
 new entries without replacing or restarting the EXE. The equivalent command is:
 
 ```bash
-operon plugin install ./Operon-Library-v8.0.3-Windows.operon-library.zip
+operon plugin install ./Operon-Library-v8.0.4-Windows.operon-library.zip
 ```
 
 Use the profile used by Studio. **Refresh** scans the editable local source
@@ -66,8 +66,8 @@ install a database or make a Linux tool run natively on Windows.
 4. In a separate environment install that released application wheel, then:
 
    ```bash
-   python -I scripts/release_library.py --output build/library --tag library-v8.0.3
-   python -I scripts/verify_library_release.py --bundle build/library/Operon-Library-v8.0.3-Windows.operon-library.zip --work build/library-verify
+   python -I scripts/release_library.py --output build/library --tag library-v8.0.4
+   python -I scripts/verify_library_release.py --bundle build/library/Operon-Library-v8.0.4-Windows.operon-library.zip --work build/library-verify
    ```
 
    Do not use `pip install -e .` in this environment. `-I` excludes checkout/user
