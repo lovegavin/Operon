@@ -151,6 +151,7 @@ class CellCommunicationStep(Step):
                     "dims": ["interaction", "score"],
                     "info_open": True,
                     "axis_info_open": True,
+                    "labels": {"score": ["score"]},
                 },
             },
         },

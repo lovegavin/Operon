@@ -127,7 +127,7 @@ class StructureMdInterfaceOccupancyStep(Step):
             },
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": [],
+        "dependencies": ["numpy>=1.24", "scipy>=1.10"],
         "dependency_imports": ["numpy", "scipy"],
         "inputs_arity": 0,
         "outputs": [],
