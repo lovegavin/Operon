@@ -54,6 +54,12 @@ jobs:
           python -m build --wheel --outdir build/library library
           cd build/library
           sha256sum operon_builtin_library-*.whl > SHA256SUMS-seed.txt
+      - name: Package builtin route bundles
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p frontend/dist
+          python scripts/package_routes.py --output build/library
       - uses: actions/upload-artifact@v4
         with:
           name: library-${{ matrix.os }}
