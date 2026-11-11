@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/l2_routes/foldseek_cluster/output/artifacts/exports/5671000d6cc94f4b903505b04fdb10db/foldseek_clusters.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 85,
+  "source": "clusters",
+  "conversion": {}
+}

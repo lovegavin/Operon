@@ -1,11 +1,19 @@
 {
-  "name": "foldseek_cluster",
-  "sources": {},
-  "steps": [
-    {
-      "name": "foldseek_cluster",
-      "inputs": []
-    }
-  ],
-  "parameters_file": "parameters.json"
+ "format": "operon.task",
+ "version": 1,
+ "name": "foldseek_cluster",
+ "parameters_file": "parameters.json",
+ "sources": {},
+ "steps": [
+  {
+   "name": "foldseek_cluster",
+   "inputs": []
+  },
+  {
+   "name": "export_results",
+   "inputs": [
+    "clusters"
+   ]
+  }
+ ]
 }

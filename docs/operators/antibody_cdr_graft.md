@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.antibody_cdr_graft:AntibodyCdrGraftStep`  
-**Source:** [`library/seed/src/task/step/steps/antibody_cdr_graft.py`](../../library/seed/src/task/step/steps/antibody_cdr_graft.py) (221 lines)  
+**Source:** [`library/seed/src/task/step/steps/antibody_cdr_graft.py`](../../library/seed/src/task/step/steps/antibody_cdr_graft.py) (221 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -76,7 +76,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^antibody_cdr_graft,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.proteinmpnn_tied_design:ProteinmpnnTiedDesignStep`  
-**Source:** [`library/seed/src/task/step/steps/proteinmpnn_tied_design.py`](../../library/seed/src/task/step/steps/proteinmpnn_tied_design.py) (317 lines)  
+**Source:** [`library/seed/src/task/step/steps/proteinmpnn_tied_design.py`](../../library/seed/src/task/step/steps/proteinmpnn_tied_design.py) (317 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -64,7 +64,7 @@ Tie symmetry-equivalent positions to a shared amino acid during design.
 服务器执行细节：
 
 - 状态：complete，总耗时 18.5208 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_tied_design`；run_id `20261110T143952-5023aabc36ff`。
+- 路线：`/path/to/server-worktree/operon715/cov_mpnn2/proteinmpnn_tied_design`；run_id `20261110T143952-5023aabc36ff`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -81,7 +81,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^proteinmpnn_tied_design,' verification/coverage-8.0.1/operator_coverage.csv
 ```

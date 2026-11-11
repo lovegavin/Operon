@@ -2,7 +2,7 @@
 
 **Category:** Structure  
 **Entry point:** `src.task.step.steps.structure_radius_of_gyration:StructureRadiusOfGyrationStep`  
-**Source:** [`library/seed/src/task/step/steps/structure_radius_of_gyration.py`](../../library/seed/src/task/step/steps/structure_radius_of_gyration.py) (105 lines)  
+**Source:** [`library/seed/src/task/step/steps/structure_radius_of_gyration.py`](../../library/seed/src/task/step/steps/structure_radius_of_gyration.py) (105 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -64,7 +64,7 @@ the caller is responsible for any upstream filtering or normalisation.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^structure_radius_of_gyration,' verification/coverage-8.0.1/operator_coverage.csv
 ```

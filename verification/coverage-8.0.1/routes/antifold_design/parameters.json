@@ -1,0 +1,25 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "antifold_design",
+      "inputs": [],
+      "params": {
+        "structure_path": "/public/home/lihj/operon715/cov_ml2/antifold_design_paired/input/1mel.pdb",
+        "heavy_chain": "A",
+        "light_chain": "B",
+        "regions": "CDR1 CDR2 CDR3",
+        "num_seq_per_target": 2,
+        "sampling_temp": "0.2",
+        "seed": 42,
+        "python_executable": "/public/home/lihj/envtest2/antifold/bin/python",
+        "timeout_seconds": 1800,
+        "output": "designs"
+      },
+      "context_params": {}
+    }
+  ]
+}

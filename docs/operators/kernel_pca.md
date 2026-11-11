@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.kernel_pca:KernelPcaStep`  
-**Source:** [`library/seed/src/task/step/steps/kernel_pca.py`](../../library/seed/src/task/step/steps/kernel_pca.py) (71 lines)  
+**Source:** [`library/seed/src/task/step/steps/kernel_pca.py`](../../library/seed/src/task/step/steps/kernel_pca.py) (71 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -66,7 +66,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^kernel_pca,' verification/coverage-8.0.1/operator_coverage.csv
 ```

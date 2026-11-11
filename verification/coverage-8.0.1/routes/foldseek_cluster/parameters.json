@@ -1,21 +1,32 @@
 {
-  "format": "biopipe.task-parameters",
-  "schema_version": 1,
-  "params": {},
-  "sources": {},
-  "steps": [
-    {
-      "name": "foldseek_cluster",
-      "inputs": [],
-      "params": {
-        "structure_paths": "/tmp/cov_structure/foldseek_cluster/input/1UBQ.pdb,/tmp/cov_structure/foldseek_cluster/input/1ZAA.pdb",
-        "foldseek_path": "/tmp/foldseek/bin/foldseek",
-        "tmscore_threshold": 0.5,
-        "coverage": 0.5,
-        "timeout_seconds": 300,
-        "output": "out_foldseek_cluster"
-      },
-      "context_params": {}
-    }
-  ]
+ "format": "biopipe.task-parameters",
+ "schema_version": 1,
+ "params": {},
+ "sources": {},
+ "steps": [
+  {
+   "name": "foldseek_cluster",
+   "inputs": [],
+   "params": {
+    "structure_dir": "/tmp/l2_routes/foldseek_cluster/input",
+    "foldseek_path": "/home/gavin/tools/foldseek/foldseek/bin/foldseek",
+    "tmscore_threshold": 0.6,
+    "coverage": 0.8,
+    "timeout_seconds": 60,
+    "output": "clusters"
+   },
+   "context_params": {}
+  },
+  {
+   "name": "export_results",
+   "inputs": [
+    "clusters"
+   ],
+   "params": {
+    "filename": "foldseek_clusters",
+    "format": "csv"
+   },
+   "context_params": {}
+  }
+ ]
 }

@@ -2,7 +2,7 @@
 
 **Category:** Metagenomics  
 **Entry point:** `src.task.step.steps.metaphlan_profile_merge:MetaphlanProfileMergeStep`  
-**Source:** [`library/seed/src/task/step/steps/metaphlan_profile_merge.py`](../../library/seed/src/task/step/steps/metaphlan_profile_merge.py) (84 lines)  
+**Source:** [`library/seed/src/task/step/steps/metaphlan_profile_merge.py`](../../library/seed/src/task/step/steps/metaphlan_profile_merge.py) (84 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -59,7 +59,7 @@ Union taxa from two profiles and concatenate their sample columns.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^metaphlan_profile_merge,' verification/coverage-8.0.1/operator_coverage.csv
 ```

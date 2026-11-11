@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.esm_if_mutation_scan:EsmIfMutationScanStep`  
-**Source:** [`library/seed/src/task/step/steps/esm_if_mutation_scan.py`](../../library/seed/src/task/step/steps/esm_if_mutation_scan.py) (241 lines)  
+**Source:** [`library/seed/src/task/step/steps/esm_if_mutation_scan.py`](../../library/seed/src/task/step/steps/esm_if_mutation_scan.py) (241 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -58,7 +58,7 @@ Score all single-residue substitutions of a backbone chain with ESM-IF1.
 服务器执行细节：
 
 - 状态：complete，总耗时 69.1466 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/cov_ml2/esm_if_mutation_scan`；run_id `20261110T143655-5b5afcbb9868`。
+- 路线：`/path/to/server-worktree/operon715/cov_ml2/esm_if_mutation_scan`；run_id `20261110T143655-5b5afcbb9868`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -75,7 +75,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^esm_if_mutation_scan,' verification/coverage-8.0.1/operator_coverage.csv
 ```

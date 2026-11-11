@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.cnn_image_classifier:CnnImageClassifierStep`  
-**Source:** [`library/seed/src/task/step/steps/cnn_image_classifier.py`](../../library/seed/src/task/step/steps/cnn_image_classifier.py) (63 lines)  
+**Source:** [`library/seed/src/task/step/steps/cnn_image_classifier.py`](../../library/seed/src/task/step/steps/cnn_image_classifier.py) (63 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -56,7 +56,7 @@ Two-layer convolutional classifier for flattened square grayscale images. Genera
 
 - 状态：PASS，耗时 4.03 s，导出 None 行。
 - 归档路线：`/tmp/cov_mltab/cnn_image_classifier`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_mltab/cnn_image_classifier`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_mltab/cnn_image_classifier`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -70,7 +70,7 @@ Two-layer convolutional classifier for flattened square grayscale images. Genera
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^cnn_image_classifier,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.proteinmpnn_design:ProteinMpnnDesignStep`  
-**Source:** [`library/seed/src/task/step/steps/proteinmpnn_design.py`](../../library/seed/src/task/step/steps/proteinmpnn_design.py) (455 lines)  
+**Source:** [`library/seed/src/task/step/steps/proteinmpnn_design.py`](../../library/seed/src/task/step/steps/proteinmpnn_design.py) (455 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -64,7 +64,7 @@ Design sequences for a PDB structure with ProteinMPNN.
 服务器执行细节：
 
 - 状态：complete，总耗时 70.372 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design`；run_id `20261110T194425-2b21759a87d2`。
+- 路线：`/path/to/server-worktree/operon715/cov_mpnn/proteinmpnn_design`；run_id `20261110T194425-2b21759a87d2`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -81,7 +81,7 @@ establish the biological quality of generated sequences.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^proteinmpnn_design,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.pam:PamStep`  
-**Source:** [`library/seed/src/task/step/steps/pam.py`](../../library/seed/src/task/step/steps/pam.py) (136 lines)  
+**Source:** [`library/seed/src/task/step/steps/pam.py`](../../library/seed/src/task/step/steps/pam.py) (136 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -52,7 +52,7 @@ Partitioning around medoids (PAM).
 
 - 状态：PASS，耗时 2.83 s，导出 27 行。
 - 归档路线：`/tmp/cov_stats/pam`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/pam --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/pam`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/pam --check && python scripts/run.py /tmp/cov_stats/pam`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -69,7 +69,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^pam,' verification/coverage-8.0.1/operator_coverage.csv
 ```

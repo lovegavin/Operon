@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.esm_if_redesign:EsmIfRedesignStep`  
-**Source:** [`library/seed/src/task/step/steps/esm_if_redesign.py`](../../library/seed/src/task/step/steps/esm_if_redesign.py) (195 lines)  
+**Source:** [`library/seed/src/task/step/steps/esm_if_redesign.py`](../../library/seed/src/task/step/steps/esm_if_redesign.py) (195 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -56,7 +56,7 @@ Partial redesign of a protein backbone with the official ESM-IF model.
 服务器执行细节：
 
 - 状态：complete，总耗时 121.1424 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/cov_ml2/esm_if_redesign`；run_id `20261110T150337-dfd7f6ca4faa`。
+- 路线：`/path/to/server-worktree/operon715/cov_ml2/esm_if_redesign`；run_id `20261110T150337-dfd7f6ca4faa`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -73,7 +73,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^esm_if_redesign,' verification/coverage-8.0.1/operator_coverage.csv
 ```

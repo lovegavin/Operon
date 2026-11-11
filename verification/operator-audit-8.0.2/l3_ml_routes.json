@@ -1,0 +1,32 @@
+{
+  "version": "7.0.10",
+  "note": "three-CSV classifier and clustering-agreement routes",
+  "executed": 25,
+  "passed": [
+    "ada_boost_classifier",
+    "adjusted_mutual_info",
+    "adjusted_rand_index",
+    "calinski_harabasz",
+    "complement_nb_classifier",
+    "davies_bouldin",
+    "decision_tree_classifier",
+    "dunn_index",
+    "extra_trees_classifier",
+    "fowlkes_mallows",
+    "homogeneity_completeness_v_measure",
+    "knn",
+    "lda",
+    "lda_classifier",
+    "multinomial_nb_classifier",
+    "mutual_information",
+    "normalized_mutual_info",
+    "pair_confusion_matrix",
+    "qda",
+    "sgd_classifier",
+    "silhouette",
+    "silhouette_samples",
+    "silhouette_score",
+    "svm_classifier",
+    "variation_of_information"
+  ]
+}

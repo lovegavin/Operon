@@ -6,20 +6,18 @@
     },
     "l2": {
       "ORACLE": 11,
-      "SKIP": 12,
       "SMOKE": 8,
-      "UNIT": 1032
+      "UNIT": 1044
     },
     "l3": {
-      "EXECUTED": 209,
-      "EXECUTED_SRV": 49,
+      "EXECUTED": 223,
+      "EXECUTED_SRV": 47,
       "ROUTE": 789,
-      "SKIP": 16
+      "SKIP": 4
     },
     "l4": {
       "ESTIMATE": 1026,
-      "MEASURED": 14,
-      "SKIP": 23
+      "MEASURED": 37
     },
     "l5": {
       "INSTALL": 984,
@@ -27,76 +25,28 @@
     }
   },
   "gap_layers": {
-    "L2": 12,
     "L2_ORACLE": 8,
-    "L3": 16,
-    "L4": 23,
+    "L3": 4,
     "L4_MEASURED": 1026
   },
   "fully_executed_layers": {
     "L1": 1063,
-    "L2_oracle_or_unit": 1043,
-    "L2_any": 1051,
-    "L3_executed": 258,
-    "L3_route_or_executed": 1047,
-    "L4_measured": 14,
-    "L4_measured_or_estimate": 1040,
+    "L2_oracle_or_unit": 1055,
+    "L2_any": 1063,
+    "L3_executed": 270,
+    "L3_route_or_executed": 1059,
+    "L4_measured": 37,
+    "L4_measured_or_estimate": 1063,
     "L5_installed": 1063
   },
   "gap_examples": {
-    "L2": [
-      "atac_peak_call",
-      "foldseek_cluster",
-      "gc_skew_profile",
-      "gene_list_to_hits",
-      "gradient_boosting_classifier",
-      "interval_overlap",
-      "interval_stats",
-      "logistic_regression",
-      "motif_scan",
-      "peak_nearest_gene",
-      "random_forest_classifier",
-      "svm_classifier"
-    ],
+    "L2": [],
     "L3": [
-      "antifold_design",
-      "antifold_score",
       "boltz_affinity_summary",
       "boltz_complex_confidence",
       "boltz_predict",
-      "colabfold_predict",
-      "esm_if_interface_redesign",
-      "esm_if_masked_region_scan",
-      "ligandmpnn_side_chain_packing",
-      "openfold_predict",
-      "rfdiffusion_design",
-      "structure_md_ligand_rmsd",
-      "vina_dock",
-      "vina_dock_batch",
-      "vina_pose_cluster",
-      "vina_pose_rmsd"
+      "rfdiffusion_design"
     ],
-    "L4": [
-      "esm_embedding_kmeans_silhouette",
-      "esm_embedding_umap_projection",
-      "genome_alignment_stats",
-      "genome_rearrangement_summary",
-      "genome_synteny_blocks",
-      "gwas_association",
-      "gwas_inflation",
-      "gwas_top_hits",
-      "proteinmpnn_design_cluster",
-      "proteinmpnn_design_profile",
-      "rdkit_conformer_cluster",
-      "rdkit_murcko_fingerprint",
-      "sequence_cpg_island",
-      "structure_amide_pi_bonds",
-      "structure_aromatic_stacking",
-      "structure_cation_pi",
-      "structure_halogen_bond_scan",
-      "structure_helix_bend",
-      "structure_helix_helix_angle",
-      "structure_ligand_clash"
-    ]
+    "L4": []
   }
 }

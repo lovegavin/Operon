@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.conformal_split_regression:ConformalSplitRegressionStep`  
-**Source:** [`library/seed/src/task/step/steps/conformal_split_regression.py`](../../library/seed/src/task/step/steps/conformal_split_regression.py) (57 lines)  
+**Source:** [`library/seed/src/task/step/steps/conformal_split_regression.py`](../../library/seed/src/task/step/steps/conformal_split_regression.py) (57 lines)
 **Trust level: A- — 独立 oracle（未记录真实执行）**
 
 ## 1. 代码说明
@@ -64,7 +64,7 @@ Synthetic or small tabular inputs are intended for deterministic verification; t
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^conformal_split_regression,' verification/coverage-8.0.1/operator_coverage.csv
 ```

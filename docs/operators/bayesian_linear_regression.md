@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.bayesian_linear_regression:BayesianLinearRegressionStep`  
-**Source:** [`library/seed/src/task/step/steps/bayesian_linear_regression.py`](../../library/seed/src/task/step/steps/bayesian_linear_regression.py) (50 lines)  
+**Source:** [`library/seed/src/task/step/steps/bayesian_linear_regression.py`](../../library/seed/src/task/step/steps/bayesian_linear_regression.py) (50 lines)
 **Trust level: A- — 独立 oracle（未记录真实执行）**
 
 ## 1. 代码说明
@@ -76,7 +76,7 @@ for screening and teaching, not for model selection or hierarchical structure.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^bayesian_linear_regression,' verification/coverage-8.0.1/operator_coverage.csv
 ```

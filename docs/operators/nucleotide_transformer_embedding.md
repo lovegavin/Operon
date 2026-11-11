@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.nucleotide_transformer_embedding:NucleotideTransformerEmbeddingStep`  
-**Source:** [`library/seed/src/task/step/steps/nucleotide_transformer_embedding.py`](../../library/seed/src/task/step/steps/nucleotide_transformer_embedding.py) (46 lines)  
+**Source:** [`library/seed/src/task/step/steps/nucleotide_transformer_embedding.py`](../../library/seed/src/task/step/steps/nucleotide_transformer_embedding.py) (45 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -40,20 +40,26 @@ Compute mean-pooled embeddings with the Nucleotide Transformer v2 50M multi-spec
 
 ## 3. 正确性依据
 
-**结论：B 级。** 服务器真实运行通过（18.0289 s），1 个步骤产物，首个 sha256 b271804cec3e5d89…。
+**结论：B 级。** 真实运行通过（4.3507 s），导出 [2, 512] 行，产物 sha256 29cba9a93585b19a…。
 
 | 层 | 状态 | 证据 |
 | --- | --- | --- |
 | L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
 | L2 单元/oracle | UNIT | tests/test_b91.py |
-| L3 真实执行 | EXECUTED_SRV | srv:/public/home/lihj/operon715/cov_nt/nucleotide_transformer_embedding/output/run_summary.json |
+| L3 真实执行 | EXECUTED | verification/coverage-8.0.1/routes/nucleotide_transformer_embedding |
 | L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
 | L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
+
+本次执行细节：
+
+- 状态：PASS，耗时 4.3507 s，导出 [2, 512] 行。
+- 归档路线：`/tmp/nt_local`。
+- 命令：``。
 
 服务器执行细节：
 
 - 状态：complete，总耗时 18.0289 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/cov_nt/nucleotide_transformer_embedding`；run_id `20261110T194211-e313da5486bb`。
+- 路线：`/path/to/server-worktree/operon715/cov_nt/nucleotide_transformer_embedding`；run_id `20261110T194211-e313da5486bb`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -68,7 +74,7 @@ Mean pooling includes special tokens.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^nucleotide_transformer_embedding,' verification/coverage-8.0.1/operator_coverage.csv
 ```

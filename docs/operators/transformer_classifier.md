@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.transformer_classifier:TransformerClassifierStep`  
-**Source:** [`library/seed/src/task/step/steps/transformer_classifier.py`](../../library/seed/src/task/step/steps/transformer_classifier.py) (71 lines)  
+**Source:** [`library/seed/src/task/step/steps/transformer_classifier.py`](../../library/seed/src/task/step/steps/transformer_classifier.py) (71 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -57,7 +57,7 @@ Multi-head self-attention encoder over tabular features with a class token head.
 
 - 状态：PASS，耗时 6.54 s，导出 None 行。
 - 归档路线：`/tmp/cov_mltab/transformer_classifier`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_mltab/transformer_classifier`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_mltab/transformer_classifier`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -71,7 +71,7 @@ Multi-head self-attention encoder over tabular features with a class token head.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^transformer_classifier,' verification/coverage-8.0.1/operator_coverage.csv
 ```

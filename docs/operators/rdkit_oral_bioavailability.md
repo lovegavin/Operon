@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.rdkit_oral_bioavailability:RdkitOralBioavailabilityStep`  
-**Source:** [`library/seed/src/task/step/steps/rdkit_oral_bioavailability.py`](../../library/seed/src/task/step/steps/rdkit_oral_bioavailability.py) (197 lines)  
+**Source:** [`library/seed/src/task/step/steps/rdkit_oral_bioavailability.py`](../../library/seed/src/task/step/steps/rdkit_oral_bioavailability.py) (197 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -72,7 +72,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^rdkit_oral_bioavailability,' verification/coverage-8.0.1/operator_coverage.csv
 ```

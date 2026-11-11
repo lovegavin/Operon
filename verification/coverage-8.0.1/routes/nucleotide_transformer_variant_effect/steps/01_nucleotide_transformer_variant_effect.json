@@ -1,0 +1,14 @@
+{
+  "rows": 1,
+  "columns": 5,
+  "result_files": [
+    {
+      "id": "variant_effect",
+      "path": "/tmp/nt_variant_local/output/artifacts/nucleotide_transformer_variant_effect/4acf74e7a15b4b59baa56d4c81f94047/variant_effect.csv",
+      "filename": "variant_effect.csv",
+      "format": "csv",
+      "title": "Nucleotide Transformer variant effect",
+      "bytes": 53
+    }
+  ]
+}

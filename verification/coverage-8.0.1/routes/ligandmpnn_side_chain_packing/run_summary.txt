@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /public/home/lihj/operon715/cov_mpnn3/ligandmpnn_side_chain_packing2
+generated : 2026-11-11T04:42:23.746081+00:00
+steps     : 1
+elapsed   : 477.875s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   ligandmpnn_side_chain_packing  477.875s   steps/01_ligandmpnn_side_chain_packing.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

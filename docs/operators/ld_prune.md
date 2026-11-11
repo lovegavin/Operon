@@ -2,7 +2,7 @@
 
 **Category:** 质量控制  
 **Entry point:** `src.task.step.steps.ld_prune:LdPruneStep`  
-**Source:** [`library/seed/src/task/step/steps/ld_prune.py`](../../library/seed/src/task/step/steps/ld_prune.py) (153 lines)  
+**Source:** [`library/seed/src/task/step/steps/ld_prune.py`](../../library/seed/src/task/step/steps/ld_prune.py) (153 lines)
 **Trust level: D — 冒烟测试引用（无独立 oracle）**
 
 ## 1. 代码说明
@@ -70,7 +70,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^ld_prune,' verification/coverage-8.0.1/operator_coverage.csv
 ```

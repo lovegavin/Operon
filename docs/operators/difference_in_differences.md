@@ -2,7 +2,7 @@
 
 **Category:** Causal inference  
 **Entry point:** `src.task.step.steps.difference_in_differences:DifferenceInDifferencesStep`  
-**Source:** [`library/seed/src/task/step/steps/difference_in_differences.py`](../../library/seed/src/task/step/steps/difference_in_differences.py) (55 lines)  
+**Source:** [`library/seed/src/task/step/steps/difference_in_differences.py`](../../library/seed/src/task/step/steps/difference_in_differences.py) (55 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -62,7 +62,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^difference_in_differences,' verification/coverage-8.0.1/operator_coverage.csv
 ```

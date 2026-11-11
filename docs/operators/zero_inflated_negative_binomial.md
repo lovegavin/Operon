@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.zero_inflated_negative_binomial:ZeroInflatedNegativeBinomialStep`  
-**Source:** [`library/seed/src/task/step/steps/zero_inflated_negative_binomial.py`](../../library/seed/src/task/step/steps/zero_inflated_negative_binomial.py) (178 lines)  
+**Source:** [`library/seed/src/task/step/steps/zero_inflated_negative_binomial.py`](../../library/seed/src/task/step/steps/zero_inflated_negative_binomial.py) (178 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -56,7 +56,7 @@ Zero-inflated negative binomial regression (NB2).
 
 - 状态：PASS，耗时 2.89 s，导出 4 行。
 - 归档路线：`/tmp/cov_stats/zero_inflated_negative_binomial`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/zero_inflated_negative_binomial --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/zero_inflated_negative_binomial`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/zero_inflated_negative_binomial --check && python scripts/run.py /tmp/cov_stats/zero_inflated_negative_binomial`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -73,7 +73,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^zero_inflated_negative_binomial,' verification/coverage-8.0.1/operator_coverage.csv
 ```

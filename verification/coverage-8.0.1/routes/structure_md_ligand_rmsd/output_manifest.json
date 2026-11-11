@@ -1,4 +1,4 @@
 {
-  "root": "output/artifacts",
+  "root": "/tmp/md_lig/output/artifacts",
   "files": []
 }

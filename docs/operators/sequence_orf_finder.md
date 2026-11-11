@@ -2,7 +2,7 @@
 
 **Category:** Omics  
 **Entry point:** `src.task.step.steps.sequence_orf_finder:SequenceOrfFinderStep`  
-**Source:** [`library/seed/src/task/step/steps/sequence_orf_finder.py`](../../library/seed/src/task/step/steps/sequence_orf_finder.py) (189 lines)  
+**Source:** [`library/seed/src/task/step/steps/sequence_orf_finder.py`](../../library/seed/src/task/step/steps/sequence_orf_finder.py) (189 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -67,7 +67,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^sequence_orf_finder,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /public/home/lihj/operon715/cov_ml2/antifold_design_paired
+generated : 2026-11-11T05:04:21.010044+00:00
+steps     : 1
+elapsed   : 20.910s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   antifold_design        20.910s   steps/01_antifold_design.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

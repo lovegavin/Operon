@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/esm_if_interface_3htn2/input",
+  "files": [
+    {
+      "path": "1mel.pdb",
+      "size": 264874,
+      "sha256": "7ced1e5f2e2f813073e7f35be90a79d4031dcf6ad9fe7ff642acac593d5eb34b"
+    }
+  ]
+}

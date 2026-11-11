@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/nt_local/output/artifacts",
+  "files": [
+    {
+      "path": "nucleotide_transformer_embedding/4bca849c63b6404bba63531acb28a98f/embeddings.csv",
+      "size": 13547,
+      "sha256": "29cba9a93585b19ab77e5f9849f1261ba83f75de53871de99df2f9ad4b2e0d70"
+    }
+  ]
+}

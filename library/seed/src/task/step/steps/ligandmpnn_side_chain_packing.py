@@ -182,7 +182,7 @@ class LigandmpnnSideChainPackingStep(Step):
                     "ligandmpnn_side_chain_packing: the packer failed with exit code "
                     f"{completed.returncode}: {' | '.join(tail)}"
                 )
-            packed = sorted((out_dir / "packed").glob("*_packed.pdb"))
+            packed = sorted((out_dir / "packed").glob("*.pdb"))
             if not packed:
                 raise StepError(
                     "ligandmpnn_side_chain_packing: the packer produced no packed PDB "

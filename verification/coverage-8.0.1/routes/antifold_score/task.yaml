@@ -1,0 +1,6 @@
+name: replay_antifold_score
+sources: {}
+steps:
+- name: antifold_score
+  inputs: []
+parameters_file: parameters.json

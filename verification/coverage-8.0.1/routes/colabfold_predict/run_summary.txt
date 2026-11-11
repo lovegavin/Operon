@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /public/home/lihj/operon715/cov_ml4/colabfold_predict
+generated : 2026-11-11T05:05:19.385596+00:00
+steps     : 1
+elapsed   : 144.397s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   colabfold_predict     144.397s   steps/01_colabfold_predict.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

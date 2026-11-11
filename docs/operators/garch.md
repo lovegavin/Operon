@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.garch:GarchStep`  
-**Source:** [`library/seed/src/task/step/steps/garch.py`](../../library/seed/src/task/step/steps/garch.py) (162 lines)  
+**Source:** [`library/seed/src/task/step/steps/garch.py`](../../library/seed/src/task/step/steps/garch.py) (162 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -55,7 +55,7 @@ GARCH volatility model.
 
 - 状态：PASS，耗时 4.02 s，导出 4 行。
 - 归档路线：`/tmp/cov_stats/garch`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/garch --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/garch`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/garch --check && python scripts/run.py /tmp/cov_stats/garch`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -72,7 +72,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^garch,' verification/coverage-8.0.1/operator_coverage.csv
 ```

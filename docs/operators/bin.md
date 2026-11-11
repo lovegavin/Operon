@@ -2,7 +2,7 @@
 
 **Category:** 数据整理  
 **Entry point:** `src.task.step.steps.bin:BinStep`  
-**Source:** [`library/seed/src/task/step/steps/bin.py`](../../library/seed/src/task/step/steps/bin.py) (326 lines)  
+**Source:** [`library/seed/src/task/step/steps/bin.py`](../../library/seed/src/task/step/steps/bin.py) (326 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -65,7 +65,7 @@ named column.
 | 层 | 状态 | 证据 |
 | --- | --- | --- |
 | L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
-| L2 单元/oracle | UNIT | tests/test_axis_adapters.py,test_compressed_inputs.py,test_dependencies.py,test_dependency_contract.py,test_exchange.py,test_export_contract.py,test_extension164.py,test_extension244.py,test_extension309.py,test_extension345.py,test_extension346.py,test_extension347.py,test_extension350.py,test_extension353.py,test_extension357.py,test_extension366.py,test_hic_workflow.py,test_operator_docs.py,test_remote_handshake.py,test_remote_installation.py,test_remote_provision.py,test_resource_downloads.py,test_server_setup.py,test_wheel_execution.py |
+| L2 单元/oracle | UNIT | tests/test_axis_adapters.py,test_compressed_inputs.py,test_dependencies.py,test_dependency_contract.py,test_exchange.py,test_export_contract.py,test_extension164.py,test_extension244.py,test_extension309.py,test_extension345.py,test_extension346.py,test_extension347.py,test_extension350.py,test_extension353.py,test_extension357.py,test_extension366.py,test_hic_workflow.py,test_l2_gap.py,test_operator_docs.py,test_remote_handshake.py,test_remote_installation.py,test_remote_provision.py,test_resource_downloads.py,test_server_setup.py,test_wheel_execution.py |
 | L3 真实执行 | EXECUTED | verification/coverage-8.0.1/routes/bin |
 | L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
 | L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
@@ -74,7 +74,7 @@ named column.
 
 - 状态：PASS，耗时 1.38 s，导出 None 行。
 - 归档路线：`/tmp/cov_sequence/bin`。
-- 命令：`/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_sequence/bin`。
+- 命令：`python scripts/run.py /tmp/cov_sequence/bin`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -91,7 +91,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^bin,' verification/coverage-8.0.1/operator_coverage.csv
 ```

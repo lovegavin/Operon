@@ -2,7 +2,7 @@
 
 **Category:** Structure  
 **Entry point:** `src.task.step.steps.foldseek_cluster:FoldseekClusterStep`  
-**Source:** [`library/seed/src/task/step/steps/foldseek_cluster.py`](../../library/seed/src/task/step/steps/foldseek_cluster.py) (194 lines)  
+**Source:** [`library/seed/src/task/step/steps/foldseek_cluster.py`](../../library/seed/src/task/step/steps/foldseek_cluster.py) (194 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -42,21 +42,21 @@ foldseek_cluster: structural clustering with Foldseek.
 
 ## 3. 正确性依据
 
-**结论：B 级。** 真实运行通过（7.75 s），导出 None 行，产物 sha256 n/a…。
+**结论：B 级。** 真实运行通过（2.325 s），导出 None 行，产物 sha256 05f822852816ecc1…。
 
 | 层 | 状态 | 证据 |
 | --- | --- | --- |
 | L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
-| L2 单元/oracle | SKIP | operator_table.csv:SKIP_DOMAIN |
+| L2 单元/oracle | UNIT | tests/test_l2_gap.py |
 | L3 真实执行 | EXECUTED | verification/coverage-8.0.1/routes/foldseek_cluster |
 | L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
 | L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
 
 本次执行细节：
 
-- 状态：PASS，耗时 7.75 s，导出 None 行。
-- 归档路线：`/tmp/cov_structure/foldseek_cluster`。
-- 命令：`/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_structure/foldseek_cluster`。
+- 状态：PASS，耗时 2.325 s，导出 None 行。
+- 归档路线：`/tmp/l2_routes/foldseek_cluster`。
+- 命令：`scripts/run.py /tmp/l2_routes/foldseek_cluster`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -73,7 +73,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^foldseek_cluster,' verification/coverage-8.0.1/operator_coverage.csv
 ```
@@ -87,7 +87,7 @@ example. Add a tested example and replace this generated page with authored
 guidance when extending this operator.
 ```
 
-未补齐证据：`L2,L4_MEASURED`。
+未补齐证据：`L4_MEASURED`。
 
 ---
 

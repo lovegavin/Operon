@@ -2,7 +2,7 @@
 
 **Category:** Proteomics MS  
 **Entry point:** `src.task.step.steps.protein_inference:ProteinInferenceStep`  
-**Source:** [`library/seed/src/task/step/steps/protein_inference.py`](../../library/seed/src/task/step/steps/protein_inference.py) (97 lines)  
+**Source:** [`library/seed/src/task/step/steps/protein_inference.py`](../../library/seed/src/task/step/steps/protein_inference.py) (97 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -61,7 +61,7 @@ identification.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^protein_inference,' verification/coverage-8.0.1/operator_coverage.csv
 ```

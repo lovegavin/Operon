@@ -2,7 +2,7 @@
 
 **Category:** Omics  
 **Entry point:** `src.task.step.steps.protein_er_retention:ProteinErRetentionStep`  
-**Source:** [`library/seed/src/task/step/steps/protein_er_retention.py`](../../library/seed/src/task/step/steps/protein_er_retention.py) (76 lines)  
+**Source:** [`library/seed/src/task/step/steps/protein_er_retention.py`](../../library/seed/src/task/step/steps/protein_er_retention.py) (76 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -61,7 +61,7 @@ Detect C-terminal KDEL/HDEL/DDEL endoplasmic-reticulum retention motifs.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^protein_er_retention,' verification/coverage-8.0.1/operator_coverage.csv
 ```

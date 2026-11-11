@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.studentized_residuals:StudentizedResidualsStep`  
-**Source:** [`library/seed/src/task/step/steps/studentized_residuals.py`](../../library/seed/src/task/step/steps/studentized_residuals.py) (78 lines)  
+**Source:** [`library/seed/src/task/step/steps/studentized_residuals.py`](../../library/seed/src/task/step/steps/studentized_residuals.py) (78 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -51,7 +51,7 @@ Studentized (deleted) residuals for an ordinary least-squares fit.
 
 - 状态：PASS，耗时 2.68 s，导出 40 行。
 - 归档路线：`/tmp/cov_stats/studentized_residuals`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/studentized_residuals --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/studentized_residuals`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/studentized_residuals --check && python scripts/run.py /tmp/cov_stats/studentized_residuals`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -68,7 +68,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^studentized_residuals,' verification/coverage-8.0.1/operator_coverage.csv
 ```

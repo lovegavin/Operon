@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/colabfold_predict_route/input",
+  "files": [
+    {
+      "path": "vhh.fasta",
+      "size": 161,
+      "sha256": "90f991da69909f4de12d837a29637654632740a52e387ae034f1edfded11eca2"
+    }
+  ]
+}

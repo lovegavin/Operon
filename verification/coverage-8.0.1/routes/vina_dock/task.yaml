@@ -1,0 +1,8 @@
+format: operon.task
+version: 1
+id: vina_dock_route
+parameters_file: parameters.json
+sources: {}
+steps:
+  - name: vina_dock
+    inputs: []

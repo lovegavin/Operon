@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.zivot_andrews:ZivotAndrewsStep`  
-**Source:** [`library/seed/src/task/step/steps/zivot_andrews.py`](../../library/seed/src/task/step/steps/zivot_andrews.py) (116 lines)  
+**Source:** [`library/seed/src/task/step/steps/zivot_andrews.py`](../../library/seed/src/task/step/steps/zivot_andrews.py) (116 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -54,7 +54,7 @@ Zivot-Andrews unit-root test with one structural break.
 
 - 状态：PASS，耗时 2.55 s，导出 8 行。
 - 归档路线：`/tmp/cov_stats/zivot_andrews`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/zivot_andrews --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/zivot_andrews`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/zivot_andrews --check && python scripts/run.py /tmp/cov_stats/zivot_andrews`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -71,7 +71,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^zivot_andrews,' verification/coverage-8.0.1/operator_coverage.csv
 ```

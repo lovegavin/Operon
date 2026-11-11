@@ -1,0 +1,27 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "sequence": {}
+  },
+  "steps": [
+    {
+      "name": "openfold_predict",
+      "inputs": [
+        "sequence"
+      ],
+      "params": {
+        "openfold_path": "/public/home/lihj/biopipe-verify-301/openfold_src",
+        "params_path": "/public/home/lihj/biopipe-verify-301/tmp/openfold_params/finetuning_ptm_2.pt",
+        "device": "cuda",
+        "skip_relaxation": true,
+        "timeout_seconds": 1800,
+        "output": "structure",
+        "config_preset": "model_1_ptm",
+        "python_executable": "/public/home/lihj/envtest2/antifold/bin/python"
+      },
+      "context_params": {}
+    }
+  ]
+}

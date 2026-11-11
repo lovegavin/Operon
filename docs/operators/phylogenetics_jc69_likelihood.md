@@ -2,7 +2,7 @@
 
 **Category:** Phylogenetics  
 **Entry point:** `src.task.step.steps.phylogenetics_jc69_likelihood:PhylogeneticsJc69LikelihoodStep`  
-**Source:** [`library/seed/src/task/step/steps/phylogenetics_jc69_likelihood.py`](../../library/seed/src/task/step/steps/phylogenetics_jc69_likelihood.py) (114 lines)  
+**Source:** [`library/seed/src/task/step/steps/phylogenetics_jc69_likelihood.py`](../../library/seed/src/task/step/steps/phylogenetics_jc69_likelihood.py) (114 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -65,7 +65,7 @@ external phylogenetics package.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^phylogenetics_jc69_likelihood,' verification/coverage-8.0.1/operator_coverage.csv
 ```

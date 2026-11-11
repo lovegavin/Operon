@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.ligandmpnn_active_site_design:LigandmpnnActiveSiteDesignStep`  
-**Source:** [`library/seed/src/task/step/steps/ligandmpnn_active_site_design.py`](../../library/seed/src/task/step/steps/ligandmpnn_active_site_design.py) (383 lines)  
+**Source:** [`library/seed/src/task/step/steps/ligandmpnn_active_site_design.py`](../../library/seed/src/task/step/steps/ligandmpnn_active_site_design.py) (383 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -83,7 +83,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^ligandmpnn_active_site_design,' verification/coverage-8.0.1/operator_coverage.csv
 ```

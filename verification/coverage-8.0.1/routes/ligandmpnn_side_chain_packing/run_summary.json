@@ -1,0 +1,31 @@
+{
+  "task_dir": "/public/home/lihj/operon715/cov_mpnn3/ligandmpnn_side_chain_packing2",
+  "generated_at": "2026-11-11T04:42:23.746081+00:00",
+  "n_steps": 1,
+  "total_elapsed": 477.8746,
+  "steps": [
+    {
+      "index": 1,
+      "name": "ligandmpnn_side_chain_packing",
+      "elapsed": 477.8746,
+      "inputs": [],
+      "params": {
+        "ligandmpnn_path": "/public/home/lihj/biopipe-verify-301/third_party/LigandMPNN_patched",
+        "python_executable": "/public/home/lihj/biopipe-verify-301/venv/bin/python",
+        "structure_path": "/public/home/lihj/operon715/cov_ml2/esm_if_masked_region_scan/input/1mel.pdb",
+        "weights_path": "/public/home/lihj/biopipe-verify-301/third_party/LigandMPNN_patched/model_params",
+        "sc_checkpoint": "ligandmpnn_sc_v_32_002_16.pt",
+        "device": "cpu",
+        "seed": 1,
+        "number_of_packs_per_design": 1,
+        "chains": "A",
+        "timeout_seconds": 1800
+      },
+      "export_path": "steps/01_ligandmpnn_side_chain_packing.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261111T043425-d8fe847432d0",
+  "event_log": "/public/home/lihj/operon715/cov_mpnn3/ligandmpnn_side_chain_packing2/output/runs/20261111T043425-d8fe847432d0/events.jsonl"
+}

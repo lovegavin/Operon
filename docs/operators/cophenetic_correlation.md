@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.cophenetic_correlation:CopheneticCorrelationStep`  
-**Source:** [`library/seed/src/task/step/steps/cophenetic_correlation.py`](../../library/seed/src/task/step/steps/cophenetic_correlation.py) (119 lines)  
+**Source:** [`library/seed/src/task/step/steps/cophenetic_correlation.py`](../../library/seed/src/task/step/steps/cophenetic_correlation.py) (119 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -64,7 +64,7 @@ Pearson correlation between tree patristic and observed distances.
 
 - 状态：PASS，耗时 2.99 s，导出 4 行。
 - 归档路线：`/tmp/cov_stats/cophenetic_correlation`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/cophenetic_correlation --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/cophenetic_correlation`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/cophenetic_correlation --check && python scripts/run.py /tmp/cov_stats/cophenetic_correlation`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -81,7 +81,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^cophenetic_correlation,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -2,7 +2,7 @@
 
 **Category:** Chemistry  
 **Entry point:** `src.task.step.steps.ligand_formula_parse:LigandFormulaParseStep`  
-**Source:** [`library/seed/src/task/step/steps/ligand_formula_parse.py`](../../library/seed/src/task/step/steps/ligand_formula_parse.py) (103 lines)  
+**Source:** [`library/seed/src/task/step/steps/ligand_formula_parse.py`](../../library/seed/src/task/step/steps/ligand_formula_parse.py) (103 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -62,7 +62,7 @@ parentheses are accepted. An element outside the periodic table raises a
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^ligand_formula_parse,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.proteinmpnn_score:ProteinmpnnScoreStep`  
-**Source:** [`library/seed/src/task/step/steps/proteinmpnn_score.py`](../../library/seed/src/task/step/steps/proteinmpnn_score.py) (285 lines)  
+**Source:** [`library/seed/src/task/step/steps/proteinmpnn_score.py`](../../library/seed/src/task/step/steps/proteinmpnn_score.py) (285 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -59,7 +59,7 @@ ProteinMPNN score-only evaluation of structure/sequence pairs.
 服务器执行细节：
 
 - 状态：complete，总耗时 11.1892 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/closure_replay/proteinmpnn_score`；run_id `20261110T125314-71564253a91e`。
+- 路线：`/path/to/server-worktree/operon715/closure_replay/proteinmpnn_score`；run_id `20261110T125314-71564253a91e`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -76,7 +76,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^proteinmpnn_score,' verification/coverage-8.0.1/operator_coverage.csv
 ```

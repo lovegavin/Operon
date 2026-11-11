@@ -1,0 +1,13 @@
+{
+  "format": "operon.task",
+  "version": 1,
+  "id": "vina_dock_batch_route",
+  "parameters_file": "parameters.json",
+  "sources": {},
+  "steps": [
+    {
+      "name": "vina_dock_batch",
+      "inputs": []
+    }
+  ]
+}

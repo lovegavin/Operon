@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.esm_embedding_autoencoder:EsmEmbeddingAutoencoderStep`  
-**Source:** [`library/seed/src/task/step/steps/esm_embedding_autoencoder.py`](../../library/seed/src/task/step/steps/esm_embedding_autoencoder.py) (144 lines)  
+**Source:** [`library/seed/src/task/step/steps/esm_embedding_autoencoder.py`](../../library/seed/src/task/step/steps/esm_embedding_autoencoder.py) (144 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -56,7 +56,7 @@ Embedding autoencoder reconstruction errors.
 
 - 状态：PASS，耗时 2.0676 s，导出 60 行。
 - 归档路线：`/tmp/probe_routes/esm_embedding_autoencoder`。
-- 命令：`cd /home/gavin/Operon-7015-native && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/probe_routes/esm_embedding_autoencoder`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/probe_routes/esm_embedding_autoencoder`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -73,7 +73,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^esm_embedding_autoencoder,' verification/coverage-8.0.1/operator_coverage.csv
 ```

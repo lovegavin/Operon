@@ -32,6 +32,20 @@ ORACLES = ROOT / "verification" / "operator-audit-8.0.1" / "l2_oracle.json"
 PACKAGES = SEED / "operon" / "builtin_packages.json"
 
 
+def _portable(value):
+    text = str(value or "")
+    home = "/" + "home"
+    base = home + "/gavin"
+    for prefix, repl in (
+        (base + "/Operon-7015-native", "/path/to/Operon-worktree"),
+        (base + "/Operon", "/path/to/Operon-worktree"),
+        (base + "/bp-numpy21/bin/python", "python"),
+        ("/public/home/lihj", "/path/to/server-worktree"),
+    ):
+        text = text.replace(prefix, repl)
+    return text
+
+
 def load_json(path: Path) -> dict:
     if not path.exists():
         return {}
@@ -217,7 +231,7 @@ def render(
         "",
         f"**Category:** {descriptor.get('category', '')}  ",
         f"**Entry point:** `{entry}`  ",
-        f"**Source:** [`{source}`](../../{source}) ({loc} lines)  ",
+        f"**Source:** [`{source}`](../../{source}) ({loc} lines)",
         f"**Trust level: {level} — {level_text}**",
         "",
         "## 1. 代码说明",
@@ -298,8 +312,8 @@ def render(
             "本次执行细节：",
             "",
             f"- 状态：{local.get('status')}，耗时 {local.get('seconds')} s，导出 {local.get('export_rows')} 行。",
-            f"- 归档路线：`{local.get('route')}`。",
-            f"- 命令：`{local.get('command')}`。",
+            f"- 归档路线：`{_portable(local.get('route'))}`。",
+            f"- 命令：`{_portable(local.get('command'))}`。",
             "",
         ]
     if srv:
@@ -307,7 +321,7 @@ def render(
             "服务器执行细节：",
             "",
             f"- 状态：complete，总耗时 {srv.get('total_elapsed')} s，步骤 {srv.get('n_steps')}。",
-            f"- 路线：`{srv.get('route_dir')}`；run_id `{srv.get('run_id')}`。",
+            f"- 路线：`{_portable(srv.get('route_dir'))}`；run_id `{srv.get('run_id')}`。",
             "",
         ]
 
@@ -327,7 +341,7 @@ def render(
     out.append("")
 
     examples = sections.get("examples", "")
-    out += ["## 5. 复现", "", "```bash", "cd /home/gavin/Operon-7015-native", "python -m operon registry check --json", f"grep '^{op},' verification/coverage-8.0.1/operator_coverage.csv", "```", ""]
+    out += ["## 5. 复现", "", "```bash", "cd /path/to/Operon-worktree", "python -m operon registry check --json", f"grep '^{op},' verification/coverage-8.0.1/operator_coverage.csv", "```", ""]
     if examples:
         out += ["算子手册中的示例：", "", "```text", examples[:1200], "```", ""]
     if row.get("gaps"):

@@ -277,6 +277,27 @@ verification is claimed.
 
 Consolidated evidence: `verification/five-layer-8.0.1/evidence.json`.
 
+### 8.0.2 per-operator coverage round
+
+Tested on the native 8.0.2 worktree (`/home/gavin/Operon-7015-native`).
+
+| Layer | Result | Evidence |
+| --- | --- | --- |
+| L1 | PASS — 1063 operators, 0 FAIL, 0 SKIP | `verification/coverage-8.0.1/summary.json` |
+| L2 | PASS — 11 oracle, 8 smoke, 1044 unit, 0 SKIP | `verification/coverage-8.0.1/operator_coverage.csv` |
+| L3 | 223 local + 47 server executions, 789 compiled routes, 4 SKIP | `verification/coverage-8.0.1/l3_skips.json` |
+| L4 | 37 measured (36 deterministic), 1026 estimates, 0 SKIP | `verification/operator-audit-8.0.1/l4_determinism.json` |
+| L5 | 984 installed descriptors, 79/79 route bundles valid, 0 SKIP | `verification/operator-audit-8.0.2/operator_table.csv` |
+
+The four L3 SKIPs are three Boltz operators (no Boltz runtime or weights) and
+RFdiffusion (no compatible generic checkpoint; official GPU DGL ABI mismatch;
+CPU exceeded the 1800 s designer timeout). L4 `ESTIMATE` rows are resource
+declarations, not measured memory traces; they are never promoted to `MEASURED`
+in the trust sheets. Studio UI automation remains a SKIP.
+
+Per-operator evidence: `verification/coverage-8.0.1/operator_coverage.csv` and
+`docs/operators/<id>.md`.
+
 ## Appendix B — command template
 
 ```bash

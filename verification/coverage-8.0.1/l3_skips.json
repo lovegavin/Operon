@@ -1,0 +1,33 @@
+{
+  "version": "8.0.1",
+  "layer": "L3",
+  "total_operators": 1063,
+  "executed": 270,
+  "skipped": 4,
+  "skips": [
+    {
+      "id": "boltz_predict",
+      "reason": "no_boltz_runtime_or_weights",
+      "evidence": "`pip index versions boltz` lists 2.2.1 but boltz is not installed; no boltz checkout, checkpoint, or CCD cache exists under /public/home/lihj. The package pins numpy<2 and downloads ~1 GB of weights, so it cannot run in the current numpy 2.x environments.",
+      "attempted": false
+    },
+    {
+      "id": "boltz_complex_confidence",
+      "reason": "no_boltz_runtime_or_weights",
+      "evidence": "Same missing boltz runtime/weights as boltz_predict.",
+      "attempted": false
+    },
+    {
+      "id": "boltz_affinity_summary",
+      "reason": "no_boltz_runtime_or_weights",
+      "evidence": "Same missing boltz runtime/weights as boltz_predict; affinity mode additionally requires boltz-2 affinity weights.",
+      "attempted": false
+    },
+    {
+      "id": "rfdiffusion_design",
+      "reason": "no_compatible_generic_checkpoint",
+      "evidence": "The RFantibody checkouts contain only RFdiffusion_Ab.pt/RF2_ab.pt and fail with `ValueError: need at least one array to concatenate` at ab_pose.py:152 because the antibody sampler has no CDR definition. The official checkout with Base_ckpt.pt/Complex_beta_ckpt.pt fails on GPU with a DGL ABI error (`dgl::aten::Range`) and on CPU timed out after 1800 s with no output.",
+      "attempted": true
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 **Category:** 统计分析  
 **Entry point:** `src.task.step.steps.cluster_axis:ClusterAxisStep`  
-**Source:** [`library/seed/src/task/step/steps/cluster_axis.py`](../../library/seed/src/task/step/steps/cluster_axis.py) (289 lines)  
+**Source:** [`library/seed/src/task/step/steps/cluster_axis.py`](../../library/seed/src/task/step/steps/cluster_axis.py) (289 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -92,7 +92,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^cluster_axis,' verification/coverage-8.0.1/operator_coverage.csv
 ```

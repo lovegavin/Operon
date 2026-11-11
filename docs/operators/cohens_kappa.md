@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.cohens_kappa:CohensKappaStep`  
-**Source:** [`library/seed/src/task/step/steps/cohens_kappa.py`](../../library/seed/src/task/step/steps/cohens_kappa.py) (82 lines)  
+**Source:** [`library/seed/src/task/step/steps/cohens_kappa.py`](../../library/seed/src/task/step/steps/cohens_kappa.py) (82 lines)
 **Trust level: A — 独立 oracle + 真实执行**
 
 ## 1. 代码说明
@@ -57,7 +57,7 @@ Cohen's kappa for two raters on a contingency table.
 
 - 状态：PASS，耗时 2.9 s，导出 6 行。
 - 归档路线：`/tmp/cov_stats/cohens_kappa`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/cohens_kappa --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/cohens_kappa`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/cohens_kappa --check && python scripts/run.py /tmp/cov_stats/cohens_kappa`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -74,7 +74,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^cohens_kappa,' verification/coverage-8.0.1/operator_coverage.csv
 ```

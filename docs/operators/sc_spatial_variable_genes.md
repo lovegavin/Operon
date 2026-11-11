@@ -2,7 +2,7 @@
 
 **Category:** Single cell  
 **Entry point:** `src.task.step.steps.sc_spatial_variable_genes:ScSpatialVariableGenesStep`  
-**Source:** [`library/seed/src/task/step/steps/sc_spatial_variable_genes.py`](../../library/seed/src/task/step/steps/sc_spatial_variable_genes.py) (46 lines)  
+**Source:** [`library/seed/src/task/step/steps/sc_spatial_variable_genes.py`](../../library/seed/src/task/step/steps/sc_spatial_variable_genes.py) (46 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -50,7 +50,7 @@ Score each gene with Moran's I on a spatial kNN graph.
 
 - 状态：PASS，耗时 2.29 s，导出 None 行。
 - 归档路线：`/tmp/cov_omics/sc_spatial_variable_genes`。
-- 命令：`/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_omics/sc_spatial_variable_genes`。
+- 命令：`python scripts/run.py /tmp/cov_omics/sc_spatial_variable_genes`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -64,7 +64,7 @@ Coordinates must share one scale; k-means is deterministic farthest-first and is
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^sc_spatial_variable_genes,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -2,7 +2,7 @@
 
 **Category:** Metagenomics  
 **Entry point:** `src.task.step.steps.humann_pathway_abundance:HumannPathwayAbundanceStep`  
-**Source:** [`library/seed/src/task/step/steps/humann_pathway_abundance.py`](../../library/seed/src/task/step/steps/humann_pathway_abundance.py) (60 lines)  
+**Source:** [`library/seed/src/task/step/steps/humann_pathway_abundance.py`](../../library/seed/src/task/step/steps/humann_pathway_abundance.py) (60 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -59,7 +59,7 @@ HUMAnN pathway abundance summary. Numeric summary only.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^humann_pathway_abundance,' verification/coverage-8.0.1/operator_coverage.csv
 ```

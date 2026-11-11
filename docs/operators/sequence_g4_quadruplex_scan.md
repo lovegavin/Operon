@@ -2,7 +2,7 @@
 
 **Category:** Sequence  
 **Entry point:** `src.task.step.steps.sequence_g4_quadruplex_scan:SequenceG4QuadruplexScanStep`  
-**Source:** [`library/seed/src/task/step/steps/sequence_g4_quadruplex_scan.py`](../../library/seed/src/task/step/steps/sequence_g4_quadruplex_scan.py) (46 lines)  
+**Source:** [`library/seed/src/task/step/steps/sequence_g4_quadruplex_scan.py`](../../library/seed/src/task/step/steps/sequence_g4_quadruplex_scan.py) (46 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -64,7 +64,7 @@ This is a sequence motif proxy, not a thermodynamic or structural G4 prediction.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^sequence_g4_quadruplex_scan,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -2,8 +2,8 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.random_forest_classifier:RandomForestClassifierStep`  
-**Source:** [`library/seed/src/task/step/steps/random_forest_classifier.py`](../../library/seed/src/task/step/steps/random_forest_classifier.py) (59 lines)  
-**Trust level: E — 仅静态契约（尚无行为证据）**
+**Source:** [`library/seed/src/task/step/steps/random_forest_classifier.py`](../../library/seed/src/task/step/steps/random_forest_classifier.py) (59 lines)
+**Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
 
@@ -47,12 +47,12 @@ Random Forest classifier.
 
 ## 3. 正确性依据
 
-**结论：E 级。** 目前只有静态契约，没有行为证据；不要把它当成已验证算子。
+**结论：C 级。** 路线已编译进 79 条内置路线，并有专用测试引用；没有记录为本算子单独执行过真实数据。
 
 | 层 | 状态 | 证据 |
 | --- | --- | --- |
 | L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
-| L2 单元/oracle | SKIP | operator_table.csv:SKIP_DOMAIN |
+| L2 单元/oracle | UNIT | tests/test_l2_gap.py |
 | L3 真实执行 | ROUTE | operator_table.csv:builtin_route |
 | L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
 | L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
@@ -73,7 +73,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^random_forest_classifier,' verification/coverage-8.0.1/operator_coverage.csv
 ```
@@ -87,7 +87,7 @@ example. Add a tested example and replace this generated page with authored
 guidance when extending this operator.
 ```
 
-未补齐证据：`L2,L4_MEASURED`。
+未补齐证据：`L4_MEASURED`。
 
 ---
 

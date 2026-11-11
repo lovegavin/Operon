@@ -2,7 +2,7 @@
 
 **Category:** Epigenomics  
 **Entry point:** `src.task.step.steps.peak_density_profile:PeakDensityProfileStep`  
-**Source:** [`library/seed/src/task/step/steps/peak_density_profile.py`](../../library/seed/src/task/step/steps/peak_density_profile.py) (47 lines)  
+**Source:** [`library/seed/src/task/step/steps/peak_density_profile.py`](../../library/seed/src/task/step/steps/peak_density_profile.py) (47 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -62,7 +62,7 @@ Intervals are half-open; chromosomes are matched as strings.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^peak_density_profile,' verification/coverage-8.0.1/operator_coverage.csv
 ```

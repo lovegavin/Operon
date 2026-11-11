@@ -2,7 +2,7 @@
 
 **Category:** Population genetics  
 **Entry point:** `src.task.step.steps.selection_index:SelectionIndexStep`  
-**Source:** [`library/seed/src/task/step/steps/selection_index.py`](../../library/seed/src/task/step/steps/selection_index.py) (65 lines)  
+**Source:** [`library/seed/src/task/step/steps/selection_index.py`](../../library/seed/src/task/step/steps/selection_index.py) (65 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -61,7 +61,7 @@ Input is a two-dimensional Form; see the parameter file for the axis defaults.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^selection_index,' verification/coverage-8.0.1/operator_coverage.csv
 ```

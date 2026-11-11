@@ -2,7 +2,7 @@
 
 **Category:** Genome  
 **Entry point:** `src.task.step.steps.flye_assemble:FlyeAssembleStep`  
-**Source:** [`library/seed/src/task/step/steps/flye_assemble.py`](../../library/seed/src/task/step/steps/flye_assemble.py) (336 lines)  
+**Source:** [`library/seed/src/task/step/steps/flye_assemble.py`](../../library/seed/src/task/step/steps/flye_assemble.py) (336 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -62,12 +62,12 @@ De novo long-read assembly through the official Flye binary.
 
 - 状态：PASS，耗时 51.87 s，导出 None 行。
 - 归档路线：`/tmp/cov_sequence/flye_assemble`。
-- 命令：`/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_sequence/flye_assemble`。
+- 命令：`python scripts/run.py /tmp/cov_sequence/flye_assemble`。
 
 服务器执行细节：
 
 - 状态：complete，总耗时 93.1894 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/closure_replay/flye_assemble`；run_id `20261110T123221-3e8693c722a2`。
+- 路线：`/path/to/server-worktree/operon715/closure_replay/flye_assemble`；run_id `20261110T123221-3e8693c722a2`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -84,7 +84,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^flye_assemble,' verification/coverage-8.0.1/operator_coverage.csv
 ```

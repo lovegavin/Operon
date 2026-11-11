@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.esm_embedding:EsmEmbeddingStep`  
-**Source:** [`library/seed/src/task/step/steps/esm_embedding.py`](../../library/seed/src/task/step/steps/esm_embedding.py) (145 lines)  
+**Source:** [`library/seed/src/task/step/steps/esm_embedding.py`](../../library/seed/src/task/step/steps/esm_embedding.py) (145 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -53,7 +53,7 @@ Embed protein sequences with a local ESM checkpoint.
 服务器执行细节：
 
 - 状态：complete，总耗时 35.6204 s，步骤 2。
-- 路线：`/public/home/lihj/operon715/cov_ml2/esm_embedding`；run_id `20261110T130044-b7dc482d12d7`。
+- 路线：`/path/to/server-worktree/operon715/cov_ml2/esm_embedding`；run_id `20261110T130044-b7dc482d12d7`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -70,7 +70,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^esm_embedding,' verification/coverage-8.0.1/operator_coverage.csv
 ```

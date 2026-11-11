@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.esm_embedding_mlp_probe:EsmEmbeddingMlpProbeStep`  
-**Source:** [`library/seed/src/task/step/steps/esm_embedding_mlp_probe.py`](../../library/seed/src/task/step/steps/esm_embedding_mlp_probe.py) (291 lines)  
+**Source:** [`library/seed/src/task/step/steps/esm_embedding_mlp_probe.py`](../../library/seed/src/task/step/steps/esm_embedding_mlp_probe.py) (291 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -67,7 +67,7 @@ Stratified MLP probe on a protein embedding form.
 
 - 状态：PASS，耗时 0.7058 s，导出 8 行。
 - 归档路线：`/tmp/probe_routes/esm_embedding_mlp_probe`。
-- 命令：`cd /home/gavin/Operon-7015-native && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/probe_routes/esm_embedding_mlp_probe`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/probe_routes/esm_embedding_mlp_probe`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -84,7 +84,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^esm_embedding_mlp_probe,' verification/coverage-8.0.1/operator_coverage.csv
 ```

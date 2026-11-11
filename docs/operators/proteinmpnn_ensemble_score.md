@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.proteinmpnn_ensemble_score:ProteinmpnnEnsembleScoreStep`  
-**Source:** [`library/seed/src/task/step/steps/proteinmpnn_ensemble_score.py`](../../library/seed/src/task/step/steps/proteinmpnn_ensemble_score.py) (261 lines)  
+**Source:** [`library/seed/src/task/step/steps/proteinmpnn_ensemble_score.py`](../../library/seed/src/task/step/steps/proteinmpnn_ensemble_score.py) (261 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -59,7 +59,7 @@ Negative log-likelihood of one structure under several ProteinMPNN models.
 服务器执行细节：
 
 - 状态：complete，总耗时 43.482 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/closure_replay/proteinmpnn_ensemble_score`；run_id `20261110T124759-fad1d7ef7672`。
+- 路线：`/path/to/server-worktree/operon715/closure_replay/proteinmpnn_ensemble_score`；run_id `20261110T124759-fad1d7ef7672`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -76,7 +76,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^proteinmpnn_ensemble_score,' verification/coverage-8.0.1/operator_coverage.csv
 ```

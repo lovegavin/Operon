@@ -1,0 +1,31 @@
+{
+  "format": "operon.task",
+  "version": 1,
+  "id": "openfold_predict",
+  "name": "OpenFold prediction",
+  "parameters_file": "parameters.json",
+  "sources": {
+    "sequence": {
+      "path": "input/vhh.fasta",
+      "reader": "FastaReader",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": {
+          "position": 0
+        },
+        "position": "auto"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "openfold_predict",
+      "inputs": [
+        "sequence"
+      ]
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.youden_index:YoudenIndexStep`  
-**Source:** [`library/seed/src/task/step/steps/youden_index.py`](../../library/seed/src/task/step/steps/youden_index.py) (117 lines)  
+**Source:** [`library/seed/src/task/step/steps/youden_index.py`](../../library/seed/src/task/step/steps/youden_index.py) (117 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -55,7 +55,7 @@ Youden index and the optimal ROC threshold.
 
 - 状态：PASS，耗时 2.6 s，导出 1 行。
 - 归档路线：`/tmp/cov_stats/youden_index`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/youden_index --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/youden_index`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/youden_index --check && python scripts/run.py /tmp/cov_stats/youden_index`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -72,7 +72,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^youden_index,' verification/coverage-8.0.1/operator_coverage.csv
 ```

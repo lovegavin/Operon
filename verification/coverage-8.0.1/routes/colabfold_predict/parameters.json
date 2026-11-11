@@ -1,0 +1,26 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "sequence": {}
+  },
+  "steps": [
+    {
+      "name": "colabfold_predict",
+      "inputs": [
+        "sequence"
+      ],
+      "params": {
+        "colabfold_path": "/public/home/lihj/biopipe-verify-301/venv-cf/bin/colabfold_batch",
+        "num_models": 1,
+        "num_recycles": 1,
+        "msa_mode": "single_sequence",
+        "device": "cuda",
+        "timeout_seconds": 1800,
+        "output": "structure"
+      },
+      "context_params": {}
+    }
+  ]
+}

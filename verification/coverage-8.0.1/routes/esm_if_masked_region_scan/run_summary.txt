@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /public/home/lihj/operon715/cov_ml2/esm_if_masked_region_scan_run2
+generated : 2026-11-11T04:23:36.891396+00:00
+steps     : 1
+elapsed   : 60.860s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   esm_if_masked_region_scan   60.860s   steps/01_esm_if_masked_region_scan.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

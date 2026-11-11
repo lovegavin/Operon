@@ -2,7 +2,7 @@
 
 **Category:** Omics  
 **Entry point:** `src.task.step.steps.protein_gravy_window:ProteinGravyWindowStep`  
-**Source:** [`library/seed/src/task/step/steps/protein_gravy_window.py`](../../library/seed/src/task/step/steps/protein_gravy_window.py) (77 lines)  
+**Source:** [`library/seed/src/task/step/steps/protein_gravy_window.py`](../../library/seed/src/task/step/steps/protein_gravy_window.py) (77 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -60,7 +60,7 @@ Summarize Kyte-Doolittle GRAVY over 9-residue windows.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^protein_gravy_window,' verification/coverage-8.0.1/operator_coverage.csv
 ```

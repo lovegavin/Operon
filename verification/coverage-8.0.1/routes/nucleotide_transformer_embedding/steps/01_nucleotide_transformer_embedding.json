@@ -1,0 +1,17 @@
+{
+  "shape": [
+    2,
+    512
+  ],
+  "model": "InstaDeepAI/nucleotide-transformer-v2-50m-multi-species",
+  "result_files": [
+    {
+      "id": "embeddings",
+      "path": "/tmp/nt_local/output/artifacts/nucleotide_transformer_embedding/4bca849c63b6404bba63531acb28a98f/embeddings.csv",
+      "filename": "embeddings.csv",
+      "format": "csv",
+      "title": "Nucleotide Transformer embeddings",
+      "bytes": 13547
+    }
+  ]
+}

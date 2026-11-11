@@ -2,7 +2,7 @@
 
 **Category:** Docking  
 **Entry point:** `src.task.step.steps.vina_dock_python:VinaDockPythonStep`  
-**Source:** [`library/seed/src/task/step/steps/vina_dock_python.py`](../../library/seed/src/task/step/steps/vina_dock_python.py) (265 lines)  
+**Source:** [`library/seed/src/task/step/steps/vina_dock_python.py`](../../library/seed/src/task/step/steps/vina_dock_python.py) (265 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -68,7 +68,7 @@ vina_dock_python: AutoDock Vina through its official Python bindings.
 
 - 状态：PASS，耗时 5.25 s，导出 None 行。
 - 归档路线：`/tmp/cov_structure/vina_dock_python`。
-- 命令：`/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_structure/vina_dock_python`。
+- 命令：`python scripts/run.py /tmp/cov_structure/vina_dock_python`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -85,7 +85,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^vina_dock_python,' verification/coverage-8.0.1/operator_coverage.csv
 ```

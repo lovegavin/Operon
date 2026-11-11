@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.particle_filter_bootstrap:ParticleFilterBootstrapStep`  
-**Source:** [`library/seed/src/task/step/steps/particle_filter_bootstrap.py`](../../library/seed/src/task/step/steps/particle_filter_bootstrap.py) (50 lines)  
+**Source:** [`library/seed/src/task/step/steps/particle_filter_bootstrap.py`](../../library/seed/src/task/step/steps/particle_filter_bootstrap.py) (50 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -63,7 +63,7 @@ Discrete local-level model only; no missing observations.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^particle_filter_bootstrap,' verification/coverage-8.0.1/operator_coverage.csv
 ```

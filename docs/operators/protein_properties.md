@@ -2,7 +2,7 @@
 
 **Category:** Omics  
 **Entry point:** `src.task.step.steps.protein_properties:ProteinPropertiesStep`  
-**Source:** [`library/seed/src/task/step/steps/protein_properties.py`](../../library/seed/src/task/step/steps/protein_properties.py) (128 lines)  
+**Source:** [`library/seed/src/task/step/steps/protein_properties.py`](../../library/seed/src/task/step/steps/protein_properties.py) (128 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -49,7 +49,7 @@ Physicochemical properties of protein sequences.
 服务器执行细节：
 
 - 状态：complete，总耗时 0.0023 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/closure_replay/protein_properties`；run_id `20261110T123412-e43cf3d347bc`。
+- 路线：`/path/to/server-worktree/operon715/closure_replay/protein_properties`；run_id `20261110T123412-e43cf3d347bc`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -66,7 +66,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^protein_properties,' verification/coverage-8.0.1/operator_coverage.csv
 ```

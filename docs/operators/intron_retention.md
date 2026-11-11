@@ -2,7 +2,7 @@
 
 **Category:** Transcriptomics  
 **Entry point:** `src.task.step.steps.intron_retention:IntronRetentionStep`  
-**Source:** [`library/seed/src/task/step/steps/intron_retention.py`](../../library/seed/src/task/step/steps/intron_retention.py) (62 lines)  
+**Source:** [`library/seed/src/task/step/steps/intron_retention.py`](../../library/seed/src/task/step/steps/intron_retention.py) (62 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -62,7 +62,7 @@ Synthetic tables and public annotation layouts only; no biological conclusion.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^intron_retention,' verification/coverage-8.0.1/operator_coverage.csv
 ```

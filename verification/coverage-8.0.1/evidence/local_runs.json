@@ -5295,25 +5295,31 @@
     "foldseek_cluster": {
       "operator": "foldseek_cluster",
       "status": "PASS",
-      "route": "/tmp/cov_structure/foldseek_cluster",
-      "command": "/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_structure/foldseek_cluster",
-      "seconds": 7.75,
+      "route": "/tmp/l2_routes/foldseek_cluster",
+      "command": "scripts/run.py /tmp/l2_routes/foldseek_cluster",
+      "seconds": 2.325,
       "error": "",
       "export": null,
       "export_rows": null,
       "inputs": [
         {
-          "path": "1UBQ.pdb",
-          "size": 78570,
-          "sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161"
+          "path": "p0.pdb",
+          "size": 183384,
+          "sha256": "288f7954d4d013fa8eab3808e1037e2958e2dcd12c9eca65a3f1014404a9f9a2"
         },
         {
-          "path": "1ZAA.pdb",
-          "size": 142398,
-          "sha256": "a017f39f9cea8bb9c9ac4bfa9bb043f9f8a23e324fe1d470274015833eb73f7f"
+          "path": "p1.pdb",
+          "size": 183384,
+          "sha256": "288f7954d4d013fa8eab3808e1037e2958e2dcd12c9eca65a3f1014404a9f9a2"
         }
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "path": "exports/5671000d6cc94f4b903505b04fdb10db/foldseek_clusters.csv",
+          "size": 85,
+          "sha256": "05f822852816ecc11c7d5579896910289b9d661b61650297ee741a0e4a72e695"
+        }
+      ],
       "archived_files": [
         "task.yaml",
         "parameters.json"
@@ -5889,29 +5895,57 @@
     },
     "vina_pose_rmsd": {
       "operator": "vina_pose_rmsd",
-      "status": "SKIP",
-      "route": ".",
-      "command": "",
-      "seconds": 0.0,
-      "error": "no executable route: operator requires a 3-D form with dims [pose_dim, atom_dim, field_dim] and indexes data[:, :, axes] (vina_pose_rmsd.py:40-57); all bundled readers emit 2-D forms (PdbqtReader contract ndim=2, NpyReader rejects ndim!=2), so poses cannot be supplied without fabricating arrays",
+      "status": "PASS",
+      "route": "/tmp/vina_routes/vina_pose_rmsd",
+      "command": null,
+      "seconds": 0.4166,
+      "error": "",
       "export": null,
       "export_rows": null,
       "inputs": [],
-      "artifacts": [],
-      "archived_files": []
+      "artifacts": [
+        {
+          "path": "vina_dock/c7ae80dde2744465991f9eba8943b3fa/poses.pdbqt",
+          "size": 2457,
+          "sha256": "83e0b1e4118f1ccdc549edc8ef92781fb29ae0eff56175848f76c75513b0e81f"
+        }
+      ],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
     },
     "structure_md_ligand_rmsd": {
       "operator": "structure_md_ligand_rmsd",
-      "status": "SKIP",
-      "route": ".",
-      "command": "",
-      "seconds": 0.0,
-      "error": "requires a ligand residue in the loaded trajectory and topology (structure_md_ligand_rmsd.py select_indices/topology match); the only real trajectories generated here (1MEL, 1UBQ) have no ligand, and no ligand force-field tooling is installed (openff.toolkit, openmmforcefields, Meeko, antechamber all absent), so a physically valid ligand-bound trajectory cannot be produced",
+      "status": "PASS",
+      "route": "/tmp/md_lig",
+      "command": "scripts/run.py <archived route>",
+      "seconds": 0.002,
+      "error": "",
       "export": null,
       "export_rows": null,
-      "inputs": [],
+      "inputs": [
+        {
+          "path": "topology.pdb",
+          "size": 133260,
+          "sha256": "6949b891258b08127136804707f42bccd62fdca50ca9162c9f67b45df74cdbbc"
+        },
+        {
+          "path": "trajectory.dcd",
+          "size": 39636,
+          "sha256": "edfb9d86ce027164b760cbddeaa61aa9e60a7d7484e7ee831f15e87491e7bacd"
+        },
+        {
+          "path": "trajectory.npy",
+          "size": 39440,
+          "sha256": "cca3db714d5e1d3869ce5cad3f4dfc10631ce2781deaaac725928bb69bbfe5be"
+        }
+      ],
       "artifacts": [],
-      "archived_files": []
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
     },
     "antibody_cdr_graft": {
       "operator": "antibody_cdr_graft",
@@ -6288,6 +6322,363 @@
           "path": "exports/745170c54b55444ab14ed2aabf1d8b7f/esmfold.pdb",
           "size": 78855,
           "sha256": "be565c8e9c4acbc250fc696c105d27a77b6670a3a48576f7c0f363195199c36f"
+        }
+      ],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "vina_dock": {
+      "operator": "vina_dock",
+      "status": "PASS",
+      "route": "/tmp/vina_routes/vina_dock",
+      "command": null,
+      "seconds": 0.3985,
+      "error": "",
+      "export": null,
+      "export_rows": null,
+      "inputs": [
+        {
+          "path": "ligand.pdbqt",
+          "size": 743,
+          "sha256": "879a1d95d4f412d0a86d2277a5b9f7597a95bb222d5b149e9292981895e55328"
+        },
+        {
+          "path": "receptor.pdbqt",
+          "size": 130328,
+          "sha256": "ccc24f14bec7a0c81be2b800bdfc4d0e55066783d58be9f194f2f166bf4f2315"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "vina_dock/c774c999e44542999bc860442e3bb652/poses.pdbqt",
+          "size": 2457,
+          "sha256": "83e0b1e4118f1ccdc549edc8ef92781fb29ae0eff56175848f76c75513b0e81f"
+        }
+      ],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "vina_dock_batch": {
+      "operator": "vina_dock_batch",
+      "status": "PASS",
+      "route": "/tmp/vina_routes/vina_dock_batch",
+      "command": null,
+      "seconds": 0.6892,
+      "error": "",
+      "export": null,
+      "export_rows": null,
+      "inputs": [
+        {
+          "path": "ligand.pdbqt",
+          "size": 743,
+          "sha256": "879a1d95d4f412d0a86d2277a5b9f7597a95bb222d5b149e9292981895e55328"
+        },
+        {
+          "path": "ligand2.pdbqt",
+          "size": 503,
+          "sha256": "4ade0ca66bfc0f907b0145a568b0880c4b77df3f5ac7d563b25a0ffa535b08c9"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "vina_batch/430c8b4e7d2f4c21912ae9fd0c38c1d6/ligand2_out.pdbqt",
+          "size": 1737,
+          "sha256": "e8586c40325617d7d848e3ed230840998682bc1ed3e36dbe3e5424f6e12c96cc"
+        },
+        {
+          "path": "vina_batch/430c8b4e7d2f4c21912ae9fd0c38c1d6/ligand_out.pdbqt",
+          "size": 2455,
+          "sha256": "4410f567778eb8133dc602c61739088d257b7b51e76444fefd9502d94e2f5e8c"
+        }
+      ],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "vina_pose_cluster": {
+      "operator": "vina_pose_cluster",
+      "status": "PASS",
+      "route": "/tmp/vina_routes/vina_pose_cluster",
+      "command": null,
+      "seconds": 0.4113,
+      "error": "",
+      "export": null,
+      "export_rows": null,
+      "inputs": [],
+      "artifacts": [
+        {
+          "path": "vina_dock/89d97f2e82e34f248078907d98030f4c/poses.pdbqt",
+          "size": 2457,
+          "sha256": "83e0b1e4118f1ccdc549edc8ef92781fb29ae0eff56175848f76c75513b0e81f"
+        }
+      ],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "nucleotide_transformer_embedding": {
+      "operator": "nucleotide_transformer_embedding",
+      "status": "PASS",
+      "route": "/tmp/nt_local",
+      "command": null,
+      "seconds": 4.3507,
+      "error": "",
+      "export": {
+        "shape": [
+          2,
+          512
+        ],
+        "model": "InstaDeepAI/nucleotide-transformer-v2-50m-multi-species",
+        "result_files": [
+          {
+            "id": "embeddings",
+            "path": "/tmp/nt_local/output/artifacts/nucleotide_transformer_embedding/4bca849c63b6404bba63531acb28a98f/embeddings.csv",
+            "filename": "embeddings.csv",
+            "format": "csv",
+            "title": "Nucleotide Transformer embeddings",
+            "bytes": 13547
+          }
+        ]
+      },
+      "export_rows": [
+        2,
+        512
+      ],
+      "inputs": [
+        {
+          "path": "data.csv",
+          "size": 406,
+          "sha256": "8a5260d79e8c1d267cf688eea67deb690ddf91910a4cd9e1d04c99472b668685"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "nucleotide_transformer_embedding/4bca849c63b6404bba63531acb28a98f/embeddings.csv",
+          "size": 13547,
+          "sha256": "29cba9a93585b19ab77e5f9849f1261ba83f75de53871de99df2f9ad4b2e0d70"
+        }
+      ],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "nucleotide_transformer_variant_effect": {
+      "operator": "nucleotide_transformer_variant_effect",
+      "status": "PASS",
+      "route": "/tmp/nt_variant_local",
+      "command": null,
+      "seconds": 2.9329,
+      "error": "",
+      "export": {
+        "rows": 1,
+        "columns": 5,
+        "result_files": [
+          {
+            "id": "variant_effect",
+            "path": "/tmp/nt_variant_local/output/artifacts/nucleotide_transformer_variant_effect/4acf74e7a15b4b59baa56d4c81f94047/variant_effect.csv",
+            "filename": "variant_effect.csv",
+            "format": "csv",
+            "title": "Nucleotide Transformer variant effect",
+            "bytes": 53
+          }
+        ]
+      },
+      "export_rows": 1,
+      "inputs": [
+        {
+          "path": "data.csv",
+          "size": 410,
+          "sha256": "8e5ce64637d1f2cc2a2b4a83cfcb1fe82f5c0583f5d006ff1e323ea6596b6820"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "nucleotide_transformer_variant_effect/4acf74e7a15b4b59baa56d4c81f94047/variant_effect.csv",
+          "size": 53,
+          "sha256": "8af691376075c5eb3bde9fec898949c387488b0f044ec655cf7e7579c5643d05"
+        }
+      ],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "esm_if_interface_redesign": {
+      "operator": "esm_if_interface_redesign",
+      "status": "PASS",
+      "route": "/tmp/esm_if_interface_3htn2",
+      "command": "scripts/run.py <archived route>",
+      "seconds": 35.9569,
+      "error": "",
+      "export": null,
+      "export_rows": null,
+      "inputs": [
+        {
+          "path": "1mel.pdb",
+          "size": 264874,
+          "sha256": "7ced1e5f2e2f813073e7f35be90a79d4031dcf6ad9fe7ff642acac593d5eb34b"
+        }
+      ],
+      "artifacts": [],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "esm_if_masked_region_scan": {
+      "operator": "esm_if_masked_region_scan",
+      "status": "PASS",
+      "route": "/tmp/esm_if_masked_run2",
+      "command": "scripts/run.py <archived route>",
+      "seconds": 60.86,
+      "error": "",
+      "export": null,
+      "export_rows": null,
+      "inputs": [
+        {
+          "path": "1mel.pdb",
+          "size": 316548,
+          "sha256": "66ff3b49d541e1d1441065306d9b228d1cd0cda399673d74c35a416ad1b02686"
+        }
+      ],
+      "artifacts": [],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "ligandmpnn_side_chain_packing": {
+      "operator": "ligandmpnn_side_chain_packing",
+      "status": "PASS",
+      "route": "/tmp/ligandmpnn_sc2",
+      "command": "scripts/run.py <archived route>",
+      "seconds": 477.875,
+      "error": "",
+      "export": null,
+      "export_rows": null,
+      "inputs": [],
+      "artifacts": [
+        {
+          "path": "ligandmpnn_packing/2cf341201c5e4c9f84f14a3cef5566ea/packed.pdb",
+          "size": 75274,
+          "sha256": "318f149d65f8f71fb011156fd2ae5d9dcd1421fe8e7a00bae60e5f7abc50cdb8"
+        },
+        {
+          "path": "ligandmpnn_packing/7328ace4da324d6199a0819d4b260a41/packed.pdb",
+          "size": 75274,
+          "sha256": "318f149d65f8f71fb011156fd2ae5d9dcd1421fe8e7a00bae60e5f7abc50cdb8"
+        }
+      ],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "antifold_design": {
+      "operator": "antifold_design",
+      "status": "PASS",
+      "route": "/tmp/antifold_design_paired2",
+      "command": "scripts/run.py <archived route>",
+      "seconds": 20.9099,
+      "error": "",
+      "export": null,
+      "export_rows": null,
+      "inputs": [
+        {
+          "path": "1mel.pdb",
+          "size": 316548,
+          "sha256": "66ff3b49d541e1d1441065306d9b228d1cd0cda399673d74c35a416ad1b02686"
+        }
+      ],
+      "artifacts": [],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "antifold_score": {
+      "operator": "antifold_score",
+      "status": "PASS",
+      "route": "/tmp/antifold_score2",
+      "command": "scripts/run.py <archived route>",
+      "seconds": 55.1476,
+      "error": "",
+      "export": null,
+      "export_rows": null,
+      "inputs": [
+        {
+          "path": "backbone16_A.pdb",
+          "size": 5257,
+          "sha256": "0205e28f0bd93529f78ac6be41a8b3126b9eee590d743c0a17cb01d54e0eeb16"
+        }
+      ],
+      "artifacts": [],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "colabfold_predict": {
+      "operator": "colabfold_predict",
+      "status": "PASS",
+      "route": "/tmp/colabfold_predict_route",
+      "command": "scripts/run.py <archived route>",
+      "seconds": 144.3965,
+      "error": "",
+      "export": null,
+      "export_rows": null,
+      "inputs": [
+        {
+          "path": "vhh.fasta",
+          "size": 161,
+          "sha256": "90f991da69909f4de12d837a29637654632740a52e387ae034f1edfded11eca2"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "colabfold/5edfc4749b2e4f65ac438d96b74d6a36/prediction.pdb",
+          "size": 89343,
+          "sha256": "cbb33deab2acb982088f4ffc7e594165b43963ac4204776deca9a6b8c9c2edaf"
+        },
+        {
+          "path": "colabfold/5edfc4749b2e4f65ac438d96b74d6a36/scores.json",
+          "size": 128817,
+          "sha256": "506473e1146da9c0715801feb66a56ed0cb183d991edab6ee4da14aaf2d2cc05"
+        }
+      ],
+      "archived_files": [
+        "task.yaml",
+        "parameters.json"
+      ]
+    },
+    "openfold_predict": {
+      "operator": "openfold_predict",
+      "status": "PASS",
+      "route": "/tmp/openfold_gpu_route",
+      "command": "envtest2 python scripts/run.py <archived route>",
+      "seconds": 34.054,
+      "error": "",
+      "export": null,
+      "export_rows": null,
+      "inputs": [
+        {
+          "path": "vhh.fasta",
+          "size": 138,
+          "sha256": "f417b46d21fef5493c4c0f371d749e3ede91d54e2f8a691e82e9b74e8b497b2b"
+        }
+      ],
+      "artifacts": [
+        {
+          "path": "openfold/d061c16c8c3f4b12a25e153c85c501d5/prediction.pdb",
+          "size": 79299,
+          "sha256": "7144abc52fd25fb9dfe774a32c5dd9deb053dd4db5c8fdca80880c2561f2eed2"
         }
       ],
       "archived_files": [

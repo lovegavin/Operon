@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /public/home/lihj/operon715/cov_ml2/esm_if_interface_redesign_3htn2
+generated : 2026-11-11T04:19:36.592587+00:00
+steps     : 1
+elapsed   : 35.957s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   esm_if_interface_redesign   35.957s   steps/01_esm_if_interface_redesign.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,26 @@
+{
+  "name": "esm_if_interface_redesign",
+  "sources": {
+    "structure": {
+      "path": "input/1mel.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {
+        "atom": "builtin",
+        "field": "builtin"
+      },
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "esm_if_interface_redesign",
+      "inputs": [
+        "structure"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

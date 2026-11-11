@@ -1,0 +1,22 @@
+{
+  "result_files": [
+    {
+      "id": "structure",
+      "path": "/public/home/lihj/operon715/cov_ml6/openfold_predict_gpu/output/artifacts/openfold/d061c16c8c3f4b12a25e153c85c501d5/prediction.pdb",
+      "filename": "prediction.pdb",
+      "format": "pdb",
+      "title": "OpenFold prediction",
+      "bytes": 79299
+    }
+  ],
+  "plddt_mean": 39.05781089414183,
+  "plddt_min": 23.05,
+  "plddt_max": 84.7,
+  "prediction": "/public/home/lihj/operon715/cov_ml6/openfold_predict_gpu/output/artifacts/openfold/d061c16c8c3f4b12a25e153c85c501d5/prediction.pdb",
+  "sequence": "VQLQASGGGSVQAGGSLRLSCAASGYTIGPYCMGWFRQAPGKEREGVAAINMGGGITYYADSVKGRFTISQDNAKNTVYLLMNSLEPEDTAIYYCAADSTIYASYYECGHGLSTGGYGYDSWGQGTQVTVSS",
+  "n_atoms": 973,
+  "config_preset": "model_1_ptm",
+  "alignment": "single_sequence",
+  "params_path": "/public/home/lihj/biopipe-verify-301/tmp/openfold_params/finetuning_ptm_2.pt",
+  "openfold_path": "/public/home/lihj/biopipe-verify-301/openfold_src"
+}

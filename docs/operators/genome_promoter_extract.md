@@ -2,7 +2,7 @@
 
 **Category:** Genome  
 **Entry point:** `src.task.step.steps.genome_promoter_extract:GenomePromoterExtractStep`  
-**Source:** [`library/seed/src/task/step/steps/genome_promoter_extract.py`](../../library/seed/src/task/step/steps/genome_promoter_extract.py) (215 lines)  
+**Source:** [`library/seed/src/task/step/steps/genome_promoter_extract.py`](../../library/seed/src/task/step/steps/genome_promoter_extract.py) (215 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -71,7 +71,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^genome_promoter_extract,' verification/coverage-8.0.1/operator_coverage.csv
 ```

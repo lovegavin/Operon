@@ -2,7 +2,7 @@
 
 **Category:** Data  
 **Entry point:** `src.task.step.steps.zscore:ZscoreStep`  
-**Source:** [`library/seed/src/task/step/steps/zscore.py`](../../library/seed/src/task/step/steps/zscore.py) (81 lines)  
+**Source:** [`library/seed/src/task/step/steps/zscore.py`](../../library/seed/src/task/step/steps/zscore.py) (81 lines)
 **Trust level: A- — 独立 oracle（未记录真实执行）**
 
 ## 1. 代码说明
@@ -69,7 +69,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^zscore,' verification/coverage-8.0.1/operator_coverage.csv
 ```

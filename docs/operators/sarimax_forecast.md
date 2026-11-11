@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.sarimax_forecast:SarimaxForecastStep`  
-**Source:** [`library/seed/src/task/step/steps/sarimax_forecast.py`](../../library/seed/src/task/step/steps/sarimax_forecast.py) (50 lines)  
+**Source:** [`library/seed/src/task/step/steps/sarimax_forecast.py`](../../library/seed/src/task/step/steps/sarimax_forecast.py) (50 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -67,7 +67,7 @@ Fits a SARIMAX model to an ordered series and returns a multi-step forecast with
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^sarimax_forecast,' verification/coverage-8.0.1/operator_coverage.csv
 ```

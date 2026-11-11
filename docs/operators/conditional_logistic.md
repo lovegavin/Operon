@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.conditional_logistic:ConditionalLogisticStep`  
-**Source:** [`library/seed/src/task/step/steps/conditional_logistic.py`](../../library/seed/src/task/step/steps/conditional_logistic.py) (335 lines)  
+**Source:** [`library/seed/src/task/step/steps/conditional_logistic.py`](../../library/seed/src/task/step/steps/conditional_logistic.py) (335 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -77,7 +77,7 @@ output        : context key f
 
 - 状态：PASS，耗时 2.9 s，导出 1 行。
 - 归档路线：`/tmp/cov_stats/conditional_logistic`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/conditional_logistic --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/conditional_logistic`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/conditional_logistic --check && python scripts/run.py /tmp/cov_stats/conditional_logistic`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -94,7 +94,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^conditional_logistic,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.gradient_boosting_regressor:GradientBoostingRegressorStep`  
-**Source:** [`library/seed/src/task/step/steps/gradient_boosting_regressor.py`](../../library/seed/src/task/step/steps/gradient_boosting_regressor.py) (60 lines)  
+**Source:** [`library/seed/src/task/step/steps/gradient_boosting_regressor.py`](../../library/seed/src/task/step/steps/gradient_boosting_regressor.py) (60 lines)
 **Trust level: D — 冒烟测试引用（无独立 oracle）**
 
 ## 1. 代码说明
@@ -72,7 +72,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^gradient_boosting_regressor,' verification/coverage-8.0.1/operator_coverage.csv
 ```

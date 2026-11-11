@@ -2,7 +2,7 @@
 
 **Category:** Population genetics  
 **Entry point:** `src.task.step.steps.genotype_mendelian_error:GenotypeMendelianErrorStep`  
-**Source:** [`library/seed/src/task/step/steps/genotype_mendelian_error.py`](../../library/seed/src/task/step/steps/genotype_mendelian_error.py) (50 lines)  
+**Source:** [`library/seed/src/task/step/steps/genotype_mendelian_error.py`](../../library/seed/src/task/step/steps/genotype_mendelian_error.py) (50 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -62,7 +62,7 @@ No phasing; assumes unique labels.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^genotype_mendelian_error,' verification/coverage-8.0.1/operator_coverage.csv
 ```

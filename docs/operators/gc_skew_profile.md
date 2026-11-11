@@ -2,7 +2,7 @@
 
 **Category:** Omics  
 **Entry point:** `src.task.step.steps.gc_skew_profile:GcSkewProfileStep`  
-**Source:** [`library/seed/src/task/step/steps/gc_skew_profile.py`](../../library/seed/src/task/step/steps/gc_skew_profile.py) (281 lines)  
+**Source:** [`library/seed/src/task/step/steps/gc_skew_profile.py`](../../library/seed/src/task/step/steps/gc_skew_profile.py) (281 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -65,7 +65,7 @@ valid counts A, C, G, T; N and other codes are exclude
 | 层 | 状态 | 证据 |
 | --- | --- | --- |
 | L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
-| L2 单元/oracle | SKIP | operator_table.csv:SKIP_DOMAIN |
+| L2 单元/oracle | UNIT | tests/test_l2_gap.py |
 | L3 真实执行 | EXECUTED | verification/coverage-8.0.1/routes/gc_skew_profile |
 | L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
 | L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
@@ -74,7 +74,7 @@ valid counts A, C, G, T; N and other codes are exclude
 
 - 状态：PASS，耗时 1.54 s，导出 None 行。
 - 归档路线：`/tmp/cov_omics/gc_skew_profile`。
-- 命令：`/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_omics/gc_skew_profile`。
+- 命令：`python scripts/run.py /tmp/cov_omics/gc_skew_profile`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -91,7 +91,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^gc_skew_profile,' verification/coverage-8.0.1/operator_coverage.csv
 ```
@@ -105,7 +105,7 @@ example. Add a tested example and replace this generated page with authored
 guidance when extending this operator.
 ```
 
-未补齐证据：`L2,L4_MEASURED`。
+未补齐证据：`L4_MEASURED`。
 
 ---
 

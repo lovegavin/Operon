@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.isolation_forest_anomaly:IsolationForestAnomalyStep`  
-**Source:** [`library/seed/src/task/step/steps/isolation_forest_anomaly.py`](../../library/seed/src/task/step/steps/isolation_forest_anomaly.py) (73 lines)  
+**Source:** [`library/seed/src/task/step/steps/isolation_forest_anomaly.py`](../../library/seed/src/task/step/steps/isolation_forest_anomaly.py) (73 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -64,7 +64,7 @@ Builds a deterministic isolation forest from random splits and scores every row 
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^isolation_forest_anomaly,' verification/coverage-8.0.1/operator_coverage.csv
 ```

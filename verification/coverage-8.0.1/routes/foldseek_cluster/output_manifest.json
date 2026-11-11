@@ -1,4 +1,10 @@
 {
-  "root": "/tmp/cov_structure/foldseek_cluster/output/artifacts",
-  "files": []
+  "root": "/tmp/l2_routes/foldseek_cluster/output/artifacts",
+  "files": [
+    {
+      "path": "exports/5671000d6cc94f4b903505b04fdb10db/foldseek_clusters.csv",
+      "size": 85,
+      "sha256": "05f822852816ecc11c7d5579896910289b9d661b61650297ee741a0e4a72e695"
+    }
+  ]
 }

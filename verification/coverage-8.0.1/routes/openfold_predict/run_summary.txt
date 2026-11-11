@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /public/home/lihj/operon715/cov_ml6/openfold_predict_gpu
+generated : 2026-11-11T05:34:53.855208+00:00
+steps     : 1
+elapsed   : 34.054s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   openfold_predict       34.054s   steps/01_openfold_predict.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

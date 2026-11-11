@@ -2,7 +2,7 @@
 
 **Category:** Causal inference  
 **Entry point:** `src.task.step.steps.uplift_t_learner:UpliftTLearnerStep`  
-**Source:** [`library/seed/src/task/step/steps/uplift_t_learner.py`](../../library/seed/src/task/step/steps/uplift_t_learner.py) (44 lines)  
+**Source:** [`library/seed/src/task/step/steps/uplift_t_learner.py`](../../library/seed/src/task/step/steps/uplift_t_learner.py) (44 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -61,7 +61,7 @@ Deterministic closed-form implementation on the stated inputs; no model training
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^uplift_t_learner,' verification/coverage-8.0.1/operator_coverage.csv
 ```

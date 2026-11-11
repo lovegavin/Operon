@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.structure_halogen_bond_scan:StructureHalogenBondScanStep`  
-**Source:** [`library/seed/src/task/step/steps/structure_halogen_bond_scan.py`](../../library/seed/src/task/step/steps/structure_halogen_bond_scan.py) (220 lines)  
+**Source:** [`library/seed/src/task/step/steps/structure_halogen_bond_scan.py`](../../library/seed/src/task/step/steps/structure_halogen_bond_scan.py) (220 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -50,7 +50,7 @@ Detect intramolecular halogen bonds from full-atom structure coordinates.
 | L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
 | L2 单元/oracle | UNIT | tests/test_extension217.py |
 | L3 真实执行 | EXECUTED | verification/coverage-8.0.1/routes/structure_halogen_bond_scan |
-| L4 资源 | SKIP | no memory estimate |
+| L4 资源 | MEASURED | operator_table.csv:deterministic |
 | L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
 
 本次执行细节：
@@ -74,7 +74,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^structure_halogen_bond_scan,' verification/coverage-8.0.1/operator_coverage.csv
 ```
@@ -87,8 +87,6 @@ before execution. This generated page does not claim an executable scientific
 example. Add a tested example and replace this generated page with authored
 guidance when extending this operator.
 ```
-
-未补齐证据：`L4`。
 
 ---
 

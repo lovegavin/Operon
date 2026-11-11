@@ -2,7 +2,7 @@
 
 **Category:** Statistics  
 **Entry point:** `src.task.step.steps.kalman_local_level:KalmanLocalLevelStep`  
-**Source:** [`library/seed/src/task/step/steps/kalman_local_level.py`](../../library/seed/src/task/step/steps/kalman_local_level.py) (53 lines)  
+**Source:** [`library/seed/src/task/step/steps/kalman_local_level.py`](../../library/seed/src/task/step/steps/kalman_local_level.py) (53 lines)
 **Trust level: A- — 独立 oracle（未记录真实执行）**
 
 ## 1. 代码说明
@@ -65,7 +65,7 @@ Synthetic or small tabular inputs are intended for deterministic verification; t
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^kalman_local_level,' verification/coverage-8.0.1/operator_coverage.csv
 ```

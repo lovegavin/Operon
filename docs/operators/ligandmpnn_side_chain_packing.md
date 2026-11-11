@@ -2,8 +2,8 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.ligandmpnn_side_chain_packing:LigandmpnnSideChainPackingStep`  
-**Source:** [`library/seed/src/task/step/steps/ligandmpnn_side_chain_packing.py`](../../library/seed/src/task/step/steps/ligandmpnn_side_chain_packing.py) (211 lines)  
-**Trust level: D — 专用测试引用（无真实执行）**
+**Source:** [`library/seed/src/task/step/steps/ligandmpnn_side_chain_packing.py`](../../library/seed/src/task/step/steps/ligandmpnn_side_chain_packing.py) (211 lines)
+**Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
 
@@ -49,21 +49,26 @@ Pack side chains of a fixed backbone with the LigandMPNN packer.
 
 ## 3. 正确性依据
 
-**结论：D 级。** 只有专用/冒烟测试引用；没有记录真实执行。
+**结论：B 级。** 真实运行通过（477.875 s），导出 None 行，产物 sha256 318f149d65f8f71f…。
 
 | 层 | 状态 | 证据 |
 | --- | --- | --- |
 | L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
 | L2 单元/oracle | UNIT | tests/test_extension263.py |
-| L3 真实执行 | SKIP | no route in audit, archive, or srv evidence |
+| L3 真实执行 | EXECUTED | verification/coverage-8.0.1/routes/ligandmpnn_side_chain_packing |
 | L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
 | L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
+
+本次执行细节：
+
+- 状态：PASS，耗时 477.875 s，导出 None 行。
+- 归档路线：`/tmp/ligandmpnn_sc2`。
+- 命令：`scripts/run.py <archived route>`。
 
 ### 这个证据证明什么、不证明什么
 
 - 证明：契约可解析、输入输出维度一致；有执行记录时，真实数据能跑到 `Task finished` 并产生可校验产物。
 - 不证明：该算子在该数据集上的生物学结论正确；统计假设是否成立仍需使用者判断。
-- 注意：该算子没有独立数值 oracle， correctness 仅到“契约/测试/执行”层级。
 
 ## 4. 限制与失败模式
 
@@ -75,7 +80,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^ligandmpnn_side_chain_packing,' verification/coverage-8.0.1/operator_coverage.csv
 ```
@@ -89,7 +94,7 @@ example. Add a tested example and replace this generated page with authored
 guidance when extending this operator.
 ```
 
-未补齐证据：`L3,L4_MEASURED`。
+未补齐证据：`L4_MEASURED`。
 
 ---
 

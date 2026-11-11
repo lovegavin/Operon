@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/vina_routes/vina_dock_batch/output/artifacts",
+  "files": [
+    {
+      "path": "vina_batch/430c8b4e7d2f4c21912ae9fd0c38c1d6/ligand2_out.pdbqt",
+      "size": 1737,
+      "sha256": "e8586c40325617d7d848e3ed230840998682bc1ed3e36dbe3e5424f6e12c96cc"
+    },
+    {
+      "path": "vina_batch/430c8b4e7d2f4c21912ae9fd0c38c1d6/ligand_out.pdbqt",
+      "size": 2455,
+      "sha256": "4410f567778eb8133dc602c61739088d257b7b51e76444fefd9502d94e2f5e8c"
+    }
+  ]
+}

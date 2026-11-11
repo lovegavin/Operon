@@ -2,7 +2,7 @@
 
 **Category:** Omics  
 **Entry point:** `src.task.step.steps.heterozygosity:HeterozygosityStep`  
-**Source:** [`library/seed/src/task/step/steps/heterozygosity.py`](../../library/seed/src/task/step/steps/heterozygosity.py) (99 lines)  
+**Source:** [`library/seed/src/task/step/steps/heterozygosity.py`](../../library/seed/src/task/step/steps/heterozygosity.py) (99 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -58,7 +58,7 @@ sample or with ``H_e = 0`` get NaN.
 
 - 状态：PASS，耗时 2.67 s，导出 None 行。
 - 归档路线：`/tmp/cov_omics/heterozygosity`。
-- 命令：`/home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_omics/heterozygosity`。
+- 命令：`python scripts/run.py /tmp/cov_omics/heterozygosity`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -75,7 +75,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^heterozygosity,' verification/coverage-8.0.1/operator_coverage.csv
 ```

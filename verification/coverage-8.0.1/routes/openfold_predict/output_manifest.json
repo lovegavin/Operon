@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/openfold_gpu_route/output/artifacts",
+  "files": [
+    {
+      "path": "openfold/d061c16c8c3f4b12a25e153c85c501d5/prediction.pdb",
+      "size": 79299,
+      "sha256": "7144abc52fd25fb9dfe774a32c5dd9deb053dd4db5c8fdca80880c2561f2eed2"
+    }
+  ]
+}

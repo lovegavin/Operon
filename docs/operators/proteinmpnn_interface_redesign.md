@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.proteinmpnn_interface_redesign:ProteinmpnnInterfaceRedesignStep`  
-**Source:** [`library/seed/src/task/step/steps/proteinmpnn_interface_redesign.py`](../../library/seed/src/task/step/steps/proteinmpnn_interface_redesign.py) (343 lines)  
+**Source:** [`library/seed/src/task/step/steps/proteinmpnn_interface_redesign.py`](../../library/seed/src/task/step/steps/proteinmpnn_interface_redesign.py) (343 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -65,7 +65,7 @@ Redesign the binder interface with the official ProteinMPNN runner.
 服务器执行细节：
 
 - 状态：complete，总耗时 9.0075 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_interface_redesign`；run_id `20261110T143553-5df8a2c5d332`。
+- 路线：`/path/to/server-worktree/operon715/cov_mpnn2/proteinmpnn_interface_redesign`；run_id `20261110T143553-5df8a2c5d332`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -82,7 +82,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^proteinmpnn_interface_redesign,' verification/coverage-8.0.1/operator_coverage.csv
 ```

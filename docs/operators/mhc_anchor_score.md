@@ -2,7 +2,7 @@
 
 **Category:** Immunology  
 **Entry point:** `src.task.step.steps.mhc_anchor_score:MhcAnchorScoreStep`  
-**Source:** [`library/seed/src/task/step/steps/mhc_anchor_score.py`](../../library/seed/src/task/step/steps/mhc_anchor_score.py) (50 lines)  
+**Source:** [`library/seed/src/task/step/steps/mhc_anchor_score.py`](../../library/seed/src/task/step/steps/mhc_anchor_score.py) (50 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -60,7 +60,7 @@ Heuristic MHC-I anchor score for 9-mer peptides
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^mhc_anchor_score,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -1,15 +1,15 @@
 {
-  "root": "/tmp/cov_structure/foldseek_cluster/input",
+  "root": "/tmp/l2_routes/foldseek_cluster/input",
   "files": [
     {
-      "path": "1UBQ.pdb",
-      "size": 78570,
-      "sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161"
+      "path": "p0.pdb",
+      "size": 183384,
+      "sha256": "288f7954d4d013fa8eab3808e1037e2958e2dcd12c9eca65a3f1014404a9f9a2"
     },
     {
-      "path": "1ZAA.pdb",
-      "size": 142398,
-      "sha256": "a017f39f9cea8bb9c9ac4bfa9bb043f9f8a23e324fe1d470274015833eb73f7f"
+      "path": "p1.pdb",
+      "size": 183384,
+      "sha256": "288f7954d4d013fa8eab3808e1037e2958e2dcd12c9eca65a3f1014404a9f9a2"
     }
   ]
 }

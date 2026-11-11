@@ -2,7 +2,7 @@
 
 **Category:** Phylogenetics  
 **Entry point:** `src.task.step.steps.tree_mrca:TreeMrcaStep`  
-**Source:** [`library/seed/src/task/step/steps/tree_mrca.py`](../../library/seed/src/task/step/steps/tree_mrca.py) (80 lines)  
+**Source:** [`library/seed/src/task/step/steps/tree_mrca.py`](../../library/seed/src/task/step/steps/tree_mrca.py) (80 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -53,7 +53,7 @@ The output is a two-dimensional form with the reported statistics.
 
 - 状态：PASS，耗时 1.44 s，导出 1 行。
 - 归档路线：`/tmp/cov_stats/tree_mrca`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/tree_mrca --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/tree_mrca`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/tree_mrca --check && python scripts/run.py /tmp/cov_stats/tree_mrca`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -67,7 +67,7 @@ Newick parsing supports rooted trees with branch lengths; support values and quo
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^tree_mrca,' verification/coverage-8.0.1/operator_coverage.csv
 ```

@@ -2,7 +2,7 @@
 
 **Category:** Population genetics  
 **Entry point:** `src.task.step.steps.qtl_interval_mapping:QtlIntervalMappingStep`  
-**Source:** [`library/seed/src/task/step/steps/qtl_interval_mapping.py`](../../library/seed/src/task/step/steps/qtl_interval_mapping.py) (93 lines)  
+**Source:** [`library/seed/src/task/step/steps/qtl_interval_mapping.py`](../../library/seed/src/task/step/steps/qtl_interval_mapping.py) (93 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -54,7 +54,7 @@ Definition for the qtl_interval_mapping operator.
 
 - 状态：PASS，耗时 3.06 s，导出 10 行。
 - 归档路线：`/tmp/cov_stats/qtl_interval_mapping`。
-- 命令：`cd /home/gavin/Operon && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/qtl_interval_mapping --check && /home/gavin/bp-numpy21/bin/python scripts/run.py /tmp/cov_stats/qtl_interval_mapping`。
+- 命令：`cd /path/to/Operon-worktree && python scripts/run.py /tmp/cov_stats/qtl_interval_mapping --check && python scripts/run.py /tmp/cov_stats/qtl_interval_mapping`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -71,7 +71,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^qtl_interval_mapping,' verification/coverage-8.0.1/operator_coverage.csv
 ```

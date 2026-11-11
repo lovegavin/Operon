@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.proteinmpnn_bias_matrix:ProteinmpnnBiasMatrixStep`  
-**Source:** [`library/seed/src/task/step/steps/proteinmpnn_bias_matrix.py`](../../library/seed/src/task/step/steps/proteinmpnn_bias_matrix.py) (297 lines)  
+**Source:** [`library/seed/src/task/step/steps/proteinmpnn_bias_matrix.py`](../../library/seed/src/task/step/steps/proteinmpnn_bias_matrix.py) (297 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -67,7 +67,7 @@ Bias selected positions towards (or away from) amino acids.
 服务器执行细节：
 
 - 状态：complete，总耗时 161.3389 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/cov_mpnn/proteinmpnn_bias_matrix`；run_id `20261110T140044-e19b9b2b8db3`。
+- 路线：`/path/to/server-worktree/operon715/cov_mpnn/proteinmpnn_bias_matrix`；run_id `20261110T140044-e19b9b2b8db3`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -84,7 +84,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^proteinmpnn_bias_matrix,' verification/coverage-8.0.1/operator_coverage.csv
 ```

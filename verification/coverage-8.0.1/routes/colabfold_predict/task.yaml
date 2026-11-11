@@ -1,0 +1,28 @@
+{
+  "format": "operon.task",
+  "version": 1,
+  "id": "colabfold_predict",
+  "name": "ColabFold single sequence",
+  "parameters_file": "parameters.json",
+  "sources": {
+    "sequence": {
+      "reader": "FastaReader",
+      "path": "input/vhh.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "position": "auto"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "colabfold_predict",
+      "inputs": [
+        "sequence"
+      ]
+    }
+  ]
+}

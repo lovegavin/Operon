@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.esm_if_score:EsmIfScoreStep`  
-**Source:** [`library/seed/src/task/step/steps/esm_if_score.py`](../../library/seed/src/task/step/steps/esm_if_score.py) (143 lines)  
+**Source:** [`library/seed/src/task/step/steps/esm_if_score.py`](../../library/seed/src/task/step/steps/esm_if_score.py) (143 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -55,7 +55,7 @@ Score every residue of a chain with the official ESM-IF1 inverse-folding model.
 服务器执行细节：
 
 - 状态：complete，总耗时 45.4931 s，步骤 2。
-- 路线：`/public/home/lihj/operon715/cov_ml/esm_if_score`；run_id `20261110T130508-6276073f7f74`。
+- 路线：`/path/to/server-worktree/operon715/cov_ml/esm_if_score`；run_id `20261110T130508-6276073f7f74`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -72,7 +72,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^esm_if_score,' verification/coverage-8.0.1/operator_coverage.csv
 ```

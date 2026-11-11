@@ -2,7 +2,7 @@
 
 **Category:** Proteomics  
 **Entry point:** `src.task.step.steps.ms2_spectral_angle:Ms2SpectralAngleStep`  
-**Source:** [`library/seed/src/task/step/steps/ms2_spectral_angle.py`](../../library/seed/src/task/step/steps/ms2_spectral_angle.py) (92 lines)  
+**Source:** [`library/seed/src/task/step/steps/ms2_spectral_angle.py`](../../library/seed/src/task/step/steps/ms2_spectral_angle.py) (92 lines)
 **Trust level: C — 专用测试引用 + 可编译路线**
 
 ## 1. 代码说明
@@ -62,7 +62,7 @@ Greedy one-to-one matching; no intensity normalization beyond square root; no pr
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^ms2_spectral_angle,' verification/coverage-8.0.1/operator_coverage.csv
 ```

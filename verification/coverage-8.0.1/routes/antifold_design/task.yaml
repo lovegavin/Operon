@@ -1,0 +1,14 @@
+{
+  "format": "operon.task",
+  "version": 1,
+  "id": "antifold_design_paired",
+  "name": "AntiFold paired design",
+  "parameters_file": "parameters.json",
+  "sources": {},
+  "steps": [
+    {
+      "name": "antifold_design",
+      "inputs": []
+    }
+  ]
+}

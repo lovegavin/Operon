@@ -2,7 +2,7 @@
 
 **Category:** Machine Learning  
 **Entry point:** `src.task.step.steps.proteinmpnn_probability_profile:ProteinmpnnProbabilityProfileStep`  
-**Source:** [`library/seed/src/task/step/steps/proteinmpnn_probability_profile.py`](../../library/seed/src/task/step/steps/proteinmpnn_probability_profile.py) (299 lines)  
+**Source:** [`library/seed/src/task/step/steps/proteinmpnn_probability_profile.py`](../../library/seed/src/task/step/steps/proteinmpnn_probability_profile.py) (299 lines)
 **Trust level: B — 真实执行（本地或 srv）**
 
 ## 1. 代码说明
@@ -58,7 +58,7 @@ Per-position amino-acid probabilities from ProteinMPNN conditional-probability m
 服务器执行细节：
 
 - 状态：complete，总耗时 143.0985 s，步骤 1。
-- 路线：`/public/home/lihj/operon715/cov_mpnn/proteinmpnn_probability_profile`；run_id `20261110T141013-3f4974f4d38b`。
+- 路线：`/path/to/server-worktree/operon715/cov_mpnn/proteinmpnn_probability_profile`；run_id `20261110T141013-3f4974f4d38b`。
 
 ### 这个证据证明什么、不证明什么
 
@@ -75,7 +75,7 @@ scientifically reviewed.
 ## 5. 复现
 
 ```bash
-cd /home/gavin/Operon-7015-native
+cd /path/to/Operon-worktree
 python -m operon registry check --json
 grep '^proteinmpnn_probability_profile,' verification/coverage-8.0.1/operator_coverage.csv
 ```
