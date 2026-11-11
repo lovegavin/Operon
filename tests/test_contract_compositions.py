@@ -19,6 +19,7 @@ from src.core import Form
 from src.core.contracts import compatible
 from src.task import STEPS
 from src.task.step.steps.aggregate import AggregateStep
+from src.task.step.steps.join import JoinStep
 
 STATISTIC_AXES = {"statistic", "score"}
 
@@ -66,6 +67,33 @@ def test_every_declared_dimension_supports_join():
             if result["status"] != "compatible":
                 failures.append((name, dim, result))
     assert not failures, failures
+
+
+def _run_join(dim):
+    row_labels = {f"row{i}": i for i in range(3)}
+    other_dim = "field" if dim != "field" else "payload"
+    meta_dim = "meta" if dim != "meta" else "meta2"
+    data = Form(
+        np.ones((3, 1), dtype=float),
+        dims=[dim, other_dim],
+        labels={dim: row_labels, other_dim: {"value": 0}},
+    )
+    meta = Form(
+        np.asarray([[0.0], [1.0], [0.0]], dtype=float),
+        dims=[dim, meta_dim],
+        labels={dim: row_labels, meta_dim: {"group": 0}},
+    )
+    ctx = _Context({"dim": dim, "columns": "all", "how": "inner", "output": "out"})
+    JoinStep().run(ctx, [data, meta])
+    return ctx.values["out"]
+
+
+def test_every_declared_dimension_actually_joins():
+    for name, schema in _output_schemas():
+        for dim in schema["dims"]:
+            result = _run_join(dim)
+            assert result.data.ndim == 2, (name, dim)
+            assert result.data.shape[0] == 3, (name, dim)
 
 
 def test_every_declared_label_supports_aggregate_contract():
