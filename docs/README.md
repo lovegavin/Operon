@@ -20,8 +20,9 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 - **[中文快速开始：10 分钟跑通第一个流程](../QUICKSTART.zh.md)**
 - **[English quick start: your first workflow in 10 minutes](../QUICKSTART.en.md)**
 - [Detailed quick start: Windows, Linux and your first workflow](quickstart.md)
+- [What changed since 3.1.6](updates-since-3.1.6.md)
 
-Current guides describe **Operon Studio 4.0.2** with the **8.0.2** operator library.
+Current guides describe **Operon Studio 4.0.3** with the **8.0.2** operator library.
 Release notes, verification reports and dated design records preserve the versions
 they tested; they are historical evidence, not current installation instructions.
 

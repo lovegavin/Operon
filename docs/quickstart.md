@@ -17,7 +17,7 @@ choose the application release, not a separately versioned library release.
 | You want to… | Download / entry point |
 | --- | --- |
 | Edit and run on Windows | **Operon_Setup.exe** |
-| Run on a Linux server without a desktop | **Operon-4.0.2-Server.zip** |
+| Run on a Linux server without a desktop | **Operon-4.0.3-Server.zip** |
 | Develop from source with your own Python | Follow **Source and terminal users** below |
 
 The application and operator library are independently maintained. You do not
@@ -69,11 +69,11 @@ execution environment selected for the workflow.
 
 ## 3. Linux: install and run without a desktop
 
-Download and extract the server ZIP. For the current `4.0.2` release:
+Download and extract the server ZIP. For the current `4.0.3` release:
 
 ```sh
-unzip Operon-4.0.2-Server.zip
-cd Operon-4.0.2-Server
+unzip Operon-4.0.3-Server.zip
+cd Operon-4.0.3-Server
 bash install.sh --prefix "$HOME/apps/operon" --result "$PWD/server-install.json"
 ```
 

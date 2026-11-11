@@ -7,7 +7,7 @@ meaning of a saved scientific workflow or an installed operator ID.
 | Surface | Naming policy |
 | --- | --- |
 | Windows application, installer and shortcuts | Operon Studio; the distributable installer is `Operon_Setup.exe` and the workspace displays Operon |
-| Application version | 4.0.2; independent of the operator-library version |
+| Application version | 4.0.3; independent of the operator-library version |
 | Python package and source directories | Existing `operon`, `operon_sdk` and `src` imports remain valid |
 | Command-line automation | Existing `operon` / `python -m operon` remain supported; the `operon` command is the branded alias |
 | MCP names | Existing `operon_*` tools and resource identifiers remain valid |

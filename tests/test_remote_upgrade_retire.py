@@ -47,3 +47,19 @@ def test_blocks_upgrade_when_state_is_unknown():
     with pytest.raises(RemoteError, match='无法确认') as error:
         _retire_old_servers(shell, '/home/u', '/home/u/base/managed-v1', lambda message: None)
     assert error.value.code == 'remote_upgrade_blocked'
+
+
+def test_force_retires_active_daemon_and_pool():
+    shell = Shell(result(retired=[], forced=[{'pid': 12, 'workspace': '/home/u/ws'}], blocked=[],
+                              skipped=[], pools=[{'pid': 33, 'record': '/home/u/.operon/admission/x/managed-pool/instance.json'}]))
+    messages = []
+    _retire_old_servers(shell, '/home/u', '/home/u/base/managed-v1', messages.append, force=True)
+    assert messages == ['已强制停止 1 个旧版服务端', '已关闭 1 个旧版共享池']
+    assert ' force' in shell.commands[0]
+
+
+def test_force_reports_when_old_daemon_survives():
+    shell = Shell(result(retired=[], forced=[], blocked=[{'pid': 12, 'reason': 'server did not exit'}], skipped=[]))
+    with pytest.raises(RemoteError, match='强制升级未能停止') as error:
+        _retire_old_servers(shell, '/home/u', '/home/u/base/managed-v1', lambda message: None, force=True)
+    assert error.value.code == 'remote_upgrade_blocked'

@@ -27,7 +27,7 @@ class HostKeyRequired(RemoteError):
 
 
 class SSHConnection:
-    def __init__(self, profile, credentials, *, progress=None, cancel=None, install=False, cached_info=None):
+    def __init__(self, profile, credentials, *, progress=None, cancel=None, install=False, cached_info=None, force=False):
         import paramiko
         self.profile, self.lock = profile, threading.RLock()
         self.build = profile.get('build')
@@ -72,9 +72,10 @@ class SSHConnection:
             self.channel.settimeout(2)
             if managed:
                 from .provision import locate, provision
-                action = provision if install else locate
-                profile = action(self, profile, progress or (lambda message: None),
-                                 cancel or threading.Event(), expected=self.build or None)
+                profile = (provision(self, profile, progress or (lambda message: None),
+                                     cancel or threading.Event(), expected=self.build or None, force=force)
+                           if install else locate(self, profile, progress or (lambda message: None),
+                                                  cancel or threading.Event(), expected=self.build or None))
                 self.profile = profile
                 self.channel.sendall((bridge_command() + '\n').encode())
             deadline = time.monotonic()+90

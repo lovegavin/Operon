@@ -17,6 +17,7 @@
 .remote-maintenance {margin-top:12px; font-size:12px; color:var(--text-secondary);}
 .remote-maintenance summary {cursor:pointer;}
 .remote-maintenance .subtle-button {margin-top:8px;}
+.remote-maintenance .remote-force {display:flex; gap:6px; align-items:flex-start; margin-top:10px; line-height:1.4; color:var(--text-secondary);}
 .remote-connected {display:grid; gap:8px; margin-top:18px; padding-top:14px; border-top:1px solid var(--separator); color:var(--text-secondary); font-size:12px;}
 .remote-status-heading {display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
 .remote-status-heading strong {font-weight:500; color:var(--text-primary);}

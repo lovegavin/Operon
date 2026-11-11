@@ -24,6 +24,7 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
   const [busy, setBusy] = useState<ConnectionAction | 'refresh' | 'library' | null>(null), [error, setError] = useState('');
   const libraryBusy = useCallback((value: boolean) => setBusy(previous => value ? 'library' : previous === 'library' ? null : previous), []);
   const [maintenance, setMaintenance] = useState(false);
+  const [forceUpgrade, setForceUpgrade] = useState(false);
   const [setup, setSetup] = useState<string[]>([]);
   useEffect(() => {onBusyChange?.(!!busy);}, [busy, onBusyChange]);
   useEffect(() => {
@@ -33,7 +34,7 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
     refresh(); const timer = window.setInterval(refresh, 1500);
     return () => {alive = false; window.clearInterval(timer);};
   }, [busy, profile.id]);
-  const [trust, setTrust] = useState<{id: string; fingerprint: string; changed: boolean; action: ConnectionAction} | null>(null);
+  const [trust, setTrust] = useState<{id: string; fingerprint: string; changed: boolean; action: ConnectionAction; force?: boolean} | null>(null);
   const selected = servers.find(s => s.profile.id === profile.id);
   const info = selected?.info;
   useEffect(() => {if (embedded) return; const key = (e: KeyboardEvent) => {if(e.key === 'Escape' && !busy) onClose();};
@@ -56,7 +57,7 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
       setError(guidance || t("此服务端需要一次性升级后重新连接。"));
     } else setError(issue.message);
   }
-  async function connect(action: ConnectionAction, trusted?: typeof trust) {
+  async function connect(action: ConnectionAction, trusted?: typeof trust, force = false) {
     if (busy) return;
     setBusy(action); setError(''); setSetup([]);
     let saved = profile;
@@ -64,13 +65,13 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
       saved = trusted ? profile : await api.saveRemote(profile);
       setProfile(saved);
       if (trusted) await api.trustRemote(trusted.id, trusted.fingerprint);
-      await (action === 'install' ? api.installRemote : api.connectRemote)(saved.id!, {password, passphrase});
+      await (action === 'install' ? api.installRemote(saved.id!, {password, passphrase}, force) : api.connectRemote(saved.id!, {password, passphrase}));
       setPassword(''); setPassphrase(''); setTrust(null);
       await onUpdate(); onSelect(saved.id!);
     } catch (e) {
       const issue = e as ApiError;
       if (issue.code === 'host_key_required' && issue.details?.fingerprint) {
-        if (saved.id) setTrust({id: saved.id, fingerprint: issue.details.fingerprint, changed: !!issue.details.changed, action});
+        if (saved.id) setTrust({id: saved.id, fingerprint: issue.details.fingerprint, changed: !!issue.details.changed, action, force});
       } else {setTrust(null); showError(issue);}
       await onUpdate();
     } finally {setBusy(null);}
@@ -111,11 +112,18 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
         </div></details>
         {profile.environment === 'managed' && <details className="remote-maintenance" open={maintenance} onToggle={e => setMaintenance(e.currentTarget.open)}>
           <summary>{t("服务端维护")}</summary>
-          <button type="button" className="subtle-button" disabled={!!busy || !!trust} onClick={e => {if (e.currentTarget.form?.reportValidity()) void connect('install');}}>
-            {busy === 'install' ? <><CircleNotch className="spin" size={16}/>{t("安装中")}</> : t("安装 / 升级服务端")}</button>
+          <label className="remote-force"><input type="checkbox" checked={forceUpgrade} disabled={!!busy || !!trust}
+            onChange={e => setForceUpgrade(e.target.checked)}/>
+            {t("强制升级（取消旧服务端所有任务并关闭所有会话）")}</label>
+          <button type="button" className="subtle-button" disabled={!!busy || !!trust} onClick={e => {
+            if (!e.currentTarget.form?.reportValidity()) return;
+            if (forceUpgrade && !window.confirm(t("强制升级会终止服务端上所有正在运行的 Operon 任务并关闭所有会话。确定继续？"))) return;
+            void connect('install', undefined, forceUpgrade);
+          }}>
+            {busy === 'install' ? <><CircleNotch className="spin" size={16}/>{t("安装中")}</> : forceUpgrade ? t("强制升级服务端") : t("安装 / 升级服务端")}</button>
         </details>}
         {trust && <div className="remote-trust" role="alert"><strong>{trust.changed ? t("服务器指纹已变化") : t("确认服务器指纹")}</strong><code>{trust.fingerprint}</code>
-          <button type="button" className="primary-button" disabled={!!busy} onClick={() => void connect(trust.action, trust)}>{trust.action === 'install' ? t("信任并安装 / 升级") : t("信任并连接")}</button></div>}
+          <button type="button" className="primary-button" disabled={!!busy} onClick={() => void connect(trust.action, trust, trust.force)}>{trust.action === 'install' ? t("信任并安装 / 升级") : t("信任并连接")}</button></div>}
         {error && <p role="alert" className="field-error">{error}</p>}
         {!!setup.length && <details className="remote-setup" open={busy === 'install'}><summary>{busy === 'install' ? setup[setup.length - 1] : t("服务端安装记录")}</summary><pre role="log" aria-live="polite">{setup.join('\n')}</pre></details>}
         {selected?.connected && <div className="remote-connected" aria-label={t("服务端状态")}>

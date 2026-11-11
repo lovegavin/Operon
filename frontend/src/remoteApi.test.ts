@@ -5,7 +5,7 @@ afterEach(() => vi.unstubAllGlobals());
 describe('remote API actions', () => {
   it.each([
     ['connect', () => api.connectRemote('server-a', {password: 'session-only'}), {password: 'session-only'}],
-    ['install', () => api.installRemote('server-a', {passphrase: 'session-only'}), {passphrase: 'session-only'}],
+    ['install', () => api.installRemote('server-a', {passphrase: 'session-only'}), {passphrase: 'session-only', force: false}],
     ['refresh', () => api.refreshRemote('server-a'), {}],
   ] as const)('posts %s only to its dedicated endpoint', async (action, request, body) => {
     const response = {version: '0.7.1'};

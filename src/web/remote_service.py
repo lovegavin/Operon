@@ -131,7 +131,9 @@ class RemoteManager:
             self.profile(key)['host_key'] = observed
             del self.pending_keys[key]; self.persist()
 
-    def connect(self, key, credentials, *, install=False):
+    def connect(self, key, credentials, *, install=False, force=False):
+        if force and not install:
+            raise RemoteError('强制升级只适用于安装 / 升级服务端。')
         with self.lock:
             if key in self.connecting:
                 raise RemoteError('此服务器正在连接或准备环境。')
@@ -158,7 +160,7 @@ class RemoteManager:
                 # to migrate execution pins; force a fresh handshake catalog.
                 cached = None
             connection = (self.factory(profile, secret, progress=report, cancel=cancel,
-                                       install=install, cached_info=cached)
+                                       install=install, cached_info=cached, force=force)
                           if self.factory is SSHConnection else self.factory(profile, secret))
             with self.lock:
                 if cancel.is_set():

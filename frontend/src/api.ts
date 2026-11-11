@@ -81,7 +81,7 @@ export const api = {
   remoteStatus: () => request<import('./types').RemoteStatus[]>('/api/remote'),
   saveRemote: (profile: import('./types').RemoteProfile) => request<import('./types').RemoteProfile>('/api/remote/profiles', profile),
   connectRemote: (id: string, credentials: {password?: string; passphrase?: string}) => request<import('./types').RemoteInfo>(`/api/remote/${id}/connect`, credentials),
-  installRemote: (id: string, credentials: {password?: string; passphrase?: string}) => request<import('./types').RemoteInfo>(`/api/remote/${id}/install`, credentials),
+  installRemote: (id: string, credentials: {password?: string; passphrase?: string}, force = false) => request<import('./types').RemoteInfo>(`/api/remote/${id}/install`, {...credentials, force}),
   refreshRemote: (id: string) => request<import('./types').RemoteInfo>(`/api/remote/${id}/refresh`, {}),
   checkRemoteLibrary: (id: string) => request<import('./types').RemoteLibraryCheck>(`/api/remote/${id}/library/check`, {}),
   installRemoteLibrary: (id: string, payload: {packages: string[]; local_revision: string; remote_revision: string}) =>

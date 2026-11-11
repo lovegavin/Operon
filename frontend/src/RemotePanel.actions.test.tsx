@@ -80,7 +80,7 @@ describe('remote connection actions', () => {
   });
   it('installs only after the explicit maintenance action', async () => {
     setPassword('session-only'); start('install'); await updated();
-    expect(api.installRemote).toHaveBeenCalledExactlyOnceWith('server-a', {password: 'session-only', passphrase: ''});
+    expect(api.installRemote).toHaveBeenCalledExactlyOnceWith('server-a', {password: 'session-only', passphrase: ''}, false);
     expect(api.connectRemote).not.toHaveBeenCalled();
   });
   it('validates required profile fields before installation', () => {
@@ -96,7 +96,11 @@ describe('remote connection actions', () => {
     trigger(find('button', action === 'install' ? '信任并安装 / 升级' : '信任并连接'), 'onClick'); await updated(2);
     expect(api.trustRemote).toHaveBeenCalledExactlyOnceWith('server-a', 'SHA256:test');
     expect(request).toHaveBeenCalledTimes(2);
-    expect(request).toHaveBeenLastCalledWith('server-a', {password: 'session-only', passphrase: ''});
+    if (action === 'install') {
+      expect(request).toHaveBeenLastCalledWith('server-a', {password: 'session-only', passphrase: ''}, false);
+    } else {
+      expect(request).toHaveBeenLastCalledWith('server-a', {password: 'session-only', passphrase: ''});
+    }
     expect(api.saveRemote).toHaveBeenCalledTimes(1);
     expect(action === 'install' ? api.connectRemote : api.installRemote).not.toHaveBeenCalled();
   });

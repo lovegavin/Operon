@@ -12,12 +12,12 @@ parameter, log and artifact. The same engine is available through the desktop,
 CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
-The current source integrates **Operon Studio 4.0.2** with the independently
+The current source integrates **Operon Studio 4.0.3** with the independently
 versioned **8.0.2 operator library**: **1,063 operators, 108 Readers (1,171
 descriptors), seven provider packages and 79 route templates**. Operators and
 Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
 Markdown documentation. Library 8.0.2 declares minimum application 3.1.9 and is
-the built-in library shipped with 4.0.2.
+the built-in library shipped with 4.0.3.
 
 Operon does not bundle or require an AI model. Agent access is optional.
 
@@ -40,7 +40,7 @@ Operon does not bundle or require an AI model. Agent access is optional.
 | I want to… | Start here |
 | --- | --- |
 | Use the Windows desktop | Download **Operon_Setup.exe** from [Releases](https://github.com/lovegavin/Operon/releases/latest) |
-| Run a Linux server without a desktop | Download **Operon-4.0.2-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
+| Run a Linux server without a desktop | Download **Operon-4.0.3-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
 | Develop from source | `python -m pip install . ./library` with Python 3.11+ |
 | Connect an AI agent | Use the desktop **Agent** panel or `operon mcp`; see [agent operations](docs/agent_operations.md) |
 
@@ -49,7 +49,7 @@ profile. Scientific packages are installed only for the workflow and execution
 host you choose; they are not all bundled. If WebView2 is missing, Setup asks
 Microsoft's installer for it, which needs internet access.
 
-A new 4.0.2 installation puts the working workspace under the installation root
+A new 4.0.3 installation puts the working workspace under the installation root
 (for example, `workspace` under the installation root). Profile metadata, logs and browser
 state remain under `%USERPROFILE%\.operon`. Earlier installations keep their
 existing workspace. Uninstall removes the program but preserves the workspace
@@ -67,20 +67,27 @@ the local environment, and press **Run**. Results appear under **Run history →
 View results**. The first dependency check may need internet access; Operon never
 installs scientific packages silently during a run.
 
-## What is new in 4.0.2
+## What is new in 4.0.3
 
-- Setup-created installations use `<install root>/workspace` for workflows, jobs
-  and `.studio` data, reducing growth on the system drive.
-- Profile metadata and logs stay in the user profile and are not mixed into the
-  analysis workspace.
-- Upgrades preserve the existing workspace; uninstall keeps it for later use.
-- Server maintenance uses one full **Install / upgrade server** action. It
-  replaces the server library and build identity as a unit instead of asking you
-  to synchronize operators package by package.
-- Dependency readiness is reported as **install on demand** rather than as a
+- Windows Setup keeps the working workspace under the installation root
+  (`<install root>/workspace`), while profile metadata and logs stay in the user
+  profile. Uninstall preserves the workspace and analysis results.
+- Installing or upgrading a Linux server is one full action. Operators are not
+  uploaded package by package.
+- **Force server upgrade** cancels every running Operon task on that server,
+  closes all sessions, then replaces the server build. The desktop asks for
+  confirmation first.
+- Uninstall now disconnects connected MCP clients automatically; the old
+  "disconnect DSH/MCP first" warning is gone.
+- Dependency readiness is reported as **install on demand**, not as a
   startup-wide failure count.
 
-Application 4.0.2 and library 8.0.2 do not change the wire protocol (v3) or SDK
+Existing 4.0.x installations keep their old profile workspace when upgraded.
+The old data remains under `%USERPROFILE%\.operon\profiles\<old-id>\workspace`;
+copy it into the new `<install root>/workspace` if you need it in the new
+installation.
+
+Application 4.0.3 and library 8.0.2 do not change the wire protocol (v3) or SDK
 (3.7). Published tags and release assets are immutable.
 
 ## Open source
@@ -117,6 +124,7 @@ See [application/library boundary](docs/application_library_boundary.md) and
 ## Documentation
 
 - [Documentation index](docs/README.md)
+- [What changed since 3.1.6](docs/updates-since-3.1.6.md)
 - [Windows Setup and isolated installations](docs/windows_setup.md)
 - [Command-line and Linux server installation](docs/command_line_installation.md)
 - [Linux server and terminal guide](docs/server_cli.md)

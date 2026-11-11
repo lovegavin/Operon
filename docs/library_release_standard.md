@@ -1,8 +1,8 @@
 # Operator library release standard
 
 This page records the release contract used by the independent operator-library
-channel, confirmed against **Operon Operator Library 8.0.1** (tag
-`library-v8.0.1`). It describes what a library release
+channel, confirmed against **Operon Operator Library 8.0.2** (tag
+`library-v8.0.2`). It describes what a library release
 must contain and what CI verifies; it does not change protocol v3 or workflow
 parameter JSON.
 
@@ -24,7 +24,7 @@ parameter JSON.
 
 ```json
 {
-  "version": "8.0.1",
+  "version": "8.0.2",
   "minimum_application": "3.1.9",
   "build_application": "3.1.9"
 }
