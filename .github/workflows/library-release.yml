@@ -96,7 +96,8 @@ jobs:
           ( cd artifacts && sha256sum *.operon-library.zip *.whl Operon-Routes-*.zip Operon-Quickstart-*.zip Operon-Operator-Audit-*.zip ) >> artifacts/SHA256SUMS.txt
           ( cd artifacts && sha256sum verification-*.json ) >> artifacts/SHA256SUMS.txt
           sha256sum QUICKSTART.md QUICKSTART.zh.md install_dependencies.py install-dependencies.sh install-dependencies.ps1 >> artifacts/SHA256SUMS.txt
+          gh release delete "$GITHUB_REF_NAME" --yes >/dev/null 2>&1 || true
           gh release create "$GITHUB_REF_NAME" --verify-tag --latest=false \
-            --title "Operon Operator Library ${GITHUB_REF_NAME#library-v}" \
+            --title "Operon Operator Library v${GITHUB_REF_NAME#library-v}" \
             --notes-file "docs/releases/${GITHUB_REF_NAME}.md" \
-            artifacts/*.operon-library.zip artifacts/*.whl artifacts/SHA256SUMS.txt artifacts/verification-*.json
+            artifacts/*.operon-library.zip artifacts/*.whl artifacts/Operon-Routes-*.zip artifacts/Operon-Operator-Audit-*.zip artifacts/*Quickstart*.zip QUICKSTART.md QUICKSTART.zh.md install_dependencies.py install-dependencies.sh install-dependencies.ps1 artifacts/SHA256SUMS.txt artifacts/verification-*.json
