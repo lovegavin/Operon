@@ -28,8 +28,8 @@ Do not retroactively rename published versions or tags.
 
 ## Current application and historical backend labels
 
-The reconciled  application is Operon **4.0.6**, and the bundled library is
-**8.0.3**. The library keeps its own version in ; its
+The reconciled `main` application is Operon **4.0.7**, and the bundled library is
+**8.0.3**. The library keeps its own version in `library/release.json`; its
 expansion history does not determine the application version. Earlier backend
 3.0/4.0 labels used on the library development branch are historical labels, not
 newer Operon desktop builds. The original

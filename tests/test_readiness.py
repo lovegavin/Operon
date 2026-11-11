@@ -229,3 +229,15 @@ def test_script_success_reused_but_code_change_rechecks(app, monkeypatch):
     graph.nodes[1].script['code'] = 'second'
     assert not app.readiness.validate(graph, {}, require_files=True)['dependencies_cached']
     assert calls == ['first', 'second']
+
+
+def test_require_ready_rejects_a_graph_changed_after_the_check(app):
+    graph = workflow()
+    checked = app.readiness.validate(graph, {}, require_files=True)
+    graph.nodes[1].params['x'] = 2
+    with pytest.raises(readiness.CommandError) as error:
+        readiness.ReadinessService.require_ready({
+            'graph': graph.model_dump(mode='json'),
+            'readiness': checked,
+        })
+    assert error.value.code == 'environment_stale'

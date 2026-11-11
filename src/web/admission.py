@@ -219,7 +219,7 @@ class HostAdmission:
                                        for step in manifest.get('steps', [])])
         enabled = memory.get('enabled', True)
         if not enabled:
-            budget, reserved, cpus = 0, self.capacity, self.cpus
+            budget, reserved, cpus = 0, 0, self.cpus
         else:
             explicit = memory.get('budget_mb')
             workspace = max([0] + [resource(step.get('params', {}).get('memory_mb'))

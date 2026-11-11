@@ -12,12 +12,12 @@ parameter, log and artifact. The same engine is available through the desktop,
 CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
-The current source integrates **Operon Studio 4.0.6** with the independently
+The current source integrates **Operon Studio 4.0.7** with the independently
 versioned **8.0.3 operator library**: **1,063 operators, 108 Readers (1,171
 descriptors), seven provider packages and 79 route templates**. Operators and
 Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
 Markdown documentation. Library 8.0.3 declares minimum application 3.1.9 and is
-the built-in library shipped with 4.0.6.
+the built-in library shipped with 4.0.7.
 
 Operon does not bundle or require an AI model. Agent access is optional.
 
@@ -40,7 +40,7 @@ Operon does not bundle or require an AI model. Agent access is optional.
 | I want to… | Start here |
 | --- | --- |
 | Use the Windows desktop | Download **Operon_Setup.exe** from [Releases](https://github.com/lovegavin/Operon/releases/latest) |
-| Run a Linux server without a desktop | Download **Operon-4.0.6-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
+| Run a Linux server without a desktop | Download **Operon-4.0.7-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
 | Develop from source | `python -m pip install . ./library` with Python 3.11+ |
 | Connect an AI agent | Use the desktop **Agent** panel or `operon mcp`; see [agent operations](docs/agent_operations.md) |
 
@@ -49,7 +49,7 @@ profile. Scientific packages are installed only for the workflow and execution
 host you choose; they are not all bundled. If WebView2 is missing, Setup asks
 Microsoft's installer for it, which needs internet access.
 
-A new 4.0.6 installation puts the working workspace under the installation root
+A new 4.0.7 installation puts the working workspace under the installation root
 (for example, `workspace` under the installation root). Profile metadata, logs and browser
 state remain under `%USERPROFILE%\.operon`. Earlier installations keep their
 existing workspace. Uninstall removes the program but preserves the workspace
@@ -66,6 +66,15 @@ In short: install, open **Operon Studio**, add a CSV, connect it to **PCA**, che
 the local environment, and press **Run**. Results appear under **Run history →
 View results**. The first dependency check may need internet access; Operon never
 installs scientific packages silently during a run.
+
+## What is new in 4.0.7
+
+- Jobs that fail remote admission now show **failed** with the admission reason and error instead of remaining queued. A resource-infeasible job explains how to lower the request or raise the server limit.
+- Readiness is tied to the graph digest. If the canvas changes after a readiness check, the run is rejected as stale and you are prompted to check again.
+- Turning memory management off no longer reserves the entire host pool; it disables the per-run memory ceiling while keeping CPU exclusivity.
+- Remote prepare now verifies that the saved server connection is still usable before launch, while offline bundle export and validation continue to work.
+- The remote status response no longer resends full job history, so polling stays small as history grows.
+- Library 8.0.2, protocol v3 and SDK 3.7 are unchanged.
 
 ## What is new in 4.0.6
 
@@ -110,7 +119,7 @@ The old data remains under `%USERPROFILE%\.operon\profiles\<old-id>\workspace`;
 copy it into the new `<install root>/workspace` if you need it in the new
 installation.
 
-Application 4.0.6 and library 8.0.3 do not change the wire protocol (v3) or SDK
+Application 4.0.7 and library 8.0.3 do not change the wire protocol (v3) or SDK
 (3.7). Published tags and release assets are immutable.
 
 ## Open source

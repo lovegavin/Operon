@@ -102,10 +102,17 @@ class RemoteManager:
         return self.state['profiles'][key]
 
     def status(self):
+        def summary(key):
+            info = read_json(self.directory/(key+'.catalog.json'))
+            if not info:
+                return None
+            # Status is polled every few seconds by the desktop.  Keep the
+            # catalog and resource numbers, but never resend job history.
+            return {k: v for k, v in info.items() if k not in ('history', 'setup', 'connections')}
         return [{'profile': {k: v for k, v in profile.items() if k != 'host_key'},
                  'fingerprint': profile.get('host_key', {}).get('fingerprint'),
                  'connected': bool(self.connections.get(key) and self.connections[key].connected),
-                 'info': read_json(self.directory/(key+'.catalog.json'))}
+                 'info': summary(key)}
                 for key, profile in self.state['profiles'].items()]
 
     def save(self, value):
@@ -406,9 +413,17 @@ class RemoteManager:
         if not info: raise RemoteError('先连接服务器，读取服务器算子注册表。')
         return info['catalog']
 
-    def prepare(self, graph):
+    def prepare(self, graph, *, require_connection=False):
         from .parameters import freeze_graph
         from .routes import prepare_interface
+        key = remote_profile(graph)
+        if require_connection:
+            profile = self.profile(key)
+            if not profile.get('workspace'):
+                raise RemoteError('服务器连接尚未准备完成，请重新连接服务器后再运行。', code='remote_disconnected')
+            connection = self.connections.get(key)
+            if not connection or not connection.connected:
+                raise RemoteError('服务器连接已断开。请重新连接服务器后再运行；服务器上的任务会继续运行。', code='remote_disconnected')
         catalog = self.catalog(graph)
         state = read_json(self.directory/(remote_profile(graph)+'.catalog.json')) or {}
         check = state.get('library_check') or {}
@@ -470,7 +485,7 @@ class RemoteManager:
 
     def launch(self, graph):
         key = remote_profile(graph)
-        graph = self.prepare(graph)
+        graph = self.prepare(graph, require_connection=True)
         payload = graph.model_dump(mode='json')
         digest = hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
         pending_key = key+':'+digest

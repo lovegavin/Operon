@@ -177,6 +177,7 @@ export type Job = {
   allocation?: Record<string, unknown>;
   children?: unknown[];
   execution_plan?: ExecutionPlan;
+  admission?: {status: string; reason?: string; error?: string};
   created_at: string;
   finished_at?: string | null;
   error?: string | null;
@@ -228,7 +229,7 @@ export type Bootstrap = {
 export type RemoteProfile = {id?: string; name: string; host: string; port: number; username: string;
   auth: 'password' | 'key' | 'agent'; key_path: string; python: string; app_dir: string; workspace: string;
   mode: 'exec' | 'shell'; menu_choice: string; environment?: 'managed' | 'existing'; managed_root?: string};
-export type RemoteInfo = {catalog: Catalog; history: Job[]; system: string; version: string; python: string;
+export type RemoteInfo = {catalog: Catalog; history?: Job[]; system: string; version: string; python: string;
   workspace: string; automatic_memory_budget_bytes: number; automatic_memory_fraction: number; tools: Record<string, boolean>;
   dependencies?: DependencyState;
   library_check?: RemoteLibraryCheck;
