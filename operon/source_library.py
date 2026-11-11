@@ -29,7 +29,8 @@ def snapshot_sources(root, staged=None):
     from .library_location import source_root
     root = source_root(root)
     digest = hashlib.sha256()
-    for relative in [*SOURCE_DIRS.values(), "operon/builtin_packages.json"]:
+    for relative in [*SOURCE_DIRS.values(), "operon/builtin_packages.json",
+                     "operon/environments.json"]:
         source = root / relative
         target = (staged / relative if source.is_dir() else (staged / relative).parent) if staged is not None else None
         digest.update(relative.encode() + snapshot(source, target).encode())

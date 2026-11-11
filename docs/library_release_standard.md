@@ -1,8 +1,8 @@
 # Operator library release standard
 
 This page records the release contract used by the independent operator-library
-channel, confirmed against **Operon Operator Library 8.0.2** (tag
-`library-v8.0.2`). It describes what a library release
+channel, confirmed against **Operon Operator Library 8.0.6** (tag
+`library-v8.0.6`). It describes what a library release
 must contain and what CI verifies; it does not change protocol v3 or workflow
 parameter JSON.
 
@@ -24,18 +24,25 @@ parameter JSON.
 
 ```json
 {
-  "version": "8.0.2",
-  "minimum_application": "3.1.9",
-  "build_application": "3.1.9"
+  "version": "8.0.6",
+  "minimum_application": "4.1.0",
+  "build_application": "4.0.8"
 }
 ```
 
 Rules enforced by `scripts/release_library.py`:
 
 - `version`, `minimum_application` and `build_application` are canonical versions.
-- `minimum_application == build_application`; the pair names the oldest
-  **actually tested** application. The library version is independent and may be
-  newer than the host application.
+- Normally `minimum_application == build_application`; the pair names the
+  oldest **actually tested** application. The library version is independent
+  and may be newer than the host application.
+- A **forward-minimum** release may set `minimum_application` above
+  `build_application` only when the newer application is not yet available.
+  Build with `OPERON_FORWARD_MINIMUM=1` and verify the exact shipped bytes with
+  `--allow-forward-minimum`; the report must set `forward_minimum_compatibility`
+  and name the newer application runtime acceptance as an explicit
+  post-release gate. This is a compatibility check of the code, not a claim
+  that the newer application has been tested.
 - The annotated tag is exactly `library-v<version>`; any other tag is rejected.
 - The release commit updates `library/release.json` and `library/pyproject.toml`
   to the same version.
@@ -64,10 +71,13 @@ CI uses two runners, Windows and Ubuntu, Python 3.11. Each runner:
 
 1. Installs the **released application wheel** matching `build_application`
    (`operon_studio-<version>-py3-none-any.whl`) plus analysis/test dependencies
-   (`pytest`, `h5py`, `scikit-learn`, `biopython`, `rdkit`, CPU `torch`).
+   (`pytest`, `pandas`, `h5py`, `scikit-learn`, `biopython`, `rdkit`, CPU
+   `torch`).
 2. Runs `python -I -m pytest tests/test_library_release.py -q`.
 3. Builds with `python -I scripts/release_library.py --tag library-v<version>
-   --output build/library`. The builder rejects a source-checkout import and
+   --output build/library`. A forward-minimum release sets
+   `OPERON_FORWARD_MINIMUM=1`; the verifier is then called with
+   `--allow-forward-minimum`. The builder rejects a source-checkout import and
    requires `python -I`; it verifies the installed application version.
 4. Runs `scripts/verify_library_release.py --bundle <bundle> --work
    build/library-verify`: imports the bundle into a fresh library home, checks
@@ -76,6 +86,12 @@ CI uses two runners, Windows and Ubuntu, Python 3.11. Each runner:
    baseline first; the bundle then upgrades that baseline.
 5. On Linux, builds the portable seed wheel with `python -m build --wheel
    --outdir build/library library` and writes `SHA256SUMS-seed.txt`.
+6. Asserts the bundle contains `sources/operon/environments.json` and that
+   `library.json` repeats the `minimum_application` from `library/release.json`.
+   The environment manifest is part of the library contract: a bundle that
+   omits it, or an importer that reads only the application seed, is a release
+   blocker. Runtime lookup reads the active source root first and falls back to
+   the application seed/wheel only when no imported library is active.
 
 The builder produces a native envelope per platform
 (`Operon-Library-v<version>-<Windows|Linux>.operon-library.zip`), a
@@ -106,6 +122,11 @@ Expected release assets:
 - `Operon-Library-v<version>-Linux.operon-library.zip`
 - `operon_builtin_library-<version>-py3-none-any.whl`
 - `SHA256SUMS.txt` (all platform sums merged by the publish job)
+- `Operon-Routes-v<version>.zip`
+- `Operon-Quickstart-v<version>.zip`
+- `Operon-Operator-Audit-v<version>.zip`
+- `QUICKSTART.md`, `QUICKSTART.zh.md`
+- `install_dependencies.py`, `install-dependencies.sh`, `install-dependencies.ps1`
 - `verification-windows-latest.json`, `verification-ubuntu-latest.json`
 
 Windows and Linux users import the native bundle for their host in Library
@@ -120,7 +141,9 @@ its own state; application updates do not overwrite user-installed providers.
   and Newick conversion; native-file reuse and branch export are retained.
 - HIC/Cooler export validates raw contact counts, chromosome sizes, bin
   coordinates and resolution, and writes bounded batches; balanced/log/OE values
-  are not reverse-converted to raw counts. `hictkpy` is an export dependency.
+  are not reverse-converted to raw counts. `hictkpy` is an optional runtime
+  dependency of the HIC/Cooler branch only; CSV, FASTA and PDB exports do not
+  require it.
 - The GenBank Reader can retain original records for annotation-preserving
   export; sequence-only exports do not invent annotations.
 - Genome-track, network and tree exports validate domain metadata; generic
@@ -132,6 +155,7 @@ its own state; application updates do not overwrite user-installed providers.
 # 1. Version and note
 #    library/release.json + library/pyproject.toml -> X
 #    docs/releases/library-vX.md
+#    Forward-minimum only: set OPERON_FORWARD_MINIMUM=1 for the build
 
 # 2. Rebuild generated metadata
 python scripts/build_operator_docs.py
@@ -144,6 +168,9 @@ python -I -m pytest tests/test_library_release.py -q
 # 4. Build and verify
 python -I scripts/release_library.py --tag library-vX --output build/library
 python -I scripts/verify_library_release.py --bundle build/library/Operon-Library-vX-<OS>.operon-library.zip --work build/library-verify
+# Forward-minimum release only (newer application not yet available):
+OPERON_FORWARD_MINIMUM=1 python -I scripts/release_library.py --tag library-vX --output build/library
+python -I scripts/verify_library_release.py --bundle build/library/Operon-Library-vX-<OS>.operon-library.zip --work build/library-verify-forward --allow-forward-minimum
 
 # 5. Commit, annotated tag, push
 git commit -m "release: Operon Operator Library vX"

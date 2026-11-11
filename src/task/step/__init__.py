@@ -10,9 +10,9 @@ if os.getenv("OPERON_REGISTRY_MAINTENANCE") != "1":
     def _load(descriptor):
         environment = (descriptor.get("resources") or {}).get("environment")
         if environment:
-            from operon.environments import resolve
-            if resolve(environment) is not None:
-                return proxy_step(descriptor)
+            # Never silently run a declared environment in the shared
+            # interpreter. Missing environments fail inside proxy_step.
+            return proxy_step(descriptor)
         return load_entry(descriptor)
 
     for _, descriptor in bundled_entries("operator"):

@@ -58,6 +58,14 @@ def invoke(paths, module, args, directory, *, timeout=180):
 
 
 def activate(state):
+    receipt = state.get("source_library") or {}
+    relative = receipt.get("root")
+    if relative and state.get("_runtime_root"):
+        root = Path(relative)
+        if not root.is_absolute():
+            root = Path(state["_runtime_root"]) / root
+        if (root / "operon/environments.json").is_file():
+            os.environ["OPERON_LIBRARY_SOURCE"] = str(root)
     if state.get("_runtime_root"):
         os.environ["OPERON_R_HOME"] = str(Path(state["_runtime_root"]).parent / "runtimes/r")
     sys.dont_write_bytecode = True
