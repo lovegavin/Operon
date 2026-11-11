@@ -45,7 +45,7 @@ real structure route; the full suite was not rerun.
 ## Bundle verification
 
 - Linux bundle: `Operon-Library-v8.0.5-Linux.operon-library.zip`
-  sha256 `e3557adcddda2de82d12cc472e227a825c6ac972ddad2d696b08d3f7e90b558d`.
+  sha256 `6ef42f7f94b86a5331599c58c00552b858950e1d33349d31dc9b11b9824b5182`.
 - Studio 4.0.7 official verification: **95 passed, 2 skipped, 7 deselected**,
   application 4.0.7, library 8.0.5, 1063 operators, 108 Readers,
   `passed: true` (`application-4.0.7.json`).

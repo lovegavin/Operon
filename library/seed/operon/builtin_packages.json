@@ -55033,12 +55033,12 @@
           "kind": "operator",
           "entry_point": "src.task.step.steps.interface_alanine_scan:InterfaceAlanineScanStep",
           "code_sha": "fd2dd9c1cda4093111d416d17b05a9054a75283fa2e80d04120d826059d1b734",
-          "declaration_sha": "742667ab154f9fca6f4cc4a8dc5eb6984bd7f73b4e5ad231c00c882e33c78cf6",
+          "declaration_sha": "260b495d494f975fee0ea7206b77306898dc2a46dabd341cbc6a1ef024443cdc",
           "title": "Interface alanine scan",
           "description": "Computational alanine scanning of interface residues with single-point MM/GBSA energy differences.",
           "documentation": {
             "path": "interface_alanine_scan.InterfaceAlanineScanStep.md",
-            "sha256": "ac090e45029424e2063cc49864c3a5aa7f60864065415d886bf7a2b7ef178b5d",
+            "sha256": "7ea9f5caff0b0eb660d337cb7291c71d584f95377486abe4e2e952fbb8454990",
             "summary": "Computational alanine scanning on a protein interface with MM/GBSA.",
             "sections": [
               "overview",
@@ -56372,12 +56372,12 @@
           "kind": "operator",
           "entry_point": "src.task.step.steps.interface_mmgbsa_delta:InterfaceMmgbsaDeltaStep",
           "code_sha": "fd2dd9c1cda4093111d416d17b05a9054a75283fa2e80d04120d826059d1b734",
-          "declaration_sha": "44473c34149ff2801ccb0de71a548f81aa0f9f59aa28870eec31b55302569de9",
+          "declaration_sha": "bd2bd316c66a5a3c3a65a51a102e617e77ece21519fdb2948098535f9c9c5170",
           "title": "MM/GBSA binding energy",
           "description": "Single-point OpenMM MM/GBSA binding-energy estimate with bonded, nonbonded and GB term decomposition.",
           "documentation": {
             "path": "interface_mmgbsa_delta.InterfaceMmgbsaDeltaStep.md",
-            "sha256": "4777b2fab93fc4696734c19d0e9c84064f4c32e87d3bc19b35ec416656770bd4",
+            "sha256": "5cc93f4c47825845d835dd52f411fd909415682128c7efe5195e1b5c671e3393",
             "summary": "Single-point MM/GBSA binding-energy estimate with force-term decomposition.",
             "sections": [
               "overview",
@@ -129611,12 +129611,12 @@
           "kind": "operator",
           "entry_point": "src.task.step.steps.structure_interface_residue_energy:StructureInterfaceResidueEnergyStep",
           "code_sha": "fd2dd9c1cda4093111d416d17b05a9054a75283fa2e80d04120d826059d1b734",
-          "declaration_sha": "2edbcea816d107b1192dfe65871d0bf25533b71c2fc279fc629dfcbd28ae1a25",
+          "declaration_sha": "eabff2fed146bd1621b55eeee8f41b046893d4408c822b13ed4bf44163eaedcf",
           "title": "界面残基能量分解",
           "description": "Decompose the vacuum Coulomb + Lennard-Jones interaction energy of a protein-protein interface into per-residue contributions, with an exact sum identity against the side totals.",
           "documentation": {
             "path": "structure_interface_residue_energy.StructureInterfaceResidueEnergyStep.md",
-            "sha256": "08567a5dac63ad7f1fab73e9269fb4a4f6306e09841cb77d31a13cbf037c0f07",
+            "sha256": "2dced8412a86abde9eb384cb7124fd2575b97e4f305b37716a536f9f58c5bda0",
             "summary": "structure_interface_residue_energy: per-residue interface energy decomposition.",
             "sections": [
               "overview",
@@ -133959,12 +133959,12 @@
           "kind": "operator",
           "entry_point": "src.task.step.steps.structure_openmm_energy:StructureOpenmmEnergyStep",
           "code_sha": "fd2dd9c1cda4093111d416d17b05a9054a75283fa2e80d04120d826059d1b734",
-          "declaration_sha": "88338216dde3d4aef7bcd1c4443254b117310ce5159d892139cb376e9e0ebc5a",
+          "declaration_sha": "8c30bc8ba7b0a0d34f99efcc05cfff4d85a1ca8ee3127fddb0b1cee34de7c936",
           "title": "OpenMM potential energy",
           "description": "Build an OpenMM system for a protein structure and report the potential energy, optionally minimized.",
           "documentation": {
             "path": "structure_openmm_energy.StructureOpenmmEnergyStep.md",
-            "sha256": "c2c4dced93eeb1dfccbcb2dd9618aa8dd553cd07af8736f55f3d7e2ce6d401db",
+            "sha256": "949e5037afc257f46252a0d331f029513bb7d7d5274af4ae59d4a4bd9f16e79a",
             "summary": "OpenMM potential energy and energy minimization for a protein structure.",
             "sections": [
               "overview",
@@ -134145,12 +134145,12 @@
           "kind": "operator",
           "entry_point": "src.task.step.steps.structure_openmm_md_rmsf:StructureOpenmmMdRmsfStep",
           "code_sha": "fd2dd9c1cda4093111d416d17b05a9054a75283fa2e80d04120d826059d1b734",
-          "declaration_sha": "c290dc899f1e099e96e6f1ae049aae94889aa71a1c8e26741c4028dcb31757b9",
+          "declaration_sha": "79e08fbbbb1ad8af6c9e97554b25ff738c6e4947f32b78161eb66e83c8bb045b",
           "title": "短程 OpenMM MD 与残基柔性 (RMSF)",
           "description": "Run a short implicit-solvent molecular dynamics simulation with OpenMM and report the per-residue C-alpha root mean square fluctuation and radius of gyration.",
           "documentation": {
             "path": "structure_openmm_md_rmsf.StructureOpenmmMdRmsfStep.md",
-            "sha256": "e39732a72f884efbdbc795832424d28a040fe66a7a0b62f9cf2252606efd9d4d",
+            "sha256": "98e62fac1143c75a07396e6ce3acc7bbdeef838c120df4d52002aa57569c21ab",
             "summary": "structure_openmm_md_rmsf: short OpenMM MD with per-residue RMSF.",
             "sections": [
               "overview",
@@ -134335,12 +134335,12 @@
           "kind": "operator",
           "entry_point": "src.task.step.steps.structure_openmm_md_stability:StructureOpenmmMdStabilityStep",
           "code_sha": "fd2dd9c1cda4093111d416d17b05a9054a75283fa2e80d04120d826059d1b734",
-          "declaration_sha": "53ab90a7ef69f499602e3db5fff2473795ff27b7b42b9fb48a0afe9237c20c66",
+          "declaration_sha": "533e753ea37cf5f55f59e5f3726c750feb334dbb3c61548e9383c667870ffa40",
           "title": "OpenMM 短程分子动力学稳定性",
           "description": "Minimise an implicit-solvent system with OpenMM and run a short Langevin trajectory, reporting temperature, potential energy, RMSD and radius of gyration per sampled frame.",
           "documentation": {
             "path": "structure_openmm_md_stability.StructureOpenmmMdStabilityStep.md",
-            "sha256": "cf8e866e4a897fa26490c6d520dd9f46a2f0ec3059d7bf3a0d5e66d267025814",
+            "sha256": "d15379bc9f5bd2656149e8af29fe89ecc86144b5bc2542d579a506f727f77a9a",
             "summary": "structure_openmm_md_stability: short implicit-solvent MD with drift statistics.",
             "sections": [
               "overview",

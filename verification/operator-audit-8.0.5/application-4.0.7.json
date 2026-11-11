@@ -1,7 +1,7 @@
 {
   "application": "4.0.7",
   "library": "8.0.5",
-  "bundle_sha256": "e3557adcddda2de82d12cc472e227a825c6ac972ddad2d696b08d3f7e90b558d",
+  "bundle_sha256": "6ef42f7f94b86a5331599c58c00552b858950e1d33349d31dc9b11b9824b5182",
   "operators": 1063,
   "readers": 108,
   "added": [],
