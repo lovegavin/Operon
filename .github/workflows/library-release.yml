@@ -36,6 +36,8 @@ jobs:
         run: python -I -m pytest tests/test_library_release.py -q --import-mode=importlib
       - name: Build independent library
         shell: bash
+        env:
+          OPERON_FORWARD_MINIMUM: "1"
         run: |
           tag=$(python -c 'import json; print("library-v" + json.load(open("library/release.json"))["version"])')
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then tag="$GITHUB_REF_NAME"; fi
@@ -44,7 +46,7 @@ jobs:
         shell: bash
         run: |
           bundle=$(python -c 'import json; print(json.load(open("build/library/library-build.json"))["bundle"])')
-          python -I scripts/verify_library_release.py --bundle "$bundle" --work build/library-verify
+          python -I scripts/verify_library_release.py --bundle "$bundle" --work build/library-verify --allow-forward-minimum
           cp build/library-verify/verification.json "build/library/verification-${{ matrix.os }}.json"
       - name: Build portable factory seed wheel
         if: runner.os == 'Linux'
