@@ -137,10 +137,8 @@ internal sealed class InstallEngine
         var file = ReceiptPath(root);
         if (!File.Exists(file))
         {
-            var marker = Path.Combine(root, ".operon-setup.json");
-            bool owned = File.Exists(marker) && JsonDocument.Parse(File.ReadAllText(marker)).RootElement.GetProperty("owner").GetString() == InstallFiles.Owner;
-            if (!owned && Directory.EnumerateFileSystemEntries(root).Any())
-                throw new InvalidOperationException("此目录已有其他文件。请选择新的安装目录；原文件会保留。");
+            // A foreign/non-empty directory is not ours. Installation may
+            // coexist with unrelated files; cleanup only removes owned files.
             return null;
         }
         var receipt = JsonSerializer.Deserialize<InstallReceipt>(File.ReadAllText(file), InstallFiles.Json);
@@ -152,6 +150,42 @@ internal sealed class InstallEngine
             if (Path.GetDirectoryName(path) != Path.Combine(root, "versions")) throw new InvalidDataException("安装记录包含无效版本目录。");
         }
         return receipt;
+    }
+
+    private static bool OwnedJson(string path)
+    {
+        try
+        {
+            if (!File.Exists(path)) return false;
+            using var value = JsonDocument.Parse(File.ReadAllText(path));
+            return value.RootElement.ValueKind == JsonValueKind.Object &&
+                value.RootElement.TryGetProperty("owner", out var owner) &&
+                owner.ValueKind == JsonValueKind.String && owner.GetString() == InstallFiles.Owner;
+        }
+        catch (Exception) { return false; }
+    }
+
+    private static bool OwnedReceipt(string root)
+    {
+        try
+        {
+            var file = ReceiptPath(root);
+            if (!File.Exists(file)) return false;
+            var receipt = JsonSerializer.Deserialize<InstallReceipt>(File.ReadAllText(file), InstallFiles.Json);
+            return receipt?.Owner == InstallFiles.Owner;
+        }
+        catch (Exception) { return false; }
+    }
+
+    internal bool HasManagedArtifacts(string root)
+    {
+        if (!Directory.Exists(root)) return false;
+        if (OwnedJson(Path.Combine(root, ".operon-setup.json")) || OwnedReceipt(root)) return true;
+        var versions = Path.Combine(root, "versions");
+        if (!Directory.Exists(versions)) return false;
+        foreach (var directory in Directory.EnumerateDirectories(versions))
+            if (OwnedJson(Path.Combine(directory, ".operon-install.json"))) return true;
+        return false;
     }
 
     private async Task<JsonElement> Inspect(string code, CancellationToken token)
@@ -237,7 +271,7 @@ internal sealed class InstallEngine
         var committed = false;
         try
         {
-            if (old is not null && options.ForceReinstall)
+            if (options.ForceReinstall && (old is not null || HasManagedArtifacts(root)))
             {
                 Report("正在强制卸载安装目录中的旧版本…", 1);
                 RemovePreviousInstallation(root, old);
@@ -410,7 +444,8 @@ internal sealed class InstallEngine
         // A running host or backend keeps files open and also holds the profile
         // lease. End only processes that live under this installation, before
         // the lease is requested, so a full uninstall can actually finish.
-        var receipt = ReadReceipt(root) ?? throw new InvalidOperationException("此目录没有 Operon 安装记录。");
+        var receipt = ReadReceipt(root);
+        if (receipt is null) return UninstallManagedOnly(root);
         DisconnectAgents(receipt.Profile);
         var stopped = TerminateManagedProcesses(root);
         if (stopped > 0) Log($"Stopped {stopped} process(es) under the installation.");
@@ -457,6 +492,48 @@ internal sealed class InstallEngine
         return new("uninstalled", root, null, receipt.Profile, LogPath);
     }
 
+    private InstallResult UninstallManagedOnly(string root)
+    {
+        Report("正在卸载 Operon 管理的文件；其他文件会保留…", 0);
+        using var lease = new InstallLease("Local\\OperonSetup-" + InstallLease.Identity(root));
+        RemovePreviousInstallation(root, null);
+        Report("已卸载 Operon；其他文件和用户数据均已保留。", 100);
+        return new("uninstalled", root, null, null, LogPath);
+    }
+
+    private void RemoveManagedVersions(string root)
+    {
+        var versions = Path.Combine(root, "versions");
+        if (!Directory.Exists(versions)) return;
+        foreach (var directory in Directory.EnumerateDirectories(versions))
+        {
+            if (!OwnedJson(Path.Combine(directory, ".operon-install.json"))) continue;
+            try { Directory.Delete(directory, true); }
+            catch (Exception error) { Log("Managed version retained: " + error.Message); }
+        }
+        try
+        {
+            if (Directory.Exists(versions) && !Directory.EnumerateFileSystemEntries(versions).Any()) Directory.Delete(versions);
+        }
+        catch (Exception error) { Log("Versions directory retained: " + error.Message); }
+    }
+
+    private void RemoveManagedRegistration(string root)
+    {
+        var key = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\OperonStudio-" + InstallLease.Identity(root);
+        try
+        {
+            using var existing = Registry.CurrentUser.OpenSubKey(key);
+            if (existing is null) return;
+            var location = existing.GetValue("InstallLocation") as string;
+            if (!string.IsNullOrWhiteSpace(location) &&
+                !string.Equals(Path.GetFullPath(location).TrimEnd(Path.DirectorySeparatorChar),
+                    root.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase)) return;
+            Registry.CurrentUser.DeleteSubKeyTree(key, false);
+        }
+        catch (Exception error) { Log("Registration retained: " + error.Message); }
+    }
+
     internal bool HasInstallation(string root)
     {
         // This is only a UI probe for the optional force-reinstall checkbox.
@@ -466,8 +543,24 @@ internal sealed class InstallEngine
         catch (Exception) { return false; }
     }
 
-    private void RemovePreviousInstallation(string root, InstallReceipt receipt)
+    private void RemovePreviousInstallation(string root, InstallReceipt? receipt)
     {
+        if (receipt is null)
+        {
+            DisconnectAgents(null);
+            var foreignStopped = TerminateManagedProcesses(root);
+            if (foreignStopped > 0) Log($"Stopped {foreignStopped} owned process(es).");
+            RemoveManagedVersions(root);
+            RemoveAutostart();
+            RemovePinnedShortcut(root);
+            RemoveManagedRegistration(root);
+            if (OwnedReceipt(root)) try { File.Delete(ReceiptPath(root)); } catch (Exception) { }
+            var ownsMarker = OwnedJson(Path.Combine(root, ".operon-setup.json"));
+            if (ownsMarker) try { File.Delete(Path.Combine(root, ".operon-setup.json")); } catch (Exception) { }
+            var foreignUninstaller = Path.Combine(root, "Operon_Uninstall.exe");
+            if (ownsMarker) try { if (File.Exists(foreignUninstaller)) File.Delete(foreignUninstaller); } catch (Exception) { }
+            return;
+        }
         // Installing into an existing directory replaces the previous product
         // in place. Stop only processes owned by that installation, then remove
         // its managed versions and shell integration. Profiles, workspace data
@@ -503,12 +596,42 @@ internal sealed class InstallEngine
         catch (Exception error) { Log("Old versions directory retained: " + error.Message); }
     }
 
-    private void DisconnectAgents(string profile)
+    private void DisconnectAgents(string? profile)
+    {
+        var ports = new HashSet<int>();
+        void AddProfile(string? directory)
+        {
+            if (string.IsNullOrWhiteSpace(directory)) return;
+            try
+            {
+                var file = Path.Combine(directory, "port.txt");
+                if (File.Exists(file) && int.TryParse(File.ReadAllText(file), out var port) && port is > 0 and < 65536)
+                    ports.Add(port);
+            }
+            catch (Exception) { }
+        }
+        AddProfile(profile);
+        var profiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".operon", "profiles");
+        if (Directory.Exists(profiles))
+            foreach (var directory in Directory.EnumerateDirectories(profiles)) AddProfile(directory);
+        foreach (var port in ports) if (PortOpen(port)) DisconnectPort(port);
+    }
+
+    private static bool PortOpen(int port)
     {
         try
         {
-            var portFile = Path.Combine(profile, "port.txt");
-            if (!File.Exists(portFile) || !int.TryParse(File.ReadAllText(portFile), out var port) || port is < 1 or > 65535) return;
+            using var client = new System.Net.Sockets.TcpClient();
+            var task = client.ConnectAsync("127.0.0.1", port);
+            return task.Wait(150) && client.Connected;
+        }
+        catch (Exception) { return false; }
+    }
+
+    private void DisconnectPort(int port)
+    {
+        try
+        {
             using var http = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(3) };
             using var bootstrap = JsonDocument.Parse(http.GetStringAsync($"http://127.0.0.1:{port}/api/bootstrap").GetAwaiter().GetResult());
             var token = bootstrap.RootElement.GetProperty("token").GetString();

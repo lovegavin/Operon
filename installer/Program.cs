@@ -203,10 +203,12 @@ internal sealed class SetupWindow : Form
         logs.SetBounds(34, 335, 150, 30); logs.Text = "查看安装日志"; logs.Visible = false;
         engine = new InstallEngine(spec, new Progress<InstallProgress>(value => { state.Text = value.Message; progress.Value = Math.Clamp(value.Percent, 0, 100); }));
         logs.LinkClicked += (_, _) => { Process.Start(new ProcessStartInfo(engine.LogPath) { UseShellExecute = true }); };
+        var failedAttempt = false;
         void RefreshForceVisibility()
         {
             var candidate = InstallEngine.NamedDestination(destination.Text);
-            forceReinstall.Visible = !uninstall && completed is null && engine.HasInstallation(candidate);
+            forceReinstall.Visible = !uninstall && completed is null &&
+                (engine.HasInstallation(candidate) || failedAttempt);
         }
         destination.TextChanged += (_, _) => RefreshForceVisibility();
         RefreshForceVisibility();
@@ -241,6 +243,7 @@ internal sealed class SetupWindow : Form
             {
                 completed = await Task.Run(async () => uninstall ? engine.Uninstall(target) :
                     await engine.Install(options with { InstallDir = target, ForceReinstall = forceReinstall.Checked }, cancellation.Token));
+                failedAttempt = false;
                 destination.Text = completed.InstallDir;
                 forceReinstall.Visible = false;
                 ExitCode = 0; action.Text = uninstall ? "完成" : "打开 Operon"; action.Enabled = true; cancel.Text = "关闭"; cancel.Enabled = true;
@@ -250,6 +253,7 @@ internal sealed class SetupWindow : Form
             {
                 state.Text = error is OperationCanceledException ? "安装已取消。可修改目录后重试，原有文件已保留。" : "安装未完成。可修改目录后重试，详情见日志。";
                 SaveResult(new InstallResult("failed", destination.Text, null, null, engine.LogPath, error.Message));
+                failedAttempt = true;
                 RefreshForceVisibility();
                 if (error is not OperationCanceledException) MessageBox.Show(this, error.Message, "Operon Setup", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
