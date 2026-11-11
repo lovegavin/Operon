@@ -147,7 +147,7 @@ def create_server(client):
     @server.tool()
     def operon_remote_status() -> dict:
         """List SSH execution profiles with their connected state."""
-        return client.request('/remote')
+        return client.request('/remote/summary')
 
     @server.tool()
     def operon_remote_ensure(profile_id: str) -> dict:

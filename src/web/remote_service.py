@@ -101,11 +101,16 @@ class RemoteManager:
         if key not in self.state['profiles']: raise KeyError('找不到服务器连接配置。')
         return self.state['profiles'][key]
 
-    def status(self):
+    def status(self, *, brief=False):
         def summary(key):
             info = read_json(self.directory/(key+'.catalog.json'))
             if not info:
                 return None
+            if brief:
+                # MCP status is often consumed by agents; the full catalog can
+                # be many megabytes.  Keep only connection/build facts.
+                return {k: info.get(k) for k in ('build', 'build_id', 'library_check')
+                        if k in info}
             # Status is polled every few seconds by the desktop.  Keep the
             # catalog and resource numbers, but never resend job history.
             return {k: v for k, v in info.items() if k not in ('history', 'setup', 'connections')}

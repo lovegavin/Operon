@@ -245,7 +245,11 @@ class TaskService:
             for node in before.nodes:
                 if node.kind == 'route':
                     retain_pins(node.route.graph, nodes[node.id].route.graph)
-        retain_pins(original, prepared)
+        from src.web.source_paths import remote_profile
+        # Remote workers refresh pins against their own catalog. Keeping stale
+        # canvas pins here would fail local readiness before remote prepare.
+        if not remote_profile(original):
+            retain_pins(original, prepared)
         self.app.readiness.require_ready(self.app.validate(prepared, require_files=True))
         return prepared
 

@@ -7,7 +7,8 @@ import time
 import pytest
 
 from operon.engine.environment import EnvironmentBusy
-from operon.pool_service import PoolClient, PoolControlServer, PoolService
+from operon.engine.facade import owner_identity
+from operon.pool_service import PoolClient, PoolControlServer, PoolError, PoolService
 from src.web.models import Graph
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -346,3 +347,31 @@ def test_workspace_stop_is_explicit_and_does_not_cancel_running_work(pool):
     assert service.details(wsa, job['id'], principal='alice')['status'] in ('running', 'preparing')
     finish(service, wsa, job['id'])
     wait_until(lambda: service.details(wsa, job['id'], principal='alice')['status'] == 'complete')
+
+
+def test_reregistration_reaps_session_from_dead_process(pool, tmp_path):
+    service, _, wsa, _ = pool
+    dead = {'pid': 99999999, 'created': 1.0, 'boot_id': 'dead-boot', 'host': 'test'}
+    service.open_session(wsa, principal='alice', owner=dead)
+    code2 = tmp_path / 'code2'
+    code2.mkdir()
+    service.add_workspace(wsa, principal='alice', code_root=code2)
+    assert service.sessions == {}
+
+def test_reregistration_keeps_live_client_blocked(pool, tmp_path):
+    service, _, wsa, _ = pool
+    service.open_session(wsa, principal='alice', owner=owner_identity())
+    code2 = tmp_path / 'code2'
+    code2.mkdir()
+    with pytest.raises(PoolError, match='Finish tasks and close workspace clients'):
+        service.add_workspace(wsa, principal='alice', code_root=code2)
+
+
+def test_force_reregistration_closes_live_client(pool, tmp_path):
+    service, _, wsa, _ = pool
+    service.open_session(wsa, principal='alice', owner=owner_identity())
+    code2 = tmp_path / 'code2'
+    code2.mkdir()
+    service.add_workspace(wsa, principal='alice', code_root=code2, force=True)
+    assert service.sessions == {}
+    assert service.workspaces[str(wsa.resolve())].settings.code_root == code2.resolve()

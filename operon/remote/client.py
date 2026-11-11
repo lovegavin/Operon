@@ -56,7 +56,7 @@ class SSHConnection:
                 return (prefix + 'unset PYTHONHOME PYTHONPATH; export PYTHONNOUSERSITE=1; cd -- '
                         + shlex.quote(profile['app_dir']) + ' && exec ' + shlex.quote(profile['python'])
                         + ' -u -m operon.remote.server --workspace ' + shlex.quote(profile['workspace'])
-                        + (' --upgrade' if install else ''))
+                        + (' --upgrade' if install else '') + (' --force-upgrade' if force else ''))
             if profile.get('mode', 'exec') == 'shell':
                 self.channel = self.client.invoke_shell(term='vt100', width=160, height=50)
                 self._enter_shell(profile.get('menu_choice', ''))

@@ -24,6 +24,10 @@ def mount_remote(app, service):
     def profiles():
         return manager.status()
 
+    @app.get('/api/remote/summary')
+    def summary():
+        return manager.status(brief=True)
+
     @app.post('/api/remote/profiles')
     def save(payload: dict):
         return manager.save(payload)

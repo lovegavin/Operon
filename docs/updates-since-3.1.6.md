@@ -27,6 +27,10 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 - 4.0.8 accepts foreign non-empty install folders, deletes only Operon-managed
   files, disconnects all MCP clients before uninstall, offers force reinstall
   after failure, and uploads local inputs to the selected remote workspace.
+- 4.0.9 closes all remote workspace sessions on a forced server upgrade and
+  prunes sessions left by an exited process before re-registering the library.
+- Remote runs refresh stale plugin pins against the selected server; MCP remote
+  status returns a compact summary instead of the full catalog.
 
 ## Upgrade path
 
@@ -44,6 +48,7 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 | 4.0.6 | Fixes preview label order, stale readiness warnings, duplicate output names, and the memory-management warning. Library and protocol are unchanged. |
 | 4.0.7 | Fixes remote admission terminal-state display, stale readiness after canvas edits, unmanaged-memory whole-pool reservation, and oversized remote status. Library and protocol are unchanged. |
 | 4.0.8 | Installer accepts foreign folders and removes only Operon files; uninstall disconnects all MCP clients; Setup offers force reinstall after failure. Local files can be uploaded/staged for remote runs. Library 8.0.3 and protocol are unchanged. |
+| 4.0.9 | A forced server upgrade closes every remote workspace client before the new application registers, stale sessions from an exited process are pruned, remote runs refresh old plugin pins, and MCP remote status is compact. Normal upgrades still abort on active work. Library 8.0.3 and protocol are unchanged. |
 
 ## Reinstall or upgrade a Windows installation
 

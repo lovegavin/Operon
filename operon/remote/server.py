@@ -820,7 +820,10 @@ def main():
     parser.add_argument('--workspace', required=True)
     parser.add_argument('--serve', action='store_true')
     parser.add_argument('--upgrade', action='store_true', help='Retire an idle previous installation before reconnecting')
+    parser.add_argument('--force-upgrade', action='store_true', help='Close all clients before replacing an installation')
     args = parser.parse_args()
+    if args.force_upgrade:
+        os.environ['OPERON_FORCE_POOL_REBIND'] = '1'
     workspace = Path(args.workspace).expanduser().resolve()
     if args.serve:
         serve(workspace); return
