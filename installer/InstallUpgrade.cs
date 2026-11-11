@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace Operon.Setup;
 
-internal sealed record UpgradeTarget(string Directory, string Profile);
+internal sealed record UpgradeTarget(string Directory, string Profile, string Workspace);
 
 // Never terminate processes by name. A managed version path is the boundary;
 // normal window closure preserves the desktop's draft-flush and cancel prompts.
@@ -23,7 +23,12 @@ internal sealed class InstallUpgrade : IDisposable
             using var document = JsonDocument.Parse(File.ReadAllText(marker));
             var id = document.RootElement.GetProperty("profile_id").GetString();
             if (!Guid.TryParseExact(id, "N", out _)) throw new InvalidDataException("旧版本的档案标识无效，原文件已保留。");
-            targets.Add(new(directory, Path.Combine(Path.GetDirectoryName(receipt.Profile)!, id!)));
+            var profile = Path.Combine(Path.GetDirectoryName(receipt.Profile)!, id!);
+            var workspace = profile + Path.DirectorySeparatorChar + "workspace";
+            if (document.RootElement.TryGetProperty("workspace", out var owned) &&
+                owned.ValueKind == JsonValueKind.String && owned.GetString() is { Length: > 0 } ownedPath)
+                workspace = InstallFiles.Inside(root, ownedPath.Replace(Path.DirectorySeparatorChar, '/'));
+            targets.Add(new(directory, profile, workspace));
         }
         return targets;
     }
@@ -52,9 +57,9 @@ internal sealed class InstallUpgrade : IDisposable
     private static bool IsHost(OwnedProcess process) => new[] { "Operon Studio.exe", "Operon Studio.exe" }
         .Contains(Path.GetFileName(process.Executable), StringComparer.OrdinalIgnoreCase);
 
-    internal static void CheckRecordedTasks(string profile)
+    internal static void CheckRecordedTasks(string workspace)
     {
-        var data = Path.Combine(profile, "workspace", ".studio");
+        var data = Path.Combine(workspace, ".studio");
         CheckDataTasks(data);
     }
 
@@ -149,11 +154,10 @@ internal sealed class InstallUpgrade : IDisposable
             var processes = Processes(targets);
             var hosts = processes.Where(IsHost).ToList();
             CheckPoolWorkspaces(targets, processes);
-            // Check every affected window before closing any of them.
-            foreach (var target in targets.Where(t => processes.Any(p => p.Executable.StartsWith(
-                         t.Directory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))))
+            // Check every affected workspace before closing any window.
+            foreach (var target in targets)
             {
-                CheckRecordedTasks(target.Profile);
+                CheckRecordedTasks(target.Workspace);
                 if (hosts.Any(p => string.Equals(Path.GetDirectoryName(p.Executable), target.Directory, StringComparison.OrdinalIgnoreCase)))
                     await CheckWindow(target, token);
             }

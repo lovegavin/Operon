@@ -74,6 +74,10 @@ installs scientific packages silently during a run.
   profile. Uninstall preserves the workspace and analysis results.
 - Installing or upgrading a Linux server is one full action. Operators are not
   uploaded package by package.
+- Reinstalling Windows detects the existing installation and asks first. A
+  normal reinstall refuses while old tasks are active; **强制重装** stops the old
+  processes and removes the old version while keeping the workspace and
+  analysis results.
 - **Force server upgrade** cancels every running Operon task on that server,
   closes all sessions, then replaces the server build. The desktop asks for
   confirmation first.

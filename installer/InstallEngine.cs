@@ -7,7 +7,7 @@ using Microsoft.Win32;
 namespace Operon.Setup;
 
 internal sealed record InstallOptions(string InstallDir, string? Payload = null,
-    bool Register = true);
+    bool Register = true, bool ForceReinstall = false);
 internal sealed record InstallReceipt(string Owner, string Version, string Current, string Profile,
     List<string> Versions, Dictionary<string, string> Shortcuts, string? UninstallKey);
 internal sealed record InstallResult(string Status, string InstallDir, string? Executable, string? Profile,
@@ -237,6 +237,12 @@ internal sealed class InstallEngine
         var committed = false;
         try
         {
+            if (old is not null && options.ForceReinstall)
+            {
+                Report("正在强制卸载安装目录中的旧版本…", 1);
+                RemovePreviousInstallation(root, old);
+                old = null;
+            }
             var cache = Path.Combine(Path.GetDirectoryName(work)!, "cache");
             var cached = InstallFiles.Inside(cache, spec.Sha256 + ".zip");
             bool reuseCache = options.Payload is not null || (File.Exists(cached) &&
@@ -449,6 +455,45 @@ internal sealed class InstallEngine
         catch (Exception error) { Log("Install root retained: " + error.Message); }
         Report("已卸载 Operon；用户档案、路线、数据和任务记录均已保留。",100);
         return new("uninstalled", root, null, receipt.Profile, LogPath);
+    }
+
+    internal bool HasInstallation(string root) => ReadReceipt(root) is not null;
+
+    private void RemovePreviousInstallation(string root, InstallReceipt receipt)
+    {
+        // Installing into an existing directory replaces the previous product
+        // in place. Stop only processes owned by that installation, then remove
+        // its managed versions and shell integration. Profiles, workspace data
+        // and analysis results stay outside this deletion.
+        DisconnectAgents(receipt.Profile);
+        var stopped = TerminateManagedProcesses(root);
+        if (stopped > 0) Log($"Stopped {stopped} process(es) from the previous installation.");
+        var allowedLinks = new[] {
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Operon Studio.lnk"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Operon", "Operon Studio.lnk")
+        };
+        foreach (var path in receipt.Shortcuts.Keys)
+        {
+            if (!allowedLinks.Contains(path, StringComparer.OrdinalIgnoreCase)) continue;
+            try { if (File.Exists(path)) File.Delete(path); }
+            catch (Exception error) { Log("Old shortcut retained: " + error.Message); }
+        }
+        RemoveAutostart();
+        RemovePinnedShortcut(root);
+        foreach (var relative in receipt.Versions)
+            try { CleanVersion(root, relative, Path.GetDirectoryName(receipt.Profile)!, receipt.Profile); }
+            catch (Exception error) { Log("Old version retained: " + error.Message); }
+        if (receipt.UninstallKey is not null)
+            try { Registry.CurrentUser.DeleteSubKeyTree(receipt.UninstallKey, false); }
+            catch (Exception error) { Log("Old registration retained: " + error.Message); }
+        try { File.Delete(ReceiptPath(root)); } catch (Exception error) { Log("Old receipt retained: " + error.Message); }
+        try { File.Delete(Path.Combine(root, ".operon-setup.json")); } catch (Exception error) { Log("Old setup marker retained: " + error.Message); }
+        var uninstaller = Path.Combine(root, "Operon_Uninstall.exe");
+        try { if (File.Exists(uninstaller)) File.Delete(uninstaller); }
+        catch (Exception error) { Log("Old uninstaller retained: " + error.Message); }
+        var versions = Path.Combine(root, "versions");
+        try { if (Directory.Exists(versions) && !Directory.EnumerateFileSystemEntries(versions).Any()) Directory.Delete(versions); }
+        catch (Exception error) { Log("Old versions directory retained: " + error.Message); }
     }
 
     private void DisconnectAgents(string profile)

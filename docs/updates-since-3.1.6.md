@@ -27,16 +27,24 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 | 4.0.2 | Setup-created installations use `<install root>/workspace`; profile metadata and logs still live under `%USERPROFILE%\.operon`. |
 | 4.0.3 | Force server upgrade cancels active remote tasks and closes all sessions. Uninstall disconnects connected MCP clients instead of asking you to do it. |
 
-## Upgrade a Windows installation
+## Reinstall or upgrade a Windows installation
 
-1. Close running jobs and use **完全退出（停止 Python）**.
-2. Run the 4.0.3 setup. It installs beside older versions and creates a fresh
-   profile.
-3. The old workspace is **not moved automatically**. It remains at
-   `%USERPROFILE%\.operon\profiles\<old-id>\workspace`. Copy the files you need
-   into `<install root>\workspace`, or keep using the old copy.
-4. Start the new installation and confirm that **服务端维护** shows the expected
-   build before running production work.
+If the selected directory already contains Operon Studio, Setup asks before
+replacing it.
+
+- **Normal reinstall** closes the old window and checks its local and remote
+  jobs first. If any task is still running, Setup refuses the reinstall and
+  leaves the old installation untouched.
+- **强制重装** is the quick override. It terminates the old Operon/Python
+  processes, removes the old version files, and then installs the new version.
+  It never deletes the profile, workspace, routes, results, or job records.
+- A new installation keeps its working workspace under the installation root
+  (`<install root>/workspace`). An existing 4.0.x profile workspace is not moved
+  automatically; it remains under
+  `%USERPROFILE%\.operon\profiles\<old-id>\workspace`. Copy any files you need
+  into the new workspace.
+- Start the new installation and confirm that **服务端维护** shows the expected
+  build before running production work.
 
 ## Upgrade a remote server
 

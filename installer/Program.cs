@@ -24,6 +24,7 @@ internal static class Program
                 --cli             Alias for --quiet; no windows or application launch.
                 --result FILE     Save the same JSON result printed to stdout.
                 --no-register     Do not create shortcuts or Windows uninstall registration.
+                --force           Reinstall by terminating the old version and preserving its workspace.
                 --payload ZIP     Use a local payload matching this installer's embedded checksum.
                 --help, -h        Show this help without installing.
 
@@ -40,7 +41,7 @@ internal static class Program
             var values = new Dictionary<string, string>(); var flags = new HashSet<string>();
             for (int i = 0; i < args.Length; i++)
             {
-                if (args[i] is "--quiet" or "--cli" or "--install" or "--uninstall" or "--no-register" or "--uninstall-worker") flags.Add(args[i]);
+                if (args[i] is "--quiet" or "--cli" or "--install" or "--uninstall" or "--no-register" or "--uninstall-worker" or "--force") flags.Add(args[i]);
                 else if (args[i] is "--install-dir" or "--payload" or "--result")
                 {
                     var key = args[i];
@@ -54,7 +55,7 @@ internal static class Program
             var spec = InstallFiles.EmbeddedSpec();
             var options = new InstallOptions(values.GetValueOrDefault("--install-dir") ?? Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Operon Studio"),
-                values.GetValueOrDefault("--payload"), !flags.Contains("--no-register"));
+                values.GetValueOrDefault("--payload"), !flags.Contains("--no-register"), flags.Contains("--force"));
             var programName = Path.GetFileNameWithoutExtension(Environment.ProcessPath) ?? string.Empty;
             bool uninstall = flags.Contains("--uninstall") ||
                 (!flags.Contains("--install") && programName.Contains("uninstall", StringComparison.OrdinalIgnoreCase));
@@ -163,6 +164,13 @@ internal sealed class SetupWindow : Form
     private readonly InstallEngine engine;
     private readonly TextBox destination = new();
     private readonly Label state = new();
+    private readonly CheckBox forceReinstall = new()
+    {
+        Text = "强制重装（终止旧版本任务，保留工作区）",
+        AutoSize = true,
+        Visible = false,
+        ForeColor = Color.FromArgb(190, 70, 40)
+    };
     private readonly ProgressBar progress = new();
     private readonly Button action = new SetupActionButton(), cancel = new(), browse = new();
     private readonly LinkLabel logs = new();
@@ -191,9 +199,17 @@ internal sealed class SetupWindow : Form
             if (dialog.ShowDialog(this) == DialogResult.OK) destination.Text = dialog.SelectedPath; };
         state.SetBounds(34, 222, 562, 52); state.Text = uninstall ? "仅移除本安装程序管理的软件文件。" : "创建独立环境。旧档案保留，可稍后导入路线。";
         progress.SetBounds(34, 284, 562, 6); progress.Style = ProgressBarStyle.Continuous;
+        forceReinstall.SetBounds(34, 297, 500, 24);
         logs.SetBounds(34, 335, 150, 30); logs.Text = "查看安装日志"; logs.Visible = false;
         engine = new InstallEngine(spec, new Progress<InstallProgress>(value => { state.Text = value.Message; progress.Value = Math.Clamp(value.Percent, 0, 100); }));
         logs.LinkClicked += (_, _) => { Process.Start(new ProcessStartInfo(engine.LogPath) { UseShellExecute = true }); };
+        void RefreshForceVisibility()
+        {
+            var candidate = InstallEngine.NamedDestination(destination.Text);
+            forceReinstall.Visible = !uninstall && engine.HasInstallation(candidate);
+        }
+        destination.TextChanged += (_, _) => RefreshForceVisibility();
+        RefreshForceVisibility();
         cancel.SetBounds(370, 327, 104, 40); cancel.Text = "取消";
         cancel.Click += (_, _) => { if (running) { cancellation?.Cancel(); cancel.Enabled = false; state.Text = "正在安全停止，请稍候…"; } else Close(); };
         action.SetBounds(486, 327, 110, 40); action.Text = uninstall ? "卸载" : "安装";
@@ -211,7 +227,11 @@ internal sealed class SetupWindow : Form
             }
             var target = uninstall ? destination.Text : InstallEngine.NamedDestination(destination.Text);
             if (uninstall) { if (!ConfirmForceUninstall(target)) return; }
-            else if (!ConfirmInstall(target)) return;
+            else
+            {
+                if (!ConfirmInstall(target)) return;
+                if (engine.HasInstallation(target) && !ConfirmReinstall(target)) return;
+            }
             destination.Text = target;
             running = true; action.Text = uninstall ? "卸载中…" : "安装中…";
             action.Enabled = browse.Enabled = false; destination.ReadOnly = true; logs.Visible = true;
@@ -220,7 +240,7 @@ internal sealed class SetupWindow : Form
             try
             {
                 completed = await Task.Run(async () => uninstall ? engine.Uninstall(target) :
-                    await engine.Install(options with { InstallDir = target }, cancellation.Token));
+                    await engine.Install(options with { InstallDir = target, ForceReinstall = forceReinstall.Checked }, cancellation.Token));
                 destination.Text = completed.InstallDir;
                 ExitCode = 0; action.Text = uninstall ? "完成" : "打开 Operon"; action.Enabled = true; cancel.Text = "关闭"; cancel.Enabled = true;
                 SaveResult(completed);
@@ -242,7 +262,7 @@ internal sealed class SetupWindow : Form
                 }
             }
         };
-        Controls.AddRange([title, subtitle, label, destination, browse, state, progress, logs, cancel, action]);
+        Controls.AddRange([title, subtitle, label, destination, browse, state, progress, forceReinstall, logs, cancel, action]);
         FormClosing += (_, e) => { if (running) { e.Cancel = true; cancellation?.Cancel(); cancel.Enabled = false; } };
     }
 
@@ -252,6 +272,19 @@ internal sealed class SetupWindow : Form
             $"将安装 Operon Studio 到：\n\n{target}\n\n安装位置已自动补全，可返回修改。是否继续？",
             "确认安装位置", MessageBoxButtons.YesNo, MessageBoxIcon.Information,
             MessageBoxDefaultButton.Button1);
+        return answer == DialogResult.Yes;
+    }
+
+    private bool ConfirmReinstall(string target)
+    {
+        var forced = forceReinstall.Checked;
+        var answer = MessageBox.Show(this,
+            forced
+                ? $"检测到旧版本。将强制终止旧版本的所有 Operon / Python 进程，删除旧版本文件，然后安装新版本。\n\n安装目录：{target}\n\n旧用户档案、工作区、路线、数据和任务记录会保留。是否继续？"
+                : $"检测到已安装的 Operon Studio，是否覆盖重装？\n\n安装目录：{target}\n\n安装程序会先安全关闭旧版本；如果旧版本仍有进行中的任务，安装会被拒绝。\n如需立即终止旧任务并重装，请勾选“强制重装（终止旧版本任务，保留工作区）”。",
+            forced ? "强制重装 Operon Studio" : "覆盖安装 Operon Studio",
+            MessageBoxButtons.YesNo, forced ? MessageBoxIcon.Warning : MessageBoxIcon.Information,
+            MessageBoxDefaultButton.Button2);
         return answer == DialogResult.Yes;
     }
 
