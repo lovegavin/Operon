@@ -14,6 +14,8 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 - New Windows installations keep their workspace under the installation root.
 - 4.0.3 adds a force-upgrade option for a remote server and removes the old
   "disconnect MCP first" uninstall warning.
+- 4.0.4 is an installer hotfix: Setup no longer crashes when you browse to or
+  type a non-empty folder that is not an existing Operon installation.
 
 ## Upgrade path
 
@@ -26,6 +28,7 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 | 4.0.1 | One-click server install records the desktop build, compares library identity instead of per-operator hashes, and defers dependency checks until execution. |
 | 4.0.2 | Setup-created installations use `<install root>/workspace`; profile metadata and logs still live under `%USERPROFILE%\.operon`. |
 | 4.0.3 | Force server upgrade cancels active remote tasks and closes all sessions. Uninstall disconnects connected MCP clients instead of asking you to do it. |
+| 4.0.4 | Setup no longer crashes when checking a non-empty folder that is not an existing Operon installation. If Setup asks to reinstall, normal reinstall still checks for running tasks; 强制重装 preserves the workspace. |
 
 ## Reinstall or upgrade a Windows installation
 
@@ -45,6 +48,14 @@ replacing it.
   into the new workspace.
 - Start the new installation and confirm that **服务端维护** shows the expected
   build before running production work.
+
+## If Setup asks to reinstall
+
+This is the 4.0.4 directory-probe fix in practice. You can select an existing
+Operon installation directory, or any non-empty folder. A foreign folder is
+reported as not being an Operon installation instead of crashing Setup. An
+actual existing installation still offers the normal reinstall and force
+reinstall choices described above.
 
 ## Upgrade a remote server
 
