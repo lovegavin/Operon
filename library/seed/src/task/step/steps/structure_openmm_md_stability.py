@@ -25,8 +25,8 @@ def _load_openmm():
         from pdbfixer import PDBFixer
     except ImportError as exc:  # pragma: no cover - dependency guard
         raise StepError(
-            "structure_openmm_md_stability: openmm and pdbfixer are required; install them with "
-            "'python -m pip install openmm pdbfixer'"
+            "structure_openmm_md_stability: openmm is required; install them with "
+            "'python -m pip install openmm'"
         ) from exc
     return openmm, unit, LangevinMiddleIntegrator, LocalEnergyMinimizer, Platform, ForceField, HBonds, NoCutoff, PDBFixer
 
@@ -103,6 +103,7 @@ def md_run(
     openmm, unit, LangevinMiddleIntegrator, LocalEnergyMinimizer, Platform, ForceField, HBonds, NoCutoff, PDBFixer = _load_openmm()
 
     fixer = PDBFixer(filename=str(pdb_path))
+    fixer.removeHeterogens(False)
     fixer.findMissingResidues()
     fixer.findNonstandardResidues()
     fixer.replaceNonstandardResidues()
@@ -202,8 +203,8 @@ class StructureOpenmmMdStabilityStep(Step):
                 },
             },
         },
-        "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ["openmm", "pdbfixer"],
+        "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
+        "dependencies": ["openmm==8.1.1", "numpy==1.26.4"],
         "dependency_imports": ["openmm", "pdbfixer"],
         "inputs_arity": 1,
         "outputs": [],

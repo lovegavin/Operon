@@ -27,9 +27,9 @@ or statistical assumptions for a particular dataset.
 
 ## Runtime environment
 
-Declared Python requirements: `openmm`, `pdbfixer`. Prepare them explicitly in the selected execution environment; registration and application startup do not install them.
+Declared Python requirements: `openmm==8.1.1`, `numpy==1.26.4`. Prepare them explicitly in the selected execution environment; registration and application startup do not install them.
 
-Runs in the shared Operon interpreter.
+This operator executes in the dedicated `openmm81` interpreter; see docs/large_resources.md for resolution and overrides.
 
 ## Limitations
 

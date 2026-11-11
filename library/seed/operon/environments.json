@@ -124,6 +124,25 @@
       ],
       "wired": true,
       "notes": "Standalone micromamba env: conda supplies rdkit/gemmi/dm-tree (no wheels on this host) and the CPU torch wheel comes from download.pytorch.org; Boltz itself is installed with --no-deps because its strict scipy/wandb pins would otherwise downgrade the shared stack. Verified on glibc 2.17: `import boltz.main` succeeds."
+    },
+    "openmm81": {
+      "title": "OpenMM 8.1.1 / PDBFixer 1.9 structure preparation",
+      "python": "3.11",
+      "imports": [
+        "openmm",
+        "pdbfixer",
+        "numpy"
+      ],
+      "requirements": [
+        "openmm==8.1.1",
+        "numpy==1.26.4",
+        "setuptools>=68",
+        "wheel"
+      ],
+      "no_build_isolation": [
+        "pdbfixer @ https://github.com/openmm/pdbfixer/archive/6bf10e138f6475f6f1850dae78d7bf1b420a1612.tar.gz"
+      ],
+      "notes": "OpenMM 8.1.1 wheels use the NumPy 1 ABI and PDBFixer 1.9 is not published on PyPI. This isolated Python 3.11 environment pins both without downgrading the shared NumPy 2 runtime; PDBFixer is built from the pinned upstream commit without build isolation."
     }
   }
 }

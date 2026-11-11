@@ -12,6 +12,9 @@ from src.task.step.steps.structure_interface_core import StructureInterfaceCoreS
 from src.task.step.steps.structure_interface_residue_energy import (
     StructureInterfaceResidueEnergyStep,
 )
+from src.task.step.steps.structure_openmm_energy import StructureOpenmmEnergyStep
+from src.task.step.steps.structure_openmm_md_rmsf import StructureOpenmmMdRmsfStep
+from src.task.step.steps.structure_openmm_md_stability import StructureOpenmmMdStabilityStep
 from src.task.step.steps.structure_paratope_predict import StructureParatopePredictStep
 
 CASES = [
@@ -58,17 +61,24 @@ def test_interface_statistics_are_static_labels(step_cls, expected):
 
 
 @pytest.mark.parametrize(
-    "step_cls",
+    "step_cls,imports",
     [
-        InterfaceAlanineScanStep,
-        InterfaceMmgbsaDeltaStep,
-        StructureInterfaceResidueEnergyStep,
+        (InterfaceAlanineScanStep, ["openmm"]),
+        (InterfaceMmgbsaDeltaStep, ["openmm", "pdbfixer"]),
+        (StructureInterfaceResidueEnergyStep, ["openmm", "pdbfixer"]),
+        (StructureOpenmmEnergyStep, ["openmm", "pdbfixer"]),
+        (StructureOpenmmMdRmsfStep, ["openmm", "pdbfixer"]),
+        (StructureOpenmmMdStabilityStep, ["openmm", "pdbfixer"]),
     ],
 )
-def test_interface_operators_declare_openmm_dependencies(step_cls):
-    dependencies = step_cls.definition["dependencies"]
-    assert "openmm>=8.0" in dependencies
-    assert "pdbfixer>=1.9" in dependencies
+def test_interface_operators_use_openmm81_environment(step_cls, imports):
+    definition = step_cls.definition
+    assert definition["resources"]["environment"] == "openmm81"
+    assert definition["dependency_imports"] == imports
+    dependencies = definition["dependencies"]
+    assert "openmm==8.1.1" in dependencies
+    assert "numpy==1.26.4" in dependencies
+    assert not any("pdbfixer" in item for item in dependencies)
 
 
 def test_export_results_hic_dependency_is_optional():

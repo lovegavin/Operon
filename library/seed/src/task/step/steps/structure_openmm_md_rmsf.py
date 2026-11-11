@@ -50,8 +50,9 @@ def prepare(pdb_path: Path, *, ph: float = 7.0):
     try:
         from pdbfixer import PDBFixer
     except ImportError as exc:  # pragma: no cover - dependency guard
-        raise StepError("structure_openmm_md_rmsf: pdbfixer is required; install it with 'python -m pip install pdbfixer'") from exc
+        raise StepError("structure_openmm_md_rmsf: openmm is required; install it with 'python -m pip install openmm'") from exc
     fixer = PDBFixer(filename=str(pdb_path))
+    fixer.removeHeterogens(False)
     fixer.findMissingResidues()
     fixer.findNonstandardResidues()
     fixer.replaceNonstandardResidues()
@@ -225,8 +226,8 @@ class StructureOpenmmMdRmsfStep(Step):
             ],
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
         },
-        "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": ["openmm>=8.0", "pdbfixer>=1.9"],
+        "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
+        "dependencies": ["openmm==8.1.1", "numpy==1.26.4"],
         "dependency_imports": ["openmm", "pdbfixer"],
         "inputs_arity": 1,
         "outputs": [],
