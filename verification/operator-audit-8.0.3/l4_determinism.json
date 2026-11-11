@@ -1,0 +1,191 @@
+{
+  "sampled": 37,
+  "deterministic": 36,
+  "results": [
+    {
+      "id": "ttest_one_sample",
+      "deterministic": true,
+      "md5": " e233ba87b7c72420221f5a6b6e5aa977 e233ba87b7c72420221f5a6b6e5aa977"
+    },
+    {
+      "id": "zscore",
+      "deterministic": true,
+      "md5": " b3db971d9f974cd912c8a70c2dfa3bd8 b3db971d9f974cd912c8a70c2dfa3bd8"
+    },
+    {
+      "id": "correlation",
+      "deterministic": false,
+      "md5": ""
+    },
+    {
+      "id": "pca",
+      "deterministic": true,
+      "md5": " 83ba86fcf307dae3273068db990b23b5 83ba86fcf307dae3273068db990b23b5"
+    },
+    {
+      "id": "anova",
+      "deterministic": true,
+      "md5": " e0539db9237e399da76ad8ef442af0df e0539db9237e399da76ad8ef442af0df"
+    },
+    {
+      "id": "kruskal",
+      "deterministic": true,
+      "md5": " 4ed9e4cdbfb12ee17775ca2f29d6f79f 4ed9e4cdbfb12ee17775ca2f29d6f79f"
+    },
+    {
+      "id": "mann_kendall",
+      "deterministic": true,
+      "md5": " a4dbcac2744a2ed8ec6bee3aaf613e2f a4dbcac2744a2ed8ec6bee3aaf613e2f"
+    },
+    {
+      "id": "shapiro",
+      "deterministic": true,
+      "md5": " 9fc35fded00b72f1ca82d12e4b615c14 9fc35fded00b72f1ca82d12e4b615c14"
+    },
+    {
+      "id": "chi_square",
+      "deterministic": true,
+      "md5": " 575d67bdc05e5b580b4a59ef041123a8 575d67bdc05e5b580b4a59ef041123a8"
+    },
+    {
+      "id": "fisher_alpha",
+      "deterministic": true,
+      "md5": " 3bf8bd941e91941ef6e0e181062fa2e5 3bf8bd941e91941ef6e0e181062fa2e5"
+    },
+    {
+      "id": "betadiver",
+      "deterministic": true,
+      "md5": " d33dc7bcd1eb6f3f5161ad3420ea6bc7 d33dc7bcd1eb6f3f5161ad3420ea6bc7"
+    },
+    {
+      "id": "morisita",
+      "deterministic": true,
+      "md5": " bffc2d9ea4839dfa9290ee3d02debe69 bffc2d9ea4839dfa9290ee3d02debe69"
+    },
+    {
+      "id": "mds",
+      "deterministic": true,
+      "md5": " 9f31f6ce6a1d03b969360a395bda243a 9f31f6ce6a1d03b969360a395bda243a"
+    },
+    {
+      "id": "nmf",
+      "deterministic": true,
+      "md5": " 79bd4733126b3b2f4d50868b472be352 79bd4733126b3b2f4d50868b472be352"
+    },
+    {
+      "id": "esm_embedding_kmeans_silhouette",
+      "deterministic": true,
+      "md5": "2313fc635ec4d91b2bfa2dead0eab7a4 2313fc635ec4d91b2bfa2dead0eab7a4"
+    },
+    {
+      "id": "esm_embedding_umap_projection",
+      "deterministic": true,
+      "md5": "a8915de6acac755002dd1792d7baf677 a8915de6acac755002dd1792d7baf677"
+    },
+    {
+      "id": "genome_alignment_stats",
+      "deterministic": true,
+      "md5": "0449ac52be37d96247eacb839a899cf4 0449ac52be37d96247eacb839a899cf4"
+    },
+    {
+      "id": "genome_rearrangement_summary",
+      "deterministic": true,
+      "md5": "9fa99df9ebcc03e99a9969fceb67a7af 9fa99df9ebcc03e99a9969fceb67a7af"
+    },
+    {
+      "id": "genome_synteny_blocks",
+      "deterministic": true,
+      "md5": "c53be5c86c56a4061e00ea2acb962f8e c53be5c86c56a4061e00ea2acb962f8e"
+    },
+    {
+      "id": "gwas_association",
+      "deterministic": true,
+      "md5": "a7d1197df484fcbc63f3944aabb01462 a7d1197df484fcbc63f3944aabb01462"
+    },
+    {
+      "id": "gwas_inflation",
+      "deterministic": true,
+      "md5": "24d26abc092e51adf5d97456fbd51634 24d26abc092e51adf5d97456fbd51634"
+    },
+    {
+      "id": "gwas_top_hits",
+      "deterministic": true,
+      "md5": "67d67f2756d25993e3f401ba85bf8575 67d67f2756d25993e3f401ba85bf8575"
+    },
+    {
+      "id": "proteinmpnn_design_cluster",
+      "deterministic": true,
+      "md5": "d632a91e8340eb7f6ac0fbd2b174beee d632a91e8340eb7f6ac0fbd2b174beee"
+    },
+    {
+      "id": "proteinmpnn_design_profile",
+      "deterministic": true,
+      "md5": "d10674bf27fbce3e6f87b34ab1ad9ed5 d10674bf27fbce3e6f87b34ab1ad9ed5"
+    },
+    {
+      "id": "rdkit_conformer_cluster",
+      "deterministic": true,
+      "md5": "acce41be71cc8f79bee676fd92db43db acce41be71cc8f79bee676fd92db43db"
+    },
+    {
+      "id": "rdkit_murcko_fingerprint",
+      "deterministic": true,
+      "md5": "1b7efbfde3f1cecd23041642c22a5aa4 1b7efbfde3f1cecd23041642c22a5aa4"
+    },
+    {
+      "id": "sequence_cpg_island",
+      "deterministic": true,
+      "md5": "9a075b824d98101ae0cf400d324894d4 9a075b824d98101ae0cf400d324894d4"
+    },
+    {
+      "id": "structure_amide_pi_bonds",
+      "deterministic": true,
+      "md5": "3fb6ce9a14043e753d5467b9556cf9ed 3fb6ce9a14043e753d5467b9556cf9ed"
+    },
+    {
+      "id": "structure_aromatic_stacking",
+      "deterministic": true,
+      "md5": "d4eb7da3cf9808126ece3b34fcbece32 d4eb7da3cf9808126ece3b34fcbece32"
+    },
+    {
+      "id": "structure_cation_pi",
+      "deterministic": true,
+      "md5": "ec8ebabdcdaf62d27e6571a3134b629e ec8ebabdcdaf62d27e6571a3134b629e"
+    },
+    {
+      "id": "structure_halogen_bond_scan",
+      "deterministic": true,
+      "md5": "1afea9840dffb3dfe3044cf03bf70113 1afea9840dffb3dfe3044cf03bf70113"
+    },
+    {
+      "id": "structure_helix_bend",
+      "deterministic": true,
+      "md5": "55a5608caed07557d66607df2d078059 55a5608caed07557d66607df2d078059"
+    },
+    {
+      "id": "structure_helix_helix_angle",
+      "deterministic": true,
+      "md5": "2b003768630f36d07e0933f1887f6a6f 2b003768630f36d07e0933f1887f6a6f"
+    },
+    {
+      "id": "structure_ligand_clash",
+      "deterministic": true,
+      "md5": "d7e270ff556fdc7da7ecb69452aab893 d7e270ff556fdc7da7ecb69452aab893"
+    },
+    {
+      "id": "vcf_hardy_weinberg",
+      "deterministic": true,
+      "md5": "42eb66c246755cd63dee917b89d77287 42eb66c246755cd63dee917b89d77287"
+    },
+    {
+      "id": "vcf_sample_stats",
+      "deterministic": true,
+      "md5": "3c1915b0f2e294cc32d24dcc1db923c8 3c1915b0f2e294cc32d24dcc1db923c8"
+    },
+    {
+      "id": "vcf_site_missingness",
+      "deterministic": true,
+      "md5": "0851de4f4b56c8d3590ac9ab0f667690 0851de4f4b56c8d3590ac9ab0f667690"
+    }
+  ]
+}

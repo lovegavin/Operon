@@ -125,11 +125,11 @@ class InterfaceMmgbsaDeltaStep(Step):
                     "ndim": 2,
                 }
             ],
-            "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
+            "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "dims": [{"param": "term_dim", "default": "term"}, "statistic"], "info_open": True, "axis_info_open": False, "labels": {"statistic": ["complex_kj", "binder_kj", "target_kj", "delta_kj"]}}},
             "outputs": [],
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": [],
+        "dependencies": ["openmm>=8.0", "pdbfixer>=1.9"],
         "dependency_imports": ["openmm", "pdbfixer"],
         "inputs_arity": 1,
         "outputs": [],

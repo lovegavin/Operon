@@ -144,7 +144,13 @@ def contact_source(value, params, chunk, ctx):
 
 
 def write_contacts(path, value, params, ctx, format):
-    import hictkpy
+    try:
+        import hictkpy
+    except ImportError as exc:
+        raise StepError(
+            "export_results: format 'hic'/'cool' requires the optional hictkpy "
+            "package (hictkpy>=1.4,<2); CSV, FASTA and PDB exports do not"
+        ) from exc
     buffer = max(1, int(float(params.get('buffer_mb', 1)) * 1024**2))
     if ctx.memory:
         buffer = min(buffer, ctx.memory.config.chunk_bytes)

@@ -156,7 +156,7 @@ class StructureInterfaceCoreStep(Step):
             ],
             "output": {
                 "mode": "declare",
-                "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": True},
+                "schema": {"ndim": 2, "numeric": True, "dims": ["residue", "statistic"], "info_open": True, "axis_info_open": False, "labels": {"statistic": ["delta_sasa", "isolated_sasa", "buried_fraction", "is_core"]}},
             },
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},

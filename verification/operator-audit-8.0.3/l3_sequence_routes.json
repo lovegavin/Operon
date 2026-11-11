@@ -1,0 +1,209 @@
+{
+ "generated_total": 37,
+ "executed_ok": 37,
+ "results": [
+  {
+   "id": "antibody_cdr_kabat",
+   "run": "PASS",
+   "batch": 2
+  },
+  {
+   "id": "antibody_cdr_length_profile",
+   "run": "PASS",
+   "batch": 2
+  },
+  {
+   "id": "antibody_cdr_motifs",
+   "run": "PASS",
+   "batch": 2
+  },
+  {
+   "id": "antibody_cdr_physchem",
+   "run": "PASS",
+   "batch": 2
+  },
+  {
+   "id": "antibody_developability",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "antibody_numbering_imgt",
+   "run": "PASS",
+   "batch": 2
+  },
+  {
+   "id": "codon_usage",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "kmer_count",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "prosite_scan",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_aliphatic_index",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_charge_curve",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_er_retention",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_gravy_window",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_kinase_motifs",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_mitochondrial_targeting",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_nglyc_sequons",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_nls_motifs",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_nuclear_export_signal",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_properties",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "protein_pts1_signal",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "restriction_sites",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "reverse_complement",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "sequence_complexity",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "sequence_cpg_island",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "sequence_gc_profile",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "sequence_gc_skew_profile",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "sequence_hydrophobicity_profile",
+   "run": "PASS",
+   "batch": 2
+  },
+  {
+   "id": "sequence_kmer_profile",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "sequence_liability_scan",
+   "run": "PASS",
+   "batch": 2
+  },
+  {
+   "id": "sequence_orf_finder",
+   "run": "PASS",
+   "batch": 2
+  },
+  {
+   "id": "sequence_restriction_sites",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "sequence_signal_peptide",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "sequence_signal_peptide_v2",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "translate",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "trnascan_se",
+   "run": "PASS",
+   "batch": 1
+  },
+  {
+   "id": "vhh_humanization_mutations",
+   "run": "PASS",
+   "batch": 2
+  },
+  {
+   "id": "vhh_humanization_score",
+   "run": "PASS",
+   "batch": 2
+  }
+ ],
+ "method": "FastaReader + schema defaults; proteins use a synthetic VH-like sequence, DNA uses a synthetic ORF; synthetic test fixtures, not biological conclusions",
+ "extra_routes": [
+  {
+   "id": "sequence_codon_adaptation",
+   "route": "/tmp/moreroutes/codon_adaptation",
+   "status": "PASS"
+  },
+  {
+   "id": "sequence_kmer_enrichment",
+   "route": "/tmp/moreroutes/kmer_enrichment",
+   "status": "PASS"
+  },
+  {
+   "id": "varpart",
+   "route": "/tmp/moreroutes/varpart",
+   "status": "PASS"
+  }
+ ]
+}

@@ -1,0 +1,1765 @@
+{
+  "generated_total": 348,
+  "static_ok": 314,
+  "executed_ok": 305,
+  "results": [
+    {
+      "id": "acf",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ada_boost_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "adf_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "adjusted_rand",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "agglomerative",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "agostino_skewness",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "agostino_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "allele_specific_methylation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "alternative_polyadenylation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "anderson_darling",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ani_from_kmers",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "annotation_completeness",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "annotation_gene_length",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "annotation_overlap_check",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "anscombe_glynn",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "anscombe_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "antibody_developability",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "approx_entropy",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "arch_lm",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "arch_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "arima",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "assembly_contiguity",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "bartels_rank",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "bayesian_linear_regression",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "bayesian_ridge_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "bcr_clonotype",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "bds_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "betadiver",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "binomial_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "birch",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "bisulfite_conversion_rate",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "bonett_seier",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "bonferroni",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "bootstrap_ci",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "box_cox",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "box_pierce",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "bracken_reestimate",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "brennan_prediger",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "cdr3_properties",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "changepoint_pelt",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "checkm_quality_parse",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "chi_square",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "chi_square_gof",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "chisq_out_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "chromatin_state_segmentation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "circrna_detect",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "codon_usage",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "coexpression_modules",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "concordance_correlation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "conger_kappa",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "conserved_gene_order",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "core_genome_size",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "correlation",
+      "static": "OK",
+      "run": "FAIL"
+    },
+    {
+      "id": "corresp",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "correspondence_analysis",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "counts_normalize",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "cox_stuart",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "cox_stuart_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "cramer_v",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "cronbach_alpha",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "cross_correlation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "cusum_chart",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "dbscan",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "decision_tree_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "deep_quantile_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "deming_regression",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "difference_in_differences",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "difference_sign",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "distance_correlation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "distance_matrix",
+      "static": "OK",
+      "run": "FAIL"
+    },
+    {
+      "id": "dmr_window_scan",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "drop",
+      "static": "OK",
+      "run": "FAIL"
+    },
+    {
+      "id": "effective_population_size",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "egger_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "elastic_net_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "engle_granger",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "enrich_go",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "epidemic_case_fatality",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "epidemic_growth_rate",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "epidemic_r0",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "epidemic_seir_fit",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "epidemic_sir_fit",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "epitope_conservation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "esm_embedding_isolation_forest",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "esm_embedding_kmeans_silhouette",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "esm_embedding_knn_density",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "esm_embedding_neighbors",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "esm_embedding_outlier_scan",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "esm_embedding_pca",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "esm_embedding_pca_loadings",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "esm_embedding_pca_reconstruction",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "esm_embedding_umap_projection",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "event_study",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ewma_chart",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "exon_skipping",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "extra_trees_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "factor_analysis",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "find_orfs",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "fisher_alpha",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "fisher_combined",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "flow_gate",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "flow_transform",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "fst_outlier_scan",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "g_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "gaussian_mixture",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "gaussian_random_projection",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "genome_rearrangement",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "genotype_allele_balance",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "genotype_call_rate_qc",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "genotype_filter",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "genotype_mendelian_error",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "goodman_kruskal_gamma",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "gower_distance",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "gradient_boosting_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "graph_pseudotime",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "grubbs_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "gsea",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "gsva_plage",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "gtdb_taxonomy_parse",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "gwet_ac1",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "haplotype_blocks",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "hdbscan",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "hdbscan_cluster",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "hic_distance_decay",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "hierarchical_clustering",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "hmm_baum_welch",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "huber_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "humann_pathway_abundance",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "humann_pathway_collapse",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "hurst_exponent",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "hvg",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "hwe",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "ibd_segments",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ica",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "image_connected_components",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "image_gaussian_blur",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "image_histogram_equalization",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "image_otsu_threshold",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "image_sobel_gradient",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "impute",
+      "static": "OK",
+      "run": "FAIL"
+    },
+    {
+      "id": "indicator_species",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "interpro_domain_summary",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "interval_jaccard",
+      "static": "OK",
+      "run": "FAIL"
+    },
+    {
+      "id": "intraclass_correlation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "intron_retention",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "isolation_forest",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "isolation_forest_anomaly",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "isomap",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "isotonic",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "jarque_bera",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "jonckheere_terpstra",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "kalman_local_level",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "kalman_smoother",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "kendall_tau",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "kendall_w",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "kernel_pca",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "kernel_shap",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "kmer_count",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "kpss_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "kraken_kreport_parse",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "krippendorff_alpha",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "lasso_regression",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ld_prune",
+      "static": "OK",
+      "run": "FAIL"
+    },
+    {
+      "id": "lfq_median_normalize",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "lfq_quantile_normalize",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "lightgbm_classifier",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "lillie_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "lilliefors_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "linear_regression",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ljung_box",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "locally_linear_embedding",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "lof_outlier_score",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "lowess",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "mann_kendall",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "mds",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "mediation_analysis",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "meta_analysis",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "metabolite_adduct_annotation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "metabolite_mass_match",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "metabolite_set_enrichment",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "metagenomics_bray_curtis",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "metagenomics_clr",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "metaphlan_profile_merge",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "metaphlan_profile_parse",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "methylation_beta_value",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "methylation_m_value",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "mhc_anchor_score",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "mhc_binding_motif",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "min_max_scale",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "missing",
+      "static": "OK",
+      "run": "FAIL"
+    },
+    {
+      "id": "module_trait_correlation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "mood_median_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "morisita",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "motif_discovery_em",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "motif_enrichment",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "motif_scan_pwm",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ms1_feature_detect",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ms1_isotope_pattern",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ms2_cosine_similarity",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ms2_spectral_angle",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ms_missing_filter",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "mutational_signature_decomposition",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "nelson_aalen",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "nestedness",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "network_centrality",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "network_communities",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "network_summary",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "nmf",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "normaltest",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "nucleosome_positioning",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "optics",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ortholog_cluster",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pacf",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pangenome_curve",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pangenome_matrix",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "particle_filter_bootstrap",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "passing_bablok",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pca",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pca_loadings",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peak_annotate",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peak_chrom_summary",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peak_density_profile",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peak_merge",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peak_overlap_matrix",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peak_peak_distance",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peak_strand_bias",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peak_tss_enrichment",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peak_width_stats",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pearson_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peptide_qvalue",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "peptide_spectrum_annotation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "periodogram",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pettitt_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pfam_architecture",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "phillips_perron",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "phylo_support_summary",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pivot",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "plasmid_contig_filter",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pls_regression",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "power_transform",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "procrustes",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "prosite_scan",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_aliphatic_index",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_charge_curve",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_er_retention",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_gravy_window",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_inference",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "protein_kinase_motifs",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_mitochondrial_targeting",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_nglyc_sequons",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_nls_motifs",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_nuclear_export_signal",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_properties",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_pts1_signal",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "protein_rollup",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "proteomics_ibaq",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "prs",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pseudobulk",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "pseudotime_dpt",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ptm_localization_score",
+      "static": "OK",
+      "run": "FAIL"
+    },
+    {
+      "id": "ptm_occupancy",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "quade_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "quantile_regression",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "quantile_transform",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "random_forest_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "rank_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "rank_transform",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "rda",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "recombination_rate",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "reduce",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "relatedness",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "rename_dim",
+      "static": "OK",
+      "run": "FAIL"
+    },
+    {
+      "id": "restriction_fragment_stats",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "restriction_sites",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "reverse_complement",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "ridge_regression",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "rmst",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "rna_editing_detect",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "robust_scale",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "roh_detect",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "rt_alignment",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sarima",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sarimax_forecast",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sc_batch_ilisi",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sc_cluster_profile",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sc_cnv_score",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sc_deconvolution",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sc_knn_graph",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sc_rank_genes",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sc_spatial_domains",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sc_spatial_neighbors",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "scale_features",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "selection_index",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sen_slope",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sequence_codon_adaptation",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "sequence_complexity",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "sequence_cpg_island",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "sequence_g4_quadruplex_scan",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "sequence_gc_profile",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "sequence_gc_skew_profile",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "sequence_kmer_enrichment",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "sequence_kmer_profile",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "sequence_restriction_sites",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "sequence_signal_peptide",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "sequence_signal_peptide_v2",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "sgd_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "shapiro",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "shapiro_francia",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "shapiro_wilk",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "skillings_mack",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "softmax",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "somers_d",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "specaccum",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "specpool",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "spectral_embedding",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "spectral_entropy",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "spectrum_library_match",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "splicing_psi",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "structure_altloc_inventory",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "svm_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "taxon_abundance_collapse",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "tcr_diversity",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "theil_sen_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "theil_u",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "tmm_normalize",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "topic_lda",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "translate",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "tree_consensus",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "tree_dating",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "tree_parsimony_score",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "tree_quartet_support",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "tree_robinson_foulds",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "trnascan_se",
+      "static": "FAIL",
+      "run": "NOT_RUN"
+    },
+    {
+      "id": "truncated_svd",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "ttest_one_sample",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "turning_point",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "turning_point_test",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "umap",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "uplift_qini_curve",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "variance_ratio",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "varimax_rotation",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "vif",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "von_neumann",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "wgcna_soft_threshold",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "winsorize",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "xgboost_regressor",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "xic_extract",
+      "static": "OK",
+      "run": "PASS"
+    },
+    {
+      "id": "zscore",
+      "static": "OK",
+      "run": "PASS"
+    }
+  ],
+  "zero_input": {
+    "probed": 94,
+    "static_ok": 89,
+    "executed": 11,
+    "ids": [
+      "ligand_efficiency",
+      "pains_filter",
+      "power_anova",
+      "power_t_test",
+      "rdkit_admet_rules",
+      "rdkit_conformer_energy",
+      "rdkit_mcs",
+      "rdkit_scaffold",
+      "rdkit_similarity",
+      "resource_preflight",
+      "tree_ultrametric"
+    ]
+  }
+}

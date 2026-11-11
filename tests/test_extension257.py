@@ -135,3 +135,23 @@ def test_validation_errors(tmp_path) -> None:
                 }
             ],
         )
+
+
+def test_output_contract_declares_groupable_statistics() -> None:
+    from src.core.contracts import compatible
+    from src.task.step.steps.structure_paratope_predict import (
+        StructureParatopePredictStep,
+    )
+
+    schema = StructureParatopePredictStep.definition["contracts"]["output"]["schema"]
+    assert schema["dims"] == ["residue", "statistic"]
+    assert "cdr_index" in schema["labels"]["statistic"]
+    requirement = {
+        "ndim": 2,
+        "numeric": True,
+        "dims": [None],
+        "labels_axis": [{"axis": 1, "values": ["cdr_index"]}],
+    }
+    result = compatible(schema, requirement)
+    assert result["status"] != "incompatible"
+    assert not any("cdr_index" in reason for reason in result["reasons"])
