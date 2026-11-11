@@ -131,6 +131,7 @@ def test_native_bootstrap_does_not_mix_conda_and_pip_scientific_abis(monkeypatch
     class ScriptShell:
         def __init__(self, *args): pass
         def run(self, command, **kwargs):
+            if '/retire-' in command: return 'BP_RETIRE_RESULT {"retired":[],"blocked":[],"skipped":[]}'
             if 'BP_SYSTEM' in command: return 'BP_SYSTEM=Linux\nBP_ARCH=x86_64\nBP_HOME=/home/test'
             return ''
         def upload(self, name, data): uploaded[name] = data
@@ -158,6 +159,7 @@ def test_setup_log_is_created_before_upload_and_reported_on_failure(monkeypatch)
     class ScriptShell:
         def __init__(self, *args): pass
         def run(self, command, **kwargs):
+            if '/retire-' in command: return 'BP_RETIRE_RESULT {"retired":[],"blocked":[],"skipped":[]}'
             commands.append(command)
             if 'BP_SYSTEM' in command:
                 return 'BP_SYSTEM=Linux\nBP_ARCH=x86_64\nBP_HOME=/home/test'
@@ -173,7 +175,7 @@ def test_setup_log_is_created_before_upload_and_reported_on_failure(monkeypatch)
     log = '/custom/server space/managed-v1/setup-' + hashlib.sha256(b'synthetic code').hexdigest()[:20] + '.log'
     assert error.value.code == 'remote_setup_failed' and log in str(error.value)
     assert any(log in message for message in messages)
-    assert any(log in command and 'printf' in command for command in uploads[0][1])
+    assert any(log in command and 'printf' in command for _, cmds in uploads for command in cmds)
     assert any('tee -a' in command and 'pipefail' in command for command in commands)
     final = next(command for command in commands if 'bp_setup_pid' in command)
     assert " >> '" + log + "'" in final

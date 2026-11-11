@@ -135,6 +135,139 @@ def locate(connection, profile, progress, cancel, expected=None):
             'installation_id': value['server_id'], 'build': build}
 
 
+RETIRE_SCRIPT = r"""
+import hashlib, json, os, socket, struct, sys, tempfile, time
+home = os.path.realpath(sys.argv[1])
+uid = os.getuid()
+directory = os.path.join(tempfile.gettempdir(), f"operon-ssh-{uid}")
+
+
+def args_of(pid):
+    try:
+        with open(f"/proc/{pid}/cmdline", "rb") as stream:
+            return [os.fsdecode(value) for value in stream.read().split(b"\0") if value]
+    except OSError:
+        return []
+
+
+def workspace_of(args):
+    for index, value in enumerate(args):
+        if value == "--workspace" and index + 1 < len(args):
+            return args[index + 1]
+        if value.startswith("--workspace="):
+            return value.split("=", 1)[1]
+    return None
+
+
+def request(address, payload):
+    client = socket.socket(socket.AF_UNIX)
+    client.settimeout(8)
+    try:
+        client.connect(address)
+        body = json.dumps(payload, ensure_ascii=False).encode()
+        client.sendall(struct.pack("!Q", len(body)) + body)
+        header = b""
+        while len(header) < 8:
+            block = client.recv(8 - len(header))
+            if not block:
+                raise OSError("short response header")
+            header += block
+        size = struct.unpack("!Q", header)[0]
+        data = b""
+        while len(data) < size:
+            block = client.recv(size - len(data))
+            if not block:
+                raise OSError("short response body")
+            data += block
+        return json.loads(data)
+    finally:
+        client.close()
+
+
+retired, blocked, skipped = [], [], []
+for entry in os.listdir("/proc"):
+    if not entry.isdigit() or int(entry) == os.getpid():
+        continue
+    args = args_of(entry)
+    joined = " ".join(args)
+    if "operon.remote.server" not in joined and "biopipe.remote.server" not in joined:
+        continue
+    workspace = workspace_of(args)
+    if not workspace:
+        skipped.append({"pid": int(entry), "reason": "workspace missing"})
+        continue
+    try:
+        cwd = os.path.realpath(f"/proc/{entry}/cwd")
+    except OSError:
+        continue
+    if not (cwd == home or cwd.startswith(home + os.sep)):
+        continue
+    address = os.path.join(directory, hashlib.sha256(os.path.realpath(workspace).encode()).hexdigest()[:24] + ".sock")
+    if not os.path.exists(address):
+        skipped.append({"pid": int(entry), "workspace": workspace, "reason": "socket missing"})
+        continue
+    try:
+        response = request(address, {"id": os.urandom(8).hex(), "method": "retire_if_idle", "params": {}})
+    except OSError as exc:
+        blocked.append({"pid": int(entry), "workspace": workspace, "reason": f"control socket: {exc}"})
+        continue
+    value = response.get("value") or {}
+    if response.get("ok") and value.get("retired"):
+        retired.append({"pid": int(entry), "workspace": workspace})
+    else:
+        blocked.append({"pid": int(entry), "workspace": workspace,
+                        "reason": response.get("error") or value.get("reason") or "retire refused"})
+if retired:
+    deadline = time.monotonic() + 20
+    while time.monotonic() < deadline:
+        alive = [item for item in retired if os.path.exists(f"/proc/{item['pid']}")]
+        if not alive:
+            break
+        time.sleep(.1)
+    else:
+        for item in retired:
+            if os.path.exists(f"/proc/{item['pid']}"):
+                blocked.append({**item, "reason": "daemon did not exit"})
+print("BP_RETIRE_RESULT " + json.dumps({"retired": retired, "blocked": blocked, "skipped": skipped},
+                                         ensure_ascii=False, separators=(",", ":")))
+"""
+
+
+def _retire_old_servers(shell, home, managed, progress):
+    """Stop idle daemons before immutable replacement; active work blocks the upgrade."""
+    from .client import RemoteError
+    q = shlex.quote
+    path = managed + '/retire-' + uuid.uuid4().hex + '.py'
+    shell.upload(path, RETIRE_SCRIPT.encode())
+    try:
+        output = shell.run(
+            'if command -v python3 >/dev/null 2>&1; then python3 ' + q(path) + ' ' + q(home) +
+            '; else printf "BP_RETIRE_RESULT {\"retired\":[],\"blocked\":[],\"skipped\":[]}\n"; fi',
+            timeout=90)
+    except RemoteError as exc:
+        raise RemoteError('无法检查旧版服务端；为避免覆盖运行中的任务，升级已停止。\n' + str(exc),
+                          code='remote_upgrade_blocked') from exc
+    finally:
+        try:
+            shell.run('rm -f -- ' + q(path))
+        except RemoteError:
+            pass
+    match = re.search(r'BP_RETIRE_RESULT (\{.*\})', output, re.S)
+    if not match:
+        raise RemoteError('旧版服务端状态无法确认；升级已停止，未修改任何文件。', code='remote_upgrade_blocked')
+    try:
+        result = json.loads(match.group(1))
+    except ValueError as exc:
+        raise RemoteError('旧版服务端状态无效；升级已停止，未修改任何文件。', code='remote_upgrade_blocked') from exc
+    blocked = result.get('blocked') or []
+    if blocked:
+        detail = '; '.join(f"PID {item.get('pid')}: {item.get('reason')}" for item in blocked[:4])
+        raise RemoteError('旧版服务端仍有任务或无法安全停止，升级已取消。请等待任务结束后重试。' + detail,
+                          code='remote_upgrade_blocked')
+    if result.get('retired'):
+        progress('已释放 %d 个旧版服务端' % len(result['retired']))
+
+
 def provision(connection, profile, progress, cancel, root=None, expected=None):
     from .client import RemoteError
     shell = Shell(connection, progress, cancel)
@@ -151,6 +284,7 @@ def provision(connection, profile, progress, cancel, root=None, expected=None):
     # Own only a dedicated namespace, never an existing arbitrary installation.
     managed = base + '/managed-v1'
     shell.run('umask 077; mkdir -p -- ' + q(managed))
+    _retire_old_servers(shell, home[1].rstrip('/'), managed, progress)
     data = source_archive(root or Path(__file__).resolve().parents[2])
     digest = hashlib.sha256(data).hexdigest()
     from operon.build_identity import build_identity

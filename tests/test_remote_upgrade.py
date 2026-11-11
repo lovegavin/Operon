@@ -119,7 +119,7 @@ def test_ordinary_connection_reuses_other_compatible_installation(tmp_path, monk
     assert calls == ['handshake']
 
 
-def test_new_pool_waits_for_previous_idle_owner_before_spawning(tmp_path, monkeypatch):
+def test_new_pool_retires_previous_idle_owner_before_spawning(tmp_path, monkeypatch):
     from operon import managed_pool as module
     import json
     root=tmp_path/'managed';root.mkdir()
@@ -129,14 +129,40 @@ def test_new_pool_waits_for_previous_idle_owner_before_spawning(tmp_path, monkey
     monkeypatch.setattr(module,'locations',lambda settings:(tmp_path/'admission',root))
     monkeypatch.setattr(module,'implementation',lambda root:'current')
     seen=[]
+    class Client:
+        def request(self, method):
+            assert method=='pool.retire'
+            seen.append('retire')
+            return {'stopping':True}
+    monkeypatch.setattr(module,'_client',lambda *args,**kwargs:Client())
     def alive(record):
         if record == old:
             seen.append('old')
-            return len(seen)<3
+            return len([item for item in seen if item=='old']) < 2
         return record==new
     monkeypatch.setattr(module,'_alive',alive)
     def spawn(*args):
-        assert len(seen)>=3
+        assert 'retire' in seen
         (root/'instance.json').write_text(json.dumps(new))
     monkeypatch.setattr(module,'_spawn',spawn)
     assert module.ensure_pool(None)[0]==new
+    assert 'retire' in seen
+
+
+def test_new_pool_does_not_cancel_active_previous_tasks(tmp_path, monkeypatch):
+    from operon import managed_pool as module
+    from operon.pool_service import PoolClientError
+    import json
+    root=tmp_path/'managed';root.mkdir()
+    old={'implementation':'previous','owner':{'pid':1}}
+    (root/'instance.json').write_text(json.dumps(old))
+    monkeypatch.setattr(module,'locations',lambda settings:(tmp_path/'admission',root))
+    monkeypatch.setattr(module,'implementation',lambda root:'current')
+    monkeypatch.setattr(module,'_alive',lambda record: True)
+    class Client:
+        def request(self, method):
+            raise PoolClientError('busy', code='pool_busy')
+    monkeypatch.setattr(module,'_client',lambda *args,**kwargs:Client())
+    monkeypatch.setattr(module,'_spawn',lambda *args: (_ for _ in ()).throw(AssertionError('must not spawn')))
+    with pytest.raises(PoolClientError, match='active tasks'):
+        module.ensure_pool(None)

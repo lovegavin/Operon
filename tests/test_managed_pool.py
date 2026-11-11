@@ -239,7 +239,7 @@ os._exit(0)
     assert finish(app, job)['status'] == 'complete'
 
 
-def test_live_different_pool_version_is_not_replaced(managed):
+def test_live_different_pool_version_is_replaced_when_idle(managed):
     app = managed()
     assert app.engine_status()['available']
     _, root = locations()
@@ -249,9 +249,10 @@ def test_live_different_pool_version_is_not_replaced(managed):
         path.write_text(json.dumps({**record, 'implementation': 'another-release'}), encoding='utf-8')
         other = managed('other')
         state = other.engine_status()
-        assert not state['available'] and 'version' in state['error']
-        assert process_alive(record['owner'])
-        assert other.service.admission is None and other.service.scheduler is None
+        assert state['available']
+        new_record = json.loads(path.read_text())
+        assert new_record['implementation'] != 'another-release'
+        assert new_record['owner'] != record['owner']
     finally:
         path.write_text(json.dumps(record), encoding='utf-8')
 

@@ -96,16 +96,28 @@ def ensure_pool(settings):
         record = _read(root / 'instance.json')
         if _alive(record):
             if record.get('implementation') != expected:
-                # The explicitly upgraded SSH daemon may already have closed
-                # its last subscription. Allow the old pool's normal idle exit
-                # to finish; never retire other clients or active tasks here.
-                deadline = time.monotonic() + 5
+                # The old server may still be alive with an idle session. Ask
+                # the pool to retire itself: pool.retire refuses while work is
+                # active, so a real job is never cancelled by an upgrade.
+                try:
+                    _client(record, root, timeout=5).request('pool.retire')
+                except PoolClientError as exc:
+                    if exc.code == 'pool_busy':
+                        raise PoolClientError(
+                            'Another Operon version still has active tasks in the shared pool. '
+                            'Wait for them to finish before switching versions.',
+                            code='pool_upgrade_required') from exc
+                    # A transport failure usually means the old owner is already
+                    # leaving; the liveness wait below confirms that.
+                deadline = time.monotonic() + 15
                 while _alive(record) and time.monotonic() < deadline:
                     time.sleep(.05)
                 if _alive(record):
-                    raise PoolClientError('Another Operon version owns the shared pool. Finish its tasks and '
-                                          'close its clients before switching versions.', code='pool_upgrade_required')
-            if record.get('closing'):
+                    raise PoolClientError(
+                        'The previous Operon shared pool is stopping but has not exited; retry shortly.',
+                        code='pool_upgrade_required')
+                record = None
+            if record and record.get('closing'):
                 # A confirmed draining process still owns the epoch. Do not
                 # start a second authority while it releases resources.
                 deadline = time.monotonic() + 10
@@ -113,7 +125,7 @@ def ensure_pool(settings):
                     time.sleep(.05)
                 if _alive(record):
                     raise PoolClientError('Shared pool is still stopping; retry shortly', code='engine_unavailable')
-            elif _alive(record):
+            elif record and _alive(record):
                 return record, root
         error_path = root / 'startup-error.json'
         error_path.unlink(missing_ok=True)
