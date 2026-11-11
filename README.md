@@ -50,7 +50,7 @@ host you choose; they are not all bundled. If WebView2 is missing, Setup asks
 Microsoft's installer for it, which needs internet access.
 
 A new 4.0.2 installation puts the working workspace under the installation root
-(for example `D:\Operon Studio\workspace`). Profile metadata, logs and browser
+(for example, `workspace` under the installation root). Profile metadata, logs and browser
 state remain under `%USERPROFILE%\.operon`. Earlier installations keep their
 existing workspace. Uninstall removes the program but preserves the workspace
 and analysis results.

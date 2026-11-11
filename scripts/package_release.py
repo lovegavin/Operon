@@ -116,7 +116,7 @@ def main():
                         '--invalidation-mode', 'unchecked-hash', '-s', str(destination),
                         *[str(destination / p) for p in ('src', 'operon', 'operon_sdk', 'operon', 'scripts', 'library/seed',
                                                        'runtime/python/Lib/operon_import_paths.py')]], check=True)
-    shutil.copytree(root / 'docs', destination / 'docs')
+    shutil.copytree(root / 'docs', destination / 'docs', ignore=shutil.ignore_patterns('verification'))
     # Ship the small SDK examples referenced by the extension guides.
     shutil.copytree(root / 'examples', destination / 'examples',
                     ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'build', 'dist', '*.egg-info'))

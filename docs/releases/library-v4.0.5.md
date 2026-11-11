@@ -26,8 +26,8 @@ installed into immutable per-operator targets under the active profile.
 ```
 
 ```powershell
-.\install-dependencies.ps1 -ProfileDir C:\Operon -DryRun
-.\install-dependencies.ps1 -ProfileDir C:\Operon -Tools
+.\install-dependencies.ps1 -ProfileDir "$env:USERPROFILE\Operon" -DryRun
+.\install-dependencies.ps1 -ProfileDir "$env:USERPROFILE\Operon" -Tools
 ```
 
 `--tools` creates `managed-v1/env-tools` with QUAST, minced, Flye, Infernal,
