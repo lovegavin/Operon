@@ -49,11 +49,11 @@ def test_interface_statistics_are_static_labels(step_cls, expected):
         {
             "ndim": 2,
             "numeric": True,
-            "dims": [None],
+            "dims": [schema["dims"][0]],
             "labels_axis": [{"axis": 1, "values": [expected[-1]]}],
         },
     )
-    assert result["status"] != "incompatible"
+    assert result["status"] == "compatible"
     assert not any("需要字段" in reason for reason in result["reasons"])
 
 
