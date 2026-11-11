@@ -39,6 +39,14 @@ def _from_packages():
 READERS: list[Reader] = [] if os.getenv("OPERON_REGISTRY_MAINTENANCE") == "1" else _from_packages()
 
 
+def _output_kind(reader) -> str:
+    """Return the declared output kind of a reader (form by default)."""
+    declaration = getattr(reader, "_declaration", None) or getattr(reader, "definition", {}) or {}
+    contracts = declaration.get("contracts") or {}
+    output = contracts.get("output") or {}
+    return str(output.get("kind") or "form")
+
+
 def pick_reader(path: Path, name: str | None = None) -> Reader:
     """Return an explicitly named Reader, or the single Reader claiming a path.
 
@@ -153,7 +161,7 @@ def read_source(
         with _decompressed(path) as real_path:
             form = reader.read(real_path, dims, labels, **args)
     from operon_sdk.native_array import reader_output
-    form = reader_output(form, getattr(reader, '_declaration', {}) or getattr(reader, 'definition', {}))
+    form = reader_output(form, getattr(reader, "_declaration", {}) or getattr(reader, "definition", {}))
     from src.core.contracts import validate_form, validate_output, source_schema
     validate_form(form, reader.output_contract, f"reader {type(reader).__name__} output")
     validate_output(form, source_schema(reader.output_contract, dims), f"reader {type(reader).__name__} output")
