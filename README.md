@@ -12,12 +12,12 @@ parameter, log and artifact. The same engine is available through the desktop,
 CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
-The current source integrates **Operon Studio 4.0.9** with the independently
+The current source integrates **Operon Studio 4.0.10** with the independently
 versioned **8.0.3 operator library**: **1,063 operators, 108 Readers (1,171
 descriptors), seven provider packages and 79 route templates**. Operators and
 Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
 Markdown documentation. Library 8.0.3 declares minimum application 3.1.9 and is
-the built-in library shipped with 4.0.9.
+the built-in library shipped with 4.0.10.
 
 Operon does not bundle or require an AI model. Agent access is optional.
 
@@ -40,7 +40,7 @@ Operon does not bundle or require an AI model. Agent access is optional.
 | I want to… | Start here |
 | --- | --- |
 | Use the Windows desktop | Download **Operon_Setup.exe** from [Releases](https://github.com/lovegavin/Operon/releases/latest) |
-| Run a Linux server without a desktop | Download **Operon-4.0.9-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
+| Run a Linux server without a desktop | Download **Operon-4.0.10-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
 | Develop from source | `python -m pip install . ./library` with Python 3.11+ |
 | Connect an AI agent | Use the desktop **Agent** panel or `operon mcp`; see [agent operations](docs/agent_operations.md) |
 
@@ -49,7 +49,7 @@ profile. Scientific packages are installed only for the workflow and execution
 host you choose; they are not all bundled. If WebView2 is missing, Setup asks
 Microsoft's installer for it, which needs internet access.
 
-A new 4.0.9 installation puts the working workspace under the installation root
+A new 4.0.10 installation puts the working workspace under the installation root
 (for example, `workspace` under the installation root). Profile metadata, logs and browser
 state remain under `%USERPROFILE%\.operon`. Earlier installations keep their
 existing workspace. Uninstall removes the program but preserves the workspace
@@ -67,14 +67,18 @@ the local environment, and press **Run**. Results appear under **Run history →
 View results**. The first dependency check may need internet access; Operon never
 installs scientific packages silently during a run.
 
-## What is new in 4.0.9
+## What is new in 4.0.10
 
-- A forced server upgrade now closes every remote workspace client before the new
+- Windows Setup uses the exact folder selected, never appends `-2`, asks for
+  **强制重装** when an older installation is found, and records the root for the
+  uninstaller. Uninstall cleans that root except `workspace`.
+- Remote submissions discard plugin pins from an older canvas before preparing the
+  graph, then resolve implementations against the selected server. This corrects
+  the 4.0.9 attempt, which removed the re-overwrite but left the stale pin in place.
+- A forced server upgrade closes every remote workspace client before the new
   application registers, and re-registration prunes sessions left by a process
   that has already exited. A normal upgrade still stops without touching active
   tasks or live clients.
-- Remote runs refresh stale canvas plugin pins against the selected server before
-  local readiness validation, so an old plugin_lock entry no longer blocks execution.
 - operon_remote_status returns a compact build/library summary instead of the
   full multi-megabyte remote catalog.
 
@@ -138,7 +142,7 @@ The old data remains under `%USERPROFILE%\.operon\profiles\<old-id>\workspace`;
 copy it into the new `<install root>/workspace` if you need it in the new
 installation.
 
-Application 4.0.9 and library 8.0.3 do not change the wire protocol (v3) or SDK
+Application 4.0.10 and library 8.0.3 do not change the wire protocol (v3) or SDK
 (3.7). Published tags and release assets are immutable.
 
 ## Open source

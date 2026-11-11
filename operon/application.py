@@ -235,6 +235,16 @@ class TaskService:
 
     def _prepare_submission(self, graph):
         original = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
+        from src.web.source_paths import remote_profile
+        remote = remote_profile(original)
+        if remote is not None:
+            # A remote target owns its catalog. Drop pins from an older canvas
+            # before local preparation or readiness rejects them before the
+            # remote service can resolve the target's implementation.
+            from operon.pins import graphs
+            original = original.model_copy(deep=True)
+            for part in graphs(original):
+                part.plugin_lock.clear()
         prepared = self.app.prepare(original)
         # Freeze values while retaining historical implementation requirements.
         # The worker-launch snapshot must resolve those pins itself so its
@@ -245,10 +255,8 @@ class TaskService:
             for node in before.nodes:
                 if node.kind == 'route':
                     retain_pins(node.route.graph, nodes[node.id].route.graph)
-        from src.web.source_paths import remote_profile
-        # Remote workers refresh pins against their own catalog. Keeping stale
-        # canvas pins here would fail local readiness before remote prepare.
-        if not remote_profile(original):
+        # Local workers retain historical pins for immutable evidence.
+        if remote is None:
             retain_pins(original, prepared)
         self.app.readiness.require_ready(self.app.validate(prepared, require_files=True))
         return prepared

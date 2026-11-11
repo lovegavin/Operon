@@ -53,12 +53,14 @@ internal static class Program
             values.TryGetValue("--result", out resultFile);
             if (flags.Contains("--install") && flags.Contains("--uninstall")) throw new ArgumentException("Choose --install or --uninstall, not both.");
             var spec = InstallFiles.EmbeddedSpec();
-            var options = new InstallOptions(values.GetValueOrDefault("--install-dir") ?? Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Operon Studio"),
-                values.GetValueOrDefault("--payload"), !flags.Contains("--no-register"), flags.Contains("--force"));
             var programName = Path.GetFileNameWithoutExtension(Environment.ProcessPath) ?? string.Empty;
             bool uninstall = flags.Contains("--uninstall") ||
                 (!flags.Contains("--install") && programName.Contains("uninstall", StringComparison.OrdinalIgnoreCase));
+            var defaultInstallDir = uninstall && !string.IsNullOrWhiteSpace(Environment.ProcessPath)
+                ? Path.GetDirectoryName(Environment.ProcessPath)!
+                : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Operon Studio");
+            var options = new InstallOptions(values.GetValueOrDefault("--install-dir") ?? defaultInstallDir,
+                values.GetValueOrDefault("--payload"), !flags.Contains("--no-register"), flags.Contains("--force"));
             // A running executable cannot remove itself. The helper lives in
             // %TEMP%, so the install root (including this uninstaller) can be
             // deleted even for an unattended invocation. Interactive mode hands
@@ -70,13 +72,18 @@ internal static class Program
                 var folder = Path.Combine(Path.GetTempPath(), "Operon-Uninstall-" + Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(folder); var helper = Path.Combine(folder, "Operon_Uninstall.exe");
                 File.Copy(Environment.ProcessPath!, helper);
+                var root = Path.GetFullPath(options.InstallDir);
                 var start = new ProcessStartInfo(helper) { UseShellExecute = false, CreateNoWindow = unattended };
                 foreach (var arg in args) start.ArgumentList.Add(arg);
+                if (!values.ContainsKey("--install-dir"))
+                {
+                    start.ArgumentList.Add("--install-dir");
+                    start.ArgumentList.Add(root);
+                }
                 start.ArgumentList.Add("--uninstall-worker");
                 using var worker = Process.Start(start) ?? throw new IOException("Could not start the uninstall worker.");
                 if (!unattended) return 0;
                 worker.WaitForExit();
-                var root = Path.GetFullPath(options.InstallDir);
                 var leftover = Path.Combine(root, "Operon_Uninstall.exe");
                 if (File.Exists(leftover))
                 {
@@ -192,12 +199,14 @@ internal sealed class SetupWindow : Form
             Location = new Point(32, 28), Font = new Font("Microsoft YaHei UI", 22, FontStyle.Bold) };
         var subtitle = new Label { Text = uninstall ? "软件将被移除，用户档案和分析数据会保留。" :
             $"{spec.Version}  ·  内置运行环境，无需预先安装 Python", Location = new Point(34, 88), Size = new Size(560, 30), ForeColor = Color.DimGray };
-        var label = new Label { Text = "安装位置", AutoSize = true, Location = new Point(34, 145) };
-        destination.SetBounds(34, 175, 462, 32); destination.Text = options.InstallDir; destination.ReadOnly = false;
-        browse.SetBounds(506, 173, 90, 34); browse.Text = "选择"; browse.Enabled = true;
+        var label = new Label { Text = uninstall ? "安装位置（安装记录）" : "安装位置", AutoSize = true, Location = new Point(34, 145) };
+        destination.SetBounds(34, 175, 462, 32); destination.Text = options.InstallDir; destination.ReadOnly = uninstall;
+        browse.SetBounds(506, 173, 90, 34); browse.Text = "选择"; browse.Enabled = !uninstall;
         browse.Click += (_, _) => { using var dialog = new FolderBrowserDialog { InitialDirectory = destination.Text, Description = "选择 Operon 安装目录" };
             if (dialog.ShowDialog(this) == DialogResult.OK) destination.Text = dialog.SelectedPath; };
-        state.SetBounds(34, 222, 562, 52); state.Text = uninstall ? "仅移除本安装程序管理的软件文件。" : "创建独立环境。旧档案保留，可稍后导入路线。";
+        state.SetBounds(34, 222, 562, 52); state.Text = uninstall
+            ? "将清理这个根目录下除 workspace 外的全部内容。"
+            : "创建独立环境。旧档案保留，可稍后导入路线。";
         progress.SetBounds(34, 284, 562, 6); progress.Style = ProgressBarStyle.Continuous;
         forceReinstall.SetBounds(34, 297, 500, 24);
         logs.SetBounds(34, 335, 150, 30); logs.Text = "查看安装日志"; logs.Visible = false;
@@ -227,7 +236,7 @@ internal sealed class SetupWindow : Form
                 }
                 Close(); return;
             }
-            var target = uninstall ? destination.Text : InstallEngine.NamedDestination(destination.Text);
+            var target = InstallEngine.NamedDestination(destination.Text);
             if (uninstall) { if (!ConfirmForceUninstall(target)) return; }
             else
             {

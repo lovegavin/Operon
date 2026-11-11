@@ -71,12 +71,12 @@ You should see a completed task with PCA output and two components. This example
 
 Skip this unless you actually have a Linux server.
 
-1. Download **Operon-4.0.9-Server.zip** from Releases and upload it to the server.
+1. Download **Operon-4.0.10-Server.zip** from Releases and upload it to the server.
 2. On the server:
 
 ```sh
-unzip Operon-4.0.9-Server.zip
-cd Operon-4.0.9-Server
+unzip Operon-4.0.10-Server.zip
+cd Operon-4.0.10-Server
 bash install.sh --prefix "$HOME/operon" --result "$PWD/server-install.json"
 ```
 
@@ -95,7 +95,7 @@ See the [server installation guide](docs/command_line_installation.md#linux-serv
 - **Blank window**: wait 1–2 minutes, then fully quit and reopen. Do not run several copies at once.
 - **Environment check fails**: confirm internet access, then click **Prepare environment**. Behind a corporate proxy, configure the system proxy first.
 - **Install folder is not writable**: use a normal folder such as `D:\Operon Studio`, not `C:\Program Files`.
-- **Uninstall**: use Windows Apps, or run `Operon_Uninstall.exe` in the install folder. Operon 4.0.9 keeps the workspace and results under `<install folder>\workspace`; delete them manually only when you no longer need them.
+- **Uninstall**: use Windows Apps, or run `Operon_Uninstall.exe` in the install folder. Operon 4.0.10 keeps the workspace and results under `<install folder>\workspace`; delete them manually only when you no longer need them.
 - **Logs**: `%USERPROFILE%\.operon\profiles\<profile-id>\logs\desktop-YYYYMMDD.log`.
 
 ## Next

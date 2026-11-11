@@ -410,3 +410,30 @@ def test_real_cli_autostart_and_mcp_no_window(environment):
             while instances(directory) and time.monotonic() < deadline:
                 time.sleep(.1)
             assert not instances(directory)
+
+
+def test_remote_submission_clears_stale_plugin_pins():
+    from types import SimpleNamespace
+    from operon.application import TaskService
+    captured = {}
+    fresh = {'version': '9.9.9', 'sha256': 'f' * 64}
+
+    class Application:
+        service = SimpleNamespace()
+
+        def prepare(self, graph):
+            captured['pins'] = dict(graph.plugin_lock)
+            graph.plugin_lock['describe'] = fresh
+            return graph
+
+        def validate(self, *args, **kwargs):
+            return {}
+
+        readiness = SimpleNamespace(require_ready=lambda *args, **kwargs: None)
+
+    body = {'schema_version': 2, 'name': 'remote pin refresh', 'nodes': [], 'edges': [],
+            'runtime': {'execution': {'kind': 'ssh', 'profile_id': 'offline'}},
+            'plugin_lock': {'describe': {'version': '0.0.1', 'sha256': '0' * 64}}}
+    prepared = TaskService(Application())._prepare_submission(body)
+    assert captured['pins'] == {}
+    assert prepared.plugin_lock['describe'] == fresh
