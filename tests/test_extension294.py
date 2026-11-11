@@ -134,7 +134,7 @@ def test_real_antifold_when_available():
     ctx = RealContext(tempfile.mkdtemp(), {"params": {}})
     params = {
         "output": "scores",
-        "structure_path": str(ROOT / "tests" / "fixtures" / "vhh_1mel.pdb"),
+        "structure_path": "/home/gavin/Operon/tests/fixtures/vhh_1mel.pdb",
         "chains": "A",
         "weights_path": weights,
         "device": "cpu",

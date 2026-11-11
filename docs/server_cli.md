@@ -76,9 +76,12 @@ not overwritten. See [YAML reference](workflow_yaml_v3.md).
 
 ## Validation and explicit preparation
 
-`environment check` and `workflow validate` share the desktop validation service.
-They check only the route's operators, Readers and scripts on its selected hosts.
-They do not install dependencies. A blocked result is JSON with
+`environment check` checks dependencies for the draft's known operators, Readers
+and scripts without requiring data paths or complete scientific parameters.
+`environment check --require-files` performs full preflight, as does the desktop
+toolbar. `workflow validate` retains structural validation; add `--require-files`
+to check input availability. These commands share the desktop application services.
+They do not install dependencies. A blocked dependency result is JSON with
 `readiness.status = "blocked"` and exit code **1**, so shell automation can stop.
 `--require-files` also checks input availability; submission always checks again.
 
@@ -86,7 +89,10 @@ They do not install dependencies. A blocked result is JSON with
 `workflow prepare-environment`. It uses existing managed dependency targets and
 conflict isolation for registered providers. It does not start an analysis job.
 A successful probe can be reused during the service session; changes to the
-route, pins, input metadata or selected runtime invalidate the relevant readiness.
+declarations, scripts, pins or selected runtime invalidate dependency receipts.
+Input and ordinary parameter changes still require fresh preflight checks, but do
+not repeat successful dependency probes. Unknown Readers are reported as unresolved
+until an input format or Reader is selected. See [check scopes](readiness.md).
 `run` validates automatically but never silently installs missing packages.
 
 Workflow-local scripts currently check Python requirements and Python/R/C/C++
@@ -104,6 +110,17 @@ On managed clusters, use the administrator-provided tools/modules or a dedicated
 user environment. Operon does not submit Slurm jobs or bypass scheduler policy.
 
 ## Batch output, task lifetime and recovery
+
+The server now automatically starts or reconnects to the host/account shared
+resource pool. Several SSH sessions and workspaces use one RAM/CPU authority;
+no pool address/token setup is required. `operon pool status` observes the local
+pool without starting it. `operon pool stop` retires an idle pool, refusing active
+tasks. Closing an SSH session does not cancel accepted pool workers. The
+workflow orchestrator remains resumable: reopen/retry a multi-stage workflow to
+continue stages that had not yet been submitted when its application stopped.
+See [shared pool lifecycle](design/pool_service.md) for deployment overrides and
+upgrade/drain rules. Environment selection and explicit readiness preparation
+remain unchanged.
 
 Normal commands write JSON to stdout; diagnostics and `run --progress` status
 changes go to stderr. `--progress` implies `--wait`. `--compact` reduces JSON size.

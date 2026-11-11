@@ -37,11 +37,10 @@ def create_app(settings=None):
     from operon.application import Application
     application = Application(settings)
     service = application.service
-    catalog = service.catalog
     imports = AssetImports(service)
     token = secrets.token_urlsafe(32)
     # Admission owns the one host snapshot. UI and workers use that same value.
-    automatic_memory_budget = service.admission.capacity or None
+    automatic_memory_budget = service.resources().get('capacity_bytes') or None
     @asynccontextmanager
     async def lifespan(app):
         bridge.publish(getattr(app.state, "instance_url", None) or settings.instance_url)
@@ -131,6 +130,7 @@ def create_app(settings=None):
         import sys
         import platform
         from .preferences import load as load_preferences
+        catalog = service.catalog
         agent_args = ["-m", "operon", "--workspace", str(service.root), "--data-dir", str(service.directory), "mcp", "--allow-run"]
         return {"token": token, "catalog": catalog, "demo": service.demo,
                 "system": platform.system().lower().replace('darwin', 'macos'),
@@ -186,6 +186,28 @@ def create_app(settings=None):
         except ValueError as exc:
             raise GraphError(str(exc)) from exc
 
+    @app.post("/api/routes/import-archive")
+    async def import_route_archive(request: Request):
+        from .route_archive import route_members
+        try:
+            members = route_members(await request.body())
+        except (ValueError, KeyError) as exc:
+            raise GraphError(str(exc)) from exc
+        registered = {}
+        failed = []
+        for name, content in members:
+            try:
+                graph = import_bundle(content)
+                key = application.workflows.save(graph)["id"]
+                for item in service.routes.register([key]):
+                    registered[item["id"]] = item
+            except Exception as exc:
+                failed.append({"name": name, "error": str(exc)})
+        if not registered:
+            detail = failed[0]["error"] if failed else "没有可导入的路线"
+            raise GraphError(f"路线包中没有可导入的路线：{detail}")
+        return {"routes": list(registered.values()), "failed": failed}
+
     @app.post("/api/workflows/save")
     def save_workflow(payload: SaveWorkflow):
         from operon.documents import CommandError
@@ -221,6 +243,7 @@ def create_app(settings=None):
     @app.get("/api/operators")
     def operators(generation: str | None = None):
         # Poll the generation without transferring/rendering the full library.
+        catalog = service.catalog
         return None if generation and generation == catalog.get('plugin_generation') else catalog
 
     @app.post("/api/validate")
@@ -229,7 +252,11 @@ def create_app(settings=None):
 
     @app.post('/api/prepare-environment')
     def prepare_environment(graph: Graph):
-        return application.validate(graph, require_files=False, repair=True)
+        return application.check_environment(graph, repair=True)
+
+    @app.post('/api/check-environment')
+    def check_environment(graph: Graph):
+        return application.check_environment(graph)
 
     @app.post("/api/contracts")
     def contracts(graph: Graph):
@@ -252,7 +279,7 @@ def create_app(settings=None):
         try:
             import_root = settings.code_root or settings.root
             raw = yaml.safe_load(payload.text)
-            if isinstance(raw, dict) and raw.get('format') in ('operon.workflow', 'biopipe.workflow'):
+            if isinstance(raw, dict) and raw.get('format') in ('operon.workflow', 'operon.workflow'):
                 from operon.workflow_spec import parse, compile_spec, WorkflowError
                 try:
                     directory = project_path(settings.root, '.', payload.base_dir)
@@ -272,7 +299,7 @@ def create_app(settings=None):
                         import_root = settings.root
                 except (GraphError, KeyError, TypeError):
                     pass
-            return import_manifest(payload.text, payload.base_dir, catalog, import_root,
+            return import_manifest(payload.text, payload.base_dir, service.catalog, import_root,
                                    input_roots=settings.input_roots).model_dump(mode="json")
         except yaml.YAMLError as exc:
             raise GraphError("YAML 格式有误，请检查缩进及字段。") from exc

@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -13,6 +14,30 @@ import urllib.request
 
 from audit_portability import audit_files
 from operon.bytecode import io_path
+
+
+def _windows_path(path):
+    """PowerShell needs a Windows path when this builder runs under WSL."""
+    if os.name == 'nt' or not shutil.which('wslpath'):
+        return str(path)
+    return subprocess.check_output(['wslpath', '-w', str(path)], text=True).strip()
+
+
+def verify_frontend_versions(frontend):
+    """Reject a build made with dependencies different from its declared lock."""
+    lock = json.loads((frontend / 'package-lock.json').read_text(encoding='utf-8'))
+    for directory, declared in lock['packages'].items():
+        if not directory or declared.get('link'):
+            continue
+        metadata = frontend / directory / 'package.json'
+        # Platform-specific optional packages are absent on other build hosts.
+        if not metadata.is_file():
+            continue
+        installed = json.loads(metadata.read_text(encoding='utf-8')).get('version')
+        if installed != declared.get('version'):
+            raise ValueError(f'Frontend dependency differs from lock: {directory} '
+                             f'(installed {installed}, locked {declared.get("version")}). Run npm ci before building.')
+    return lock
 
 
 def main():
@@ -33,6 +58,7 @@ def main():
         parser.error(f'Output already exists: {destination}')
     if not (args.desktop / 'Operon Studio.exe').is_file():
         parser.error('Build the desktop host first.')
+    lock = verify_frontend_versions(root / 'frontend')
     destination.mkdir(parents=True)
 
     def copy(source, rel):
@@ -54,11 +80,12 @@ def main():
                 shutil.copyfileobj(response, output)
         # Verify the executable's Authenticode signature before redistribution.
         subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass', '-File',
-                        root / 'scripts/verify_microsoft_signature.ps1', str(bootstrapper)], check=True)
+                        _windows_path(root / 'scripts/verify_microsoft_signature.ps1'),
+                        _windows_path(bootstrapper)], check=True)
         (destination / 'runtime/webview2.json').write_text(json.dumps({'source': url,
             'sha256': hashlib.sha256(bootstrapper.read_bytes()).hexdigest()}), encoding='utf-8')
     shutil.copytree(root / 'frontend/dist', destination / 'frontend')
-    for directory in ('src', 'operon', 'operon_sdk', 'library/seed'):
+    for directory in ('src', 'operon', 'operon_sdk', 'operon', 'library/seed'):
         for source in (root / directory).rglob('*'):
             if source.is_file() and source.suffix.lower() in {'.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'}:
                 copy(source, source.relative_to(root))
@@ -72,7 +99,7 @@ def main():
         copy(source, source.name)
     for source in root.glob('constraints*.txt'):
         copy(source, source.name)
-    for name_ in ('README.md', 'pyproject.toml'):
+    for name_ in ('README.md', 'pyproject.toml', 'LICENSE', 'NOTICE'):
         copy(root / name_, name_)
     for name_ in ('release.json', 'pyproject.toml', 'README.md'):
         if (root / 'library' / name_).is_file():
@@ -87,7 +114,7 @@ def main():
         # Use the shipped interpreter, never the packaging host's Python tag.
         subprocess.run([python, '-I', '-m', 'compileall', '-q', '-f',
                         '--invalidation-mode', 'unchecked-hash', '-s', str(destination),
-                        *[str(destination / p) for p in ('src', 'operon', 'operon_sdk', 'scripts', 'library/seed',
+                        *[str(destination / p) for p in ('src', 'operon', 'operon_sdk', 'operon', 'scripts', 'library/seed',
                                                        'runtime/python/Lib/operon_import_paths.py')]], check=True)
     shutil.copytree(root / 'docs', destination / 'docs')
     # Ship the small SDK examples referenced by the extension guides.
@@ -95,7 +122,6 @@ def main():
                     ignore=shutil.ignore_patterns('__pycache__', '*.pyc', 'build', 'dist', '*.egg-info'))
     shutil.copytree(root / 'THIRD_PARTY_NOTICES', destination / 'THIRD_PARTY_NOTICES')
     # Regenerate frontend notices from the lockfile actually used for this build.
-    lock = json.loads((root / 'frontend/package-lock.json').read_text(encoding='utf-8'))
     notices = ['Licenses for bundled frontend dependencies.\n']
     for directory, meta in sorted(lock['packages'].items()):
         if not directory or (meta.get('dev') and directory not in ('node_modules/tailwindcss', 'node_modules/vite')):
@@ -119,6 +145,9 @@ Use Operon_Setup.exe for installation. It owns its management Python and creates
 new isolated profile; previous Operon installations and profiles are retained.
 Double-click the installed Operon Studio shortcut. First-time WebView2 setup
 may need an internet connection. Do not move individual installed files.
+
+Start with docs/quickstart.md for your first Windows or Linux workflow.
+Operon is open source under Apache-2.0; see LICENSE and NOTICE.
 
 The operator library remains independently versioned. Existing v3/v3.5 packages,
 .operon workflow bundles, Python imports and MCP identifiers stay compatible.

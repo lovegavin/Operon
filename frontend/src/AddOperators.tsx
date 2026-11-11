@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from 'react';
 import {ArrowClockwise, FileArrowUp, FolderOpen, Package, Plus, Stack} from '@phosphor-icons/react';
 import {api} from './api';
 import {normalizeGraph} from './graph';
+import {isWorkflowBundle, ROUTE_FILE_ACCEPT} from './workflowFiles';
 import type {PluginState, WorkflowSummary} from './types';
 import {t} from './i18n';
 
@@ -22,11 +23,39 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
   }, []);
   async function register(files?: File[]) {
     onPending(true); onError(''); onMessage('');
+    const chosen = files ?? [];
+    const containers = chosen.filter(item => item.name.toLowerCase().endsWith('.zip')
+      && !item.name.toLowerCase().endsWith('.operon.zip'));
+    if (containers.length) {
+      if (chosen.length !== 1) {
+        onError(t('路线压缩包请单独上传。'));
+        onPending(false);
+        return;
+      }
+      try {
+        const imported = await api.importRouteArchive(containers[0]);
+        if (imported.failed.length) {
+          onError(t('已添加 {count} 条路线；{failed} 条不兼容：{reason}', {
+            count: imported.routes.length, failed: imported.failed.length,
+            reason: imported.failed[0].error,
+          }));
+        } else {
+          onMessage(t('路线算子已添加，即刻可用。'));
+        }
+      } catch (error) {
+        onError(t('路线未添加：{reason}', {reason: (error as Error).message}));
+      } finally {
+        try {setRoutes(await api.workflows()); await onChanged();}
+        catch (error) {onError((error as Error).message);}
+        onPending(false);
+      }
+      return;
+    }
     // Save each imported graph once; failures leave it available for retry.
     const saved: string[] = [];
     try {
-      if (files) for (const item of files) {
-        const graph = normalizeGraph(item.name.toLowerCase().endsWith('.zip')
+      if (files) for (const item of chosen) {
+        const graph = normalizeGraph(isWorkflowBundle(item.name)
           ? await api.importWorkflow(item) : JSON.parse(await item.text()));
         saved.push((await api.saveWorkflow(graph)).id);
       }
@@ -43,7 +72,7 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
   const visible = routes.filter(route => route.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
   return <div className="add-operators">
     <section className="operator-install-card">
-      <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('普通算子与 Reader')}</h3><code>.whl · .operon-library.zip / .biopipe-library.zip</code></div>
+      <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('普通算子与 Reader')}</h3><code>.whl · .operon-library.zip</code></div>
         <button className="primary-button" disabled={busy} onClick={onPackage}><FileArrowUp size={16}/>{t('导入包')}</button></div>
       <div className="plugin-folder-row">
         <button className="subtle-button" title={state.source_directories?.operator} onClick={() => void api.openPluginFolder('operator').catch(e => onError(e.message))}><FolderOpen size={16}/>{t('算子目录')}</button>
@@ -53,9 +82,9 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
       </div>
     </section>
     <section className="operator-install-card">
-      <div className="operator-install-heading"><span><Stack size={24}/></span><div><h3>{t('路线算子')}</h3><code>.json · .operon.zip</code></div>
+      <div className="operator-install-heading"><span><Stack size={24}/></span><div><h3>{t('路线算子')}</h3><code>.zip（route/*.operon.zip） · .operon.zip · .json</code></div>
         <button className="subtle-button" disabled={busy} onClick={() => file.current?.click()}><FileArrowUp size={16}/>{t('导入路线文件')}</button></div>
-      <input hidden ref={file} type="file" multiple accept=".json,.zip" onChange={event => {
+      <input hidden ref={file} type="file" multiple accept={ROUTE_FILE_ACCEPT} onChange={event => {
         const files = Array.from(event.target.files || []); event.target.value = '';
         if (files.length) void register(files);
       }}/>

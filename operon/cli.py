@@ -18,11 +18,77 @@ def read_graph_file(path):
     if path.suffix.lower() in ('.yaml', '.yml'):
         from .workflow_spec import load_workflow
         return load_workflow(path)
-    if path.suffix.lower() == ".zip":
+    if path.suffix.lower() in ('.zip', '.operon'):
         from src.web.parameters import import_bundle
         return import_bundle(path.read_bytes()).model_dump(mode="json")
     value = json.loads(path.read_text(encoding="utf-8"))
     return value.get('graph', value)
+
+
+def execute_pool(args):
+    import secrets
+    from .pool_service import PoolClient, PoolControlServer, PoolService
+    if args.action == 'serve':
+        if not args.config:
+            raise ValueError('pool serve requires --config')
+        config = json.loads(Path(args.config).read_text(encoding='utf-8-sig'))
+        root = Path(config['root']).expanduser().resolve()
+        admission = Path(config.get('admission_dir') or root / 'admission').expanduser().resolve()
+        token = args.token or os.environ.get('OPERON_POOL_TOKEN') or config.get('token')
+        token_file = None
+        if not token:
+            token = secrets.token_urlsafe(32)
+            token_file = root / 'pool-token'
+            token_file.parent.mkdir(parents=True, exist_ok=True)
+            token_file.write_text(token, encoding='utf-8')
+            try:
+                os.chmod(token_file, 0o600)
+            except OSError:
+                pass
+        service = PoolService(
+            root=root, admission_dir=admission,
+            workspaces=config.get('workspaces') or [],
+            catalog=None, code_root=config.get('code_root'),
+            capacity_bytes=config.get('capacity_bytes'),
+            cpu_threads=config.get('cpu_threads'),
+            environment_gate=config.get('environment_gate'))
+        server = PoolControlServer(service, token=token, host='127.0.0.1',
+                                   port=int(args.port or config.get('port', 0))).start()
+        announcement = {'address': list(server.address), 'pid': os.getpid(),
+                        'token_file': str(token_file) if token_file else None,
+                        'pool': service.status()}
+        print(json.dumps(announcement, ensure_ascii=False, indent=2), flush=True)
+        try:
+            while True:
+                time.sleep(3600)
+        except KeyboardInterrupt:
+            server.close()
+            service.shutdown()
+            return {'address': list(server.address), 'stopped': True}
+    address = args.address or os.environ.get('OPERON_POOL_ADDRESS')
+    token = args.token or os.environ.get('OPERON_POOL_TOKEN')
+    if not address and not token and args.action in ('status', 'stop'):
+        from .managed_pool import inspect_pool
+        return inspect_pool(stop=args.action == 'stop')
+    if not address or not token:
+        raise ValueError('pool client commands require --address/OPERON_POOL_ADDRESS and --token/OPERON_POOL_TOKEN')
+    host, port = address.rsplit(':', 1)
+    client = PoolClient((host, int(port)), token)
+    if args.action == 'stop':
+        return client.request('pool.retire')
+    if args.action == 'status':
+        return client.status()
+    if args.action == 'stop-workspace':
+        return client.stop_workspace(args.workspace, principal=args.principal)
+    if not args.workspace:
+        raise ValueError('pool submit/cancel requires --workspace')
+    if args.action == 'submit':
+        graph = read_graph_file(args.file)
+        return client.submit(args.workspace, graph, request_id=args.request_id,
+                             principal=args.principal)
+    if not args.run_id:
+        raise ValueError('pool cancel requires --run-id')
+    return client.cancel(args.workspace, args.run_id, principal=args.principal)
 
 
 def _wait_job(client, job, timeout, *, view='full', progress=False):
@@ -100,6 +166,21 @@ def parser():
     environment.add_argument('action', choices=['status', 'check', 'prepare'])
     environment.add_argument('file', nargs='?', type=Path, help='YAML, graph JSON or workflow ZIP for check/prepare')
     environment.add_argument('--require-files', action='store_true', help='Also verify input files during check')
+    engine = commands.add_parser('engine', help='Inspect the durable backend engine and its resumable events')
+    engine.add_argument('action', choices=['status', 'events'])
+    engine.add_argument('--after', type=int, default=0, help='Resume after this durable event cursor')
+    engine.add_argument('--limit', type=int, default=200, help='Maximum events per page (1–1000)')
+    pool = commands.add_parser('pool', help='Run or query the dedicated multi-workspace resource pool')
+    pool.add_argument('action', choices=['serve', 'status', 'stop', 'submit', 'cancel', 'stop-workspace'])
+    pool.add_argument('--config', type=Path, help='Pool config JSON for serve')
+    pool.add_argument('--address', help='Pool control address host:port for client commands')
+    pool.add_argument('--token', help='Pool control token (or OPERON_POOL_TOKEN)')
+    pool.add_argument('--workspace', type=Path, help='Registered workspace for submit/cancel')
+    pool.add_argument('--file', type=Path, help='Workflow graph/YAML/bundle for submit')
+    pool.add_argument('--run-id', help='Run ID for cancel')
+    pool.add_argument('--request-id', help='Stable idempotency key for submit')
+    pool.add_argument('--principal', help='Trusted scheduling principal for the workspace')
+    pool.add_argument('--port', type=int, default=0, help='Loopback port; 0 selects an available port')
     script = commands.add_parser('script', help='Inspect scripts and extract parameters without executing code')
     script.add_argument('action', choices=['inspect', 'parameters', 'extract', 'package'])
     script.add_argument('path', type=Path)
@@ -228,6 +309,8 @@ def execute(args):
     if args.command == 'serve':
         from .headless import serve
         return serve(profile_dir=args.profile_dir, workspace=args.workspace, data_dir=args.data_dir, port=args.port)
+    if args.command == 'pool':
+        return execute_pool(args)
     if args.command == "migrate":
         from .migrate import migrate
         return migrate(path=args.path, profile_dir=args.profile_dir, workspace=args.workspace,
@@ -312,7 +395,7 @@ def execute(args):
         return {'instances': [{k: v for k, v in instance.items() if k != 'secret'} for instance in instances(directory)]}
     client = Client(directory, instance=args.instance, name="Operon CLI", scopes=scopes,
                     auto_start=not (args.command == 'service' and args.action == 'stop'), workspace=profile.workspace,
-                    require_api=1 if args.command in ('operators', 'workflow', 'environment', 'jobs', 'artifacts', 'servers', 'service', 'viewers') or args.command == 'run' and (args.file or args.workflow) else 0)
+                    require_api=1 if args.command in ('operators', 'workflow', 'environment', 'engine', 'jobs', 'artifacts', 'servers', 'service', 'viewers') or args.command == 'run' and (args.file or args.workflow) else 0)
     try:
         if args.command == 'environment':
             if args.action == 'status':
@@ -320,7 +403,13 @@ def execute(args):
             payload = {'graph': graph_value}
             if args.action == 'check':
                 payload['require_files'] = args.require_files
+            if args.action == 'check' and not args.require_files:
+                return client.request('/v1/workflows/check-environment', {'graph': graph_value})
             return client.request('/v1/workflows/' + ('validate' if args.action == 'check' else 'prepare-environment'), payload)
+        if args.command == 'engine':
+            if args.action == 'status':
+                return client.request('/v1/engine')
+            return client.request(f'/v1/engine/events?after={int(args.after)}&limit={int(args.limit)}')
         if args.command == 'service':
             return client.request('/v1/service/stop', {}) if args.action == 'stop' else client.request('/v1/service')
         if args.command == 'workflow':
@@ -558,7 +647,7 @@ def main(argv=None):
     except KeyboardInterrupt:
         raise SystemExit(130)
     except Exception as error:
-        if args.command == 'serve':
+        if args.command in ('serve', 'pool'):
             import traceback
             traceback.print_exc(file=sys.stderr)
         code = getattr(error, "code", "invalid_request")

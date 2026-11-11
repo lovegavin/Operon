@@ -108,6 +108,14 @@ def refresh_bundled(candidate, bundled):
 
 
 def resolve(graph, candidates, bundled):
+    # Prefer an exact retained executable generation before any source bridge.
+    for candidate in candidates:
+        try:
+            if matches(candidate, requirements(graph, state=candidate)):
+                if refresh_bundled(candidate, bundled)['generation'] == candidate['generation']:
+                    return candidate
+        except ValueError:
+            pass
     current = {d['id']: d for d in bundled['descriptors']}
     released = released_replacements(graph, current)
     replacements = dict(released)
@@ -131,13 +139,22 @@ def resolve(graph, candidates, bundled):
     conflict = None
     for raw in candidates:
         candidate = refresh_bundled(raw, bundled)
+        from operon.library_pins import replacements as library_replacements
+        source_pins = library_replacements(graph, candidate)
         try:
-            required = requirements(graph, replacements, state=candidate)
+            required = requirements(graph, {**replacements, **source_pins}, state=candidate)
         except ValueError as error:
             conflict = error
             continue
         if matches(candidate, required):
             value = deepcopy(candidate)
+            if source_pins:
+                value['library_pin_updates'] = [
+                    {'operator': key, 'before': before, 'after': source_pins[key, identity(before)],
+                     'reason': 'Library source verified against the installed wheel',
+                     'bundle_sha256': candidate['library_source_pins']['bundle_sha256']}
+                    for part in graphs(graph) for key, before in part.plugin_lock.items()
+                    if (key, identity(before)) in source_pins]
             # Also report unrelated bundled entries replaced in a retained wheel
             # generation: workers must not import stale, unused builtin locks.
             live = {d['id']: d for d in candidate['descriptors']}

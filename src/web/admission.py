@@ -20,6 +20,18 @@ from .storage import FileLock, atomic_json
 MIB = 1024 ** 2
 
 
+class AdmissionConflict(RuntimeError):
+    code = 'legacy_launchers_active'
+
+    def __init__(self, clients, reservations):
+        self.details = {'clients': clients, 'reservations': sorted(reservations)}
+        pids = ', '.join(str(pid) for pid in sorted({c['pid'] for c in clients if c.get('pid')}))
+        super().__init__('The shared pool cannot take over while previous launchers are still active'
+                         + (f' (PID: {pids})' if pids else '')
+                         + '. Finish their tasks and close the old Studio/server processes, then reconnect. '
+                         'Do not delete the admission ledger or stop running workers.')
+
+
 def process_identity(pid=None):
     process = psutil.Process(pid or os.getpid())
     return {"pid": process.pid, "created": process.create_time()}
@@ -27,7 +39,9 @@ def process_identity(pid=None):
 
 def process_alive(identity):
     try:
-        return psutil.Process(identity["pid"]).create_time() == identity["created"]
+        process = psutil.Process(identity["pid"])
+        return (process.create_time() == identity["created"] and
+                process.status() not in (psutil.STATUS_ZOMBIE, psutil.STATUS_DEAD))
     except (KeyError, psutil.NoSuchProcess):
         return False
     except psutil.AccessDenied:
@@ -79,7 +93,7 @@ def cpu_capacity():
 
 
 class HostAdmission:
-    def __init__(self, directory=None, *, available_bytes=None, cpu_threads=None):
+    def __init__(self, directory=None, *, available_bytes=None, cpu_threads=None, preserve_snapshot=False):
         self.directory = Path(directory or os.environ.get('OPERON_ADMISSION_DIR') or
                               Path.home() / '.operon' / 'admission' / socket.gethostname())
         self.path = self.directory / 'resources.json'
@@ -89,7 +103,9 @@ class HostAdmission:
         with self.lock:
             state = self._read()
             self._reconcile(state)
-            if not state['clients'] and not state['reservations']:
+            if preserve_snapshot and not state.get('capacity_bytes'):
+                raise ValueError('Active shared-pool recovery requires its original host capacity snapshot')
+            if not state['clients'] and not state['reservations'] and not preserve_snapshot:
                 capacity_error = None
                 if available_bytes is None:
                     from src.task.memory.system import available_memory
@@ -112,7 +128,7 @@ class HostAdmission:
                          'available_at_start_bytes': int(available_bytes) if available_bytes is not None else None,
                          'capacity_bytes': int((available_bytes or 0) * AUTO_BUDGET_FRACTION),
                          'cpu_threads': max(1, cpu_threads), 'capacity_error': capacity_error,
-                         'cpu_warning': cpu_warning}
+                         'cpu_warning': cpu_warning, 'coordinator': None}
                 if state['capacity_bytes'] <= 0:
                     state['capacity_error'] = capacity_error or 'No available memory for the host execution pool'
             state['clients'][self.client] = self.identity
@@ -134,6 +150,59 @@ class HostAdmission:
         state['clients'] = {k: v for k, v in state['clients'].items() if process_alive(v)}
         state['reservations'] = {k: v for k, v in state['reservations'].items()
                                  if process_alive(v.get('worker', v['owner']))}
+        state.setdefault('coordinator', None)
+        coordinator = state.get('coordinator')
+        if coordinator and not process_alive(coordinator.get('owner') or {}):
+            state['coordinator'] = None
+
+    def coordinator_owner(self):
+        """The live coordinator holding this admission domain, if any."""
+        with self.lock:
+            state = self._read(); self._reconcile(state)
+            atomic_json(self.path, state)
+            return dict(state['coordinator']) if state.get('coordinator') else None
+
+    def claim_coordinator(self, owner):
+        """Atomically deny legacy reservations to every launcher.
+
+        Inventory and claim happen under the admission lock, so a legacy
+        launcher that passed an earlier scan cannot reserve afterwards.  Older
+        binaries that do not know this field are not protected; mixed-version
+        operation must be blocked by the deployment/upgrade procedure.
+        """
+        with self.lock:
+            state = self._read(); self._reconcile(state)
+            active = state.get('coordinator')
+            if active:
+                current = active.get('owner') or {}
+                if ((current.get('pid'), current.get('created'), current.get('service_id')) ==
+                        (owner.get('pid'), owner.get('created'), owner.get('service_id'))):
+                    return dict(active)
+                raise RuntimeError('Another coordinator already owns this admission domain')
+            others = [identity for client, identity in state['clients'].items()
+                      if (identity.get('pid'), identity.get('created')) !=
+                      (owner.get('pid'), owner.get('created'))]
+            if others or state['reservations']:
+                raise AdmissionConflict(others, state['reservations'])
+            record = {'owner': dict(owner), 'claimed_at': datetime.now(timezone.utc).isoformat(),
+                      'scope': 'host-user'}
+            state['coordinator'] = record
+            atomic_json(self.path, state)
+            return dict(record)
+
+    def release_coordinator(self, owner):
+        with self.lock:
+            state = self._read(); self._reconcile(state)
+            active = state.get('coordinator')
+            if not active:
+                return False
+            current = active.get('owner') or {}
+            if (current.get('pid'), current.get('created'), current.get('service_id')) != \
+                    (owner.get('pid'), owner.get('created'), owner.get('service_id')):
+                return False
+            state['coordinator'] = None
+            atomic_json(self.path, state)
+            return True
 
     def request(self, manifest):
         if self.capacity <= 0:
@@ -179,6 +248,8 @@ class HostAdmission:
     def reserve(self, key, allocation):
         with self.lock:
             state = self._read(); self._reconcile(state)
+            if state.get('coordinator'):
+                return False
             if key in state['reservations']:
                 return state['reservations'][key]['client'] == self.client
             used = sum(v['reserved_bytes'] for v in state['reservations'].values())
@@ -222,6 +293,13 @@ class HostAdmission:
                 'capacity_error': state.get('capacity_error'),
                 'cpu_warning': state.get('cpu_warning'),
                 'pressure_policy': 'emergency-spill-then-stop', 'reservations': state['reservations']}
+
+    def clients(self):
+        """Live launcher identities sharing this admission domain."""
+        with self.lock:
+            state = self._read(); self._reconcile(state)
+            atomic_json(self.path, state)
+            return {key: dict(value) for key, value in state['clients'].items()}
 
     def close(self):
         with self.lock:

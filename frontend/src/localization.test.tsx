@@ -8,7 +8,7 @@ import {displayTitle, runSignature} from './graph';
 import {ParameterField} from './Inspector';
 import {PluginPanel} from './PluginPanel';
 import {SettingsPage} from './SettingsPage';
-import {AgentPanel} from './AgentPanel';
+import {AgentPanel, agentConfiguration} from './AgentPanel';
 import type {Graph, Operator} from './types';
 
 afterEach(() => setLanguage('system'));
@@ -61,7 +61,7 @@ describe('language projections', () => {
     expect(html).toContain('Manage library'); expect(html).toContain('Add operators');
     expect(html).toContain('Operators and Readers'); expect(html).toContain('Workflow operators');
     expect(html).toContain('Import package'); expect(html).toContain('Import workflow file');
-    expect(html).toContain('.whl,.operon-library.zip,.biopipe-library.zip'); expect(html).toContain('aria-pressed="true">Add operators');
+    expect(html).toContain('.whl,.operon-library.zip'); expect(html).toContain('aria-pressed="true">Add operators');
   });
   it('puts language beside existing settings without remounting server drafts', () => {
     setLanguage('en'); expect(t('设置')).toBe('Settings');
@@ -79,6 +79,11 @@ describe('language projections', () => {
     expect(configured).toContain('&quot;operon&quot;: {');
     expect(configured).toContain('&quot;command&quot;: &quot;python&quot;');
     expect(configured).toContain('&quot;operon&quot;');
-    expect(configured).toContain('The Python module name is retained for compatibility');
+    expect(configured).toContain('-m operon mcp');
+    expect(agentConfiguration({command:'python',args:['-m','operon','mcp','--allow-run']}, false)).not.toContain('--allow-plugins');
+    const permitted = agentConfiguration({command:'python',args:['-m','operon','mcp','--allow-run','--workspace','/tmp/ws']}, true);
+    expect(permitted).toContain('--allow-plugins');
+    expect(permitted).toContain('--workspace');
+    expect(permitted).toContain('/tmp/ws');
   });
 });

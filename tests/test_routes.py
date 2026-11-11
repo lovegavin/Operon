@@ -81,6 +81,27 @@ def test_explicit_registration_versions_and_workspace_restore(route_studio):
     assert client.get('/api/workspace').json()['panel_widths']['library'] == 304
 
 
+def test_exported_bundle_can_be_imported_and_registered_without_running(route_studio):
+    client, data, _ = route_studio
+    graph = deepcopy(data['demo'])
+    next(node for node in graph['nodes'] if node['id'] == 'pca')['params']['n_components'] = 2
+    exported = client.post('/api/workflows/export', json=graph)
+    assert exported.status_code == 200, exported.text
+    imported = client.post('/api/workflows/import', content=exported.content,
+                           headers={'Content-Type': 'application/zip'})
+    assert imported.status_code == 200, imported.text
+    restored = imported.json()
+    assert Graph.model_validate(restored).edges == Graph.model_validate(graph).edges
+    assert restored['memory'] == graph['memory']
+    saved = client.post('/api/workflows/save', json={'graph': restored})
+    assert saved.status_code == 200, saved.text
+    registered = client.post('/api/routes/register', json={'workflow_ids': [saved.json()['id']]})
+    assert registered.status_code == 200, registered.text
+    registered_graph = registered.json()[0]['graph']
+    assert next(node for node in registered_graph['nodes'] if node['id'] == 'pca')['params']['n_components'] == 2
+    assert client.get('/api/jobs').json() == []
+
+
 def test_two_route_instances_expand_run_and_ignore_original_files(route_studio):
     client, data, app = route_studio
     saved, route = register_demo(client, data)

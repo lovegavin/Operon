@@ -22,10 +22,10 @@ def test_prepare_environment_requires_plugins_not_edit_or_run_and_never_submits(
     from operon.mcp_server import create_server
     app = create_headless_app(Settings(environment, environment / '.studio', environment / 'no-ui', testing=True, code_root=ROOT))
     calls = []
-    def validate(value, **options):
-        calls.append((value, options))
-        return {'readiness': {'status': 'ready'}}
-    monkeypatch.setattr(app.state.application, 'validate', validate)
+    def validate(value, result, **options):
+        calls.append(options)
+        return {'status': 'ready'}
+    monkeypatch.setattr(app.state.application.readiness, 'validate', validate)
     body = graph(environment)
     with TestClient(app, base_url='http://127.0.0.1') as http:
         class HTTPClient:
@@ -44,7 +44,7 @@ def test_prepare_environment_requires_plugins_not_edit_or_run_and_never_submits(
             http.headers.update(auth(http, app, ['context', 'plugins']))
             await server.call_tool('operon_workflow_prepare_environment', {'graph': body})
         asyncio.run(check_mcp())
-        assert calls == [(body, {'require_files': False, 'repair': True})]
+        assert calls == [{'dependencies_only': True, 'repair': True}]
         # Installer capability does not grant either workflow-edit or job-run capability.
         assert http.post('/api/v1/jobs', json={'graph': body}).status_code == 403
         assert http.post('/api/v1/workflows', json={'graph': body}).status_code == 403

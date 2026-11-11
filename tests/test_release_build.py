@@ -3,8 +3,24 @@ import json
 from pathlib import Path
 import sys
 import zipfile
+import pytest
 
 from scripts.build_runtime import windows_descriptors, runtime_requirements
+
+
+def test_packaging_rejects_stale_frontend_install_after_lock_version_change(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / 'scripts'))
+    from scripts.package_release import verify_frontend_versions
+    module = tmp_path / 'node_modules/example'
+    module.mkdir(parents=True)
+    (module / 'package.json').write_text(json.dumps({'version': '3.1.2'}))
+    lock = {'packages': {'': {'version': '9.0.0'}, 'node_modules/example': {'version': '3.1.3'}}}
+    (tmp_path / 'package-lock.json').write_text(json.dumps(lock))
+    with pytest.raises(ValueError, match='Frontend dependency differs from lock'):
+        verify_frontend_versions(tmp_path)
+    lock['packages']['node_modules/example']['version'] = '3.1.2'
+    (tmp_path / 'package-lock.json').write_text(json.dumps(lock))
+    assert verify_frontend_versions(tmp_path) == lock
 
 
 def test_management_runtime_does_not_expand_with_operator_library():
@@ -52,6 +68,8 @@ def test_lite_archive_preserves_operator_docs_and_frozen_task_parameters(tmp_pat
     files = {
         "pyproject.toml": '[project]\nversion="0.0.1"\n',
         "README.md": "Example release",
+        "LICENSE": "Apache License, Version 2.0",
+        "NOTICE": "Example contributor attribution",
         "src/example.py": "# Example operator",
         "src/example.parameters.json": '{"default": 20}',
         "src/example.Operator.md": "# Operator usage",
@@ -90,6 +108,8 @@ def test_lite_archive_preserves_operator_docs_and_frozen_task_parameters(tmp_pat
     package_release.main()
     with zipfile.ZipFile(next((tmp_path / "archives").glob("*.zip"))) as archive:
         prefix = "Operon Studio/"
+        assert archive.read(prefix + "LICENSE").decode() == files['LICENSE']
+        assert archive.read(prefix + "NOTICE").decode() == files['NOTICE']
         assert archive.read(prefix + "src/example.Operator.md").decode() == "# Operator usage"
         assert json.loads(archive.read(prefix + "src/example.parameters.json"))["default"] == 20
         assert json.loads(archive.read(prefix + "tasks/example/parameters.json"))["value"] == 10

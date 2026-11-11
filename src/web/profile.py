@@ -28,15 +28,17 @@ def resolve_profile(code_root, *, profile_dir=None, workspace=None, data_dir=Non
 
     # Setup-created installations own their profile. This marker contains only
     # a product name and random identity, never a developer path or migrated registry.
-    from operon.installation import isolated_root, profile_id, profile_namespace
+    from operon.installation import isolated_root, profile_id, profile_namespace, workspace_root
     installation = isolated_root(code_root)
     if installation is not None:
         profile = home / profile_namespace(installation) / 'profiles' / profile_id(installation)
-        if ((workspace is not None and Path(workspace).resolve() != (profile / 'workspace').resolve()) or
-                (data_dir is not None and Path(data_dir).resolve() != (profile / 'workspace/.studio').resolve()) or
+        owned_workspace = workspace_root(installation) or (profile / 'workspace')
+        data = owned_workspace / '.studio'
+        if ((workspace is not None and Path(workspace).resolve() != owned_workspace.resolve()) or
+                (data_dir is not None and Path(data_dir).resolve() != data.resolve()) or
                 (profile_dir is not None and Path(profile_dir).resolve() != profile.resolve())):
             raise ValueError('This installation uses its own profile. Import workflows into the new profile instead of attaching an old registry.')
-        return StudioProfile(profile, profile / 'workspace', profile / 'workspace/.studio')
+        return StudioProfile(profile, owned_workspace, data)
 
     def expand(value, base):
         text = os.path.expandvars(str(value))

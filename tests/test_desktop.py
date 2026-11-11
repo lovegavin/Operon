@@ -228,7 +228,7 @@ def test_desktop_server_owns_port_and_exits_with_host(tmp_path, exit_mode):
                     assert process.poll() is None, (tmp_path / "server.log").read_text(encoding="utf-8")
                     continue
                 if line.startswith("OPERON_READY "):
-                    url = json.loads(line.split(" ", 1)[1])["url"]
+                    url = json.loads(line.removeprefix("OPERON_READY "))["url"]
                     break
             assert url and not url.endswith(":" + str(occupied.getsockname()[1]))
             with httpx.Client(trust_env=False) as client:
@@ -247,7 +247,7 @@ def test_desktop_server_owns_port_and_exits_with_host(tmp_path, exit_mode):
                     deadline = time.monotonic() + 30
                     while time.monotonic() < deadline:
                         job = client.get(url + "/api/jobs/" + key).json()
-                        if job["status"] != "running":
+                        if job["status"] not in ("queued", "preparing", "running"):
                             break
                         time.sleep(.1)
                     assert job["status"] == "complete", job

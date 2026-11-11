@@ -60,7 +60,7 @@ def test_real_mmgbsa(tmp_path):
 
     lines = [
         line
-        for line in open(str(ROOT / "tests" / "fixtures" / "vhh_1mel.pdb"))
+        for line in open("/home/gavin/Operon/tests/fixtures/vhh_1mel.pdb")
         if line.startswith("ATOM") and line[21] in "ABLM"
     ]
     path = tmp_path / "complex.pdb"

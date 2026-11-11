@@ -168,6 +168,21 @@ def run(ctx: Context, steps: list[dict]) -> None:
                         ctx.memory.abort_step()
                 elif successful:
                     ctx.event("step_finished", name=name, index=i, seconds=elapsed)
+                if successful and ctx.memory:
+                    # Elastic budgets are applied only at a supported task
+                    # boundary. A failed managed shrink leaves the previous
+                    # committed budget in place; process credits are not
+                    # inferred from this acknowledgement.
+                    try:
+                        from operon.engine.budget import step_boundary_resize
+                        acknowledgement = step_boundary_resize(ctx.task_dir, ctx.memory)
+                        if acknowledgement:
+                            ctx.event('resize_applied', state=acknowledgement.get('state'),
+                                      resize_id=acknowledgement.get('resize_id'),
+                                      managed_budget_bytes=acknowledgement.get('managed_budget_bytes'),
+                                      error=acknowledgement.get('error'))
+                    except Exception as exc:  # noqa: BLE001 - reporting must not hide the step result
+                        ctx.event('resize_error', error_type=type(exc).__name__, message=str(exc))
         ctx._run_status = "complete"
     except BaseException as exc:
         ctx._run_status, ctx._run_error = "failed", exc

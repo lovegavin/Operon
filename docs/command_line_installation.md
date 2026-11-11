@@ -47,7 +47,7 @@ Start-Process -FilePath (Resolve-Path '.\Operon_Setup.exe') `
 Run unattended uninstall from the original Setup outside the installation so it
 can remove the installed helper too. Running `Operon_Uninstall.exe --quiet` from
 inside the installation returns the actual result but retains its own executable
-until it can be removed after exit. Uninstall keeps profiles and analysis results.
+until it can be removed after exit. Uninstall keeps profiles, the install-root workspace and analysis results.
 A failed/cancelled graphical
 installation unlocks the directory field and **Change** button; edit the location
 and retry in the same window. Its disabled action button visibly says **Installing**

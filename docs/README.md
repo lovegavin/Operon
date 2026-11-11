@@ -1,6 +1,6 @@
 # Documentation
 
-Operon, formerly BioPipe, prepares reproducible analysis results from raw data and hands artifacts
+Operon prepares reproducible analysis results from raw data and hands artifacts
 to specialist tools for interactive interpretation and figure refinement. It
 supports visual editing, human-agent collaboration and unattended execution.
 Operon does not supply an AI model or require a desktop for computation.
@@ -17,14 +17,17 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 
 ## Use Operon
 
-- [Quick start: install, import the operator library, run the example](../QUICKSTART.md)
-  ([中文](../QUICKSTART.zh.md))
+- **[Quick start: Windows, Linux and your first workflow](quickstart.md)**
+
+- [Shared execution pools](design/pool_service.md)
+- [Verified stage reuse and author cache declarations](stage_cache.md)
+
 - [SDK 3.7 mandatory port formats and native Reader bridge](data_formats.md)
 - [Static format inspection and explicit legacy migration](format_migration_v37.md)
+
 - [Windows and Linux command-line installation](command_line_installation.md)
 - [Linux server and terminal quickstart](server_cli.md)
 - [3.0 implementation scope and validation](V3_IMPLEMENTATION.md)
-- [Operon naming and compatibility](rebranding.md)
 - [Operon 3.0 Setup acceptance](OPERON_3_TEST_ACCEPTANCE.md)
 - [Public workflow YAML and templates](workflow_yaml_v3.md)
 - [Script operators, parameter extraction and promotion](script_operators_v3.md)
@@ -40,7 +43,8 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 - [Memory, streaming and spill](resource_runtime.md)
 - [Repairing the environment and provisioning resources](agent_environment_repair.md)
 - [Execution environments and concurrent jobs](EXECUTION_ENVIRONMENTS.md)
-- [SSH execution](REMOTE_EXECUTION.md) and [server handshake](SERVER_HANDSHAKE.md)
+- [SSH execution](REMOTE_EXECUTION.md), [server handshake](SERVER_HANDSHAKE.md) and
+  [remote recovery incident note](design/remote_recovery_incident.md)
 - [Server installation troubleshooting](SERVER_INSTALL_REPAIR.md) and [main/library separation audit](MAIN_LIBRARY_SEPARATION_AUDIT.md)
 - [Hi-C workflows](HIC.md) and [16S microbiome](microbiome.md)
 - [Publication figures](PUBLICATION_FIGURES.md) and [static plotting adapters](static_plotting.md)
@@ -60,6 +64,14 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 
 ## Design notes
 
+- [Next server engine: concurrent clients, resource scheduling and backpressure (proposal)](design/server_engine_next.md)
+- [Backend engine implementation plan for coding agents](design/server_engine_implementation_plan.md)
+- [Backend engine implementation status and handoff](design/server_engine_progress.md)
+- [Dedicated multi-workspace pool service](design/pool_service.md)
+- [Engine acceptance record and remaining platform gates](design/server_engine_acceptance.md)
+- [Real Linux/SSH pool acceptance runner](design/pool_linux_acceptance.md)
+- [Control-plane baseline and post-change measurements](design/server_engine_baseline.md)
+- [Engine lock and ownership order](design/engine_locking.md)
 - [Extension policy and on-demand extension](design/extension_policy.md)
 - [Hard-capability status](design/hard_capability_status.md)
 - [Minibinder and VHH design route](design/minibinder_vhh_design_route.md)
@@ -68,18 +80,14 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 
 ## Extend and maintain
 
-- [SDK 3.6/3.7 logical types, representations and conversion plans](data_formats.md)
+- [SDK 3.7 logical types, representations and conversion plans](data_formats.md)
 - [SDK quickstart](sdk_quickstart.md) and [SDK reference](sdk_reference.md)
 - [Operator protocol](operator_protocol.md) and [package protocol](package_protocol.md)
+- [Operator library extension forms](library_extensions.md)
 - [Reader extensions](reader_extensions.md) and [step extensions](step_extensions.md)
 - [Library installation and maintenance](plugins.md)
 - [Independent software and operator-library releases](library_releases.md)
-- [Operator library release standard](library_release_standard.md)
-- [Five-layer library test standard](verification/five-layer-test-standard.md)
-- [Library 3.x full verification](verification/library-3.0.0-full.md)
-- [Operon 4.0.0 release](releases/v4.0.0.md)
-- [Biological evidence for 4.0.0](verification/biological-evidence-4.0.0.md)
-- [Known biological discrepancies](verification/biological-issues-4.0.0.md)
+- [Importing operator libraries and routes](library_import_compatibility.md)
 - [Static registry maintenance](registry_maintenance.md)
 - [Backend versioning](backend_versioning.md)
 - [Selective frontend integration](FRONTEND_MERGE.md)

@@ -44,7 +44,7 @@ The new Operon profile is `%USERPROFILE%\.operon\profiles\<installation-id>`.
 The random ID is recorded in `operon-install.json` beside the installed EXE.
 New receipts include `product: "operon"`. Older Operon receipts without this
 marker retain their `.operon/profiles` behavior; the new installer does not
-rename or migrate those profiles. See [naming compatibility](rebranding.md).
+rename or migrate those profiles.
 No machine-specific path is embedded in the distributed installer. Moving the
 software folder on the same account retains its profile identity.
 
@@ -61,7 +61,31 @@ Operators still run with the current user's permissions.
 ## Old software and recovery
 
 Setup verifies the payload, extracts a new version and checks its bundled runtime
-before switching shortcuts. Previously managed software is cleaned using its
+before switching shortcuts. When updating the **same managed installation
+directory**, Setup checks its old profiles and the owned pool's registered
+workspaces for unfinished jobs, asks its existing
+desktop windows to close normally (including the normal draft save), and waits
+up to 30 seconds for their backends and detached shared-pool processes to exit.
+It holds the old profile locks until the switch and cleanup finish, preventing
+an old shortcut from reopening that profile midway through the update.
+
+Setup only selects processes whose executable is inside a version directory
+listed in this installation's receipt. It does not kill by process name, cancel
+scientific jobs, stop another installation, or force a shared pool to release its
+capacity. An active task, an unresponsive window, a rejected draft save, or a
+remaining CLI/Agent client blocks the switch and leaves the previous receipt and
+shortcuts intact. Close the indicated client or finish the task, then use
+**Retry installation** in the same Setup window. Very old windows that cannot
+report their profile/task state must be closed manually. An installation at a
+different path is a separate installation, not an instruction to close it.
+
+On Windows the shared pool explicitly leaves the desktop's Job Object. A detached
+console alone does not provide that separation. Closing one desktop therefore
+does not kill the pool's accepted workers in other clients' workspaces; the idle
+pool exits through its own lifecycle. If Windows forbids this separation, pool
+startup fails explicitly rather than binding shared work to one editor's lifetime.
+
+Previously managed software is cleaned using its
 installation manifest. Changed or unknown files are retained. Locked files or
 incomplete cleanup do not become part of the new runtime. Portable archives and
 manually copied directories without an ownership receipt are not deleted by

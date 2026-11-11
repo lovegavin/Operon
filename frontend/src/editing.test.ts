@@ -1,5 +1,5 @@
 import {describe, it, expect} from "vitest";
-import {copyFragment, parseFragment, pasteFragment} from "./editing";
+import {copyFragment, isFragmentText, parseFragment, pasteFragment} from "./editing";
 import type {Graph} from "./types";
 import {runSignature} from "./graph";
 
@@ -9,6 +9,14 @@ const graph: Graph = {schema_version:2,name:"Example",base_dir:".",memory:{enabl
   {id:"report",kind:"operator",operator:"describe",title:"Summary",position:{x:560,y:0},params:{},input_count:1}],
   edges:[{id:"one",source:"data",target:"pca",sourceHandle:"out",targetHandle:"in-0"},{id:"two",source:"pca",target:"report",sourceHandle:"out",targetHandle:"in-0"}]};
 describe("copy and paste subgraphs",()=>{
+  it('writes Operon fragments and imports old fragments without losing frozen parameters',()=>{
+    const fragment=copyFragment(graph,['pca']);
+    expect(fragment.format).toBe('operon/graph-fragment-v1');
+    const old=JSON.stringify({...fragment,format:'operon/graph-fragment-v1'});
+    expect(isFragmentText(old)).toBe(true);
+    expect(parseFragment(old)).toEqual(fragment);
+    expect(graph.nodes[1].params.dim).toBe('feature');
+  });
   it("keeps internal branches, allocates independent aliases and never copies external wires",()=>{
     const fragment=parseFragment(JSON.stringify(copyFragment(graph,["data","pca"])));
     const first=pasteFragment(graph,fragment);

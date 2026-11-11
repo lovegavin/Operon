@@ -183,6 +183,13 @@ def test_generator_writes_lf_and_does_not_rewrite_authored_pages(tmp_path):
     generated = folder / 'answer.Answer.md'
     expected = generated.read_bytes()
     assert b'\r' not in expected
+    assert b'Runs in the shared Operon interpreter.' in expected
+    assert not build(tmp_path, check=True)['changed']
+    generated.write_bytes(expected.replace(b'Runs in the shared Operon interpreter.', b'Outdated runtime guidance.'))
+    assert build(tmp_path, check=True)['changed'] == ['src/task/step/steps/answer.Answer.md']
+    assert b'Outdated runtime guidance.' in generated.read_bytes()
+    build(tmp_path)
+    assert generated.read_bytes() == expected
     generated.write_bytes(expected.replace(b'\n', b'\r\n'))
     assert build(tmp_path, check=True)['changed']
     build(tmp_path)

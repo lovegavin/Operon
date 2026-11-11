@@ -52,6 +52,10 @@ def main() -> None:
                 message = 'Updated bundled source pins for this new run; historical job locks were preserved.'
                 print('[Operon] ' + message, flush=True)
                 run_log.event('bundled_pins_updated', message=message, updates=lock['bundled_updates'])
+            if lock.get('library_pin_updates'):
+                message = 'Resolved library source pins to verified installed wheels; historical jobs were preserved.'
+                print('[Operon] ' + message, flush=True)
+                run_log.event('library_pins_resolved', message=message, updates=lock['library_pin_updates'])
             load_runtime(lock, manifest)
         overrides = {key: value for key, value in (("budget_mb", args.memory_mb),
                       ("process_limit_mb", args.process_memory_mb), ("disk_limit_mb", args.disk_mb),

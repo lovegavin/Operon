@@ -96,6 +96,17 @@ def _bundled_state(index, sources, manifest_only=False):
     return {"packages": packages, "descriptors": descriptors}
 
 
+def provider_identity(name):
+    """Known distribution renames, not permission to claim another provider's IDs.
+
+    Keep actual package names/hashes in descriptors and historical locks. Only
+    ownership and replacement compare these aliases; unrelated plugins stay distinct.
+    """
+    aliases = {f'operon-{family}': f'operon-{family}' for family in
+               ('core', 'readers', 'genetics', 'expression', 'plots', 'microbiome', 'hic')}
+    return aliases.get(name, name)
+
+
 def owns_builtin_id(package, identifier):
-    return any(p["name"] == package and d["id"] == identifier
+    return any(provider_identity(p["name"]) == provider_identity(package) and d["id"] == identifier
                for p in bundled_manifest()["packages"] for d in p["descriptors"])

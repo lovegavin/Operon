@@ -56,6 +56,8 @@ def settings(graph):
         result[key] = {name: target(value) for name, value in result[key].items()}
     if "max_parallel_tasks" in result and (type(result["max_parallel_tasks"]) is not int or result["max_parallel_tasks"] < 1):
         raise GraphError("Parallel task count must be a positive integer")
+    if 'split_independent_branches' in result and type(result['split_independent_branches']) is not bool:
+        raise GraphError('split_independent_branches must be a boolean')
     ids = {node.id for node in graph.nodes}
     if set(result["node_targets"]) - ids:
         raise GraphError("Execution settings reference missing nodes")
@@ -118,10 +120,13 @@ def descriptor_capability(spec, info, pin=None):
         validated = info.get('_validated_pins')
         if validated is None:
             validated = {(key, identity(value)) for key, values in (info.get('validated_pins') or {}).items()
+                         if not str(key).startswith('__') and isinstance(values, list)
                          for value in values if isinstance(value, dict)}
         if ((name, identity(pin)) not in validated and
                 not equivalent(current, replacement, bundled=bundled)):
-            return f'{name} pinned implementation is unavailable'
+            because = info.get('pin_validation_error')
+            return (f'{name} pinned implementation is unavailable'
+                    + (f' ({because})' if because else ''))
     return None
 
 
@@ -142,7 +147,7 @@ def capability(node, info):
     return None
 
 
-def _metadata(graph, infos, stat_file, warnings):
+def _metadata(graph, infos, stat_file, warnings, *, dependencies_only=False, require_files=False):
     """Collect immutable file facts and used declarations once, outside sweeps.
 
     References are implicit transfer edges. A route owns all its nested
@@ -177,6 +182,8 @@ def _metadata(graph, infos, stat_file, warnings):
                 cached_stats[key] = None, str(exc)
         value, error = cached_stats[key]
         if error and not optional:
+            if require_files:
+                raise GraphError(f'{label}: input file unavailable: {path} ({error})')
             warning = f'{label}: input size unavailable ({error})'
             if warning not in warning_keys:
                 warnings.append(warning); warning_keys.add(warning)
@@ -192,6 +199,8 @@ def _metadata(graph, infos, stat_file, warnings):
         valid_locations = set()
 
         def reference(node, field, value, where, base, collection):
+            if dependencies_only:
+                return
             if not isinstance(value, str) or not value:
                 raise GraphError(f'{field} must reference a nonempty file path', owner or node.id)
             if target_key(where) not in infos:
@@ -223,10 +232,10 @@ def _metadata(graph, infos, stat_file, warnings):
                                            if node.source.args.get(name) is not None and node.source.args[name] != '')
                     continue
                 location = source_location(node, original_config)
-                if target_key(location) not in infos:
+                if target_key(location) not in infos and not dependencies_only:
                     raise GraphError(f'Input environment is unavailable: {target_key(location)}', node.id)
                 source_sizes[node.id] = size(location, node.source.path, part.base_dir, label=node.title or node.id) if node.source.path else None
-                origin_readers = {spec['id'] for spec in infos[target_key(location)]['catalog'].get('readers', [])
+                origin_readers = {spec['id'] for spec in infos.get(target_key(location), {}).get('catalog', {}).get('readers', [])
                                   if primary_ext(node.source.path) in spec.get('extensions', [])}
                 if origin_readers and not node.source.reader:
                     candidates = [name for name in candidates if name in origin_readers]
@@ -262,19 +271,21 @@ def _metadata(graph, infos, stat_file, warnings):
             elif node.kind == 'route' and node.route:
                 walk(node.route.graph, original_config, (*prefix, node.id), atomic, pins)
         unknown = set(config['file_locations']) - valid_locations
-        if unknown:
+        if unknown and not dependencies_only:
             raise GraphError('file_locations must name existing path parameters: ' + ', '.join(sorted(unknown)), owner)
 
     walk(graph, settings(graph))
     return requirements, references, source_references, source_readers, source_sizes
 
 
-def make_plan(graph, infos, *, stat_file=None, validation_only=False):
+def make_plan(graph, infos, *, stat_file=None, validation_only=False, dependencies_only=False, require_files=False):
     """Place for execution, or select hosts whose missing dependencies need checking.
 
     Validation placement never authorizes a job. OS, pinned code, declarations
     and connected host availability remain strict in either mode.
     """
+    if dependencies_only:
+        validation_only, stat_file, require_files = True, None, False
     config = settings(graph)
     nodes, order, incoming, outgoing = ordered_nodes(graph)
     default = target_key(config)
@@ -283,7 +294,8 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False):
     if config["mode"] == "manual":
         allowed |= {target_key(t) for t in config["node_targets"].values()} | {default}
     assigned, choices, reasons, sizes, warnings = {}, {}, {}, {}, []
-    requirements, references, source_references, source_readers, source_sizes = _metadata(graph, info_by_key, stat_file, warnings)
+    requirements, references, source_references, source_readers, source_sizes = _metadata(
+        graph, info_by_key, stat_file, warnings, dependencies_only=dependencies_only, require_files=require_files)
     for info in info_by_key.values():
         info['_validation_only'] = validation_only
         info['_operators'] = {spec['id']: spec for spec in info['catalog']['operators']}
@@ -294,12 +306,15 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False):
         # PluginManager.snapshot, not unverified aliases supplied by a graph.
         info['_validated_pins'] = {(name, identity(pin))
                                    for name, pins in (info.get('validated_pins') or {}).items()
+                                   if not str(name).startswith('__') and isinstance(pins, list)
                                    for pin in pins if isinstance(pin, dict)}
         info['_released_pins'] = released_replacements(graph, {**info['_operators'], **info['_readers']})
 
     def reader_capability(source_id, info):
         readers = source_readers.get(source_id, [])
         if not readers:
+            if dependencies_only:
+                return None  # Unknown input format is checked when the data is selected.
             return f'No Reader is installed for {nodes[source_id].source.path}'
         for name, pin in readers:
             spec = info['_readers'].get(name)
@@ -314,7 +329,7 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False):
         node = nodes[key]
         if node.kind == "source":
             location = source_location(node, config)
-            if target_key(location) not in info_by_key:
+            if target_key(location) not in info_by_key and not dependencies_only:
                 raise GraphError(f"Input environment is unavailable: {target_key(location)}", key)
             assigned[key] = target_key(location)
             sizes[key] = source_sizes.get(key)
@@ -402,18 +417,42 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False):
                 assigned[key] = min(choices[key], key=lambda dest: (cost(key, dest), dest != default, dest))
 
     units, owner = [], {}
-    for key in order:
-        if nodes[key].kind == "source":
-            continue
-        dest = assigned[key]
-        if not units or target_key(units[-1]["target"]) != dest:
-            units.append({"id": f"stage_{len(units)+1}", "node_ids": [], "target": target(info_by_key[dest]["target"]),
-                          "reason": ("Manual selection" if config["mode"] == "manual" else
-                                     "Target selection pending dependency validation; input locality and queue cost" if validation_only else
-                                     "Compatible dependencies; input locality and queue cost"),
-                          "estimated_bytes": 0, "depends_on": []})
-        unit = units[-1]; unit["node_ids"].append(key); owner[key] = unit["id"]
-        unit["estimated_bytes"] += sizes.get(key) or 0
+    split_branches = config.get('split_independent_branches', False)
+    if split_branches:
+        from operon.engine.dag import split_chains
+        plan_nodes = [node.id for node in graph.nodes]
+        plan_edges = [(edge.source, edge.target) for edge in graph.edges]
+        sources = {node.id for node in graph.nodes if node.kind == 'source'}
+        assigned_by_id = {node.id: assigned[node.id] for node in graph.nodes
+                          if node.id in assigned}
+        chains = split_chains(plan_nodes, plan_edges, assigned_by_id, sources=sources)
+        chain_units = {}
+        for chain in chains:
+            first = chain['node_ids'][0]
+            dest = assigned[first]
+            unit = {'id': chain['id'], 'node_ids': list(chain['node_ids']),
+                    'target': target(info_by_key[dest]['target']),
+                    'reason': 'Independent branch split; compatible dependencies and target locality',
+                    'estimated_bytes': 0, 'depends_on': list(chain['depends_on'])}
+            units.append(unit)
+            chain_units[chain['id']] = unit
+            for node in chain['node_ids']:
+                owner[node] = chain['id']
+        for node in units:
+            node['estimated_bytes'] = sum(sizes.get(name) or 0 for name in node['node_ids'])
+    else:
+        for key in order:
+            if nodes[key].kind == "source":
+                continue
+            dest = assigned[key]
+            if not units or target_key(units[-1]["target"]) != dest:
+                units.append({"id": f"stage_{len(units)+1}", "node_ids": [], "target": target(info_by_key[dest]["target"]),
+                              "reason": ("Manual selection" if config["mode"] == "manual" else
+                                         "Target selection pending dependency validation; input locality and queue cost" if validation_only else
+                                         "Compatible dependencies; input locality and queue cost"),
+                              "estimated_bytes": 0, "depends_on": []})
+            unit = units[-1]; unit["node_ids"].append(key); owner[key] = unit["id"]
+            unit["estimated_bytes"] += sizes.get(key) or 0
     transfers = []
     units_by_id = {unit['id']: unit for unit in units}
     for edge in graph.edges:
@@ -435,8 +474,9 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False):
                 transfers.append({**item, 'target': key, 'to': units_by_id[owner[key]]['target']})
     for unit in units:
         unit["depends_on"] = sorted(set(unit["depends_on"]))
-    if not units:
+    if not units and not dependencies_only:
         raise GraphError("Add at least one analysis operator")
     return {"mode": config["mode"], "units": units, "transfers": transfers, "warnings": warnings,
             **({'validation_only': True} if validation_only else {}),
+            **({'dependencies_only': True} if dependencies_only else {}),
             "algorithm": "bounded-locality-v1", "optimality": "heuristic"}

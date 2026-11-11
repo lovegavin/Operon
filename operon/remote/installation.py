@@ -24,10 +24,16 @@ def validate(value):
         if (not isinstance(path, str) or not path.startswith('/') or
                 '..' in PurePosixPath(path).parts or any(ord(c) < 32 for c in path)):
             raise ValueError(f'Invalid server {name} in installation document')
+    build = value.get('build')
+    if build is not None:
+        if not isinstance(build, dict) or not isinstance(build.get('build_id'), str) or not build['build_id']:
+            raise ValueError('Invalid server build identity')
+        if not isinstance(build.get('application'), dict) or not isinstance(build.get('library'), dict):
+            raise ValueError('Incomplete server build identity')
     return value
 
 
-def register(base, *, app_dir, python, workspace, source_sha256=None):
+def register(base, *, app_dir, python, workspace, source_sha256=None, build=None):
     """Publish a complete pointer atomically; never move code or user data."""
     from src.web.storage import FileLock, atomic_json
     from operon import __version__
@@ -47,6 +53,7 @@ def register(base, *, app_dir, python, workspace, source_sha256=None):
                           # resolving it would discard the selected environment.
                           'python': str(Path(python).expanduser().absolute()), 'workspace': str(Path(workspace).resolve()),
                           'source_sha256': source_sha256,
+                          'build': build if build is not None else previous.get('build'),
                           'registered_at': datetime.now(timezone.utc).isoformat()})
         atomic_json(destination, value)
         destination.chmod(0o600)
@@ -61,11 +68,13 @@ def main():
     parser.add_argument('--python', default=sys.executable)
     parser.add_argument('--workspace', type=Path, required=True)
     parser.add_argument('--source-sha256')
+    parser.add_argument('--build', default='')
     args = parser.parse_args()
     if not any((args.app_dir / name).is_file() for name in ('operon/worker.py', 'scripts/run.py')):
         parser.error('The server application directory must contain operon/worker.py or a legacy scripts/run.py')
     print(json.dumps(register(args.base, app_dir=args.app_dir, python=args.python,
-                              workspace=args.workspace, source_sha256=args.source_sha256)))
+                              workspace=args.workspace, source_sha256=args.source_sha256,
+                              build=json.loads(args.build) if args.build else None)))
 
 
 if __name__ == '__main__':

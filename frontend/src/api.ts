@@ -6,7 +6,9 @@ import type { LibraryState, LibraryAction } from "./types";
 export type Readiness = {
   status: 'ready' | 'blocked'; fingerprint: string; checked_at: string;
   blocked: {target: string; id: string | null; status: string; message: string}[];
+  scope?: 'dependencies' | 'preflight'; dependencies_cached?: boolean; unresolved_sources?: string[];
 };
+export type CheckFeedback = {signature: string; readiness?: Readiness; error?: string};
 
 const base =
   (import.meta as ImportMeta & { env: { VITE_API_BASE?: string } }).env
@@ -61,6 +63,7 @@ export const api = {
   publishScript: (payload: {script: import('./types').ScriptSnapshot; operator_id: string; title: string; category: string; version?: string}) => request<{id: string; catalog: Bootstrap['catalog']}>('/api/scripts/publish', payload),
   operatorSource: (id: string) => request<{available: boolean; code?: string; filename?: string; reason?: string}>(`/api/operators/${encodeURIComponent(id)}/source`),
   prepareEnvironment: (graph: Graph) => request<{readiness: Readiness}>('/api/prepare-environment', graph),
+  checkEnvironment: (graph: Graph) => request<{readiness: Readiness}>('/api/check-environment', graph),
   savePreferences: (value: Partial<import('./preferences').UiPreferences>, initialize = false) => {
     // Keep responses in edit order when users switch settings sections quickly.
     const result = preferencesWrite.catch(() => {}).then(() => request<import('./preferences').UiPreferences>(`/api/preferences?initialize=${initialize}`, value));
@@ -80,6 +83,10 @@ export const api = {
   connectRemote: (id: string, credentials: {password?: string; passphrase?: string}) => request<import('./types').RemoteInfo>(`/api/remote/${id}/connect`, credentials),
   installRemote: (id: string, credentials: {password?: string; passphrase?: string}) => request<import('./types').RemoteInfo>(`/api/remote/${id}/install`, credentials),
   refreshRemote: (id: string) => request<import('./types').RemoteInfo>(`/api/remote/${id}/refresh`, {}),
+  checkRemoteLibrary: (id: string) => request<import('./types').RemoteLibraryCheck>(`/api/remote/${id}/library/check`, {}),
+  installRemoteLibrary: (id: string, payload: {packages: string[]; local_revision: string; remote_revision: string}) =>
+    request<import('./types').RemoteLibraryOperation>(`/api/remote/${id}/library/install`, payload),
+  remoteLibraryStatus: (id: string) => request<import('./types').RemoteLibraryOperation>(`/api/remote/${id}/library/status`),
   remoteSetup: (id: string) => request<{running: boolean; lines: string[]; error: string}>(`/api/remote/${id}/setup`),
   trustRemote: (id: string, fingerprint: string) => request(`/api/remote/${id}/trust`, {fingerprint}),
   disconnectRemote: (id: string) => request(`/api/remote/${id}/disconnect`, {}),
@@ -130,6 +137,14 @@ export const api = {
     return value;
   },
   saveWorkflow: (graph: Graph, id?: string, expected_version?: number) => request<SavedWorkflow>("/api/workflows/save", {graph, id, expected_version}),
+  importRouteArchive: async (file: File): Promise<{routes: RouteDefinition[]; failed: {name: string; error: string}[]}> => {
+    const response = await fetch(base + '/api/routes/import-archive', {
+      method: 'POST', headers: {'X-Studio-Token': token, 'Content-Type': 'application/zip'}, body: file,
+    });
+    const value = await response.json();
+    if (!response.ok) throw new ApiError(value.message || value.detail || t("路线包导入失败"));
+    return value;
+  },
   routes: () => request<RouteDefinition[]>("/api/routes"),
   libraryState: () => request<LibraryState>("/api/library/state"),
   manageLibrary: (key: string, action: LibraryAction) => request<{routes: RouteDefinition[]; state: LibraryState}>("/api/library/manage", {key, action}),

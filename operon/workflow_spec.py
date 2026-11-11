@@ -141,8 +141,8 @@ def compile_spec(spec, directory):
     _mapping(spec, {'format', 'schema_version', 'name', 'sources', 'steps', 'outputs',
                     'parameters', 'parameters_file', 'execution', 'execution_file',
                     'lock_file', 'ui_file'}, 'workflow', ('format', 'schema_version', 'sources', 'steps'))
-    if spec['format'] != FORMAT or type(spec['schema_version']) is not int or spec['schema_version'] != 1:
-        raise WorkflowError('Expected operon.workflow (or legacy biopipe.workflow) schema_version 1')
+    if spec['format'] not in (FORMAT, 'operon.workflow') or type(spec['schema_version']) is not int or spec['schema_version'] != 1:
+        raise WorkflowError('Expected operon.workflow schema_version 1')
     sources, steps = spec['sources'], spec['steps']
     if not isinstance(sources, dict) or not isinstance(steps, dict):
         raise WorkflowError('sources and steps must be mappings keyed by stable node IDs')
@@ -154,14 +154,14 @@ def compile_spec(spec, directory):
     parameters = _sidecar(spec, 'parameters', directory, {})
     execution = _sidecar(spec, 'execution', directory, {})
     _mapping(parameters, {'format', 'schema_version', 'sources', 'steps', 'params'}, 'parameters')
-    if parameters.get('format', 'operon.workflow-parameters') not in ('operon.workflow-parameters', 'biopipe.workflow-parameters') or type(parameters.get('schema_version', 1)) is not int or parameters.get('schema_version', 1) != 1:
+    if parameters.get('format', 'operon.workflow-parameters') not in ('operon.workflow-parameters', 'operon.workflow-parameters') or type(parameters.get('schema_version', 1)) is not int or parameters.get('schema_version', 1) != 1:
         raise WorkflowError('Unsupported parameters schema')
     for kind, items in (('sources', sources), ('steps', steps)):
         values = parameters.get(kind, {})
         if not isinstance(values, dict) or set(values) - set(items):
             raise WorkflowError(f'Parameter {kind} must reference existing node IDs')
     _mapping(execution, {'format', 'schema_version', 'memory', 'runtime', 'manifest_extra', 'interface'}, 'execution')
-    if execution.get('format', 'operon.workflow-execution') not in ('operon.workflow-execution', 'biopipe.workflow-execution') or type(execution.get('schema_version', 1)) is not int or execution.get('schema_version', 1) != 1:
+    if execution.get('format', 'operon.workflow-execution') not in ('operon.workflow-execution', 'operon.workflow-execution') or type(execution.get('schema_version', 1)) is not int or execution.get('schema_version', 1) != 1:
         raise WorkflowError('Unsupported execution schema')
     nodes, edges = [], []
     for ordinal, (key, source) in enumerate(sources.items()):
@@ -268,7 +268,7 @@ def compile_spec(spec, directory):
     if 'lock_file' in spec:
         lock = _json(resolve_resource(directory, spec['lock_file']), directory)
         _mapping(lock, {'format', 'schema_version', 'plugin_lock'}, 'lock', ('format', 'schema_version', 'plugin_lock'))
-        if lock['format'] not in ('operon.workflow-lock', 'biopipe.workflow-lock') or lock['schema_version'] != 1:
+        if lock['format'] not in ('operon.workflow-lock', 'operon.workflow-lock') or lock['schema_version'] != 1:
             raise WorkflowError('Unsupported lock schema')
         graph['plugin_lock'] = lock['plugin_lock']
     if 'ui_file' in spec:
@@ -395,7 +395,7 @@ def json_schema():
                 'inputs': {'type': 'object', 'propertyNames': {'pattern': '^in-?[0-9]+$'}, 'additionalProperties': binding},
                 'title': text, 'input_count': {'type': 'integer', 'minimum': 0, 'maximum': 20}}, ['inputs'])
     step['oneOf'] = [{'required': [key]} for key in ('operator', 'route', 'script')]
-    schema = obj({'format': {'const': FORMAT}, 'schema_version': {'const': 1, 'type': 'integer'},
+    schema = obj({'format': {'enum': [FORMAT, 'operon.workflow']}, 'schema_version': {'const': 1, 'type': 'integer'},
                   'name': text, 'sources': {'type': 'object', 'additionalProperties': source},
                   'steps': {'type': 'object', 'additionalProperties': step},
                   'outputs': {'type': 'object', 'additionalProperties': text},

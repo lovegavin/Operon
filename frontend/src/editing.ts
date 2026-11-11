@@ -4,6 +4,8 @@ import { clone } from "./graph";
 import {defaultTarget, executionConfig, withExecution} from './execution';
 
 const FORMAT = "operon/graph-fragment-v1";
+const LEGACY_FORMAT = "operon/graph-fragment-v1";
+export const isFragmentText = (text: string) => [FORMAT, LEGACY_FORMAT].some(format => text.includes(`"${format}"`));
 export type Fragment = { format: typeof FORMAT; base_dir?: string; nodes: GraphNode[]; edges: GraphEdge[];
   node_targets?: Record<string, TargetRef>; file_locations?: Record<string, TargetRef> };
 export function copyFragment(graph: Graph, selected: string[]): Fragment {
@@ -17,10 +19,10 @@ export function copyFragment(graph: Graph, selected: string[]): Fragment {
 }
 export function parseFragment(text: string): Fragment {
   const value = JSON.parse(text) as Fragment;
-  if (value.format !== FORMAT || !Array.isArray(value.nodes) || !Array.isArray(value.edges) ||
+  if (![FORMAT, LEGACY_FORMAT].includes(value.format) || !Array.isArray(value.nodes) || !Array.isArray(value.edges) ||
       value.nodes.length > 1000 || value.edges.length > 5000 || !value.nodes.every(n => n.id && n.position && ["source", "operator", "route", "script"].includes(n.kind)))
     throw Error(t("剪贴板中没有 Operon 节点。"));
-  return value;
+  return {...value, format: FORMAT};
 }
 function rebaseSource(path: string, from: string, to: string): string {
   const absolute = (value: string) => /^(?:[A-Za-z]:[\\/]|[\\/])/.test(value);

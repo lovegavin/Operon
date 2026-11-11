@@ -76,7 +76,7 @@ def test_pre_package_registry_requires_explicit_migration(tmp_path):
 
 @pytest.mark.parametrize('requirement,accepted', [
     ('operon-studio>=999', False),
-    ('operon-studio>=3.0.0,<4', True),
+    ('operon-studio>=3.0.0,<5', True),
     ('operon-studio>=999; python_version < "0"', True),
 ])
 def test_static_install_enforces_host_version_without_dependency_repair(tmp_path, monkeypatch, requirement, accepted):

@@ -1,5 +1,10 @@
 # SSH execution acceptance — 2026-10-27
 
+> **3.1.6 update:** bridge daemon recovery, structured diagnostics, pin-generation
+> classification and explicit-target isolation are documented in
+> [remote recovery incident note](design/remote_recovery_incident.md). The
+> 2026-10-27 results below are historical and do not cover those paths.
+
 This records development-source acceptance on Windows and a Linux cloud
 container. No Windows desktop archive or GitHub release was rebuilt in this task.
 See [REMOTE_EXECUTION.md](REMOTE_EXECUTION.md) for setup and operating instructions.

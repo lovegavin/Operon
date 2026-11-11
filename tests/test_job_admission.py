@@ -243,3 +243,21 @@ def test_persistent_unmanaged_pressure_is_contained_and_logged(service):
     assert 'RSS' in result['error'] and 'reservation' in result['error']
     assert service.resources()['reserved_bytes'] == 0
     assert result['allocation']['state'] == 'released'
+
+def test_coordinator_ownership_atomically_blocks_legacy_reservations(tmp_path):
+    from src.web.admission import HostAdmission
+    from src.web.admission import process_identity
+    first = HostAdmission(tmp_path / 'admission', available_bytes=256 * 1024 ** 2, cpu_threads=2)
+    second = HostAdmission(tmp_path / 'admission', available_bytes=256 * 1024 ** 2, cpu_threads=2)
+    owner = {'pid': os.getpid(), 'created': process_identity()['created'], 'service_id': 'pool-test'}
+    try:
+        first.claim_coordinator(owner)
+        allocation = {'reserved_bytes': 8 * 1024 ** 2, 'budget_bytes': 4 * 1024 ** 2,
+                      'cpu_threads': 1, 'process_limit_bytes': 8 * 1024 ** 2,
+                      'available_at_start_bytes': 256 * 1024 ** 2, 'memory_enabled': True}
+        assert second.reserve('legacy-key', allocation) is False
+        assert second.coordinator_owner()['owner']['service_id'] == 'pool-test'
+    finally:
+        assert first.release_coordinator(owner) is True
+        assert second.reserve('legacy-key', allocation) is True
+        second.close(); first.close()

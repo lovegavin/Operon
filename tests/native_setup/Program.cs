@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Text;
 using Operon.Setup;
 
+if (UpgradeTests.RunHost(args)) return;
 var root = Path.GetFullPath(args.Single());
 if (Directory.Exists(root)) throw new Exception("Use a fresh test directory");
 Directory.CreateDirectory(root);
@@ -70,10 +71,10 @@ File.WriteAllText(Path.Combine(ownedChild, "installation.json"), "not-json");
 try { InstallEngine.ResolveDestination(occupied); throw new Exception("accepted corrupt owned receipt"); }
 catch (System.Text.Json.JsonException) { checks++; }
 var legacyRoot = Path.Combine(root, "legacy-operon"); Directory.CreateDirectory(legacyRoot);
-var legacyReceipt = "{\"owner\":\"BioPipe.Studio.Install.v1\",\"version\":\"2.6.0\",\"current\":\"versions/old\",\"profile\":\"unused\",\"versions\":[\"versions/old\"],\"shortcuts\":{},\"uninstallKey\":null}";
+var legacyReceipt = "{\"owner\":\"Operon.Studio.Install.v1\",\"version\":\"2.6.0\",\"current\":\"versions/old\",\"profile\":\"unused\",\"versions\":[\"versions/old\"],\"shortcuts\":{},\"uninstallKey\":null}";
 File.WriteAllText(Path.Combine(legacyRoot, "installation.json"), legacyReceipt);
 File.WriteAllText(Path.Combine(legacyRoot, "Operon Studio.exe"), "preserve old software");
-Reject(() => engine.Uninstall(legacyRoot), "Operon uninstaller accepted a BioPipe receipt");
+Reject(() => engine.Uninstall(legacyRoot), "Operon uninstaller accepted a Operon receipt");
 Check(File.ReadAllText(Path.Combine(legacyRoot, "installation.json")) == legacyReceipt &&
       File.ReadAllText(Path.Combine(legacyRoot, "Operon Studio.exe")) == "preserve old software", "old Operon installation changed");
 var inspection = Path.Combine(root, "inspection.json");
@@ -109,4 +110,5 @@ using (var busy = new InstallLease("Local\\OperonStudio-" + InstallLease.Identit
 }
 InstallEngine.CleanVersion(managed, "versions/old", profiles);
 Check(!Directory.Exists(version), "stopped installation not cleaned");
+await UpgradeTests.Run(root, Check);
 Console.WriteLine($"PASS: {checks} native installer checks");

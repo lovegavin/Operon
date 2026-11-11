@@ -18,6 +18,13 @@ from operon_sdk.protocol import PROTOCOL_VERSION
 from operon.bytecode import filesystem_path
 
 
+LIBRARY_SUFFIXES = ('.operon-library.zip',)
+
+
+def is_library_bundle(path):
+    return Path(path).name.lower().endswith(LIBRARY_SUFFIXES)
+
+
 def _io_path(path):
     return Path(filesystem_path(path, resolve=False))
 
@@ -129,7 +136,8 @@ def unpack_bundle(path, destination):
     return document
 
 
-def install_bundle(manager, bundle):
+def install_bundle(manager, bundle, *, replace=False):
+    """Install a verified bundle; ``replace`` also prunes stale bundled providers."""
     from operon.source_library import snapshot_sources
     manager.state()
     with manager.lock:
@@ -141,17 +149,31 @@ def install_bundle(manager, bundle):
             document = unpack_bundle(bundle, temporary / 'incoming')
             # Do not hide unrefreshed author edits behind a new source pointer.
             previous = current.get('source_library') or {}
-            if manager.managed_sources and manager.source_root.exists():
+            if not replace and manager.managed_sources and manager.source_root.exists():
                 fingerprint = snapshot_sources(manager.source_root, temporary / 'existing')
                 seed = manager.source_root / '.seed.json'
                 expected = previous.get('sha256') or (json.loads(seed.read_text(encoding='utf-8'))['sha256'] if seed.is_file() else None)
                 if fingerprint != expected:
                     raise ValueError('Local library sources have unrefreshed edits; refresh or export them before importing an update')
             incoming = temporary / 'incoming'
+            from operon.library_pins import receipt as source_pin_receipt
+            manifest = json.loads((incoming / 'sources/operon/builtin_packages.json').read_text(encoding='utf-8'))
+            source_pins = source_pin_receipt(manifest, incoming / 'sources', document, sha256(bundle))
             installed = {p['name']: p['sha256'] for p in current['packages']}
             if ((current.get('library_release') or {}).get('sha256') == sha256(bundle)
                     and all(installed.get(p['name']) == document['files'][p['file']] for p in document['packages'])):
-                return current
+                if current.get('library_source_pins') == source_pins:
+                    return current
+                # Backfill only after repeating the full source/wheel check.
+                # Retained generations and archived jobs remain unchanged.
+                from copy import deepcopy
+                from operon.plugins import atomic_json
+                state = deepcopy(current)
+                state['generation'] = uuid.uuid4().hex
+                state['library_source_pins'] = source_pins
+                atomic_json(manager.directory / 'environments' / state['generation'] / 'lock.json', state)
+                atomic_json(manager.registry, state)
+                return state
             identifier = uuid.uuid4().hex
             relative = f'library/sources/{identifier}'
             target = _io_path(manager.directory / relative)
@@ -160,6 +182,20 @@ def install_bundle(manager, bundle):
             from operon_sdk.declarations import code_hash
             manifest = json.loads((incoming / 'sources/operon/builtin_packages.json').read_text(encoding='utf-8'))
             first = next(d for p in manifest['packages'] for d in p['descriptors'])
+            if replace:
+                # A managed upgrade owns the complete builtin provider set.
+                # Providers that disappeared from the new library must not
+                # survive as wheel-installed overlays.
+                families = ('core', 'readers', 'genetics', 'expression', 'plots', 'microbiome', 'hic')
+                known = {f"operon-{family}" for family in families} | {f"biopipe-{family}" for family in families}
+                keep = {package['name'] for package in document['packages']}
+                stale = {package['name'] for package in current['packages']
+                         if package['name'] in known and package['name'] not in keep}
+                if stale:
+                    from copy import deepcopy as _deepcopy
+                    current = _deepcopy(current)
+                    current['packages'] = [package for package in current['packages']
+                                           if package['name'] not in stale]
             receipt = {'root': relative, 'sha256': fingerprint,
                        'code_sha': code_hash(first['entry_point'], incoming / 'sources'),
                        'packages': [p['name'] for p in document['packages']]}
@@ -169,7 +205,20 @@ def install_bundle(manager, bundle):
             # before the single atomic registry pointer becomes visible.
             os.replace(incoming / 'sources', target)
             state['library_release'] = {'version': document['version'], 'sha256': sha256(bundle)}
+            state['library_source_pins'] = source_pins
             from operon.plugins import atomic_json
             atomic_json(manager.directory / 'environments' / state['generation'] / 'lock.json', state)
             atomic_json(manager.registry, state)
             return state
+
+
+def install_source(manager, root, version=None, *, replace=True):
+    """Build the library carried by an application tree and install it whole."""
+    from operon.build_identity import library_identity
+    version = version or library_identity(root)['library_version']
+    if not version:
+        raise ValueError('The application does not carry a versioned library')
+    staging = manager.directory / 'staging' / 'source-library'
+    staging.mkdir(parents=True, exist_ok=True)
+    built = build_bundle(root, staging, version)
+    return install_bundle(manager, built['bundle'], replace=replace)

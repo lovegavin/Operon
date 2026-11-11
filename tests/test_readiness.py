@@ -194,3 +194,38 @@ def test_remote_reference_paths_are_not_statted_on_editor_or_served_from_local_c
     monkeypatch.setattr(app.readiness, '_input_stamps', lambda *args: pytest.fail('Remote path must not be statted locally'))
     for _ in range(2):
         assert not app.readiness.validate(graph, {})['cached']
+
+
+def test_dependency_check_needs_no_data_and_full_check_reuses_success(app, monkeypatch):
+    graph = workflow()
+    graph.nodes[0].source.path = ''
+    graph.nodes[0].source.reader = 'CSV'
+    monkeypatch.setattr(app.readiness, '_input_stamps', lambda *args: pytest.fail('Dependency check touched input metadata'))
+    first = app.readiness.validate(graph, {}, dependencies_only=True)
+    assert first['status'] == 'ready'
+    assert first['scope'] == 'dependencies'
+    assert len(app.service.dependencies.calls) == 1
+    # Complete data later: file/parameter validation is distinct, dependency receipt survives.
+    graph.nodes[0].source.path = 'data.csv'
+    graph.nodes[1].params['x'] = 2
+    monkeypatch.setattr(app.readiness, '_input_stamps', lambda *args: [])
+    second = app.readiness.validate(graph, {}, require_files=True)
+    assert second['dependencies_cached']
+    assert len(app.service.dependencies.calls) == 1
+    app.environment['key'] = 2
+    assert not app.readiness.validate(graph, {}, require_files=True)['dependencies_cached']
+    assert len(app.service.dependencies.calls) == 2
+
+
+def test_script_success_reused_but_code_change_rechecks(app, monkeypatch):
+    calls = []
+    monkeypatch.setattr('operon.script_operators.inspect_script_environment',
+                        lambda value: calls.append(value['code']) or {'status': 'passed'})
+    graph = workflow()
+    graph.nodes[1] = graph.nodes[1].model_copy(update={'kind': 'script', 'operator': None,
+        'script': {'language': 'python', 'code': 'first'}})
+    assert app.readiness.validate(graph, {}, dependencies_only=True)['status'] == 'ready'
+    assert app.readiness.validate(graph, {}, require_files=True)['dependencies_cached']
+    graph.nodes[1].script['code'] = 'second'
+    assert not app.readiness.validate(graph, {}, require_files=True)['dependencies_cached']
+    assert calls == ['first', 'second']

@@ -54,6 +54,8 @@ import {
   Trash,
 } from "@phosphor-icons/react";
 import { api, ApiError, downloadText, downloadBlob } from "./api";
+import type {CheckFeedback} from './api';
+import {isWorkflowBundle, ROUTE_FILE_ACCEPT, WORKFLOW_FILE_ACCEPT} from './workflowFiles';
 import { CanvasBridge } from "./agentBridge";
 import type { AgentState, CanvasEvent } from "./agentBridge";
 import {CollaborationActivity, mergeActivity} from './CollaborationActivity';
@@ -81,7 +83,7 @@ import {
   routeSpec,
   retainedOutputs,
 } from "./graph";
-import { copyFragment, parseFragment, pasteFragment } from "./editing";
+import { copyFragment, isFragmentText, parseFragment, pasteFragment } from "./editing";
 import type { Fragment } from "./editing";
 import { DocumentTabs } from "./DocumentTabs";
 import { SaveWorkflowDialog, WorkflowPicker } from "./RouteDialogs";
@@ -252,6 +254,7 @@ function Studio() {
       type: "error" | "success";
     } | null>(null),
     [invalid, setInvalid] = useState<string | undefined>();
+  const [preflight, setPreflight] = useState<CheckFeedback>();
   const [action, setAction] = useState(""),
     [saved, setSaved] = useState(false),
     [tab, setTab] = useState("results");
@@ -533,7 +536,7 @@ function Studio() {
     try {
       const saved: SavedWorkflow[] = [];
       for (const file of Array.from(files)) {
-        const graph = normalizeGraph(file.name.toLowerCase().endsWith('.zip')
+        const graph = normalizeGraph(isWorkflowBundle(file.name)
           ? await api.importWorkflow(file) : JSON.parse(await file.text()));
         saved.push(await api.saveWorkflow(graph));
       }
@@ -555,7 +558,7 @@ function Studio() {
     try {
       let fragment = duplicate ? copyFragment(graphRef.current, selection) : clipboard.current;
       if (!duplicate) {
-        try {const text = await navigator.clipboard.readText(); if(text.includes('"operon/graph-fragment-v1"')) fragment = parseFragment(text);} catch { /* use internal clipboard */ }
+        try {const text = await navigator.clipboard.readText(); if(isFragmentText(text)) fragment = parseFragment(text);} catch { /* use internal clipboard */ }
       }
       if (!fragment?.nodes.length) return notify(t("剪贴板中没有 Operon 节点。"));
       if (page !== activeIdRef.current) return;
@@ -1035,10 +1038,15 @@ function Studio() {
   }
   async function validate() {
     setAction("validate");
+    const snapshot = graphRef.current, signature = JSON.stringify(snapshot);
+    setPreflight({signature});
+    setSettings(true); setInspectorOpen(true);
     try {
-      const result = await api.validate(graphRef.current);
+      const result = await api.validate(snapshot);
+      setPreflight({signature, readiness: result.readiness});
       if (result.readiness.status !== 'ready') {
-        throw new Error(t('运行环境未就绪') + ': ' + result.readiness.blocked.map(item => `${item.id || item.target}: ${item.message}`).join('; '));
+        setInvalid(undefined);
+        return; // Keep dependency failures and the explicit install action in settings.
       }
       setInvalid(undefined);
       notify(
@@ -1046,7 +1054,8 @@ function Studio() {
         "success",
       );
     } catch (error) {
-      failure(error);
+      setPreflight({signature, error: (error as Error).message});
+      setInvalid((error as ApiError).nodeId);
     } finally {
       setAction("");
     }
@@ -1082,7 +1091,7 @@ function Studio() {
     if (!file) return;
     setAction("import");
     try {
-      const next = file.name.toLowerCase().endsWith('.zip')
+      const next = isWorkflowBundle(file.name)
         ? normalizeGraph(await api.importWorkflow(file))
         : file.name.toLowerCase().endsWith(".json")
           ? normalizeGraph(JSON.parse(await file.text()))
@@ -1130,7 +1139,7 @@ function Studio() {
     function nativePaste(event: ClipboardEvent) {
       if (editable(event.target) || busy) return;
       const text = event.clipboardData?.getData("text/plain");
-      if (!text?.includes('"operon/graph-fragment-v1"')) return;
+      if (!text || !isFragmentText(text)) return;
       event.preventDefault();
       try {
         const fragment = parseFragment(text), value = pasteFragment(graphRef.current, fragment);
@@ -1351,12 +1360,12 @@ function Studio() {
         <input
           ref={importInput}
           type="file"
-          accept=".zip,.json,.yaml,.yml"
+          accept={WORKFLOW_FILE_ACCEPT}
           className="sr-only"
           aria-label={t("导入工作流文件")}
           onChange={(e) => void importFile(e.target.files?.[0])}
         />
-        <input ref={routeImport} type="file" multiple accept=".zip,.json" className="sr-only" aria-label={t("导入路线包或 JSON")} onChange={e => void importRoutes(e.target.files)}/>
+        <input ref={routeImport} type="file" multiple accept={ROUTE_FILE_ACCEPT} className="sr-only" aria-label={t("导入路线包或 JSON")} onChange={e => void importRoutes(e.target.files)}/>
       </header>
       <div className="workspace">
         {(libraryOpen || inspectorOpen) && (
@@ -1490,7 +1499,7 @@ function Studio() {
             }}
             onDrop={(event) => {
               event.preventDefault();
-              const type = event.dataTransfer.getData("application/operon");
+              const type = event.dataTransfer.getData("application/operon") || event.dataTransfer.getData("application/operon");
               const position = flow.screenToFlowPosition({x: event.clientX, y: event.clientY});
               if (type) add(type === "source" ? undefined : type, position);
               else if (event.dataTransfer.files.length) void dropFiles(Array.from(event.dataTransfer.files), position);
@@ -1795,6 +1804,8 @@ function Studio() {
             localSystem={bootstrap.system}
             nodeId={inspected}
             settings={settings}
+            preflight={preflight}
+            onPreflight={setPreflight}
             busy={!!busy}
             uploadLimit={bootstrap.upload_limit_mb}
             automaticMemoryFraction={selectedServerId ? selectedServer?.info?.automatic_memory_fraction : bootstrap.automatic_memory_fraction}

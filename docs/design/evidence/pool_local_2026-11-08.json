@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "status": "passed-local",
+  "date": "2026-11-08",
+  "platform": "Windows 11 (10.0.26200), CPython 3.12.14",
+  "new_engine_pool_cache_stream_suite": {
+    "command": "python -m pytest <29 engine/pool/cache/stream test files> -q -p sandbox_mode_patch --basetemp=<workspace>",
+    "passed": 140,
+    "failed": 0,
+    "warnings": 2
+  },
+  "existing_regression_subset": {
+    "command": "python -m pytest <contracts/plans/admission/memory/readiness/API/CLI/library tests> -q",
+    "passed": 145,
+    "failed": 1,
+    "errors": 1,
+    "known_failure": "test_persistent_unmanaged_pressure_is_contained_and_logged: sandbox denies psutil suspend/resume; same failure on released baseline"
+  },
+  "product_service_suite": {
+    "command": "python -m pytest tests/test_headless_application.py tests/test_studio.py tests/test_engine_api.py -q -p sandbox_mode_patch -p pipeshim",
+    "passed": 19,
+    "failed": 2,
+    "known_failures": [
+      "child CLI does not inherit the test-only stdio shim",
+      "Studio test calls psutil.Process.suspend(), denied by sandbox"
+    ]
+  },
+  "mcp": "blocked: Windows CreateNamedPipe PermissionError in sandbox",
+  "real_linux_ssh": "not_run: no authorized server profile/credential; see pool_linux_not_run_2026-11-08.json",
+  "artifacts": {
+    "pool_service": "operon/pool_service.py",
+    "pool_cli": "operon/cli.py",
+    "pool_tests": "tests/test_pool_service.py, tests/test_pool_cli.py",
+    "cache_tests": "tests/test_execution_cache.py",
+    "stream_adapter_test": "tests/test_engine_stream_execution.py",
+    "linux_runner": "scripts/acceptance/pool_linux.sh"
+  }
+}

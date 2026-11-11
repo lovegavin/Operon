@@ -13,9 +13,9 @@ from .protocol import ANSI, Decoder, transmit
 
 
 class RemoteError(ValueError):
-    def __init__(self, message, *, code='remote_error', node_id=None):
+    def __init__(self, message, *, code='remote_error', node_id=None, details=None):
         super().__init__(message)
-        self.code, self.node_id = code, node_id
+        self.code, self.node_id, self.details = code, node_id, details
 
 
 class HostKeyRequired(RemoteError):
@@ -30,6 +30,7 @@ class SSHConnection:
     def __init__(self, profile, credentials, *, progress=None, cancel=None, install=False, cached_info=None):
         import paramiko
         self.profile, self.lock = profile, threading.RLock()
+        self.build = profile.get('build')
         self.channel = None
         self.client = paramiko.SSHClient()
         self.buffer, self.lines, self.stderr = b'', deque(), ''
@@ -54,7 +55,8 @@ class SSHConnection:
                 prefix = ('export PATH=' + shlex.quote(path) + ':"$PATH"; ') if managed else ''
                 return (prefix + 'unset PYTHONHOME PYTHONPATH; export PYTHONNOUSERSITE=1; cd -- '
                         + shlex.quote(profile['app_dir']) + ' && exec ' + shlex.quote(profile['python'])
-                        + ' -u -m operon.remote.server --workspace ' + shlex.quote(profile['workspace']))
+                        + ' -u -m operon.remote.server --workspace ' + shlex.quote(profile['workspace'])
+                        + (' --upgrade' if install else ''))
             if profile.get('mode', 'exec') == 'shell':
                 self.channel = self.client.invoke_shell(term='vt100', width=160, height=50)
                 self._enter_shell(profile.get('menu_choice', ''))
@@ -71,7 +73,8 @@ class SSHConnection:
             if managed:
                 from .provision import locate, provision
                 action = provision if install else locate
-                profile = action(self, profile, progress or (lambda message: None), cancel or threading.Event())
+                profile = action(self, profile, progress or (lambda message: None),
+                                 cancel or threading.Event(), expected=self.build or None)
                 self.profile = profile
                 self.channel.sendall((bridge_command() + '\n').encode())
             deadline = time.monotonic()+90
@@ -93,14 +96,19 @@ class SSHConnection:
     def handshake(self, cached_info=None):
         from .protocol import VERSION
         from operon_sdk.protocol import PROTOCOL_VERSION
-        from .handshake import CAPABILITIES
+        from .handshake import CAPABILITIES, ENGINE_CAPABILITIES
         capabilities = list(CAPABILITIES)
         cached_info = cached_info or {}
+        build = getattr(self, 'build', None)
+        managed = (getattr(self, 'profile', None) or {}).get('environment') == 'managed'
         known = cached_info.get('handshake', {}).get('catalog_digest')
         params = {'version': 1, 'protocol_version': VERSION, 'operator_protocol': PROTOCOL_VERSION,
-                  'required_capabilities': capabilities}
+                  'required_capabilities': capabilities,
+                  'optional_capabilities': list(ENGINE_CAPABILITIES)}
         if known and cached_info.get('catalog'):
             params['known_catalog_digest'] = known
+        if build:
+            params['build_id'] = build['build_id']
         try:
             info = self.call('handshake', params)
         except RemoteError as exc:
@@ -113,13 +121,28 @@ class SSHConnection:
                 handshake.get('operator_protocol') != PROTOCOL_VERSION or
                 not set(capabilities) <= set(handshake.get('capabilities', []))):
             raise RemoteError('服务端接口或能力不兼容，请安装兼容的服务端版本。', code='handshake_incompatible')
+        # Optional engine capabilities are additive.  An older server simply
+        # lacks them and the client uses the documented legacy paths.
+        info['engine_capabilities'] = sorted(set(handshake.get('engine_capabilities', [])) &
+                                             set(ENGINE_CAPABILITIES))
+        remote_build = info.get('build') or handshake.get('build') or {}
+        if managed and build and remote_build:
+            from operon.build_identity import matches
+            if not matches(build, remote_build):
+                raise RemoteError('服务端代码或算子库与桌面端不一致；请安装 / 升级服务端后再连接。',
+                                  code='stale_build')
         if info.get('catalog_unchanged'):
             if not known or handshake.get('catalog_digest') != known or not cached_info.get('catalog'):
                 raise RemoteError('服务端清单缓存无法确认，请重新连接。', code='handshake_incompatible')
+            if managed and build and not remote_build:
+                raise RemoteError('服务端未报告构建身份，请安装 / 升级服务端。', code='stale_build')
             info['catalog'] = cached_info['catalog']
         if not isinstance(info.get('catalog'), dict):
             raise RemoteError('服务端未提供有效算子清单。', code='handshake_incompatible')
         return info
+
+    def supports(self, capability):
+        return capability in (getattr(self, 'info', {}) or {}).get('engine_capabilities', [])
 
     @property
     def connected(self):
@@ -194,8 +217,17 @@ class SSHConnection:
                     if decoder.ack: self.channel.sendall(decoder.ack.encode())
                     if response is None or response.get('id') != identity: continue
                     if not response.get('ok'):
-                        raise RemoteError(response.get('error', 'Remote operation failed'),
-                                          code=response.get('code', 'remote_error'), node_id=response.get('node_id'))
+                        message = response.get('error', 'Remote operation failed')
+                        details = response.get('details')
+                        if isinstance(details, dict) and response.get('code') in (
+                                'service_unavailable', 'remote_transport_error'):
+                            hint = details.get('path') or details.get('socket')
+                            trace_id = details.get('trace_id')
+                            if hint or trace_id:
+                                message += (' (server diagnostics: ' + (hint or 'server log')
+                                            + (f', trace {trace_id}' if trace_id else '') + ')')
+                        raise RemoteError(message, code=response.get('code', 'remote_error'),
+                                          node_id=response.get('node_id'), details=details)
                     return response['value']
             except RemoteError as exc:
                 if exc.code == 'remote_disconnected': self.close()
@@ -205,5 +237,14 @@ class SSHConnection:
                 raise RemoteError('SSH 连接中断；服务器任务不会因此停止。请重新连接。', code='remote_disconnected') from exc
 
     def close(self):
-        if self.channel: self.channel.close()
+        if self.channel:
+            # Gateway PTYs can survive the SSH channel's close. Explicitly end
+            # this stdio bridge; the shared daemon and its jobs keep running.
+            try:
+                if self.channel.send_ready():
+                    self.channel.send(b'OPERON_REMOTE_CLOSE 1\n')
+                    self.channel.shutdown_write()
+            except Exception:  # best effort on a broken transport
+                pass
+            self.channel.close()
         self.client.close()

@@ -93,7 +93,7 @@ def release_wheels(version, directory):
         if not re.fullmatch(r'sha256:[0-9a-f]{64}', asset.get('digest') or ''):
             raise ValueError(f'Release asset has no SHA256 digest: {asset["name"]}')
         url = asset['browser_download_url']
-        if not url.startswith('https://github.com/lovegavin/Operon/releases/download/'):
+        if not url.startswith(('https://github.com/lovegavin/Operon/releases/download/', 'https://github.com/lovegavin/Operon/releases/download/')):
             raise ValueError('Unexpected release download location')
         target = directory / Path(asset['name']).name
         download(url, target, asset['digest'].split(':', 1)[1])

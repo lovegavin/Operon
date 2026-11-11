@@ -13,12 +13,7 @@ def remote_profile(graph):
 
 def source_candidates(graph, catalog, root, value, location=None, reader_id=None, *, input_roots=None):
     from .graph import input_path
-    from operon.reader_selection import candidates, prefer_typed
-
-    def select(value, **options):
-        found = candidates(catalog['readers'], value, reader_id, **options)
-        return found if reader_id else prefer_typed(found)
-
+    from operon.reader_selection import candidates
     if hasattr(location, 'model_dump'):
         location = location.model_dump()
     if (location and location.get('kind') == 'ssh') or (not location and remote_profile(graph)):

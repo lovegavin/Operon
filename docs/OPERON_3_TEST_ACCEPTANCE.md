@@ -81,7 +81,7 @@ visible in the final report. Do not publish, disable dependency checks to obtain
 pass, or substitute a source checkout for the installed application.
 
 Related instructions: [packaged Agent acceptance](../scripts/verify_release_agent.md),
-[3.0 scope](V3_IMPLEMENTATION.md), [naming compatibility](rebranding.md),
+[3.0 scope](V3_IMPLEMENTATION.md),
 [YAML](workflow_yaml_v3.md), [scripts](script_operators_v3.md), and
 [readiness](readiness.md).
 

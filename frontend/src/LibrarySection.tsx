@@ -8,7 +8,7 @@ export function LibrarySection({name, count, sectionKey, search, children, class
   const id = useId();
   const storageKey = `operon-library-collapsed:${sectionKey}`;
   const [collapsed, setCollapsed] = useState(() => {
-    try { const saved = localStorage.getItem(storageKey); return saved === null ? defaultCollapsed : saved === "true"; } catch { return defaultCollapsed; }
+    try { const saved = localStorage.getItem(storageKey) ?? localStorage.getItem(`operon-library-collapsed:${sectionKey}`); return saved === null ? defaultCollapsed : saved === "true"; } catch { return defaultCollapsed; }
   });
   const [searchCollapsed, setSearchCollapsed] = useState(false);
   useEffect(() => setSearchCollapsed(false), [search]);

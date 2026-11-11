@@ -8,7 +8,7 @@ numbers below remain unchanged; they do not prescribe future software versions.
 | Axis | Source of truth | Published tag | When it changes |
 | --- | --- | --- | --- |
 | Application | `pyproject.toml`, `operon/__init__.py` | `vX.Y.Z` | Engine, service, frontend/host integration or application fixes |
-| Operator library | `library/release.json` | `library-v<library-version>` | Operators, Readers, guides, defaults, helpers or resource declarations |
+| Operator library | `library/release.json` | `library-vYYYY.M.D[.N]` | Operators, Readers, guides, defaults, helpers or resource declarations |
 | Provider/operator | v3 provider and literal declaration | Inside the library/wheel | Executable or contract version changes |
 | Protocol/SDK | protocol schemas and SDK | Explicit SDK release | Authoring/runtime contract changes |
 

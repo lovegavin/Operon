@@ -3,15 +3,20 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
-def effective_formats(descriptor):
+def effective_formats(descriptor, params=None):
     """Read-only legacy projection from explicit contracts, never source scanning."""
     from copy import deepcopy
     if descriptor.get('data_formats') is not None:
         return deepcopy(descriptor['data_formats'])
-    def port(rule):
+    def port(rule, depth=0):
+        if depth > 16:
+            return None
         if not isinstance(rule, dict):
             return None
         mode = rule.get('mode')
+        if mode == 'choose':
+            choice = (params or {}).get(rule['param'], rule.get('default'))
+            return port(rule.get('cases', {}).get(str(choice), rule.get('otherwise')), depth + 1)
         kind = rule.get('kind', 'form')
         if isinstance(kind, list):
             if len(set(kind)) != 1:
@@ -25,7 +30,7 @@ def effective_formats(descriptor):
         if mode in form_modes or (mode is None and kind == 'form'):
             return {'logical_type': 'form', 'representations': ['form'], 'metadata': {}}
         if mode == 'declare':
-            return port(rule.get('schema'))
+            return port(rule.get('schema'), depth + 1)
         return None
     contracts = descriptor.get('contracts') or {}
     inputs = contracts.get('inputs') or []

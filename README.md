@@ -1,13 +1,21 @@
 # Operon
 
+**[Quick start: install and run your first workflow](docs/quickstart.md)** ·
+[Download Windows Setup / Linux server](https://github.com/lovegavin/Operon/releases/latest) ·
+[Apache-2.0 license](LICENSE)
+
+Operon is open-source software. You may use, copy, modify and redistribute it,
+including commercially, under Apache-2.0.
+
 Windows users can install **Operon_Setup.exe**, which includes its own Python
 for management, Form/memory infrastructure and agent interfaces, and creates a fresh isolated profile. Scientific dependencies are prepared explicitly for the chosen route/host; PyTorch, Pandas, SciPy and plotting packages are not bundled by default. Existing profiles and analysis files remain
 available for explicit import. See [Windows Setup](docs/windows_setup.md).
 Windows and Linux also support [command-line installation](docs/command_line_installation.md).
 
-For a five-minute walkthrough that installs the app, imports the operator library
-and runs a real workflow, see [Quick Start](QUICKSTART.md) (also in
-[Chinese](QUICKSTART.zh.md)).
+Local desktop/CLI and remote SSH servers automatically share one resource pool
+per execution host/account. No pool address or manual service startup is needed.
+Closing a client does not cancel accepted pool jobs. Scientific environments
+are still selected and prepared per workflow. See the [shared pool lifecycle](docs/design/pool_service.md).
 
 ## Application and library releases
 
@@ -27,29 +35,24 @@ release artifacts. See [Application/library boundary](docs/application_library_b
 Operators, Readers, their parameter JSON and route templates live in `library/seed/`.
 
 
-Operon (formerly BioPipe) is a local bioinformatics pipeline engine with a visual desktop workspace,
+Operon is a local bioinformatics pipeline engine with a visual desktop workspace,
 typed data contracts, bounded resource planning and an extensible operator SDK.
 Create branched workflows, reuse saved routes as operators, and connect your own
 AI agent through CLI or MCP. Operon itself does not supply an AI service.
-Existing `operon` Python modules, CLI commands, MCP tools and protocol identifiers
-remain compatible; see [rebranding and compatibility](docs/rebranding.md).
-
-The **v3.0.2 application candidate** and the independently versioned operator
-library share this repository. The current library version is recorded in
-[`library/release.json`](library/release.json); its
-[operator](library/seed/operator_index.json), [Reader](library/seed/reader_index.json)
-and route catalogs evolve independently of desktop releases. Operators and Readers
-use **protocol v3 / SDK 3.7**, separate parameter JSON and adjacent Markdown
-documentation. Existing v3, v3.5 and v3.6 declarations remain supported.
-
-Download the [published 3.0.2 Windows installer or Linux server bundle](https://github.com/lovegavin/Operon/releases/tag/v3.0.2).
-That release retains its tested library seed; merging newer library sources into
-`main` does not replace the published binaries or change saved workflow values.
+The **v4.0.0 application** and independently versioned **8.0.0 operator library** (compatible with 8.0.0+)
+share this repository. The reference library includes **1,063 operators, 108 Readers, seven
+provider packages and 79 route templates**. Operators and Readers use **protocol
+v3 / SDK 3.7**, separate parameter JSON and adjacent Markdown documentation.
 
 Operon 3.0 adds [editable workflow YAML](docs/workflow_yaml_v3.md),
 [workflow-local scripts](docs/script_operators_v3.md), [target readiness](docs/readiness.md),
 [explicit format adaptation](docs/data_formats.md), and
 [bidirectional canvas activity](docs/canvas_collaboration.md).
+Operon 3.1 adds a [multi-workspace resource pool](docs/design/pool_service.md),
+durable requests/events and [verified stage reuse](docs/stage_cache.md).
+Since 3.1.1, desktop and server clients automatically share one host/account pool.
+Scientific environment preparation remains explicit, and verified cache reuse
+requires an eligible operator declaration.
 For unattended execution, follow the [Linux server and terminal quickstart](docs/server_cli.md):
 `operon --workspace . environment check workflow.yaml`, then
 `operon --workspace . run workflow.yaml --progress --brief`.
@@ -75,7 +78,7 @@ errors and the extra token cost of generating code.
 
 The value rests on five supports:
 
-- **Contract-first operator library.** Operators and Readers have explicit
+- **Contract-first operator library.** 1,063 operators and 108 Readers have explicit
   input/output contracts, parameter schemas, adjacent scientific documentation and
   regression tests; authoritative R oracles cover methods where R is the reference.
 - **First-class plugins.** Operators, Readers and ML models share one discovery,
@@ -156,18 +159,12 @@ genomic interval analysis; example YAML remains under `tasks/`.
 
 Download the ready-built Windows desktop package from
 [GitHub Releases](https://github.com/lovegavin/Operon/releases/latest).
-Extract the complete ZIP and double-click `Operon Studio.exe`. The **full Windows
-x64 package includes Python, SSH support and the built-in Windows CPU analysis/Reader dependencies**.
-No Python, Conda or compiler setup is required. Keep the `runtime` folder beside
-the EXE. If WebView2 is missing, its official Microsoft installer prepares it
-automatically; that one-time step requires internet access. Linux command-line
-tools for Hi-C are installed on the execution server, not in the Windows runtime.
-
-The desktop also upgrades known legacy built-in profiles before
-startup, with recoverable backups under `.studio/migrations/v3/`. Unfinished
-canvas drafts remain editable; required parameters are still checked before a
-run. Old external provider packages require conversion to protocol v3 and produce
-an actionable startup error. Completed job records are not rewritten.
+Run **Operon_Setup.exe**, then launch **Operon Studio** from its shortcut.
+Setup includes the lightweight management Python and creates an isolated profile.
+Choose an execution environment and explicitly prepare dependencies for your
+workflow before running. If WebView2 is missing, Setup uses Microsoft's installer;
+that step requires internet access. See the [quick start](docs/quickstart.md).
+Existing profiles and analysis files are retained for explicit import.
 
 Studio checks Reader/Step dependencies at startup and after library changes, and
 retains successful checks for the session. Compatible operators share the runtime;
@@ -1108,11 +1105,17 @@ python scripts/run.py tasks/csv_demo
 
 ## License
 
-Copyright (c) 2026 Haojian Li. All rights reserved.
+Copyright (c) 2026 Haojian Li and Operon contributors.
 
-This software is proprietary. No part of this software may be copied, modified, distributed, sublicensed, or used for commercial purposes without the prior written permission of the copyright holder.
+Operon is licensed under the **[Apache License, Version 2.0](LICENSE)**.
+Use, copying, modification, redistribution, sublicensing and commercial use are
+permitted under that license; no separate commercial permission is required.
+Retain the license and applicable attribution notices and identify modifications
+when redistributing. See [NOTICE](NOTICE) for attribution.
 
-For commercial licensing, custom development, or collaboration, please contact: email: lovegavin118@outlook.com / WeChat: mylovegavin118 / No. 13727316173.
+Third-party dependencies, external tools, model weights and datasets retain their
+own licenses. Their notices are preserved in `THIRD_PARTY_NOTICES/` and the
+individual packages; Operon's license does not replace those terms.
 
 ### Source preparation and Studio configuration
 

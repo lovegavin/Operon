@@ -56,7 +56,7 @@ class ConnectionProfile(StrictModel):
 def _has_dependency_status(info):
     """True when the handshake already carries a populated dependency snapshot."""
     dependencies = (info or {}).get('dependencies') or {}
-    return bool(isinstance(dependencies, dict) and dependencies.get('entries'))
+    return bool(isinstance(dependencies, dict) and (dependencies.get('entries') or dependencies.get('deferred')))
 
 
 class RemoteManager:
@@ -67,7 +67,30 @@ class RemoteManager:
         self.state = read_json(self.path, {'profiles': {}, 'jobs': {}, 'pending': {}})
         self.connections, self.credentials, self.pending_keys = {}, {}, {}
         self.connecting, self.progress = {}, {}
+        self.library_operations = {}
         self.lock = threading.RLock()
+        self._build = None
+
+    def local_build(self):
+        """Identity of the application and operator library this desktop ships."""
+        if self._build is None:
+            try:
+                from operon.build_identity import build_identity
+                root = getattr(self.service.settings, 'code_root', None) or self.service.root
+                self._build = build_identity(root)
+            except Exception:  # noqa: BLE001 - old checkouts and isolated tests
+                self._build = {}
+        return deepcopy(self._build)
+
+    def build(self, key):
+        from operon.build_identity import matches
+        connection = self.connections.get(key)
+        if not connection or not connection.connected:
+            raise RemoteError('请先连接服务器。', code='remote_disconnected')
+        local = self.local_build()
+        remote = connection.call('build_info', {})
+        return {'local': local, 'remote': remote,
+                'matches': bool(local and remote.get('build') and matches(local, remote['build']))}
 
     def persist(self):
         with self.lock:
@@ -113,6 +136,8 @@ class RemoteManager:
             if key in self.connecting:
                 raise RemoteError('此服务器正在连接或准备环境。')
             profile = deepcopy(self.profile(key))
+            build = self.local_build()
+            profile['build'] = build
             if install and profile.get('environment') != 'managed':
                 raise RemoteError('已有环境请由服务端管理员维护；自动安装仅用于托管安装目录。')
             secret = credentials or self.credentials.get(key, {})
@@ -127,6 +152,11 @@ class RemoteManager:
         try:
             report('正在连接 SSH')
             cached = read_json(self.directory/(key+'.catalog.json'))
+            if cached and build.get('build_id') != (cached.get('build_id') or
+                                                    cached.get('handshake', {}).get('build_id')):
+                # A catalog cached against another local build cannot be used
+                # to migrate execution pins; force a fresh handshake catalog.
+                cached = None
             connection = (self.factory(profile, secret, progress=report, cancel=cancel,
                                        install=install, cached_info=cached)
                           if self.factory is SSHConnection else self.factory(profile, secret))
@@ -138,17 +168,23 @@ class RemoteManager:
                 info = connection.info
                 if not self.profile(key)['workspace']:
                     self.profile(key)['workspace'] = info['workspace']
+                if info.get('build'): info.setdefault('build_id', info['build'].get('build_id', ''))
                 atomic_json(self.directory/(key+'.catalog.json'), info)
                 for job in info.get('history', []): self.wrap_job(key, job)
                 self.persist()
                 report('已连接')
-            if install or not _has_dependency_status(info):
+            # Dependency readiness is advisory and runtime-installed. Ordinary
+            # connect and server installation never probe it; an explicit
+            # maintenance refresh remains available.
+            if hasattr(self.service, 'plugins'):
                 try:
-                    report('正在核对依赖状态')
-                    info = self.refresh(key, verify_all=True)
-                    report('依赖状态已更新')
-                except RemoteError as exc:
-                    report(f'依赖状态将在刷新后更新：{exc}')
+                    self.check_library(key)
+                    info = connection.info
+                except Exception as exc:
+                    # A comparison failure must not turn a working SSH session
+                    # into a failed connection. It is retryable in Settings.
+                    info['library_check'] = {'error': str(exc)}
+                    atomic_json(self.directory/(key+'.catalog.json'), info)
             return info
         except HostKeyRequired as exc:
             with self.lock:
@@ -184,7 +220,9 @@ class RemoteManager:
             if not maintenance.get('running'):
                 if maintenance.get('error'):
                     raise RemoteError(maintenance['error'], code='registry_refresh_failed')
-                return info
+                if hasattr(self.service, 'plugins'):
+                    self.check_library(key)
+                return connection.info
             if time.monotonic() >= deadline:
                 raise RemoteError('服务端维护仍在进行，可稍后刷新查看结果。', code='registry_refresh_pending')
             time.sleep(.5)
@@ -194,6 +232,141 @@ class RemoteManager:
         with self.lock:
             self.profile(key)
             return deepcopy(self.progress.get(key, {'running': False, 'lines': [], 'error': ''}))
+
+    def check_library(self, key):
+        from operon.remote.library import inventory, compare
+        connection = self.connections.get(key)
+        if not connection or not connection.connected:
+            raise RemoteError('请先连接服务器。', code='remote_disconnected')
+        supported = 'library_sync_v1' in connection.info.get('handshake', {}).get('library_capabilities', [])
+        local = inventory(self.service.plugins.state())
+        if supported:
+            remote = connection.call('library_manifest', {})
+        else:
+            # Older servers can still report missing IDs through their catalog;
+            # they require an explicit server upgrade before package transfer.
+            catalog = connection.info.get('catalog', {})
+            entries = [{'id': d['id'], 'kind': kind} for kind, field in
+                       (('operator', 'operators'), ('reader', 'readers')) for d in catalog.get(field, [])]
+            remote = {'revision': '', 'packages': [{'name': 'older-server', 'enabled': True, 'entries': entries}]}
+        result = compare(local, remote, supported=supported)
+        remote_build = remote.get('build') or connection.info.get('build') or {}
+        local_build = self.local_build()
+        local_library = local_build.get('library') or {}
+        remote_library = remote_build.get('library') or {}
+        local_catalog = local_build.get('catalog') or {}
+        remote_catalog = remote_build.get('catalog') or {}
+        same_library = bool(
+            local_library.get('bundle_sha256')
+            and local_library.get('bundle_sha256') == remote_library.get('bundle_sha256')
+            and local_library.get('descriptor_count') == remote_library.get('descriptor_count')
+            and local_catalog.get('digest') == remote_catalog.get('digest'))
+        result['build'] = {'local': local_build.get('build_id', ''),
+                           'remote': remote_build.get('build_id', ''),
+                           'matches': same_library,
+                           'library_matches': same_library}
+        result['replacement_required'] = bool(result.get('changed_count')) or (bool(remote_build) and not same_library)
+        with self.lock:
+            if self.connections.get(key) is not connection:
+                raise RemoteError('连接已改变，请重新检查。', code='remote_disconnected')
+            connection.info['library_check'] = result
+            atomic_json(self.directory/(key+'.catalog.json'), connection.info)
+        return result
+
+    def library_status(self, key):
+        with self.lock:
+            self.profile(key)
+            return deepcopy(self.library_operations.get(key, {'status': 'idle'}))
+
+    def start_library_install(self, key, payload):
+        names = payload.get('packages')
+        if not isinstance(names, list) or not names or any(not isinstance(n, str) for n in names) or len(set(names)) != len(names):
+            raise RemoteError('请选择要补齐的算子包。')
+        with self.lock:
+            self.profile(key)
+            if self.library_operations.get(key, {}).get('status') == 'running':
+                raise RemoteError('算子库正在安装，请等待完成。', code='maintenance_busy')
+            connection = self.connections.get(key)
+            if not connection or not connection.connected:
+                raise RemoteError('请先连接服务器。', code='remote_disconnected')
+            self.library_operations[key] = {'status': 'running', 'phase': 'checking', 'error': None}
+            worker = threading.Thread(target=self._install_library, args=(key, connection, deepcopy(payload)),
+                                      name='operon-library-transfer', daemon=True)
+            worker.start()
+            return deepcopy(self.library_operations[key])
+
+    def _install_library(self, key, connection, payload):
+        from tempfile import TemporaryDirectory
+        from operon.remote.library import inventory, export_provider
+        from operon.engine.transport import transport_admission
+        from .transfers import TransferClient
+        lease = 'transfer-' + uuid.uuid4().hex
+        admission = None
+        local_reserved = remote_reserved = False
+        def progress(value):
+            with self.lock:
+                self.library_operations[key].update(value)
+        def cancelled():
+            return self.connections.get(key) is not connection or not connection.connected
+        try:
+            checked = self.check_library(key)
+            if not checked['supported']:
+                raise RemoteError('请先升级服务端，再补齐算子库。', code='capability_missing')
+            if any(checked[k] != payload.get(k) for k in ('local_revision', 'remote_revision')):
+                raise RemoteError('算子库已变化，请重新检查并选择。', code='library_changed')
+            allowed = {p['name'] for p in checked['packages'] if p['selectable']}
+            if not set(payload['packages']) <= allowed:
+                raise RemoteError('选中的包无法安全补齐，请重新检查算子库。')
+            state = self.service.plugins.state()
+            if inventory(state)['revision'] != checked['local_revision']:
+                raise RemoteError('本地算子库已变化，请重新检查。')
+            admission = transport_admission(self.service)
+            transfer = TransferClient(lambda method, params: connection.call(method, {**params, '_transport_lease': lease}),
+                                      self.directory/'library-transfers')
+            local_reserved = admission.reserve(lease, {'reserved_bytes': transfer.buffer_budget_bytes,
+                                                      'cpu_threads': 0, 'kind': 'transport'})
+            if not local_reserved:
+                raise RemoteError('本地传输内存暂不可用，请稍后重试。')
+            remote_reserved = connection.call('transport_reserve', {'id': lease})['reserved']
+            if not remote_reserved:
+                raise RemoteError('服务器传输内存暂不可用，请稍后重试。')
+            with TemporaryDirectory(prefix='library-', dir=self.directory) as temporary:
+                files = []
+                for index, name in enumerate(payload['packages']):
+                    if cancelled():
+                        raise RemoteError('连接已断开；重连后可重试并复用已上传文件。')
+                    progress({'phase': 'packaging', 'package': name, 'index': index + 1, 'total': len(payload['packages'])})
+                    wheel = export_provider(self.service.plugins, state, name, Path(temporary)/str(index))
+                    reference = transfer.upload(wheel, progress=progress, cancel=cancelled)
+                    files.append({'filename': wheel.name, 'reference': reference})
+                progress({'phase': 'installing'})
+                info = connection.call('library_install', {'files': files, 'remote_revision': checked['remote_revision']})
+                deadline = time.monotonic() + 900
+                while info.get('registry_refresh', {}).get('running'):
+                    if cancelled() or time.monotonic() > deadline:
+                        raise RemoteError('服务端安装可能仍在继续；重新连接并检查算子库以确认结果。')
+                    time.sleep(.5)
+                    info = connection.call('refresh_status', {})
+                if info.get('registry_refresh', {}).get('error'):
+                    raise RemoteError(info['registry_refresh']['error'])
+                with self.lock:
+                    if cancelled():
+                        raise RemoteError('连接已改变；请重新检查算子库。')
+                    connection.info = info
+                result = self.check_library(key)
+                if any(p['missing'] for p in result['packages'] if p['name'] in payload['packages']):
+                    raise RemoteError('服务端仍缺少选中的算子，请重新检查维护结果。')
+                progress({'status': 'complete', 'phase': 'complete', 'result': result})
+        except Exception as exc:
+            progress({'status': 'failed', 'error': str(exc)})
+        finally:
+            if remote_reserved:
+                try:
+                    connection.call('transport_release', {'id': lease})
+                except Exception:
+                    pass  # The server expires inactive transport reservations.
+            if local_reserved:
+                admission.release(lease)
 
     def disconnect(self, key):
         with self.lock:
@@ -235,6 +408,11 @@ class RemoteManager:
         from .parameters import freeze_graph
         from .routes import prepare_interface
         catalog = self.catalog(graph)
+        state = read_json(self.directory/(remote_profile(graph)+'.catalog.json')) or {}
+        check = state.get('library_check') or {}
+        if check.get('replacement_required'):
+            raise RemoteError('服务端算子库与本地版本不一致，请先安装 / 升级服务端后再运行。',
+                              code='library_replacement_required')
         graph = graph.model_copy(deep=True)
         from operon.pins import graphs
         for part in graphs(graph):
@@ -249,7 +427,14 @@ class RemoteManager:
                                 input_roots=self.service.settings.input_roots))
             for descriptor in catalog['operators'] + catalog.get('readers', []):
                 if descriptor['id'] in used and descriptor.get('implementation'):
-                    part.plugin_lock.setdefault(descriptor['id'], deepcopy(descriptor['implementation']))
+                    current = deepcopy(descriptor['implementation'])
+                    previous = part.plugin_lock.get(descriptor['id'])
+                    if previous != current:
+                        if previous is not None:
+                            # Keep the old pin as a string: plugin_lock values are
+                            # dict[str, str] and must survive JSON round-trips.
+                            current['migrated_from'] = json.dumps(previous, sort_keys=True)
+                        part.plugin_lock[descriptor['id']] = current
         # Saved canvas snapshots remain editable offline. Fresh server pins are
         # resolved on submission; existing pins are never silently discarded.
         return prepare_interface(freeze_graph(graph, catalog, self.service.root,
@@ -325,8 +510,9 @@ class RemoteManager:
     def ensure(self, key):
         """Idempotently restore an SSH connection; key/agent auth needs no secret."""
         profile = self.profile(key)
-        state = self.status().get('profiles', {})
-        if state.get(key, {}).get('connected'):
+        state = next((item for item in self.status()
+                      if (item.get('profile') or {}).get('id') == key), None)
+        if state and state.get('connected'):
             return {'connected': True, 'profile_id': key, 'latency': None}
         if profile.get('auth', 'password') == 'password':
             raise ValueError('服务器需要密码认证，请调用 /api/remote/{key}/connect 提供本次会话密码')

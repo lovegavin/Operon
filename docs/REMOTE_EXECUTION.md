@@ -237,3 +237,25 @@ CLI/MCP canvas commands preserve the execution target. Agent validation and run
 requests use the same routing as the UI, and still require the existing run scope.
 The application never supplies an AI service or exposes the local agent API to
 the server's public network.
+
+## Recovery and diagnostics (3.1.6)
+
+The SSH bridge and the shared RPC daemon have separate lifetimes. If the daemon
+idle-exits while a bridge stays open, the next request recovers it once through
+the workspace startup lock and retries the same correlation ID. A request that
+may already have been transmitted is never replayed; job and installation request
+IDs remain stable. Failures retain `service_unavailable`/
+`remote_transport_error` codes and structured `details` with the operation,
+request ID, trace ID, phase, errno, socket/log path and retryability.
+
+Bridge and dispatcher traces are written to
+`<workspace>/.studio/remote/bridge.events.jsonl` and
+`<workspace>/.studio/remote/dispatch.events.jsonl` (bounded and redacted), while
+daemon stdout/stderr remains in `.studio/remote/service.log`. Desktop, CLI, HTTP
+and MCP receive the same details; old daemons that omit them remain usable.
+
+`check-environment` is data-independent and can inspect a draft without input
+files. **Prepare environment** is the separate installation action and requires
+the existing `plugins` capability (`--allow-plugins`). The Agent panel exposes it
+as an explicit, default-off option and includes it only when selected; it never
+grants edit or run permission.

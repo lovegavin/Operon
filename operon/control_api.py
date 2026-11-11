@@ -73,7 +73,12 @@ def mount_control(app, application, bridge):
     @app.post('/api/v1/workflows/prepare-environment')
     def prepare_environment(request: Request, payload: GraphRequest):
         authorize(request, 'plugins')
-        return application.validate(payload.graph, require_files=False, repair=True)
+        return application.check_environment(payload.graph, repair=True)
+
+    @app.post('/api/v1/workflows/check-environment')
+    def check_environment(request: Request, payload: GraphRequest):
+        authorize(request)
+        return application.check_environment(payload.graph)
 
     @app.get('/api/v1/environment')
     def environment_status(request: Request):
@@ -227,6 +232,16 @@ def mount_control(app, application, bridge):
     def resources(request: Request):
         authorize(request)
         return application.executions.resources()
+
+    @app.get('/api/v1/engine')
+    def engine_status(request: Request):
+        authorize(request)
+        return application.engine_status()
+
+    @app.get('/api/v1/engine/events')
+    def engine_events(request: Request, after: int = 0, limit: int = 200):
+        authorize(request)
+        return application.events(after, limit=max(1, min(int(limit), 1000)))
 
     @app.get('/api/v1/remotes')
     def remotes(request: Request):

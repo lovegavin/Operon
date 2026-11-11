@@ -121,6 +121,14 @@ def environment_identity(service, state, ids):
                          _stamp(service.plugins.directory / path / 'operon-target.json')] for path in sorted(paths)]}
 
 
+def script_tools_identity(scripts):
+    from .remote.handshake import _stamp
+    import shutil
+    tools = {tool for snapshot in scripts.values()
+             for tool in [{'r': 'Rscript', 'c': 'cc', 'cpp': 'c++'}.get(snapshot.get('language'))] if tool}
+    return {tool: _stamp(path) if (path := shutil.which(tool)) else None for tool in tools}
+
+
 def inspect_declared_environment(service, ids, *, graph=None, scripts=None, repair=False):
     """Check on the target host, including historical pins and inline scripts."""
     from .platforms import supported_systems
@@ -140,6 +148,20 @@ def inspect_declared_environment(service, ids, *, graph=None, scripts=None, repa
         else:
             eligible.append(key)
     identity = environment_identity(service, state, eligible)
+    receipt_key = _digest({'ids': sorted(ids), 'generation': state['generation'], 'system': system,
+                          'environment': identity, 'scripts': scripts or {},
+                          'script_tools': script_tools_identity(scripts or {})})
+    # Host-local receipts are shared by dependency-only and preflight checks.
+    # Remote clients still make a live RPC; a server decides if its own receipt
+    # remains valid. No data paths or scientific parameter values enter this key.
+    with service.dependencies.lock:
+        receipts = getattr(service, '_declared_readiness_records', {})
+        if repair:
+            receipts.clear()
+        cached = receipts.get(receipt_key)
+        passed = all(service.dependencies.entries.get(key, {}).get('status') == 'passed' for key in eligible)
+        if not repair and cached and passed and not statuses and state['generation'] == current['generation']:
+            return {**deepcopy(cached), 'cached': True}
     # Session successes survive parameter edits but not an explicitly replaced
     # interpreter/immutable dependency target. Installation does not run here.
     runtime_keys = {key: _digest(environment_identity(service, state, [key])) for key in eligible}
@@ -165,8 +187,15 @@ def inspect_declared_environment(service, ids, *, graph=None, scripts=None, repa
             script_statuses[key] = inspect_script_environment(snapshot)
         except Exception as exc:
             script_statuses[key] = {'status': 'failed', 'error': str(exc)}
-    return {'entries': statuses, 'scripts': script_statuses, 'system': system,
-            'generation': state['generation'], 'environment': identity}
+    result = {'entries': statuses, 'scripts': script_statuses, 'system': system,
+              'generation': state['generation'], 'environment': identity, 'cached': False}
+    if all(item.get('status') == 'passed' for item in [*statuses.values(), *script_statuses.values()]):
+        with service.dependencies.lock:
+            receipts[receipt_key] = deepcopy(result)
+            while len(receipts) > 128:
+                receipts.pop(next(iter(receipts)))
+            service._declared_readiness_records = receipts
+    return result
 
 
 def inspect_ids(service, ids, *, repair=False):
@@ -219,7 +248,39 @@ class ReadinessService:
             references(graph)
         return records
 
-    def validate(self, graph, structural, *, require_files=False, repair=False):
+    def validate(self, graph, structural, *, require_files=False, repair=False, dependencies_only=False):
+        if not repair:
+            return self._validate(graph, structural, require_files=require_files, repair=False, dependencies_only=dependencies_only)
+        service = self.app.service
+        if not hasattr(service, 'environment_guard'):
+            # Lightweight adapters/tests that do not participate in the shared
+            # environment gate keep their prior behavior.  A real JobService
+            # always defines the attribute; if it is None it fails closed below.
+            return self._validate(graph, structural, require_files=require_files, repair=True, dependencies_only=dependencies_only)
+        guard = (service.execution_environment_guard() if hasattr(service, 'execution_environment_guard')
+                 else service.environment_guard)
+        if guard is None:
+            raise CommandError(
+                'environment_gate_unavailable',
+                'Environment repair is blocked because the maintenance gate is unavailable', 503)
+        environment = (service.environment_identity()
+                       if hasattr(service, 'environment_identity') else 'default')
+        try:
+            with guard.maintenance(owner=getattr(service, 'owner', {'pid': os.getpid()}),
+                                   kind='readiness-repair', environment=environment):
+                return self._validate(graph, structural, require_files=require_files, repair=True, dependencies_only=dependencies_only)
+        except CommandError:
+            raise
+        except Exception as exc:
+            code = getattr(exc, 'code', None)
+            if code == 'environment_busy':
+                raise CommandError(
+                    'environment_busy',
+                    'Environment repair is blocked while running attempts use this environment', 409,
+                    getattr(exc, 'details', None)) from exc
+            raise
+
+    def _validate(self, graph, structural, *, require_files=False, repair=False, dependencies_only=False):
         service = self.app.service
         catalog = self.app.catalog_for(graph)
         plan = structural.get('execution_plan')
@@ -229,6 +290,13 @@ class ReadinessService:
                 target = unit['target'].get('profile_id') if unit['target']['kind'] == 'ssh' else 'local'
                 groups.setdefault(target, set()).update(required_ids(graph, catalog, unit['node_ids']))
                 script_groups.setdefault(target, {}).update(required_scripts(graph, unit['node_ids']))
+            # Unconnected Reader nodes can also be prepared before drawing edges.
+            from src.web.execution_plan import source_location, settings, target_key
+            consumed = {edge.source for edge in graph.edges}
+            for node in graph.nodes:
+                if node.kind == 'source' and node.id not in consumed:
+                    target = target_key(source_location(node, settings(graph)))
+                    groups.setdefault(target, set()).update(required_ids(graph, catalog, [node.id]))
         else:
             from src.web.source_paths import remote_profile
             target = remote_profile(graph) or 'local'
@@ -242,11 +310,11 @@ class ReadinessService:
                         for tool in [{'r': 'Rscript', 'c': 'cc', 'cpp': 'c++'}.get(snapshot.get('language'))] if tool}
         local_inputs = _local_input_metadata(graph)
         identity = {'graph': semantic_graph(graph),
-                    'inputs': self._input_stamps(graph, catalog) if set(groups) <= {'local'} and local_inputs else [],
+                    'inputs': self._input_stamps(graph, catalog) if not dependencies_only and set(groups) <= {'local'} and local_inputs else [],
                     'script_tools': {tool: _stamp(path) if (path := shutil.which(tool)) else None for tool in script_tools},
                     'generation': state['generation'] if state else None,
                     'environment': environment_identity(service, state, groups['local']) if state else None,
-                    'require_files': require_files}
+                    'require_files': require_files, 'dependencies_only': dependencies_only}
         fingerprint = _digest(identity)
         # A live RPC is mandatory for remote targets, even with a prior success.
         # DependencySession itself avoids repeating passed import probes.
@@ -257,8 +325,8 @@ class ReadinessService:
                 snapshot = service.dependencies.snapshot()
                 statuses = {entry['id']: entry.get('status') for entry in snapshot['entries']}
                 if cached and cached['status'] == 'ready' and all(statuses.get(key) == 'passed' for key in groups.get('local', [])):
-                    return {**deepcopy(cached), 'cached': True}
-        checked, blocked = {}, []
+                    return {**deepcopy(cached), 'cached': True, 'dependencies_cached': True}
+        checked, blocked, reused = {}, [], []
         for target, ids in groups.items():
             try:
                 if target == 'local':
@@ -269,6 +337,7 @@ class ReadinessService:
                                 {'ids': sorted(ids), 'scripts': script_groups.get(target, {}),
                                  'graph': graph.model_dump(mode='json'), 'repair': repair})
                 statuses = inspected['entries']
+                reused.append(inspected.get('cached', False))
                 checked[target] = {**statuses, **inspected.get('scripts', {})}
                 for key in sorted(set(ids) | set(script_groups.get(target, {}))):
                     item = checked[target].get(key, {})
@@ -281,7 +350,10 @@ class ReadinessService:
         record = {'status': 'blocked' if blocked else 'ready', 'fingerprint': fingerprint,
                   'checked_at': datetime.now(timezone.utc).isoformat(), 'targets': checked,
                   'blocked': blocked, 'require_files': require_files,
-                  'cached': False,
+                  'cached': False, 'dependencies_cached': bool(reused) and all(reused) and not blocked,
+                  'scope': 'dependencies' if dependencies_only else 'preflight',
+                  'unresolved_sources': [node.id for node in graph.nodes if node.kind == 'source' and node.source
+                      and not candidates(catalog.get('readers', []), node.source.path, node.source.reader)],
                   'policy': 'route-only; explicit preparation; no installation during validation'}
         with self.lock:
             self.records[fingerprint] = record

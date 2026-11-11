@@ -102,7 +102,7 @@ internal static class InstallFiles
             if (source.Length < 32) throw new InvalidDataException("安装包不完整。");
             source.Seek(-32, SeekOrigin.End);
             var footer = new byte[32]; source.ReadExactly(footer);
-            if (!footer.AsSpan(0, 16).SequenceEqual(FooterMagic)) throw new InvalidDataException("安装包缺少内置环境。");
+            if (!footer.AsSpan(0, FooterMagic.Length).SequenceEqual(FooterMagic)) throw new InvalidDataException("安装包缺少内置环境。");
             long offset = BitConverter.ToInt64(footer, 16), length = BitConverter.ToInt64(footer, 24);
             if (length != spec.Bytes || offset < 64 || offset != source.Length - 32 - length)
                 throw new InvalidDataException("安装包长度无效。");

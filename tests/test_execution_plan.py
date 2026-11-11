@@ -51,6 +51,36 @@ def targets(plan):
     return {key: unit["target"] for unit in plan["units"] for key in unit["node_ids"]}
 
 
+def test_dependency_placement_does_not_require_input_paths_or_stat_data():
+    workflow = graph([source(path=''), operator('step')], [('input', 'step')], mode='manual')
+    def forbidden(*args):
+        pytest.fail('Dependency placement must not inspect data files')
+    plan = planner.make_plan(workflow, [host()], stat_file=forbidden, dependencies_only=True)
+    assert targets(plan) == {'step': LOCAL}
+    assert plan['dependencies_only'] and plan['validation_only']
+    # A normal execution still needs an identifiable Reader.
+    with pytest.raises(GraphError, match='No Reader'):
+        planner.make_plan(workflow, [host()])
+
+
+def test_preflight_missing_source_and_reference_fail_without_blocking_dependency_check():
+    workflow = graph([source(), operator('step', params={'reference': '/not-ready/ref.fa'})],
+                     [('input', 'step')], mode='manual')
+    infos = [host(specs=[spec(parameters={'reference': {'x-operon-path': True}})])]
+    def missing(*args):
+        raise ValueError('File does not exist')
+    assert planner.make_plan(workflow, infos, stat_file=missing, dependencies_only=True)['dependencies_only']
+    with pytest.raises(GraphError, match='input file unavailable'):
+        planner.make_plan(workflow, infos, stat_file=missing, validation_only=True, require_files=True)
+
+
+def test_dependency_check_does_not_require_the_data_storage_host_to_be_online():
+    workflow = graph([source(location=SSH), operator('step')], [('input', 'step')], mode='manual')
+    assert targets(planner.make_plan(workflow, [host()], dependencies_only=True)) == {'step': LOCAL}
+    with pytest.raises(GraphError, match='Input environment is unavailable'):
+        planner.make_plan(workflow, [host()], validation_only=True, require_files=True)
+
+
 def test_manual_target_overrides_and_legacy_default_are_preserved():
     workflow = graph([source(location=LOCAL), operator("local"), operator("remote"), operator("finish")],
                      [("input", "local"), ("local", "remote"), ("remote", "finish")],
@@ -468,3 +498,51 @@ def test_validated_wheel_pin_is_scoped_to_the_verifying_host_and_operator():
     assert targets(planner.make_plan(workflow, [local, remote])) == {'step': SSH}
     with pytest.raises(GraphError, match='pinned implementation'):
         planner.make_plan(workflow, [local])
+
+def test_independent_branch_split_is_opt_in_and_preserves_default_units():
+    nodes = [source(), operator('left'), operator('right'), operator('join')]
+    edges = [('input', 'left'), ('input', 'right'), ('left', 'join'), ('right', 'join')]
+    default = planner.make_plan(graph(nodes, edges, mode='manual'), [host()])
+    assert len(default['units']) == 1
+    assert default['units'][0]['node_ids'] == ['left', 'right', 'join']
+    split = planner.make_plan(
+        graph(nodes, edges, mode='manual', split_independent_branches=True), [host()])
+    assert [unit['node_ids'] for unit in split['units']] == [['left'], ['right'], ['join']]
+    assert split['units'][2]['depends_on'] == ['stage_1', 'stage_2']
+    with pytest.raises(GraphError, match='boolean'):
+        planner.make_plan(graph(nodes, edges, mode='manual', split_independent_branches='yes'), [host()])
+
+def test_broken_unrelated_host_does_not_block_explicit_target():
+    from types import SimpleNamespace
+    from src.web.execution import ExecutionService
+
+    calls = []
+    class Remotes:
+        def status(self):
+            return [{'profile': {'id': 'good', 'name': 'good'}, 'connected': True,
+                     'info': host(target={'kind': 'ssh', 'profile_id': 'good'})},
+                    {'profile': {'id': 'bad', 'name': 'bad'}, 'connected': True,
+                     'info': host(target={'kind': 'ssh', 'profile_id': 'bad'})}]
+        def call(self, key, method, params=None):
+            calls.append(key)
+            if key == 'bad':
+                raise RuntimeError('unrelated host is down')
+            return {}
+    service = SimpleNamespace(
+        catalog={'operators': [], 'readers': []},
+        resources=lambda: {},
+        dependencies=SimpleNamespace(snapshot=lambda: {}),
+        remotes=Remotes(), root='.')
+    engine = SimpleNamespace(service=service)
+    value = Graph.model_validate({'nodes': [], 'edges': [],
+                                  'runtime': {'execution': {'target': {'kind': 'ssh', 'profile_id': 'good'}}}})
+    result = ExecutionService.infos(engine, graph=value)
+    assert calls == ['good']
+    bad = next(item for item in result if item['target'].get('profile_id') == 'bad')
+    assert 'validated_pins' not in bad and 'pin_validation_error' not in bad
+
+    automatic = Graph.model_validate({'nodes': [], 'edges': [],
+                                      'runtime': {'execution': {'mode': 'auto'}}})
+    result = ExecutionService.infos(engine, graph=automatic)
+    assert calls == ['good', 'good', 'bad']
+    assert any(item.get('pin_validation_error') for item in result)

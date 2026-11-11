@@ -73,6 +73,15 @@ def create_server(client):
         return {**checked, 'graph': prepared}
 
     @server.tool()
+    def operon_workflow_check_environment(graph: dict) -> dict:
+        """Check only this draft's dependencies on its selected hosts, without data files.
+
+        Read-only. Does not authorize execution; validate the complete workflow before running.
+        Passed host receipts are reused until declarations, scripts or environments change.
+        """
+        return client.request('/v1/workflows/check-environment', {'graph': graph})
+
+    @server.tool()
     def operon_workflow_prepare_environment(graph: dict) -> dict:
         """Explicitly install/repair dependencies for this route's selected environments; requires --allow-plugins.
 

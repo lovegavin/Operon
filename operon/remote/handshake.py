@@ -25,9 +25,17 @@ from .protocol import VERSION
 
 HANDSHAKE_VERSION = 1
 OPERATOR_PROTOCOL = 3
+# Required by every client; keeping this stable lets a new client talk to an
+# older server without failing the whole connection.
 CAPABILITIES = (
     'manifest_handshake', 'dependency_readiness', 'registry_refresh', 'jobs',
     'execution_pins', 'streaming', 'spill', 'upload', 'workflow_readiness',
+)
+# Optional capabilities negotiated separately.  A client uses the documented
+# legacy fallback when one is absent instead of treating the server as broken.
+ENGINE_CAPABILITIES = (
+    'concurrent_control', 'durable_events', 'resumable_events', 'resource_leases',
+    'engine_state', 'engine_request_ids', 'bounded_channels',
 )
 
 
@@ -54,6 +62,9 @@ def validate_request(params):
     if missing:
         raise HandshakeError('Server lacks required capabilities: ' + ', '.join(missing),
                              code='capability_missing')
+    optional = params.get('optional_capabilities', [])
+    if not isinstance(optional, list) or any(not isinstance(item, str) for item in optional):
+        raise HandshakeError('optional_capabilities must be a list of capability names')
 
 
 def daemon_request():
@@ -173,7 +184,15 @@ class ManifestHandshake:
         self.saved = _read(self.receipt_path)
         if self.saved.get('version') != 1:
             self.saved = {}
-        self.installed = _read(Path(sys.prefix) / 'operon-ready.json').get('dependency_readiness', {})
+        self.install_receipt = _read(Path(sys.prefix) / 'operon-ready.json')
+        self.build = self.install_receipt.get('build') or {}
+        if not self.build:
+            try:
+                from operon.build_identity import build_identity
+                self.build = build_identity(self.service.settings.code_root or self.service.root)
+            except Exception:  # noqa: BLE001 - old or partial installs still handshake
+                self.build = {}
+        self.installed = self.install_receipt.get('dependency_readiness', {})
         if (not isinstance(self.installed, dict) or self.installed.get('version') != 1
                 or not runtime_compatible(self.installed.get('runtime'), self.runtime)):
             self.installed = {}
@@ -266,6 +285,10 @@ class ManifestHandshake:
     def persist(self):
         from src.web.storage import atomic_json
         snapshot = self.service.dependencies.snapshot()
+        snapshot["deferred"] = bool(self.installed.get("deferred"))
+        if snapshot["deferred"]:
+            # Nothing to count: optional dependencies are installed on demand.
+            snapshot["entries"] = []
         entries = {entry['id']: {**entry, 'runtime_key': self.runtime_keys[entry['id']]}
                    for entry in snapshot['entries'] if entry['status'] in ('passed', 'failed')}
         value = {'version': 1, 'runtime': self.runtime, 'entries': entries,
@@ -280,12 +303,17 @@ class ManifestHandshake:
     def response(self, params, *, legacy=False):
         if not legacy:
             validate_request(params)
-        # The dependency checker releases this lock while probing; snapshots
+        # Job/read snapshots acquire the job state lock (and the engine
+        # journal).  Read them before taking the catalog/dependency locks so
+        # the documented order is never inverted while a worker is spawning.
+        history = self.service.history()
+        resources = self.service.resources()
+        # The dependency checker releases its lock while probing; snapshots
         # stay coherent without waiting for a scan, import or installation.
         with self.lock, self.service.dependencies.lock:
-            return self._response(params, legacy=legacy)
+            return self._response(params, legacy=legacy, history=history, resources=resources)
 
-    def _response(self, params, *, legacy):
+    def _response(self, params, *, legacy, history=None, resources=None):
         self.sync()
         from operon import __version__
         tools = self.tool_snapshot()
@@ -294,43 +322,95 @@ class ManifestHandshake:
             'protocol_version': VERSION, 'version': __version__, 'system': platform.system().lower(),
             'python': sys.executable, 'workspace': str(self.service.root),
             'code_root': str(self.service.settings.code_root),
-            'history': self.service.history(), 'demo': self.service.demo,
-            'tools': tools, 'dependencies': dependencies, 'resources': self.service.resources(), **self.memory,
+            'history': history if history is not None else self.service.history(),
+            'demo': self.service.demo,
+            'tools': tools, 'dependencies': dependencies,
+            'resources': resources if resources is not None else self.service.resources(), **self.memory,
             'registry_refresh': deepcopy(self.maintenance),
             'handshake': {'version': HANDSHAKE_VERSION, 'server_id': self.server_id,
                           'catalog_digest': self.catalog_digest,
                           'dependency_revision': digest({'dependencies': dependencies, 'runtime_keys': self.runtime_keys}),
-                          'capabilities': list(CAPABILITIES), 'operator_protocol': OPERATOR_PROTOCOL},
+                          'capabilities': list(CAPABILITIES),
+                          'base_capabilities': list(CAPABILITIES),
+                          'engine_capabilities': list(ENGINE_CAPABILITIES),
+                          'library_capabilities': ['library_sync_v1'],
+                          'operator_protocol': OPERATOR_PROTOCOL},
+            'build': deepcopy(self.build),
+            'build_id': self.build.get('build_id', ''),
         }
-        unchanged = not legacy and params.get('known_catalog_digest') == self.catalog_digest
+        try:
+            engine = self.service._engine_status()
+            value['engine'] = {'mode': engine.get('mode'),
+                               'available': engine.get('available'),
+                               'schema': (engine.get('journal') or {}).get('schema_version'),
+                               'capabilities': engine.get('capabilities', [])}
+        except Exception:  # noqa: BLE001 - the catalog handshake must still succeed
+            value['engine'] = {'available': False}
+        known_build = params.get('build_id')
+        unchanged = (not legacy and params.get('known_catalog_digest') == self.catalog_digest
+                     and (not known_build or known_build == self.build.get('build_id')))
         value['catalog_unchanged'] = unchanged
         if not unchanged:
             value['catalog'] = deepcopy(self.service.catalog)
         return value
 
-    def refresh(self, params):
+    def refresh(self, params, *, maintenance_factory=None):
         verify_all = params.get('verify_all', False)
         if type(verify_all) is not bool:
             raise ValueError('verify_all must be a boolean')
         with self.lock:
+            if self.maintenance['running'] and self.maintenance.get('kind') == 'library-install':
+                raise HandshakeError('Library installation is running; wait before refreshing.', code='maintenance_busy')
             if self.maintenance['running'] and verify_all and not self.maintenance_verify_all:
                 raise HandshakeError('A registry refresh is already running; wait before requesting full dependency verification.',
                                      code='maintenance_busy')
             if not self.maintenance['running']:
+                maintenance = maintenance_factory() if maintenance_factory else None
                 self.maintenance = {'running': True, 'error': None, 'result': None}
                 self.maintenance_verify_all = verify_all
-                self.maintenance_thread = threading.Thread(target=self._refresh, args=(verify_all,),
+                self.maintenance_thread = threading.Thread(target=self._refresh, args=(verify_all, maintenance),
                                                             name='operon-registry-refresh', daemon=True)
-                self.maintenance_thread.start()
-            return self.response(params, legacy=True)
+                try:
+                    self.maintenance_thread.start()
+                except BaseException:
+                    self.maintenance['running'] = False
+                    if maintenance is not None:
+                        maintenance[0].end(maintenance[1])
+                    raise
+        # response takes job-state snapshots before catalog locks.
+        return self.response(params, legacy=True)
 
-    def _refresh(self, verify_all):
+    def install_library(self, payload, transfers, *, maintenance_factory):
+        with self.lock:
+            if self.maintenance['running']:
+                raise HandshakeError('Server maintenance is already running.', code='maintenance_busy')
+            maintenance = maintenance_factory()
+            self.maintenance = {'running': True, 'kind': 'library-install', 'error': None, 'result': None}
+            self.maintenance_verify_all = False
+            self.maintenance_thread = threading.Thread(
+                target=self._refresh, args=(False, maintenance, (payload, transfers)),
+                name='operon-library-install', daemon=True)
+            try:
+                self.maintenance_thread.start()
+            except BaseException:
+                self.maintenance['running'] = False
+                if maintenance is not None:
+                    maintenance[0].end(maintenance[1])
+                raise
+        return self.response({}, legacy=True)
+
+    def _refresh(self, verify_all, maintenance=None, installation=None):
         from operon.plugins import process_context
         process_context.cancel = self.service.dependencies.cancel
         try:
             # Neither operation holds the handshake lock. Other desktops can
             # reconnect, read documents and follow jobs throughout maintenance.
-            result = self.service.plugins.refresh()
+            if installation is None:
+                result = self.service.plugins.refresh()
+            else:
+                from .library import install_selected
+                payload, transfers = installation
+                result = install_selected(self.service.plugins, transfers, payload)
             with self.lock, self.service.dependencies.lock:
                 self.runtime = runtime_identity()
                 if verify_all:
@@ -343,16 +423,30 @@ class ManifestHandshake:
                         entry.update(status='unchecked', error='')
                 self.sync(force=True)
                 self.persist()
-            self.service.dependencies.check(repair=False, repair_r=True)
+            # Installing provider code does not install/probe scientific
+            # dependencies. Readiness stays explicit and execution-target aware.
+            if installation is None:
+                self.service.dependencies.check(repair=False, repair_r=True)
             with self.lock:
                 self.sync()
                 self.tool_snapshot(refresh=True)
                 self.persist()
-                self.maintenance.update(running=False, result=result)
+                self.maintenance.update(result=result)
         except Exception as exc:
             with self.lock:
-                self.maintenance.update(running=False, error=str(exc))
+                self.maintenance.update(error=str(exc))
         finally:
+            if maintenance is not None:
+                guard, token = maintenance
+                try:
+                    guard.end(token)
+                except Exception as exc:  # noqa: BLE001 - visible in maintenance state
+                    with self.lock:
+                        self.maintenance.update(error=f'gate release failed: {exc}')
+            # Do not admit another refresh until this thread's gate has been
+            # released. The token belongs to this operation, never shared state.
+            with self.lock:
+                self.maintenance['running'] = False
             process_context.cancel = None
 
     @property

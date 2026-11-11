@@ -22,15 +22,15 @@ and the [static migration tool](format_migration_v37.md).
 
 | Package | Entries | Purpose |
 | --- | ---: | --- |
-| `operon-core` | 789 | Data transformations, statistics, machine learning and domain analyses |
+| `operon-core` | 394 | Data transformations, statistics, machine learning and domain analyses |
 | `operon-genetics` | 21 | QC, PCA, regression and correction |
 | `operon-expression` | 13 | Expression transformations and statistical analysis |
 | `operon-plots` | 12 | Plots, including survival curves |
 | `operon-microbiome` | 26 | Abundance diversity, distances, ordination, joins, PERMANOVA, correlation and composition |
-| `operon-readers` | 107 | File readers, including H5AD and MTX disk preparation |
+| `operon-readers` | 97 | File readers, including H5AD and MTX disk preparation |
 | `operon-hic` | 7 | Sequencing/contact file Readers and Hi-C processing |
 
-Counts describe the 5.0.0 factory library: 867 operators and 108 Readers. Installed
+Counts describe the 2.0.1 factory library: 709 operators and 101 Readers. Installed
 profiles may add, replace or disable providers; use `operon plugin list` for the
 active library rather than assuming these counts at runtime.
 

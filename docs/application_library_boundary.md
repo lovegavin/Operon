@@ -8,13 +8,12 @@ by SDK protocol revisions and validated declarations, not by merging both source
 trees. Published releases remain immutable.
 
 Operon has two versioned products in one repository. Application releases use
-`vX.Y.Z`; operator releases use `library-v<library-version>`. Their version numbers
-do not need to match. Adding or correcting an
+`vX.Y.Z`; operator releases use `library-vYYYY.M.D`. Adding or correcting an
 operator does not require an EXE release or an application version change.
 
 | Owner | Source | Published artifact |
 | --- | --- | --- |
-| Application, engine, CLI, HTTP, MCP, desktop | `operon/`, `operon_sdk/`, `src/core/`, `src/task/`, `src/web/`, `frontend/`, `desktop/` | `operon_studio` wheel, Windows Setup, Linux server bundle |
+| Application, engine, CLI, HTTP, MCP, desktop | `operon/`, `operon_sdk/`, `src/core/`, `src/task/`, `src/web/`, `frontend/`, `desktop/` | `operon_studio` wheel, Lite and Full desktop archives |
 | Reference operators and Readers | `library/seed/src/task/step/steps/`, `library/seed/src/reader/readers/` | Independent native `.operon-library.zip` bundles |
 | Factory metadata and templates | `library/seed/operon/`, `library/seed/src/web/`, `library/seed/routes/` | `operon_builtin_library` seed wheel |
 

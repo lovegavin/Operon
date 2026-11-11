@@ -19,7 +19,7 @@ pytest.importorskip("openmm")
 
 from src.task.step.steps import structure_openmm_energy as module
 
-FIXTURE = str(ROOT / "tests" / "fixtures" / "vhh_1mel.pdb")
+FIXTURE = "/home/gavin/Operon/tests/fixtures/vhh_1mel.pdb"
 
 
 def _pdb_form(tmp_path):

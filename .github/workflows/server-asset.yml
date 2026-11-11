@@ -1,0 +1,73 @@
+name: Server asset acceptance
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Draft/final release tag containing the Linux server asset
+        required: true
+      release_version:
+        description: Application version without the v prefix (for example 3.1.6)
+        required: true
+      asset_name:
+        description: Exact server ZIP asset name
+        required: true
+      expected_sha256:
+        description: SHA256 of the exact server ZIP
+        required: true
+  push:
+    paths: ['release-trigger']
+
+jobs:
+  linux-server:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag || 'v3.1.6-rc1' }}
+      RELEASE_VERSION: ${{ inputs.release_version || '3.1.6' }}
+      ASSET_NAME: ${{ inputs.asset_name || 'Operon-3.1.6-Server.zip' }}
+      EXPECTED_SHA256: ${{ inputs.expected_sha256 || '0b42a115058d0d802643f22b391569933cc2c9a93c1752b5479381d4bcffef1f' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download exact release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/server-asset"
+          gh release download "$RELEASE_TAG" \
+            --pattern "$ASSET_NAME" \
+            --dir "$RUNNER_TEMP/server-asset"
+          cd "$RUNNER_TEMP/server-asset"
+          echo "$EXPECTED_SHA256  $ASSET_NAME" | sha256sum -c -
+          unzip -q "$ASSET_NAME" -d bundle
+      - name: Install the exact Linux server bundle
+        run: |
+          cd "$RUNNER_TEMP/server-asset/bundle/Operon-$RELEASE_VERSION-Server"
+          bash install.sh --prefix "$RUNNER_TEMP/operon" --result "$RUNNER_TEMP/server-install.json"
+          python - <<'PY'
+          import json, pathlib
+          value = json.loads(pathlib.Path('/tmp' if False else __import__('os').environ['RUNNER_TEMP'] + '/server-install.json').read_text())
+          assert value['status'] == 'installed', value
+          assert pathlib.Path(value['install_dir']).is_dir()
+          print(json.dumps(value))
+          PY
+      - name: Exercise installed CLI and script workflow
+        run: |
+          python - <<'PY'
+          import json, os, pathlib
+          v = json.loads((pathlib.Path(os.environ['RUNNER_TEMP'])/'server-install.json').read_text())
+          pathlib.Path(os.environ['RUNNER_TEMP'] + '/operon-path').write_text(v['install_dir'])
+          PY
+          PREFIX=$(cat "$RUNNER_TEMP/operon-path")
+          "$PREFIX/bin/operon" --version
+          mkdir -p "$PREFIX/workspace"
+          cp -R examples/workflows/script_pipeline "$PREFIX/workspace/demo"
+          "$PREFIX/bin/operon" --workspace "$PREFIX/workspace" environment check "$PREFIX/workspace/demo/workflow.yaml" --json
+          "$PREFIX/bin/operon" --workspace "$PREFIX/workspace" run "$PREFIX/workspace/demo/workflow.yaml" --progress --brief
+          "$PREFIX/bin/operon" --workspace "$PREFIX/workspace" jobs list --json
+          "$PREFIX/bin/operon" --workspace "$PREFIX/workspace" service stop || true
+      - name: Record installed artifact identity
+        run: |
+          PREFIX=$(cat "$RUNNER_TEMP/operon-path")
+          "$PREFIX/bin/operon" --version
+          find "$PREFIX" -maxdepth 2 -type f -name 'server.json' -o -name 'operon-install.json' | sort

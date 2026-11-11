@@ -17,7 +17,7 @@ export type Parameter = {
 export type PluginRefresh = {generation: string; updated: string[]; unchanged: string[]; directory: string; operators: number; readers: number};
 export type PluginOperation = {id: string; status: 'running' | 'complete' | 'failed'; error: string | null; result?: PluginRefresh};
 export type PluginPackage = {name: string; title?: string; version: string; sha256: string; origin?: 'bundled' | 'wheel'; enabled?: boolean; source_managed?: boolean};
-export type DependencyState = {running: boolean; entries: {id: string; title: string; status: 'unchecked' | 'checking' | 'installing' | 'passed' | 'failed'; error: string; execution?: {mode: 'shared' | 'isolated'; reason?: string}}[]};
+export type DependencyState = {running: boolean; deferred?: boolean; entries: {id: string; title: string; status: 'unchecked' | 'checking' | 'installing' | 'passed' | 'failed'; error: string; execution?: {mode: 'shared' | 'isolated'; reason?: string}}[]};
 export type PluginState = {generation: string | null; packages: PluginPackage[]; bundled_packages?: PluginPackage[]; inbox?: string;
   library_release?: {version: string; sha256: string} | null;
   dependencies?: DependencyState;
@@ -226,8 +226,19 @@ export type RemoteProfile = {id?: string; name: string; host: string; port: numb
 export type RemoteInfo = {catalog: Catalog; history: Job[]; system: string; version: string; python: string;
   workspace: string; automatic_memory_budget_bytes: number; automatic_memory_fraction: number; tools: Record<string, boolean>;
   dependencies?: DependencyState;
+  library_check?: RemoteLibraryCheck;
   handshake?: {version: number; server_id: string; catalog_digest: string; dependency_revision: string; capabilities: string[]; operator_protocol: number}};
 export type RemoteStatus = {profile: RemoteProfile; fingerprint?: string; connected: boolean; info?: RemoteInfo};
+export type RemoteLibraryEntry = {id: string; kind: string; title?: string};
+export type RemoteLibraryCheck = {error?: string; local_revision?: string; remote_revision?: string; supported?: boolean;
+  missing_count?: number; changed_count?: number; replacement_required?: boolean;
+  build?: {local: string; remote: string; matches: boolean};
+  packages?: {name: string; version: string; remote_version: string | null;
+    missing: RemoteLibraryEntry[]; disabled: RemoteLibraryEntry[]; changed?: RemoteLibraryEntry[];
+    replaces: number; selectable: boolean; reason?: string | null}[]};
+export type RemoteLibraryOperation = {status: 'idle' | 'running' | 'complete' | 'failed'; phase?: string;
+  package?: string; index?: number; total?: number; bytes_done?: number; bytes_total?: number;
+  error?: string; result?: RemoteLibraryCheck};
 export type RemoteListing = {path: string; parent: string; next_offset: number | null;
   entries: {name: string; path: string; directory: boolean; bytes: number; modified: number}[]};
 export type TargetRef = {kind: 'local'} | {kind: 'ssh'; profile_id: string};

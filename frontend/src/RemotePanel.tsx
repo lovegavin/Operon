@@ -1,5 +1,6 @@
 import {t} from './i18n';
-import {useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {RemoteLibraryPanel} from './RemoteLibraryPanel';
 import {ArrowLeft, ArrowRight, CircleNotch, File, Folder, Plus, HardDrives as Server, X} from '@phosphor-icons/react';
 import {api, ApiError} from './api';
 import type {DataSource, RemoteListing, RemoteProfile, RemoteStatus} from './types';
@@ -20,7 +21,8 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
 }) {
   const [profile, setProfile] = useState<RemoteProfile>(() => servers.find(s => s.profile.id === active)?.profile || servers[0]?.profile || {...empty});
   const [password, setPassword] = useState(''), [passphrase, setPassphrase] = useState('');
-  const [busy, setBusy] = useState<ConnectionAction | 'refresh' | null>(null), [error, setError] = useState('');
+  const [busy, setBusy] = useState<ConnectionAction | 'refresh' | 'library' | null>(null), [error, setError] = useState('');
+  const libraryBusy = useCallback((value: boolean) => setBusy(previous => value ? 'library' : previous === 'library' ? null : previous), []);
   const [maintenance, setMaintenance] = useState(false);
   const [setup, setSetup] = useState<string[]>([]);
   useEffect(() => {onBusyChange?.(!!busy);}, [busy, onBusyChange]);
@@ -46,6 +48,9 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
     } else if (['server_incompatible', 'handshake_incompatible', 'capability_missing'].includes(issue.code || '')) {
       setMaintenance(true);
       setError(guidance || (profile.environment === 'managed' ? t("服务端不兼容，请安装 / 升级服务端后重试。") : t("服务端不兼容，请升级指定环境中的 Operon 后重试。")));
+    } else if (['stale_build', 'build_changed'].includes(issue.code || '')) {
+      setMaintenance(true);
+      setError(guidance || t("服务端代码或算子库与本地版本不一致，请安装 / 升级服务端后重试。"));
     } else if (issue.code === 'handshake_required') {
       setMaintenance(true);
       setError(guidance || t("此服务端需要一次性升级后重新连接。"));
@@ -117,10 +122,15 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
           <div className="remote-status-heading"><span className="status-dot complete"/><strong title={info?.python}>{info ? `Operon ${info.version}` : t("已连接")}</strong><span>{info?.system}</span>
             <button type="button" className="subtle-button" disabled={!!busy || !!trust} onClick={() => void refresh()}>{busy === 'refresh' ? <><CircleNotch className="spin" size={14}/>{t("刷新中")}</> : t("刷新算子与依赖")}</button></div>
           {info && <div className="remote-status-counts"><span>{t("算子")} {info.catalog.operators.length}</span>
-            {info.dependencies && <span>{t("依赖")} {info.dependencies.entries.filter(entry => entry.status === 'passed').length}/{info.dependencies.entries.length} {t("已通过")}{info.dependencies.running ? t(" · 检查中") : ''}</span>}
+            {info.dependencies && (info.dependencies.deferred
+              ? <span>{t("依赖按需安装")}</span>
+              : <span>{t("依赖")} {info.dependencies.entries.filter(entry => entry.status === 'passed').length}/{info.dependencies.entries.length} {t("已通过")}{info.dependencies.running ? t(" · 检查中") : ''}</span>)}
             {!!Object.keys(info.tools || {}).length && <span>{t("工具")} {Object.values(info.tools).filter(Boolean).length}/{Object.keys(info.tools).length} {t("可用")}</span>}
           </div>}
         </div>}
+        {selected?.connected && profile.id && <RemoteLibraryPanel key={profile.id} id={profile.id}
+          initial={info?.library_check} disabled={!!trust || (!!busy && busy !== 'library')}
+          onBusyChange={libraryBusy} onUpdate={onUpdate} onInstall={() => void connect("install")}/>}
         <footer>
           {(busy === 'connect' || busy === 'install') && profile.id && <button type="button" className="subtle-button" onClick={() => {void api.disconnectRemote(profile.id!).catch(e => setError(e.message));}}>{busy === 'install' ? t("取消安装") : t("取消连接")}</button>}
           {profile.id && <button type="button" className="subtle-button" disabled={!!busy} onClick={() => {void api.disconnectRemote(profile.id!).then(onUpdate).catch(e => setError(e.message));}}>{t("断开")}</button>}

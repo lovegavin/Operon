@@ -126,10 +126,11 @@ def mount_plugins(app, service):
 
     @app.post("/api/plugins/install")
     async def install(request: Request, filename: str):
+        from operon.library_bundle import is_library_bundle
         check_idle()
         if (Path(filename).name != filename or any(c in filename for c in '\\/:*?"<>|')
-                or not filename.lower().endswith((".whl", ".operon-library.zip", ".biopipe-library.zip"))):
-            raise HTTPException(422, "请选择 .whl、.operon-library.zip 或 .biopipe-library.zip 算子库包。")
+                or not (filename.lower().endswith('.whl') or is_library_bundle(filename))):
+            raise HTTPException(422, "请选择 .whl 或 .operon-library.zip 算子库包。")
         key = uuid.uuid4().hex
         active.add(key)
         temporary = service.plugins.directory / "incoming" / key

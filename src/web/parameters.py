@@ -76,7 +76,7 @@ def restore_graph(topology, values):
     """Hydrate a strict pair, without consulting the current operator catalog."""
     graph = Graph.model_validate(topology)
     if (not isinstance(values, dict) or set(values) != {"format", "schema_version", "params", "nodes"}
-            or values["format"] != "operon.graph-parameters" or values["schema_version"] != 1
+            or values["format"] not in ("operon.graph-parameters", "operon.graph-parameters") or values["schema_version"] != 1
             or not isinstance(values["params"], dict) or not isinstance(values["nodes"], dict)
             or set(values["nodes"]) != {node.id for node in graph.nodes}
             or len(graph.nodes) != len(values["nodes"]) or graph.params):
@@ -120,6 +120,10 @@ def import_bundle(content):
     try:
         with ZipFile(BytesIO(content)) as archive:
             names = sorted(archive.namelist())
+            if 'library.json' in names:
+                raise ValueError('This is an operator library, not a workflow. Use Operator Library > Add operators > Import package.')
+            if any(name.lower().endswith('.operon.zip') for name in names):
+                raise ValueError('This is a collection of workflows. Upload the whole zip in Route Operators instead of importing its members.')
             if names not in (["graph.json", "parameters.json"], ["execution.json", "graph.json", "parameters.json"]):
                 raise ValueError("Workflow bundle must contain graph.json, parameters.json and optional execution.json only")
             # Only JSON is read in memory. No archive path is extracted or executed.
@@ -149,7 +153,7 @@ def restore_execution(topology, config):
     topology = deepcopy(topology)
     routes = {node["id"]: node for node in topology["nodes"] if node.get("route")}
     if (not isinstance(config, dict) or set(config) != {"format", "schema_version", "memory", "execution", "routes"}
-            or config["format"] != "operon.graph-execution" or config["schema_version"] != 1
+            or config["format"] not in ("operon.graph-execution", "operon.graph-execution") or config["schema_version"] != 1
             or not all(isinstance(config[k], dict) for k in ("memory", "execution", "routes"))
             or set(routes) != set(config["routes"])):
         raise ValueError("Execution settings do not match the saved graph")

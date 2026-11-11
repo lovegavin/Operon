@@ -43,9 +43,25 @@ def mount_remote(app, service):
             raise RemoteError('verify_all must be boolean')
         return manager.refresh(key, verify_all=value)
 
+    @app.get('/api/remote/{key}/build')
+    def build(key: str):
+        return manager.build(key)
+
     @app.get('/api/remote/{key}/setup')
     def setup(key: str):
         return manager.setup_status(key)
+
+    @app.post('/api/remote/{key}/library/check')
+    def check_library(key: str):
+        return manager.check_library(key)
+
+    @app.post('/api/remote/{key}/library/install')
+    def install_library(key: str, payload: dict):
+        return manager.start_library_install(key, payload)
+
+    @app.get('/api/remote/{key}/library/status')
+    def library_status(key: str):
+        return manager.library_status(key)
 
     @app.post('/api/remote/{key}/trust')
     def trust(key: str, payload: dict):

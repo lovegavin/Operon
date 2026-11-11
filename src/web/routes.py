@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from hashlib import sha256
 import json
 from pathlib import Path
+import sys
 import uuid
 
 from .storage import FileLock, atomic_json
@@ -388,6 +389,18 @@ class RouteLibrary:
                 from src.reader import primary_ext
                 for node in checked.nodes:
                     if node.kind == "source" and node.source is not None:
+                        from operon.reader_selection import candidates
+                        choices = candidates(catalog['readers'], node.source.path, node.source.reader)
+                        if len(choices) > 1 and node.source.dims:
+                            wanted = len(node.source.dims)
+                            narrowed = [item for item in choices
+                                        if (item.get('contracts') or {}).get('output', {}).get('ndim') == wanted]
+                            if narrowed:
+                                choices = narrowed
+                        if len(choices) > 1:
+                            from .graph import GraphError
+                            raise GraphError('Choose a Reader for input ' + node.id + '; multiple Readers match: '
+                                             + ', '.join(item['id'] for item in choices), node.id)
                         # Preserve the declared reader contract (e.g. VCF
                         # genotype metadata); only replace the file location.
                         node.source.path = "route-input" + primary_ext(Path(node.source.path))
@@ -451,13 +464,16 @@ class RouteLibrary:
                 # Never overwrite an existing user-edited graph with a template.
                 if item.id not in self.saved and item.id not in self.registered:
                     check_interface(item.graph, self.catalog)
-                    from .graph import compile_graph
-                    compile_graph(item.graph, self.catalog, self.root, input_roots=self.input_roots)
-                    item.graph = freeze_graph(item.graph, self.catalog_for(item.graph), self.root, input_roots=self.input_roots)
-                    saved = SavedWorkflow(id=item.id, version=item.version, graph=item.graph,
-                                          updated_at=datetime.now(timezone.utc).isoformat())
-                    self._write_saved(saved)
-                    self.saved[item.id], self.registered[item.id] = saved, item
+                    from .graph import GraphError, compile_graph
+                    try:
+                        compile_graph(item.graph, self.catalog, self.root, input_roots=self.input_roots)
+                        item.graph = freeze_graph(item.graph, self.catalog_for(item.graph), self.root, input_roots=self.input_roots)
+                        saved = SavedWorkflow(id=item.id, version=item.version, graph=item.graph,
+                                              updated_at=datetime.now(timezone.utc).isoformat())
+                        self._write_saved(saved)
+                        self.saved[item.id], self.registered[item.id] = saved, item
+                    except GraphError as exc:
+                        print(f"Operon: skipping incompatible built-in route {item.id}: {exc}", file=sys.stderr)
                 installed.add(item.id)
             self._write(self.directory / "registry.json", [r.model_dump(mode="json") for r in self.registered.values()])
             self._write(receipt, sorted(installed))

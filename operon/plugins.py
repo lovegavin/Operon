@@ -22,7 +22,7 @@ import time
 from packaging.utils import canonicalize_name
 from operon_sdk.protocol import PROTOCOL_VERSION, catalog_entry
 from src.web.storage import FileLock, atomic_json, io_path
-from operon.packages import bundled_manifest, bundled_state, owns_builtin_id
+from operon.packages import bundled_manifest, bundled_state, owns_builtin_id, provider_identity
 from operon.bytecode import filesystem_path
 
 
@@ -108,7 +108,8 @@ _DEFAULT_SOURCES = object()
 
 
 class PluginManager:
-    def __init__(self, data_dir, *, source_root=_DEFAULT_SOURCES, manifest_only=None):
+    def __init__(self, data_dir, *, source_root=_DEFAULT_SOURCES, manifest_only=None, python=None):
+        self.python = str(Path(python).expanduser().absolute()) if python else sys.executable
         self.directory = Path(data_dir) / "plugins"
         self.managed_sources = source_root is _DEFAULT_SOURCES
         self._source_root = (None if self.managed_sources or source_root is None else Path(source_root).resolve())
@@ -230,11 +231,11 @@ class PluginManager:
             package = next((p for p in value["packages"] if p["name"] == name), None)
             if action == "restore":
                 bundled = deepcopy(self.bundled_state())
-                original = next((p for p in bundled["packages"] if p["name"] == name), None)
+                original = next((p for p in bundled["packages"] if provider_identity(p["name"]) == provider_identity(name)), None)
                 if original is None:
                     raise ValueError(f"No bundled package named {name}")
-                value["packages"] = [p for p in value["packages"] if p["name"] != name] + [original]
-                value["descriptors"] = [d for d in value["descriptors"] if d["distribution"] != name] + [d for d in bundled["descriptors"] if d["distribution"] == name]
+                value["packages"] = [p for p in value["packages"] if provider_identity(p["name"]) != provider_identity(name)] + [original]
+                value["descriptors"] = [d for d in value["descriptors"] if provider_identity(d["distribution"]) != provider_identity(name)] + [d for d in bundled["descriptors"] if d["distribution"] == original['name']]
             elif package is None:
                 raise ValueError(f"Package is not installed: {name}")
             elif action in {"enable", "disable"}:
@@ -272,7 +273,16 @@ class PluginManager:
         candidates = [state]
         for pattern in ("snapshots/*.json", "environments/*/lock.json"):
             for path in sorted(io_path(self.directory).glob(pattern)):
-                candidate = json.loads(path.read_text(encoding="utf-8"))
+                try:
+                    candidate = json.loads(path.read_text(encoding="utf-8"))
+                except OSError:
+                    # A generation can disappear between glob and read.  It is
+                    # unavailable, not silently replaced by a different one.
+                    continue
+                except ValueError:
+                    continue
+                if not isinstance(candidate, dict):
+                    continue
                 if candidate.get("package_protocol_version") == PROTOCOL_VERSION:
                     candidate["_runtime_root"] = str(self.directory.resolve())
                     candidates.append(candidate)
@@ -314,7 +324,8 @@ class PluginManager:
         """Install a wheel transactionally; a failed probe never changes registry."""
         if remove:
             return self.manage(canonicalize_name(remove), "remove")
-        if Path(wheel).name.lower().endswith(".operon-library.zip"):
+        from operon.library_bundle import is_library_bundle
+        if is_library_bundle(wheel):
             from operon.library_bundle import install_bundle
             return install_bundle(self, io_path(wheel))
         return self.install_many([wheel])
@@ -342,6 +353,7 @@ class PluginManager:
         # Caller owns the cross-process lock, including source snapshotting.
         packages = deepcopy(current["packages"])
         replacements = set()
+        replacement_owners = set()
         for wheel in wheels:
             wheel = Path(filesystem_path(wheel)).resolve(strict=True)
             if wheel.suffix.lower() != ".whl":
@@ -357,9 +369,10 @@ class PluginManager:
             name = canonicalize_name(info["Name"])
             if not re.fullmatch(r"[a-z0-9][a-z0-9.-]*", name):
                 raise ValueError("Invalid package name")
-            if name in replacements:
+            if provider_identity(name) in replacement_owners:
                 raise ValueError(f"More than one input supplies package {name}; keep one version in the plugin folder")
             replacements.add(name)
+            replacement_owners.add(provider_identity(name))
             cached = self.directory / "packages" / digest / wheel.name
             # Native Windows I/O needs the extended path; persisted wheel paths
             # stay relative to the logical profile so archives remain portable.
@@ -367,12 +380,12 @@ class PluginManager:
             cached_io.parent.mkdir(parents=True, exist_ok=True)
             if not cached_io.exists():
                 shutil.copy2(wheel, cached_io)
-            previous = next((item for item in packages if item["name"] == name), {})
+            previous = next((item for item in packages if provider_identity(item["name"]) == provider_identity(name)), {})
             from operon.install_targets import execution_digest
             execution_sha = execution_digest(cached_io)
             from operon.operator_docs import cache_wheel
             cache_wheel(self, cached_io)
-            packages = [item for item in packages if item["name"] != name]
+            packages = [item for item in packages if provider_identity(item["name"]) != provider_identity(name)]
             packages.append({"protocol_version": PROTOCOL_VERSION, "origin": "wheel", "enabled": previous.get("enabled", True),
                              "name": name, "version": info["Version"], "sha256": digest,
                              "execution_sha": execution_sha,
@@ -411,7 +424,7 @@ class PluginManager:
         source_receipt = deepcopy(source_library if source_library is not None else current.get("source_library", {}))
         if source_library is None:
             # An explicitly installed provider takes precedence over local sources.
-            source_receipt["packages"] = [name for name in source_receipt.get("packages", []) if name not in replacements]
+            source_receipt["packages"] = [name for name in source_receipt.get("packages", []) if provider_identity(name) not in replacement_owners]
         state.update(protocol_version=PROTOCOL_VERSION, package_protocol_version=PROTOCOL_VERSION,
                      dropin_receipts=receipts if receipts is not None else current.get("dropin_receipts", {}),
                      source_library=source_receipt)
@@ -424,4 +437,4 @@ class PluginManager:
 
     def python_for(self, state):
         # All v3 generations use the host interpreter with dependency targets.
-        return sys.executable
+        return self.python

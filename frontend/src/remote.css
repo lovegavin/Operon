@@ -22,6 +22,21 @@
 .remote-status-heading strong {font-weight:500; color:var(--text-primary);}
 .remote-status-heading .subtle-button {margin-left:auto; font-size:12px;}
 .remote-status-counts {display:flex; align-items:center; flex-wrap:wrap; gap:6px 16px; color:var(--text-muted); font-size:11px; font-variant-numeric:tabular-nums;}
+.remote-library {display:grid; gap:12px; margin-top:16px; padding:14px; border:1px solid var(--border); border-radius:var(--radius-md); font-size:12px; color:var(--text-secondary);}
+.remote-library strong {display:inline-flex; align-items:center; gap:6px; color:var(--text-primary);}
+.remote-library p {margin:6px 0;}
+.remote-library-packages {display:grid; gap:10px; max-height:300px; overflow:auto;}
+.remote-library-package {padding:10px; background:var(--surface); border-radius:var(--radius-md);}
+.remote-library-package label {display:flex; align-items:center; gap:9px; cursor:pointer;}
+.remote-library-package label span {min-width:0; overflow-wrap:anywhere;}
+.remote-library-package small {display:block; color:var(--text-muted); margin-top:3px;}
+.remote-library-count {margin-left:auto; font-variant-numeric:tabular-nums;}
+.remote-library-package summary {cursor:pointer; margin-top:6px;}
+.remote-library-package ul {list-style:none; padding:0; display:grid; gap:4px;}
+.remote-library-package li {display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px;}
+.remote-library-package code {font-size:11px; overflow-wrap:anywhere;}
+.remote-library-progress {display:flex; align-items:center; flex-wrap:wrap; gap:8px;}
+.remote-library-progress progress {width:100%; height:5px; accent-color:var(--text-primary);}
 .remote-setup {margin:12px 0; min-width:0; color:var(--text-secondary); font-size:12px;}
 .remote-setup summary {overflow-wrap:anywhere; cursor:pointer;}
 .remote-setup pre {max-height:150px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; padding:10px; border-radius:6px; background:var(--panel); font-size:11px;}

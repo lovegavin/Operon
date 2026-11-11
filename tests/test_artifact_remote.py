@@ -39,15 +39,15 @@ def test_preview_returns_labels_and_window(tmp_path):
 def test_ensure_reconnects_key_auth_and_refuses_password():
     manager = SimpleNamespace()
     manager.profile = lambda key: {"auth": "key"}
-    manager.status = lambda: {"profiles": {}}
+    manager.status = lambda: [{"profile": {"id": "p1"}, "connected": False}]
     manager.connect = lambda key, credentials: {"latency": 12}
     manager.ensure = MethodType(module.RemoteManager.ensure, manager)
     assert manager.ensure("p1") == {"connected": True, "profile_id": "p1", "latency": 12}
 
-    manager.status = lambda: {"profiles": {"p1": {"connected": True}}}
+    manager.status = lambda: [{"profile": {"id": "p1"}, "connected": True}]
     assert manager.ensure("p1")["connected"] is True
 
     manager.profile = lambda key: {"auth": "password"}
-    manager.status = lambda: {"profiles": {}}
+    manager.status = lambda: [{"profile": {"id": "p1"}, "connected": False}]
     with pytest.raises(ValueError, match="密码认证"):
         manager.ensure("p1")

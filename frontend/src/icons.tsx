@@ -137,7 +137,7 @@ export function OperatorIcon({
     "可视化": ChartBar, "组学分析": Dna, "机器学习": TreeStructure,
   };
   const label = categoryLabel(category);
-  const fallback = Object.hasOwn(defaults, label) ? defaults[label] : SquaresFour;
+  const fallback = label === "未分类" ? SquaresFour : Object.hasOwn(defaults, label) ? defaults[label] : PuzzlePiece;
   const Icon = name && Object.hasOwn(icons, name) ? icons[name] : fallback;
   return <Icon {...props} />;
 }

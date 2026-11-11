@@ -131,6 +131,61 @@ def test_unsafe_archive_is_rejected_before_writing(tmp_path):
     assert not (tmp_path / 'outside.py').exists()
 
 
+def test_verified_source_route_pins_bridge_to_wheels_without_relaxing_unknown_pins(tmp_path, library_bundle):
+    from operon.packages import bundled_state
+    from operon.pins import resolve
+    from src.web.models import Graph
+    from operon.plugins import atomic_json
+    original = bundled_state(ROOT, manifest_only=True)
+    source = next(d for d in original['descriptors'] if d['id'] == 'pca')['implementation']
+    # Source index/default/doc changes may change the index SHA, not code.
+    source = {**source, 'sha256': 'old-source-index', 'declaration_sha': 'old-defaults'}
+    graph = Graph(nodes=[], edges=[], plugin_lock={'pca': source}, params={'n_components': 2})
+    manager = PluginManager(tmp_path / 'fresh', source_root=None)
+    state = manager.install(library_bundle)
+    selected = resolve(graph, [state], original)
+    expected = next(d for d in state['descriptors'] if d['id'] == 'pca')['implementation']
+    assert selected['library_pin_updates'][0]['after'] == expected
+    assert manager.pin(graph, snapshot=selected).params == graph.params
+    assert graph.plugin_lock == {'pca': source}
+    for field in ('code_sha', 'version', 'package', 'execution_sha'):
+        altered = graph.model_copy(deep=True)
+        altered.plugin_lock['pca'][field] = 'unavailable'
+        with pytest.raises(ValueError, match='Required plugin versions'):
+            resolve(altered, [state], original)
+    for alteration in ('receipt', 'wheel', 'disabled'):
+        candidate = deepcopy(state)
+        if alteration == 'receipt':
+            candidate.pop('library_source_pins')
+        elif alteration == 'wheel':
+            next(d for d in candidate['descriptors'] if d['id'] == 'pca')['implementation']['sha256'] = 'other-wheel'
+        else:
+            next(p for p in candidate['packages'] if p['name'] == source['package'])['enabled'] = False
+        with pytest.raises(ValueError, match='Required plugin versions'):
+            resolve(graph, [candidate], original)
+    # A previously installed bundle gets a newly verified receipt on reimport,
+    # without editing its retained generation or rerunning scientific work.
+    old = deepcopy(state); old.pop('library_source_pins')
+    atomic_json(manager.registry, old)
+    retained = manager.directory / 'environments' / old['generation'] / 'lock.json'
+    before = retained.read_bytes()
+    repaired = manager.install(library_bundle)
+    assert repaired['generation'] != old['generation']
+    assert retained.read_bytes() == before
+    assert repaired['library_source_pins'] == state['library_source_pins']
+    assert manager.install(library_bundle)['generation'] == repaired['generation']
+
+
+def test_source_pin_receipt_rechecks_actual_source_not_just_claimed_hash(tmp_path, library_bundle):
+    from operon.library_pins import receipt
+    document = unpack_bundle(library_bundle, tmp_path / 'verified')
+    root = tmp_path / 'verified/sources'
+    manifest = json.loads((root / 'operon/builtin_packages.json').read_text())
+    manifest['packages'][0]['descriptors'][0]['code_sha'] = 'f' * 64
+    with pytest.raises(ValueError, match='source code identity mismatch'):
+        receipt(manifest, root, document, 'bundle-digest')
+
+
 def test_new_library_rejects_runtime_without_shared_io(tmp_path, library_bundle, monkeypatch):
     import operon
     monkeypatch.setattr(operon, '__version__', '0.116.1')

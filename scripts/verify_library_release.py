@@ -67,15 +67,8 @@ def probe(lock, work):
     for item in state['packages']:
         if item.get('origin') != 'wheel':
             continue
-        stem = item['name'].replace('-', '_').replace('.', '_')
-        for prefix in ('operon_library_', 'biopipe_library_'):
-            try:
-                helper = importlib.import_module(prefix + stem + '.steps._resources_common')
-            except ModuleNotFoundError:
-                continue
-            break
-        else:
-            raise ModuleNotFoundError('provider wheel module not importable: ' + stem)
+        module = 'operon_library_' + item['name'].replace('-', '_').replace('.', '_')
+        helper = importlib.import_module(module + '.steps._resources_common')
         assert helper.manifest_path().is_relative_to(profile), str(helper.manifest_path())
         assert {'rfam', 'amrfinder', 'antismash'} <= set(helper.load_resources())
     import pytest
@@ -135,14 +128,11 @@ def verify(source, bundle, work):
     old = manager.state()
     old_graph = manager.pin(Graph.model_validate({'nodes': [{'id': 'pca', 'kind': 'operator', 'operator': 'pca',
         'position': {'x': 0, 'y': 0}, 'params': {'n_components': 2}}], 'edges': []}))
-    installed = {package['name'] for package in old['packages']}
-    if 'operon-microbiome' in installed:
-        manager.manage('operon-microbiome', 'disable')
+    manager.manage('operon-microbiome', 'disable')
     state = manager.install(bundle)
     assert state['library_release']['version'] == config['version']
     assert manager.source_root.is_relative_to(work / 'profile')
-    if 'operon-microbiome' in installed:
-        assert next(p for p in state['packages'] if p['name'] == 'operon-microbiome')['enabled'] is False
+    assert next(p for p in state['packages'] if p['name'] == 'operon-microbiome')['enabled'] is False
     assert manager.install(bundle)['generation'] == state['generation']
     historical = manager.snapshot(old_graph)
     pinned_pca = next(d for d in historical['descriptors'] if d['id'] == 'pca')
@@ -181,11 +171,7 @@ def verify(source, bundle, work):
                 'runtime': {'memory': {'enabled': True, 'budget_mb': 4, 'chunk_mb': .01}}}
     (job / 'task.yaml').write_text(yaml.safe_dump(manifest), encoding='utf-8')
     (job / 'plugins.lock.json').write_text(json.dumps(state), encoding='utf-8')
-    import operon as _operon
-    worker_module = 'operon.worker'
-    if not (Path(_operon.__file__).resolve().parent / 'worker.py').is_file():
-        worker_module = 'biopipe.worker'
-    subprocess.run([sys.executable, '-I', '-m', worker_module, str(job)], cwd=work, check=True)
+    subprocess.run([sys.executable, '-I', '-m', 'operon.worker', str(job)], cwd=work, check=True)
     summary = json.loads((job / 'output/run_summary.json').read_text(encoding='utf-8'))
     memory = json.loads(Path(summary['memory_report']).read_text(encoding='utf-8'))
     assert summary['steps'] and memory['plans'][0]['mode'] == 'stream'

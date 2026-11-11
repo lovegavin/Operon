@@ -12,14 +12,78 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m pip install -e ".[dev]"
+      # The automatic-pool acceptance executes the real CsvReader, whose
+      # scientific dependency is intentionally absent from the management core.
+      - run: python -m pip install -e ".[dev]" "pandas>=2.0" "biopython>=1.81"
+      - run: python -m pytest tests/test_managed_pool.py tests/test_engine_artifact_existing.py -q
+      - run: python -m pytest tests/test_engine_cache_environment.py tests/test_engine_state.py tests/test_engine_pool.py tests/test_engine_environment_gate.py tests/test_pool_service.py tests/test_pool_scientific_product.py tests/test_unified_pool_entry.py tests/test_remote_concurrency.py -q
       - run: python -m pytest tests/test_format_adaptation.py tests/test_static_format_migration.py -q
       - run: python -m pytest tests/test_dependency_processes.py tests/test_bytecode_cancel.py tests/test_remote_install_readiness.py tests/test_remote_provision.py tests/test_remote_slow_catalog.py -q
+      - run: python -m pytest tests/test_remote_library.py tests/test_remote_handshake.py tests/test_remote_transfer.py tests/test_remote_upgrade.py tests/test_operon_import_compatibility.py tests/test_environment_checks.py tests/test_execution_plan.py tests/test_readiness.py tests/test_remote_bridge_close.py tests/test_control_limits.py tests/test_pin_validation.py -q
       - run: bash -n scripts/install_server.sh
-      - run: python -m pytest tests/test_server_setup.py tests/test_workflow_import_errors.py tests/test_workflow_spec_v3.py tests/test_registry_route_defaults.py -q
+      - run: python -m pytest tests/test_server_package.py tests/test_server_setup.py tests/test_workflow_import_errors.py tests/test_workflow_spec_v3.py -q
         env:
           OPERON_TEST_SERVER_INSTALL: '1'
           OPERON_TEST_SERVER_BOOTSTRAP: '1'
+  remote-idle-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -e ".[dev]"
+      # Exercise the actual Paramiko bridge, Unix-socket daemon and same live
+      # channel after the daemon retires/exits.  This is Linux localhost SSH,
+      # not a mocked transport and not the author's private server.
+      - name: Start localhost SSH server
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssh-server
+          sudo mkdir -p /run/sshd
+          # GitHub's runner account is intentionally locked; key auth still
+          # requires an unlocked (empty-password) account with UsePAM=no.
+          sudo passwd -d runner || true
+          sudo usermod -U runner || true
+          sudo passwd -S runner
+          key="$RUNNER_TEMP/operon_test_key"
+          ssh-keygen -t rsa -b 3072 -N '' -f "$key"
+          mkdir -p "$HOME/.ssh"
+          cat "$key.pub" >> "$HOME/.ssh/authorized_keys"
+          chmod 700 "$HOME/.ssh"
+          chmod 600 "$HOME/.ssh/authorized_keys"
+          sudo /usr/sbin/sshd -t
+          sudo /usr/sbin/sshd -p 2222 \
+            -o PasswordAuthentication=no \
+            -o PubkeyAuthentication=yes \
+            -o UsePAM=no \
+            -o StrictModes=no \
+            -o AllowUsers=runner \
+            -o PidFile="$RUNNER_TEMP/sshd.pid" \
+            -E "$RUNNER_TEMP/sshd.log"
+          ready=0
+          for i in $(seq 1 50); do
+            if (echo > /dev/tcp/127.0.0.1/2222) >/dev/null 2>&1; then ready=1; break; fi
+            sleep 0.2
+          done
+          if [ "$ready" != 1 ]; then
+            sudo ss -ltnp || true
+            [ -f "$RUNNER_TEMP/sshd.log" ] && sudo cat "$RUNNER_TEMP/sshd.log" || true
+            exit 1
+          fi
+          ls -l "$key" "$key.pub" "$HOME/.ssh/authorized_keys"
+          sudo /usr/sbin/sshd -T | grep -Ei '^(port|permitrootlogin|pubkeyauthentication|authorizedkeysfile|allowusers|usepam|strictmodes)' || true
+          ssh -vvv -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null             -o BatchMode=yes -i "$key" -p 2222 runner@127.0.0.1 true || {
+              sudo cat "$RUNNER_TEMP/sshd.log" || true
+              exit 1
+            }
+          echo "OPERON_LOCAL_SSH_PORT=2222" >> "$GITHUB_ENV"
+          echo "OPERON_LOCAL_SSH_USER=runner" >> "$GITHUB_ENV"
+          echo "OPERON_LOCAL_SSH_KEY=$key" >> "$GITHUB_ENV"
+      - name: Same-bridge daemon recovery and production idle smoke
+        env:
+          OPERON_REAL_IDLE: '1'
+        run: python -m pytest tests/test_remote_idle_recovery_linux.py -q
   check:
     runs-on: windows-latest
     env:
@@ -48,13 +112,20 @@ jobs:
       - run: dotnet build installer/OperonSetup.csproj -v quiet
       # Source-library refresh probes HDF5 and sklearn classes as well as the SDK.
       - run: python -m pip install -c constraints-py311-windows.txt -e ".[analysis,agent,dev]" "h5py>=3.10" "scikit-learn>=1.4" "biopython>=1.81" "hictkpy>=1.4,<2"
+      - run: python -m pytest tests/test_managed_pool.py tests/test_engine_artifact_existing.py -q
       - run: python -m pytest tests/test_format_adaptation.py tests/test_static_format_migration.py -q
       - run: python -m pytest tests/test_agent_guidance.py tests/test_agent_canvas_loop.py tests/test_artifact_remote.py tests/test_environments.py tests/test_dependencies.py tests/test_dependency_processes.py tests/test_bytecode_cancel.py tests/test_smoke_route.py -q
+      - run: python -m pytest tests/test_engine_cache_environment.py tests/test_engine_state.py tests/test_engine_pool.py tests/test_engine_environment_gate.py tests/test_pool_service.py tests/test_pool_scientific_product.py tests/test_unified_pool_entry.py tests/test_remote_concurrency.py tests/test_execution_cache.py -q
       - run: python -m pytest tests/test_optional_library_imports.py tests/test_resource_downloads.py tests/test_remote_handshake.py -q
-      - run: python -m pytest tests/test_server_setup.py tests/test_workflow_import_errors.py tests/test_workflow_spec_v3.py tests/test_setup_wrapper.py tests/test_bundled_long_imports.py tests/test_script_operators_v3.py -q
+      - run: python -m pytest tests/test_remote_library.py tests/test_remote_upgrade.py tests/test_operon_import_compatibility.py tests/test_environment_checks.py tests/test_execution_plan.py tests/test_readiness.py tests/test_remote_bridge_close.py tests/test_control_limits.py tests/test_pin_validation.py tests/test_fasta_cdr_contract.py -q
+      - run: python -m pytest tests/test_server_package.py tests/test_server_setup.py tests/test_workflow_import_errors.py tests/test_workflow_spec_v3.py tests/test_setup_wrapper.py tests/test_bundled_long_imports.py tests/test_script_operators_v3.py -q
       - run: python -m operon registry check
-      - run: python scripts/build_operator_docs.py --check
-      - run: python -m pytest tests/test_manifest_v3.py tests/test_contracts.py tests/test_protocol_v2.py tests/test_sdk_agent.py tests/test_builtin_pins.py tests/test_route_parameters.py tests/test_registry_route_defaults.py tests/test_desktop.py -q
-      - run: python -m pytest tests/test_headless_application.py tests/test_operator_docs.py tests/test_wheel_execution.py tests/test_application_library_separation.py tests/test_memory_system.py tests/test_memory_runtime.py -q
+      # The factory seed belongs to its independent library release. A newer
+      # application template (including branding) must not rewrite that seed.
+      # Registry check above verifies its declarations and document hashes;
+      # these isolated fixtures verify generation, freshness and authored pages.
+      - run: python -m pytest tests/test_operator_docs.py -q
+      - run: python -m pytest tests/test_manifest_v3.py tests/test_contracts.py tests/test_protocol_v2.py tests/test_sdk_agent.py tests/test_builtin_pins.py tests/test_route_parameters.py tests/test_desktop.py -q
+      - run: python -m pytest tests/test_headless_application.py tests/test_wheel_execution.py tests/test_application_library_separation.py tests/test_memory_system.py tests/test_memory_runtime.py -q
       - run: python -m pytest tests/test_result_viewers.py tests/test_viewer_lifetime.py tests/test_export_domain.py tests/test_export_results.py tests/test_hic_workflow.py -q
       - run: python -m pytest tests/test_plugin_refresh.py tests/test_transfers.py tests/test_remote_transfer.py tests/test_release_build.py tests/test_release_agent_harness.py tests/test_storage.py tests/test_storage_runtime.py tests/test_service_long_paths.py tests/test_library_bundle.py::test_new_library_rejects_runtime_without_shared_io -q

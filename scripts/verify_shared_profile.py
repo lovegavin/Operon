@@ -77,7 +77,7 @@ def main():
                 assert backend.poll() is None
                 continue
             if line.startswith("OPERON_READY "):
-                desktop_url = json.loads(line.split(" ", 1)[1])["url"]
+                desktop_url = json.loads(line.removeprefix("OPERON_READY "))["url"]
                 break
         assert desktop_url
         with socket.socket() as port:

@@ -1,5 +1,8 @@
 # Operon Quickstart (English)
 
+For current releases, use the [Operon quick start](quickstart.md). This page
+retains an older source-development and protein-demo procedure.
+
 中文版见 [quickstart_full_flow.zh.md](quickstart_full_flow.zh.md).
 
 ## 0. Preflight

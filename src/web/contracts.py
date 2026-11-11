@@ -48,7 +48,7 @@ def analyze_graph(graph, catalog, root, *, source_overrides=None, ancestry=(), i
                         reader = delegates[0]
                     schema = source_schema(reader["contracts"]["output"], source.dims)
                     schema["reader"] = reader["id"]
-                    formats = effective_formats({**reader, 'kind': 'reader'})
+                    formats = effective_formats({**reader, 'kind': 'reader'}, source.args)
                     if reader.get('data_formats') is not None:
                         explicit_format_nodes.add(node.id)
                         schema['_format_explicit'] = True
@@ -77,7 +77,7 @@ def analyze_graph(graph, catalog, root, *, source_overrides=None, ancestry=(), i
             count = node.input_count if spec["inputs_arity"] == "*" else spec["inputs_arity"]
             requirements = spec["contracts"]["inputs"] or []
             params = {**spec["runtime_defaults"], **node.params}
-            formats = effective_formats(spec)
+            formats = effective_formats(spec, params)
             if spec.get('data_formats') is not None:
                 explicit_format_nodes.add(node.id)
             input_rules = [resolve(requirements[min(i, len(requirements)-1)], params) if requirements else None for i in range(count)]
@@ -120,11 +120,22 @@ def analyze_graph(graph, catalog, root, *, source_overrides=None, ancestry=(), i
                 from operon.conversions import plan_conversion
                 source_format = inputs[index].get("data_format")
                 required_format = (ports[key]["inputs"][index] or {}).get("data_format")
-                if ((source_format is not None and required_format is not None)
-                        and (edge.source in explicit_format_nodes or edge.target in explicit_format_nodes
-                             or inputs[index].get('_format_explicit')
-                             or (ports[key]['inputs'][index] or {}).get('_format_explicit')
-                             or edge.adaptation is not None)):
+                rule = ports[key]['inputs'][index] or {}
+                legacy_input = node.kind != 'route' and registry[node.operator].get('data_formats') is None
+                if required_format is None and legacy_input and source_format and isinstance(rule.get('kind'), list):
+                    # A v3 union already declares Form/FileArtifact acceptance.
+                    # Select that branch using the declared logical type; never
+                    # reinterpret a matrix as a list or invent a missing contract.
+                    for kind in rule['kind']:
+                        projected = effective_formats({'inputs_arity': 1, 'contracts': {'inputs': [{**rule, 'kind': kind}]}})['inputs'][0]
+                        if projected and projected['logical_type'] == source_format['logical_type']:
+                            required_format = projected
+                            ports[key]['inputs'][index]['data_format'] = projected
+                            break
+                if (edge.source in explicit_format_nodes or edge.target in explicit_format_nodes
+                        or inputs[index].get('_format_explicit')
+                        or (ports[key]['inputs'][index] or {}).get('_format_explicit')
+                        or edge.adaptation is not None):
                     adapted = plan_conversion(source_format, required_format, edge.adaptation.model_dump() if edge.adaptation else None)
                     result["conversion_plan"] = adapted.get("conversion_plan")
                     if adapted["status"] != "compatible":
@@ -155,7 +166,7 @@ def analyze_graph(graph, catalog, root, *, source_overrides=None, ancestry=(), i
                     schema = infer_output(spec["contracts"]["output"], inputs, {**spec["runtime_defaults"], **node.params}) if not invalid else unknown()
                 except (TypeError, ValueError, KeyError):
                     schema = unknown()
-                formats = effective_formats(spec).get("outputs", [])
+                formats = effective_formats(spec, {**spec['runtime_defaults'], **node.params}).get("outputs", [])
                 schema.pop('_format_explicit', None)
                 ports[key]["outputs"] = [{**schema, **({'_format_explicit': True} if spec.get('data_formats') is not None else {}),
                                           **({"data_format": formats[i]} if i < len(formats) else {})}

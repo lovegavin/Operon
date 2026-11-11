@@ -27,11 +27,8 @@ def _historical(relative):
 def active_files(root):
     for folder in ("src", "operon", "operon_sdk", "desktop", "scripts", "library/seed", "docs", "examples", "frontend"):
         for file in (root / folder).rglob("*"):
-            relative = file.relative_to(root)
-            if (not EXCLUDED.intersection(relative.parts)
-                    and not _historical(relative)
-                    and file.is_file()
-                    and not file.name.endswith((".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx"))):
+            if (not EXCLUDED.intersection(file.relative_to(root).parts) and file.is_file()
+                    and not file.name.endswith((".test.ts", ".test.tsx"))):
                 yield file
     for file in root.iterdir():
         if file.is_file():

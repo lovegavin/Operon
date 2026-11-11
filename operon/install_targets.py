@@ -148,8 +148,9 @@ def install(manager, current, packages, generation, *, dependencies=()):
     # filesystem-backed bundled_state() for every entry made large library
     # refreshes scan the same source tree hundreds of times.
     bundled = manager.bundled_state()
-    bundled_names = {p['name'] for p in bundled['packages']}
-    bundled_owners = {d['id']: d['distribution'] for d in bundled['descriptors']}
+    from operon.packages import provider_identity
+    bundled_names = {provider_identity(p['name']) for p in bundled['packages']}
+    bundled_owners = {d['id']: provider_identity(d['distribution']) for d in bundled['descriptors']}
     builder = TargetBuilder(manager, current)
     environment = manager.directory / 'environments' / generation
     Path(filesystem_path(environment)).mkdir(parents=True)
@@ -192,9 +193,9 @@ def install(manager, current, packages, generation, *, dependencies=()):
             from operon_sdk.declarations import declaration_hash
             descriptor['dependencies'] = requirements(sorted(declared))
             descriptor['declaration_sha'] = declaration_hash(descriptor)
-            if descriptor['id'] in bundled_owners and bundled_owners[descriptor['id']] != package['name']:
+            if descriptor['id'] in bundled_owners and bundled_owners[descriptor['id']] != provider_identity(package['name']):
                 raise ValueError(f'Plugin shadows a built-in: {descriptor["id"]}')
-            if '.' not in descriptor['id'] and package['name'] not in bundled_names:
+            if '.' not in descriptor['id'] and provider_identity(package['name']) not in bundled_names:
                 raise ValueError('Plugin IDs must be namespaced')
             descriptor.update(distribution=package['name'], package_version=package['version'], origin='wheel', execution=execution,
                               implementation={k: package[k] for k in ('version', 'sha256')})

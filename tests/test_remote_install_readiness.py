@@ -67,25 +67,35 @@ def managed_install(tmp_path, monkeypatch):
     return prefix, commands
 
 
-def test_installer_finishes_and_records_unavailable_operators(managed_install, capsys):
+def test_installer_finishes_with_deferred_dependency_status(managed_install, capsys):
     prefix, commands = managed_install
     installer.main()
-    receipt = json.loads((prefix / 'operon-ready.json').read_text())
-    states = receipt['dependency_readiness']['entries']
-    assert {key: {'status': value['status'], 'error': value['error']} for key, value in states.items()} == tool_results()
-    assert {command[0] for command in commands if len(command) <= 2} == {'bwa', 'samtools', 'pairtools', 'cooler', 'cooltools'}
+    receipt = json.loads((prefix / "operon-ready.json").read_text())
+    readiness = receipt["dependency_readiness"]
+    assert readiness["deferred"] is True
+    assert readiness["entries"] == {}
+    assert receipt["operators_checked"] == 0
+    assert ["bwa"] not in commands
     output = capsys.readouterr().out
-    assert 'Operon and Hi-C environment ready' in output
-    assert all(key in output for key in TOOLS)
-    assert 'Optional OpenMM extras' not in output
+    assert "Operon and Hi-C environment ready" in output
 
 
-def test_core_tool_failure_still_prevents_ready_receipt(managed_install, monkeypatch):
+def test_tool_failure_does_not_block_deferred_install(managed_install, monkeypatch):
     prefix, _ = managed_install
-    monkeypatch.setattr(installer.subprocess, 'run', lambda *a, **k: SimpleNamespace(returncode=99, stdout='', stderr='tool broken'))
-    with pytest.raises(ValueError, match='bwa check failed'):
-        installer.main()
-    assert not (prefix / 'operon-ready.json').exists()
+    monkeypatch.setattr(installer.subprocess, "run", lambda *a, **k: SimpleNamespace(returncode=99, stdout="", stderr="tool broken"))
+    installer.main()
+    receipt = json.loads((prefix / "operon-ready.json").read_text())
+    assert receipt["dependency_readiness"]["deferred"] is True
+    assert receipt["dependency_readiness"]["entries"] == {}
+
+
+def test_partial_model_install_does_not_fake_operator_status(managed_install, monkeypatch):
+    prefix, _ = managed_install
+    monkeypatch.setattr(installer, "ensure_requirements", lambda *a, **k: {"model": "package download failed"})
+    installer.main()
+    receipt = json.loads((prefix / "operon-ready.json").read_text())
+    assert receipt["dependency_readiness"]["deferred"] is True
+    assert receipt["dependency_readiness"]["entries"] == {}
 
 
 def test_empty_optional_requirements_never_invoke_pip(monkeypatch):
@@ -94,15 +104,13 @@ def test_empty_optional_requirements_never_invoke_pip(monkeypatch):
     assert installer._ensure_isolated_extras()
 
 
-def test_partial_model_install_keeps_affected_operator_failed(managed_install, monkeypatch):
+def test_partial_model_install_does_not_fake_operator_status(managed_install, monkeypatch):
     prefix, _ = managed_install
-    descriptors = [{'id': 'example_model', 'resources': {'environment': 'model'}}]
-    monkeypatch.setattr(installer, 'requirements', lambda code: ([], descriptors))
-    monkeypatch.setattr(installer, 'ensure_requirements', lambda *a: {'model': 'package download failed'})
-    monkeypatch.setattr('operon.dependencies.probe', lambda entries: {'example_model': {'status': 'passed'}})
+    monkeypatch.setattr(installer, "ensure_requirements", lambda *a, **k: {"model": "package download failed"})
     installer.main()
-    receipt = json.loads((prefix / 'operon-ready.json').read_text())
-    assert receipt['dependency_readiness']['entries']['example_model']['status'] == 'failed'
+    receipt = json.loads((prefix / "operon-ready.json").read_text())
+    assert receipt["dependency_readiness"]["deferred"] is True
+    assert receipt["dependency_readiness"]["entries"] == {}
 
 
 def test_requirement_repair_runs_reader_extras_and_returns_environment_failures(tmp_path, monkeypatch):

@@ -15,8 +15,8 @@ internal sealed class ProcessLifetime : IDisposable
         handle = CreateJobObject(IntPtr.Zero, null);
         if (handle.IsInvalid) throw new Win32Exception();
         var info = new ExtendedLimitInformation();
-        // Workers inherit the job; only explicit external-viewer launches request
-        // breakaway so closing Studio cannot discard work in another application.
+        // Owned helpers inherit the job. External viewers and the shared pool
+        // explicitly break away: they must survive the initiating editor.
         info.BasicLimitInformation.LimitFlags = 0x2000 | 0x0800; // KILL_ON_JOB_CLOSE | BREAKAWAY_OK
         if (!SetInformationJobObject(handle, 9, ref info,
             (uint)Marshal.SizeOf<ExtendedLimitInformation>())) throw new Win32Exception();
