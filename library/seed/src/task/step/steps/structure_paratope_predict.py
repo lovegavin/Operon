@@ -159,8 +159,9 @@ class StructureParatopePredictStep(Step):
                 "schema": {
                     "ndim": 2,
                     "numeric": True,
+                    "dims": ["residue", "statistic"],
                     "info_open": True,
-                    "axis_info_open": True,
+                    "axis_info_open": False, "labels": {"statistic": ["n_contacts", "min_distance", "is_paratope", "cdr_index"]},
                 },
             },
         },

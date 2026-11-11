@@ -122,8 +122,8 @@ class ExportResultsStep(Step):
         'kind': 'operator', 'title': 'Export results', 'category': 'data',
         'description': 'Export native files or convert annotated data to contact maps, sequences, genome tracks, networks and trees while other branches continue.',
         'inputs_arity': 1, 'outputs': [], 'output_parameter': 'output',
-        'dependencies': ['numpy>=1.24', 'hictkpy>=1.4,<2', 'h5py>=3.8', 'biopython>=1.81'],
-        'dependency_imports': ['numpy', 'hictkpy', 'h5py', 'Bio'],
+        'dependencies': ['numpy>=1.24', 'h5py>=3.8', 'biopython>=1.81'],
+        'dependency_imports': ['numpy', 'h5py', 'Bio'],
         'contracts': {'version': 1, 'inputs': [{'kind': ['form', 'file']}],
                       'output': {'mode': 'declare', 'schema': {
                           'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [],

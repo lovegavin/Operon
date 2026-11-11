@@ -149,11 +149,11 @@ class InterfaceAlanineScanStep(Step):
                     "ndim": 2,
                 }
             ],
-            "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
+            "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "dims": [{"param": "mutation_dim", "default": "mutation"}, "statistic"], "info_open": True, "axis_info_open": False, "labels": {"statistic": ["wt_delta_kj", "mutant_delta_kj", "delta_delta_kj"]}}},
             "outputs": [],
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
-        "dependencies": [],
+        "dependencies": ["openmm>=8.0", "pdbfixer>=1.9"],
         "dependency_imports": ["openmm", "pdbfixer"],
         "inputs_arity": 1,
         "outputs": [],
