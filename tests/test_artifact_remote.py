@@ -51,3 +51,19 @@ def test_ensure_reconnects_key_auth_and_refuses_password():
     manager.status = lambda: [{"profile": {"id": "p1"}, "connected": False}]
     with pytest.raises(ValueError, match="密码认证"):
         manager.ensure("p1")
+
+def test_preview_uses_dimension_order_not_label_mapping_order(tmp_path):
+    cache = tmp_path / "cache" / "ordered"
+    cache.mkdir(parents=True)
+    np.save(cache / "data.npy", np.arange(6, dtype=np.float32).reshape(3, 2))
+    with (cache / "metadata.pkl").open("wb") as handle:
+        pickle.dump({"dims": ["gene", "cdr_index"],
+                     "labels": {"cdr_index": {"cdr1": 0, "cdr2": 1},
+                                "gene": {"G55": 0, "P31": 1, "V12": 2}}}, handle)
+    service = SimpleNamespace()
+    service.artifact = lambda key, artifact_id: (cache / "data.npy", {"name": "paratope", "kind": "form"})
+    service._artifact_labels = JobService._artifact_labels
+    service.preview = MethodType(JobService.preview, service)
+    value = service.preview("job", "ordered", offset=0, limit=3)
+    assert value["columns"] == ["cdr1", "cdr2"]
+    assert value["row_labels"] == ["G55", "P31", "V12"]

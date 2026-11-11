@@ -243,3 +243,17 @@ export function bytes(value?: number): string {
   const scale = unit === "KiB" ? 1024 : unit === "MiB" ? 1024 ** 2 : 1024 ** 3;
   return `${(value / scale).toFixed(value / scale < 10 ? 2 : 1)} ${unit}`;
 }
+
+export function duplicateOutputs(graph: Graph): {name: string; nodes: string[]}[] {
+  const seen = new Map<string, string[]>();
+  for (const node of graph.nodes) {
+    const name = String(node.params?.output ?? "").trim();
+    if (!name) continue;
+    const ids = seen.get(name) ?? [];
+    ids.push(node.id);
+    seen.set(name, ids);
+  }
+  return [...seen.entries()]
+    .filter(([, ids]) => ids.length > 1)
+    .map(([name, ids]) => ({name, nodes: ids}));
+}

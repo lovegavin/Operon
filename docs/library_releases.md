@@ -8,12 +8,12 @@ remain unchanged.
 
 | Product | Version/tag | Distribution | Installation |
 | --- | --- | --- | --- |
-| Studio application | `v4.0.5` (application SemVer) | Windows Setup, server ZIP, application wheel | Upgrade application |
-| Operator library | `library-v8.0.3`; `library-v<version>` for later releases | `.operon-library.zip` | Library manager **Import package**, or CLI |
-| One provider | provider version | `.whl` | Same library manager |
+| Studio application |  (application SemVer) | Windows Setup, server ZIP, application wheel | Upgrade application |
+| Operator library | ;  for later releases |  | Library manager **Import package**, or CLI |
+| One provider | provider version |  | Same library manager |
 | Saved route | route's own revision | saved route and frozen parameter JSON | Import route |
 
-Library 8.0.3 is the factory library bundled with application 4.0.5. Its
+Library 8.0.3 is the factory library bundled with application 4.0.6. Its
 `library/release.json` declares `minimum_application` and `build_application`
 `3.1.9`, so it also runs on later 4.x applications. The application version
 remains independent: operator-only library changes continue to use the library

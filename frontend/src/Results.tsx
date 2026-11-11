@@ -582,15 +582,18 @@ export function Results({
                         <thead>
                           <tr>
                             <th>#</th>
-                            {preview.rows[0]?.map((_, i) => (
-                              <th key={i}>{t("列")} {i + 1}</th>
+                            {(preview.columns?.length
+                              ? preview.columns
+                              : preview.rows[0]?.map((_, i) => `${t("列")} ${i + 1}`) || []
+                            ).map((label, i) => (
+                              <th key={i}>{label}</th>
                             ))}
                           </tr>
                         </thead>
                         <tbody>
                           {preview.rows.map((row, i) => (
                             <tr key={i}>
-                              <th>{i + 1}</th>
+                              <th>{preview.row_labels?.[i] ?? i + 1}</th>
                               {row.map((value, j) => (
                                 <td key={j}>
                                   {value === null

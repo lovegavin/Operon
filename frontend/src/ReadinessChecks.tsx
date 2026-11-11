@@ -16,6 +16,7 @@ export function ReadinessChecks({graph, disabled, preflight, onPreflight}: {
   const checked = current(preflight ?? localPreflight);
   const dependencies = current(environment);
   const issues = checked?.readiness?.status === 'blocked' ? checked.readiness : dependencies?.readiness ?? checked?.readiness;
+  const stale = !checked && !dependencies && !!(preflight || localPreflight || environment);
   async function check(kind: 'dependencies' | 'preflight' | 'repair') {
     setPending(kind);
     let feedback: CheckFeedback;
@@ -48,6 +49,7 @@ export function ReadinessChecks({graph, disabled, preflight, onPreflight}: {
       </button>}
     </div>
     <div className="execution-preview">
+      {stale && <p className="helper" role="status">{t("画布已修改，请重新检查运行条件")}</p>}
       <button className="subtle-button" disabled={locked} onClick={() => void check('preflight')}>
         {pending === 'preflight' ? <CircleNotch size={16} className="spin"/> : <Check size={16}/>}{t('运行前检查')}
       </button>
