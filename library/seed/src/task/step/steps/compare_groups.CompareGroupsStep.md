@@ -75,6 +75,8 @@ or statistical assumptions for a particular dataset.
 
 ## Runtime environment
 
+Declared Python requirements: `pydeseq2==0.5.4`. Prepare them explicitly in the selected execution environment; registration and application startup do not install them.
+
 Runs in the shared Operon interpreter.
 
 ## Limitations

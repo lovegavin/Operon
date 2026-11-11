@@ -27,6 +27,8 @@ or statistical assumptions for a particular dataset.
 
 ## Runtime environment
 
+Declared Python requirements: `openpyxl>=3.1`. Prepare them explicitly in the selected execution environment; registration and application startup do not install them.
+
 Runs in the shared Operon interpreter.
 
 ## Limitations
