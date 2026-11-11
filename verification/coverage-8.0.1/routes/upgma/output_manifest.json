@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/upgma/output/artifacts",
+  "files": [
+    {
+      "path": "exports/91833275b1e44676b003960aa1782ae8/upgma.csv",
+      "size": 456,
+      "sha256": "cc840e178e7734354e5992083c1f098954aae4d92d55a1432208722e33a3742a"
+    }
+  ]
+}

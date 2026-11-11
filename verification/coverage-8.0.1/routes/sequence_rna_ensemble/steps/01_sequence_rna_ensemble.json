@@ -1,0 +1,18 @@
+{
+  "records": [
+    {
+      "sequence": "GCGGAUUUAGCUCAGUUGGGAGAGCGCCAGACUGAAGAUCUGGAGGUCCUGUGUUCGAUCCACAGAACUCGCACCA",
+      "mfe_structure": ".(((((((...((((((.((......)).)))))))))))))(((...(((((.......)))))..)))......",
+      "mfe": -22.4,
+      "ensemble_structure": ".(((((((...((((((,({......)),})))))))))))){{(,{.(((((.......))))),,)))......",
+      "ensemble": -23.66,
+      "mea_structure": ".(((((((...(((((..............))))))))))))(((...(((((.......)))))..)))......",
+      "mea_energy": -16.4,
+      "mea_diversity": 10.11,
+      "mfe_frequency": 0.130085,
+      "ensemble_diversity": 15.08,
+      "n_pairs": 23
+    }
+  ],
+  "n_sequences": 1
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_structure/vina_dock_python/output/artifacts",
+  "files": [
+    {
+      "path": "vina/7103d3c43d91445ab595072fe08fe272/poses.pdbqt",
+      "size": 8577,
+      "sha256": "f14580d98252ac75853aa30d048cd1377c62f8f830a7dce9ee06b1a1d38e8f93"
+    }
+  ]
+}

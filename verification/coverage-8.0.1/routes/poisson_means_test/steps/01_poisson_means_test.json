@@ -1,0 +1,7 @@
+{
+  "group_a": "A",
+  "group_b": "B",
+  "alternative": "two-sided",
+  "confidence": 0.95,
+  "n_features": 5
+}

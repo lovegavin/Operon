@@ -1,0 +1,76 @@
+{
+  "dims": [
+    "domain",
+    "statistic"
+  ],
+  "labels": {
+    "domain": {
+      "Beta-lactamase2:1": 0,
+      "Beta-lactamase:2": 1,
+      "Peptidase_S11:3": 2
+    },
+    "statistic": {
+      "evalue": 0,
+      "score": 1,
+      "hmm_from": 2,
+      "hmm_to": 3,
+      "ali_from": 4,
+      "ali_to": 5,
+      "env_from": 6,
+      "env_to": 7
+    }
+  },
+  "info": {
+    "n_domains": 3,
+    "n_targets": 3,
+    "hmm_path": "/home/gavin/db/Pfam-A.hmm",
+    "queries": 1,
+    "domains": [
+      {
+        "target": "Beta-lactamase2",
+        "accession": "PF13354.13",
+        "query": "query1",
+        "full_evalue": 5.5e-43,
+        "full_score": 147.7,
+        "evalue": 6.7e-43,
+        "score": 147.4,
+        "hmm_from": 7,
+        "hmm_to": 256,
+        "ali_from": 32,
+        "ali_to": 286,
+        "env_from": 28,
+        "env_to": 286
+      },
+      {
+        "target": "Beta-lactamase",
+        "accession": "PF00144.30",
+        "query": "query1",
+        "full_evalue": 2.3e-33,
+        "full_score": 116.5,
+        "evalue": 3.5e-33,
+        "score": 115.9,
+        "hmm_from": 3,
+        "hmm_to": 327,
+        "ali_from": 33,
+        "ali_to": 278,
+        "env_from": 31,
+        "env_to": 280
+      },
+      {
+        "target": "Peptidase_S11",
+        "accession": "PF00768.26",
+        "query": "query1",
+        "full_evalue": 3e-05,
+        "full_score": 24.3,
+        "evalue": 5.5e-05,
+        "score": 23.5,
+        "hmm_from": 15,
+        "hmm_to": 133,
+        "ali_from": 44,
+        "ali_to": 160,
+        "env_from": 30,
+        "env_to": 198
+      }
+    ]
+  }
+}

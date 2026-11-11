@@ -1,0 +1,27 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_net_charge",
+  "generated_at": "2026-11-10T12:46:03.767789+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0006,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_net_charge",
+      "elapsed": 0.0006,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_net_charge",
+        "window": 9
+      },
+      "export_path": "steps/01_sequence_net_charge.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124603-b302efa4f048",
+  "event_log": "/tmp/cov_sequence/sequence_net_charge/output/runs/20261110T124603-b302efa4f048/events.jsonl"
+}

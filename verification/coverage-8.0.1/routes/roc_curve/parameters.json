@@ -1,0 +1,36 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "roc_curve",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "target_label": "target",
+        "score_label": "score",
+        "positive_label": "1",
+        "output": "out_roc_curve"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_roc_curve"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "roc_curve"
+      },
+      "context_params": {}
+    }
+  ]
+}

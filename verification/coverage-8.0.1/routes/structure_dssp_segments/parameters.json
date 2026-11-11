@@ -1,0 +1,22 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_1mel": {}
+  },
+  "steps": [
+    {
+      "name": "structure_dssp_segments",
+      "inputs": [
+        "structure_1mel"
+      ],
+      "params": {
+        "structure_path": "/tmp/cov_structure/structure_dssp_segments/input/1mel.pdb",
+        "mkdssp_path": "/usr/bin/mkdssp",
+        "output": "out_structure_dssp_segments"
+      },
+      "context_params": {}
+    }
+  ]
+}

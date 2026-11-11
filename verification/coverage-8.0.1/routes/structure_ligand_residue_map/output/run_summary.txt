@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/ligand_routes/structure_ligand_residue_map
+generated : 2026-11-10T19:50:21.781733+00:00
+steps     : 2
+elapsed   : 0.146s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   structure_ligand_residue_map    0.144s   steps/01_structure_ligand_residue_map.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

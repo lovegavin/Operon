@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/normalizing_flow_density/input",
+  "files": [
+    {
+      "path": "flow.csv",
+      "size": 2393,
+      "sha256": "cda7c2b444cd625c1d44c74b27ace90ca299beb207a14044369b0220404c98da"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/studentized_residuals/output/artifacts/exports/ee70cac16bbc4f209eb95d714ef5e6c7/studentized_residuals.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1005,
+  "source": "out_studentized_residuals",
+  "conversion": {}
+}

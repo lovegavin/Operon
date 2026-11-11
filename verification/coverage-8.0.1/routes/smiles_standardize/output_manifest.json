@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/smiles_standardize/output/artifacts",
+  "files": [
+    {
+      "path": "exports/6dc0cee56beb43638fabc61b6f83024e/smiles_standardize.csv",
+      "size": 176,
+      "sha256": "a7e48ab2db139521b9bbcde4a61b42f56519e00865b3f3d7ebf0ab891cc16a64"
+    }
+  ]
+}

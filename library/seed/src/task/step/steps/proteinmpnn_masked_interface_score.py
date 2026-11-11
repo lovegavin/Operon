@@ -76,10 +76,17 @@ def sequential_indices(chains: dict[str, list[int]]) -> dict[str, int]:
     mapping: dict[str, int] = {}
     position = 0
     for chain in sorted(chains):
-        numbers = chains[chain]
-        for number in numbers:
+        numbers = sorted({int(number) for number in chains[chain]})
+        if not numbers:
+            continue
+        # ProteinMPNN walks each chain from its lowest to highest author number
+        # and inserts a masked gap position for every missing number.  Mirror
+        # that layout so interface labels point at the scores the runner emits.
+        first, last = numbers[0], numbers[-1]
+        for number in range(first, last + 1):
             position += 1
-            mapping[f"{chain}:{int(number)}"] = position
+            if number in numbers:
+                mapping[f"{chain}:{number}"] = position
     return mapping
 
 
@@ -348,7 +355,13 @@ class ProteinmpnnMaskedInterfaceScoreStep(Step):
 
         scores, sequence, _command = score_interface(params, repo, weights, structure)
         author = pdb_chains(structure)
-        total = sum(len(numbers) for numbers in author.values())
+        # ProteinMPNN emits one score per position between the lowest and
+        # highest author number of each chain, including masked gaps.
+        total = sum(
+            max(numbers) - min(numbers) + 1
+            for numbers in author.values()
+            if numbers
+        )
         if len(scores) != total:
             raise StepError(
                 "proteinmpnn_masked_interface_score: the runner reported "

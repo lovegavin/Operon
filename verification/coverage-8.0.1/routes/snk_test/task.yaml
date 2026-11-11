@@ -1,0 +1,49 @@
+{
+  "name": "snk_test",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "feature",
+        "sample"
+      ],
+      "labels": {
+        "feature": {
+          "sample": 0
+        },
+        "sample": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/x1.csv",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "snk_test",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_snk_test"
+      ]
+    }
+  ]
+}

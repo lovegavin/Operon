@@ -1,0 +1,9 @@
+{
+  "score": 34.0,
+  "identity": 0.9,
+  "aligned_target": "ACGTACGTACGTACGTACGT",
+  "aligned_query": "ACGTTCGTACGTACGTACGA",
+  "mode": "global",
+  "target_length": 20,
+  "query_length": 20
+}

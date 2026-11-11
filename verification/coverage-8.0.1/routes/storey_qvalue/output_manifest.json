@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/storey_qvalue/output/artifacts",
+  "files": [
+    {
+      "path": "exports/072d54b77af340b69acb153402935ec9/storey_qvalue.csv",
+      "size": 1009,
+      "sha256": "e2e27d311d823f808c15a814bf943f184c60e32f6d7385409af9cbb40a8e5e83"
+    },
+    {
+      "path": "exports/eb6b4e76fa73486fa6cf213f56c1b252/storey_qvalue.csv",
+      "size": 1009,
+      "sha256": "e2e27d311d823f808c15a814bf943f184c60e32f6d7385409af9cbb40a8e5e83"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/poisson_means_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/2b82b827e65943a6b6ed73b5d749e3d2/poisson_means_test.csv",
+      "size": 690,
+      "sha256": "ffba76e6612509222c456da3ce995a4fbe071eb8730d0074b01138730461aecb"
+    },
+    {
+      "path": "exports/d924738fb32d41238f2a014050363282/poisson_means_test.csv",
+      "size": 690,
+      "sha256": "ffba76e6612509222c456da3ce995a4fbe071eb8730d0074b01138730461aecb"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "task_dir": "/tmp/cov_sequence/amrfinder_plus",
+  "generated_at": "2026-11-10T12:46:18.311568+00:00",
+  "n_steps": 1,
+  "total_elapsed": 1.6438,
+  "steps": [
+    {
+      "index": 1,
+      "name": "amrfinder_plus",
+      "elapsed": 1.6438,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "amrfinder_path": "/home/gavin/miniconda3/envs/amrfinder/bin/amrfinder",
+        "database_dir": "/home/gavin/tools/amrfinder_db/2026-10-29.1",
+        "mode": "protein",
+        "threads": 1,
+        "timeout_seconds": 600,
+        "output": "out_amrfinder_plus"
+      },
+      "export_path": "steps/01_amrfinder_plus.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124616-896c881ce531",
+  "event_log": "/tmp/cov_sequence/amrfinder_plus/output/runs/20261110T124616-896c881ce531/events.jsonl"
+}

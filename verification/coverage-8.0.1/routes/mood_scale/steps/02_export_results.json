@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/mood_scale/output/artifacts/exports/35730f2b3fa84a209ac6706e13b8a557/mood_scale.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 326,
+  "source": "out_mood_scale",
+  "conversion": {}
+}

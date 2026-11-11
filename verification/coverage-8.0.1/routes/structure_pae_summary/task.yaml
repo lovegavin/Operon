@@ -1,0 +1,23 @@
+{
+  "name": "structure_pae_summary",
+  "sources": {
+    "pae": {
+      "path": "input/pae_af_p69905.npy",
+      "dims": [
+        "residue",
+        "residue_b"
+      ],
+      "labels": {},
+      "reader": "NpyReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_pae_summary",
+      "inputs": [
+        "pae"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

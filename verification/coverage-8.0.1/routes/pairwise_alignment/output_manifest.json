@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/pairwise_alignment/output/artifacts",
+  "files": [
+    {
+      "path": "exports/6191ce1f5dea442588d083066565942d/pairwise_alignment.csv",
+      "size": 178,
+      "sha256": "f272b257b652d977aff4a9554b3b70d681f7f4d6be0327709f31797b8c8895a9"
+    }
+  ]
+}

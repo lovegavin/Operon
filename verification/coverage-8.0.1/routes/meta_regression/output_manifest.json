@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/meta_regression/output/artifacts",
+  "files": [
+    {
+      "path": "exports/af2706ca6e5a4b80ad52409bd553240b/meta_regression.csv",
+      "size": 289,
+      "sha256": "9bc7e54f63840974ab8442b6e6ff5617d6abadf5dde202c7c5f5210526595509"
+    },
+    {
+      "path": "exports/d44fa0d5afd84b4ebf2d2efc1d4c1d06/meta_regression.csv",
+      "size": 289,
+      "sha256": "9bc7e54f63840974ab8442b6e6ff5617d6abadf5dde202c7c5f5210526595509"
+    }
+  ]
+}

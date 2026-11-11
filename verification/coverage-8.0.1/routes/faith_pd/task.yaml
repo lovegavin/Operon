@@ -1,0 +1,44 @@
+{
+  "name": "faith_pd",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/tree.nwk",
+      "dims": [
+        "node",
+        "field"
+      ],
+      "labels": {},
+      "reader": "NewickReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "faith_pd",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_faith_pd"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_stats/mood_scale
+generated : 2026-11-10T12:43:51.564504+00:00
+steps     : 2
+elapsed   : 0.004s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   mood_scale              0.002s   steps/01_mood_scale.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

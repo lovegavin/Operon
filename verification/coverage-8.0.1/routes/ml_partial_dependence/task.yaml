@@ -1,0 +1,49 @@
+{
+  "name": "ml_partial_dependence",
+  "sources": {
+    "X": {
+      "path": "input/X.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "y": {
+      "path": "input/y.csv",
+      "dims": [
+        "row",
+        "value"
+      ],
+      "labels": {
+        "row": {
+          "value": 0
+        },
+        "value": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "ml_partial_dependence",
+      "inputs": [
+        "X",
+        "y"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_ml_partial_dependence"
+      ]
+    }
+  ]
+}

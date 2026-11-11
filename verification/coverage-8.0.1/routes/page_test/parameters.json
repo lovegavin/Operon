@@ -1,0 +1,31 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "page_test",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "output": "out_page_test"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_page_test"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "page_test"
+      },
+      "context_params": {}
+    }
+  ]
+}

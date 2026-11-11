@@ -1,0 +1,29 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_rna_accessibility",
+  "generated_at": "2026-11-10T12:46:04.971993+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0231,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_rna_accessibility",
+      "elapsed": 0.0231,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_rna_accessibility",
+        "temperature": 37.0,
+        "threshold": 0.5,
+        "min_length": 2
+      },
+      "export_path": "steps/01_sequence_rna_accessibility.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124604-261e28558137",
+  "event_log": "/tmp/cov_sequence/sequence_rna_accessibility/output/runs/20261110T124604-261e28558137/events.jsonl"
+}

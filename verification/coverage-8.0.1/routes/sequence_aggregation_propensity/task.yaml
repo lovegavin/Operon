@@ -1,0 +1,26 @@
+{
+  "name": "sequence_aggregation_propensity",
+  "sources": {
+    "x0": {
+      "path": "input/agg.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sequence_aggregation_propensity",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

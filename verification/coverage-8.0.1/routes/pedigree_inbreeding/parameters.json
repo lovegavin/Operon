@@ -1,0 +1,31 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "pedigree_inbreeding",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "output": "out_pedigree_inbreeding"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_pedigree_inbreeding"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "pedigree_inbreeding"
+      },
+      "context_params": {}
+    }
+  ]
+}

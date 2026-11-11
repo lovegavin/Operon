@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/ml_partial_dependence/output/artifacts",
+  "files": [
+    {
+      "path": "exports/aa5042a35a4248f3915e5b4fac659807/ml_partial_dependence.csv",
+      "size": 157,
+      "sha256": "4207bcbe4c41220cede1c86157442582a9c3452007274385a127b35c7753b0ee"
+    }
+  ]
+}

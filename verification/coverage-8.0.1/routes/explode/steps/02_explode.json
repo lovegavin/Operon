@@ -1,0 +1,26 @@
+{
+  "dim": "orf",
+  "field": "sequence",
+  "sep": ";",
+  "keep_empty": true,
+  "n_before": 2,
+  "n_after": 4,
+  "expansion": [
+    {
+      "source": 0,
+      "label": "seqA"
+    },
+    {
+      "source": 0,
+      "label": "alpha"
+    },
+    {
+      "source": 1,
+      "label": "seqB"
+    },
+    {
+      "source": 1,
+      "label": "beta"
+    }
+  ]
+}

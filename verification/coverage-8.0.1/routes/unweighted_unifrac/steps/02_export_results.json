@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/unweighted_unifrac/output/artifacts/exports/10aeb46c325943c581fb155e5e78efc1/unweighted_unifrac.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1138,
+  "source": "out_unweighted_unifrac",
+  "conversion": {}
+}

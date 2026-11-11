@@ -1,0 +1,25 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_transmembrane_topology",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_transmembrane_topology",
+        "window": 19,
+        "threshold": 1.6,
+        "min_length": 12
+      },
+      "context_params": {}
+    }
+  ]
+}

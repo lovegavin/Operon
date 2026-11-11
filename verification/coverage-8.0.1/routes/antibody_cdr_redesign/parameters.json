@@ -1,0 +1,37 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "antibody_cdr_redesign",
+      "inputs": [],
+      "params": {
+        "structure_path": "/tmp/ligand_routes/antibody_cdr_redesign/input/vhh_1mel.pdb",
+        "proteinmpnn_path": "/home/gavin/tools/ProteinMPNN",
+        "weights_path": "/home/gavin/tools/ProteinMPNN/vanilla_model_weights",
+        "python_executable": "/home/gavin/bp-numpy21/bin/python",
+        "chain": "A",
+        "num_seq_per_target": 2,
+        "sampling_temp": "0.1",
+        "seed": 1,
+        "device": "cpu",
+        "timeout": 1800,
+        "output": "designs"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "designs"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "designs"
+      },
+      "context_params": {}
+    }
+  ]
+}

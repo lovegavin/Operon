@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "dfgls",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "value_label": "value",
+        "trend": "c",
+        "output": "out_dfgls"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_dfgls"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "dfgls"
+      },
+      "context_params": {}
+    }
+  ]
+}

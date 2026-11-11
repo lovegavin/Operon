@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "envfit",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "output": "out_envfit"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_envfit"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "envfit"
+      },
+      "context_params": {}
+    }
+  ]
+}

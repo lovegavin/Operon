@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/sc_leiden_cluster/output/artifacts",
+  "files": [
+    {
+      "path": "exports/fbef970253164fb9871fa05a6630b355/sc_leiden_cluster.csv",
+      "size": 170,
+      "sha256": "6f78403bd8689041eaf63c339c74385744b3bea93f0be8de15d124e1a13b7a4b"
+    }
+  ]
+}

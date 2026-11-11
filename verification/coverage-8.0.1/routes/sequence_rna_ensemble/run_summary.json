@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_rna_ensemble",
+  "generated_at": "2026-11-10T12:46:10.741759+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.014,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_rna_ensemble",
+      "elapsed": 0.014,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_rna_ensemble",
+        "rnafold_path": "/usr/bin/RNAfold",
+        "temperature": 37.0,
+        "dangles": 2,
+        "timeout_seconds": 600,
+        "sequence_output_dim": "sequence"
+      },
+      "export_path": "steps/01_sequence_rna_ensemble.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124610-28114c6786be",
+  "event_log": "/tmp/cov_sequence/sequence_rna_ensemble/output/runs/20261110T124610-28114c6786be/events.jsonl"
+}

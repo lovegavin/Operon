@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/ligand_routes/antibody_cdr_redesign/input",
+  "files": [
+    {
+      "path": "vhh_1mel.pdb",
+      "size": 361017,
+      "sha256": "321aa847a20535c018b12cf340d2e057628dce42b4005c185916dd17bdd24de4"
+    }
+  ]
+}

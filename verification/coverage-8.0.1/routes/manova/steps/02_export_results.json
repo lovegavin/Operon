@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/manova/output/artifacts/exports/ac303fc7eeac40c58240eebe6a21ce2f/manova.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 143,
+  "source": "out_manova",
+  "conversion": {}
+}

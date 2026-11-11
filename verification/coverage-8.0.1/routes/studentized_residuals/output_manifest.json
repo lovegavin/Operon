@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/studentized_residuals/output/artifacts",
+  "files": [
+    {
+      "path": "exports/774a90ef1d2c477a8e7a17f1e99ee197/studentized_residuals.csv",
+      "size": 1005,
+      "sha256": "734979484c02c02425cb5bc4677375f9843808ef2ebb98ef6a29d6ff46640f22"
+    },
+    {
+      "path": "exports/ee70cac16bbc4f209eb95d714ef5e6c7/studentized_residuals.csv",
+      "size": 1005,
+      "sha256": "734979484c02c02425cb5bc4677375f9843808ef2ebb98ef6a29d6ff46640f22"
+    }
+  ]
+}

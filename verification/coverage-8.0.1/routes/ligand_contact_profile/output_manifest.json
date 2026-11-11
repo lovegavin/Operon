@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/ligand_routes/ligand_contact_profile/output/artifacts",
+  "files": [
+    {
+      "path": "exports/7a3e41f1058c405da6beefdfbc1c7a3b/contacts.csv",
+      "size": 333,
+      "sha256": "821e68fe5e2bd33b412cb7389d5af75bd7507198a13b02a19472d380960e8927"
+    }
+  ]
+}

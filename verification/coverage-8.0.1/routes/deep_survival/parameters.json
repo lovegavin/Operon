@@ -1,0 +1,39 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "surv": {}
+  },
+  "steps": [
+    {
+      "name": "deep_survival",
+      "inputs": [
+        "surv"
+      ],
+      "params": {
+        "output": "out_deep_survival",
+        "row_dim": "row",
+        "field_dim": "field",
+        "time_column": "time",
+        "event_column": "event",
+        "hidden": 8,
+        "epochs": 100,
+        "learning_rate": 0.01,
+        "seed": 7
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_deep_survival"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "deep_survival"
+      },
+      "context_params": {}
+    }
+  ]
+}

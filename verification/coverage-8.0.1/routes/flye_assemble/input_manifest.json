@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/flye_assemble/input",
+  "files": [
+    {
+      "path": "reads.fasta",
+      "size": 1474882,
+      "sha256": "f4ff2d8a30464e4a612f0c38f9ec40b199308fe5e7c5081099aa299790a9841e"
+    }
+  ]
+}

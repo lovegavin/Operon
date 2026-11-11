@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/hardy_weinberg/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 73,
+      "sha256": "700801904a08c15b58ff5f01043f9cbf726bd0eb76234b56f1f05c5fd8f02d2b"
+    }
+  ]
+}

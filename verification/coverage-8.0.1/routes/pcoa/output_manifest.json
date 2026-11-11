@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/pcoa/output/artifacts",
+  "files": [
+    {
+      "path": "exports/c27a7f06f8a14ea1b61ba9ea8f647616/pcoa.csv",
+      "size": 461,
+      "sha256": "4e2ab9f213f2bf086983c65b4a105fa7d356e40def81c1283d4695d175e8d370"
+    },
+    {
+      "path": "exports/eafffb3b00894b0882b9540b7169701c/pcoa.csv",
+      "size": 461,
+      "sha256": "4e2ab9f213f2bf086983c65b4a105fa7d356e40def81c1283d4695d175e8d370"
+    }
+  ]
+}

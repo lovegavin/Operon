@@ -1,0 +1,34 @@
+{
+  "name": "sc_leiden_cluster",
+  "sources": {
+    "x0": {
+      "path": "input/adj.csv",
+      "dims": [
+        "cell",
+        "cell2"
+      ],
+      "labels": {
+        "cell": {
+          "cell2": 0
+        },
+        "cell2": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sc_leiden_cluster",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_sc_leiden_cluster"
+      ]
+    }
+  ]
+}

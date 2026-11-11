@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/zero_inflated_negative_binomial/output/artifacts",
+  "files": [
+    {
+      "path": "exports/04351959a94049dfbad6fb6c2b5be1c2/zero_inflated_negative_binomial.csv",
+      "size": 626,
+      "sha256": "17aba864c6e9cce7b8260ffc8d4b2a6b1e85843838a62244bd46155b903a10ed"
+    },
+    {
+      "path": "exports/7b5d28f2fb264b3abf3745688ad84b99/zero_inflated_negative_binomial.csv",
+      "size": 626,
+      "sha256": "17aba864c6e9cce7b8260ffc8d4b2a6b1e85843838a62244bd46155b903a10ed"
+    }
+  ]
+}

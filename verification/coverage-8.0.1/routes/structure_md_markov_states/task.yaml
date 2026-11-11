@@ -1,0 +1,11 @@
+{
+  "name": "structure_md_markov_states",
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_md_markov_states",
+      "inputs": []
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

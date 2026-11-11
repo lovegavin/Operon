@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_stats/zivot_andrews
+generated : 2026-11-10T12:44:05.337523+00:00
+steps     : 2
+elapsed   : 0.151s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   zivot_andrews           0.150s   steps/01_zivot_andrews.json
+2   export_results          0.001s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

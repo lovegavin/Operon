@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/pcnm/output/artifacts",
+  "files": [
+    {
+      "path": "exports/7ed1b2f99d064ee6b739987534731504/pcnm.csv",
+      "size": 1085,
+      "sha256": "6d504b9362ea4f344feb217260663ef20cee22695b2a35722e32d3f40c71e9b4"
+    },
+    {
+      "path": "exports/842d623ec3da426ba81205cb24e2b794/pcnm.csv",
+      "size": 1085,
+      "sha256": "6d504b9362ea4f344feb217260663ef20cee22695b2a35722e32d3f40c71e9b4"
+    }
+  ]
+}

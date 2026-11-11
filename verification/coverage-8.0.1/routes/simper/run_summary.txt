@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_omics/simper
+generated : 2026-11-10T12:23:00.671757+00:00
+steps     : 2
+elapsed   : 0.004s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   simper                  0.000s   steps/01_simper.json
+2   export_results          0.004s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

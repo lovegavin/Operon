@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/sc_spatial_variable_genes/output/artifacts",
+  "files": [
+    {
+      "path": "exports/8594985e1e03417bb6207569ee8cf27f/sc_spatial_variable_genes.csv",
+      "size": 209,
+      "sha256": "0245fe00e5c27b4b07284d33423e34d4b4a74cfdc4743c4622a709b37d66d9f5"
+    }
+  ]
+}

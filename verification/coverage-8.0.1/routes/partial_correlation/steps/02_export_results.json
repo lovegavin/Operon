@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/partial_correlation/output/artifacts/exports/69a2bb0d20f742ad8e0e8327905fb4e8/partial_correlation.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 153,
+  "source": "out_partial_correlation",
+  "conversion": {}
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/standardized_residuals/output/artifacts/exports/df77ede141564dfeacab40d6b92fbc8d/standardized_residuals.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1000,
+  "source": "out_standardized_residuals",
+  "conversion": {}
+}

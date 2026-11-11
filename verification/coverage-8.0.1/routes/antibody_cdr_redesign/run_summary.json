@@ -1,0 +1,45 @@
+{
+  "task_dir": "/tmp/ligand_routes/antibody_cdr_redesign",
+  "generated_at": "2026-11-10T20:11:14.908169+00:00",
+  "n_steps": 2,
+  "total_elapsed": 6.5241,
+  "steps": [
+    {
+      "index": 1,
+      "name": "antibody_cdr_redesign",
+      "elapsed": 6.5224,
+      "inputs": [],
+      "params": {
+        "structure_path": "/tmp/ligand_routes/antibody_cdr_redesign/input/vhh_1mel.pdb",
+        "proteinmpnn_path": "/home/gavin/tools/ProteinMPNN",
+        "weights_path": "/home/gavin/tools/ProteinMPNN/vanilla_model_weights",
+        "python_executable": "/home/gavin/bp-numpy21/bin/python",
+        "chain": "A",
+        "num_seq_per_target": 2,
+        "sampling_temp": "0.1",
+        "seed": 1,
+        "device": "cpu",
+        "timeout": 1800,
+        "output": "designs"
+      },
+      "export_path": "steps/01_antibody_cdr_redesign.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "designs"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "designs"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T201107-45a76de265ac",
+  "event_log": "/tmp/ligand_routes/antibody_cdr_redesign/output/runs/20261110T201107-45a76de265ac/events.jsonl"
+}

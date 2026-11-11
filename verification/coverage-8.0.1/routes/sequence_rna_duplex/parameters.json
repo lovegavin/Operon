@@ -1,0 +1,26 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_rna_duplex",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_rna_duplex",
+        "rnaduplex_path": "/usr/bin/RNAduplex",
+        "energy_range": 0.1,
+        "timeout_seconds": 120,
+        "duplex_dim": "duplex"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/pcoa/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 963,
+      "sha256": "78da77389581a4557032596532ca61ff3b252f7371f69ad1d937198c6b3b5af0"
+    }
+  ]
+}

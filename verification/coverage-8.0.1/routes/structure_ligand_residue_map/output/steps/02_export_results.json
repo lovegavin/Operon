@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/ligand_routes/structure_ligand_residue_map/output/artifacts/exports/d93cfe258115493b904fbf17d378872f/contact_map.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 10109,
+  "source": "contact_map",
+  "conversion": {}
+}

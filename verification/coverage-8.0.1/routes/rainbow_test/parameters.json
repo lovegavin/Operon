@@ -1,0 +1,35 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "rainbow_test",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "response": "y",
+        "regressor": "x",
+        "fraction": 0.5,
+        "center": 0.5,
+        "output": "out_rainbow_test"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_rainbow_test"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "rainbow_test"
+      },
+      "context_params": {}
+    }
+  ]
+}

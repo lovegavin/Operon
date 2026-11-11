@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/mlst_typing/output/artifacts",
+  "files": [
+    {
+      "path": "exports/d130de058eaf4566ab0bfea79bf1fc91/mlst_typing.csv",
+      "size": 108,
+      "sha256": "aebbed79cf4bf8e5243e3604b371469e55eda8ecea023e433f34c060e787cfe3"
+    }
+  ]
+}

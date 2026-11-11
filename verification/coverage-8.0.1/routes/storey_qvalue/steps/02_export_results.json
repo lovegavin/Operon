@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/storey_qvalue/output/artifacts/exports/072d54b77af340b69acb153402935ec9/storey_qvalue.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1009,
+  "source": "out_storey_qvalue",
+  "conversion": {}
+}

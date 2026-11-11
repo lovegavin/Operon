@@ -1,0 +1,26 @@
+{
+  "name": "antibody_numbering_kabat",
+  "sources": {
+    "sequence": {
+      "path": "input/seq.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "auto",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "antibody_numbering_kabat",
+      "inputs": [
+        "sequence"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

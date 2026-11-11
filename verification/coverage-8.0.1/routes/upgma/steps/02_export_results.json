@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/upgma/output/artifacts/exports/91833275b1e44676b003960aa1782ae8/upgma.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 456,
+  "source": "out_upgma",
+  "conversion": {}
+}

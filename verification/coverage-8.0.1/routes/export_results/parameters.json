@@ -1,0 +1,22 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "export_results",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "exported",
+        "include_labels": true
+      },
+      "context_params": {}
+    }
+  ]
+}

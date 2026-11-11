@@ -1,0 +1,32 @@
+{
+  "name": "normalizing_flow_density",
+  "sources": {
+    "flow": {
+      "path": "input/flow.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": "auto",
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "normalizing_flow_density",
+      "inputs": [
+        "flow"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_normalizing_flow_density"
+      ]
+    }
+  ]
+}

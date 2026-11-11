@@ -1,0 +1,9 @@
+{
+  "output": "out_assembly_stats",
+  "n_metrics": 22,
+  "n50": 15000.0,
+  "l50": 2.0,
+  "total_length": 48502.0,
+  "n_contigs": 3.0,
+  "largest": 20000.0
+}

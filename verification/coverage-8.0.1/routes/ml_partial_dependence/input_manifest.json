@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_mltab/ml_partial_dependence/input",
+  "files": [
+    {
+      "path": "X.csv",
+      "size": 75,
+      "sha256": "c70a23baa3b30f28f93f5fef2a96b4b03fa81137337b4e72b956efbdf76ff3bf"
+    },
+    {
+      "path": "y.csv",
+      "size": 48,
+      "sha256": "d332d5744e4125e705e5ffee8f1b7768b0ffd5d9defa2b0cc4ee2af6bda40742"
+    }
+  ]
+}

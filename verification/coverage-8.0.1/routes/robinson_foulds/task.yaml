@@ -1,0 +1,39 @@
+{
+  "name": "robinson_foulds",
+  "sources": {
+    "x0": {
+      "path": "input/tree1.nwk",
+      "dims": [
+        "node",
+        "field"
+      ],
+      "labels": {},
+      "reader": "NewickReader"
+    },
+    "x1": {
+      "path": "input/tree2.nwk",
+      "dims": [
+        "node",
+        "field"
+      ],
+      "labels": {},
+      "reader": "NewickReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "robinson_foulds",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_robinson_foulds"
+      ]
+    }
+  ]
+}

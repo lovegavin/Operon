@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/rainbow_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/2020e41ca6f24280b2a77d30b23068e4/rainbow_test.csv",
+      "size": 130,
+      "sha256": "13e99e7217976052e31ae52c9af873c6fceee623d13f76f7b879b753f04f052b"
+    },
+    {
+      "path": "exports/a2d35f66be894ab9b0a411d88ebdc246/rainbow_test.csv",
+      "size": 130,
+      "sha256": "13e99e7217976052e31ae52c9af873c6fceee623d13f76f7b879b753f04f052b"
+    }
+  ]
+}

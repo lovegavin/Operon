@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/deep_survival/input",
+  "files": [
+    {
+      "path": "surv.csv",
+      "size": 108,
+      "sha256": "c8ae9ae86ea61e2c6b721297e1a8cc0782e4a0e8270d7b306d18f5551a712eaa"
+    }
+  ]
+}

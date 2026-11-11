@@ -1,0 +1,40 @@
+{
+  "task_dir": "/tmp/cov_stats/garch",
+  "generated_at": "2026-11-10T12:43:46.936016+00:00",
+  "n_steps": 2,
+  "total_elapsed": 1.5966,
+  "steps": [
+    {
+      "index": 1,
+      "name": "garch",
+      "elapsed": 1.5952,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "value_label": "value",
+        "p": 1,
+        "q": 1,
+        "output": "out_garch"
+      },
+      "export_path": "steps/01_garch.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0014,
+      "inputs": [
+        "out_garch"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "garch"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124344-9bab278e5e0d",
+  "event_log": "/tmp/cov_stats/garch/output/runs/20261110T124344-9bab278e5e0d/events.jsonl"
+}

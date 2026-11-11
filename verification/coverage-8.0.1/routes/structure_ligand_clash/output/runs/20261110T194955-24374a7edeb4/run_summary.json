@@ -1,0 +1,11 @@
+{
+  "task_dir": "/tmp/ligand_routes/structure_ligand_clash",
+  "generated_at": "2026-11-10T19:49:55.823213+00:00",
+  "n_steps": 0,
+  "total_elapsed": 0,
+  "steps": [],
+  "status": "failed",
+  "error": "Implementation code hash mismatch: PdbReader; rebuild or refresh the provider",
+  "run_id": "20261110T194955-24374a7edeb4",
+  "event_log": "/tmp/ligand_routes/structure_ligand_clash/output/runs/20261110T194955-24374a7edeb4/events.jsonl"
+}

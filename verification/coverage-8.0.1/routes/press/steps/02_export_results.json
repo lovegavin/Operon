@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/press/output/artifacts/exports/f6ee67df7b1c4080afb5bdc110ac3ac1/press.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 82,
+  "source": "out_press",
+  "conversion": {}
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/mack_wolfe/output/artifacts/exports/6a483b416ab5414e80494541bd846649/mack_wolfe.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 316,
+  "source": "out_mack_wolfe",
+  "conversion": {}
+}

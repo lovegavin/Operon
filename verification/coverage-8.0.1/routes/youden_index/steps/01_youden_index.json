@@ -1,0 +1,8 @@
+{
+  "threshold": 0.52058,
+  "sensitivity": 0.9444444444444444,
+  "specificity": 0.8333333333333334,
+  "youden_index": 0.7777777777777777,
+  "n_pos": 18,
+  "n_neg": 18
+}

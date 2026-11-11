@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/ligand_routes/antibody_cdr_redesign/output/artifacts/exports/c952b9b1859a4a6fbe381ac660c8ac27/designs.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 174,
+  "source": "designs",
+  "conversion": {}
+}

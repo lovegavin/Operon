@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/rarefaction/output/artifacts/exports/9d6365671fd4476eb2cd4d2d84384d86/rarefaction.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 196,
+  "source": "out_rarefaction",
+  "conversion": {}
+}

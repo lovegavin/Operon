@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/roc_comparison/output/artifacts/exports/3c538795052a4cb7b9ca2841a63d1569/roc_comparison.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 249,
+  "source": "out_roc_comparison",
+  "conversion": {}
+}

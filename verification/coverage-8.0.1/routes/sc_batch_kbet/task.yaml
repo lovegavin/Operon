@@ -1,0 +1,49 @@
+{
+  "name": "sc_batch_kbet",
+  "sources": {
+    "x0": {
+      "path": "input/graph.csv",
+      "dims": [
+        "cell",
+        "cell2"
+      ],
+      "labels": {
+        "cell": {
+          "cell2": 0
+        },
+        "cell2": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/batch.csv",
+      "dims": [
+        "cell",
+        "batch"
+      ],
+      "labels": {
+        "cell": {
+          "batch": 0
+        },
+        "batch": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sc_batch_kbet",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_sc_batch_kbet"
+      ]
+    }
+  ]
+}

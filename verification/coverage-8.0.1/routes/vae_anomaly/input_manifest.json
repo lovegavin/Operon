@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/vae_anomaly/input",
+  "files": [
+    {
+      "path": "vae.csv",
+      "size": 103,
+      "sha256": "d4836afb7f5ce245f8fdbfab250763e014781a634ed5364af6cc1dfee1342bea"
+    }
+  ]
+}

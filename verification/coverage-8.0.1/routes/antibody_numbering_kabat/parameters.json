@@ -1,0 +1,20 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "sequence": {}
+  },
+  "steps": [
+    {
+      "name": "antibody_numbering_kabat",
+      "inputs": [
+        "sequence"
+      ],
+      "params": {
+        "output": "numbering"
+      },
+      "context_params": {}
+    }
+  ]
+}

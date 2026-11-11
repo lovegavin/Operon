@@ -1,0 +1,32 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_rna_cofold",
+  "generated_at": "2026-11-10T12:46:06.393423+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0668,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_rna_cofold",
+      "elapsed": 0.0668,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_rna_cofold",
+        "rnacofold_path": "/usr/bin/RNAcofold",
+        "concentration_a": 1.0,
+        "concentration_b": 1.0,
+        "no_lonely_pairs": false,
+        "timeout_seconds": 120,
+        "dimer_dim": "dimer"
+      },
+      "export_path": "steps/01_sequence_rna_cofold.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124605-b7e601d15f3b",
+  "event_log": "/tmp/cov_sequence/sequence_rna_cofold/output/runs/20261110T124605-b7e601d15f3b/events.jsonl"
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/probe_routes/esm_embedding_autoencoder/output/artifacts/exports/d35e4a0de26a4ce8b3e2a3740517be13/esm_embedding_autoencoder.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1462,
+  "source": "errors",
+  "conversion": {}
+}

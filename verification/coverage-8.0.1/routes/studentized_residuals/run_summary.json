@@ -1,0 +1,38 @@
+{
+  "task_dir": "/tmp/cov_stats/studentized_residuals",
+  "generated_at": "2026-11-10T12:44:02.194077+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0023,
+  "steps": [
+    {
+      "index": 1,
+      "name": "studentized_residuals",
+      "elapsed": 0.0006,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "response": "y",
+        "output": "out_studentized_residuals"
+      },
+      "export_path": "steps/01_studentized_residuals.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "out_studentized_residuals"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "studentized_residuals"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124400-680e0af0c530",
+  "event_log": "/tmp/cov_stats/studentized_residuals/output/runs/20261110T124400-680e0af0c530/events.jsonl"
+}

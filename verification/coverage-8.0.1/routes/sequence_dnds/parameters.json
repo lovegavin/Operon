@@ -1,0 +1,33 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_dnds",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "output": "out_sequence_dnds"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_sequence_dnds"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "out_sequence_dnds"
+      },
+      "context_params": {}
+    }
+  ]
+}

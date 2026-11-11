@@ -1,0 +1,32 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "rdkit_fragment_overlap",
+      "inputs": [],
+      "params": {
+        "output": "out_rdkit_fragment_overlap",
+        "molecule_a_dim": "molecule_a",
+        "molecule_b_dim": "molecule_b",
+        "min_fragment_size": 4,
+        "smiles_a": "CC(=O)Oc1ccccc1C(=O)O aspirin\nCC(=O)Nc1ccc(O)cc1 paracetamol\nCC(C)Cc1ccc(cc1)C(C)C(=O)O ibuprofen",
+        "smiles_b": "CC(=O)Oc1ccccc1C(=O)O aspirin\nCn1c(=O)c2c(ncn2C)n(C)c1=O caffeine\nCC(=O)Nc1ccc(O)cc1 paracetamol"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_rdkit_fragment_overlap"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "rdkit_fragment_overlap"
+      },
+      "context_params": {}
+    }
+  ]
+}

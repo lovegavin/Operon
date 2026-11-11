@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/probe_routes/esm_embedding_ridge_probe/output/artifacts",
+  "files": [
+    {
+      "path": "exports/77bb658388db4f80841ff676310015c5/esm_embedding_ridge_probe.csv",
+      "size": 516,
+      "sha256": "5551e8a4c0c9465d5518d1d99b9669af3d68cee432d1a7b204d1208b15d58bb1"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/mauchly_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/763ffbb0f2bd4bfa9174e2639dec080b/mauchly_test.csv",
+      "size": 117,
+      "sha256": "5d016601515bf0a773caa7db94e160546997d833788c2a2462cd45a7c62ba55d"
+    },
+    {
+      "path": "exports/c2d8e3ca516b4a41bd6c042dff8f5a5f/mauchly_test.csv",
+      "size": 117,
+      "sha256": "5d016601515bf0a773caa7db94e160546997d833788c2a2462cd45a7c62ba55d"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/upgma/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 174,
+      "sha256": "3b5dec33bb52aa7cc29b32e5a50c84c8ff5bc8c1c35bf8953e80ac26fba73ec9"
+    }
+  ]
+}

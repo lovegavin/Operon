@@ -1,0 +1,11 @@
+{
+  "task_dir": "/tmp/ligand_routes/structure_metal_coordination",
+  "generated_at": "2026-11-10T19:49:56.578123+00:00",
+  "n_steps": 0,
+  "total_elapsed": 0,
+  "steps": [],
+  "status": "failed",
+  "error": "Implementation code hash mismatch: PdbReader; rebuild or refresh the provider",
+  "run_id": "20261110T194956-f846f89b9a0a",
+  "event_log": "/tmp/ligand_routes/structure_metal_coordination/output/runs/20261110T194956-f846f89b9a0a/events.jsonl"
+}

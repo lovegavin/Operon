@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/time_dependent_auc/output/artifacts",
+  "files": [
+    {
+      "path": "exports/01ac8d9cba99458b8b6ea99098f2a9b5/time_dependent_auc.csv",
+      "size": 94,
+      "sha256": "9ff5ddebc76d0381668ebe3ded7e6f2d4fbc3e6a605de31432b00815c79938ae"
+    },
+    {
+      "path": "exports/7880254433b64d5bb52d5799dc6773ff/time_dependent_auc.csv",
+      "size": 94,
+      "sha256": "9ff5ddebc76d0381668ebe3ded7e6f2d4fbc3e6a605de31432b00815c79938ae"
+    }
+  ]
+}

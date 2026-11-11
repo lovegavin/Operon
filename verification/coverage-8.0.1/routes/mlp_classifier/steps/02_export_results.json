@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/mlp_classifier/output/artifacts/exports/02f3f6c7d98d4712b91f7f2afe157c00/mlp_classifier.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 79,
+  "source": "out_mlp_classifier",
+  "conversion": {}
+}

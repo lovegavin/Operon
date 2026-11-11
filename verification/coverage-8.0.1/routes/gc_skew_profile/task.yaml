@@ -1,0 +1,32 @@
+{
+  "name": "gc_skew_profile",
+  "sources": {
+    "x0": {
+      "path": "input/seq.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "gc_skew_profile",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_gc_skew_profile"
+      ]
+    }
+  ]
+}

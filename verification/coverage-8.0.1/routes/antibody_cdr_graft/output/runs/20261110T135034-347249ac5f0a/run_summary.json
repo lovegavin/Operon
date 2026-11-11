@@ -1,0 +1,11 @@
+{
+  "task_dir": "/tmp/abroutes/antibody_cdr_graft",
+  "generated_at": "2026-11-10T13:50:35.225957+00:00",
+  "n_steps": 0,
+  "total_elapsed": 0,
+  "steps": [],
+  "status": "failed",
+  "error": "antibody_cdr_graft: the conserved 'LSC' framework-1 cysteine was not found; this does not look like a VH/VHH domain (donor sequence)",
+  "run_id": "20261110T135034-347249ac5f0a",
+  "event_log": "/tmp/abroutes/antibody_cdr_graft/output/runs/20261110T135034-347249ac5f0a/events.jsonl"
+}

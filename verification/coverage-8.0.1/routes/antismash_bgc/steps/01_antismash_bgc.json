@@ -1,0 +1,140 @@
+{
+  "dims": [
+    "region",
+    "statistic"
+  ],
+  "labels": {
+    "region": {
+      "contig1:region1": 0
+    },
+    "statistic": {
+      "start": 0,
+      "end": 1,
+      "length": 2,
+      "n_genes": 3,
+      "n_protoclusters": 4
+    }
+  },
+  "info": {
+    "regions": [
+      {
+        "contig": "contig1",
+        "region_number": 1,
+        "start": 1,
+        "end": 15016,
+        "products": [
+          "lanthipeptide-class-i"
+        ],
+        "protocluster_products": [
+          "lanthipeptide-class-i"
+        ],
+        "n_genes": 12,
+        "n_protoclusters": 1,
+        "genes": [
+          {
+            "locus_tag": "ctg1_1",
+            "gene": "",
+            "product": "",
+            "start": 828,
+            "end": 1001,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_2",
+            "gene": "",
+            "product": "",
+            "start": 1109,
+            "end": 4090,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_3",
+            "gene": "",
+            "product": "",
+            "start": 4101,
+            "end": 5903,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_4",
+            "gene": "",
+            "product": "",
+            "start": 5896,
+            "end": 7140,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_5",
+            "gene": "",
+            "product": "",
+            "start": 7137,
+            "end": 7874,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_6",
+            "gene": "",
+            "product": "",
+            "start": 7876,
+            "end": 9924,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_7",
+            "gene": "",
+            "product": "",
+            "start": 9990,
+            "end": 10679,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_8",
+            "gene": "",
+            "product": "",
+            "start": 10672,
+            "end": 12015,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_9",
+            "gene": "",
+            "product": "",
+            "start": 12114,
+            "end": 12791,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_10",
+            "gene": "",
+            "product": "",
+            "start": 12793,
+            "end": 13521,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_11",
+            "gene": "",
+            "product": "",
+            "start": 13508,
+            "end": 14152,
+            "strand": 1
+          },
+          {
+            "locus_tag": "ctg1_12",
+            "gene": "",
+            "product": "",
+            "start": 14666,
+            "end": 15016,
+            "strand": -1
+          }
+        ]
+      }
+    ],
+    "n_regions": 1,
+    "product_counts": {
+      "lanthipeptide-class-i": 1
+    },
+    "n_records": 1,
+    "database": "/home/gavin/tools/antismash_db"
+  }
+}

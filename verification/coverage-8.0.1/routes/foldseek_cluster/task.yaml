@@ -1,0 +1,11 @@
+{
+  "name": "foldseek_cluster",
+  "sources": {},
+  "steps": [
+    {
+      "name": "foldseek_cluster",
+      "inputs": []
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/cov_stats/roc_comparison/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 216,
+      "sha256": "9f6160d9cbd106b35e6589912059fb4e86e561e599db32eded28081dbf7169e9"
+    },
+    {
+      "path": "x1.csv",
+      "size": 471,
+      "sha256": "26d16310fb6f7b83c8efd347ea8eb6a3bd5ec944254cc0df5e06cbf94d72d74d"
+    },
+    {
+      "path": "x2.csv",
+      "size": 473,
+      "sha256": "cbcb44bd920678532e8297084a95fce39e79256bc01542fccbf2b082fe96f355"
+    }
+  ]
+}

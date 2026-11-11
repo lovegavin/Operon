@@ -1,0 +1,38 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "flow": {}
+  },
+  "steps": [
+    {
+      "name": "normalizing_flow_density",
+      "inputs": [
+        "flow"
+      ],
+      "params": {
+        "output": "out_normalizing_flow_density",
+        "row_dim": "row",
+        "field_dim": "field",
+        "layers": 2,
+        "hidden": 8,
+        "epochs": 100,
+        "learning_rate": 0.05,
+        "seed": 0
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_normalizing_flow_density"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "normalizing_flow_density"
+      },
+      "context_params": {}
+    }
+  ]
+}

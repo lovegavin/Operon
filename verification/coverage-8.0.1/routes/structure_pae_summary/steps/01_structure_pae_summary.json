@@ -1,0 +1,6 @@
+{
+  "mean_pae": 2.0615453283078753,
+  "max_pae": 28.0,
+  "threshold": 10.0,
+  "n_residues": 142
+}

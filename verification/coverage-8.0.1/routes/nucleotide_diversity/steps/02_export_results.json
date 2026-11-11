@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/nucleotide_diversity/output/artifacts/exports/5c1a25269959462db2a65841b1e759d6/nucleotide_diversity.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 175,
+  "source": "out_nucleotide_diversity",
+  "conversion": {}
+}

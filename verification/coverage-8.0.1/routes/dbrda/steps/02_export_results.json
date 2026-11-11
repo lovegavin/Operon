@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/dbrda/output/artifacts/exports/dacfa10c8b004a318853e5e4014e6e32/dbrda.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 179,
+  "source": "out_dbrda",
+  "conversion": {}
+}

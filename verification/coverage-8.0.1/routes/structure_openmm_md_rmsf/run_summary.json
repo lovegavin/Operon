@@ -1,0 +1,31 @@
+{
+  "task_dir": "/tmp/cov_structure/structure_openmm_md_rmsf",
+  "generated_at": "2026-11-10T12:26:55.094093+00:00",
+  "n_steps": 1,
+  "total_elapsed": 38.3624,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_openmm_md_rmsf",
+      "elapsed": 38.3624,
+      "inputs": [
+        "structure_1ubq"
+      ],
+      "params": {
+        "chains": "",
+        "platform": "CPU",
+        "report_interval": 25,
+        "steps": 500,
+        "temperature": 300.0,
+        "timestep_fs": 2.0,
+        "residue_dim": "residue",
+        "output": "out_structure_openmm_md_rmsf"
+      },
+      "export_path": "steps/01_structure_openmm_md_rmsf.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122616-c7fcb06962a7",
+  "event_log": "/tmp/cov_structure/structure_openmm_md_rmsf/output/runs/20261110T122616-c7fcb06962a7/events.jsonl"
+}

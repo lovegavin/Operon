@@ -1,0 +1,26 @@
+{
+  "name": "sequence_hydrophobic_moment",
+  "sources": {
+    "x0": {
+      "path": "input/protein.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sequence_hydrophobic_moment",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

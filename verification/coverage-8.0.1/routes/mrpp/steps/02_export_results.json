@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/mrpp/output/artifacts/exports/6b024d903df54692ba4ae030b6f16245/mrpp.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 145,
+  "source": "out_mrpp",
+  "conversion": {}
+}

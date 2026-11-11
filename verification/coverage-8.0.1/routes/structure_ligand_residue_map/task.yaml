@@ -1,0 +1,29 @@
+{
+  "name": "structure_ligand_residue_map on 3PTB",
+  "sources": {
+    "structure": {
+      "path": "input/3ptb.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_ligand_residue_map",
+      "inputs": [
+        "structure"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "contact_map"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

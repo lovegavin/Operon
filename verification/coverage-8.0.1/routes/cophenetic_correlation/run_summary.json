@@ -1,0 +1,42 @@
+{
+  "task_dir": "/tmp/cov_stats/cophenetic_correlation",
+  "generated_at": "2026-11-10T12:43:43.214517+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0024,
+  "steps": [
+    {
+      "index": 1,
+      "name": "cophenetic_correlation",
+      "elapsed": 0.0007,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "node_dim": "node",
+        "field_dim": "field",
+        "sample_dim": "sample",
+        "sample_b_dim": "sample_b",
+        "output": "out_cophenetic_correlation"
+      },
+      "export_path": "steps/01_cophenetic_correlation.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "out_cophenetic_correlation"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "cophenetic_correlation"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124341-173453763f34",
+  "event_log": "/tmp/cov_stats/cophenetic_correlation/output/runs/20261110T124341-173453763f34/events.jsonl"
+}

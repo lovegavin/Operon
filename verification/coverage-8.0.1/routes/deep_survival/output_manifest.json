@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/deep_survival/output/artifacts",
+  "files": [
+    {
+      "path": "exports/cf0fcca01b7a4c28a7d4818d3fc4fcb6/deep_survival.csv",
+      "size": 104,
+      "sha256": "54222faae90749a22159dbf8cdb434c9cc63c8971a0a0b5936b8941ae72c7932"
+    }
+  ]
+}

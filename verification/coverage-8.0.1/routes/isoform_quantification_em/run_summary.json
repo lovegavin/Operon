@@ -1,0 +1,43 @@
+{
+  "task_dir": "/tmp/cov_omics/isoform_quantification_em",
+  "generated_at": "2026-11-10T12:29:06.422955+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0046,
+  "steps": [
+    {
+      "index": 1,
+      "name": "isoform_quantification_em",
+      "elapsed": 0.0025,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "isoform_dim": "isoform",
+        "exon_dim": "exon",
+        "sample_dim": "sample",
+        "max_iter": 200,
+        "tol": 1e-08,
+        "output": "out_isoform_quantification_em"
+      },
+      "export_path": "steps/01_isoform_quantification_em.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0021,
+      "inputs": [
+        "out_isoform_quantification_em"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "isoform_quantification_em"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122905-c584f9787838",
+  "event_log": "/tmp/cov_omics/isoform_quantification_em/output/runs/20261110T122905-c584f9787838/events.jsonl"
+}

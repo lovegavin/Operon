@@ -1,0 +1,24 @@
+{
+  "task_dir": "/tmp/abroutes/antibody_numbering_kabat",
+  "generated_at": "2026-11-10T13:51:09.564233+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0165,
+  "steps": [
+    {
+      "index": 1,
+      "name": "antibody_numbering_kabat",
+      "elapsed": 0.0165,
+      "inputs": [
+        "sequence"
+      ],
+      "params": {
+        "output": "numbering"
+      },
+      "export_path": "steps/01_antibody_numbering_kabat.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T135109-498e67320739",
+  "event_log": "/tmp/abroutes/antibody_numbering_kabat/output/runs/20261110T135109-498e67320739/events.jsonl"
+}

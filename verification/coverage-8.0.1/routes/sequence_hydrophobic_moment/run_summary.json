@@ -1,0 +1,26 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_hydrophobic_moment",
+  "generated_at": "2026-11-10T12:46:01.702461+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0015,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_hydrophobic_moment",
+      "elapsed": 0.0015,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_hydrophobic_moment"
+      },
+      "export_path": "steps/01_sequence_hydrophobic_moment.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124601-5194917e7a9c",
+  "event_log": "/tmp/cov_sequence/sequence_hydrophobic_moment/output/runs/20261110T124601-5194917e7a9c/events.jsonl"
+}

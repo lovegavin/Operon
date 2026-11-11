@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/prodigal_genes/input",
+  "files": [
+    {
+      "path": "genome.fasta",
+      "size": 49203,
+      "sha256": "73c0f1a096ffaf1106ac0da6b6c333649acd6ed25f94ad32099184fcf28d58d2"
+    }
+  ]
+}

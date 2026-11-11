@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/smiles_standardize/output/artifacts/exports/6dc0cee56beb43638fabc61b6f83024e/smiles_standardize.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 176,
+  "source": "out_smiles_standardize",
+  "conversion": {}
+}

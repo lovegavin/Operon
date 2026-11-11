@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/weighted_kappa/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 439,
+      "sha256": "378c0b862f7b5514596304df74d44ab3a9e56c20a8ac9fec6ead2d1a570c64d8"
+    }
+  ]
+}

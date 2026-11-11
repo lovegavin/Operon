@@ -1,0 +1,38 @@
+{
+  "name": "explode",
+  "sources": {
+    "x0": {
+      "path": "input/orfs.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "find_orfs",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "explode",
+      "inputs": [
+        "orfs"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_explode"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/leverage/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1281,
+      "sha256": "393b64ace6faba9ddd7da16eb1b06c5d34b782035627fdc3de9d5d38b9d25839"
+    }
+  ]
+}

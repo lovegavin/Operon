@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/robinson_foulds/input",
+  "files": [
+    {
+      "path": "tree1.nwk",
+      "size": 64,
+      "sha256": "44b446c7a9ecd652460cb344ed1220f7a3ee9f944a154dc0db46acf2d2e44783"
+    },
+    {
+      "path": "tree2.nwk",
+      "size": 64,
+      "sha256": "367341668aec95bf07f076b3b1a3061d17dd12dcf503cb8d694aa0b01086649b"
+    }
+  ]
+}

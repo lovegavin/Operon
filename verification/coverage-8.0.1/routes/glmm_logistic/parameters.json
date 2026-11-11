@@ -1,0 +1,39 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "glmm_logistic",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "feature_dim": "feature",
+        "group_dim": "group",
+        "target_label": "y",
+        "predictor_label": "x",
+        "group_label": "group",
+        "output": "out_glmm_logistic"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_glmm_logistic"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "glmm_logistic"
+      },
+      "context_params": {}
+    }
+  ]
+}

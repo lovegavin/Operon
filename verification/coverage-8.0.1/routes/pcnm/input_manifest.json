@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/pcnm/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 967,
+      "sha256": "be3a9d49408fe3e144d77f001e836928744a9732c90bb1f1d7d4aff54b820baf"
+    }
+  ]
+}

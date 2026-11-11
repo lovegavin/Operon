@@ -1,0 +1,10 @@
+{
+  "n_features": 6,
+  "n_tested": 6,
+  "n_groups": 2,
+  "scores": [
+    1.0,
+    2.0
+  ],
+  "alternative": "two.sided"
+}

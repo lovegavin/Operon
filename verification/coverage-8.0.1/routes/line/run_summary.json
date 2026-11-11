@@ -1,0 +1,59 @@
+{
+  "task_dir": "/tmp/cov_sequence/line",
+  "generated_at": "2026-11-10T12:47:31.677082+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.2537,
+  "steps": [
+    {
+      "index": 1,
+      "name": "line",
+      "elapsed": 0.2537,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "dim": "feature",
+        "x_label": "x",
+        "y_label": "y",
+        "filename": "line.png"
+      },
+      "export_path": "steps/01_line.json",
+      "figures": [
+        {
+          "id": "figure-68d5d5d78ce918ec",
+          "title": "line-2",
+          "format": "png",
+          "path": "/tmp/cov_sequence/line/output/figures/line-2.png",
+          "filename": "line-2.png",
+          "width_mm": 152.39999999999998,
+          "height_mm": 101.6,
+          "dpi": 300
+        },
+        {
+          "id": "figure-68d5d5d78ce918ec",
+          "title": "line-2",
+          "format": "pdf",
+          "path": "/tmp/cov_sequence/line/output/figures/line-2.pdf",
+          "filename": "line-2.pdf",
+          "width_mm": 152.39999999999998,
+          "height_mm": 101.6,
+          "dpi": 300
+        },
+        {
+          "id": "figure-68d5d5d78ce918ec",
+          "title": "line-2",
+          "format": "svg",
+          "path": "/tmp/cov_sequence/line/output/figures/line-2.svg",
+          "filename": "line-2.svg",
+          "width_mm": 152.39999999999998,
+          "height_mm": 101.6,
+          "dpi": 300
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124730-6ad7d78ed2c9",
+  "event_log": "/tmp/cov_sequence/line/output/runs/20261110T124730-6ad7d78ed2c9/events.jsonl"
+}

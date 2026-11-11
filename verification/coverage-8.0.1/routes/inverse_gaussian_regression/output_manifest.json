@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/inverse_gaussian_regression/output/artifacts",
+  "files": [
+    {
+      "path": "exports/51989b35acb447aa8096c119c1beb81a/inverse_gaussian_regression.csv",
+      "size": 457,
+      "sha256": "e199016a4630524bc969aaecf22bbb1052a173ac3e7de64674f9591e9f1382f2"
+    },
+    {
+      "path": "exports/da91d4886a1e4feda86af39664d61eb5/inverse_gaussian_regression.csv",
+      "size": 457,
+      "sha256": "e199016a4630524bc969aaecf22bbb1052a173ac3e7de64674f9591e9f1382f2"
+    }
+  ]
+}

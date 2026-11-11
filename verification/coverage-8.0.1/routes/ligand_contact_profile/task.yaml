@@ -1,0 +1,29 @@
+{
+  "name": "ligand_contact_profile",
+  "sources": {
+    "structure": {
+      "path": "input/3ptb.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "ligand_contact_profile",
+      "inputs": [
+        "structure"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "contacts"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

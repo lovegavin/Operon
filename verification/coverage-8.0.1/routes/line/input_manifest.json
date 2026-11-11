@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/line/input",
+  "files": [
+    {
+      "path": "plot.csv",
+      "size": 87,
+      "sha256": "14a3a746e98d638690389146ec60d0419002691ca76460d92c9e62facbcc3546"
+    }
+  ]
+}

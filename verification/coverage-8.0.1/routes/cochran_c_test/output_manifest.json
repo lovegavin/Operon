@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/cochran_c_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/9d52fab2a43043a79976bbbdeadefbb2/cochran_c_test.csv",
+      "size": 110,
+      "sha256": "8724d56e6c6af224e7bef0f70e617969f9ae92d3fbb2ad78c1f24289e4fd1513"
+    },
+    {
+      "path": "exports/c8dbd5dc61184e319403ffa57494beac/cochran_c_test.csv",
+      "size": 110,
+      "sha256": "8724d56e6c6af224e7bef0f70e617969f9ae92d3fbb2ad78c1f24289e4fd1513"
+    }
+  ]
+}

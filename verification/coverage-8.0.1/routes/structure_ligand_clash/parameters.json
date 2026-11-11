@@ -1,0 +1,34 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure": {}
+  },
+  "steps": [
+    {
+      "name": "structure_ligand_clash",
+      "inputs": [
+        "structure"
+      ],
+      "params": {
+        "ligand_resnames": "BEN",
+        "tolerance": 0.4,
+        "clash_scale": 0.8,
+        "output": "clashes"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "clashes"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "clashes"
+      },
+      "context_params": {}
+    }
+  ]
+}

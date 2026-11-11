@@ -1,0 +1,34 @@
+{
+  "name": "calibration_curve",
+  "sources": {
+    "x0": {
+      "path": "input/predict.csv",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "calibration_curve",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_calibration_curve"
+      ]
+    }
+  ]
+}

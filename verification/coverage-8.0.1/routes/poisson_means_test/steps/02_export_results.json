@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/poisson_means_test/output/artifacts/exports/d924738fb32d41238f2a014050363282/poisson_means_test.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 690,
+  "source": "out_poisson_means_test",
+  "conversion": {}
+}

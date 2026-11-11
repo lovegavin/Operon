@@ -7,6 +7,7 @@ from src.core import Form
 from src.task.step.base import Step
 
 from ._b91_common import embed, row_names, strings
+from ._native_results import output_directory, remember_native, result_file
 
 
 class NucleotideTransformerEmbeddingStep(Step):
@@ -24,4 +25,20 @@ class NucleotideTransformerEmbeddingStep(Step):
             dim0: {name: i for i, name in enumerate(row_names(form))},
             "embedding": {str(i): i for i in range(mat.shape[1])},
         }
-        ctx[params["output"]] = Form(mat, dims=[dim0, "embedding"], labels=labels, info={"model": "InstaDeepAI/nucleotide-transformer-v2-50m-multi-species"})
+        out_name = params["output"]
+        ctx[out_name] = Form(mat, dims=[dim0, "embedding"], labels=labels, info={"model": "InstaDeepAI/nucleotide-transformer-v2-50m-multi-species"})
+        names = row_names(form)
+        path = output_directory(ctx, "nucleotide_transformer_embedding") / "embeddings.csv"
+        lines = ["sequence," + ",".join(f"embedding_{i}" for i in range(mat.shape[1]))]
+        for name, row in zip(names, mat):
+            lines.append(str(name) + "," + ",".join(f"{float(v):.6g}" for v in row))
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        result_files = [result_file("embeddings", path, "csv", "Nucleotide Transformer embeddings")]
+        remember_native(ctx, out_name, result_files)
+        self._result_files = result_files
+        self._export_data = {"shape": [int(mat.shape[0]), int(mat.shape[1])], "model": "InstaDeepAI/nucleotide-transformer-v2-50m-multi-species"}
+
+    def export(self, ctx):
+        data = dict(getattr(self, "_export_data", {}))
+        data["result_files"] = getattr(self, "_result_files", [])
+        return data

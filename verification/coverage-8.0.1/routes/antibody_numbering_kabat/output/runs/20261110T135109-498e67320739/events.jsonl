@@ -1,0 +1,7 @@
+{"message": "Loading the analysis engine", "time": "2026-11-10T13:51:09.188035+00:00", "event": "worker_started"}
+{"run_id": "20261110T135109-498e67320739", "memory_enabled": false, "time": "2026-11-10T13:51:09.311391+00:00", "event": "run_started"}
+{"name": "sequence", "shape": [1, 132], "dims": ["sequence", "position"], "time": "2026-11-10T13:51:09.486143+00:00", "event": "source_loaded"}
+{"name": "antibody_numbering_kabat", "index": 1, "time": "2026-11-10T13:51:09.486426+00:00", "event": "step_started"}
+{"name": "antibody_numbering_kabat", "inputs": 1, "outputs": ["numbering"], "contract_version": 1, "time": "2026-11-10T13:51:09.564171+00:00", "event": "contract_checked"}
+{"name": "antibody_numbering_kabat", "index": 1, "seconds": 0.016532391993678175, "time": "2026-11-10T13:51:09.564208+00:00", "event": "step_finished"}
+{"status": "complete", "error": null, "time": "2026-11-10T13:51:09.564225+00:00", "event": "run_finished"}

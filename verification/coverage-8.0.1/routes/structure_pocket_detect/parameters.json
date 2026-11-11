@@ -1,0 +1,22 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure": {}
+  },
+  "steps": [
+    {
+      "name": "structure_pocket_detect",
+      "inputs": [
+        "structure"
+      ],
+      "params": {
+        "fpocket_path": "/home/gavin/tools/fpocket/bin/fpocket",
+        "timeout_seconds": 600,
+        "output": "out_structure_pocket_detect"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "result_files": [],
+  "output": "out_mlst_typing",
+  "dims": [
+    "isolate",
+    "statistic"
+  ],
+  "rows": 6,
+  "columns": [
+    "st_code",
+    "n_loci"
+  ]
+}

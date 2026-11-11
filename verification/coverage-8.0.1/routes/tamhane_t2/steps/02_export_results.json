@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/tamhane_t2/output/artifacts/exports/ab98acdc190b43fb9b232e14a909a169/tamhane_t2.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 844,
+  "source": "out_tamhane_t2",
+  "conversion": {}
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_mltab/rdkit_fragment_overlap/output/artifacts",
+  "files": [
+    {
+      "path": "exports/2a33594c877b43b8a00914a7074ee6eb/rdkit_fragment_overlap.csv",
+      "size": 110,
+      "sha256": "4fb7dff37af1ba3758e95c69ae688ee1e6dc55ed7315d951e508056fb48e82da"
+    },
+    {
+      "path": "exports/53f0958134a7482da7be39391fef93a9/rdkit_fragment_overlap.csv",
+      "size": 134,
+      "sha256": "bb3a730d5c15a1b71ad9049778b9b3ac7b3cb09b6bf1b8059421e8a4e3bc3143"
+    }
+  ]
+}

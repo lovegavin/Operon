@@ -1,0 +1,38 @@
+{
+  "task_dir": "/tmp/cov_stats/envfit",
+  "generated_at": "2026-11-10T12:43:43.144264+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0022,
+  "steps": [
+    {
+      "index": 1,
+      "name": "envfit",
+      "elapsed": 0.0007,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "output": "out_envfit"
+      },
+      "export_path": "steps/01_envfit.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0015,
+      "inputs": [
+        "out_envfit"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "envfit"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124341-e1ca96224dda",
+  "event_log": "/tmp/cov_stats/envfit/output/runs/20261110T124341-e1ca96224dda/events.jsonl"
+}

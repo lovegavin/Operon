@@ -1,0 +1,41 @@
+{
+  "task_dir": "/tmp/cov_omics/gc_skew_profile",
+  "generated_at": "2026-11-10T12:29:13.727178+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0031,
+  "steps": [
+    {
+      "index": 1,
+      "name": "gc_skew_profile",
+      "elapsed": 0.0004,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "window_size": 100,
+        "step_size": 50,
+        "output": "out_gc_skew_profile"
+      },
+      "export_path": "steps/01_gc_skew_profile.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0027,
+      "inputs": [
+        "out_gc_skew_profile"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "gc_skew_profile"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122913-1b75531e5877",
+  "event_log": "/tmp/cov_omics/gc_skew_profile/output/runs/20261110T122913-1b75531e5877/events.jsonl"
+}

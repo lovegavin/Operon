@@ -1,0 +1,38 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "isoform_quantification_em",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "isoform_dim": "isoform",
+        "exon_dim": "exon",
+        "sample_dim": "sample",
+        "max_iter": 200,
+        "tol": 1e-08,
+        "output": "out_isoform_quantification_em"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_isoform_quantification_em"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "isoform_quantification_em"
+      },
+      "context_params": {}
+    }
+  ]
+}

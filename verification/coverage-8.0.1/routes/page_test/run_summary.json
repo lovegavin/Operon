@@ -1,0 +1,37 @@
+{
+  "task_dir": "/tmp/cov_stats/page_test",
+  "generated_at": "2026-11-10T12:43:53.042972+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0021,
+  "steps": [
+    {
+      "index": 1,
+      "name": "page_test",
+      "elapsed": 0.0008,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "output": "out_page_test"
+      },
+      "export_path": "steps/01_page_test.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0013,
+      "inputs": [
+        "out_page_test"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "page_test"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124351-38f770e7f789",
+  "event_log": "/tmp/cov_stats/page_test/output/runs/20261110T124351-38f770e7f789/events.jsonl"
+}

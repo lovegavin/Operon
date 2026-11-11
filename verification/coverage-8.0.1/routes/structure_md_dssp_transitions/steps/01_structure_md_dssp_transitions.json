@@ -1,0 +1,11 @@
+{
+  "n_frames": 26,
+  "n_residues": 554,
+  "lag_frames": 1,
+  "total_transitions": 393,
+  "dominant_classes": {
+    "helix": 122,
+    "strand": 139,
+    "coil": 293
+  }
+}

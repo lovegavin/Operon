@@ -1,0 +1,28 @@
+{
+  "task_dir": "/tmp/cov_sequence/assembly_stats",
+  "generated_at": "2026-11-10T12:46:24.539591+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.3378,
+  "steps": [
+    {
+      "index": 1,
+      "name": "assembly_stats",
+      "elapsed": 0.3378,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "quast_path": "/home/gavin/miniconda3/envs/assembly/bin/quast.py",
+        "threads": 2,
+        "min_contig": 0,
+        "timeout_seconds": 600,
+        "output": "out_assembly_stats"
+      },
+      "export_path": "steps/01_assembly_stats.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124623-8ea273eb81ee",
+  "event_log": "/tmp/cov_sequence/assembly_stats/output/runs/20261110T124623-8ea273eb81ee/events.jsonl"
+}

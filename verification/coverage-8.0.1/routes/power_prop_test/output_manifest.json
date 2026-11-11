@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/power_prop_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/1ab8691949b941de9544a4530972192d/power_prop_test.csv",
+      "size": 129,
+      "sha256": "9a0f78e5d9e107b842c6ca759c0b228a96af75c684839beb16b8489d4f74d002"
+    },
+    {
+      "path": "exports/51af87ec796b4410aa2f322c1754d9f7/power_prop_test.csv",
+      "size": 129,
+      "sha256": "9a0f78e5d9e107b842c6ca759c0b228a96af75c684839beb16b8489d4f74d002"
+    }
+  ]
+}

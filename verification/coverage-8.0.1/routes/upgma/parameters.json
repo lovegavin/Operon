@@ -1,0 +1,35 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "upgma",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "taxon_dim": "taxon",
+        "taxon_b_dim": "taxon_b",
+        "node_dim": "node",
+        "field_dim": "field",
+        "output": "out_upgma"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_upgma"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "upgma"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "find_orfs",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "min_aa": 20,
+        "output": "orfs"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "explode",
+      "inputs": [
+        "orfs"
+      ],
+      "params": {
+        "dim": "orf",
+        "field": "sequence",
+        "sep": ";",
+        "keep_empty": true,
+        "output": "out_explode"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_explode"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "out_explode"
+      },
+      "context_params": {}
+    }
+  ]
+}

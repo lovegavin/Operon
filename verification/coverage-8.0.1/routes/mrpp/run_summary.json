@@ -1,0 +1,45 @@
+{
+  "task_dir": "/tmp/cov_omics/mrpp",
+  "generated_at": "2026-11-10T12:22:58.779833+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0064,
+  "steps": [
+    {
+      "index": 1,
+      "name": "mrpp",
+      "elapsed": 0.0047,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "taxon_dim": "feature",
+        "group_dim": "sample",
+        "group_label": "group",
+        "distance": "euclidean",
+        "n_perm": 99,
+        "random_state": 0,
+        "output": "out_mrpp"
+      },
+      "export_path": "steps/01_mrpp.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "out_mrpp"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "mrpp"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122257-070d5f8845b5",
+  "event_log": "/tmp/cov_omics/mrpp/output/runs/20261110T122257-070d5f8845b5/events.jsonl"
+}

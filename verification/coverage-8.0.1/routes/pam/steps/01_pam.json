@@ -1,0 +1,18 @@
+{
+  "n_clusters": 3,
+  "n_samples": 27,
+  "medoids": [
+    8,
+    4,
+    0
+  ],
+  "medoid_labels": [
+    "s8",
+    "s4",
+    "s0"
+  ],
+  "objective": 0.5953044020224101,
+  "build_objective": 0.6844163684268624,
+  "iterations": 1,
+  "total_distance": 16.073218854605074
+}

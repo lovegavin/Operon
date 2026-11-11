@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/site_frequency_spectrum/output/artifacts",
+  "files": [
+    {
+      "path": "exports/f7153f8aeb0a489ca309dcba90be4b87/site_frequency_spectrum.csv",
+      "size": 289,
+      "sha256": "08f8a376aa614e45c1014520504c8090764d7735b90b0cf8f598456788ec36d2"
+    },
+    {
+      "path": "exports/fde7b065c80f434091081a6744fbafcc/site_frequency_spectrum.csv",
+      "size": 289,
+      "sha256": "08f8a376aa614e45c1014520504c8090764d7735b90b0cf8f598456788ec36d2"
+    }
+  ]
+}

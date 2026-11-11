@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "storey_qvalue",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "value_dim": "pvalue",
+        "lambda": 0.5,
+        "output": "out_storey_qvalue"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_storey_qvalue"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "storey_qvalue"
+      },
+      "context_params": {}
+    }
+  ]
+}

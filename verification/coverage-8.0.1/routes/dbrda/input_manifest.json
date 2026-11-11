@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/dbrda/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 178,
+      "sha256": "66ed4bb2486d11dba7805c0083265d8fd7d8638369c52717b9e9c27fd34917eb"
+    },
+    {
+      "path": "x1.csv",
+      "size": 194,
+      "sha256": "5287cb9be35d4f474765244b6da62726da1ad0f296c3d47300d48ac860d27405"
+    }
+  ]
+}

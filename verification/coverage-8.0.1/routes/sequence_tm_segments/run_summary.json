@@ -1,0 +1,29 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_tm_segments",
+  "generated_at": "2026-11-10T12:46:13.021091+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0002,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_tm_segments",
+      "elapsed": 0.0002,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_tm_segments",
+        "window": 19,
+        "threshold": 1.6,
+        "min_length": 12
+      },
+      "export_path": "steps/01_sequence_tm_segments.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124612-6d45dcad143d",
+  "event_log": "/tmp/cov_sequence/sequence_tm_segments/output/runs/20261110T124612-6d45dcad143d/events.jsonl"
+}

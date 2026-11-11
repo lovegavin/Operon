@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/fst/output/artifacts/exports/cb3f31e00c7b48b1a513e2d5890479df/fst.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 467,
+  "source": "out_fst",
+  "conversion": {}
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/seasonal_decompose/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 836,
+      "sha256": "becfdf7fe9da8f3476686407dbdd26d229d4e1fe12eff01639127c7964dc879f"
+    }
+  ]
+}

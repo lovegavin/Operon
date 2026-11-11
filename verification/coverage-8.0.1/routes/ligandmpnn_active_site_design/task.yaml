@@ -1,0 +1,17 @@
+{
+  "name": "ligandmpnn_active_site_design",
+  "sources": {},
+  "steps": [
+    {
+      "name": "ligandmpnn_active_site_design",
+      "inputs": []
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "designs"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

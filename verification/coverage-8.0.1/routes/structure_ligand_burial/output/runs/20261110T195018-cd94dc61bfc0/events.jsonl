@@ -1,0 +1,10 @@
+{"message": "Loading the analysis engine", "time": "2026-11-10T19:50:18.831966+00:00", "event": "worker_started"}
+{"run_id": "20261110T195018-cd94dc61bfc0", "memory_enabled": false, "time": "2026-11-10T19:50:18.951008+00:00", "event": "run_started"}
+{"name": "structure", "shape": [1701, 12], "dims": ["atom", "field"], "time": "2026-11-10T19:50:19.335893+00:00", "event": "source_loaded"}
+{"name": "structure_ligand_burial", "index": 1, "time": "2026-11-10T19:50:19.336896+00:00", "event": "step_started"}
+{"name": "structure_ligand_burial", "inputs": 1, "outputs": ["burial"], "contract_version": 1, "time": "2026-11-10T19:50:20.141646+00:00", "event": "contract_checked"}
+{"name": "structure_ligand_burial", "index": 1, "seconds": 0.7389585790078854, "time": "2026-11-10T19:50:20.141708+00:00", "event": "step_finished"}
+{"name": "export_results", "index": 2, "time": "2026-11-10T19:50:20.141763+00:00", "event": "step_started"}
+{"name": "export_results", "inputs": 1, "outputs": ["export_results"], "contract_version": 1, "time": "2026-11-10T19:50:20.199167+00:00", "event": "contract_checked"}
+{"name": "export_results", "index": 2, "seconds": 0.0017173820087919012, "time": "2026-11-10T19:50:20.199202+00:00", "event": "step_finished"}
+{"status": "complete", "error": null, "time": "2026-11-10T19:50:20.199217+00:00", "event": "run_finished"}

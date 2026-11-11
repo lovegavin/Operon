@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/abroutes/antibody_cdr_hydrophobicity
+generated : 2026-11-10T13:51:09.098723+00:00
+steps     : 1
+elapsed   : 0.036s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   antibody_cdr_hydrophobicity    0.036s   steps/01_antibody_cdr_hydrophobicity.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

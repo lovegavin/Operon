@@ -1,0 +1,31 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "power_prop_test",
+      "inputs": [],
+      "params": {
+        "p1": 0.5,
+        "p2": 0.7,
+        "nobs1": 50,
+        "nobs2": 50,
+        "output": "out_power_prop_test"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_power_prop_test"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "power_prop_test"
+      },
+      "context_params": {}
+    }
+  ]
+}

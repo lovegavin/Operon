@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/ligand_routes/ligandmpnn_active_site_design/output/artifacts/exports/58d61a5c944346909490e600aaa3b78b/designs.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 177,
+  "source": "designs",
+  "conversion": {}
+}

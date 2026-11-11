@@ -1,0 +1,11 @@
+{
+  "name": "foldseek_align",
+  "sources": {},
+  "steps": [
+    {
+      "name": "foldseek_align",
+      "inputs": []
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

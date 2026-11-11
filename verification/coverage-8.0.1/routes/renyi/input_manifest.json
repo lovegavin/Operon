@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/renyi/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 161,
+      "sha256": "181f45b239ece2e9d72d33684893237434f348213a37f860cf4a60e542a5b9ae"
+    }
+  ]
+}

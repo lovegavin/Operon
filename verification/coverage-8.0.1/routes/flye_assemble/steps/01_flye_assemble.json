@@ -1,0 +1,17 @@
+{
+  "output": "out_flye_assemble",
+  "result_files": [
+    {
+      "id": "assembly",
+      "path": "/tmp/cov_sequence/flye_assemble/output/artifacts/flye/07a7434794484362bf1a1f21575ead74/assembly.fasta",
+      "filename": "assembly.fasta",
+      "format": "fasta",
+      "title": "Flye assembly",
+      "bytes": 48977
+    }
+  ],
+  "n_contigs": 1,
+  "total_length": 48280,
+  "n50": 48280,
+  "l50": 1
+}

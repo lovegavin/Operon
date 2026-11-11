@@ -1,0 +1,17 @@
+{
+  "method": "linear_model",
+  "batch_label": "batch",
+  "batches": [
+    "A",
+    "B"
+  ],
+  "batch_sizes": {
+    "A": 4,
+    "B": 4
+  },
+  "covariates": {
+    "response": "numeric"
+  },
+  "n_features": 6,
+  "n_samples": 8
+}

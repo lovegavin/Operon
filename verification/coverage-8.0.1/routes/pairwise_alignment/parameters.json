@@ -1,0 +1,38 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "pairwise_alignment",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "mode": "global",
+        "match": 2,
+        "mismatch": -1,
+        "gap_open": -2,
+        "gap_extend": -1,
+        "output": "out_pairwise_alignment"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_pairwise_alignment"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "pairwise_alignment"
+      },
+      "context_params": {}
+    }
+  ]
+}

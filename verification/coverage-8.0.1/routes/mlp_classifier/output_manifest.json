@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/mlp_classifier/output/artifacts",
+  "files": [
+    {
+      "path": "exports/02f3f6c7d98d4712b91f7f2afe157c00/mlp_classifier.csv",
+      "size": 79,
+      "sha256": "7293b045fe0abd92ba547b5263156f6839993507f66441594449b19fcb4961a9"
+    }
+  ]
+}

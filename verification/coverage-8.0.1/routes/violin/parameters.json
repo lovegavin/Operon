@@ -1,0 +1,25 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "violin",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "value_label": "g1",
+        "group_dim": "sample",
+        "group_label": "batch",
+        "filename": "violin.png"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "result_files": [],
+  "output": "out_genomic_selection_rrblup",
+  "dims": [
+    "individual",
+    "statistic"
+  ],
+  "rows": 24,
+  "columns": [
+    "observed",
+    "predicted",
+    "residual"
+  ]
+}

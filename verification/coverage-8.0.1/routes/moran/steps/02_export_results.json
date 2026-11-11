@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/moran/output/artifacts/exports/efb516b6faab4ac2b57622a552033934/moran.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 147,
+  "source": "out_moran",
+  "conversion": {}
+}

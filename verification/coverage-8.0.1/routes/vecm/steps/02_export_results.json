@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/vecm/output/artifacts/exports/0bcfd926ff914821947281dc31a80ef4/vecm.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 360,
+  "source": "out_vecm",
+  "conversion": {}
+}

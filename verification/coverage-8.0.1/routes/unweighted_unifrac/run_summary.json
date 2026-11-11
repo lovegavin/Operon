@@ -1,0 +1,42 @@
+{
+  "task_dir": "/tmp/cov_omics/unweighted_unifrac",
+  "generated_at": "2026-11-10T12:23:52.994917+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0026,
+  "steps": [
+    {
+      "index": 1,
+      "name": "unweighted_unifrac",
+      "elapsed": 0.0008,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "taxon_dim": "feature",
+        "node_dim": "node",
+        "field_dim": "field",
+        "output": "out_unweighted_unifrac"
+      },
+      "export_path": "steps/01_unweighted_unifrac.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0018,
+      "inputs": [
+        "out_unweighted_unifrac"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "unweighted_unifrac"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122351-00b49e618deb",
+  "event_log": "/tmp/cov_omics/unweighted_unifrac/output/runs/20261110T122351-00b49e618deb/events.jsonl"
+}

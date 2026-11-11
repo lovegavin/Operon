@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/mahalanobis_distance/output/artifacts/exports/5b211e65deed4a4aa7f38277384fbbe5/mahalanobis_distance.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1713,
+  "source": "out_mahalanobis_distance",
+  "conversion": {}
+}

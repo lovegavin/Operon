@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/redundancy_analysis/output/artifacts",
+  "files": [
+    {
+      "path": "exports/06013acc0fc84fbea5a4830ee66b8209/redundancy_analysis.csv",
+      "size": 171,
+      "sha256": "772e0b662b5d7ddbb2b428c68e1a477eda23973a27fd3f9ca3fc6b68f4212022"
+    },
+    {
+      "path": "exports/c556756294334195941b4ae697881aa6/redundancy_analysis.csv",
+      "size": 171,
+      "sha256": "772e0b662b5d7ddbb2b428c68e1a477eda23973a27fd3f9ca3fc6b68f4212022"
+    }
+  ]
+}

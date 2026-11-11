@@ -1,0 +1,41 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "tsallis",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "taxon_dim": "feature",
+        "scales": [
+          0,
+          0.5,
+          1,
+          2
+        ],
+        "norm": false,
+        "hill": false,
+        "output": "out_tsallis"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_tsallis"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "tsallis"
+      },
+      "context_params": {}
+    }
+  ]
+}

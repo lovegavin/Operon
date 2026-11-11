@@ -1,0 +1,44 @@
+{
+  "task_dir": "/tmp/cov_mltab/normalizing_flow_density",
+  "generated_at": "2026-11-10T12:25:34.833368+00:00",
+  "n_steps": 2,
+  "total_elapsed": 2.9845,
+  "steps": [
+    {
+      "index": 1,
+      "name": "normalizing_flow_density",
+      "elapsed": 2.982,
+      "inputs": [
+        "flow"
+      ],
+      "params": {
+        "output": "out_normalizing_flow_density",
+        "row_dim": "row",
+        "field_dim": "field",
+        "layers": 2,
+        "hidden": 8,
+        "epochs": 100,
+        "learning_rate": 0.05,
+        "seed": 0
+      },
+      "export_path": "steps/01_normalizing_flow_density.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0025,
+      "inputs": [
+        "out_normalizing_flow_density"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "normalizing_flow_density"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122530-7a7eaa748ef9",
+  "event_log": "/tmp/cov_mltab/normalizing_flow_density/output/runs/20261110T122530-7a7eaa748ef9/events.jsonl"
+}

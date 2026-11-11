@@ -1,0 +1,27 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_rna_cofold_ensemble",
+  "generated_at": "2026-11-10T12:46:08.535123+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0147,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_rna_cofold_ensemble",
+      "elapsed": 0.0147,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_rna_cofold_ensemble",
+        "temperature": 37.0
+      },
+      "export_path": "steps/01_sequence_rna_cofold_ensemble.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124607-8340934ecba4",
+  "event_log": "/tmp/cov_sequence/sequence_rna_cofold_ensemble/output/runs/20261110T124607-8340934ecba4/events.jsonl"
+}

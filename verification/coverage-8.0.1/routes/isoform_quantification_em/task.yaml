@@ -1,0 +1,49 @@
+{
+  "name": "isoform_quantification_em",
+  "sources": {
+    "x0": {
+      "path": "input/compat.csv",
+      "dims": [
+        "isoform",
+        "exon"
+      ],
+      "labels": {
+        "isoform": {
+          "exon": 0
+        },
+        "exon": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/counts.csv",
+      "dims": [
+        "exon",
+        "sample"
+      ],
+      "labels": {
+        "exon": {
+          "sample": 0
+        },
+        "sample": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "isoform_quantification_em",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_isoform_quantification_em"
+      ]
+    }
+  ]
+}

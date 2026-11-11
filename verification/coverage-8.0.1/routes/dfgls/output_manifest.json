@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/dfgls/output/artifacts",
+  "files": [
+    {
+      "path": "exports/77b17595577540c3b794e427a11b6111/dfgls.csv",
+      "size": 217,
+      "sha256": "3b443dbbb4386c3f2c29754d2d278cd77a8d68e8da1e0105323df7c73bf2490c"
+    },
+    {
+      "path": "exports/e27a16f5d61b41ee8232e3c6629f9ffd/dfgls.csv",
+      "size": 217,
+      "sha256": "3b443dbbb4386c3f2c29754d2d278cd77a8d68e8da1e0105323df7c73bf2490c"
+    }
+  ]
+}

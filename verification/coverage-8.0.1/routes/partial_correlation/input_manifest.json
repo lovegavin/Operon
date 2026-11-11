@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/cov_stats/partial_correlation/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 276,
+      "sha256": "e9eec5151f4b3160f07f76473203ba47cca40cab6aab1ad340d7009a8ad11b50"
+    },
+    {
+      "path": "x1.csv",
+      "size": 281,
+      "sha256": "adc55ec8fd23510c122dd86d8f6bb3ac394ede8a3a1e70e18081d61cae2a3612"
+    },
+    {
+      "path": "x2.csv",
+      "size": 161,
+      "sha256": "4295693905886df1c69ea4b3539a0b3d63e9dcf131d6fe7f066131595a7927f9"
+    }
+  ]
+}

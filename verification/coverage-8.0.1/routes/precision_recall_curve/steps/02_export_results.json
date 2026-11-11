@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/precision_recall_curve/output/artifacts/exports/f6d89d8b72c64611bec354dcc8c3b1d1/precision_recall_curve.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1884,
+  "source": "out_precision_recall_curve",
+  "conversion": {}
+}

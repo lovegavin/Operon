@@ -1,0 +1,34 @@
+{
+  "name": "cohens_kappa",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "rater_a",
+        "rater_b"
+      ],
+      "labels": {
+        "rater_a": {
+          "rater_b": 0
+        },
+        "rater_b": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "cohens_kappa",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_cohens_kappa"
+      ]
+    }
+  ]
+}

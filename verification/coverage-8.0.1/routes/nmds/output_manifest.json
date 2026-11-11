@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/nmds/output/artifacts",
+  "files": [
+    {
+      "path": "exports/08d8b28fca154777b4358db184487d07/nmds.csv",
+      "size": 553,
+      "sha256": "e2ef3d609a72f4e1eb241a2ab13acd383a93c1ac533431aa74e678ad1c5e40fc"
+    },
+    {
+      "path": "exports/c44a610b9de0491a9f8fc90474d4357f/nmds.csv",
+      "size": 553,
+      "sha256": "e2ef3d609a72f4e1eb241a2ab13acd383a93c1ac533431aa74e678ad1c5e40fc"
+    }
+  ]
+}

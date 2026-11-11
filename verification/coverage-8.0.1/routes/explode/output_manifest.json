@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/cov_sequence/explode/output/artifacts",
+  "files": [
+    {
+      "path": "exports/4f61237d42f44abaa8fdafc778a1917f/out_explode.csv",
+      "size": 187,
+      "sha256": "c98ca0b02b199569b8af3986e9f27573bfb16c0aa8d3c83d8115bbc174bbbda1"
+    },
+    {
+      "path": "exports/b728535f12be4394838a702c3d62165c/out_explode.csv",
+      "size": 187,
+      "sha256": "c98ca0b02b199569b8af3986e9f27573bfb16c0aa8d3c83d8115bbc174bbbda1"
+    },
+    {
+      "path": "exports/caf6019899924aa2a9b855cb94507b80/out_explode.csv",
+      "size": 187,
+      "sha256": "c98ca0b02b199569b8af3986e9f27573bfb16c0aa8d3c83d8115bbc174bbbda1"
+    }
+  ]
+}

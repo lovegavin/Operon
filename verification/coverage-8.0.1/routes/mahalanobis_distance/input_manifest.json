@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/mahalanobis_distance/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1655,
+      "sha256": "fc11416d0e55e3caec73535220e4d9e17c2496e4ed5eb578c8d0036625c7826b"
+    }
+  ]
+}

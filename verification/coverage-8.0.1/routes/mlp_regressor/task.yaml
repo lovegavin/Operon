@@ -1,0 +1,34 @@
+{
+  "name": "mlp_regressor",
+  "sources": {
+    "reg": {
+      "path": "input/reg.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "mlp_regressor",
+      "inputs": [
+        "reg"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_mlp_regressor"
+      ]
+    }
+  ]
+}

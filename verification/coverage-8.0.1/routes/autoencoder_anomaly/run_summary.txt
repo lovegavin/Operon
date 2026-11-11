@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_mltab/autoencoder_anomaly
+generated : 2026-11-10T12:25:05.920921+00:00
+steps     : 2
+elapsed   : 2.649s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   autoencoder_anomaly     2.647s   steps/01_autoencoder_anomaly.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

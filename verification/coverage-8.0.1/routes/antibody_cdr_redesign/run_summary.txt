@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/ligand_routes/antibody_cdr_redesign
+generated : 2026-11-10T20:11:14.908169+00:00
+steps     : 2
+elapsed   : 6.524s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   antibody_cdr_redesign    6.522s   steps/01_antibody_cdr_redesign.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

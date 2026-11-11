@@ -1,0 +1,40 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "mrpp",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "taxon_dim": "feature",
+        "group_dim": "sample",
+        "group_label": "group",
+        "distance": "euclidean",
+        "n_perm": 99,
+        "random_state": 0,
+        "output": "out_mrpp"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_mrpp"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "mrpp"
+      },
+      "context_params": {}
+    }
+  ]
+}

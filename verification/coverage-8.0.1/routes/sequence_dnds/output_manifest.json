@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_sequence/sequence_dnds/output/artifacts",
+  "files": [
+    {
+      "path": "exports/160e1940062d4f0baeecc165d0f7f3f3/out_sequence_dnds.csv",
+      "size": 560,
+      "sha256": "546682b43c26f92dab5148cc88c492f65a83464157b12a91548b6b41d000740a"
+    },
+    {
+      "path": "exports/316e109d47fc409f9a0ad60f87aece63/out_sequence_dnds.csv",
+      "size": 560,
+      "sha256": "546682b43c26f92dab5148cc88c492f65a83464157b12a91548b6b41d000740a"
+    }
+  ]
+}

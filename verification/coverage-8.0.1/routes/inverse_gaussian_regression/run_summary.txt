@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_stats/inverse_gaussian_regression
+generated : 2026-11-10T12:43:46.935396+00:00
+steps     : 2
+elapsed   : 1.339s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   inverse_gaussian_regression    1.337s   steps/01_inverse_gaussian_regression.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

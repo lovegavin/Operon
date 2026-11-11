@@ -1,0 +1,26 @@
+{
+  "name": "flye_assemble",
+  "sources": {
+    "x0": {
+      "path": "input/reads.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "flye_assemble",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

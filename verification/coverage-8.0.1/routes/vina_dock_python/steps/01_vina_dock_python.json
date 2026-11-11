@@ -1,0 +1,115 @@
+{
+  "poses": [
+    {
+      "pose": "pose1",
+      "total": -4.844,
+      "terms": [
+        -4.844,
+        -4.844,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "pose2",
+      "total": -4.565,
+      "terms": [
+        -4.565,
+        -4.565,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "pose3",
+      "total": -4.518,
+      "terms": [
+        -4.518,
+        -4.518,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "pose4",
+      "total": -4.095,
+      "terms": [
+        -4.095,
+        -4.095,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "pose5",
+      "total": -4.005,
+      "terms": [
+        -4.005,
+        -4.005,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "pose6",
+      "total": -3.835,
+      "terms": [
+        -3.835,
+        -3.835,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "pose7",
+      "total": -3.596,
+      "terms": [
+        -3.596,
+        -3.596,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "pose8",
+      "total": -3.388,
+      "terms": [
+        -3.388,
+        -3.388,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "pose": "pose9",
+      "total": -3.135,
+      "terms": [
+        -3.135,
+        -3.135,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ],
+  "best_affinity": -4.844,
+  "pose_file": "/tmp/cov_structure/vina_dock_python/output/artifacts/vina/7103d3c43d91445ab595072fe08fe272/poses.pdbqt",
+  "result_files": [
+    {
+      "id": "poses",
+      "path": "/tmp/cov_structure/vina_dock_python/output/artifacts/vina/7103d3c43d91445ab595072fe08fe272/poses.pdbqt",
+      "filename": "poses.pdbqt",
+      "format": "pdbqt",
+      "title": "Vina docking poses",
+      "bytes": 8577
+    }
+  ]
+}

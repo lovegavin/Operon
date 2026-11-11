@@ -1,0 +1,18 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "protein": {}
+  },
+  "steps": [
+    {
+      "name": "structure_openmm_energy",
+      "inputs": [
+        "protein"
+      ],
+      "params": {},
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "gc_skew_profile",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "window_size": 100,
+        "step_size": 50,
+        "output": "out_gc_skew_profile"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_gc_skew_profile"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "gc_skew_profile"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/tree_mrca/output/artifacts/exports/6c5e581a17304e33985c004222877a6b/tree_mrca.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 75,
+  "source": "out_tree_mrca",
+  "conversion": {}
+}

@@ -1,0 +1,40 @@
+{
+  "task_dir": "/tmp/cov_stats/seasonal_decompose",
+  "generated_at": "2026-11-10T12:44:00.430727+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.003,
+  "steps": [
+    {
+      "index": 1,
+      "name": "seasonal_decompose",
+      "elapsed": 0.0014,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "value_label": "value",
+        "period": 12,
+        "model": "additive",
+        "output": "out_seasonal_decompose"
+      },
+      "export_path": "steps/01_seasonal_decompose.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0016,
+      "inputs": [
+        "out_seasonal_decompose"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "seasonal_decompose"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124358-25ff02eb5b26",
+  "event_log": "/tmp/cov_stats/seasonal_decompose/output/runs/20261110T124358-25ff02eb5b26/events.jsonl"
+}

@@ -1,0 +1,28 @@
+{
+  "task_dir": "/tmp/cov_structure/structure_ligand_pose_rmsd",
+  "generated_at": "2026-11-10T12:25:27.103580+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.005,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_ligand_pose_rmsd",
+      "elapsed": 0.005,
+      "inputs": [
+        "structure_3ptb_pose",
+        "structure_3ptb_ref"
+      ],
+      "params": {
+        "pose_resnames": "BEN",
+        "reference_resnames": "BEN",
+        "pose_dim": "pose",
+        "output": "out_structure_ligand_pose_rmsd"
+      },
+      "export_path": "steps/01_structure_ligand_pose_rmsd.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122525-a689fa28db20",
+  "event_log": "/tmp/cov_structure/structure_ligand_pose_rmsd/output/runs/20261110T122525-a689fa28db20/events.jsonl"
+}

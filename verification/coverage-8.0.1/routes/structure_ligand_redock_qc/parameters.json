@@ -1,0 +1,21 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_ligand_redock_qc",
+      "inputs": [],
+      "params": {
+        "complex_path": "/tmp/cov_structure/structure_ligand_redock_qc/input/3PTB_nohet.pdb",
+        "ligand_path": "/tmp/cov_structure/structure_ligand_redock_qc/input/BEN_ligand.sdf",
+        "pose_path": "/tmp/cov_structure/structure_ligand_redock_qc/input/BEN_pose_docked.sdf",
+        "full_report": true,
+        "metric_dim": "metric",
+        "output": "out_structure_ligand_redock_qc"
+      },
+      "context_params": {}
+    }
+  ]
+}

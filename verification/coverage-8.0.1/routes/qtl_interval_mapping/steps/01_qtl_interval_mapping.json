@@ -1,0 +1,16 @@
+{
+  "result_files": [],
+  "output": "out_qtl_interval_mapping",
+  "dims": [
+    "marker",
+    "statistic"
+  ],
+  "rows": 10,
+  "columns": [
+    "beta",
+    "se",
+    "t_statistic",
+    "p_value",
+    "lod"
+  ]
+}

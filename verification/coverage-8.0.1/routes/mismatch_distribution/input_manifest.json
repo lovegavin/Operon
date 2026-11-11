@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/mismatch_distribution/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 833,
+      "sha256": "3919581ab9b2a2279424a42ef67e3e450c02c7f4c2effdf50013a5007fd86c64"
+    }
+  ]
+}

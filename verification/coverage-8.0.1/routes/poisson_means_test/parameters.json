@@ -1,0 +1,40 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "poisson_means_test",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "group_dim": "sample",
+        "group_label": "group",
+        "group_a": "A",
+        "group_b": "B",
+        "alternative": "two-sided",
+        "output": "out_poisson_means_test"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_poisson_means_test"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "poisson_means_test"
+      },
+      "context_params": {}
+    }
+  ]
+}

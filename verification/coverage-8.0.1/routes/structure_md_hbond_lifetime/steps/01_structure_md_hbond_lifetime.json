@@ -1,0 +1,8 @@
+{
+  "n_frames": 26,
+  "n_candidates": 1642354,
+  "n_reported": 20,
+  "frame_time_ps": 0.08,
+  "max_lifetime_ps": 2.08,
+  "max_occupancy": 1.0
+}

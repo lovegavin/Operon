@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_stats/roc_comparison
+generated : 2026-11-10T12:43:59.261023+00:00
+steps     : 2
+elapsed   : 0.004s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   roc_comparison          0.002s   steps/01_roc_comparison.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

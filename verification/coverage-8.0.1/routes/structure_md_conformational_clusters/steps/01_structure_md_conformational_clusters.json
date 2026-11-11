@@ -1,0 +1,14 @@
+{
+  "n_frames": 26,
+  "n_clusters": 2,
+  "cluster_sizes": [
+    8,
+    18
+  ],
+  "representatives": [
+    7,
+    12
+  ],
+  "cutoff": 1.5,
+  "max_pairwise_rmsd": 2.4553530803371832
+}

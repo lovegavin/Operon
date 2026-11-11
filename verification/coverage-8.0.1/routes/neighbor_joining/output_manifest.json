@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/neighbor_joining/output/artifacts",
+  "files": [
+    {
+      "path": "exports/a68c9b7529284ff1b8dcde6f1a0be2e3/neighbor_joining.csv",
+      "size": 448,
+      "sha256": "1700689f5ef236cbd288dba9f0651952887f4912ad0d882deabb18c5effa5f0b"
+    }
+  ]
+}

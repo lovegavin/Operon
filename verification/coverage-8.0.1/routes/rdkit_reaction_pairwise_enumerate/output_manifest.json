@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_mltab/rdkit_reaction_pairwise_enumerate/output/artifacts",
+  "files": [
+    {
+      "path": "exports/3e66b356582e481382a75ccda6ddec36/rdkit_reaction_pairwise_enumerate.csv",
+      "size": 46,
+      "sha256": "79c96e9c8dd22c5846a977fbd4fadedf353b7d238837b7759a054c1057bfe7a9"
+    },
+    {
+      "path": "exports/50d91f748b994b0fb7b8ffa0e6334703/rdkit_reaction_pairwise_enumerate.csv",
+      "size": 241,
+      "sha256": "84ea0085d10bed0350e18e3d1489f04942f25c7d7ba7ba40f6699004b5c0d3e3"
+    }
+  ]
+}

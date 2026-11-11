@@ -1,0 +1,6 @@
+{
+  "period": 12,
+  "model": "additive",
+  "two_sided": true,
+  "n": 60
+}

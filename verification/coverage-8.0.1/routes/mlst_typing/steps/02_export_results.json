@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/mlst_typing/output/artifacts/exports/d130de058eaf4566ab0bfea79bf1fc91/mlst_typing.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 108,
+  "source": "out_mlst_typing",
+  "conversion": {}
+}

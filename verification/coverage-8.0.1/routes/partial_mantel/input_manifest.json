@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/cov_stats/partial_mantel/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 786,
+      "sha256": "44cc2066675fbc42865f5c61b415d71d68fca1e8daf3291267e1903b6e82cff8"
+    },
+    {
+      "path": "x1.csv",
+      "size": 786,
+      "sha256": "002fcf5737a5bce77a197f5a8879e62c4336ac11f70015ee3444d732935519e4"
+    },
+    {
+      "path": "x2.csv",
+      "size": 786,
+      "sha256": "8ce9fb4de676a148b405c18841db0fc5b77c06b83e5140c1f8542ff29eae077e"
+    }
+  ]
+}

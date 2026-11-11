@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/probe_routes/esm_embedding_linear_probe/output/artifacts/exports/54a63c7a44644778b233d34e283a6d12/esm_embedding_linear_probe.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 187,
+  "source": "probe",
+  "conversion": {}
+}

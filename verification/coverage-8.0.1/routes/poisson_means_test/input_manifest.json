@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/poisson_means_test/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 596,
+      "sha256": "42d3796a5ad9577fd00383d96f8407d17fd35ce6f00ccfe5e8c9668a43d3afce"
+    },
+    {
+      "path": "x1.csv",
+      "size": 75,
+      "sha256": "0563ebfbc75b4292ed02334201839ff9dc612ca64c40c68d99eaceb01bddfd08"
+    }
+  ]
+}

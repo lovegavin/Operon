@@ -1,0 +1,3885 @@
+{
+  "rows": [
+    {
+      "residue": "A:ASP:1",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:VAL:2",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLN:3",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:LEU:4",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLN:5",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:6",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:7",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:8",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:9",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:10",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:11",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:VAL:12",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLN:13",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:14",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:15",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:16",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:17",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:LEU:18",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ARG:19",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:LEU:20",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:21",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:CYS:22",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:23",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:24",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:25",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:26",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:27",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:THR:28",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ILE:29",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:30",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:PRO:31",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:32",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:CYS:33",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:MET:34",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:35",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TRP:36",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:PHE:37",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ARG:38",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLN:39",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:40",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:PRO:41",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:42",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:LYS:43",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLU:44",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ARG:45",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLU:46",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:47",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:VAL:48",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:49",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:50",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ILE:51",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASN:52",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:MET:53",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:54",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:55",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:56",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ILE:57",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:THR:58",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:59",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:60",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:61",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASP:62",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:63",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:VAL:64",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:LYS:65",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:66",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ARG:67",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:PHE:68",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:THR:69",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ILE:70",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:71",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLN:72",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASP:73",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASN:74",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:75",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:LYS:76",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASN:77",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:THR:78",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:VAL:79",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:80",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:LEU:81",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:LEU:82",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:MET:83",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASN:84",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:85",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:LEU:86",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLU:87",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:PRO:88",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLU:89",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASP:90",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:THR:91",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:92",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ILE:93",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:94",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:95",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:CYS:96",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:97",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:98",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASP:99",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:100",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:THR:101",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ILE:102",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:103",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:104",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:105",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:106",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:107",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLU:108",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:CYS:109",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:110",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:HIS:111",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:112",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:LEU:113",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:114",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:THR:115",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:116",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:117",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:118",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:119",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:120",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASP:121",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:122",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TRP:123",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:124",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLN:125",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:126",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:THR:127",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLN:128",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:VAL:129",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:THR:130",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:VAL:131",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:132",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:133",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:134",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ARG:135",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:136",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:PRO:137",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:138",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASP:139",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:VAL:140",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:PRO:141",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ASP:142",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:TYR:143",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:144",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:SER:145",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:GLY:146",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ARG:147",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "A:ALA:148",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASP:1",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:VAL:2",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLN:3",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:LEU:4",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLN:5",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:6",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:7",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:8",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:9",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:10",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:11",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:VAL:12",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLN:13",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:14",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:15",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:16",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:17",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:LEU:18",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ARG:19",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:LEU:20",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:21",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:CYS:22",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:23",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:24",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:25",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:26",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:27",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:THR:28",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ILE:29",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:30",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:PRO:31",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:32",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:CYS:33",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:MET:34",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:35",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TRP:36",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:PHE:37",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ARG:38",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLN:39",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:40",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:PRO:41",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:42",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:LYS:43",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLU:44",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ARG:45",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLU:46",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:47",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:VAL:48",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:49",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:50",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ILE:51",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASN:52",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:MET:53",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:54",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:55",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:56",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ILE:57",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:THR:58",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:59",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:60",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:61",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASP:62",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:63",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:VAL:64",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:LYS:65",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:66",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ARG:67",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:PHE:68",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:THR:69",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ILE:70",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:71",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLN:72",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASP:73",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASN:74",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:75",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:LYS:76",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASN:77",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:THR:78",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:VAL:79",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:80",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:LEU:81",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:LEU:82",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:MET:83",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASN:84",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:85",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:LEU:86",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLU:87",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:PRO:88",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLU:89",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASP:90",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:THR:91",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:92",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ILE:93",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:94",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:95",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:CYS:96",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:97",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:98",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASP:99",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:100",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:THR:101",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ILE:102",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:103",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:104",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:105",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:106",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:107",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLU:108",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:CYS:109",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:110",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:HIS:111",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:112",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:LEU:113",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:114",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:THR:115",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:116",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:117",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:118",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:119",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:120",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASP:121",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:122",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TRP:123",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:124",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLN:125",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:126",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:THR:127",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLN:128",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:VAL:129",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:THR:130",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:VAL:131",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:132",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:133",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:134",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ARG:135",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:136",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:PRO:137",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:138",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASP:139",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:VAL:140",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:PRO:141",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ASP:142",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:TYR:143",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:144",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:SER:145",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:GLY:146",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ARG:147",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "B:ALA:148",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LYS:1",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:VAL:2",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:PHE:3",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:4",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:5",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:CYS:6",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLU:7",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LEU:8",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:9",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:10",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:11",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:MET:12",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LYS:13",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:14",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:HIS:15",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:16",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LEU:17",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASP:18",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:19",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:TYR:20",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:21",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:22",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:TYR:23",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:SER:24",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LEU:25",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:26",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:27",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:TRP:28",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:VAL:29",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:CYS:30",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:31",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:32",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LYS:33",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:PHE:34",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLU:35",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:SER:36",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:37",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:PHE:38",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:39",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:THR:40",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLN:41",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:42",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:THR:43",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:44",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:45",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:46",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:THR:47",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASP:48",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:49",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:SER:50",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:THR:51",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASP:52",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:TYR:53",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:54",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ILE:55",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LEU:56",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLN:57",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ILE:58",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:59",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:SER:60",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:61",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:TRP:62",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:TRP:63",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:CYS:64",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:65",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASP:66",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:67",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:68",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:THR:69",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:PRO:70",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:71",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:SER:72",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:73",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:74",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LEU:75",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:CYS:76",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:77",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ILE:78",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:PRO:79",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:CYS:80",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:SER:81",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:82",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LEU:83",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LEU:84",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:SER:85",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:SER:86",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASP:87",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ILE:88",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:THR:89",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:90",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:SER:91",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:VAL:92",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:93",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:CYS:94",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:95",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LYS:96",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LYS:97",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ILE:98",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:VAL:99",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:SER:100",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASP:101",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:102",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:103",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:104",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:MET:105",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:106",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:107",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:TRP:108",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:VAL:109",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:110",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:TRP:111",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:112",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASN:113",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:114",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:CYS:115",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LYS:116",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:117",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:THR:118",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ASP:119",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:VAL:120",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLN:121",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ALA:122",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:TRP:123",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ILE:124",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:125",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:GLY:126",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:CYS:127",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:ARG:128",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "L:LEU:129",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LYS:1",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:VAL:2",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:PHE:3",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:4",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:5",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:CYS:6",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLU:7",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LEU:8",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:9",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:10",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:11",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:MET:12",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LYS:13",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:14",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:HIS:15",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:16",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LEU:17",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASP:18",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:19",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:TYR:20",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:21",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:22",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:TYR:23",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:SER:24",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LEU:25",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:26",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:27",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:TRP:28",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:VAL:29",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:CYS:30",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:31",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:32",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LYS:33",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:PHE:34",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLU:35",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:SER:36",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:37",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:PHE:38",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:39",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:THR:40",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLN:41",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:42",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:THR:43",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:44",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:45",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:46",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:THR:47",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASP:48",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:49",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:SER:50",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:THR:51",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASP:52",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:TYR:53",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:54",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ILE:55",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LEU:56",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLN:57",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ILE:58",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:59",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:SER:60",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:61",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:TRP:62",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:TRP:63",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:CYS:64",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:65",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASP:66",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:67",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:68",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:THR:69",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:PRO:70",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:71",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:SER:72",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:73",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:74",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LEU:75",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:CYS:76",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:77",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ILE:78",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:PRO:79",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:CYS:80",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:SER:81",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:82",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LEU:83",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LEU:84",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:SER:85",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:SER:86",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASP:87",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ILE:88",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:THR:89",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:90",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:SER:91",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:VAL:92",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:93",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:CYS:94",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:95",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LYS:96",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LYS:97",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ILE:98",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:VAL:99",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:SER:100",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASP:101",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:102",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:103",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:104",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:MET:105",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:106",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:107",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:TRP:108",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:VAL:109",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:110",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:TRP:111",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:112",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASN:113",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:114",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:CYS:115",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LYS:116",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:117",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:THR:118",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ASP:119",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:VAL:120",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLN:121",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ALA:122",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:TRP:123",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ILE:124",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:125",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:GLY:126",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:CYS:127",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:ARG:128",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    },
+    {
+      "residue": "M:LEU:129",
+      "helix": 0.0,
+      "strand": 0.0,
+      "coil": 1.0,
+      "dominant": 0.0
+    }
+  ],
+  "n_frames": 26,
+  "mean_helix": 0.0,
+  "mean_strand": 0.0
+}

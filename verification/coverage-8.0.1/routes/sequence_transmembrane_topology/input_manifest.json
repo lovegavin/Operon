@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/sequence_transmembrane_topology/input",
+  "files": [
+    {
+      "path": "tm.fasta",
+      "size": 37,
+      "sha256": "bedbc922b8bb73a82c11b30ee944808f34ddddc1b2c4fb68bc996b95166ddf36"
+    }
+  ]
+}

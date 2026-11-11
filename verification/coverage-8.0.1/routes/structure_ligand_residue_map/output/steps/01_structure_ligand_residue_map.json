@@ -1,0 +1,7 @@
+{
+  "n_ligand_atoms": 9,
+  "n_residues": 224,
+  "n_contacts": 28,
+  "cutoff": 4.0,
+  "value": "count"
+}

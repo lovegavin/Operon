@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/mlst_typing/input",
+  "files": [
+    {
+      "path": "profiles.csv",
+      "size": 171,
+      "sha256": "89eaaef4956af288881935c1ffb22bf2b052953a55c6ad560d1f81b956792b37"
+    }
+  ]
+}

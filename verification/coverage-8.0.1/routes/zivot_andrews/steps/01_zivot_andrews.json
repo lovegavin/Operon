@@ -1,0 +1,12 @@
+{
+  "statistic": -2.4892438687653704,
+  "p": 0.9850222046656182,
+  "break_index": 16,
+  "lag": 0,
+  "n": 90,
+  "critical_1pct": -5.27644,
+  "critical_5pct": -4.81067,
+  "critical_10pct": -4.56618,
+  "regression": "c",
+  "trim": 0.15
+}

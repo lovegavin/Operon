@@ -1,0 +1,2609 @@
+{
+  "host": "srv (master, 172.22.148.93)",
+  "engine_root": "/public/home/lihj/operon715",
+  "collected_from": "output/run_summary.json status=complete",
+  "runs": [
+    {
+      "operator": "amrfinder_plus",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/amrfinder_plus",
+      "run_id": "20261110T123704-e71af8404975",
+      "generated_at": "2026-11-10T12:37:06.923724+00:00",
+      "total_elapsed": 1.4639,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "amrfinder_plus",
+          "path": "/public/home/lihj/operon715/closure_replay/amrfinder_plus/output/steps/01_amrfinder_plus.json",
+          "size": 471,
+          "sha256": "40d893a99f67bc0e5b844d92445ac068aa247d566954fe6af39ea03352c67bee"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/amrfinder_plus.py",
+      "operator_source_sha256": "974b2941c9033a3ddaac61836abe1cd483d0a6c2e8398e663126bd910be227bf"
+    },
+    {
+      "operator": "antibody_cdr_length_profile",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/antibody_cdr_length_profile",
+      "run_id": "20261110T123149-fbe0297249d9",
+      "generated_at": "2026-11-10T12:31:54.845900+00:00",
+      "total_elapsed": 3.5841,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "antibody_cdr_length_profile",
+          "path": "/public/home/lihj/operon715/closure_replay/antibody_cdr_length_profile/output/steps/01_antibody_cdr_length_profile.json",
+          "size": 75,
+          "sha256": "1369cbfaec14fe47514af12303a07ff7c742698a8a5b0f2aef6a2190c0af9b58"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/antibody_cdr_length_profile.py",
+      "operator_source_sha256": "6238cf893454957558111c9db920c12a42cc9001c239fb538d225533cf2e66ae"
+    },
+    {
+      "operator": "antismash_bgc",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/antismash_bgc",
+      "run_id": "20261110T123708-eee7d2ab84b4",
+      "generated_at": "2026-11-10T12:37:18.081464+00:00",
+      "total_elapsed": 8.6815,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "antismash_bgc",
+          "path": "/public/home/lihj/operon715/closure_replay/antismash_bgc/output/steps/01_antismash_bgc.json",
+          "size": 3109,
+          "sha256": "2419b0a1026bc124f976f9d260e40ff5870aa622064202fa1d2e4b4c6a68832f"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/antismash_bgc.py",
+      "operator_source_sha256": "8c18244069b50cb76be62d8f36f6647b3e23d86c9e40fc8482391ca428188dae"
+    },
+    {
+      "operator": "assembly_stats",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/assembly_stats",
+      "run_id": "20261110T123158-d3c7156cf154",
+      "generated_at": "2026-11-10T12:31:59.995618+00:00",
+      "total_elapsed": 0.4747,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "assembly_stats",
+          "path": "/public/home/lihj/operon715/closure_replay/assembly_stats/output/steps/01_assembly_stats.json",
+          "size": 145,
+          "sha256": "b2a184afe6a8ddb934a80fe1c16053d0c9fd2daa6a886574a64b48b89a50a3f2"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/assembly_stats.py",
+      "operator_source_sha256": "e253d7a616864484fbbd04100bdc5ea0b35d6545e71c1a70e12b50682e4072f4"
+    },
+    {
+      "operator": "crispr_array_detect",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/crispr_array_detect",
+      "run_id": "20261110T123201-b7d4b0c446a8",
+      "generated_at": "2026-11-10T12:32:18.665881+00:00",
+      "total_elapsed": 5.7193,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "crispr_array_detect",
+          "path": "/public/home/lihj/operon715/closure_replay/crispr_array_detect/output/steps/01_crispr_array_detect.json",
+          "size": 337,
+          "sha256": "533a95ad0c3c715de9d74c862d1c86a21db9ac4cb423c1d88083d190080b7e67"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/crispr_array_detect.py",
+      "operator_source_sha256": "b3bccbe73a94974d0de2597f96302d2ccfc2e3910f457147564161ed0dc2924d"
+    },
+    {
+      "operator": "flye_assemble",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/flye_assemble",
+      "run_id": "20261110T123221-3e8693c722a2",
+      "generated_at": "2026-11-10T12:33:55.913711+00:00",
+      "total_elapsed": 93.1894,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "flye_assemble",
+          "path": "/public/home/lihj/operon715/closure_replay/flye_assemble/output/steps/01_flye_assemble.json",
+          "size": 416,
+          "sha256": "193ff9e9dc6d68b966612933ffb80ef1dd497bb3eb35417b586f42e3846f2053"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/flye_assemble.py",
+      "operator_source_sha256": "3bd9038920072034769a956cad90afedb1fd3d7291ea9e20f91ebcd777ebe666"
+    },
+    {
+      "operator": "hmmer_domains",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/hmmer_domains",
+      "run_id": "20261110T123357-97e7944729df",
+      "generated_at": "2026-11-10T12:33:58.528738+00:00",
+      "total_elapsed": 0.2256,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "hmmer_domains",
+          "path": "/public/home/lihj/operon715/closure_replay/hmmer_domains/output/steps/01_hmmer_domains.json",
+          "size": 822,
+          "sha256": "457d7cc2b6e2af2384178186637b24b1f8219a15413bb907569e645c42dcdc17"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/hmmer_domains.py",
+      "operator_source_sha256": "61540556542b4ea9afbd857e5d45d46969299b8a97f477c618fb97befd26be2f"
+    },
+    {
+      "operator": "ligandmpnn_design",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/ligandmpnn_design",
+      "run_id": "20261110T140157-52f0beeed956",
+      "generated_at": "2026-11-10T14:18:05.020528+00:00",
+      "total_elapsed": 966.847,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "ligandmpnn_design",
+          "path": "/public/home/lihj/operon715/closure_replay/ligandmpnn_design/output/steps/01_ligandmpnn_design.json",
+          "size": 729,
+          "sha256": "91b3828c9960ac8dda4cc0439d44deeee036cdeff90ebba08b42ebd814a7224d"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/ligandmpnn_design.py",
+      "operator_source_sha256": "8403d9f8606709751e86e20e9ea251352da01301459ec3ba4d3c4b85158482cc"
+    },
+    {
+      "operator": "ligandmpnn_score",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/ligandmpnn_score",
+      "run_id": "20261110T141805-8e3e64c9abf8",
+      "generated_at": "2026-11-10T14:19:05.623582+00:00",
+      "total_elapsed": 59.6194,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "ligandmpnn_score",
+          "path": "/public/home/lihj/operon715/closure_replay/ligandmpnn_score/output/steps/01_ligandmpnn_score.json",
+          "size": 718,
+          "sha256": "b5fc6977d38e0fb513baea5e94f5e6671a3170786e6065304e223a5db876f8e9"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/ligandmpnn_score.py",
+      "operator_source_sha256": "863550a65cffc99ec9e58455e4d9a025d94ce6ff1bdfe6b97e9b944ef3616069"
+    },
+    {
+      "operator": "pairwise_alignment",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/pairwise_alignment",
+      "run_id": "20261110T123400-66d7e6fdafb8",
+      "generated_at": "2026-11-10T12:34:06.934747+00:00",
+      "total_elapsed": 0.0186,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "pairwise_alignment",
+          "path": "/public/home/lihj/operon715/closure_replay/pairwise_alignment/output/steps/01_pairwise_alignment.json",
+          "size": 273,
+          "sha256": "992b7c916271c1f833fd817a50984bfdd2eea55a21efca7f0668fafe5d2b2372"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/pairwise_alignment.py",
+      "operator_source_sha256": "0eab084c3a0c804dad095c8b8f10d4b4e73d56a99dcd8a23cee1b4d212aa4ecf"
+    },
+    {
+      "operator": "prodigal_genes",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/prodigal_genes",
+      "run_id": "20261110T123409-a36cdeb2d3c4",
+      "generated_at": "2026-11-10T12:34:10.610781+00:00",
+      "total_elapsed": 0.2656,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "prodigal_genes",
+          "path": "/public/home/lihj/operon715/closure_replay/prodigal_genes/output/steps/01_prodigal_genes.json",
+          "size": 25395,
+          "sha256": "5a6be43518ceb440bb2d10e81ddc05e58f45226b82618f6480a0c9c3f696d7b4"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/prodigal_genes.py",
+      "operator_source_sha256": "5cd1ac80f9e4bd9f89226fa5ae23804c303247f60db8e5ffe41091962fe0cc97"
+    },
+    {
+      "operator": "protein_properties",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/protein_properties",
+      "run_id": "20261110T123412-e43cf3d347bc",
+      "generated_at": "2026-11-10T12:34:13.114119+00:00",
+      "total_elapsed": 0.0023,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "protein_properties",
+          "path": "/public/home/lihj/operon715/closure_replay/protein_properties/output/steps/01_protein_properties.json",
+          "size": 139,
+          "sha256": "57c9cb85c16763b7bf40150f9928f79f8bd66f9aa14f9347d0c869c0ee82e630"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/protein_properties.py",
+      "operator_source_sha256": "944f8d2c537f883fdf1c4a0dfb69e0db1b8f64e776ea0732a77463dc76e3db26"
+    },
+    {
+      "operator": "proteinmpnn_design_profile",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/proteinmpnn_design_profile",
+      "run_id": "20261110T124340-cc26629b2f2d",
+      "generated_at": "2026-11-10T12:47:58.016590+00:00",
+      "total_elapsed": 257.1573,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_design_profile",
+          "path": "/public/home/lihj/operon715/closure_replay/proteinmpnn_design_profile/output/steps/01_proteinmpnn_design_profile.json",
+          "size": 167,
+          "sha256": "736afb90f2ce3fc4dc973086d1aaf0138b9c55adb73ddcf16d846f932f438970"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_design_profile.py",
+      "operator_source_sha256": "c41b71f6554e9291357920d5f07aaf49be1e9ac27978f7a042dccde29df97534"
+    },
+    {
+      "operator": "proteinmpnn_ensemble_score",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/proteinmpnn_ensemble_score",
+      "run_id": "20261110T124759-fad1d7ef7672",
+      "generated_at": "2026-11-10T12:48:43.425195+00:00",
+      "total_elapsed": 43.482,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_ensemble_score",
+          "path": "/public/home/lihj/operon715/closure_replay/proteinmpnn_ensemble_score/output/steps/01_proteinmpnn_ensemble_score.json",
+          "size": 279,
+          "sha256": "30b59efec88c04ebc3ef76eec594e9a89ad82cc4c691eadc1f453973bb94d6f6"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_ensemble_score.py",
+      "operator_source_sha256": "519efccae99aaee11d1dc964c8fbfbd1ed8d3c99513223e3f96f30939d14f3cc"
+    },
+    {
+      "operator": "proteinmpnn_omit_design",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/proteinmpnn_omit_design",
+      "run_id": "20261110T124844-3ec9fc200642",
+      "generated_at": "2026-11-10T12:50:59.321986+00:00",
+      "total_elapsed": 134.2653,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_omit_design",
+          "path": "/public/home/lihj/operon715/closure_replay/proteinmpnn_omit_design/output/steps/01_proteinmpnn_omit_design.json",
+          "size": 252,
+          "sha256": "755b9c1bf86a3cf1d01b4028bbff6208d4b2a784a24171babb69078f8e0ffb59"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_omit_design.py",
+      "operator_source_sha256": "26a3e6099072699410e6e07277b78fa1a3e0d80c91cb9ecf1cd25c9e704f5473"
+    },
+    {
+      "operator": "proteinmpnn_position_entropy",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/proteinmpnn_position_entropy",
+      "run_id": "20261110T125100-7cc2d39464cd",
+      "generated_at": "2026-11-10T12:53:13.921352+00:00",
+      "total_elapsed": 132.8268,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_position_entropy",
+          "path": "/public/home/lihj/operon715/closure_replay/proteinmpnn_position_entropy/output/steps/01_proteinmpnn_position_entropy.json",
+          "size": 347,
+          "sha256": "7b7c6250bbda692795f419405cb9261402f802c2949db67af6a2001de6584246"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_position_entropy.py",
+      "operator_source_sha256": "894b2a8a1ef613550f19afbb9d4308ea5381d32dd3a958ca04489629bc01770b"
+    },
+    {
+      "operator": "proteinmpnn_score",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/proteinmpnn_score",
+      "run_id": "20261110T125314-71564253a91e",
+      "generated_at": "2026-11-10T12:53:26.887550+00:00",
+      "total_elapsed": 11.1892,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_score",
+          "path": "/public/home/lihj/operon715/closure_replay/proteinmpnn_score/output/steps/01_proteinmpnn_score.json",
+          "size": 225,
+          "sha256": "54b82c0515e15a602f0dc8168fb6ead18fe4a765499fbf29ad2f810f334982ac"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_score.py",
+      "operator_source_sha256": "a282e16324476545158b5e69229e0c0ca66ef2ba1b2c9e698c13345c4a81850a"
+    },
+    {
+      "operator": "rfam_scan",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/rfam_scan",
+      "run_id": "20261110T123905-475bc23a6f1c",
+      "generated_at": "2026-11-10T12:39:06.790544+00:00",
+      "total_elapsed": 0.9058,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "rfam_scan",
+          "path": "/public/home/lihj/operon715/closure_replay/rfam_scan/output/steps/01_rfam_scan.json",
+          "size": 395,
+          "sha256": "585597d2ad1cdec669388371d58e5c9cb4869875518b661c04db8fa79660db32"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/rfam_scan.py",
+      "operator_source_sha256": "720aa4aa2e26e650fa2549250ecdb9fd478d44ad2a2123015700edbe3f217d61"
+    },
+    {
+      "operator": "sequence_rna_accessibility",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_accessibility",
+      "run_id": "20261110T123417-e4aeb231b80e",
+      "generated_at": "2026-11-10T12:34:18.737138+00:00",
+      "total_elapsed": 0.3461,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "sequence_rna_accessibility",
+          "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_accessibility/output/steps/01_sequence_rna_accessibility.json",
+          "size": 195,
+          "sha256": "d5ed40147f067fb01727ca5e162509be6c1a8d942a76759411511980625a50ed"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_accessibility.py",
+      "operator_source_sha256": "05d711225a11e2fa7bab38373cab7d87a828cd06d26f8340603f52b5ea80be68"
+    },
+    {
+      "operator": "sequence_rna_cofold",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_cofold",
+      "run_id": "20261110T123420-7a555d87325d",
+      "generated_at": "2026-11-10T12:34:21.084541+00:00",
+      "total_elapsed": 0.1304,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "sequence_rna_cofold",
+          "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_cofold/output/steps/01_sequence_rna_cofold.json",
+          "size": 274,
+          "sha256": "e7d5ff4f3f1621b4daedeb83bdc976ea8cd782a70aa4f5a585b2a3b9e0079e84"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_cofold.py",
+      "operator_source_sha256": "c81a2d15dd6b06a5c56138fc88130c8ebb51f6c33e15253191e257e2b4b40180"
+    },
+    {
+      "operator": "sequence_rna_cofold_ensemble",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_cofold_ensemble",
+      "run_id": "20261110T123422-6df47778ebfe",
+      "generated_at": "2026-11-10T12:34:23.610328+00:00",
+      "total_elapsed": 0.012,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "sequence_rna_cofold_ensemble",
+          "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_cofold_ensemble/output/steps/01_sequence_rna_cofold_ensemble.json",
+          "size": 182,
+          "sha256": "4b07e8c5250387c7ebcae7a3e734883e2e3c0571ece39a2c9f0ffd14a37c2afd"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_cofold_ensemble.py",
+      "operator_source_sha256": "b8c1d4da061184497cda457e6dc3b67af4e477b7cc5612dfd00ecd46317c1c95"
+    },
+    {
+      "operator": "sequence_rna_duplex",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_duplex",
+      "run_id": "20261110T123425-4d0dfe586163",
+      "generated_at": "2026-11-10T12:34:25.984216+00:00",
+      "total_elapsed": 0.0606,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "sequence_rna_duplex",
+          "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_duplex/output/steps/01_sequence_rna_duplex.json",
+          "size": 224,
+          "sha256": "10525088aca90bb3e0b70f6249a0aa7250d64c899805a0de927f88924e152964"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_duplex.py",
+      "operator_source_sha256": "1a766c2af62aa90779696adec0f31f049006b97163c4c6da75e204f8812d58f0"
+    },
+    {
+      "operator": "sequence_rna_ensemble",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_ensemble",
+      "run_id": "20261110T123427-7a72d680456a",
+      "generated_at": "2026-11-10T12:34:27.920483+00:00",
+      "total_elapsed": 0.065,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "sequence_rna_ensemble",
+          "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_ensemble/output/steps/01_sequence_rna_ensemble.json",
+          "size": 587,
+          "sha256": "0504e41ed7fe34b2b517a8c4db8416a2e4d1a067cdf45e8df167eac98a0f70e0"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_ensemble.py",
+      "operator_source_sha256": "1ccb7aae2158f24436daf187a7048aaedc536e01056fddfcca02c2f52af2f405"
+    },
+    {
+      "operator": "sequence_rna_fold",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_fold",
+      "run_id": "20261110T123429-aa46502ef30d",
+      "generated_at": "2026-11-10T12:34:29.936164+00:00",
+      "total_elapsed": 0.0254,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "sequence_rna_fold",
+          "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_fold/output/steps/01_sequence_rna_fold.json",
+          "size": 312,
+          "sha256": "a97dda07f77fabde5dbd06b868833c3f22b3bc104b9e5a738891caba9d1d394e"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_fold.py",
+      "operator_source_sha256": "9c45c966e95cfc20e8f034cefd3493e92f4aa03f6caba7b1fe0095382b5dacde"
+    },
+    {
+      "operator": "trnascan_se",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/trnascan_se",
+      "run_id": "20261110T123431-7d0c718908f7",
+      "generated_at": "2026-11-10T12:34:32.666007+00:00",
+      "total_elapsed": 0.2921,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "trnascan_se",
+          "path": "/public/home/lihj/operon715/closure_replay/trnascan_se/output/steps/01_trnascan_se.json",
+          "size": 319,
+          "sha256": "ee6dc64df8b4753fa5f7d487dce5a6d6418873717545a70afab67abbca2916e2"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/trnascan_se.py",
+      "operator_source_sha256": "9788d580d5e0fc14625409577a26ab713f179ce9ac78f80b36a0484cc2c2a145"
+    },
+    {
+      "operator": "vhh_humanization_mutations",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/vhh_humanization_mutations",
+      "run_id": "20261110T123434-8d3daa20865a",
+      "generated_at": "2026-11-10T12:34:35.160402+00:00",
+      "total_elapsed": 0.0401,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "vhh_humanization_mutations",
+          "path": "/public/home/lihj/operon715/closure_replay/vhh_humanization_mutations/output/steps/01_vhh_humanization_mutations.json",
+          "size": 395,
+          "sha256": "b48dd3e114351c3abced6265a51f73404749903d4fa34f884311b95e1e3ea3da"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/vhh_humanization_mutations.py",
+      "operator_source_sha256": "b02f5de6909d9f503455d15436a99ced64f1f200676dd3dcd835246741564928"
+    },
+    {
+      "operator": "vhh_humanization_score",
+      "route_dir": "/public/home/lihj/operon715/closure_replay/vhh_humanization_score",
+      "run_id": "20261110T123436-10cfc5f1dce0",
+      "generated_at": "2026-11-10T12:34:37.544028+00:00",
+      "total_elapsed": 0.0595,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "vhh_humanization_score",
+          "path": "/public/home/lihj/operon715/closure_replay/vhh_humanization_score/output/steps/01_vhh_humanization_score.json",
+          "size": 644,
+          "sha256": "0f2b488cdb095c6da913f2ccc01387c1d503e7257fd03c917ab64e4447206bc8"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/vhh_humanization_score.py",
+      "operator_source_sha256": "b4c3b89eb8417a85ae05ed0bcae6bab900952c23d4a622fe1ca1f04707568fd6"
+    },
+    {
+      "operator": "esm_if_design",
+      "route_dir": "/public/home/lihj/operon715/cov_ml/esm_if_design",
+      "run_id": "20261110T130602-bd831f83ab08",
+      "generated_at": "2026-11-10T13:22:21.768959+00:00",
+      "total_elapsed": 978.2063,
+      "n_steps": 2,
+      "exports": [
+        {
+          "step": "esm_if_design",
+          "path": "/public/home/lihj/operon715/cov_ml/esm_if_design/output/steps/01_esm_if_design.json",
+          "size": 590,
+          "sha256": "70bc2a4a5187dc3d54cb27e1d98bb2d1991640c70288e7a460369be509db7538"
+        },
+        {
+          "step": "export_results",
+          "path": "/public/home/lihj/operon715/cov_ml/esm_if_design/output/steps/02_export_results.json",
+          "size": 301,
+          "sha256": "5c90c3ed9170273edf4749cac7c3315ec9deb3ab08dda5e0796626592c1a7367"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_design.py",
+      "operator_source_sha256": "7b9d01b1595aab5d7c54d0371f31b3b9b350f95e39e45441bb5f51216724d33d"
+    },
+    {
+      "operator": "esm_if_position_entropy",
+      "route_dir": "/public/home/lihj/operon715/cov_ml/esm_if_position_entropy",
+      "run_id": "20261110T143018-b8b9dfbcf85e",
+      "generated_at": "2026-11-10T16:09:47.041321+00:00",
+      "total_elapsed": 5967.415,
+      "n_steps": 2,
+      "exports": [
+        {
+          "step": "esm_if_position_entropy",
+          "path": "/public/home/lihj/operon715/cov_ml/esm_if_position_entropy/output/steps/01_esm_if_position_entropy.json",
+          "size": 519,
+          "sha256": "e505e444de6fed077be0e8f81c05f312de84ce54b472e9f55f28de134533fd26"
+        },
+        {
+          "step": "export_results",
+          "path": "/public/home/lihj/operon715/cov_ml/esm_if_position_entropy/output/steps/02_export_results.json",
+          "size": 322,
+          "sha256": "8a8843965e525603ccdf5bfdf58e97c27dae397c19f92b20749809bd7820fe0c"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_position_entropy.py",
+      "operator_source_sha256": "5173c45e63f48e71313259ad2d393a3a1fef970bf853f6178fb78ef5f99bbab0"
+    },
+    {
+      "operator": "esm_if_redesign",
+      "route_dir": "/public/home/lihj/operon715/cov_ml/esm_if_redesign",
+      "run_id": "20261110T160948-4314ef739f3a",
+      "generated_at": "2026-11-10T16:13:39.427762+00:00",
+      "total_elapsed": 227.7243,
+      "n_steps": 2,
+      "exports": [
+        {
+          "step": "esm_if_redesign",
+          "path": "/public/home/lihj/operon715/cov_ml/esm_if_redesign/output/steps/01_esm_if_redesign.json",
+          "size": 700,
+          "sha256": "c5ea58ad7a530a0068b7085db06756a1121edbb03ff6424c3bb62d85bc916bb8"
+        },
+        {
+          "step": "export_results",
+          "path": "/public/home/lihj/operon715/cov_ml/esm_if_redesign/output/steps/02_export_results.json",
+          "size": 307,
+          "sha256": "fc3165fb743b782c9c51bb3d2e1ab27bc43177663d6f7d9636335170ced7687e"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_redesign.py",
+      "operator_source_sha256": "71c077d5f748f55e280037c9ead37c47bdb28e8d79c500aa651be306827e0620"
+    },
+    {
+      "operator": "esm_if_score",
+      "route_dir": "/public/home/lihj/operon715/cov_ml/esm_if_score",
+      "run_id": "20261110T130508-6276073f7f74",
+      "generated_at": "2026-11-10T13:05:55.513504+00:00",
+      "total_elapsed": 45.4931,
+      "n_steps": 2,
+      "exports": [
+        {
+          "step": "esm_if_score",
+          "path": "/public/home/lihj/operon715/cov_ml/esm_if_score/output/steps/01_esm_if_score.json",
+          "size": 269,
+          "sha256": "d266e10a757fa7e580eeeac08d116cdce214466d8c838746712d174f939e3735"
+        },
+        {
+          "step": "export_results",
+          "path": "/public/home/lihj/operon715/cov_ml/esm_if_score/output/steps/02_export_results.json",
+          "size": 307,
+          "sha256": "c098d0db33837029a111c67b7074bcbfefd7bebf3387267b0fdc43547f71d499"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_score.py",
+      "operator_source_sha256": "bc485cae91143b46acea82f77ea8b346de2d8d6dd346a09c987cbe2e45d5cec3"
+    },
+    {
+      "operator": "esm_embedding",
+      "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_embedding",
+      "run_id": "20261110T130044-b7dc482d12d7",
+      "generated_at": "2026-11-10T13:01:21.283818+00:00",
+      "total_elapsed": 35.6204,
+      "n_steps": 2,
+      "exports": [
+        {
+          "step": "esm_embedding",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_embedding/output/steps/01_esm_embedding.json",
+          "size": 97,
+          "sha256": "0e19ee907483c8a67deedb2d6e8c19cf3739e4be496b3b1040a58f8753ae9e54"
+        },
+        {
+          "step": "export_results",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_embedding/output/steps/02_export_results.json",
+          "size": 307,
+          "sha256": "0c66340a7b4a673f857c89c12d2e594111f1b11d21f84e948fab964a04e8e6d8"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_embedding.py",
+      "operator_source_sha256": "0960f3070aa3aa610429b5e31431e0df883dd9f52960a4b1032535b1841de71f"
+    },
+    {
+      "operator": "esm_if_mutation_scan",
+      "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_if_mutation_scan",
+      "run_id": "20261110T143655-5b5afcbb9868",
+      "generated_at": "2026-11-10T14:38:05.708517+00:00",
+      "total_elapsed": 69.1466,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "esm_if_mutation_scan",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_if_mutation_scan/output/steps/01_esm_if_mutation_scan.json",
+          "size": 961,
+          "sha256": "ed718b712a631d70fcfcd48558ad61ad88374678783a7c76c80bc77f17170983"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_mutation_scan.py",
+      "operator_source_sha256": "abc01d9147a2c3a095b54083a4f6fa1229dcece6bd555bf784d837969f521dac"
+    },
+    {
+      "operator": "esm_if_position_entropy",
+      "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_if_position_entropy",
+      "run_id": "20261110T143808-70cff3b27ff2",
+      "generated_at": "2026-11-10T15:03:33.080125+00:00",
+      "total_elapsed": 1523.4424,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "esm_if_position_entropy",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_if_position_entropy/output/steps/01_esm_if_position_entropy.json",
+          "size": 519,
+          "sha256": "6b028d9d6110d3ba43d807e948388f42dbec28d08f91340a73fcfacaa9ed7f3b"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_position_entropy.py",
+      "operator_source_sha256": "5173c45e63f48e71313259ad2d393a3a1fef970bf853f6178fb78ef5f99bbab0"
+    },
+    {
+      "operator": "esm_if_redesign",
+      "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_if_redesign",
+      "run_id": "20261110T150337-dfd7f6ca4faa",
+      "generated_at": "2026-11-10T15:05:39.187614+00:00",
+      "total_elapsed": 121.1424,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "esm_if_redesign",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_if_redesign/output/steps/01_esm_if_redesign.json",
+          "size": 568,
+          "sha256": "cc3a02610901269f28e0fe872b20d14f8bc4e9d6561ba4aa3fc710910b966051"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_redesign.py",
+      "operator_source_sha256": "71c077d5f748f55e280037c9ead37c47bdb28e8d79c500aa651be306827e0620"
+    },
+    {
+      "operator": "esm_masked_marginal",
+      "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_masked_marginal",
+      "run_id": "20261110T194740-37af28e9bb6e",
+      "generated_at": "2026-11-10T19:48:09.004409+00:00",
+      "total_elapsed": 27.5204,
+      "n_steps": 2,
+      "exports": [
+        {
+          "step": "esm_masked_marginal",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_masked_marginal/output/steps/01_esm_masked_marginal.json",
+          "size": 260,
+          "sha256": "d77a5f0671261ceb0127be2507af6bd00fcf2040799d095ac5c3e00d09c2c512"
+        },
+        {
+          "step": "export_results",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_masked_marginal/output/steps/02_export_results.json",
+          "size": 315,
+          "sha256": "a0704f3dbbfce8fb0338d011eb11d19f6092f4f29f0c3c054d3caea39a3c20be"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_masked_marginal.py",
+      "operator_source_sha256": "2d23ae556816448e61d7f5fa8aefb2290ceae4ca330852370fea1d791facc185"
+    },
+    {
+      "operator": "esm_pseudo_likelihood",
+      "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_pseudo_likelihood",
+      "run_id": "20261110T131238-dff0697f4745",
+      "generated_at": "2026-11-10T13:13:16.745852+00:00",
+      "total_elapsed": 37.3746,
+      "n_steps": 2,
+      "exports": [
+        {
+          "step": "esm_pseudo_likelihood",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_pseudo_likelihood/output/steps/01_esm_pseudo_likelihood.json",
+          "size": 380,
+          "sha256": "24646a60b365f066232359cb90147d2db376c5aaea6ed2fa1c9d5c9f3ab4b7c9"
+        },
+        {
+          "step": "export_results",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_pseudo_likelihood/output/steps/02_export_results.json",
+          "size": 329,
+          "sha256": "7986515b7da97b5976f1c7d998d02a96dc8469a3c99a8410ddb56141af5301a1"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_pseudo_likelihood.py",
+      "operator_source_sha256": "65243299c961280a91732780db3b1bf5f78dbbe4c7bcb1aeec0e5e6f549cc87f"
+    },
+    {
+      "operator": "esm_variant_effect",
+      "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_variant_effect",
+      "run_id": "20261110T131317-e5b756540917",
+      "generated_at": "2026-11-10T13:13:54.505393+00:00",
+      "total_elapsed": 35.8166,
+      "n_steps": 2,
+      "exports": [
+        {
+          "step": "esm_variant_effect",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_variant_effect/output/steps/01_esm_variant_effect.json",
+          "size": 833,
+          "sha256": "a93510d22751f3f895e58b15a2cfedfc24467e10d22d84ea61ce84571751f925"
+        },
+        {
+          "step": "export_results",
+          "path": "/public/home/lihj/operon715/cov_ml2/esm_variant_effect/output/steps/02_export_results.json",
+          "size": 316,
+          "sha256": "2ed7ea0abd6a8fc6acf46eac13363c42f7599a9014ca220aa350e5950a876dd4"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_variant_effect.py",
+      "operator_source_sha256": "b315a8e4ac4a837bb88933913d04bc87c8a659135e9c33b425a5a3c906fc7daa"
+    },
+    {
+      "operator": "esm3_embedding",
+      "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_embedding",
+      "run_id": "20261110T133220-45c021342de1",
+      "generated_at": "2026-11-10T13:34:48.077817+00:00",
+      "total_elapsed": 146.5787,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "esm3_embedding",
+          "path": "/public/home/lihj/operon715/cov_ml3/esm3_embedding/output/steps/01_esm3_embedding.json",
+          "size": 107,
+          "sha256": "7acf04463ff7783a9281ea37a1b708fd61b5e9834cfe0013779fbb9ac8119856"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_embedding.py",
+      "operator_source_sha256": "6f86db48943e0d19f5786b1eadee5c12ebd8cd27c77023e66353244c28a38fd9"
+    },
+    {
+      "operator": "esm3_fold",
+      "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_fold",
+      "run_id": "20261110T135502-5401c0e161fb",
+      "generated_at": "2026-11-10T14:00:28.329464+00:00",
+      "total_elapsed": 324.7692,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "esm3_fold",
+          "path": "/public/home/lihj/operon715/cov_ml3/esm3_fold/output/steps/01_esm3_fold.json",
+          "size": 568,
+          "sha256": "07ad2b892f9ed9bb35d301fa8a54de138de904dc12da9d01a132d66aa41f3f9e"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_fold.py",
+      "operator_source_sha256": "cab2ae85cc7b5f3dd30f034c1450c1417f54a8e599c09eabce01785f95b61a3f"
+    },
+    {
+      "operator": "esm3_inverse_folding",
+      "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_inverse_folding",
+      "run_id": "20261110T135920-c28b68a988b0",
+      "generated_at": "2026-11-10T14:05:45.646744+00:00",
+      "total_elapsed": 384.6429,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "esm3_inverse_folding",
+          "path": "/public/home/lihj/operon715/cov_ml3/esm3_inverse_folding/output/steps/01_esm3_inverse_folding.json",
+          "size": 71,
+          "sha256": "c6bb7609d3b474571e96979f41f9759e7f4a53a5dceab3d0e3c347fe7a8955fa"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_inverse_folding.py",
+      "operator_source_sha256": "1cca23b8fc1696e7ac96c9e1f49087cea4b21c6bb665169833da8b6bd2e3ee0d"
+    },
+    {
+      "operator": "esm3_sasa_prediction",
+      "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_sasa_prediction",
+      "run_id": "20261110T134136-acc0340d1c78",
+      "generated_at": "2026-11-10T13:45:29.108595+00:00",
+      "total_elapsed": 232.0542,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "esm3_sasa_prediction",
+          "path": "/public/home/lihj/operon715/cov_ml3/esm3_sasa_prediction/output/steps/01_esm3_sasa_prediction.json",
+          "size": 119,
+          "sha256": "e06eb81c7ecc6dcca731b4f4fe97760eaf1c7eda2c6893b934bb0cd02017cffd"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_sasa_prediction.py",
+      "operator_source_sha256": "3863bfa9081d936bc6c59e628705da36cb9a3e9eabfb136a7fe6f37af501469e"
+    },
+    {
+      "operator": "esm3_secondary_structure",
+      "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_secondary_structure",
+      "run_id": "20261110T134529-b1e79e9eaf16",
+      "generated_at": "2026-11-10T13:49:20.755963+00:00",
+      "total_elapsed": 230.6143,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "esm3_secondary_structure",
+          "path": "/public/home/lihj/operon715/cov_ml3/esm3_secondary_structure/output/steps/01_esm3_secondary_structure.json",
+          "size": 164,
+          "sha256": "002470c3c08106bea9b65b94acb6381a8ed62aecebbe1c778a03557c0203f5e0"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_secondary_structure.py",
+      "operator_source_sha256": "4c958ce76e385c653068e61015fb5a3820c013aa7d12485a8aacf10e4099ffa3"
+    },
+    {
+      "operator": "esm3_sequence_generation",
+      "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_sequence_generation",
+      "run_id": "20261110T135223-35f23ad7522c",
+      "generated_at": "2026-11-10T13:55:30.349109+00:00",
+      "total_elapsed": 186.0743,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "esm3_sequence_generation",
+          "path": "/public/home/lihj/operon715/cov_ml3/esm3_sequence_generation/output/steps/01_esm3_sequence_generation.json",
+          "size": 810,
+          "sha256": "abcf8a17c23c9fc02f7edbacfc8bcae8eb8c0484a4be8995c9aec4f1fed980d8"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_sequence_generation.py",
+      "operator_source_sha256": "d10a00d9d7b9e2b4c3b55a2800107b696da1a07f617230f89b961bf55d56b085"
+    },
+    {
+      "operator": "proteinmpnn_bias_matrix",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_bias_matrix",
+      "run_id": "20261110T140044-e19b9b2b8db3",
+      "generated_at": "2026-11-10T14:03:27.826372+00:00",
+      "total_elapsed": 161.3389,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_bias_matrix",
+          "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_bias_matrix/output/steps/01_proteinmpnn_bias_matrix.json",
+          "size": 210,
+          "sha256": "a38fd213846ac975973544c3ce8a8e63d684f52f179007bb860e84152e12e022"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_bias_matrix.py",
+      "operator_source_sha256": "83b0dcee996b0e4bcc838f4a945aa39eef540711b9edfb08ee6b15c6e9811c1f"
+    },
+    {
+      "operator": "proteinmpnn_bias_scan",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_bias_scan",
+      "run_id": "20261110T140328-6afb80f2ba70",
+      "generated_at": "2026-11-10T14:10:13.184323+00:00",
+      "total_elapsed": 401.9396,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_bias_scan",
+          "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_bias_scan/output/steps/01_proteinmpnn_bias_scan.json",
+          "size": 944,
+          "sha256": "4725f8c3131f6481721e6b9da5dd324b5af5b5a5f13f2bf73ab573a77e18c904"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_bias_scan.py",
+      "operator_source_sha256": "adb875cd7a54b2c457bf7624b2c76d6d80fb5f77aed33f9e09224bd523310c6a"
+    },
+    {
+      "operator": "proteinmpnn_design",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design",
+      "run_id": "20261110T194425-2b21759a87d2",
+      "generated_at": "2026-11-10T19:45:36.694506+00:00",
+      "total_elapsed": 70.372,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_design",
+          "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design/output/steps/01_proteinmpnn_design.json",
+          "size": 1753,
+          "sha256": "4bc79da1368dfa69d531166f74f5f4e4a7572fcdd0a47d559e93cc14fa46d255"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_design.py",
+      "operator_source_sha256": "19c21d26beb7f9f2b1fefd08760246ad9741b5de70f102723cdcab20090bb09d"
+    },
+    {
+      "operator": "proteinmpnn_design_cluster",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design_cluster",
+      "run_id": "20261110T134132-a91b6390a314",
+      "generated_at": "2026-11-10T13:43:48.154055+00:00",
+      "total_elapsed": 134.9012,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_design_cluster",
+          "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design_cluster/output/steps/01_proteinmpnn_design_cluster.json",
+          "size": 245,
+          "sha256": "46bb1c9d7c2ebf59bd89b131c81962a987ccd6e15cb8f8cd3b435ba6c3d15476"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_design_cluster.py",
+      "operator_source_sha256": "252026d06d3b8cee4ae0a796c7d90285e7cc38551dd1af4a3cd53a699ac9e3f8"
+    },
+    {
+      "operator": "proteinmpnn_design_diversity",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design_diversity",
+      "run_id": "20261110T133917-03668e0a5b3e",
+      "generated_at": "2026-11-10T13:41:32.494097+00:00",
+      "total_elapsed": 134.1281,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_design_diversity",
+          "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design_diversity/output/steps/01_proteinmpnn_design_diversity.json",
+          "size": 255,
+          "sha256": "d3a04dff9b50bf3ec94b4188062da7f394d119a34d5531bdb94263908b078791"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_design_diversity.py",
+      "operator_source_sha256": "69cc0ca15dc88959ecedc8f8fbbf3cdb2ca8118e95f6adb7409ebe86b85e0e30"
+    },
+    {
+      "operator": "proteinmpnn_multi_model_consensus",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_multi_model_consensus",
+      "run_id": "20261110T133451-093583cf2c5d",
+      "generated_at": "2026-11-10T13:39:16.226054+00:00",
+      "total_elapsed": 263.553,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_multi_model_consensus",
+          "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_multi_model_consensus/output/steps/01_proteinmpnn_multi_model_consensus.json",
+          "size": 450,
+          "sha256": "e7ac8edcff99c8aa7b17b6abb8996b67da30c6d333d398a8a7e6dd97b202dae1"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_multi_model_consensus.py",
+      "operator_source_sha256": "4c5dbe0f5915a2e2467dcc6398096d021a994d2cba1c3eee14c465908cb94f22"
+    },
+    {
+      "operator": "proteinmpnn_native_recovery_scan",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_native_recovery_scan",
+      "run_id": "20261110T133233-60702398870a",
+      "generated_at": "2026-11-10T13:34:51.875317+00:00",
+      "total_elapsed": 138.1838,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_native_recovery_scan",
+          "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_native_recovery_scan/output/steps/01_proteinmpnn_native_recovery_scan.json",
+          "size": 171,
+          "sha256": "7d6f6316b5be597ae9fbdb59c3ca8601f2a3d255efa51e4b12edc167febf085e"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_native_recovery_scan.py",
+      "operator_source_sha256": "58e3c58dd66fcb64eb7a8f6520dde4c8fcab49696fe2bd764b56aedd2d6cede9"
+    },
+    {
+      "operator": "proteinmpnn_noise_robustness",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_noise_robustness",
+      "run_id": "20261110T141240-e5b8717eb75a",
+      "generated_at": "2026-11-10T14:21:28.604714+00:00",
+      "total_elapsed": 527.5713,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_noise_robustness",
+          "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_noise_robustness/output/steps/01_proteinmpnn_noise_robustness.json",
+          "size": 122,
+          "sha256": "85949db57de0dd0bbc0cac81d9581eed8f4321a439e3fcf1c617fec37f5fd7a5"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_noise_robustness.py",
+      "operator_source_sha256": "cf70dbacb41229dc6e3626eaaa1838f54ad42ed3142d0b106fcb5110949ed2cd"
+    },
+    {
+      "operator": "proteinmpnn_perplexity",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_perplexity",
+      "run_id": "20261110T135730-9ce61839ce6f",
+      "generated_at": "2026-11-10T14:00:44.167047+00:00",
+      "total_elapsed": 193.2579,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_perplexity",
+          "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_perplexity/output/steps/01_proteinmpnn_perplexity.json",
+          "size": 285,
+          "sha256": "83fff62e14d6b6ba604b6eeafe7516a1477981c79663f89696a8992ebedcda47"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_perplexity.py",
+      "operator_source_sha256": "4d7d91e730118c4e91b2d6fda03867be2499b3a0789c441a604b17e89cdf6de0"
+    },
+    {
+      "operator": "proteinmpnn_probability_profile",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_probability_profile",
+      "run_id": "20261110T141013-3f4974f4d38b",
+      "generated_at": "2026-11-10T14:12:39.701887+00:00",
+      "total_elapsed": 143.0985,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_probability_profile",
+          "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_probability_profile/output/steps/01_proteinmpnn_probability_profile.json",
+          "size": 336,
+          "sha256": "303f90f3f933b9cd41c2e6b66fc36a0f61959b679189363f1d87c0a69a3949db"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_probability_profile.py",
+      "operator_source_sha256": "7f9b8557e86a71a98c74f31115f2cee4a22954a62b4077a4a3dacde7d1e925b5"
+    },
+    {
+      "operator": "proteinmpnn_interface_design",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_interface_design",
+      "run_id": "20261110T142504-3d1d64ddb0c5",
+      "generated_at": "2026-11-10T14:25:22.931711+00:00",
+      "total_elapsed": 17.4677,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_interface_design",
+          "path": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_interface_design/output/steps/01_proteinmpnn_interface_design.json",
+          "size": 459,
+          "sha256": "d38886ad26b985e714021b2d1e33729116d9fa8479be4791ef620e8e79b9eaef"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_interface_design.py",
+      "operator_source_sha256": "efa9d1652e84a14878f1067d12ef4eb38810521eb2d11fa66b71e6cc8d1043c7"
+    },
+    {
+      "operator": "proteinmpnn_interface_redesign",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_interface_redesign",
+      "run_id": "20261110T143553-5df8a2c5d332",
+      "generated_at": "2026-11-10T14:36:04.214358+00:00",
+      "total_elapsed": 9.0075,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_interface_redesign",
+          "path": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_interface_redesign/output/steps/01_proteinmpnn_interface_redesign.json",
+          "size": 1551,
+          "sha256": "350b92cd63d086674593f9ee125876928b2506df4db6209f4c8625c498f3260e"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_interface_redesign.py",
+      "operator_source_sha256": "fc6c6be12dbdf59e5217f6fd4b40336771e1b5512329260c29e8b31c077399e8"
+    },
+    {
+      "operator": "proteinmpnn_masked_design",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_masked_design",
+      "run_id": "20261110T143832-36bfed3156fa",
+      "generated_at": "2026-11-10T14:39:27.066508+00:00",
+      "total_elapsed": 52.8635,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_masked_design",
+          "path": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_masked_design/output/steps/01_proteinmpnn_masked_design.json",
+          "size": 92,
+          "sha256": "d21ad673118a015380d46be24c85891142595250ca979f9789659e60e1ae20bc"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_masked_design.py",
+      "operator_source_sha256": "26371fa784c411665763bf305cf523509030b184b2fa25e9f120e1a113d03e0f"
+    },
+    {
+      "operator": "proteinmpnn_temperature_ladder",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_temperature_ladder",
+      "run_id": "20261110T143606-198c5d1d996b",
+      "generated_at": "2026-11-10T14:36:26.343025+00:00",
+      "total_elapsed": 19.1396,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_temperature_ladder",
+          "path": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_temperature_ladder/output/steps/01_proteinmpnn_temperature_ladder.json",
+          "size": 263,
+          "sha256": "f2e0a0e00442aac7282986bd6b2dd3e3840211f39f4924ef7922382d0ec9da49"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_temperature_ladder.py",
+      "operator_source_sha256": "731d1d927f4635da32213a8a85ac0ae2fc80772e1faa42435fe4b269eb0385f4"
+    },
+    {
+      "operator": "proteinmpnn_tied_design",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_tied_design",
+      "run_id": "20261110T143952-5023aabc36ff",
+      "generated_at": "2026-11-10T14:40:12.889868+00:00",
+      "total_elapsed": 18.5208,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_tied_design",
+          "path": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_tied_design/output/steps/01_proteinmpnn_tied_design.json",
+          "size": 65,
+          "sha256": "7be88ec6b5c5cd4af320aab0a0dd6fd7719206e90b1d279dea967b86e16b48d8"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_tied_design.py",
+      "operator_source_sha256": "53f4bbcbea421b99cff908e99b95a46ba345119db28a4549e3c98a9d3063c864"
+    },
+    {
+      "operator": "proteinmpnn_hotspot_masked_design",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_hotspot_masked_design",
+      "run_id": "20261110T143626-5b25e45adc42",
+      "generated_at": "2026-11-10T14:36:37.601589+00:00",
+      "total_elapsed": 9.5176,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_hotspot_masked_design",
+          "path": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_hotspot_masked_design/output/steps/01_proteinmpnn_hotspot_masked_design.json",
+          "size": 128,
+          "sha256": "c87dd550a97983447a299fbb574f69f80947b88f003352a36529cd3ecbf84c29"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_hotspot_masked_design.py",
+      "operator_source_sha256": "b614fad290759e42c6e137cc49404f6420a7b74c2724f31d9174ec44791c75c6"
+    },
+    {
+      "operator": "proteinmpnn_interface_scan",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_interface_scan",
+      "run_id": "20261110T143638-e460e5e30084",
+      "generated_at": "2026-11-10T14:37:01.491748+00:00",
+      "total_elapsed": 22.2133,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_interface_scan",
+          "path": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_interface_scan/output/steps/01_proteinmpnn_interface_scan.json",
+          "size": 57,
+          "sha256": "83e346bcfe5f2dfcd31eea1ef8281c8333f40cdb6e49186538c19811568e4f18"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_interface_scan.py",
+      "operator_source_sha256": "1bf28b18c2f5ebf1412a735295ebaf0f130cdc259d0ba3ae70cf21d9866ab29b"
+    },
+    {
+      "operator": "proteinmpnn_interface_temperature_scan",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_interface_temperature_scan",
+      "run_id": "20261110T142530-755579f067a9",
+      "generated_at": "2026-11-10T14:25:55.738357+00:00",
+      "total_elapsed": 23.4994,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_interface_temperature_scan",
+          "path": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_interface_temperature_scan/output/steps/01_proteinmpnn_interface_temperature_scan.json",
+          "size": 67,
+          "sha256": "8ed9f20dcb84077ffcb9568b7214ca5cfef117d21929b9c31a2308e95e967fbf"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_interface_temperature_scan.py",
+      "operator_source_sha256": "1c5fa2846ead2a08f46e8e382c78320febb7a4c70ebb89927d2c2d57559590a4"
+    },
+    {
+      "operator": "proteinmpnn_masked_interface_design",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_masked_interface_design",
+      "run_id": "20261110T143701-376b1e248ff9",
+      "generated_at": "2026-11-10T14:37:18.580243+00:00",
+      "total_elapsed": 15.0464,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_masked_interface_design",
+          "path": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_masked_interface_design/output/steps/01_proteinmpnn_masked_interface_design.json",
+          "size": 101,
+          "sha256": "7d74a70fc16e6cdc4fcb9ff00dae991765bdad1a737dea8959a3973e6be184d4"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_masked_interface_design.py",
+      "operator_source_sha256": "55e40405381d6fbf37d8b1ab1f23b2e2ad3b38d564f0624dc5a4e810fe1dc8ab"
+    },
+    {
+      "operator": "proteinmpnn_masked_interface_score",
+      "route_dir": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_masked_interface_score",
+      "run_id": "20261110T200147-b30d34a344af",
+      "generated_at": "2026-11-10T20:07:57.663290+00:00",
+      "total_elapsed": 368.5255,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "proteinmpnn_masked_interface_score",
+          "path": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_masked_interface_score/output/steps/01_proteinmpnn_masked_interface_score.json",
+          "size": 2252,
+          "sha256": "6ea3230809fe9d05cff2531aaa63eed775fbdfba2f4f6c6ff6902483cf4decf1"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_masked_interface_score.py",
+      "operator_source_sha256": "1295f67e441c29e31b8ff7b5368e853f43202fabc1348ced7b489940049d0075"
+    },
+    {
+      "operator": "nucleotide_transformer_embedding",
+      "route_dir": "/public/home/lihj/operon715/cov_nt/nucleotide_transformer_embedding",
+      "run_id": "20261110T194211-e313da5486bb",
+      "generated_at": "2026-11-10T19:42:31.093373+00:00",
+      "total_elapsed": 18.0289,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "nucleotide_transformer_embedding",
+          "path": "/public/home/lihj/operon715/cov_nt/nucleotide_transformer_embedding/output/steps/01_nucleotide_transformer_embedding.json",
+          "size": 483,
+          "sha256": "b271804cec3e5d898f4b4235d7726b677df76ef89a079df3652be8655bbeb897"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/nucleotide_transformer_embedding.py",
+      "operator_source_sha256": "e8c3da401e18ea6706965644f3bf861a6aeec6a0f8102f8535600721bcbdc75a"
+    },
+    {
+      "operator": "nucleotide_transformer_variant_effect",
+      "route_dir": "/public/home/lihj/operon715/cov_nt/nucleotide_transformer_variant_effect",
+      "run_id": "20261110T194232-1a8f42fd8c79",
+      "generated_at": "2026-11-10T19:42:46.926786+00:00",
+      "total_elapsed": 13.5849,
+      "n_steps": 1,
+      "exports": [
+        {
+          "step": "nucleotide_transformer_variant_effect",
+          "path": "/public/home/lihj/operon715/cov_nt/nucleotide_transformer_variant_effect/output/steps/01_nucleotide_transformer_variant_effect.json",
+          "size": 432,
+          "sha256": "b2376c74312014cd750b25a5bf798c8a05f5a3e82eea8109aa3ae563af0cbc15"
+        }
+      ],
+      "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/nucleotide_transformer_variant_effect.py",
+      "operator_source_sha256": "35ee9f51026dcb722fca9f6a57f44253829e111da432520cc96d126092d4e6bb"
+    }
+  ],
+  "operators": {
+    "amrfinder_plus": [
+      {
+        "operator": "amrfinder_plus",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/amrfinder_plus",
+        "run_id": "20261110T123704-e71af8404975",
+        "generated_at": "2026-11-10T12:37:06.923724+00:00",
+        "total_elapsed": 1.4639,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "amrfinder_plus",
+            "path": "/public/home/lihj/operon715/closure_replay/amrfinder_plus/output/steps/01_amrfinder_plus.json",
+            "size": 471,
+            "sha256": "40d893a99f67bc0e5b844d92445ac068aa247d566954fe6af39ea03352c67bee"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/amrfinder_plus.py",
+        "operator_source_sha256": "974b2941c9033a3ddaac61836abe1cd483d0a6c2e8398e663126bd910be227bf"
+      }
+    ],
+    "antibody_cdr_length_profile": [
+      {
+        "operator": "antibody_cdr_length_profile",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/antibody_cdr_length_profile",
+        "run_id": "20261110T123149-fbe0297249d9",
+        "generated_at": "2026-11-10T12:31:54.845900+00:00",
+        "total_elapsed": 3.5841,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "antibody_cdr_length_profile",
+            "path": "/public/home/lihj/operon715/closure_replay/antibody_cdr_length_profile/output/steps/01_antibody_cdr_length_profile.json",
+            "size": 75,
+            "sha256": "1369cbfaec14fe47514af12303a07ff7c742698a8a5b0f2aef6a2190c0af9b58"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/antibody_cdr_length_profile.py",
+        "operator_source_sha256": "6238cf893454957558111c9db920c12a42cc9001c239fb538d225533cf2e66ae"
+      }
+    ],
+    "antismash_bgc": [
+      {
+        "operator": "antismash_bgc",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/antismash_bgc",
+        "run_id": "20261110T123708-eee7d2ab84b4",
+        "generated_at": "2026-11-10T12:37:18.081464+00:00",
+        "total_elapsed": 8.6815,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "antismash_bgc",
+            "path": "/public/home/lihj/operon715/closure_replay/antismash_bgc/output/steps/01_antismash_bgc.json",
+            "size": 3109,
+            "sha256": "2419b0a1026bc124f976f9d260e40ff5870aa622064202fa1d2e4b4c6a68832f"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/antismash_bgc.py",
+        "operator_source_sha256": "8c18244069b50cb76be62d8f36f6647b3e23d86c9e40fc8482391ca428188dae"
+      }
+    ],
+    "assembly_stats": [
+      {
+        "operator": "assembly_stats",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/assembly_stats",
+        "run_id": "20261110T123158-d3c7156cf154",
+        "generated_at": "2026-11-10T12:31:59.995618+00:00",
+        "total_elapsed": 0.4747,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "assembly_stats",
+            "path": "/public/home/lihj/operon715/closure_replay/assembly_stats/output/steps/01_assembly_stats.json",
+            "size": 145,
+            "sha256": "b2a184afe6a8ddb934a80fe1c16053d0c9fd2daa6a886574a64b48b89a50a3f2"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/assembly_stats.py",
+        "operator_source_sha256": "e253d7a616864484fbbd04100bdc5ea0b35d6545e71c1a70e12b50682e4072f4"
+      }
+    ],
+    "crispr_array_detect": [
+      {
+        "operator": "crispr_array_detect",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/crispr_array_detect",
+        "run_id": "20261110T123201-b7d4b0c446a8",
+        "generated_at": "2026-11-10T12:32:18.665881+00:00",
+        "total_elapsed": 5.7193,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "crispr_array_detect",
+            "path": "/public/home/lihj/operon715/closure_replay/crispr_array_detect/output/steps/01_crispr_array_detect.json",
+            "size": 337,
+            "sha256": "533a95ad0c3c715de9d74c862d1c86a21db9ac4cb423c1d88083d190080b7e67"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/crispr_array_detect.py",
+        "operator_source_sha256": "b3bccbe73a94974d0de2597f96302d2ccfc2e3910f457147564161ed0dc2924d"
+      }
+    ],
+    "esm3_embedding": [
+      {
+        "operator": "esm3_embedding",
+        "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_embedding",
+        "run_id": "20261110T133220-45c021342de1",
+        "generated_at": "2026-11-10T13:34:48.077817+00:00",
+        "total_elapsed": 146.5787,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "esm3_embedding",
+            "path": "/public/home/lihj/operon715/cov_ml3/esm3_embedding/output/steps/01_esm3_embedding.json",
+            "size": 107,
+            "sha256": "7acf04463ff7783a9281ea37a1b708fd61b5e9834cfe0013779fbb9ac8119856"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_embedding.py",
+        "operator_source_sha256": "6f86db48943e0d19f5786b1eadee5c12ebd8cd27c77023e66353244c28a38fd9"
+      }
+    ],
+    "esm3_fold": [
+      {
+        "operator": "esm3_fold",
+        "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_fold",
+        "run_id": "20261110T135502-5401c0e161fb",
+        "generated_at": "2026-11-10T14:00:28.329464+00:00",
+        "total_elapsed": 324.7692,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "esm3_fold",
+            "path": "/public/home/lihj/operon715/cov_ml3/esm3_fold/output/steps/01_esm3_fold.json",
+            "size": 568,
+            "sha256": "07ad2b892f9ed9bb35d301fa8a54de138de904dc12da9d01a132d66aa41f3f9e"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_fold.py",
+        "operator_source_sha256": "cab2ae85cc7b5f3dd30f034c1450c1417f54a8e599c09eabce01785f95b61a3f"
+      }
+    ],
+    "esm3_inverse_folding": [
+      {
+        "operator": "esm3_inverse_folding",
+        "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_inverse_folding",
+        "run_id": "20261110T135920-c28b68a988b0",
+        "generated_at": "2026-11-10T14:05:45.646744+00:00",
+        "total_elapsed": 384.6429,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "esm3_inverse_folding",
+            "path": "/public/home/lihj/operon715/cov_ml3/esm3_inverse_folding/output/steps/01_esm3_inverse_folding.json",
+            "size": 71,
+            "sha256": "c6bb7609d3b474571e96979f41f9759e7f4a53a5dceab3d0e3c347fe7a8955fa"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_inverse_folding.py",
+        "operator_source_sha256": "1cca23b8fc1696e7ac96c9e1f49087cea4b21c6bb665169833da8b6bd2e3ee0d"
+      }
+    ],
+    "esm3_sasa_prediction": [
+      {
+        "operator": "esm3_sasa_prediction",
+        "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_sasa_prediction",
+        "run_id": "20261110T134136-acc0340d1c78",
+        "generated_at": "2026-11-10T13:45:29.108595+00:00",
+        "total_elapsed": 232.0542,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "esm3_sasa_prediction",
+            "path": "/public/home/lihj/operon715/cov_ml3/esm3_sasa_prediction/output/steps/01_esm3_sasa_prediction.json",
+            "size": 119,
+            "sha256": "e06eb81c7ecc6dcca731b4f4fe97760eaf1c7eda2c6893b934bb0cd02017cffd"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_sasa_prediction.py",
+        "operator_source_sha256": "3863bfa9081d936bc6c59e628705da36cb9a3e9eabfb136a7fe6f37af501469e"
+      }
+    ],
+    "esm3_secondary_structure": [
+      {
+        "operator": "esm3_secondary_structure",
+        "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_secondary_structure",
+        "run_id": "20261110T134529-b1e79e9eaf16",
+        "generated_at": "2026-11-10T13:49:20.755963+00:00",
+        "total_elapsed": 230.6143,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "esm3_secondary_structure",
+            "path": "/public/home/lihj/operon715/cov_ml3/esm3_secondary_structure/output/steps/01_esm3_secondary_structure.json",
+            "size": 164,
+            "sha256": "002470c3c08106bea9b65b94acb6381a8ed62aecebbe1c778a03557c0203f5e0"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_secondary_structure.py",
+        "operator_source_sha256": "4c958ce76e385c653068e61015fb5a3820c013aa7d12485a8aacf10e4099ffa3"
+      }
+    ],
+    "esm3_sequence_generation": [
+      {
+        "operator": "esm3_sequence_generation",
+        "route_dir": "/public/home/lihj/operon715/cov_ml3/esm3_sequence_generation",
+        "run_id": "20261110T135223-35f23ad7522c",
+        "generated_at": "2026-11-10T13:55:30.349109+00:00",
+        "total_elapsed": 186.0743,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "esm3_sequence_generation",
+            "path": "/public/home/lihj/operon715/cov_ml3/esm3_sequence_generation/output/steps/01_esm3_sequence_generation.json",
+            "size": 810,
+            "sha256": "abcf8a17c23c9fc02f7edbacfc8bcae8eb8c0484a4be8995c9aec4f1fed980d8"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm3_sequence_generation.py",
+        "operator_source_sha256": "d10a00d9d7b9e2b4c3b55a2800107b696da1a07f617230f89b961bf55d56b085"
+      }
+    ],
+    "esm_embedding": [
+      {
+        "operator": "esm_embedding",
+        "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_embedding",
+        "run_id": "20261110T130044-b7dc482d12d7",
+        "generated_at": "2026-11-10T13:01:21.283818+00:00",
+        "total_elapsed": 35.6204,
+        "n_steps": 2,
+        "exports": [
+          {
+            "step": "esm_embedding",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_embedding/output/steps/01_esm_embedding.json",
+            "size": 97,
+            "sha256": "0e19ee907483c8a67deedb2d6e8c19cf3739e4be496b3b1040a58f8753ae9e54"
+          },
+          {
+            "step": "export_results",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_embedding/output/steps/02_export_results.json",
+            "size": 307,
+            "sha256": "0c66340a7b4a673f857c89c12d2e594111f1b11d21f84e948fab964a04e8e6d8"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_embedding.py",
+        "operator_source_sha256": "0960f3070aa3aa610429b5e31431e0df883dd9f52960a4b1032535b1841de71f"
+      }
+    ],
+    "esm_if_design": [
+      {
+        "operator": "esm_if_design",
+        "route_dir": "/public/home/lihj/operon715/cov_ml/esm_if_design",
+        "run_id": "20261110T130602-bd831f83ab08",
+        "generated_at": "2026-11-10T13:22:21.768959+00:00",
+        "total_elapsed": 978.2063,
+        "n_steps": 2,
+        "exports": [
+          {
+            "step": "esm_if_design",
+            "path": "/public/home/lihj/operon715/cov_ml/esm_if_design/output/steps/01_esm_if_design.json",
+            "size": 590,
+            "sha256": "70bc2a4a5187dc3d54cb27e1d98bb2d1991640c70288e7a460369be509db7538"
+          },
+          {
+            "step": "export_results",
+            "path": "/public/home/lihj/operon715/cov_ml/esm_if_design/output/steps/02_export_results.json",
+            "size": 301,
+            "sha256": "5c90c3ed9170273edf4749cac7c3315ec9deb3ab08dda5e0796626592c1a7367"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_design.py",
+        "operator_source_sha256": "7b9d01b1595aab5d7c54d0371f31b3b9b350f95e39e45441bb5f51216724d33d"
+      }
+    ],
+    "esm_if_mutation_scan": [
+      {
+        "operator": "esm_if_mutation_scan",
+        "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_if_mutation_scan",
+        "run_id": "20261110T143655-5b5afcbb9868",
+        "generated_at": "2026-11-10T14:38:05.708517+00:00",
+        "total_elapsed": 69.1466,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "esm_if_mutation_scan",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_if_mutation_scan/output/steps/01_esm_if_mutation_scan.json",
+            "size": 961,
+            "sha256": "ed718b712a631d70fcfcd48558ad61ad88374678783a7c76c80bc77f17170983"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_mutation_scan.py",
+        "operator_source_sha256": "abc01d9147a2c3a095b54083a4f6fa1229dcece6bd555bf784d837969f521dac"
+      }
+    ],
+    "esm_if_position_entropy": [
+      {
+        "operator": "esm_if_position_entropy",
+        "route_dir": "/public/home/lihj/operon715/cov_ml/esm_if_position_entropy",
+        "run_id": "20261110T143018-b8b9dfbcf85e",
+        "generated_at": "2026-11-10T16:09:47.041321+00:00",
+        "total_elapsed": 5967.415,
+        "n_steps": 2,
+        "exports": [
+          {
+            "step": "esm_if_position_entropy",
+            "path": "/public/home/lihj/operon715/cov_ml/esm_if_position_entropy/output/steps/01_esm_if_position_entropy.json",
+            "size": 519,
+            "sha256": "e505e444de6fed077be0e8f81c05f312de84ce54b472e9f55f28de134533fd26"
+          },
+          {
+            "step": "export_results",
+            "path": "/public/home/lihj/operon715/cov_ml/esm_if_position_entropy/output/steps/02_export_results.json",
+            "size": 322,
+            "sha256": "8a8843965e525603ccdf5bfdf58e97c27dae397c19f92b20749809bd7820fe0c"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_position_entropy.py",
+        "operator_source_sha256": "5173c45e63f48e71313259ad2d393a3a1fef970bf853f6178fb78ef5f99bbab0"
+      },
+      {
+        "operator": "esm_if_position_entropy",
+        "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_if_position_entropy",
+        "run_id": "20261110T143808-70cff3b27ff2",
+        "generated_at": "2026-11-10T15:03:33.080125+00:00",
+        "total_elapsed": 1523.4424,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "esm_if_position_entropy",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_if_position_entropy/output/steps/01_esm_if_position_entropy.json",
+            "size": 519,
+            "sha256": "6b028d9d6110d3ba43d807e948388f42dbec28d08f91340a73fcfacaa9ed7f3b"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_position_entropy.py",
+        "operator_source_sha256": "5173c45e63f48e71313259ad2d393a3a1fef970bf853f6178fb78ef5f99bbab0"
+      }
+    ],
+    "esm_if_redesign": [
+      {
+        "operator": "esm_if_redesign",
+        "route_dir": "/public/home/lihj/operon715/cov_ml/esm_if_redesign",
+        "run_id": "20261110T160948-4314ef739f3a",
+        "generated_at": "2026-11-10T16:13:39.427762+00:00",
+        "total_elapsed": 227.7243,
+        "n_steps": 2,
+        "exports": [
+          {
+            "step": "esm_if_redesign",
+            "path": "/public/home/lihj/operon715/cov_ml/esm_if_redesign/output/steps/01_esm_if_redesign.json",
+            "size": 700,
+            "sha256": "c5ea58ad7a530a0068b7085db06756a1121edbb03ff6424c3bb62d85bc916bb8"
+          },
+          {
+            "step": "export_results",
+            "path": "/public/home/lihj/operon715/cov_ml/esm_if_redesign/output/steps/02_export_results.json",
+            "size": 307,
+            "sha256": "fc3165fb743b782c9c51bb3d2e1ab27bc43177663d6f7d9636335170ced7687e"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_redesign.py",
+        "operator_source_sha256": "71c077d5f748f55e280037c9ead37c47bdb28e8d79c500aa651be306827e0620"
+      },
+      {
+        "operator": "esm_if_redesign",
+        "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_if_redesign",
+        "run_id": "20261110T150337-dfd7f6ca4faa",
+        "generated_at": "2026-11-10T15:05:39.187614+00:00",
+        "total_elapsed": 121.1424,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "esm_if_redesign",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_if_redesign/output/steps/01_esm_if_redesign.json",
+            "size": 568,
+            "sha256": "cc3a02610901269f28e0fe872b20d14f8bc4e9d6561ba4aa3fc710910b966051"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_redesign.py",
+        "operator_source_sha256": "71c077d5f748f55e280037c9ead37c47bdb28e8d79c500aa651be306827e0620"
+      }
+    ],
+    "esm_if_score": [
+      {
+        "operator": "esm_if_score",
+        "route_dir": "/public/home/lihj/operon715/cov_ml/esm_if_score",
+        "run_id": "20261110T130508-6276073f7f74",
+        "generated_at": "2026-11-10T13:05:55.513504+00:00",
+        "total_elapsed": 45.4931,
+        "n_steps": 2,
+        "exports": [
+          {
+            "step": "esm_if_score",
+            "path": "/public/home/lihj/operon715/cov_ml/esm_if_score/output/steps/01_esm_if_score.json",
+            "size": 269,
+            "sha256": "d266e10a757fa7e580eeeac08d116cdce214466d8c838746712d174f939e3735"
+          },
+          {
+            "step": "export_results",
+            "path": "/public/home/lihj/operon715/cov_ml/esm_if_score/output/steps/02_export_results.json",
+            "size": 307,
+            "sha256": "c098d0db33837029a111c67b7074bcbfefd7bebf3387267b0fdc43547f71d499"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_if_score.py",
+        "operator_source_sha256": "bc485cae91143b46acea82f77ea8b346de2d8d6dd346a09c987cbe2e45d5cec3"
+      }
+    ],
+    "esm_masked_marginal": [
+      {
+        "operator": "esm_masked_marginal",
+        "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_masked_marginal",
+        "run_id": "20261110T194740-37af28e9bb6e",
+        "generated_at": "2026-11-10T19:48:09.004409+00:00",
+        "total_elapsed": 27.5204,
+        "n_steps": 2,
+        "exports": [
+          {
+            "step": "esm_masked_marginal",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_masked_marginal/output/steps/01_esm_masked_marginal.json",
+            "size": 260,
+            "sha256": "d77a5f0671261ceb0127be2507af6bd00fcf2040799d095ac5c3e00d09c2c512"
+          },
+          {
+            "step": "export_results",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_masked_marginal/output/steps/02_export_results.json",
+            "size": 315,
+            "sha256": "a0704f3dbbfce8fb0338d011eb11d19f6092f4f29f0c3c054d3caea39a3c20be"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_masked_marginal.py",
+        "operator_source_sha256": "2d23ae556816448e61d7f5fa8aefb2290ceae4ca330852370fea1d791facc185"
+      }
+    ],
+    "esm_pseudo_likelihood": [
+      {
+        "operator": "esm_pseudo_likelihood",
+        "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_pseudo_likelihood",
+        "run_id": "20261110T131238-dff0697f4745",
+        "generated_at": "2026-11-10T13:13:16.745852+00:00",
+        "total_elapsed": 37.3746,
+        "n_steps": 2,
+        "exports": [
+          {
+            "step": "esm_pseudo_likelihood",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_pseudo_likelihood/output/steps/01_esm_pseudo_likelihood.json",
+            "size": 380,
+            "sha256": "24646a60b365f066232359cb90147d2db376c5aaea6ed2fa1c9d5c9f3ab4b7c9"
+          },
+          {
+            "step": "export_results",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_pseudo_likelihood/output/steps/02_export_results.json",
+            "size": 329,
+            "sha256": "7986515b7da97b5976f1c7d998d02a96dc8469a3c99a8410ddb56141af5301a1"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_pseudo_likelihood.py",
+        "operator_source_sha256": "65243299c961280a91732780db3b1bf5f78dbbe4c7bcb1aeec0e5e6f549cc87f"
+      }
+    ],
+    "esm_variant_effect": [
+      {
+        "operator": "esm_variant_effect",
+        "route_dir": "/public/home/lihj/operon715/cov_ml2/esm_variant_effect",
+        "run_id": "20261110T131317-e5b756540917",
+        "generated_at": "2026-11-10T13:13:54.505393+00:00",
+        "total_elapsed": 35.8166,
+        "n_steps": 2,
+        "exports": [
+          {
+            "step": "esm_variant_effect",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_variant_effect/output/steps/01_esm_variant_effect.json",
+            "size": 833,
+            "sha256": "a93510d22751f3f895e58b15a2cfedfc24467e10d22d84ea61ce84571751f925"
+          },
+          {
+            "step": "export_results",
+            "path": "/public/home/lihj/operon715/cov_ml2/esm_variant_effect/output/steps/02_export_results.json",
+            "size": 316,
+            "sha256": "2ed7ea0abd6a8fc6acf46eac13363c42f7599a9014ca220aa350e5950a876dd4"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/esm_variant_effect.py",
+        "operator_source_sha256": "b315a8e4ac4a837bb88933913d04bc87c8a659135e9c33b425a5a3c906fc7daa"
+      }
+    ],
+    "flye_assemble": [
+      {
+        "operator": "flye_assemble",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/flye_assemble",
+        "run_id": "20261110T123221-3e8693c722a2",
+        "generated_at": "2026-11-10T12:33:55.913711+00:00",
+        "total_elapsed": 93.1894,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "flye_assemble",
+            "path": "/public/home/lihj/operon715/closure_replay/flye_assemble/output/steps/01_flye_assemble.json",
+            "size": 416,
+            "sha256": "193ff9e9dc6d68b966612933ffb80ef1dd497bb3eb35417b586f42e3846f2053"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/flye_assemble.py",
+        "operator_source_sha256": "3bd9038920072034769a956cad90afedb1fd3d7291ea9e20f91ebcd777ebe666"
+      }
+    ],
+    "hmmer_domains": [
+      {
+        "operator": "hmmer_domains",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/hmmer_domains",
+        "run_id": "20261110T123357-97e7944729df",
+        "generated_at": "2026-11-10T12:33:58.528738+00:00",
+        "total_elapsed": 0.2256,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "hmmer_domains",
+            "path": "/public/home/lihj/operon715/closure_replay/hmmer_domains/output/steps/01_hmmer_domains.json",
+            "size": 822,
+            "sha256": "457d7cc2b6e2af2384178186637b24b1f8219a15413bb907569e645c42dcdc17"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/hmmer_domains.py",
+        "operator_source_sha256": "61540556542b4ea9afbd857e5d45d46969299b8a97f477c618fb97befd26be2f"
+      }
+    ],
+    "ligandmpnn_design": [
+      {
+        "operator": "ligandmpnn_design",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/ligandmpnn_design",
+        "run_id": "20261110T140157-52f0beeed956",
+        "generated_at": "2026-11-10T14:18:05.020528+00:00",
+        "total_elapsed": 966.847,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "ligandmpnn_design",
+            "path": "/public/home/lihj/operon715/closure_replay/ligandmpnn_design/output/steps/01_ligandmpnn_design.json",
+            "size": 729,
+            "sha256": "91b3828c9960ac8dda4cc0439d44deeee036cdeff90ebba08b42ebd814a7224d"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/ligandmpnn_design.py",
+        "operator_source_sha256": "8403d9f8606709751e86e20e9ea251352da01301459ec3ba4d3c4b85158482cc"
+      }
+    ],
+    "ligandmpnn_score": [
+      {
+        "operator": "ligandmpnn_score",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/ligandmpnn_score",
+        "run_id": "20261110T141805-8e3e64c9abf8",
+        "generated_at": "2026-11-10T14:19:05.623582+00:00",
+        "total_elapsed": 59.6194,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "ligandmpnn_score",
+            "path": "/public/home/lihj/operon715/closure_replay/ligandmpnn_score/output/steps/01_ligandmpnn_score.json",
+            "size": 718,
+            "sha256": "b5fc6977d38e0fb513baea5e94f5e6671a3170786e6065304e223a5db876f8e9"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/ligandmpnn_score.py",
+        "operator_source_sha256": "863550a65cffc99ec9e58455e4d9a025d94ce6ff1bdfe6b97e9b944ef3616069"
+      }
+    ],
+    "nucleotide_transformer_embedding": [
+      {
+        "operator": "nucleotide_transformer_embedding",
+        "route_dir": "/public/home/lihj/operon715/cov_nt/nucleotide_transformer_embedding",
+        "run_id": "20261110T194211-e313da5486bb",
+        "generated_at": "2026-11-10T19:42:31.093373+00:00",
+        "total_elapsed": 18.0289,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "nucleotide_transformer_embedding",
+            "path": "/public/home/lihj/operon715/cov_nt/nucleotide_transformer_embedding/output/steps/01_nucleotide_transformer_embedding.json",
+            "size": 483,
+            "sha256": "b271804cec3e5d898f4b4235d7726b677df76ef89a079df3652be8655bbeb897"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/nucleotide_transformer_embedding.py",
+        "operator_source_sha256": "e8c3da401e18ea6706965644f3bf861a6aeec6a0f8102f8535600721bcbdc75a"
+      }
+    ],
+    "nucleotide_transformer_variant_effect": [
+      {
+        "operator": "nucleotide_transformer_variant_effect",
+        "route_dir": "/public/home/lihj/operon715/cov_nt/nucleotide_transformer_variant_effect",
+        "run_id": "20261110T194232-1a8f42fd8c79",
+        "generated_at": "2026-11-10T19:42:46.926786+00:00",
+        "total_elapsed": 13.5849,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "nucleotide_transformer_variant_effect",
+            "path": "/public/home/lihj/operon715/cov_nt/nucleotide_transformer_variant_effect/output/steps/01_nucleotide_transformer_variant_effect.json",
+            "size": 432,
+            "sha256": "b2376c74312014cd750b25a5bf798c8a05f5a3e82eea8109aa3ae563af0cbc15"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/nucleotide_transformer_variant_effect.py",
+        "operator_source_sha256": "35ee9f51026dcb722fca9f6a57f44253829e111da432520cc96d126092d4e6bb"
+      }
+    ],
+    "pairwise_alignment": [
+      {
+        "operator": "pairwise_alignment",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/pairwise_alignment",
+        "run_id": "20261110T123400-66d7e6fdafb8",
+        "generated_at": "2026-11-10T12:34:06.934747+00:00",
+        "total_elapsed": 0.0186,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "pairwise_alignment",
+            "path": "/public/home/lihj/operon715/closure_replay/pairwise_alignment/output/steps/01_pairwise_alignment.json",
+            "size": 273,
+            "sha256": "992b7c916271c1f833fd817a50984bfdd2eea55a21efca7f0668fafe5d2b2372"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/pairwise_alignment.py",
+        "operator_source_sha256": "0eab084c3a0c804dad095c8b8f10d4b4e73d56a99dcd8a23cee1b4d212aa4ecf"
+      }
+    ],
+    "prodigal_genes": [
+      {
+        "operator": "prodigal_genes",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/prodigal_genes",
+        "run_id": "20261110T123409-a36cdeb2d3c4",
+        "generated_at": "2026-11-10T12:34:10.610781+00:00",
+        "total_elapsed": 0.2656,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "prodigal_genes",
+            "path": "/public/home/lihj/operon715/closure_replay/prodigal_genes/output/steps/01_prodigal_genes.json",
+            "size": 25395,
+            "sha256": "5a6be43518ceb440bb2d10e81ddc05e58f45226b82618f6480a0c9c3f696d7b4"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/prodigal_genes.py",
+        "operator_source_sha256": "5cd1ac80f9e4bd9f89226fa5ae23804c303247f60db8e5ffe41091962fe0cc97"
+      }
+    ],
+    "protein_properties": [
+      {
+        "operator": "protein_properties",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/protein_properties",
+        "run_id": "20261110T123412-e43cf3d347bc",
+        "generated_at": "2026-11-10T12:34:13.114119+00:00",
+        "total_elapsed": 0.0023,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "protein_properties",
+            "path": "/public/home/lihj/operon715/closure_replay/protein_properties/output/steps/01_protein_properties.json",
+            "size": 139,
+            "sha256": "57c9cb85c16763b7bf40150f9928f79f8bd66f9aa14f9347d0c869c0ee82e630"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/protein_properties.py",
+        "operator_source_sha256": "944f8d2c537f883fdf1c4a0dfb69e0db1b8f64e776ea0732a77463dc76e3db26"
+      }
+    ],
+    "proteinmpnn_bias_matrix": [
+      {
+        "operator": "proteinmpnn_bias_matrix",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_bias_matrix",
+        "run_id": "20261110T140044-e19b9b2b8db3",
+        "generated_at": "2026-11-10T14:03:27.826372+00:00",
+        "total_elapsed": 161.3389,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_bias_matrix",
+            "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_bias_matrix/output/steps/01_proteinmpnn_bias_matrix.json",
+            "size": 210,
+            "sha256": "a38fd213846ac975973544c3ce8a8e63d684f52f179007bb860e84152e12e022"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_bias_matrix.py",
+        "operator_source_sha256": "83b0dcee996b0e4bcc838f4a945aa39eef540711b9edfb08ee6b15c6e9811c1f"
+      }
+    ],
+    "proteinmpnn_bias_scan": [
+      {
+        "operator": "proteinmpnn_bias_scan",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_bias_scan",
+        "run_id": "20261110T140328-6afb80f2ba70",
+        "generated_at": "2026-11-10T14:10:13.184323+00:00",
+        "total_elapsed": 401.9396,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_bias_scan",
+            "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_bias_scan/output/steps/01_proteinmpnn_bias_scan.json",
+            "size": 944,
+            "sha256": "4725f8c3131f6481721e6b9da5dd324b5af5b5a5f13f2bf73ab573a77e18c904"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_bias_scan.py",
+        "operator_source_sha256": "adb875cd7a54b2c457bf7624b2c76d6d80fb5f77aed33f9e09224bd523310c6a"
+      }
+    ],
+    "proteinmpnn_design": [
+      {
+        "operator": "proteinmpnn_design",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design",
+        "run_id": "20261110T194425-2b21759a87d2",
+        "generated_at": "2026-11-10T19:45:36.694506+00:00",
+        "total_elapsed": 70.372,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_design",
+            "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design/output/steps/01_proteinmpnn_design.json",
+            "size": 1753,
+            "sha256": "4bc79da1368dfa69d531166f74f5f4e4a7572fcdd0a47d559e93cc14fa46d255"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_design.py",
+        "operator_source_sha256": "19c21d26beb7f9f2b1fefd08760246ad9741b5de70f102723cdcab20090bb09d"
+      }
+    ],
+    "proteinmpnn_design_cluster": [
+      {
+        "operator": "proteinmpnn_design_cluster",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design_cluster",
+        "run_id": "20261110T134132-a91b6390a314",
+        "generated_at": "2026-11-10T13:43:48.154055+00:00",
+        "total_elapsed": 134.9012,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_design_cluster",
+            "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design_cluster/output/steps/01_proteinmpnn_design_cluster.json",
+            "size": 245,
+            "sha256": "46bb1c9d7c2ebf59bd89b131c81962a987ccd6e15cb8f8cd3b435ba6c3d15476"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_design_cluster.py",
+        "operator_source_sha256": "252026d06d3b8cee4ae0a796c7d90285e7cc38551dd1af4a3cd53a699ac9e3f8"
+      }
+    ],
+    "proteinmpnn_design_diversity": [
+      {
+        "operator": "proteinmpnn_design_diversity",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design_diversity",
+        "run_id": "20261110T133917-03668e0a5b3e",
+        "generated_at": "2026-11-10T13:41:32.494097+00:00",
+        "total_elapsed": 134.1281,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_design_diversity",
+            "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design_diversity/output/steps/01_proteinmpnn_design_diversity.json",
+            "size": 255,
+            "sha256": "d3a04dff9b50bf3ec94b4188062da7f394d119a34d5531bdb94263908b078791"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_design_diversity.py",
+        "operator_source_sha256": "69cc0ca15dc88959ecedc8f8fbbf3cdb2ca8118e95f6adb7409ebe86b85e0e30"
+      }
+    ],
+    "proteinmpnn_design_profile": [
+      {
+        "operator": "proteinmpnn_design_profile",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/proteinmpnn_design_profile",
+        "run_id": "20261110T124340-cc26629b2f2d",
+        "generated_at": "2026-11-10T12:47:58.016590+00:00",
+        "total_elapsed": 257.1573,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_design_profile",
+            "path": "/public/home/lihj/operon715/closure_replay/proteinmpnn_design_profile/output/steps/01_proteinmpnn_design_profile.json",
+            "size": 167,
+            "sha256": "736afb90f2ce3fc4dc973086d1aaf0138b9c55adb73ddcf16d846f932f438970"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_design_profile.py",
+        "operator_source_sha256": "c41b71f6554e9291357920d5f07aaf49be1e9ac27978f7a042dccde29df97534"
+      }
+    ],
+    "proteinmpnn_ensemble_score": [
+      {
+        "operator": "proteinmpnn_ensemble_score",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/proteinmpnn_ensemble_score",
+        "run_id": "20261110T124759-fad1d7ef7672",
+        "generated_at": "2026-11-10T12:48:43.425195+00:00",
+        "total_elapsed": 43.482,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_ensemble_score",
+            "path": "/public/home/lihj/operon715/closure_replay/proteinmpnn_ensemble_score/output/steps/01_proteinmpnn_ensemble_score.json",
+            "size": 279,
+            "sha256": "30b59efec88c04ebc3ef76eec594e9a89ad82cc4c691eadc1f453973bb94d6f6"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_ensemble_score.py",
+        "operator_source_sha256": "519efccae99aaee11d1dc964c8fbfbd1ed8d3c99513223e3f96f30939d14f3cc"
+      }
+    ],
+    "proteinmpnn_hotspot_masked_design": [
+      {
+        "operator": "proteinmpnn_hotspot_masked_design",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_hotspot_masked_design",
+        "run_id": "20261110T143626-5b25e45adc42",
+        "generated_at": "2026-11-10T14:36:37.601589+00:00",
+        "total_elapsed": 9.5176,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_hotspot_masked_design",
+            "path": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_hotspot_masked_design/output/steps/01_proteinmpnn_hotspot_masked_design.json",
+            "size": 128,
+            "sha256": "c87dd550a97983447a299fbb574f69f80947b88f003352a36529cd3ecbf84c29"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_hotspot_masked_design.py",
+        "operator_source_sha256": "b614fad290759e42c6e137cc49404f6420a7b74c2724f31d9174ec44791c75c6"
+      }
+    ],
+    "proteinmpnn_interface_design": [
+      {
+        "operator": "proteinmpnn_interface_design",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_interface_design",
+        "run_id": "20261110T142504-3d1d64ddb0c5",
+        "generated_at": "2026-11-10T14:25:22.931711+00:00",
+        "total_elapsed": 17.4677,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_interface_design",
+            "path": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_interface_design/output/steps/01_proteinmpnn_interface_design.json",
+            "size": 459,
+            "sha256": "d38886ad26b985e714021b2d1e33729116d9fa8479be4791ef620e8e79b9eaef"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_interface_design.py",
+        "operator_source_sha256": "efa9d1652e84a14878f1067d12ef4eb38810521eb2d11fa66b71e6cc8d1043c7"
+      }
+    ],
+    "proteinmpnn_interface_redesign": [
+      {
+        "operator": "proteinmpnn_interface_redesign",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_interface_redesign",
+        "run_id": "20261110T143553-5df8a2c5d332",
+        "generated_at": "2026-11-10T14:36:04.214358+00:00",
+        "total_elapsed": 9.0075,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_interface_redesign",
+            "path": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_interface_redesign/output/steps/01_proteinmpnn_interface_redesign.json",
+            "size": 1551,
+            "sha256": "350b92cd63d086674593f9ee125876928b2506df4db6209f4c8625c498f3260e"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_interface_redesign.py",
+        "operator_source_sha256": "fc6c6be12dbdf59e5217f6fd4b40336771e1b5512329260c29e8b31c077399e8"
+      }
+    ],
+    "proteinmpnn_interface_scan": [
+      {
+        "operator": "proteinmpnn_interface_scan",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_interface_scan",
+        "run_id": "20261110T143638-e460e5e30084",
+        "generated_at": "2026-11-10T14:37:01.491748+00:00",
+        "total_elapsed": 22.2133,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_interface_scan",
+            "path": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_interface_scan/output/steps/01_proteinmpnn_interface_scan.json",
+            "size": 57,
+            "sha256": "83e346bcfe5f2dfcd31eea1ef8281c8333f40cdb6e49186538c19811568e4f18"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_interface_scan.py",
+        "operator_source_sha256": "1bf28b18c2f5ebf1412a735295ebaf0f130cdc259d0ba3ae70cf21d9866ab29b"
+      }
+    ],
+    "proteinmpnn_interface_temperature_scan": [
+      {
+        "operator": "proteinmpnn_interface_temperature_scan",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_interface_temperature_scan",
+        "run_id": "20261110T142530-755579f067a9",
+        "generated_at": "2026-11-10T14:25:55.738357+00:00",
+        "total_elapsed": 23.4994,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_interface_temperature_scan",
+            "path": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_interface_temperature_scan/output/steps/01_proteinmpnn_interface_temperature_scan.json",
+            "size": 67,
+            "sha256": "8ed9f20dcb84077ffcb9568b7214ca5cfef117d21929b9c31a2308e95e967fbf"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_interface_temperature_scan.py",
+        "operator_source_sha256": "1c5fa2846ead2a08f46e8e382c78320febb7a4c70ebb89927d2c2d57559590a4"
+      }
+    ],
+    "proteinmpnn_masked_design": [
+      {
+        "operator": "proteinmpnn_masked_design",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_masked_design",
+        "run_id": "20261110T143832-36bfed3156fa",
+        "generated_at": "2026-11-10T14:39:27.066508+00:00",
+        "total_elapsed": 52.8635,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_masked_design",
+            "path": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_masked_design/output/steps/01_proteinmpnn_masked_design.json",
+            "size": 92,
+            "sha256": "d21ad673118a015380d46be24c85891142595250ca979f9789659e60e1ae20bc"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_masked_design.py",
+        "operator_source_sha256": "26371fa784c411665763bf305cf523509030b184b2fa25e9f120e1a113d03e0f"
+      }
+    ],
+    "proteinmpnn_masked_interface_design": [
+      {
+        "operator": "proteinmpnn_masked_interface_design",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_masked_interface_design",
+        "run_id": "20261110T143701-376b1e248ff9",
+        "generated_at": "2026-11-10T14:37:18.580243+00:00",
+        "total_elapsed": 15.0464,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_masked_interface_design",
+            "path": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_masked_interface_design/output/steps/01_proteinmpnn_masked_interface_design.json",
+            "size": 101,
+            "sha256": "7d74a70fc16e6cdc4fcb9ff00dae991765bdad1a737dea8959a3973e6be184d4"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_masked_interface_design.py",
+        "operator_source_sha256": "55e40405381d6fbf37d8b1ab1f23b2e2ad3b38d564f0624dc5a4e810fe1dc8ab"
+      }
+    ],
+    "proteinmpnn_masked_interface_score": [
+      {
+        "operator": "proteinmpnn_masked_interface_score",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_masked_interface_score",
+        "run_id": "20261110T200147-b30d34a344af",
+        "generated_at": "2026-11-10T20:07:57.663290+00:00",
+        "total_elapsed": 368.5255,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_masked_interface_score",
+            "path": "/public/home/lihj/operon715/cov_mpnn3/proteinmpnn_masked_interface_score/output/steps/01_proteinmpnn_masked_interface_score.json",
+            "size": 2252,
+            "sha256": "6ea3230809fe9d05cff2531aaa63eed775fbdfba2f4f6c6ff6902483cf4decf1"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_masked_interface_score.py",
+        "operator_source_sha256": "1295f67e441c29e31b8ff7b5368e853f43202fabc1348ced7b489940049d0075"
+      }
+    ],
+    "proteinmpnn_multi_model_consensus": [
+      {
+        "operator": "proteinmpnn_multi_model_consensus",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_multi_model_consensus",
+        "run_id": "20261110T133451-093583cf2c5d",
+        "generated_at": "2026-11-10T13:39:16.226054+00:00",
+        "total_elapsed": 263.553,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_multi_model_consensus",
+            "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_multi_model_consensus/output/steps/01_proteinmpnn_multi_model_consensus.json",
+            "size": 450,
+            "sha256": "e7ac8edcff99c8aa7b17b6abb8996b67da30c6d333d398a8a7e6dd97b202dae1"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_multi_model_consensus.py",
+        "operator_source_sha256": "4c5dbe0f5915a2e2467dcc6398096d021a994d2cba1c3eee14c465908cb94f22"
+      }
+    ],
+    "proteinmpnn_native_recovery_scan": [
+      {
+        "operator": "proteinmpnn_native_recovery_scan",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_native_recovery_scan",
+        "run_id": "20261110T133233-60702398870a",
+        "generated_at": "2026-11-10T13:34:51.875317+00:00",
+        "total_elapsed": 138.1838,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_native_recovery_scan",
+            "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_native_recovery_scan/output/steps/01_proteinmpnn_native_recovery_scan.json",
+            "size": 171,
+            "sha256": "7d6f6316b5be597ae9fbdb59c3ca8601f2a3d255efa51e4b12edc167febf085e"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_native_recovery_scan.py",
+        "operator_source_sha256": "58e3c58dd66fcb64eb7a8f6520dde4c8fcab49696fe2bd764b56aedd2d6cede9"
+      }
+    ],
+    "proteinmpnn_noise_robustness": [
+      {
+        "operator": "proteinmpnn_noise_robustness",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_noise_robustness",
+        "run_id": "20261110T141240-e5b8717eb75a",
+        "generated_at": "2026-11-10T14:21:28.604714+00:00",
+        "total_elapsed": 527.5713,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_noise_robustness",
+            "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_noise_robustness/output/steps/01_proteinmpnn_noise_robustness.json",
+            "size": 122,
+            "sha256": "85949db57de0dd0bbc0cac81d9581eed8f4321a439e3fcf1c617fec37f5fd7a5"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_noise_robustness.py",
+        "operator_source_sha256": "cf70dbacb41229dc6e3626eaaa1838f54ad42ed3142d0b106fcb5110949ed2cd"
+      }
+    ],
+    "proteinmpnn_omit_design": [
+      {
+        "operator": "proteinmpnn_omit_design",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/proteinmpnn_omit_design",
+        "run_id": "20261110T124844-3ec9fc200642",
+        "generated_at": "2026-11-10T12:50:59.321986+00:00",
+        "total_elapsed": 134.2653,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_omit_design",
+            "path": "/public/home/lihj/operon715/closure_replay/proteinmpnn_omit_design/output/steps/01_proteinmpnn_omit_design.json",
+            "size": 252,
+            "sha256": "755b9c1bf86a3cf1d01b4028bbff6208d4b2a784a24171babb69078f8e0ffb59"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_omit_design.py",
+        "operator_source_sha256": "26a3e6099072699410e6e07277b78fa1a3e0d80c91cb9ecf1cd25c9e704f5473"
+      }
+    ],
+    "proteinmpnn_perplexity": [
+      {
+        "operator": "proteinmpnn_perplexity",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_perplexity",
+        "run_id": "20261110T135730-9ce61839ce6f",
+        "generated_at": "2026-11-10T14:00:44.167047+00:00",
+        "total_elapsed": 193.2579,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_perplexity",
+            "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_perplexity/output/steps/01_proteinmpnn_perplexity.json",
+            "size": 285,
+            "sha256": "83fff62e14d6b6ba604b6eeafe7516a1477981c79663f89696a8992ebedcda47"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_perplexity.py",
+        "operator_source_sha256": "4d7d91e730118c4e91b2d6fda03867be2499b3a0789c441a604b17e89cdf6de0"
+      }
+    ],
+    "proteinmpnn_position_entropy": [
+      {
+        "operator": "proteinmpnn_position_entropy",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/proteinmpnn_position_entropy",
+        "run_id": "20261110T125100-7cc2d39464cd",
+        "generated_at": "2026-11-10T12:53:13.921352+00:00",
+        "total_elapsed": 132.8268,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_position_entropy",
+            "path": "/public/home/lihj/operon715/closure_replay/proteinmpnn_position_entropy/output/steps/01_proteinmpnn_position_entropy.json",
+            "size": 347,
+            "sha256": "7b7c6250bbda692795f419405cb9261402f802c2949db67af6a2001de6584246"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_position_entropy.py",
+        "operator_source_sha256": "894b2a8a1ef613550f19afbb9d4308ea5381d32dd3a958ca04489629bc01770b"
+      }
+    ],
+    "proteinmpnn_probability_profile": [
+      {
+        "operator": "proteinmpnn_probability_profile",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_probability_profile",
+        "run_id": "20261110T141013-3f4974f4d38b",
+        "generated_at": "2026-11-10T14:12:39.701887+00:00",
+        "total_elapsed": 143.0985,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_probability_profile",
+            "path": "/public/home/lihj/operon715/cov_mpnn/proteinmpnn_probability_profile/output/steps/01_proteinmpnn_probability_profile.json",
+            "size": 336,
+            "sha256": "303f90f3f933b9cd41c2e6b66fc36a0f61959b679189363f1d87c0a69a3949db"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_probability_profile.py",
+        "operator_source_sha256": "7f9b8557e86a71a98c74f31115f2cee4a22954a62b4077a4a3dacde7d1e925b5"
+      }
+    ],
+    "proteinmpnn_score": [
+      {
+        "operator": "proteinmpnn_score",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/proteinmpnn_score",
+        "run_id": "20261110T125314-71564253a91e",
+        "generated_at": "2026-11-10T12:53:26.887550+00:00",
+        "total_elapsed": 11.1892,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_score",
+            "path": "/public/home/lihj/operon715/closure_replay/proteinmpnn_score/output/steps/01_proteinmpnn_score.json",
+            "size": 225,
+            "sha256": "54b82c0515e15a602f0dc8168fb6ead18fe4a765499fbf29ad2f810f334982ac"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_score.py",
+        "operator_source_sha256": "a282e16324476545158b5e69229e0c0ca66ef2ba1b2c9e698c13345c4a81850a"
+      }
+    ],
+    "proteinmpnn_temperature_ladder": [
+      {
+        "operator": "proteinmpnn_temperature_ladder",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_temperature_ladder",
+        "run_id": "20261110T143606-198c5d1d996b",
+        "generated_at": "2026-11-10T14:36:26.343025+00:00",
+        "total_elapsed": 19.1396,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_temperature_ladder",
+            "path": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_temperature_ladder/output/steps/01_proteinmpnn_temperature_ladder.json",
+            "size": 263,
+            "sha256": "f2e0a0e00442aac7282986bd6b2dd3e3840211f39f4924ef7922382d0ec9da49"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_temperature_ladder.py",
+        "operator_source_sha256": "731d1d927f4635da32213a8a85ac0ae2fc80772e1faa42435fe4b269eb0385f4"
+      }
+    ],
+    "proteinmpnn_tied_design": [
+      {
+        "operator": "proteinmpnn_tied_design",
+        "route_dir": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_tied_design",
+        "run_id": "20261110T143952-5023aabc36ff",
+        "generated_at": "2026-11-10T14:40:12.889868+00:00",
+        "total_elapsed": 18.5208,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "proteinmpnn_tied_design",
+            "path": "/public/home/lihj/operon715/cov_mpnn2/proteinmpnn_tied_design/output/steps/01_proteinmpnn_tied_design.json",
+            "size": 65,
+            "sha256": "7be88ec6b5c5cd4af320aab0a0dd6fd7719206e90b1d279dea967b86e16b48d8"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/proteinmpnn_tied_design.py",
+        "operator_source_sha256": "53f4bbcbea421b99cff908e99b95a46ba345119db28a4549e3c98a9d3063c864"
+      }
+    ],
+    "rfam_scan": [
+      {
+        "operator": "rfam_scan",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/rfam_scan",
+        "run_id": "20261110T123905-475bc23a6f1c",
+        "generated_at": "2026-11-10T12:39:06.790544+00:00",
+        "total_elapsed": 0.9058,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "rfam_scan",
+            "path": "/public/home/lihj/operon715/closure_replay/rfam_scan/output/steps/01_rfam_scan.json",
+            "size": 395,
+            "sha256": "585597d2ad1cdec669388371d58e5c9cb4869875518b661c04db8fa79660db32"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/rfam_scan.py",
+        "operator_source_sha256": "720aa4aa2e26e650fa2549250ecdb9fd478d44ad2a2123015700edbe3f217d61"
+      }
+    ],
+    "sequence_rna_accessibility": [
+      {
+        "operator": "sequence_rna_accessibility",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_accessibility",
+        "run_id": "20261110T123417-e4aeb231b80e",
+        "generated_at": "2026-11-10T12:34:18.737138+00:00",
+        "total_elapsed": 0.3461,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "sequence_rna_accessibility",
+            "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_accessibility/output/steps/01_sequence_rna_accessibility.json",
+            "size": 195,
+            "sha256": "d5ed40147f067fb01727ca5e162509be6c1a8d942a76759411511980625a50ed"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_accessibility.py",
+        "operator_source_sha256": "05d711225a11e2fa7bab38373cab7d87a828cd06d26f8340603f52b5ea80be68"
+      }
+    ],
+    "sequence_rna_cofold": [
+      {
+        "operator": "sequence_rna_cofold",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_cofold",
+        "run_id": "20261110T123420-7a555d87325d",
+        "generated_at": "2026-11-10T12:34:21.084541+00:00",
+        "total_elapsed": 0.1304,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "sequence_rna_cofold",
+            "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_cofold/output/steps/01_sequence_rna_cofold.json",
+            "size": 274,
+            "sha256": "e7d5ff4f3f1621b4daedeb83bdc976ea8cd782a70aa4f5a585b2a3b9e0079e84"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_cofold.py",
+        "operator_source_sha256": "c81a2d15dd6b06a5c56138fc88130c8ebb51f6c33e15253191e257e2b4b40180"
+      }
+    ],
+    "sequence_rna_cofold_ensemble": [
+      {
+        "operator": "sequence_rna_cofold_ensemble",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_cofold_ensemble",
+        "run_id": "20261110T123422-6df47778ebfe",
+        "generated_at": "2026-11-10T12:34:23.610328+00:00",
+        "total_elapsed": 0.012,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "sequence_rna_cofold_ensemble",
+            "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_cofold_ensemble/output/steps/01_sequence_rna_cofold_ensemble.json",
+            "size": 182,
+            "sha256": "4b07e8c5250387c7ebcae7a3e734883e2e3c0571ece39a2c9f0ffd14a37c2afd"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_cofold_ensemble.py",
+        "operator_source_sha256": "b8c1d4da061184497cda457e6dc3b67af4e477b7cc5612dfd00ecd46317c1c95"
+      }
+    ],
+    "sequence_rna_duplex": [
+      {
+        "operator": "sequence_rna_duplex",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_duplex",
+        "run_id": "20261110T123425-4d0dfe586163",
+        "generated_at": "2026-11-10T12:34:25.984216+00:00",
+        "total_elapsed": 0.0606,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "sequence_rna_duplex",
+            "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_duplex/output/steps/01_sequence_rna_duplex.json",
+            "size": 224,
+            "sha256": "10525088aca90bb3e0b70f6249a0aa7250d64c899805a0de927f88924e152964"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_duplex.py",
+        "operator_source_sha256": "1a766c2af62aa90779696adec0f31f049006b97163c4c6da75e204f8812d58f0"
+      }
+    ],
+    "sequence_rna_ensemble": [
+      {
+        "operator": "sequence_rna_ensemble",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_ensemble",
+        "run_id": "20261110T123427-7a72d680456a",
+        "generated_at": "2026-11-10T12:34:27.920483+00:00",
+        "total_elapsed": 0.065,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "sequence_rna_ensemble",
+            "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_ensemble/output/steps/01_sequence_rna_ensemble.json",
+            "size": 587,
+            "sha256": "0504e41ed7fe34b2b517a8c4db8416a2e4d1a067cdf45e8df167eac98a0f70e0"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_ensemble.py",
+        "operator_source_sha256": "1ccb7aae2158f24436daf187a7048aaedc536e01056fddfcca02c2f52af2f405"
+      }
+    ],
+    "sequence_rna_fold": [
+      {
+        "operator": "sequence_rna_fold",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/sequence_rna_fold",
+        "run_id": "20261110T123429-aa46502ef30d",
+        "generated_at": "2026-11-10T12:34:29.936164+00:00",
+        "total_elapsed": 0.0254,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "sequence_rna_fold",
+            "path": "/public/home/lihj/operon715/closure_replay/sequence_rna_fold/output/steps/01_sequence_rna_fold.json",
+            "size": 312,
+            "sha256": "a97dda07f77fabde5dbd06b868833c3f22b3bc104b9e5a738891caba9d1d394e"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/sequence_rna_fold.py",
+        "operator_source_sha256": "9c45c966e95cfc20e8f034cefd3493e92f4aa03f6caba7b1fe0095382b5dacde"
+      }
+    ],
+    "trnascan_se": [
+      {
+        "operator": "trnascan_se",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/trnascan_se",
+        "run_id": "20261110T123431-7d0c718908f7",
+        "generated_at": "2026-11-10T12:34:32.666007+00:00",
+        "total_elapsed": 0.2921,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "trnascan_se",
+            "path": "/public/home/lihj/operon715/closure_replay/trnascan_se/output/steps/01_trnascan_se.json",
+            "size": 319,
+            "sha256": "ee6dc64df8b4753fa5f7d487dce5a6d6418873717545a70afab67abbca2916e2"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/trnascan_se.py",
+        "operator_source_sha256": "9788d580d5e0fc14625409577a26ab713f179ce9ac78f80b36a0484cc2c2a145"
+      }
+    ],
+    "vhh_humanization_mutations": [
+      {
+        "operator": "vhh_humanization_mutations",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/vhh_humanization_mutations",
+        "run_id": "20261110T123434-8d3daa20865a",
+        "generated_at": "2026-11-10T12:34:35.160402+00:00",
+        "total_elapsed": 0.0401,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "vhh_humanization_mutations",
+            "path": "/public/home/lihj/operon715/closure_replay/vhh_humanization_mutations/output/steps/01_vhh_humanization_mutations.json",
+            "size": 395,
+            "sha256": "b48dd3e114351c3abced6265a51f73404749903d4fa34f884311b95e1e3ea3da"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/vhh_humanization_mutations.py",
+        "operator_source_sha256": "b02f5de6909d9f503455d15436a99ced64f1f200676dd3dcd835246741564928"
+      }
+    ],
+    "vhh_humanization_score": [
+      {
+        "operator": "vhh_humanization_score",
+        "route_dir": "/public/home/lihj/operon715/closure_replay/vhh_humanization_score",
+        "run_id": "20261110T123436-10cfc5f1dce0",
+        "generated_at": "2026-11-10T12:34:37.544028+00:00",
+        "total_elapsed": 0.0595,
+        "n_steps": 1,
+        "exports": [
+          {
+            "step": "vhh_humanization_score",
+            "path": "/public/home/lihj/operon715/closure_replay/vhh_humanization_score/output/steps/01_vhh_humanization_score.json",
+            "size": 644,
+            "sha256": "0f2b488cdb095c6da913f2ccc01387c1d503e7257fd03c917ab64e4447206bc8"
+          }
+        ],
+        "operator_source": "/public/home/lihj/operon715/library/seed/src/task/step/steps/vhh_humanization_score.py",
+        "operator_source_sha256": "b4c3b89eb8417a85ae05ed0bcae6bab900952c23d4a622fe1ca1f04707568fd6"
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "smiles_standardize",
+  "sources": {},
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "smiles_standardize",
+      "inputs": []
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_smiles_standardize"
+      ]
+    }
+  ]
+}

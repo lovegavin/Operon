@@ -1,0 +1,23 @@
+{
+  "name": "structure_dssp_segments",
+  "sources": {
+    "structure_1mel": {
+      "path": "input/1mel.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_dssp_segments",
+      "inputs": [
+        "structure_1mel"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

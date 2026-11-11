@@ -1,0 +1,17 @@
+{
+  "name": "rdkit_reaction_pairwise_enumerate",
+  "sources": {},
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "rdkit_reaction_pairwise_enumerate",
+      "inputs": []
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_rdkit_reaction_pairwise_enumerate"
+      ]
+    }
+  ]
+}

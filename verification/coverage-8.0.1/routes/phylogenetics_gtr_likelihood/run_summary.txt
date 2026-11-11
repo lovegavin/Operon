@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_stats/phylogenetics_gtr_likelihood
+generated : 2026-11-10T12:43:56.361692+00:00
+steps     : 2
+elapsed   : 0.756s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   phylogenetics_gtr_likelihood    0.754s   steps/01_phylogenetics_gtr_likelihood.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/rarefaction/output/artifacts",
+  "files": [
+    {
+      "path": "exports/9d6365671fd4476eb2cd4d2d84384d86/rarefaction.csv",
+      "size": 196,
+      "sha256": "b843ab166d2b8a2bf75d3c43d2ea17b4951ba9680a3b9c51f6a56483b44a656c"
+    }
+  ]
+}

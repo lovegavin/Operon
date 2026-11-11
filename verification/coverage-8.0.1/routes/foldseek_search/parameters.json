@@ -1,0 +1,26 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_1ubq": {}
+  },
+  "steps": [
+    {
+      "name": "foldseek_search",
+      "inputs": [
+        "structure_1ubq"
+      ],
+      "params": {
+        "query_path": "/tmp/cov_structure/foldseek_search/input/1UBQ.pdb",
+        "database_path": "/tmp/cov_structure/input/fsdb",
+        "foldseek_path": "/tmp/foldseek/bin/foldseek",
+        "max_hits": 5,
+        "threads": 1,
+        "timeout_seconds": 600,
+        "output": "out_foldseek_search"
+      },
+      "context_params": {}
+    }
+  ]
+}

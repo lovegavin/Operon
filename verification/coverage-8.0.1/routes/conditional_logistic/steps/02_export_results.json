@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/conditional_logistic/output/artifacts/exports/361cae0821604fe990937019861c72ae/conditional_logistic.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 175,
+  "source": "out_conditional_logistic",
+  "conversion": {}
+}

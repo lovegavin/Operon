@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/permutation_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/0c2aa48f92aa44f4beb9392892197e0d/permutation_test.csv",
+      "size": 277,
+      "sha256": "ba616779667e2fa858e06cb0b1e07a00a6d5a5b229d607cfbf29b2430392a2a0"
+    },
+    {
+      "path": "exports/b043abb641d44c57bc01c996a527f786/permutation_test.csv",
+      "size": 277,
+      "sha256": "ba616779667e2fa858e06cb0b1e07a00a6d5a5b229d607cfbf29b2430392a2a0"
+    }
+  ]
+}

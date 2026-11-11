@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/probe_routes/esm_embedding_mlp_probe/output/artifacts",
+  "files": [
+    {
+      "path": "exports/b728a89e5a6144feb701358d86830a21/esm_embedding_mlp_probe.csv",
+      "size": 184,
+      "sha256": "f1e784f8ee968fa5f446a59d30a4bd25ba8e895d24c8c84d106bf67dac2fce75"
+    }
+  ]
+}

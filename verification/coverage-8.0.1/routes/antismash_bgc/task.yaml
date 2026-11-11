@@ -1,0 +1,26 @@
+{
+  "name": "antismash_bgc",
+  "sources": {
+    "x0": {
+      "path": "input/nisin.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "antismash_bgc",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

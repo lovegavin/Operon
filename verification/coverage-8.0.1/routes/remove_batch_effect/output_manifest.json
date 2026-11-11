@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_sequence/remove_batch_effect/output/artifacts",
+  "files": [
+    {
+      "path": "exports/2bdee9e463f14acab20ec7b951fef3b6/out_remove_batch_effect.csv",
+      "size": 921,
+      "sha256": "4854eabfa4145f384d621a8d0913900df0d00db0146fed7f7bed89939023c5d8"
+    },
+    {
+      "path": "exports/4bbf5cbdf31145859f5690ace2445e5f/out_remove_batch_effect.csv",
+      "size": 921,
+      "sha256": "4854eabfa4145f384d621a8d0913900df0d00db0146fed7f7bed89939023c5d8"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "task_dir": "/tmp/cov_mltab/gcn_node_classifier",
+  "generated_at": "2026-11-10T12:25:19.079292+00:00",
+  "n_steps": 2,
+  "total_elapsed": 1.9974,
+  "steps": [
+    {
+      "index": 1,
+      "name": "gcn_node_classifier",
+      "elapsed": 1.9949,
+      "inputs": [
+        "nodes",
+        "edges"
+      ],
+      "params": {
+        "output": "out_gcn_node_classifier",
+        "row_dim": "row",
+        "field_dim": "field",
+        "label_column": "label",
+        "hidden": 8,
+        "epochs": 100,
+        "learning_rate": 0.05,
+        "seed": 1
+      },
+      "export_path": "steps/01_gcn_node_classifier.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0025,
+      "inputs": [
+        "out_gcn_node_classifier"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "gcn_node_classifier"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122516-c41a81cbf754",
+  "event_log": "/tmp/cov_mltab/gcn_node_classifier/output/runs/20261110T122516-c41a81cbf754/events.jsonl"
+}

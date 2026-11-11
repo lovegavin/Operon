@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/chao1/output/artifacts/exports/d4257785a21e493dba5fc21ee7ed2d4a/chao1.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 247,
+  "source": "out_chao1",
+  "conversion": {}
+}

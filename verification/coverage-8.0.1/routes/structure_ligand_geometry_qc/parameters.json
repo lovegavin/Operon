@@ -1,0 +1,22 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_3ptb": {}
+  },
+  "steps": [
+    {
+      "name": "structure_ligand_geometry_qc",
+      "inputs": [
+        "structure_3ptb"
+      ],
+      "params": {
+        "ligand_resname": "BEN",
+        "ligand_dim": "ligand",
+        "output": "out_structure_ligand_geometry_qc"
+      },
+      "context_params": {}
+    }
+  ]
+}

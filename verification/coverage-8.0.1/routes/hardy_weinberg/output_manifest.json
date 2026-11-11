@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/hardy_weinberg/output/artifacts",
+  "files": [
+    {
+      "path": "exports/308c507629b947e48d14352a4b608086/hardy_weinberg.csv",
+      "size": 482,
+      "sha256": "c6d3e098a9b1cc9581f636e632da80cd5b4273e2ea4153036f9037c016e79584"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/sequence_disorder_predictor/input",
+  "files": [
+    {
+      "path": "disorder.fasta",
+      "size": 67,
+      "sha256": "de3116dbe96fee03ebcf43dbe1317b7b483c94c47194552d0fccaa2d8b7d9e6a"
+    }
+  ]
+}

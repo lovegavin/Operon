@@ -1,0 +1,37 @@
+{
+  "task_dir": "/tmp/cov_stats/pedigree_inbreeding",
+  "generated_at": "2026-11-10T12:43:54.733878+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0016,
+  "steps": [
+    {
+      "index": 1,
+      "name": "pedigree_inbreeding",
+      "elapsed": 0.0002,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "output": "out_pedigree_inbreeding"
+      },
+      "export_path": "steps/01_pedigree_inbreeding.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0014,
+      "inputs": [
+        "out_pedigree_inbreeding"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "pedigree_inbreeding"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124353-3c67ce097a8c",
+  "event_log": "/tmp/cov_stats/pedigree_inbreeding/output/runs/20261110T124353-3c67ce097a8c/events.jsonl"
+}

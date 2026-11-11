@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/inverse_gaussian_regression/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1920,
+      "sha256": "c0eea51dedef2341593fb4a567d9f273089e3a10f5fc599ddca6ea17857cdd64"
+    }
+  ]
+}

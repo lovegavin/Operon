@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/chao1/output/artifacts",
+  "files": [
+    {
+      "path": "exports/6f83ee77de304748934f2a85406300b2/chao1.csv",
+      "size": 247,
+      "sha256": "542215a959a8601c33a2238509b4a9843c5b99e03361e26be10edfce0c829fc9"
+    },
+    {
+      "path": "exports/d4257785a21e493dba5fc21ee7ed2d4a/chao1.csv",
+      "size": 247,
+      "sha256": "542215a959a8601c33a2238509b4a9843c5b99e03361e26be10edfce0c829fc9"
+    }
+  ]
+}

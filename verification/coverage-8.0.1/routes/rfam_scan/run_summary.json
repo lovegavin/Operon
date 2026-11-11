@@ -1,0 +1,29 @@
+{
+  "task_dir": "/tmp/cov_sequence/rfam_scan",
+  "generated_at": "2026-11-10T12:47:21.701667+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.1696,
+  "steps": [
+    {
+      "index": 1,
+      "name": "rfam_scan",
+      "elapsed": 0.1696,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "rfam_cm": "/home/gavin/tools/rfam/Rfam.cm",
+        "cmscan_path": "/usr/bin/cmscan",
+        "evalue": 1e-05,
+        "cpu": 2,
+        "timeout_seconds": 600,
+        "output": "out_rfam_scan"
+      },
+      "export_path": "steps/01_rfam_scan.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124721-0b65b5965003",
+  "event_log": "/tmp/cov_sequence/rfam_scan/output/runs/20261110T124721-0b65b5965003/events.jsonl"
+}

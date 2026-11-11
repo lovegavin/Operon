@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/snk_test/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 707,
+      "sha256": "f90b05af53a1b092b09fbb7aa4b881a49c733f8dd440e7caa393d23c6b3cf109"
+    },
+    {
+      "path": "x1.csv",
+      "size": 75,
+      "sha256": "0563ebfbc75b4292ed02334201839ff9dc612ca64c40c68d99eaceb01bddfd08"
+    }
+  ]
+}

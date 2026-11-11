@@ -1,0 +1,34 @@
+{
+  "name": "esmfold_predict",
+  "sources": {
+    "seq": {
+      "path": "input/vhh.fasta",
+      "reader": "FastaReader",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": {
+          "field": 0
+        },
+        "position": "auto"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "esmfold_predict",
+      "inputs": [
+        "seq"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "structure"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

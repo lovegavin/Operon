@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/vae_anomaly/output/artifacts/exports/f3de275b2f6e49beb90adfb4cc7f623b/vae_anomaly.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 368,
+  "source": "out_vae_anomaly",
+  "conversion": {}
+}

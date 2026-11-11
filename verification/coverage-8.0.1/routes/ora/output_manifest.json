@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/ora/output/artifacts",
+  "files": [
+    {
+      "path": "exports/65c25052f462412d9a6804b9c022c409/ora.csv",
+      "size": 192,
+      "sha256": "9b4f2085d862400781c921cca0dd3b5153833bd98c2ee64a4ee5c314553d41be"
+    }
+  ]
+}

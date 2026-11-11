@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/page_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/4c66300a4ec54d4086956c9c3d69d5ef/page_test.csv",
+      "size": 98,
+      "sha256": "549d0552dea38fd9520a517f707bb6dc63f58a95f2a1c6feb000155a179a837c"
+    },
+    {
+      "path": "exports/d4eedeafc443456d9038ad58d89045d7/page_test.csv",
+      "size": 98,
+      "sha256": "549d0552dea38fd9520a517f707bb6dc63f58a95f2a1c6feb000155a179a837c"
+    }
+  ]
+}

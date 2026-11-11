@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/seasonal_decompose/output/artifacts/exports/aad94b609e814c1baab88fd85cd6977f/seasonal_decompose.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 4522,
+  "source": "out_seasonal_decompose",
+  "conversion": {}
+}

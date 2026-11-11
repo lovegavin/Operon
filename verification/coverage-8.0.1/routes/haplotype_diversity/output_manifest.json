@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/haplotype_diversity/output/artifacts",
+  "files": [
+    {
+      "path": "exports/65918b5d729e4cfe8620511495bb13c4/haplotype_diversity.csv",
+      "size": 133,
+      "sha256": "d33ccfc2d9f11dbd64d1b2c9426188ac7a9e80bf6a16fd5fb6bc5b2863d11a0d"
+    },
+    {
+      "path": "exports/96d0fd8da4144ae48d555292f6660019/haplotype_diversity.csv",
+      "size": 133,
+      "sha256": "d33ccfc2d9f11dbd64d1b2c9426188ac7a9e80bf6a16fd5fb6bc5b2863d11a0d"
+    }
+  ]
+}

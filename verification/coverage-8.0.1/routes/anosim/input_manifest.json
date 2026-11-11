@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/anosim/input",
+  "files": [
+    {
+      "path": "meta.csv",
+      "size": 146,
+      "sha256": "4d625e585fa2007f03944926c0a30519c3862026bf02080c6e00f835d608a8a8"
+    },
+    {
+      "path": "x0.csv",
+      "size": 637,
+      "sha256": "80b41168ca477915743ec5a16593f5abaea73be9572e0729e4aaa933d8a6dee4"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_sequence/dotplot/input",
+  "files": [
+    {
+      "path": "expr.csv",
+      "size": 287,
+      "sha256": "845857f0054d4c05b053057a7dd70b40192ee8468f3fcac45f7840f1c7f28b92"
+    },
+    {
+      "path": "meta.csv",
+      "size": 101,
+      "sha256": "94316c810c4307f6a505c840e538661947168531ced8fa70721e1e7995aaca0b"
+    }
+  ]
+}

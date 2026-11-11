@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_sequence/drop/output/artifacts",
+  "files": [
+    {
+      "path": "exports/5214641728d7448ba1ce1a6cce950795/out_drop.csv",
+      "size": 229,
+      "sha256": "db563bdb86231fea1e94b4961ad299089be72082c8a9c2cd36ad41bc86a8c995"
+    },
+    {
+      "path": "exports/cdc7186acb9b44e7bd2e2f204b64d22b/out_drop.csv",
+      "size": 229,
+      "sha256": "db563bdb86231fea1e94b4961ad299089be72082c8a9c2cd36ad41bc86a8c995"
+    }
+  ]
+}

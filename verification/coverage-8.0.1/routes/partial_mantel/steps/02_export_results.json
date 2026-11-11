@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/partial_mantel/output/artifacts/exports/118aa445005e4f3390154dcfad2be6ae/partial_mantel.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 84,
+  "source": "out_partial_mantel",
+  "conversion": {}
+}

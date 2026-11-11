@@ -1,0 +1,39 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "remove_batch_effect",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "batch_label": "batch",
+        "covariates": [
+          "response"
+        ],
+        "output": "out_remove_batch_effect"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_remove_batch_effect"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "out_remove_batch_effect"
+      },
+      "context_params": {}
+    }
+  ]
+}

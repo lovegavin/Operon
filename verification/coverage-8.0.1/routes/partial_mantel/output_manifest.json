@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/partial_mantel/output/artifacts",
+  "files": [
+    {
+      "path": "exports/08de37f98f7b437b82bdb3e8d04fa0b3/partial_mantel.csv",
+      "size": 84,
+      "sha256": "152c83289c26a73bf1aa2faf92cceb2edbc9fe2937e6fe74147cb4581af19e6f"
+    },
+    {
+      "path": "exports/118aa445005e4f3390154dcfad2be6ae/partial_mantel.csv",
+      "size": 84,
+      "sha256": "152c83289c26a73bf1aa2faf92cceb2edbc9fe2937e6fe74147cb4581af19e6f"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "task_dir": "/tmp/ligand_routes/structure_ligand_clash",
+  "generated_at": "2026-11-10T19:50:20.940181+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0035,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_ligand_clash",
+      "elapsed": 0.0019,
+      "inputs": [
+        "structure"
+      ],
+      "params": {
+        "ligand_resnames": "BEN",
+        "tolerance": 0.4,
+        "clash_scale": 0.8,
+        "output": "clashes"
+      },
+      "export_path": "steps/01_structure_ligand_clash.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0016,
+      "inputs": [
+        "clashes"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "clashes"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T195020-2c45cc33955c",
+  "event_log": "/tmp/ligand_routes/structure_ligand_clash/output/runs/20261110T195020-2c45cc33955c/events.jsonl"
+}

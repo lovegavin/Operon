@@ -1,0 +1,12 @@
+{
+  "rmsd": 0.0,
+  "fit_atoms": 224,
+  "matched_atoms": 224,
+  "residues": 224,
+  "mobile_chains": [
+    "A"
+  ],
+  "reference_chains": [
+    "A"
+  ]
+}

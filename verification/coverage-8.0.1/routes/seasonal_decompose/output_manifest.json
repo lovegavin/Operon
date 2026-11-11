@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/seasonal_decompose/output/artifacts",
+  "files": [
+    {
+      "path": "exports/78e82e113a844d5abc13e0554a494234/seasonal_decompose.csv",
+      "size": 4522,
+      "sha256": "db114ba738766e4b77233de113ad5cab31b4b3d491de76d59f8aae9e7125bced"
+    },
+    {
+      "path": "exports/aad94b609e814c1baab88fd85cd6977f/seasonal_decompose.csv",
+      "size": 4522,
+      "sha256": "db114ba738766e4b77233de113ad5cab31b4b3d491de76d59f8aae9e7125bced"
+    }
+  ]
+}

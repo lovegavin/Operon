@@ -1,0 +1,30 @@
+{
+  "task_dir": "/tmp/cov_structure/foldseek_search",
+  "generated_at": "2026-11-10T12:31:21.314744+00:00",
+  "n_steps": 1,
+  "total_elapsed": 3.06,
+  "steps": [
+    {
+      "index": 1,
+      "name": "foldseek_search",
+      "elapsed": 3.06,
+      "inputs": [
+        "structure_1ubq"
+      ],
+      "params": {
+        "query_path": "/tmp/cov_structure/foldseek_search/input/1UBQ.pdb",
+        "database_path": "/tmp/cov_structure/input/fsdb",
+        "foldseek_path": "/tmp/foldseek/bin/foldseek",
+        "max_hits": 5,
+        "threads": 1,
+        "timeout_seconds": 600,
+        "output": "out_foldseek_search"
+      },
+      "export_path": "steps/01_foldseek_search.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T123117-52815a82ee6e",
+  "event_log": "/tmp/cov_structure/foldseek_search/output/runs/20261110T123117-52815a82ee6e/events.jsonl"
+}

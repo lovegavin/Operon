@@ -1,0 +1,29 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_beta_propensity",
+  "generated_at": "2026-11-10T12:45:58.681647+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0003,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_beta_propensity",
+      "elapsed": 0.0003,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_beta_propensity",
+        "window": 5,
+        "threshold": 1.05,
+        "min_length": 4
+      },
+      "export_path": "steps/01_sequence_beta_propensity.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124558-30be6526d949",
+  "event_log": "/tmp/cov_sequence/sequence_beta_propensity/output/runs/20261110T124558-30be6526d949/events.jsonl"
+}

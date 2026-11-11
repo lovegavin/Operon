@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/simper/output/artifacts",
+  "files": [
+    {
+      "path": "exports/b389526cef9f468a9111dbe4f22aaa3e/simper.csv",
+      "size": 576,
+      "sha256": "664e5f6f0c965290131b6f3c589eb62b6ee490fbac4d2f371cdaacf641174e72"
+    }
+  ]
+}

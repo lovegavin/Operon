@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/pedigree_inbreeding/output/artifacts/exports/eb09637e48e24ad7b8c3f5772a5580a1/pedigree_inbreeding.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 195,
+  "source": "out_pedigree_inbreeding",
+  "conversion": {}
+}

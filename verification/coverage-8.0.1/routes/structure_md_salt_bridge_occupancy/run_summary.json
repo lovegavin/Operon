@@ -1,0 +1,28 @@
+{
+  "task_dir": "/tmp/cov_structure/structure_md_salt_bridge_occupancy",
+  "generated_at": "2026-11-10T12:45:42.794003+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.3315,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_md_salt_bridge_occupancy",
+      "elapsed": 0.3315,
+      "inputs": [],
+      "params": {
+        "trajectory_path": "/tmp/cov_structure/structure_md_salt_bridge_occupancy/input/1mel_traj.npy",
+        "topology_path": "/tmp/cov_structure/structure_md_salt_bridge_occupancy/input/1mel_topology.pdb",
+        "chains": "A,L",
+        "cutoff": 4.0,
+        "min_occupancy": 0.2,
+        "stride": 1,
+        "output": "out_structure_md_salt_bridge_occupancy"
+      },
+      "export_path": "steps/01_structure_md_salt_bridge_occupancy.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124541-07c36969cf56",
+  "event_log": "/tmp/cov_structure/structure_md_salt_bridge_occupancy/output/runs/20261110T124541-07c36969cf56/events.jsonl"
+}

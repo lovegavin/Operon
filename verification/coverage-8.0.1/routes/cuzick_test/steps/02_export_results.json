@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/cuzick_test/output/artifacts/exports/58f9657d567d4197932fa33806da2cc5/cuzick_test.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 382,
+  "source": "out_cuzick_test",
+  "conversion": {}
+}

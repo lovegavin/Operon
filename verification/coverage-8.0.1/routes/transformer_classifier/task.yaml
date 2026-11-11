@@ -1,0 +1,34 @@
+{
+  "name": "transformer_classifier",
+  "sources": {
+    "trans": {
+      "path": "input/trans.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "transformer_classifier",
+      "inputs": [
+        "trans"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_transformer_classifier"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/leave_one_out/output/artifacts",
+  "files": [
+    {
+      "path": "exports/3cba238b10c34af5a0eb491b7eac70dd/leave_one_out.csv",
+      "size": 2171,
+      "sha256": "b1d983341c8da065e412590aa8bfd102b6117d08280204739ae2ff2651206437"
+    },
+    {
+      "path": "exports/596af11eb2fd4c018d4d67127898916c/leave_one_out.csv",
+      "size": 2171,
+      "sha256": "b1d983341c8da065e412590aa8bfd102b6117d08280204739ae2ff2651206437"
+    }
+  ]
+}

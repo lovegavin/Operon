@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/stuart_maxwell_test/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 42,
+      "sha256": "29706696d65870ce0d0fe8baed0dad6f5ef8e751fc31cc15020eadb3b969f4b8"
+    }
+  ]
+}

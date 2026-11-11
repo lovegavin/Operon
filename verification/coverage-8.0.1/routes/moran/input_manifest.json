@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/moran/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 166,
+      "sha256": "5f137006bd5cc161d72600bc54aba0857e70056878e2939a4370a3613c780bd8"
+    },
+    {
+      "path": "x1.csv",
+      "size": 1379,
+      "sha256": "802d350ff86f7467aa07392e7edb5da0f35605ffabcdab64b083cc14552804c1"
+    }
+  ]
+}

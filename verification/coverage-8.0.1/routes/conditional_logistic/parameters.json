@@ -1,0 +1,36 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "conditional_logistic",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "stratum_label": "stratum",
+        "outcome_label": "y",
+        "covariates": [
+          "x1"
+        ],
+        "output": "out_conditional_logistic"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_conditional_logistic"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "conditional_logistic"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/roc_curve/output/artifacts",
+  "files": [
+    {
+      "path": "exports/6001b8c7ab914c809e8384e7c7b7941d/roc_curve.csv",
+      "size": 1004,
+      "sha256": "144a098c1bb5bb4f50479acb27c7fb5bd40f8b8b071ab158e61afe6729cf60a0"
+    },
+    {
+      "path": "exports/c76230476304421a97dd3fc329a1df03/roc_curve.csv",
+      "size": 1004,
+      "sha256": "144a098c1bb5bb4f50479acb27c7fb5bd40f8b8b071ab158e61afe6729cf60a0"
+    }
+  ]
+}

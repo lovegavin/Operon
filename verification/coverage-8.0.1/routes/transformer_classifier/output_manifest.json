@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/transformer_classifier/output/artifacts",
+  "files": [
+    {
+      "path": "exports/28ce44b55aef45d1b552e1f137731f27/transformer_classifier.csv",
+      "size": 89,
+      "sha256": "98117c1ad76b338267bfa45740cd4af007f466aacb9ee355feb7bdedf9926cf8"
+    }
+  ]
+}

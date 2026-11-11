@@ -1,0 +1,23 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "sequence": {}
+  },
+  "steps": [
+    {
+      "name": "antibody_cdr_graft",
+      "inputs": [
+        "sequence"
+      ],
+      "params": {
+        "donor_index": 1,
+        "acceptor_index": 2,
+        "regions": "CDR1,CDR2,CDR3",
+        "output": "grafts"
+      },
+      "context_params": {}
+    }
+  ]
+}

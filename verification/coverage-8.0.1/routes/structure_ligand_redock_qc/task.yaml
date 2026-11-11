@@ -1,0 +1,11 @@
+{
+  "name": "structure_ligand_redock_qc",
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_ligand_redock_qc",
+      "inputs": []
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

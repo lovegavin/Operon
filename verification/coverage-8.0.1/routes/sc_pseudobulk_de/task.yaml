@@ -1,0 +1,49 @@
+{
+  "name": "sc_pseudobulk_de",
+  "sources": {
+    "x0": {
+      "path": "input/counts.csv",
+      "dims": [
+        "gene",
+        "cell"
+      ],
+      "labels": {
+        "gene": {
+          "cell": 0
+        },
+        "cell": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/meta.csv",
+      "dims": [
+        "cell",
+        "field"
+      ],
+      "labels": {
+        "cell": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sc_pseudobulk_de",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_sc_pseudobulk_de"
+      ]
+    }
+  ]
+}

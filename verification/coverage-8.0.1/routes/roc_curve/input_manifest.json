@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/roc_curve/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 124,
+      "sha256": "07f4c51ad54a1d5309152aed8d4b3bc8cfd4c83c28f5390140abfe2ac7590f72"
+    },
+    {
+      "path": "x1.csv",
+      "size": 269,
+      "sha256": "ca43629093ab74d4bc1922b097457c7f776b9908992d2a6733ddca4cb8bd5db9"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "embedding": {}
+  },
+  "steps": [
+    {
+      "name": "esm_embedding_autoencoder",
+      "inputs": [
+        "embedding"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "feature_dim": "feature",
+        "hidden": 8,
+        "latent": 2,
+        "epochs": 60,
+        "learning_rate": 0.01,
+        "random_state": 0,
+        "output": "errors"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "errors"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "esm_embedding_autoencoder"
+      },
+      "context_params": {}
+    }
+  ]
+}

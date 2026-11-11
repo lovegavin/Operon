@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/pairwise_alignment/input",
+  "files": [
+    {
+      "path": "seq1.fasta",
+      "size": 25,
+      "sha256": "52817f99bdfcdd2eb08b7b14a470833814ceb9b4da724a71e7c5d41e08dedde8"
+    },
+    {
+      "path": "seq2.fasta",
+      "size": 25,
+      "sha256": "9db6c24c2f7ecc63dd52f7eec12112a0c6c118d5f881509229a82c52ea571959"
+    }
+  ]
+}

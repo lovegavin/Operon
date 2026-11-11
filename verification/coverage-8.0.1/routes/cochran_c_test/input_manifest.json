@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/cochran_c_test/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 710,
+      "sha256": "05b53a92c1db4e3903c721a1816480e4df29e9a9c101a2c45d4d4ba73597eaac"
+    },
+    {
+      "path": "x1.csv",
+      "size": 75,
+      "sha256": "0563ebfbc75b4292ed02334201839ff9dc612ca64c40c68d99eaceb01bddfd08"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "sequence_repeat_finder",
+  "sources": {
+    "seqs": {
+      "path": "input/repeats.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {},
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sequence_repeat_finder",
+      "inputs": [
+        "seqs"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_sequence_repeat_finder"
+      ]
+    }
+  ]
+}

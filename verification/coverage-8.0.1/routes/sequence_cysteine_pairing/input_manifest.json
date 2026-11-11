@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/sequence_cysteine_pairing/input",
+  "files": [
+    {
+      "path": "cys.fasta",
+      "size": 19,
+      "sha256": "06206dc8b0483139e592871d43866e68df3ca38cdcad7c7565cd101823387aef"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/autoencoder_anomaly/output/artifacts/exports/3e04b40ff82843028cf9b68592159e45/autoencoder_anomaly.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 88,
+  "source": "out_autoencoder_anomaly",
+  "conversion": {}
+}

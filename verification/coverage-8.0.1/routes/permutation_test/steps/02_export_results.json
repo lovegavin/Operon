@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/permutation_test/output/artifacts/exports/0c2aa48f92aa44f4beb9392892197e0d/permutation_test.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 277,
+  "source": "out_permutation_test",
+  "conversion": {}
+}

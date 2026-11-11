@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "johansen",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "det_order": 0,
+        "k_ar_diff": 1,
+        "output": "out_johansen"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_johansen"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "johansen"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/ligand_routes/ligandmpnn_active_site_design
+generated : 2026-11-10T20:14:52.509508+00:00
+steps     : 2
+elapsed   : 4.048s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   ligandmpnn_active_site_design    4.046s   steps/01_ligandmpnn_active_site_design.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

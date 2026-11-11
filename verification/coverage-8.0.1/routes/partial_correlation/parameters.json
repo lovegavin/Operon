@@ -1,0 +1,38 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {},
+    "x2": {}
+  },
+  "steps": [
+    {
+      "name": "partial_correlation",
+      "inputs": [
+        "x0",
+        "x1",
+        "x2"
+      ],
+      "params": {
+        "x_feature_dim": "feature",
+        "y_feature_dim": "feature",
+        "covariate_dim": "feature",
+        "output": "out_partial_correlation"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_partial_correlation"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "partial_correlation"
+      },
+      "context_params": {}
+    }
+  ]
+}

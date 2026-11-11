@@ -1,0 +1,31 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_1ubq": {}
+  },
+  "steps": [
+    {
+      "name": "structure_openmm_md_stability",
+      "inputs": [
+        "structure_1ubq"
+      ],
+      "params": {
+        "steps": 500,
+        "equilibrate_steps": 100,
+        "sample_every": 25,
+        "step_size_fs": 2.0,
+        "seed": 7,
+        "temperature": 300.0,
+        "remove_water": true,
+        "minimize_iterations": 100,
+        "forcefield": "amber14-all.xml,implicit/gbn2.xml",
+        "ph": 7.0,
+        "frame_dim": "frame",
+        "output": "out_structure_openmm_md_stability"
+      },
+      "context_params": {}
+    }
+  ]
+}

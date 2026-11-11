@@ -1,0 +1,49 @@
+{
+  "name": "remove_batch_effect",
+  "sources": {
+    "x0": {
+      "path": "input/expr.csv",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/meta.csv",
+      "dims": [
+        "sample",
+        "group"
+      ],
+      "labels": {
+        "sample": {
+          "group": 0
+        },
+        "group": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "remove_batch_effect",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_remove_batch_effect"
+      ]
+    }
+  ]
+}

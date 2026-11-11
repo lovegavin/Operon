@@ -1,0 +1,43 @@
+{
+  "task_dir": "/tmp/cov_omics/dxy",
+  "generated_at": "2026-11-10T12:30:00.946206+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0026,
+  "steps": [
+    {
+      "index": 1,
+      "name": "dxy",
+      "elapsed": 0.0009,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "variant_dim": "variant",
+        "sample_dim": "sample",
+        "group_label": "group",
+        "group_a": "A",
+        "group_b": "B",
+        "output": "out_dxy"
+      },
+      "export_path": "steps/01_dxy.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "out_dxy"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "dxy"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122959-db7d131461d2",
+  "event_log": "/tmp/cov_omics/dxy/output/runs/20261110T122959-db7d131461d2/events.jsonl"
+}

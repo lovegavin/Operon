@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/bioenv/output/artifacts",
+  "files": [
+    {
+      "path": "exports/725e823bc7784a84b4a4046552d009f5/bioenv.csv",
+      "size": 54,
+      "sha256": "17f8e658d682fa75b30531e410aa92824add473670dcf7bb2bbcab83799fa1c1"
+    }
+  ]
+}

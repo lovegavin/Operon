@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/sequence_aggregation_propensity/input",
+  "files": [
+    {
+      "path": "agg.fasta",
+      "size": 80,
+      "sha256": "c84511438f9ebe90b5d4cdea70416d27bcd96bd4ebbf83245aa40189518b0891"
+    }
+  ]
+}

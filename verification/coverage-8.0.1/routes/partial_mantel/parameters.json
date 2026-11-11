@@ -1,0 +1,36 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {},
+    "x2": {}
+  },
+  "steps": [
+    {
+      "name": "partial_mantel",
+      "inputs": [
+        "x0",
+        "x1",
+        "x2"
+      ],
+      "params": {
+        "n_perm": 199,
+        "output": "out_partial_mantel"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_partial_mantel"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "partial_mantel"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_structure/structure_md_markov_states/input",
+  "files": [
+    {
+      "path": "1mel_topology.pdb",
+      "size": 643692,
+      "sha256": "ed6d0156df2c890f4d770a497e2c6e8000ba9705cb3c1c6d8dd44f646655d1d0"
+    },
+    {
+      "path": "1mel_traj.npy",
+      "size": 2542304,
+      "sha256": "e28e2947cafbb292fd19c783b4d62fccea259811defc9f228db6247c9e5562fe"
+    }
+  ]
+}

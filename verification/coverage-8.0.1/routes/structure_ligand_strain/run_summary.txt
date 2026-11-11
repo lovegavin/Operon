@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_structure/structure_ligand_strain
+generated : 2026-11-10T12:25:25.124130+00:00
+steps     : 1
+elapsed   : 0.069s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   structure_ligand_strain    0.069s   steps/01_structure_ligand_strain.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

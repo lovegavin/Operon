@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/ora/input",
+  "files": [
+    {
+      "path": "sets.csv",
+      "size": 72,
+      "sha256": "1e74976a8721d1e08d8fb5f1e86619bb4e590021d02f9b2a70d7a64232162423"
+    },
+    {
+      "path": "stats.csv",
+      "size": 165,
+      "sha256": "0fb25de1fe1cff0c288049e56c8a9c59f74da8bb4b3b11fc31dc87de9673ce50"
+    }
+  ]
+}

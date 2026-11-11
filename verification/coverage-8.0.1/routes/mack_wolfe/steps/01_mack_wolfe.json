@@ -1,0 +1,9 @@
+{
+  "n_features": 5,
+  "n_groups": 2,
+  "peak": "A",
+  "groups": [
+    "A",
+    "B"
+  ]
+}

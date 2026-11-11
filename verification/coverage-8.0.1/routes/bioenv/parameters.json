@@ -1,0 +1,39 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "bioenv",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "taxon_dim": "feature",
+        "env_dim": "env",
+        "index": "bray",
+        "method": "spearman",
+        "upto": 2,
+        "output": "out_bioenv"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_bioenv"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "bioenv"
+      },
+      "context_params": {}
+    }
+  ]
+}

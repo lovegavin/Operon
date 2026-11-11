@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/garch/output/artifacts/exports/345e7cdc1cc341c4841c03df8347eb7a/garch.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 372,
+  "source": "out_garch",
+  "conversion": {}
+}

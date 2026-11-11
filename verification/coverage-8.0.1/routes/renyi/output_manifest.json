@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/renyi/output/artifacts",
+  "files": [
+    {
+      "path": "exports/09e2825b719d4362a07d9fe2927f8088/renyi.csv",
+      "size": 965,
+      "sha256": "3cf4c244b65cffa92335b103a1116f7f37ea54bbd5934b7ab10690c99b3d437c"
+    }
+  ]
+}

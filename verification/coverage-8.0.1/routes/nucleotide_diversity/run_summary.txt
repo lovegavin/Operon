@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_omics/nucleotide_diversity
+generated : 2026-11-10T12:30:15.994053+00:00
+steps     : 2
+elapsed   : 0.002s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   nucleotide_diversity    0.001s   steps/01_nucleotide_diversity.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

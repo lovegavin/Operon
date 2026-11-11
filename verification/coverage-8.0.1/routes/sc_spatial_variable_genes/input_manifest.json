@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/sc_spatial_variable_genes/input",
+  "files": [
+    {
+      "path": "coords.csv",
+      "size": 69,
+      "sha256": "30f02a013ba66916becb5120d73443cac279e1b08df709e1367cc3c8f3371066"
+    },
+    {
+      "path": "counts.csv",
+      "size": 130,
+      "sha256": "e686237158bcbf3781b64737cbd49df69a05b89e52f65a17e225edca96b04b97"
+    }
+  ]
+}

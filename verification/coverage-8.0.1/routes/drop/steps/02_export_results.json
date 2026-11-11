@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_sequence/drop/output/artifacts/exports/5214641728d7448ba1ce1a6cce950795/out_drop.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 229,
+  "source": "drop",
+  "conversion": {}
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/partial_correlation/output/artifacts",
+  "files": [
+    {
+      "path": "exports/46de72fa1bac498aa2cc283fb5ca28fb/partial_correlation.csv",
+      "size": 153,
+      "sha256": "757a3235cc4d852fd44d27d5eba6e529565392f4503cfbcbace2ee773c83f17c"
+    },
+    {
+      "path": "exports/69a2bb0d20f742ad8e0e8327905fb4e8/partial_correlation.csv",
+      "size": 153,
+      "sha256": "757a3235cc4d852fd44d27d5eba6e529565392f4503cfbcbace2ee773c83f17c"
+    }
+  ]
+}

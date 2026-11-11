@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/normalizing_flow_density/output/artifacts/exports/c77fb3d5ec2745fcb4d31589c7876f16/normalizing_flow_density.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 120,
+  "source": "out_normalizing_flow_density",
+  "conversion": {}
+}

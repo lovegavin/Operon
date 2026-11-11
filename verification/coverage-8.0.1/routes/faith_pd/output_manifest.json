@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/faith_pd/output/artifacts",
+  "files": [
+    {
+      "path": "exports/d110bb99d3e349c1b0b845b861a7bcb4/faith_pd.csv",
+      "size": 251,
+      "sha256": "4a1615ac23560c4d1b203cd22dc27eeb472356bfe71dbd5bca88d7e4cbe162d9"
+    }
+  ]
+}

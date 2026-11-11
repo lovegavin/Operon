@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/mrpp/output/artifacts",
+  "files": [
+    {
+      "path": "exports/6b024d903df54692ba4ae030b6f16245/mrpp.csv",
+      "size": 145,
+      "sha256": "526bab4df66e51a8e54bbde4e1e564f0d2e00a27bc3eafbe55a0fc37b5e39829"
+    }
+  ]
+}

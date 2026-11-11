@@ -1,0 +1,37 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "seqs": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_repeat_finder",
+      "inputs": [
+        "seqs"
+      ],
+      "params": {
+        "output": "out_sequence_repeat_finder",
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "repeat_dim": "repeat",
+        "min_period": 2,
+        "max_period": 4,
+        "min_copies": 2
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_sequence_repeat_finder"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "sequence_repeat_finder"
+      },
+      "context_params": {}
+    }
+  ]
+}

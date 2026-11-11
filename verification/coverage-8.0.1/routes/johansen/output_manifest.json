@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/johansen/output/artifacts",
+  "files": [
+    {
+      "path": "exports/1900253ee0b64baebf0675c6e32cfb4f/johansen.csv",
+      "size": 444,
+      "sha256": "05083e812bb6ddd29b3180ccac265b3498f63af9516fd67309362e7a5a4bf05c"
+    },
+    {
+      "path": "exports/c10b0c4dd46440b4973542c2c37343e2/johansen.csv",
+      "size": 444,
+      "sha256": "05083e812bb6ddd29b3180ccac265b3498f63af9516fd67309362e7a5a4bf05c"
+    }
+  ]
+}

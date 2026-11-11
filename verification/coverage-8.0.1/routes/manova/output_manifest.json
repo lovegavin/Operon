@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/manova/output/artifacts",
+  "files": [
+    {
+      "path": "exports/ac303fc7eeac40c58240eebe6a21ce2f/manova.csv",
+      "size": 143,
+      "sha256": "03897dbfa93c898b30189d9daaf43da72741ff03faa5a9efc21b892b4b01cc22"
+    },
+    {
+      "path": "exports/d56ba202f02e4da89a4204f1f9ef9ff2/manova.csv",
+      "size": 143,
+      "sha256": "03897dbfa93c898b30189d9daaf43da72741ff03faa5a9efc21b892b4b01cc22"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/assembly_stats/input",
+  "files": [
+    {
+      "path": "contigs.fasta",
+      "size": 49223,
+      "sha256": "bfa8b8830ee1e55850d78562e83facdc6c5e4365479ba0bc2a362d86a7677828"
+    }
+  ]
+}

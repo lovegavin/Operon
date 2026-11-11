@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/leave_one_out/output/artifacts/exports/596af11eb2fd4c018d4d67127898916c/leave_one_out.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 2171,
+  "source": "out_leave_one_out",
+  "conversion": {}
+}

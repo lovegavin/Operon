@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/robinson_foulds/output/artifacts",
+  "files": [
+    {
+      "path": "exports/c97071a0b9f640bab9a44dc65d469832/robinson_foulds.csv",
+      "size": 125,
+      "sha256": "55539c7b0462923ed44cb4777eac8b582fc5cd1f74c1c0889249c427efd48dcb"
+    }
+  ]
+}

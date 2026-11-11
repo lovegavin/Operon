@@ -1,0 +1,23 @@
+{
+  "name": "structure_openmm_md_stability",
+  "sources": {
+    "structure_1ubq": {
+      "path": "input/1UBQ.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_openmm_md_stability",
+      "inputs": [
+        "structure_1ubq"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/cov_mltab/smiles_standardize",
+  "generated_at": "2026-11-10T12:25:43.903005+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0514,
+  "steps": [
+    {
+      "index": 1,
+      "name": "smiles_standardize",
+      "elapsed": 0.0491,
+      "inputs": [],
+      "params": {
+        "output": "out_smiles_standardize",
+        "molecule_dim": "molecule",
+        "keep_largest_fragment": true,
+        "neutralize": false,
+        "smiles": "CCO ethanol\nO=C(O)c1ccccc1 benzoic acid\nC[N+](C)(C)C choline\nc1ccccc1O phenol\nCC(=O)[O-] acetate"
+      },
+      "export_path": "steps/01_smiles_standardize.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0023,
+      "inputs": [
+        "out_smiles_standardize"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "smiles_standardize"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122543-c33983a0d2b4",
+  "event_log": "/tmp/cov_mltab/smiles_standardize/output/runs/20261110T122543-c33983a0d2b4/events.jsonl"
+}

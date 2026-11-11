@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/moran/output/artifacts",
+  "files": [
+    {
+      "path": "exports/b5fe7239e1d0466184d9b19b5bea7747/moran.csv",
+      "size": 147,
+      "sha256": "4b1cb1d6f78a2e2cd17db969bbcb82199128624f980d22e9f9b2e1e576dd0d72"
+    },
+    {
+      "path": "exports/efb516b6faab4ac2b57622a552033934/moran.csv",
+      "size": 147,
+      "sha256": "4b1cb1d6f78a2e2cd17db969bbcb82199128624f980d22e9f9b2e1e576dd0d72"
+    }
+  ]
+}

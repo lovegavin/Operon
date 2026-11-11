@@ -1,0 +1,41 @@
+{
+  "task_dir": "/tmp/cov_mltab/rdkit_reaction_pairwise_enumerate",
+  "generated_at": "2026-11-10T12:27:15.523261+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0628,
+  "steps": [
+    {
+      "index": 1,
+      "name": "rdkit_reaction_pairwise_enumerate",
+      "elapsed": 0.0616,
+      "inputs": [],
+      "params": {
+        "output": "out_rdkit_reaction_pairwise_enumerate",
+        "reaction_smarts": "[C:1](=[O:2])[Cl:3].[N:4]>>[C:1](=[O:2])[N:4]",
+        "reactants_a": "CC(=O)Cl acetyl chloride\nc1ccccc1C(=O)Cl benzoyl chloride",
+        "reactants_b": "CN methylamine\nCCN ethylamine",
+        "max_products": 50,
+        "max_products_per_pair": 10,
+        "dedupe": true
+      },
+      "export_path": "steps/01_rdkit_reaction_pairwise_enumerate.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0012,
+      "inputs": [
+        "out_rdkit_reaction_pairwise_enumerate"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "rdkit_reaction_pairwise_enumerate"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122714-a53ab6d527f6",
+  "event_log": "/tmp/cov_mltab/rdkit_reaction_pairwise_enumerate/output/runs/20261110T122714-a53ab6d527f6/events.jsonl"
+}

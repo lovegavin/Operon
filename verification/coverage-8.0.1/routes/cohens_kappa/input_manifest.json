@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/cohens_kappa/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 63,
+      "sha256": "8163b8ef61e5e95b28673802e7f6beec345076a9859335b64fafea7a0a6e8bae"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/bioenv/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 161,
+      "sha256": "181f45b239ece2e9d72d33684893237434f348213a37f860cf4a60e542a5b9ae"
+    },
+    {
+      "path": "x1.csv",
+      "size": 124,
+      "sha256": "f1226643d8f40ed932b6e3dda041f683f3ade0fc6ea7ddfc2ed9b26b7df405a3"
+    }
+  ]
+}

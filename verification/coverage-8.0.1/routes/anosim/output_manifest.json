@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/anosim/output/artifacts",
+  "files": [
+    {
+      "path": "exports/340491964d394b2e832123b41a7eca66/anosim.csv",
+      "size": 81,
+      "sha256": "64d31ac6b514b85fd17a53cca5416eb0fd89b93e66fa88b53de18449a8cb3c88"
+    }
+  ]
+}

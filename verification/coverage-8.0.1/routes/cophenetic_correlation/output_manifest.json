@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/cophenetic_correlation/output/artifacts",
+  "files": [
+    {
+      "path": "exports/02e554cd04e64a9fb464fda780ddf22f/cophenetic_correlation.csv",
+      "size": 94,
+      "sha256": "c9303c8b2106ff5dd6c681dc5a34f8484ec849c61a4eccefa2cfb3cd7d020058"
+    },
+    {
+      "path": "exports/7cbc7f67c58d41b2a572cc99e6bce9ad/cophenetic_correlation.csv",
+      "size": 94,
+      "sha256": "c9303c8b2106ff5dd6c681dc5a34f8484ec849c61a4eccefa2cfb3cd7d020058"
+    }
+  ]
+}

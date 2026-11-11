@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/snk_test/output/artifacts/exports/8bc0351d65d24c6da7d86560b7ff23a9/snk_test.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 758,
+  "source": "out_snk_test",
+  "conversion": {}
+}

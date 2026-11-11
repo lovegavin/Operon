@@ -1,0 +1,29 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_aggregation_propensity",
+  "generated_at": "2026-11-10T12:45:57.689887+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0003,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_aggregation_propensity",
+      "elapsed": 0.0003,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_aggregation_propensity",
+        "window": 5,
+        "threshold": 0.35,
+        "min_length": 3
+      },
+      "export_path": "steps/01_sequence_aggregation_propensity.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124557-4ccd1257bb61",
+  "event_log": "/tmp/cov_sequence/sequence_aggregation_propensity/output/runs/20261110T124557-4ccd1257bb61/events.jsonl"
+}

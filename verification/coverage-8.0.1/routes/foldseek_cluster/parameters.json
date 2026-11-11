@@ -1,0 +1,21 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "foldseek_cluster",
+      "inputs": [],
+      "params": {
+        "structure_paths": "/tmp/cov_structure/foldseek_cluster/input/1UBQ.pdb,/tmp/cov_structure/foldseek_cluster/input/1ZAA.pdb",
+        "foldseek_path": "/tmp/foldseek/bin/foldseek",
+        "tmscore_threshold": 0.5,
+        "coverage": 0.5,
+        "timeout_seconds": 300,
+        "output": "out_foldseek_cluster"
+      },
+      "context_params": {}
+    }
+  ]
+}

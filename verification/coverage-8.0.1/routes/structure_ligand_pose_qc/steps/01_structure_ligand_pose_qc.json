@@ -1,0 +1,31 @@
+{
+  "checks": {
+    "mol_pred_loaded": 1.0,
+    "mol_cond_loaded": 1.0,
+    "sanitization": 1.0,
+    "inchi_convertible": 1.0,
+    "all_atoms_connected": 1.0,
+    "no_radicals": 1.0,
+    "bond_lengths": 1.0,
+    "bond_angles": 1.0,
+    "internal_steric_clash": 1.0,
+    "aromatic_ring_flatness": 1.0,
+    "non-aromatic_ring_non-flatness": 0.0,
+    "double_bond_flatness": 1.0,
+    "internal_energy": 1.0,
+    "protein-ligand_maximum_distance": 1.0,
+    "minimum_distance_to_protein": 1.0,
+    "minimum_distance_to_organic_cofactors": 1.0,
+    "minimum_distance_to_inorganic_cofactors": 1.0,
+    "minimum_distance_to_waters": 1.0,
+    "volume_overlap_with_protein": 1.0,
+    "volume_overlap_with_organic_cofactors": 1.0,
+    "volume_overlap_with_inorganic_cofactors": 1.0,
+    "volume_overlap_with_waters": 1.0
+  },
+  "n_checks": 22,
+  "n_failed": 1,
+  "failed_checks": [
+    "non-aromatic_ring_non-flatness"
+  ]
+}

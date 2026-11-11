@@ -1,0 +1,36 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "hardy_weinberg",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "variant_dim": "variant",
+        "feature_dim": "feature",
+        "aa_label": "AA",
+        "ab_label": "AB",
+        "bb_label": "BB",
+        "output": "out_hardy_weinberg"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_hardy_weinberg"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "hardy_weinberg"
+      },
+      "context_params": {}
+    }
+  ]
+}

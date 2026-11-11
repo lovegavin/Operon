@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/sc_batch_kbet/output/artifacts/exports/9681c4f534914aef8cb047dee29f438a/sc_batch_kbet.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 393,
+  "source": "out_sc_batch_kbet",
+  "conversion": {}
+}

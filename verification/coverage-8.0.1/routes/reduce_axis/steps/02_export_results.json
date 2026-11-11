@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/reduce_axis/output/artifacts/exports/0485cb7e901c45e9932832504ceb07d5/reduce_axis.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 516,
+  "source": "out_reduce_axis",
+  "conversion": {}
+}

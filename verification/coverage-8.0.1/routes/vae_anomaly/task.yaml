@@ -1,0 +1,34 @@
+{
+  "name": "vae_anomaly",
+  "sources": {
+    "vae": {
+      "path": "input/vae.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "vae_anomaly",
+      "inputs": [
+        "vae"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_vae_anomaly"
+      ]
+    }
+  ]
+}

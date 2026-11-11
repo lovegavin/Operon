@@ -1,0 +1,25 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_disorder_predictor",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_disorder_predictor",
+        "window": 25,
+        "threshold": 0.0,
+        "min_length": 4
+      },
+      "context_params": {}
+    }
+  ]
+}

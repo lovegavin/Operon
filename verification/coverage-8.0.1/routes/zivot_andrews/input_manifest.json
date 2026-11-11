@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/zivot_andrews/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1182,
+      "sha256": "33ed20b2982c899bef847812b53398690ace6b8b1e05e4dd88422679bd842673"
+    }
+  ]
+}

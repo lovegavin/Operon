@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/moses_test/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 369,
+      "sha256": "2232a58108f82a6364470cd57d5704c77a6a7eff2b256f77ab303d88e0ac260c"
+    },
+    {
+      "path": "x1.csv",
+      "size": 75,
+      "sha256": "0563ebfbc75b4292ed02334201839ff9dc612ca64c40c68d99eaceb01bddfd08"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/weighted_kappa/output/artifacts",
+  "files": [
+    {
+      "path": "exports/00d045d58ac04fb099e45d6c531d8585/weighted_kappa.csv",
+      "size": 155,
+      "sha256": "3c99b901025911dd5b454c955ebaf0ffed0fbbf0e10cd6fcd4f309ac7ffa2e24"
+    },
+    {
+      "path": "exports/f3d54453e9f5496f92a5ade523071931/weighted_kappa.csv",
+      "size": 155,
+      "sha256": "3c99b901025911dd5b454c955ebaf0ffed0fbbf0e10cd6fcd4f309ac7ffa2e24"
+    }
+  ]
+}

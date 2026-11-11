@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/mlp_classifier/input",
+  "files": [
+    {
+      "path": "class.csv",
+      "size": 93,
+      "sha256": "4fe1a7eb0d48430a4105cb565e8507903144565b201f3bea1b78e7f2f461b76e"
+    }
+  ]
+}

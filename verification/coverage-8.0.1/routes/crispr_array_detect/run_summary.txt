@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_sequence/crispr_array_detect
+generated : 2026-11-10T12:46:25.664032+00:00
+steps     : 1
+elapsed   : 0.082s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   crispr_array_detect     0.082s   steps/01_crispr_array_detect.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

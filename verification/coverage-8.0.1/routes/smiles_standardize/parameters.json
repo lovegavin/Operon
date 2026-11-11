@@ -1,0 +1,31 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "smiles_standardize",
+      "inputs": [],
+      "params": {
+        "output": "out_smiles_standardize",
+        "molecule_dim": "molecule",
+        "keep_largest_fragment": true,
+        "neutralize": false,
+        "smiles": "CCO ethanol\nO=C(O)c1ccccc1 benzoic acid\nC[N+](C)(C)C choline\nc1ccccc1O phenol\nCC(=O)[O-] acetate"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_smiles_standardize"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "smiles_standardize"
+      },
+      "context_params": {}
+    }
+  ]
+}

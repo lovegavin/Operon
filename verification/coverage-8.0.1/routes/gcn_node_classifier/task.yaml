@@ -1,0 +1,47 @@
+{
+  "name": "gcn_node_classifier",
+  "sources": {
+    "nodes": {
+      "path": "input/nodes.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "edges": {
+      "path": "input/edges.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": "auto",
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "gcn_node_classifier",
+      "inputs": [
+        "nodes",
+        "edges"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_gcn_node_classifier"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/envfit/output/artifacts",
+  "files": [
+    {
+      "path": "exports/5c6a32b413254b67aac63c48c501e04f/envfit.csv",
+      "size": 209,
+      "sha256": "a088c812ecf08ba99b1ee8c551a7a02083165a88ceb999cb322376093341d999"
+    },
+    {
+      "path": "exports/f282c8001d5241e89d68d815bf199dad/envfit.csv",
+      "size": 209,
+      "sha256": "a088c812ecf08ba99b1ee8c551a7a02083165a88ceb999cb322376093341d999"
+    }
+  ]
+}

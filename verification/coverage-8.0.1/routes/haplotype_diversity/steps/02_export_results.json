@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/haplotype_diversity/output/artifacts/exports/96d0fd8da4144ae48d555292f6660019/haplotype_diversity.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 133,
+  "source": "out_haplotype_diversity",
+  "conversion": {}
+}

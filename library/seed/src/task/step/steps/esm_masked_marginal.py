@@ -10,6 +10,8 @@ from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
 
+from ._esm_common import load_esm
+
 AA_ORDER = "ACDEFGHIKLMNPQRSTVWY"
 _MUTATION = re.compile(r"^([ACDEFGHIKLMNPQRSTVWY])(\d+)([ACDEFGHIKLMNPQRSTVWY])$")
 
@@ -189,20 +191,16 @@ class EsmMaskedMarginalStep(Step):
         sequence = sequences[sequence_index]
         _check_wild_types(sequence, parse_mutations(mutations, len(sequence)))
 
-        import esm
-        import torch
-
-        if device == "cuda" and not torch.cuda.is_available():
-            raise StepError(
-                "esm_masked_marginal: device 'cuda' requested but CUDA is "
-                "not available"
-            )
-        try:
-            model, alphabet = esm.pretrained.load_model_and_alphabet_local(model_path)
-        except Exception as exc:  # depends on the checkpoint file on disk
-            raise StepError(
-                f"esm_masked_marginal: could not load model from '{model_path}': {exc}"
-            ) from exc
+        if device == "cuda":
+            import torch
+            if not torch.cuda.is_available():
+                raise StepError(
+                    "esm_masked_marginal: device 'cuda' requested but CUDA is "
+                    "not available"
+                )
+        model, alphabet, torch, device = load_esm(
+            model_path, device, "esm_masked_marginal"
+        )
         model = model.eval().to(device)
 
         batch_converter = alphabet.get_batch_converter()

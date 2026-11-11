@@ -6,6 +6,7 @@ import numpy as np
 from src.task.step.base import Step
 
 from ._b91_common import embed, strings, table
+from ._native_results import output_directory, remember_native, result_file
 
 
 class NucleotideTransformerVariantEffectStep(Step):
@@ -31,4 +32,20 @@ class NucleotideTransformerVariantEffectStep(Step):
             "euclidean": dist.tolist(), "norm_delta": dn.tolist(),
         }, ["ref_norm", "alt_norm", "cosine", "euclidean", "norm_delta"])
         out.data[:] = np.round(out.data, 3)
-        ctx[params["output"]] = out
+        out_name = params["output"]
+        ctx[out_name] = out
+        path = output_directory(ctx, "nucleotide_transformer_variant_effect") / "variant_effect.csv"
+        header = ["variant"] + list(out.labels[out.dims[1]].keys())
+        lines = [",".join(header)]
+        for i, name in enumerate(out.labels[out.dims[0]]):
+            lines.append(str(name) + "," + ",".join(f"{float(v):.6g}" for v in out.data[i]))
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        result_files = [result_file("variant_effect", path, "csv", "Nucleotide Transformer variant effect")]
+        remember_native(ctx, out_name, result_files)
+        self._result_files = result_files
+        self._export_data = {"rows": int(out.data.shape[0]), "columns": int(out.data.shape[1])}
+
+    def export(self, ctx):
+        data = dict(getattr(self, "_export_data", {}))
+        data["result_files"] = getattr(self, "_result_files", [])
+        return data

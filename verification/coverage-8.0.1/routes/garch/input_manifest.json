@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/garch/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1647,
+      "sha256": "a06fced7aea9edf5252333fa55857dd0699d3e8abc1dce423e54723ed1c53560"
+    }
+  ]
+}

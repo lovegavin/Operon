@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_omics/gc_skew_profile
+generated : 2026-11-10T12:29:13.727178+00:00
+steps     : 2
+elapsed   : 0.003s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   gc_skew_profile         0.000s   steps/01_gc_skew_profile.json
+2   export_results          0.003s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

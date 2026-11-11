@@ -1,0 +1,35 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "time_dependent_auc",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "time_label": "time",
+        "event_label": "event",
+        "risk_label": "risk",
+        "predict_time": 1.0,
+        "output": "out_time_dependent_auc"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_time_dependent_auc"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "time_dependent_auc"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "structure_pocket_detect",
+  "sources": {
+    "structure": {
+      "path": "input/1mel_nohet.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_pocket_detect",
+      "inputs": [
+        "structure"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

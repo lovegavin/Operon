@@ -1,0 +1,23 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_3ptb": {}
+  },
+  "steps": [
+    {
+      "name": "structure_ligand_pose_qc",
+      "inputs": [
+        "structure_3ptb"
+      ],
+      "params": {
+        "ligand_resname": "BEN",
+        "config": "dock",
+        "check_dim": "check",
+        "output": "out_structure_ligand_pose_qc"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/power_prop_test/output/artifacts/exports/1ab8691949b941de9544a4530972192d/power_prop_test.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 129,
+  "source": "out_power_prop_test",
+  "conversion": {}
+}

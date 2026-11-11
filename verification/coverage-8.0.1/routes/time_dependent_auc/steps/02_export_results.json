@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/time_dependent_auc/output/artifacts/exports/7880254433b64d5bb52d5799dc6773ff/time_dependent_auc.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 94,
+  "source": "out_time_dependent_auc",
+  "conversion": {}
+}

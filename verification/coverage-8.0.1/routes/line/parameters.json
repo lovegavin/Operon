@@ -1,0 +1,23 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "line",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "dim": "feature",
+        "x_label": "x",
+        "y_label": "y",
+        "filename": "line.png"
+      },
+      "context_params": {}
+    }
+  ]
+}

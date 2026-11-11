@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/dxy/output/artifacts",
+  "files": [
+    {
+      "path": "exports/bdb29903c20a4a23967be3d2703536ec/dxy.csv",
+      "size": 360,
+      "sha256": "4811c726d89b2b4d39d3bc53361c5ebba5f8e5b47d66b2a37840f83cf1b17482"
+    },
+    {
+      "path": "exports/c8b7b34ace5748acbb972f90828bde8c/dxy.csv",
+      "size": 360,
+      "sha256": "4811c726d89b2b4d39d3bc53361c5ebba5f8e5b47d66b2a37840f83cf1b17482"
+    }
+  ]
+}

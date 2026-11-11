@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/time_dependent_auc/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 965,
+      "sha256": "39da5c06b4e1733c282a3315c1263895e3f9ea7fd970966739fac26d1524bd0b"
+    }
+  ]
+}

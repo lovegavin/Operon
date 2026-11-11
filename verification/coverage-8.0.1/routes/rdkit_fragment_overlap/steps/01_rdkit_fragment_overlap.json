@@ -1,0 +1,17 @@
+{
+  "n_molecules_a": 3,
+  "n_molecules_b": 3,
+  "min_fragment_size": 4,
+  "mean_overlap": 0.222222,
+  "max_overlap": 1.0,
+  "fragments_a": [
+    2,
+    2,
+    3
+  ],
+  "fragments_b": [
+    2,
+    1,
+    2
+  ]
+}

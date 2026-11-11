@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_sequence/annotate/output/artifacts",
+  "files": [
+    {
+      "path": "exports/0c15ac2f11d64978b67a04c35ff31551/out_annotate.csv",
+      "size": 296,
+      "sha256": "bd636230e95f00769565f52cfea4f7cee729437fc14029bacec351f0ffeeaf8f"
+    },
+    {
+      "path": "exports/4fe4d6c436714e618cba516e738fee76/out_annotate.csv",
+      "size": 296,
+      "sha256": "bd636230e95f00769565f52cfea4f7cee729437fc14029bacec351f0ffeeaf8f"
+    }
+  ]
+}

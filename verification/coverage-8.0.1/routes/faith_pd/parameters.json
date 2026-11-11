@@ -1,0 +1,37 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "faith_pd",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "taxon_dim": "feature",
+        "node_dim": "node",
+        "field_dim": "field",
+        "output": "out_faith_pd"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_faith_pd"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "faith_pd"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/cuzick_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/497051d90b914347ab65234db6b6ad15/cuzick_test.csv",
+      "size": 382,
+      "sha256": "d2bb7dabca1d5325a49641a64ae68717416f6422d495ccbd0fedc636bb359a17"
+    },
+    {
+      "path": "exports/58f9657d567d4197932fa33806da2cc5/cuzick_test.csv",
+      "size": 382,
+      "sha256": "d2bb7dabca1d5325a49641a64ae68717416f6422d495ccbd0fedc636bb359a17"
+    }
+  ]
+}

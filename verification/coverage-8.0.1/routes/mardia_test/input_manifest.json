@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/mardia_test/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1666,
+      "sha256": "f0b03efffba50789a7aa9fed4b465072799504985b7b453e1ec1029c47815bb7"
+    }
+  ]
+}

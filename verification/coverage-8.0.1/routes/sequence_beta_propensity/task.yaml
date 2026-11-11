@@ -1,0 +1,26 @@
+{
+  "name": "sequence_beta_propensity",
+  "sources": {
+    "x0": {
+      "path": "input/beta.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sequence_beta_propensity",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

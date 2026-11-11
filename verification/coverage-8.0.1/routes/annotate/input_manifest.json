@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_sequence/annotate/input",
+  "files": [
+    {
+      "path": "expr.csv",
+      "size": 287,
+      "sha256": "845857f0054d4c05b053057a7dd70b40192ee8468f3fcac45f7840f1c7f28b92"
+    },
+    {
+      "path": "rank.csv",
+      "size": 114,
+      "sha256": "20e3e0bc5551ffbf8217e34698b99f738e23046ccf40ce7d5a2b4971ccda24dc"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/cell_cycle_score/output/artifacts/exports/8659744c74bb4dc18e020c23ef5f5092/cell_cycle_score.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 293,
+  "source": "out_cell_cycle_score",
+  "conversion": {}
+}

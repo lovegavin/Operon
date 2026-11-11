@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_mltab/transformer_classifier
+generated : 2026-11-10T12:25:50.519263+00:00
+steps     : 2
+elapsed   : 4.156s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   transformer_classifier    4.154s   steps/01_transformer_classifier.json
+2   export_results          0.003s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

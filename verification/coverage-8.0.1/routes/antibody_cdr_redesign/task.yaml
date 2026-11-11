@@ -1,0 +1,17 @@
+{
+  "name": "antibody_cdr_redesign",
+  "sources": {},
+  "steps": [
+    {
+      "name": "antibody_cdr_redesign",
+      "inputs": []
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "designs"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

@@ -1,0 +1,16 @@
+{
+  "target_dim": "sample",
+  "source_dim": "sample",
+  "field_dim": "feature",
+  "fields": [
+    "score"
+  ],
+  "field_sources": {
+    "score": "data"
+  },
+  "n_target": 8,
+  "n_matched": 8,
+  "n_unmatched": 0,
+  "encoded_fields": [],
+  "unmatched_labels": []
+}

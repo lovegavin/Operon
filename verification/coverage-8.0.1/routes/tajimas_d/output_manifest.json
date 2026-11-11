@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/tajimas_d/output/artifacts",
+  "files": [
+    {
+      "path": "exports/874abff37e48478abea2f1c9e8e7d2ac/tajimas_d.csv",
+      "size": 156,
+      "sha256": "4cc6a12200ea392302d955432a0ca99a3e5e534806f858dc821fe9333d427680"
+    },
+    {
+      "path": "exports/fe70ed8c2f41479fa57ed7c8dbc5ea40/tajimas_d.csv",
+      "size": 156,
+      "sha256": "4cc6a12200ea392302d955432a0ca99a3e5e534806f858dc821fe9333d427680"
+    }
+  ]
+}

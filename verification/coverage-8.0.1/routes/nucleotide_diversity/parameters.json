@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "nucleotide_diversity",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "variant_dim": "variant",
+        "sample_dim": "sample",
+        "output": "out_nucleotide_diversity"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_nucleotide_diversity"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "nucleotide_diversity"
+      },
+      "context_params": {}
+    }
+  ]
+}

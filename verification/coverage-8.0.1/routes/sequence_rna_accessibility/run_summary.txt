@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_sequence/sequence_rna_accessibility
+generated : 2026-11-10T12:46:04.971993+00:00
+steps     : 1
+elapsed   : 0.023s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   sequence_rna_accessibility    0.023s   steps/01_sequence_rna_accessibility.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

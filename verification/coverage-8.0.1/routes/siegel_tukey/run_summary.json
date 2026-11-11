@@ -1,0 +1,44 @@
+{
+  "task_dir": "/tmp/cov_stats/siegel_tukey",
+  "generated_at": "2026-11-10T12:44:00.457126+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0042,
+  "steps": [
+    {
+      "index": 1,
+      "name": "siegel_tukey",
+      "elapsed": 0.0018,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "group_dim": "sample",
+        "group_label": "group",
+        "group_a": "A",
+        "group_b": "B",
+        "output": "out_siegel_tukey"
+      },
+      "export_path": "steps/01_siegel_tukey.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0024,
+      "inputs": [
+        "out_siegel_tukey"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "siegel_tukey"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124358-1b2db963d91a",
+  "event_log": "/tmp/cov_stats/siegel_tukey/output/runs/20261110T124358-1b2db963d91a/events.jsonl"
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/pedigree_inbreeding/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 132,
+      "sha256": "7c1fabaf3f049acf9a8fe595cc36a60d5f1c7e71a64bcab8d95233b1f8647a49"
+    }
+  ]
+}

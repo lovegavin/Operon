@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "rdkit_reaction_pairwise_enumerate",
+      "inputs": [],
+      "params": {
+        "output": "out_rdkit_reaction_pairwise_enumerate",
+        "reaction_smarts": "[C:1](=[O:2])[Cl:3].[N:4]>>[C:1](=[O:2])[N:4]",
+        "reactants_a": "CC(=O)Cl acetyl chloride\nc1ccccc1C(=O)Cl benzoyl chloride",
+        "reactants_b": "CN methylamine\nCCN ethylamine",
+        "max_products": 50,
+        "max_products_per_pair": 10,
+        "dedupe": true
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_rdkit_reaction_pairwise_enumerate"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "rdkit_reaction_pairwise_enumerate"
+      },
+      "context_params": {}
+    }
+  ]
+}

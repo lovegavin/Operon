@@ -1,0 +1,45 @@
+{
+  "task_dir": "/tmp/cov_mltab/cnn_image_classifier",
+  "generated_at": "2026-11-10T12:25:10.629152+00:00",
+  "n_steps": 2,
+  "total_elapsed": 2.5156,
+  "steps": [
+    {
+      "index": 1,
+      "name": "cnn_image_classifier",
+      "elapsed": 2.5133,
+      "inputs": [
+        "cnn"
+      ],
+      "params": {
+        "output": "out_cnn_image_classifier",
+        "row_dim": "row",
+        "field_dim": "field",
+        "label_column": "label",
+        "height": 4,
+        "width": 4,
+        "epochs": 100,
+        "learning_rate": 0.01,
+        "seed": 5
+      },
+      "export_path": "steps/01_cnn_image_classifier.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0023,
+      "inputs": [
+        "out_cnn_image_classifier"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "cnn_image_classifier"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122507-ee5fd56815e2",
+  "event_log": "/tmp/cov_mltab/cnn_image_classifier/output/runs/20261110T122507-ee5fd56815e2/events.jsonl"
+}

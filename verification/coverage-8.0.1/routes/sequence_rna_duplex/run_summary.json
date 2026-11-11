@@ -1,0 +1,30 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_rna_duplex",
+  "generated_at": "2026-11-10T12:46:09.581099+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0045,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_rna_duplex",
+      "elapsed": 0.0045,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_rna_duplex",
+        "rnaduplex_path": "/usr/bin/RNAduplex",
+        "energy_range": 0.1,
+        "timeout_seconds": 120,
+        "duplex_dim": "duplex"
+      },
+      "export_path": "steps/01_sequence_rna_duplex.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124609-7a74d5398e79",
+  "event_log": "/tmp/cov_sequence/sequence_rna_duplex/output/runs/20261110T124609-7a74d5398e79/events.jsonl"
+}

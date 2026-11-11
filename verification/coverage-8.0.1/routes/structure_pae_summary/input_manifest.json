@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_structure/structure_pae_summary/input",
+  "files": [
+    {
+      "path": "pae_af_p69905.npy",
+      "size": 80784,
+      "sha256": "5bc6bdeffdbf5468fa331ecd41ae47cea64c449d792c0251f29ceef14e4e1ccc"
+    }
+  ]
+}

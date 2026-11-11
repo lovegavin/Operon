@@ -1,0 +1,26 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "flye_assemble",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "flye_path": "/home/gavin/miniconda3/envs/assembly/bin/flye",
+        "mode": "nano-raw",
+        "genome_size": "48k",
+        "threads": 2,
+        "min_overlap": 1000,
+        "timeout_seconds": 1200,
+        "output": "out_flye_assemble"
+      },
+      "context_params": {}
+    }
+  ]
+}

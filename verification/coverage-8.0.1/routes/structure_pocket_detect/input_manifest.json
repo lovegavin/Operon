@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_structure/structure_pocket_detect/input",
+  "files": [
+    {
+      "path": "1mel_nohet.pdb",
+      "size": 316548,
+      "sha256": "66ff3b49d541e1d1441065306d9b228d1cd0cda399673d74c35a416ad1b02686"
+    }
+  ]
+}

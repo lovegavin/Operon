@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/tukey_test/output/artifacts/exports/e70acf2ca8bd444794befec1184ede13/tukey_test.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 762,
+  "source": "out_tukey_test",
+  "conversion": {}
+}

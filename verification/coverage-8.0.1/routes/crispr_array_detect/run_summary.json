@@ -1,0 +1,27 @@
+{
+  "task_dir": "/tmp/cov_sequence/crispr_array_detect",
+  "generated_at": "2026-11-10T12:46:25.664032+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0817,
+  "steps": [
+    {
+      "index": 1,
+      "name": "crispr_array_detect",
+      "elapsed": 0.0817,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "minced_path": "/home/gavin/miniconda3/envs/assembly/bin/minced",
+        "min_repeats": 3,
+        "timeout_seconds": 300,
+        "output": "out_crispr_array_detect"
+      },
+      "export_path": "steps/01_crispr_array_detect.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124625-646c04ff9efb",
+  "event_log": "/tmp/cov_sequence/crispr_array_detect/output/runs/20261110T124625-646c04ff9efb/events.jsonl"
+}

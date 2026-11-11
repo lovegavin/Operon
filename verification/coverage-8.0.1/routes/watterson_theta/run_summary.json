@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/cov_omics/watterson_theta",
+  "generated_at": "2026-11-10T12:30:21.597646+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0021,
+  "steps": [
+    {
+      "index": 1,
+      "name": "watterson_theta",
+      "elapsed": 0.0004,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "variant_dim": "variant",
+        "sample_dim": "sample",
+        "output": "out_watterson_theta"
+      },
+      "export_path": "steps/01_watterson_theta.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "out_watterson_theta"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "watterson_theta"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T123020-453f1afde35b",
+  "event_log": "/tmp/cov_omics/watterson_theta/output/runs/20261110T123020-453f1afde35b/events.jsonl"
+}

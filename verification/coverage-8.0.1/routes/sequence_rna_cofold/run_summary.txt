@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_sequence/sequence_rna_cofold
+generated : 2026-11-10T12:46:06.393423+00:00
+steps     : 1
+elapsed   : 0.067s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   sequence_rna_cofold     0.067s   steps/01_sequence_rna_cofold.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,28 @@
+{
+  "task_dir": "/tmp/cov_structure/structure_md_contact_occupancy",
+  "generated_at": "2026-11-10T12:36:24.474586+00:00",
+  "n_steps": 1,
+  "total_elapsed": 25.2532,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_md_contact_occupancy",
+      "elapsed": 25.2532,
+      "inputs": [],
+      "params": {
+        "trajectory_path": "/tmp/cov_structure/structure_md_contact_occupancy/input/1mel_traj.npy",
+        "topology_path": "/tmp/cov_structure/structure_md_contact_occupancy/input/1mel_topology.pdb",
+        "chains": "A,L",
+        "cutoff": 5.0,
+        "min_occupancy": 0.2,
+        "stride": 1,
+        "output": "out_structure_md_contact_occupancy"
+      },
+      "export_path": "steps/01_structure_md_contact_occupancy.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T123558-2b76b8649ea9",
+  "event_log": "/tmp/cov_structure/structure_md_contact_occupancy/output/runs/20261110T123558-2b76b8649ea9/events.jsonl"
+}

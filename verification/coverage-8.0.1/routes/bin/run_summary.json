@@ -1,0 +1,40 @@
+{
+  "task_dir": "/tmp/cov_sequence/bin",
+  "generated_at": "2026-11-10T12:47:24.418916+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0017,
+  "steps": [
+    {
+      "index": 1,
+      "name": "bin",
+      "elapsed": 0.0006,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "dim": "sample",
+        "bins": 4,
+        "method": "quantile",
+        "stat": "mean"
+      },
+      "export_path": "steps/01_bin.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0011,
+      "inputs": [
+        "bin"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "out_bin"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124723-cd43694cd131",
+  "event_log": "/tmp/cov_sequence/bin/output/runs/20261110T124723-cd43694cd131/events.jsonl"
+}

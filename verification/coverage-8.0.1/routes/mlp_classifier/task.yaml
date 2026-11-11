@@ -1,0 +1,34 @@
+{
+  "name": "mlp_classifier",
+  "sources": {
+    "clf": {
+      "path": "input/class.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "mlp_classifier",
+      "inputs": [
+        "clf"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_mlp_classifier"
+      ]
+    }
+  ]
+}

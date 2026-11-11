@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/van_waerden/output/artifacts/exports/1d5a2983f9b44a17a4a17cd2dcea30e5/van_waerden.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 103,
+  "source": "out_van_waerden",
+  "conversion": {}
+}

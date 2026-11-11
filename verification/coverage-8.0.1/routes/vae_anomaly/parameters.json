@@ -1,0 +1,38 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "vae": {}
+  },
+  "steps": [
+    {
+      "name": "vae_anomaly",
+      "inputs": [
+        "vae"
+      ],
+      "params": {
+        "output": "out_vae_anomaly",
+        "row_dim": "row",
+        "field_dim": "field",
+        "hidden": 6,
+        "latent": 1,
+        "epochs": 100,
+        "learning_rate": 0.01,
+        "seed": 7
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_vae_anomaly"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "vae_anomaly"
+      },
+      "context_params": {}
+    }
+  ]
+}

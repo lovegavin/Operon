@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/reduce_axis/output/artifacts",
+  "files": [
+    {
+      "path": "exports/0485cb7e901c45e9932832504ceb07d5/reduce_axis.csv",
+      "size": 516,
+      "sha256": "9240075cd4515cd191086aefdc9089cb1de261db2c632dff6a6c8e03a48a2571"
+    },
+    {
+      "path": "exports/eb65e34b9a2a4b5b89499e53df37040f/reduce_axis.csv",
+      "size": 516,
+      "sha256": "9240075cd4515cd191086aefdc9089cb1de261db2c632dff6a6c8e03a48a2571"
+    }
+  ]
+}

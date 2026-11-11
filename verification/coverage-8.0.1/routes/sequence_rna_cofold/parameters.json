@@ -1,0 +1,28 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_rna_cofold",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_rna_cofold",
+        "rnacofold_path": "/usr/bin/RNAcofold",
+        "concentration_a": 1.0,
+        "concentration_b": 1.0,
+        "no_lonely_pairs": false,
+        "timeout_seconds": 120,
+        "dimer_dim": "dimer"
+      },
+      "context_params": {}
+    }
+  ]
+}

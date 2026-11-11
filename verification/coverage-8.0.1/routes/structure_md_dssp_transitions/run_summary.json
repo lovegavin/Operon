@@ -1,0 +1,29 @@
+{
+  "task_dir": "/tmp/cov_structure/structure_md_dssp_transitions",
+  "generated_at": "2026-11-10T12:36:39.994000+00:00",
+  "n_steps": 1,
+  "total_elapsed": 12.6541,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_md_dssp_transitions",
+      "elapsed": 12.6541,
+      "inputs": [],
+      "params": {
+        "trajectory_path": "/tmp/cov_structure/structure_md_dssp_transitions/input/1mel_traj.npy",
+        "topology_path": "/tmp/cov_structure/structure_md_dssp_transitions/input/1mel_topology.pdb",
+        "dssp_path": "/usr/bin/mkdssp",
+        "lag_frames": 1,
+        "frame_time_ps": 0.08,
+        "n_residues": 0,
+        "timeout_seconds": 600,
+        "output": "out_structure_md_dssp_transitions"
+      },
+      "export_path": "steps/01_structure_md_dssp_transitions.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T123626-e38225bf93ce",
+  "event_log": "/tmp/cov_structure/structure_md_dssp_transitions/output/runs/20261110T123626-e38225bf93ce/events.jsonl"
+}

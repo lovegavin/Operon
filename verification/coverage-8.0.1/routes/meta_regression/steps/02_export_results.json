@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/meta_regression/output/artifacts/exports/af2706ca6e5a4b80ad52409bd553240b/meta_regression.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 289,
+  "source": "out_meta_regression",
+  "conversion": {}
+}

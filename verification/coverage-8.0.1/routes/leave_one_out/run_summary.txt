@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_stats/leave_one_out
+generated : 2026-11-10T12:43:48.394760+00:00
+steps     : 2
+elapsed   : 0.007s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   leave_one_out           0.004s   steps/01_leave_one_out.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

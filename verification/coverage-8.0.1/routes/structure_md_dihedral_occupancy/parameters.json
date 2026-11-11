@@ -1,0 +1,20 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_md_dihedral_occupancy",
+      "inputs": [],
+      "params": {
+        "trajectory_path": "/tmp/cov_structure/structure_md_dihedral_occupancy/input/1mel_traj.npy",
+        "topology_path": "/tmp/cov_structure/structure_md_dihedral_occupancy/input/1mel_topology.pdb",
+        "chains": "A,L",
+        "stride": 1,
+        "output": "out_structure_md_dihedral_occupancy"
+      },
+      "context_params": {}
+    }
+  ]
+}

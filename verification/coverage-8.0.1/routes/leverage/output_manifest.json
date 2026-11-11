@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/leverage/output/artifacts",
+  "files": [
+    {
+      "path": "exports/54cba3d0b2c44940a566ba92f781ab75/leverage.csv",
+      "size": 1014,
+      "sha256": "843ef0cc1d8c2d5c683de661c850f6eae662043b1817a0ed0a2f227678837fcc"
+    },
+    {
+      "path": "exports/a64f281b119b4c18b5dd8c80e07b70a2/leverage.csv",
+      "size": 1014,
+      "sha256": "843ef0cc1d8c2d5c683de661c850f6eae662043b1817a0ed0a2f227678837fcc"
+    }
+  ]
+}

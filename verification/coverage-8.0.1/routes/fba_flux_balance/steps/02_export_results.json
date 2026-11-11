@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/fba_flux_balance/output/artifacts/exports/be8b56d2aed944a894b5e2609156d571/fba_flux_balance.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 64,
+  "source": "out_fba_flux_balance",
+  "conversion": {}
+}

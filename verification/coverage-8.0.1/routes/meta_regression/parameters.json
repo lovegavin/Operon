@@ -1,0 +1,37 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "meta_regression",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "effect_label": "effect",
+        "variance_label": "variance",
+        "moderators": [
+          "mod"
+        ],
+        "method": "random",
+        "output": "out_meta_regression"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_meta_regression"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "meta_regression"
+      },
+      "context_params": {}
+    }
+  ]
+}

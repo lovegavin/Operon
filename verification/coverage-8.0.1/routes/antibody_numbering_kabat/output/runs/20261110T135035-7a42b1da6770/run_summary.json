@@ -1,0 +1,11 @@
+{
+  "task_dir": "/tmp/abroutes/antibody_numbering_kabat",
+  "generated_at": "2026-11-10T13:50:36.212749+00:00",
+  "n_steps": 0,
+  "total_elapsed": 0,
+  "steps": [],
+  "status": "failed",
+  "error": "antibody_cdr_kabat: the conserved 'LSC' framework-1 cysteine was not found; this does not look like a VH/VHH domain",
+  "run_id": "20261110T135035-7a42b1da6770",
+  "event_log": "/tmp/abroutes/antibody_numbering_kabat/output/runs/20261110T135035-7a42b1da6770/events.jsonl"
+}

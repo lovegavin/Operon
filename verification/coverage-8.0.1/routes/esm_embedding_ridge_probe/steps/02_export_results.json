@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/probe_routes/esm_embedding_ridge_probe/output/artifacts/exports/77bb658388db4f80841ff676310015c5/esm_embedding_ridge_probe.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 516,
+  "source": "probe",
+  "conversion": {}
+}
