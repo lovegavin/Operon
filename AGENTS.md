@@ -1,10 +1,11 @@
 # Working with Operon
 
-Application maintenance uses existing version branches, currently
-`fix/3.0.1-installation`. The library is independently maintained on `library/main`.
-Do not merge library development into an application branch or maintain a combined
-`main`. Published tags and artifacts are immutable; keep the tested factory seed
-unless a library update is explicitly requested.
+Application development and the bundled operator library are integrated on
+main, which is the source branch for current 4.x releases. The library keeps its
+own semantic versions and release tags (library-v<version>); each application
+release records the exact library sources it was built with. Published tags and
+artifacts are immutable; keep the tested factory seed unless a library update is
+explicitly requested.
 
 For operating the software, start with `operon help` (or MCP `operon_guide`),
 then request only the needed task topic and operator schemas/document sections.

@@ -1,4 +1,7 @@
 # Operon backend engine implementation plan
+> Historical planning record (2026-11-07). Operon 4.x integrates the application
+> and bundled library on main; current policy is in AGENTS.md and
+> docs/application_library_boundary.md.
 
 **Handoff specification — design only — 2026-11-07**
 

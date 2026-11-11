@@ -52,7 +52,7 @@ migrated. No `--apply` was run on either library.
 | Snapshot | Descriptors inspected | Proposals | Review required |
 | --- | ---: | ---: | ---: |
 | Tested 3.0.1 factory seed | 818 | 813 | 5 |
-| Independent `library/main` source snapshot | 817 | 813 | 4 |
+| Independent library source snapshot (historical) | 817 | 813 | 4 |
 
 The factory seed tree is `f2e52a32e1c2d974562e9fda3f46b48339b39beb`.
 The independent snapshot is commit
