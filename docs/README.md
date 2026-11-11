@@ -17,7 +17,13 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 
 ## Use Operon
 
-- **[Quick start: Windows, Linux and your first workflow](quickstart.md)**
+- **[中文快速开始：10 分钟跑通第一个流程](../QUICKSTART.zh.md)**
+- **[English quick start: your first workflow in 10 minutes](../QUICKSTART.en.md)**
+- [Detailed quick start: Windows, Linux and your first workflow](quickstart.md)
+
+Current guides describe **Operon Studio 4.0.2** with the **8.0.1** operator library.
+Release notes, verification reports and dated design records preserve the versions
+they tested; they are historical evidence, not current installation instructions.
 
 - [Shared execution pools](design/pool_service.md)
 - [Verified stage reuse and author cache declarations](stage_cache.md)

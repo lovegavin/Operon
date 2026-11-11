@@ -1,14 +1,16 @@
 # Application and operator library
 
-Application releases and the library use their existing independent branches.
-The current application maintenance branch is `fix/3.0.1-installation`; the
-library branch is `library/main`. A combined `main` is not a maintenance target.
-Application patches retain their tested factory seed. Compatibility is defined
-by SDK protocol revisions and validated declarations, not by merging both source
-trees. Published releases remain immutable.
+`main` is the integrated source branch for the current application and operator
+library. The application and the library remain independently versioned
+products: application releases use `vX.Y.Z`; library releases use
+`library-v<version>` (for example `library-v8.0.1`). An operator-only change
+does not require a new installer. An application release may bundle a tested
+library seed; compatibility is defined by SDK protocol revisions and validated
+declarations, not by requiring both products to share a version number.
+Published tags and assets remain immutable.
 
 Operon has two versioned products in one repository. Application releases use
-`vX.Y.Z`; operator releases use `library-vYYYY.M.D`. Adding or correcting an
+`vX.Y.Z`; operator releases use `library-v<version>` (for example `library-v8.0.1`). Adding or correcting an
 operator does not require an EXE release or an application version change.
 
 | Owner | Source | Published artifact |
@@ -57,10 +59,11 @@ not missed. Once editable sources change, refresh uses the existing transactiona
 snapshot/install path and detaches those providers from the factory library.
 Explicitly installed library bundles remain independently versioned as before.
 
-`main` contains the current application and the author's current library sources.
-Application fixes are merged there without replacing or rebuilding the library.
-The immutable `v3.0.1` application release retains the exact seed that was tested
-for its installer; newer library commits in `main` do not change that artifact.
+`main` contains the current application and the current library sources.
+Application-only fixes do not rebuild the library, and library-only changes do
+not require a new installer. Each published release, including an older
+installer and its factory seed, remains immutable and keeps the exact sources it
+was tested with.
 
 ## Compatibility
 

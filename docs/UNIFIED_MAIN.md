@@ -1,6 +1,9 @@
-# Unified main integration
+# Historical unified main integration
 
-This source update establishes one current application and authoring protocol on
+> Historical snapshot: this page records the 2.0.1 integration, not the current
+> 4.0.2 application and 8.0.1 library. See [the documentation index](README.md).
+
+This source update established one application and authoring protocol on
 `main`. Application version: **2.0.1**. SDK version: **3.1.0**. Operator protocol:
 **v3**. The latest previously published desktop binaries are a separate artifact;
 this integration does not claim to have rebuilt or accepted a new Windows EXE.

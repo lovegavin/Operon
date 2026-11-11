@@ -1,5 +1,8 @@
 # Operon Operator Library 5.0.0 — library reference
 
+> Historical library documentation: this page describes the 5.x library line.
+> The current bundled library is **8.0.1**. See [library releases](library_releases.md).
+
 This page describes the operator library that ships as Operon Operator Library
 v5.0.0. It is generated from the same static registry that Studio 3.0.2 loads.
 

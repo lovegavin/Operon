@@ -1,8 +1,8 @@
 # Operator library release standard
 
 This page records the release contract used by the independent operator-library
-channel, confirmed against **Operon Operator Library 2026.11.5.2** (tag
-`library-v2026.11.5.2`, commit `4cc3ad34`). It describes what a library release
+channel, confirmed against **Operon Operator Library 8.0.1** (tag
+`library-v8.0.1`). It describes what a library release
 must contain and what CI verifies; it does not change protocol v3 or workflow
 parameter JSON.
 
@@ -24,9 +24,9 @@ parameter JSON.
 
 ```json
 {
-  "version": "2026.11.5.2",
-  "minimum_application": "2.0.4",
-  "build_application": "2.0.4"
+  "version": "8.0.1",
+  "minimum_application": "3.1.9",
+  "build_application": "3.1.9"
 }
 ```
 
@@ -112,7 +112,7 @@ Windows and Linux users import the native bundle for their host in Library
 Management. The seed wheel is for new deployments. An imported provider keeps
 its own state; application updates do not overwrite user-installed providers.
 
-## 7. 2026.11.5.2 specifics
+## 7. 5.x-era specifics
 
 - Base application: 2.0.4 minimum; the optional specialist-viewer UI shipped
   separately in Studio 2.4.0.

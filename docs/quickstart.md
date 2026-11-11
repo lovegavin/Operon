@@ -4,6 +4,11 @@ Create a workflow, choose where it runs, and inspect its saved results. You can
 use the Windows canvas or run the same workflow from a terminal. An AI account
 is optional. The examples below use synthetic data, not biological findings.
 
+For a deliberately short, click-by-click version, use
+[中文快速开始](../QUICKSTART.zh.md) or
+[English quick start](../QUICKSTART.en.md). The rest of this page explains the
+same flow with more detail.
+
 ## 1. Choose your installation
 
 Open [GitHub Releases](https://github.com/lovegavin/Operon/releases/latest) and
@@ -12,7 +17,7 @@ choose the application release, not a separately versioned library release.
 | You want to… | Download / entry point |
 | --- | --- |
 | Edit and run on Windows | **Operon_Setup.exe** |
-| Run on a Linux server without a desktop | **Operon-VERSION-Server.zip** |
+| Run on a Linux server without a desktop | **Operon-4.0.2-Server.zip** |
 | Develop from source with your own Python | Follow **Source and terminal users** below |
 
 The application and operator library are independently maintained. You do not
@@ -64,11 +69,11 @@ execution environment selected for the workflow.
 
 ## 3. Linux: install and run without a desktop
 
-Download and extract the server ZIP. For the current `3.1.4` release:
+Download and extract the server ZIP. For the current `4.0.2` release:
 
 ```sh
-unzip Operon-3.1.4-Server.zip
-cd Operon-3.1.4-Server
+unzip Operon-4.0.2-Server.zip
+cd Operon-4.0.2-Server
 bash install.sh --prefix "$HOME/apps/operon" --result "$PWD/server-install.json"
 ```
 
@@ -111,7 +116,7 @@ operator defaults.
 ## 4. Source and terminal users: generate a CSV/PCA project
 
 Use Python 3.11+ in a dedicated virtual environment. From an application source
-checkout on `fix/3.0.1-installation`:
+checkout on `main`:
 
 ```sh
 python3 -m venv .venv

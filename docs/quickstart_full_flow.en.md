@@ -112,7 +112,7 @@ the row.
 
 1. Create an empty managed root (for example `/public/home/<user>/operon-accept`).
 2. Install from Studio and wait for "environment ready".
-3. Confirm first-connection counts: 867 operators, 108 Readers, 0 errors.
+3. Confirm first-connection counts: 1,063 operators, 108 Readers, 1,171 descriptors, 0 errors.
 4. Run the route above and download one artifact.
 5. Restart Studio; the connection and dependency counter must be restored without
    pressing refresh.

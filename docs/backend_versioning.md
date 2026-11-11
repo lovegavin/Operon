@@ -8,7 +8,7 @@ numbers below remain unchanged; they do not prescribe future software versions.
 | Axis | Source of truth | Published tag | When it changes |
 | --- | --- | --- | --- |
 | Application | `pyproject.toml`, `operon/__init__.py` | `vX.Y.Z` | Engine, service, frontend/host integration or application fixes |
-| Operator library | `library/release.json` | `library-vYYYY.M.D[.N]` | Operators, Readers, guides, defaults, helpers or resource declarations |
+| Operator library | `library/release.json` | `library-v<version>` | Operators, Readers, guides, defaults, helpers or resource declarations |
 | Provider/operator | v3 provider and literal declaration | Inside the library/wheel | Executable or contract version changes |
 | Protocol/SDK | protocol schemas and SDK | Explicit SDK release | Authoring/runtime contract changes |
 
@@ -28,9 +28,9 @@ Do not retroactively rename published versions or tags.
 
 ## Current application and historical backend labels
 
-The reconciled `main` application is Operon **3.0.1**, matching the published
-application version. The library keeps its own version in `library/release.json`;
-its expansion history does not determine the application version. Earlier backend
+The reconciled `main` application is Operon **4.0.2**, and the bundled library is
+**8.0.1**. The library keeps its own version in `library/release.json`; its
+expansion history does not determine the application version. Earlier backend
 3.0/4.0 labels used on the library development branch are historical labels, not
 newer Operon desktop builds. The original
 [backend 3.0 milestone notes](releases/backend-v3.0.0-historical.md) are retained

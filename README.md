@@ -1,1160 +1,154 @@
 # Operon
 
-**[Quick start: install and run your first workflow](docs/quickstart.md)** ·
-[Download Windows Setup / Linux server](https://github.com/lovegavin/Operon/releases/latest) ·
-[Apache-2.0 license](LICENSE)
+**Open-source, contract-first bioinformatics workflows — visual, scriptable and agent-ready.**
 
-Operon is open-source software. You may use, copy, modify and redistribute it,
-including commercially, under Apache-2.0.
+[中文快速开始](QUICKSTART.zh.md) · [English quick start](QUICKSTART.en.md) ·
+[Documentation](docs/README.md) · [Releases](https://github.com/lovegavin/Operon/releases) ·
+[Apache-2.0](LICENSE)
 
-Windows users can install **Operon_Setup.exe**, which includes its own Python
-for management, Form/memory infrastructure and agent interfaces, and creates a fresh isolated profile. Scientific dependencies are prepared explicitly for the chosen route/host; PyTorch, Pandas, SciPy and plotting packages are not bundled by default. Existing profiles and analysis files remain
-available for explicit import. See [Windows Setup](docs/windows_setup.md).
-Windows and Linux also support [command-line installation](docs/command_line_installation.md).
+Operon turns raw omics data into reproducible results. Build a workflow on the
+canvas or in YAML, run it locally or on an SSH server, and inspect every saved
+parameter, log and artifact. The same engine is available through the desktop,
+CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
+analysis code from scratch.
 
-Local desktop/CLI and remote SSH servers automatically share one resource pool
-per execution host/account. No pool address or manual service startup is needed.
-Closing a client does not cancel accepted pool jobs. Scientific environments
-are still selected and prepared per workflow. See the [shared pool lifecycle](docs/design/pool_service.md).
+The current source integrates **Operon Studio 4.0.2** with the independently
+versioned **8.0.1 operator library**: **1,063 operators, 108 Readers (1,171
+descriptors), seven provider packages and 79 route templates**. Operators and
+Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
+Markdown documentation. Library 8.0.1 declares minimum application 3.1.9 and is
+the built-in library shipped with 4.0.2.
 
-## Application and library releases
-
-Application maintenance continues on the existing `fix/3.0.1-installation`
-branch; the library is maintained separately on `library/main`. No combined
-branch is required. SDK 3.7 introduces explicit input/output format declarations
-and static migration for older extensions; declaration changes do not rewrite
-saved workflow parameter values.
-See the [SDK 3.7 static migration guide](docs/format_migration_v37.md) and
-[format contract specification](docs/data_formats.md) before upgrading extensions.
-New revision 3.7 operators require Operon 3.0.2 on the actual execution host,
-including a remote Linux server. Updating the desktop does not upgrade an older
-server. Existing v3, v3.5 and v3.6 libraries remain supported.
-
-The application and operator library have separate source ownership, versions and
-release artifacts. See [Application/library boundary](docs/application_library_boundary.md).
-Operators, Readers, their parameter JSON and route templates live in `library/seed/`.
-
-
-Operon is a local bioinformatics pipeline engine with a visual desktop workspace,
-typed data contracts, bounded resource planning and an extensible operator SDK.
-Create branched workflows, reuse saved routes as operators, and connect your own
-AI agent through CLI or MCP. Operon itself does not supply an AI service.
-The **v4.0.0 application** and independently versioned **8.0.0 operator library** (compatible with 8.0.0+)
-share this repository. The reference library includes **1,063 operators, 108 Readers, seven
-provider packages and 79 route templates**. Operators and Readers use **protocol
-v3 / SDK 3.7**, separate parameter JSON and adjacent Markdown documentation.
-
-Operon 3.0 adds [editable workflow YAML](docs/workflow_yaml_v3.md),
-[workflow-local scripts](docs/script_operators_v3.md), [target readiness](docs/readiness.md),
-[explicit format adaptation](docs/data_formats.md), and
-[bidirectional canvas activity](docs/canvas_collaboration.md).
-Operon 3.1 adds a [multi-workspace resource pool](docs/design/pool_service.md),
-durable requests/events and [verified stage reuse](docs/stage_cache.md).
-Since 3.1.1, desktop and server clients automatically share one host/account pool.
-Scientific environment preparation remains explicit, and verified cache reuse
-requires an eligible operator declaration.
-For unattended execution, follow the [Linux server and terminal quickstart](docs/server_cli.md):
-`operon --workspace . environment check workflow.yaml`, then
-`operon --workspace . run workflow.yaml --progress --brief`.
-See the [3.0 implementation and validation checklist](docs/V3_IMPLEMENTATION.md)
-for verified behavior and remaining roadmap work. The [3.0 release notes](docs/releases/v3.0.0.md)
-explain the application/library boundary. The [Operon 3.0 Setup acceptance guide](docs/OPERON_3_TEST_ACCEPTANCE.md)
-defines the actual double-click installation and feature checks required before release.
-
+Operon does not bundle or require an AI model. Agent access is optional.
 
 ## Why Operon
 
-Retained results can be handed to specialist applications through the desktop-first
-**Open with** menu, CLI or API. The unified output operator converts qualified data
-to HIC/Cooler, GenBank, genome tracks, networks and trees while other branches
-continue. See [formats, viewers and integration instructions](docs/result_viewers.md).
+- **Call a validated method, not generated code.** Every operator has a typed
+  input/output contract, a parameter schema and scientific documentation.
+- **Reproducible by construction.** Workflow values are frozen independently of
+  later defaults; task records, logs and output artifacts stay inspectable.
+- **One engine, several surfaces.** Canvas, CLI, HTTP API and MCP share workflow
+  preparation, validation, execution and artifacts.
+- **Local or remote, same workflow.** Run on Windows, a Linux workstation or an
+  SSH server; move computation to the data when that is cheaper.
+- **Open and extensible.** Add an operator, Reader, provider package or route
+  without changing the engine. The full source and third-party notices ship with
+  the project.
 
-**Core value:** a large, maintainable, validated tool library lets an agent call a
-verified analysis instead of writing analysis code — avoiding implementation logic
-errors and the extra token cost of generating code.
+## Install
 
-> Other systems ask an agent to write the analysis. Operon asks the agent to call a
-> validated tool.
+| I want to… | Start here |
+| --- | --- |
+| Use the Windows desktop | Download **Operon_Setup.exe** from [Releases](https://github.com/lovegavin/Operon/releases/latest) |
+| Run a Linux server without a desktop | Download **Operon-4.0.2-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
+| Develop from source | `python -m pip install . ./library` with Python 3.11+ |
+| Connect an AI agent | Use the desktop **Agent** panel or `operon mcp`; see [agent operations](docs/agent_operations.md) |
 
-The value rests on five supports:
+Windows Setup includes a private management Python and creates an isolated
+profile. Scientific packages are installed only for the workflow and execution
+host you choose; they are not all bundled. If WebView2 is missing, Setup asks
+Microsoft's installer for it, which needs internet access.
 
-- **Contract-first operator library.** 1,063 operators and 108 Readers have explicit
-  input/output contracts, parameter schemas, adjacent scientific documentation and
-  regression tests; authoritative R oracles cover methods where R is the reference.
-- **First-class plugins.** Operators, Readers and ML models share one discovery,
-  validation, composition and provenance mechanism, so a new method does not need a
-  second runtime or a hand-written orchestration layer.
-- **Traceable visual workflows.** The canvas, frozen workflow values, task records
-  and original artifacts make each step inspectable and reproducible.
-- **A stable core.** Memory planning, spill, streaming Readers, resumable transfers
-  and job admission are separate from analysis code; adding a method does not
-  require changing the engine.
-- **Near-zero marginal cost.** Agent discovery returns compact contracts and loads
-  only the selected documentation, so a new analysis is a tool call rather than a
-  fresh implementation.
+A new 4.0.2 installation puts the working workspace under the installation root
+(for example `D:\Operon Studio\workspace`). Profile metadata, logs and browser
+state remain under `%USERPROFILE%\.operon`. Earlier installations keep their
+existing workspace. Uninstall removes the program but preserves the workspace
+and analysis results.
 
-[HTTP API, CLI and MCP](docs/headless_api.md) share workflow, task and artifact
-services. A desktop window is optional: the CLI/MCP can start an authenticated
-local background service, save/validate routes, submit work, inspect logs and
-retrieve artifacts. The canvas still supplies selection context and atomic,
-undoable edits when open. [Operator discovery](docs/operator_documentation.md)
-returns compact search results and loads selected contracts, parameters and
-Markdown sections on demand without importing implementations.
+## First run
 
-Start with `operon help` or MCP `operon_guide` for the installed
-[three-layer operating guide](docs/agent_operations.md). External applications
-can follow the [API tutorial and runnable client](docs/api_quickstart.md) to
-submit work and hand native results to specialist tools without a desktop or AI.
+The two quick starts are deliberately short and use only synthetic data:
 
-Existing memory planning, emergency spill, disk-backed/streaming Readers,
-independent frozen workflow values, resumable SSH uploads, concurrent task
-admission and publication figure artifacts are preserved. Newly integrated
-full-memory operators remain full-memory: registration does not imply a
-streaming implementation. See the [integration record](docs/UNIFIED_MAIN.md)
-and [documentation index](docs/README.md).
+- [中文：10 分钟跑通第一个流程](QUICKSTART.zh.md)
+- [English: run your first workflow in 10 minutes](QUICKSTART.en.md)
 
-Source version and downloadable desktop release are separate. The latest
-published Windows installer has the version shown on its Release page; updating
-`main` does not silently replace an existing desktop package.
+In short: install, open **Operon Studio**, add a CSV, connect it to **PCA**, check
+the local environment, and press **Run**. Results appear under **Run history →
+View results**. The first dependency check may need internet access; Operon never
+installs scientific packages silently during a run.
 
-The desktop editor also supports [SSH remote execution](docs/REMOTE_EXECUTION.md):
-edit on Windows, browse inputs on a Linux server, submit workflows and reconnect
-to server-owned jobs and logs. Workflows using server-resident inputs can keep
-their data and computation there. Existing memory management and independent
-parameter JSON files are retained. Linux-only
-tool adapters are marked in the operator library and canvas.
+## What is new in 4.0.2
 
-The desktop includes [execution environments and concurrent tasks](docs/EXECUTION_ENVIRONMENTS.md):
-local inputs can be uploaded automatically with resumable transfers and verified
-reuse; manual or automatic placement can run complete routes or successive stages
-on local/SSH environments. Each saved workflow has its own `execution.json`.
-The task manager shows upload/run progress and cancellation, while host-wide
-memory/CPU admission queues work that cannot safely run concurrently. The inspector
-puts analysis methods first and collapses tool and resource settings.
+- Setup-created installations use `<install root>/workspace` for workflows, jobs
+  and `.studio` data, reducing growth on the system drive.
+- Profile metadata and logs stay in the user profile and are not mixed into the
+  analysis workspace.
+- Upgrades preserve the existing workspace; uninstall keeps it for later use.
+- Server maintenance uses one full **Install / upgrade server** action. It
+  replaces the server library and build identity as a unit instead of asking you
+  to synchronize operators package by package.
+- Dependency readiness is reported as **install on demand** rather than as a
+  startup-wide failure count.
 
-The desktop separates [server connection and maintenance](docs/SERVER_HANDSHAKE.md).
-Ordinary SSH connection reads an installed server's registration, negotiates
-interface capabilities and reuses its operator/dependency manifests. It does not
-upload this desktop's source or install dependencies. Use **Server maintenance >
-Install / upgrade server** explicitly to prepare a private Linux x86_64 environment
-with Python, Operon and Hi-C dependencies. Multiple compatible desktops can reuse
-that installation. Existing manual server configurations remain supported.
-See [server deployment](docs/REMOTE_EXECUTION.md#connect-or-maintain-the-server) for prerequisites
-and the on-server installation layout.
+Application 4.0.2 and library 8.0.1 do not change the wire protocol (v3) or SDK
+(3.7). Published tags and release assets are immutable.
 
-Run history opens results or logs without replacing the current canvas. Local,
-coordinated and recovered server jobs share the result viewer. The 14 built-in
-plotting operators automatically save white-background PNG (300 DPI), PDF and SVG
-files; **Saved figures** provides direct original-file links. Software previews
-remain sampled inspection aids. Physical size, font size and resolution are
-ordinary frozen JSON parameters. See [publication figures](docs/PUBLICATION_FIGURES.md).
+## Open source
 
-The source retains **protocol v3**, existing calculation implementations
-and stable IDs. The five existing route templates remain available: GWAS, RNA-seq
-DE, Proteomics DE, survival analysis and [16S microbiome](docs/microbiome.md), joined
-by FASTQ, BAM and pairs Hi-C routes. The desktop package includes this catalog and
-the latest editor. The catalog includes upstream axis/single-cell building blocks,
-multi-group comparisons, GO enrichment, sequence analysis, annotation QC and
-genomic interval analysis; example YAML remains under `tasks/`.
+Operon is licensed under the **Apache License, Version 2.0**. You may use, copy,
+modify and redistribute it, including commercially, under that license; no
+separate commercial permission is required. Retain [LICENSE](LICENSE) and
+[NOTICE](NOTICE), and identify modifications when redistributing.
 
-Download the ready-built Windows desktop package from
-[GitHub Releases](https://github.com/lovegavin/Operon/releases/latest).
-Run **Operon_Setup.exe**, then launch **Operon Studio** from its shortcut.
-Setup includes the lightweight management Python and creates an isolated profile.
-Choose an execution environment and explicitly prepare dependencies for your
-workflow before running. If WebView2 is missing, Setup uses Microsoft's installer;
-that step requires internet access. See the [quick start](docs/quickstart.md).
-Existing profiles and analysis files are retained for explicit import.
+Third-party libraries, external tools, model weights and datasets keep their own
+licenses. Their notices are collected in [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES)
+and in the installed package. The Apache-2.0 grant does not replace those terms.
+Contributions are welcome under the same license; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Studio checks Reader/Step dependencies at startup and after library changes, and
-retains successful checks for the session. Compatible operators share the runtime;
-conflicting operators use private dependency directories and subprocesses with the
-same Python. New dependencies need internet access and compatible Windows packages.
-The repository contains development source; desktop distributions are release
-attachments. Releases before 0.4.0 require a separately configured environment.
-See [bundled runtime and dependency management](docs/installation.md#bundled-windows-runtime).
+## Repository layout
 
-For a repeatable Windows x64 install, use the tested version constraints matching
-your Python version. In a Python 3.11 environment:
+| Path | Contents |
+| --- | --- |
+| `operon/`, `operon_sdk/` | Application package, CLI, MCP and SDK schemas |
+| `src/core/`, `src/task/`, `src/web/` | Engine, task runtime and HTTP service |
+| `library/seed/` | Reference operators, Readers, parameter JSON, routes and indexes |
+| `frontend/` | React canvas and desktop UI |
+| `desktop/`, `installer/` | Windows host and Setup/uninstaller |
+| `docs/` | Guides, design notes, release notes and verification evidence |
+| `tests/` | Python, frontend and integration tests |
 
-```text
-python -m pip install -c constraints-py311-windows.txt -e ".[agent]"
-```
-
-For Python 3.12, use `constraints-py312-windows.txt`. See
-[installation and dependency versions](docs/installation.md) for development
-dependencies, optional analyses and troubleshooting resolver backtracking.
-
-Choose the archive without `Lite` for the bundled environment. The smaller
-`Windows-x64-Lite.zip` uses an existing Python environment instead.
-
-Application and operator/Reader sources now share a single maintained
-[`main`](https://github.com/lovegavin/Operon/tree/main). The library remains an
-independently built, versioned installation unit; use
-[library bundles](docs/plugins.md#independent-library-releases) to update it
-without replacing the application. The earlier `release/*` and
-`library/v1.0.0` branches are historical baselines, not competing current sources.
-The previous main is preserved as a checksummed
-[legacy archive](https://github.com/lovegavin/Operon/releases/tag/legacy-main-20261101).
-Packaged desktop releases are listed separately on the Releases page.
-Upgrading from v0.4.1 uses a one-time backed-up
-[migration](docs/migration_v2.md), automatic for supported built-in desktop profiles;
-old external extensions must be converted explicitly. The runtime
-accepts only protocol v3. Historical source and generated outputs remain available
-at Git tag `v0.4.1`; they are no longer duplicated in the active source tree.
-
-## Start Studio
-
-Use Python 3.11+ (this release is tested with 3.11 on Windows). Build the frontend with Node 22.12+:
-
-```text
-python -m venv .venv
-# Activate .venv using your shell's standard activation command.
-python -m pip install -e ".[agent,dev]"
-cd frontend
-npm install
-npm run build
-cd ..
-python scripts/studio.py
-```
-
-Open `http://127.0.0.1:8765`. The generated CSV demo runs immediately. The input picker
-accepts all registered reader formats, including PLINK and 10x MTX file sets;
-uploading and saving do not require optional reader libraries. See
-[input formats and file groups](docs/input_formats.md). Format-specific
-dependencies are listed in `requirements-readers.txt`; DESeq2 and survival analyses
-use `requirements-analysis.txt`. Dependencies can also be installed with uv.
-
-Compressed inputs follow the Reader registry: gzip GAF/VCF/MTX are supported,
-and ordinary tables, annotations, FASTA, H5AD, Parquet and BGEN support external
-gzip/bzip2/xz wrappers. Internal container compression is distinct from an outer
-wrapper. H5AD keeps its bounded disk preparation when wrapped in gzip. PLINK file
-sets still require uncompressed files; ZIP archives are not datasets.
-
-On Windows, a built desktop distribution starts by double-clicking
-`dist/Operon Studio/Operon Studio.exe`. The host bundles the frontend and backend
-startup logic. Python, the backend source and analysis dependencies remain separate.
-See [desktop setup](docs/desktop.md) and [portability](docs/portability.md).
-
-Both desktop and development entry points use `~/.operon/studio` by default.
-`OPERON_STUDIO_HOME` or `--profile-dir` selects another shared profile;
-`--workspace` explicitly isolates a workspace. CLI and MCP use the same resolver.
-No developer username, installation drive or fixed backend port is embedded.
-While evaluating this development version, start with `--profile-dir operon-v3-test`
-to keep a published v0.4.1 desktop profile intact. Startup does not migrate files.
-
-## Operator authoring and startup
-
-Each operator owns its implementation and a separate parameter schema, such as
-`pca.py` + `pca.parameters.json`. Its literal class `definition` describes identity,
-ports, resources and presentation. Parameter defaults, constraints and UI fields
-are authored only in that operator's JSON; `builtin_packages.json` is a generated
-index, not the authoring document.
-
-Studio reads descriptors without importing analysis implementations. Workers load
-only the used operators/Readers. Installation precompiles immutable code/dependency
-directories; parameter-only refresh reuses them and preserves frozen job defaults.
-
-Each explicitly saved route also owns an independent JSON of concrete parameter
-values, including Reader arguments and nested-route values. Editing an operator's
-defaults cannot change saved route values. Each execution keeps its own
-`parameters.json`; portable `.operon.zip` bundles contain `graph.json`,
-`parameters.json` and `execution.json`. See [workflow parameter values](docs/workflow_parameters.md)
-and [per-workflow execution settings](docs/EXECUTION_ENVIRONMENTS.md#workflow-settings-and-frozen-json-values).
-See [protocol v3](docs/operator_protocol.md), [Step examples](docs/step_extensions.md)
-and [Reader examples](docs/reader_extensions.md).
-
-## Maintain built-in registries
-
-```bash
-python -m operon registry discover
-python -m operon registry check
-python -m operon registry build
-# Optional, after git fetch origin main:
-python -m operon registry discover --source-ref origin/main
-```
-
-The tool discovers new Step/Reader modules and route YAML, validates protocols and
-DAG interfaces, and generates both JSON indexes. Routes come from `library/seed/routes/**/task.yaml`
-or `task.yml`; no route-name list is hardcoded in the generator. Invalid declarations
-leave the existing indexes intact. See [registry maintenance](docs/registry_maintenance.md).
-
-## Extend and automate
-
-The whole operator library supports hot refresh. Open **算子库管理 → 算子目录 / Reader 目录**,
-add or edit a normal protocol-compliant Python module, and click **刷新算子库**.
-Studio scans the existing source directories, validates declarations, updates the
-active registry and loads the code without a restart or manual packaging. Failed
-updates retain the previous working library. A writable additional folder also
-accepts self-contained `.py` files, wheels and SDK projects. Start with
-[the single-file example](examples/dropins/scale.py) and
-[drop-folder instructions](docs/plugins.md#drop-refresh-use).
-
-```text
-operon plugin init ./lab_scale
-operon plugin check ./lab_scale
-operon plugin test ./lab_scale
-operon plugin build ./lab_scale
-operon plugin install ./lab_scale/dist/lab_scale-0.1.0-py3-none-any.whl
-operon plugin refresh
-operon sessions list
-operon context get
-operon mcp
-```
-
-New plugins use the stable `operon_sdk` imports, JSON Schema parameters, explicit
-info/axis contracts and standard Python entry points. Wheel installation updates
-the JSON registry while Studio is open. Saved graphs and running jobs retain their
-plugin version pins. Declare `category` to place an operator in the appropriate
-library group and optionally set `icon` to a relative image path such as
-`icons/scale.svg` (PNG, JPEG, WebP and GIF also work), or an existing bundled icon
-name. Omitted or unknown icons use the category default. Image bytes travel with
-the registry and update on library refresh. See [categories and icons](docs/operator_protocol.md#operator-categories-and-icons)
-and the [30-minute SDK tutorial](docs/sdk_quickstart.md).
-
-Agents read semantic selection context and issue revision-checked edit batches.
-Each batch is visible immediately and creates one undo entry. Execution is a
-separate action; MCP requires `--allow-run` for it. The Agent panel also provides
-copyable selection context and client revocation. See [CLI/MCP setup](docs/agent_api.md).
+`main` is the integrated source branch for the current application and library.
+The application and the operator library remain **independently versioned
+products**: application releases use `vX.Y.Z`, library releases use
+`library-v<version>`, and an operator-only change does not require a new installer.
+See [application/library boundary](docs/application_library_boundary.md) and
+[independent library releases](docs/library_releases.md).
 
 ## Documentation
 
-| Guide | Contents |
-| --- | --- |
-| [Execution environments](docs/EXECUTION_ENVIRONMENTS.md) | Automatic/manual placement, local uploads, mixed stages, resource queues and task management |
-| [Registry maintenance](docs/registry_maintenance.md) | Discover additions, validate declarations, generate portable package/route indexes |
-| [16S microbiome](docs/microbiome.md) | Abundance inputs, branches, new operators and resource behavior |
-| [Operator protocol](docs/operator_protocol.md) | Descriptor, parameters, ports, outputs, versions and compatibility |
-| [SDK quickstart](docs/sdk_quickstart.md) / [reference](docs/sdk_reference.md) | Operator and reader templates, testing and public Python APIs |
-| [Plugin lifecycle](docs/plugins.md) | Hot installation, dependency isolation, pins and migration |
-| [Write a Reader](docs/reader_extensions.md) | File formats, contracts, dependency declarations and bounded disk reads |
-| [Write a Step](docs/step_extensions.md) | Runnable operator example, metadata, icons, memory and streaming |
-| [Agent interface](docs/agent_api.md) | CLI, MCP, context, atomic commands, permissions and events |
-| [Data contracts](docs/data_contracts.md) | Static compatibility, runtime checks and metadata propagation |
-| [Reusable routes](docs/route_operators.md) | Save/register separation, nested graphs and version snapshots |
-| [Studio interaction](docs/frontend_requirements.md) | Canvas editing, panels, results and visual design |
-| [Publication figures](docs/PUBLICATION_FIGURES.md) | Automatically saved PNG/PDF/SVG, original-file links and physical figure sizing |
-| [Resource runtime](docs/resource_runtime.md) | Fixed budget, admission, spill, cache format and limits |
-| [Desktop](docs/desktop.md) / [portability](docs/portability.md) | Build, launch, profiles and moving computers |
-
-## Validation
-
-```text
-python -m pytest -q
-cd frontend
-npm test
-npm run build
-```
-
-Install the `agent` and `dev` extras for the complete suite. Tests cover actual
-plugin wheels/workers, reader dispatch, plugin upgrade/removal, route compatibility,
-CLI processes, MCP stdio, revision conflicts, shared undo and data propagation.
-Windows desktop verification is available in `scripts/verify_desktop.py`.
-
-The host pool uses one startup memory snapshot; each admitted task receives its
-own budget. Actual sizes refine step admission;
-emergency spill protects evictable data. It cannot preempt an active native allocation.
-SDK plugins can implement the documented `flat-reduction-v1` stream or
-`dense-writer-v1` Reader protocols. Built-in `describe` and H5AD/MTX retain those
-capabilities. The new 16S kernels use full-memory execution with dedicated estimates;
-CUDA kernels and arbitrary streaming transforms are not provided.
-
-## Engine and upstream task reference
-
-The following sections document the existing YAML engine and built-in implementation.
-New external extensions should follow the SDK guides above.
-
-A declarative, plugin-based bioinformatics pipeline framework.
-
-Operon writes task workflows in `task.yaml`, reads external files into unified `Form` objects, and applies pluggable `Step` operators to filter, compute statistics, model, and plot those `Form` objects. The core goals are: **format and algorithm decoupling, label alignment safety, traceable outputs, validated extension registration**.
-
-Repository: <https://github.com/lovegavin/Operon>
-
----
-
-## Table of Contents
-
-- [Features](#features)
-- [Quick Start](#quick-start)
-  - [Environment Setup](#environment-setup)
-  - [Install Dependencies](#install-dependencies)
-  - [Write task.yaml](#write-taskyaml)
-  - [Run](#run)
-  - [Output Overview](#output-overview)
-- [Core Architecture: Runtime Interfaces](#core-architecture-runtime-interfaces)
-  - [Task Manifest Interface](#task-manifest-interface)
-  - [Reader Runtime Interface](#reader-runtime-interface)
-  - [Step Runtime Interface](#step-runtime-interface)
-  - [Form Data Interface](#form-data-interface)
-- [Runtime: Context and Runner](#runtime-context-and-runner)
-- [Built-in Readers](#built-in-readers)
-- [Built-in Steps](#built-in-steps)
-- [Full Example: GWAS Pipeline](#full-example-gwas-pipeline)
-- [Output Structure](#output-structure)
-- [Extension Guide](#extension-guide)
-  - [Add a Reader](#add-a-reader)
-  - [Add a Step](#add-a-step)
-- [Design Principles](#design-principles)
-- [Directory Structure](#directory-structure)
-- [Development and Testing](#development-and-testing)
-- [License](#license)
-
----
-
-## Features
-
-- **Declarative orchestration**: describe "what to read, in what order to do what" in YAML.
-- **Plugin Readers**: add a protocol-compliant module and rebuild the index, or hot-install a Reader wheel.
-- **Plugin Steps**: maintenance discovers new modules; protocol validation gates registration.
-- **Unified Form model**: all data is an N-dimensional tensor with named dimensions, labels, and info.
-- **Complete label coverage**: every axis position must have a label; filtering, merging and alignment never lose positions.
-- **Axis-parallel metadata sync**: `axis_info` guarantees that arrays such as chromosome and position are trimmed together with axis subsets.
-- **Full export**: every Step's complete result is written to `output/steps/`, with a run index in `run_summary.*`.
-- **Explicit error hierarchy**: `OperonError` with `ReaderError`, `ManifestError`, `StepError`, `ValidationError`, `ContextError`.
-
----
-
-## Quick Start
-
-### Environment Setup
-
-Python 3.11+ is required. Conda is recommended for environment management.
-
-### Install Dependencies
-
-**Option 1: Conda (recommended)**
-
-```bash
-git clone --branch main --single-branch https://github.com/lovegavin/Operon.git
-cd Operon
-conda env create -f environment.yml
-conda activate operon
-```
-
-`environment.yml` declares a portable CPU environment for the engine and Studio. It has no machine-specific prefix, local build paths, or mandatory CUDA toolchain.
-
-**Option 2: pip**
-
-```bash
-git clone --branch main --single-branch https://github.com/lovegavin/Operon.git
-cd Operon
-pip install -r requirements.txt
-```
-
-`requirements.txt` installs the engine and Studio through supported version ranges.
-Use `-c constraints-py311-windows.txt` (or the Python 3.12 counterpart) to select
-fixed versions on Windows x64. `pytest` is a development dependency; install
-`requirements-dev.txt` or the `dev` extra only when developing or running tests.
-
-CSV, text annotation, FASTA and MTX support is included. Install `requirements-readers.txt` for the additional Parquet, AnnData, PLINK, BGEN and VCF readers, or install only the required reader's package. Native reader dependencies must be available for the target OS; they are loaded only when that format is used. The desktop launcher and core pipeline do not require CUDA.
-
-### Write task.yaml
-
-Create `task.yaml` in the task directory. The following minimal example reads a CSV and prints its description:
-
-```yaml
-name: csv_demo
-
-sources:
-  data:
-    path: input/test_party_1.csv
-    dims: [sample, feature]
-    labels:
-      sample: auto
-      feature: builtin
-
-steps:
-  - name: describe
-    inputs: [data]
-```
-
-This example comes from `tasks/csv_demo/task.yaml` in the repository. It demonstrates the three most basic things: declaring a source, specifying label rules, and invoking the `describe` Step.
-
-### Run
-
-```bash
-python scripts/run.py tasks/csv_demo
-```
-
-### Output Overview
-
-After a run, the task directory contains:
-
-```text
-output/
-  run_summary.json
-  run_summary.txt
-  steps/
-    01_describe.json
-  figures/
-```
-
-- `run_summary.json`: machine-readable run index with step names, timings, inputs, parameters, export paths.
-- `run_summary.txt`: human-readable run index.
-- `steps/*.json`: full export of each Step.
-- `figures/*`: images produced by plotting steps.
-
----
-
-## Core Architecture: Runtime Interfaces
-
-Operon can be summarized as **four protocols/contracts**, plus two runtime components. The four protocols are the heart of the project; understanding them means understanding the whole framework.
-
-| Protocol | Defined in | Question it answers | Key interface |
-|---|---|---|---|
-| **Manifest** | `task.yaml`, `src/task/manifest.py` | What to read? In what order to do what? | `sources`, `steps`, `labels`, `args`, `params` |
-| **Reader** | `src/reader/base.py` | How does a file become a Form? | `extensions`, `requires_siblings`, `excludes_siblings`, `handles_compression`, `read()` |
-| **Step** | `src/task/step/base.py` | How is a Form processed? | `name`, `inputs_arity`, `outputs`, `run()`, `export()` |
-| **Form** | `src/core/forms/form.py` | What does the data look like? | `data`, `dims`, `labels`, `info`, `axis_info`, `validate()`, `subset_axis()` |
-
-Runtime components:
-
-- **Context**: holds `forms`, `params`, `step_params`, `metadata`, `artifacts`; manages output directories; writes `run_summary.*` at the end.
-- **Runner**: executes steps in order, resolves inputs, checks outputs, writes per-step JSON.
-
-In one sentence:
-**Manifest orchestrates, Reader ingests, Step processes, Form unifies, Context/Runner runs.**
-
----
-
-## Task Manifest Interface
-
-The Manifest is the declarative orchestration layer. Users only write YAML, no Python.
-
-### Top-level structure
-
-```yaml
-name: my_task
-sources:
-  ...
-steps:
-  ...
-```
-
-Optional top-level `params` is read by `Context` as task-level parameters.
-
-### sources specification
-
-Each source is a mapping:
-
-```yaml
-sources:
-  my_data:
-    path: data/example.vcf
-    dims: [variant, sample]
-    labels:
-      variant: builtin
-      sample: auto
-    args:
-      some_option: value
-```
-
-- `path`: file path, relative to the task directory.
-- `dims`: list of dimension names, must be a non-empty list.
-- `labels`: label rules, optional, must be a mapping.
-  - Keys must be dimension names in `dims`.
-  - Rules support:
-    - `"builtin"`: use the format's built-in identifiers.
-    - `"auto"`: use positional indices `"0"`, `"1"`, ...
-    - `{name: pos, ...}`: explicit mapping.
-    - `None`: equivalent to omitted.
-- `args`: extra arguments passed to the Reader, optional, must be a mapping.
-- Unknown keys are not allowed.
-
-### steps specification
-
-Each step is a mapping:
-
-```yaml
-steps:
-  - name: maf
-    inputs: [my_data]
-    params:
-      dim: variant
-      threshold: 0.01
-      output: filtered
-  - name: describe
-    inputs: [filtered]
-```
-
-- `name`: Step name, must be found in `STEPS`.
-- `inputs`: list of input Form names, optional.
-- `params`: parameters passed to the Step, optional, must be a mapping.
-- Unknown keys are not allowed.
-
-### Execution flow
-
-Runner executes in order:
-
-1. Look up the Step class by `name`.
-2. Check `inputs_arity` against `inputs` length.
-3. Resolve input Forms from the Context.
-4. Set `ctx.step_params`, inject `_input_names`.
-5. Call `step.run(ctx, forms)`.
-6. Verify that all declared `outputs` are registered.
-7. Call `step.export(ctx)` and write `output/steps/NN_name.json`.
-8. Record timings and metadata.
-
----
-
-## Reader Runtime Interface
-
-The Reader is the input adaptation layer, converting heterogeneous files such as FASTA, VCF, BED, CSV, H5AD, PLINK, BGEN into a unified `Form`.
-
-### Base class contract
-
-```python
-class Reader(ABC):
-    extensions: ClassVar[list[str]] = []
-    requires_siblings: ClassVar[list[str]] = []
-    excludes_siblings: ClassVar[list[str]] = []
-    handles_compression: ClassVar[bool] = False
-
-    def matches(self, path: Path) -> bool:
-        ...
-
-    @abstractmethod
-    def read(self, path: Path, dims: list, labels: dict, **args) -> Form:
-        ...
-```
-
-- `extensions`: extensions this Reader handles.
-- `requires_siblings`: required sibling files, e.g. PLINK `.bed` requires `.bim`, `.fam`.
-- `excludes_siblings`: do not match when these siblings are present, e.g. BED Reader excludes `.bim/.fam/.pgen`.
-- `handles_compression`:
-  - `False`: the framework decompresses to a temp file first; the Reader only sees a plain file.
-  - `True`: the Reader handles compression itself, or needs the original path and same-directory siblings.
-  - For a native parser, list supported outer suffixes in `file_input.compression`
-    (for example `[".gz"]`). Internal HDF5/Parquet/BGEN compression does not justify
-    setting this flag. Import filtering and runtime routing use the same declaration.
-
-### Routing and auto-discovery
-
-`src/reader/__init__.py` loads explicit entry points from
-`library/seed/operon/builtin_packages.json`. The full Reader catalog spans the provider
-packages; hot-installed replacements use the same IDs and resource contracts.
-Scanning is an explicit maintenance command (`python -m operon registry build`),
-not a runtime registration mechanism.
-
-`read_source(path, dims, labels, **args)` is the unified entry:
-
-1. Calls `pick_reader(path, reader_id=...)` to honor an explicit Reader or select a unique automatic match.
-2. If the Reader does not handle compression, decompresses to a temp file via `_decompressed`.
-3. Calls `reader.read(...)`.
-
-Custom metadata probes and `read_to_disk` receive the same prepared path. The base
-metadata probe only stats the original file; it does not need decompression.
-Temporary files and parser-generated indexes are cleaned up after use.
-
-### Label rules
-
-Label rules per dim support:
-
-- `"builtin"`
-- `"auto"`
-- `{name: pos, ...}`
-- When omitted, the specific Reader decides the default.
-
-Duplicate labels are handled by `unique_labels`; the second occurrence gets `#<position>` appended.
-
-### Encoding and info
-
-- Non-numeric columns are encoded.
-- Encoder instances are recorded in `info["encoders"]`.
-- `info` typically contains `missing_code`, usually `np.nan`.
-- Genotype Readers also write `ploidy`, `chrom`, `pos`, etc.
-- If an info entry is parallel to an axis, it must be declared in `axis_info`.
-- This allows `Form.subset_axis` to trim those arrays in sync.
-
----
-
-## Step Runtime Interface
-
-Step is the operator layer. Filtering, selection, merging, transposition, PCA, regression, HWE, MAF, LD pruning, plotting — all are pluggable Steps.
-
-### Base class contract
-
-```python
-class Step(ABC):
-    name: ClassVar[str] = "unnamed"
-    inputs_arity: ClassVar[int | str] = 0
-    outputs: ClassVar[list[str]] = []
-
-    @abstractmethod
-    def run(self, ctx: Context, inputs: list[Form]) -> None:
-        ...
-
-    def export(self, ctx: Context) -> dict:
-        return {}
-```
-
-- `name`: step name, matched against `name` in the manifest.
-- `inputs_arity`:
-  - Integer: fixed number of inputs.
-  - `"*"`: any non-empty number of inputs.
-- `outputs`: keys that will be registered in the Context; Runner checks them.
-- `run`: executes the step.
-- `export`: returns a JSON-serializable complete result; Runner writes it to `output/steps/`.
-
-### Parameters and outputs
-
-- Parameters are read from `ctx.step_params`.
-- Runner injects `ctx.step_params["_input_names"]`.
-- Steps register outputs via `ctx[out_name] = Form(...)`.
-- `Context.__setitem__` automatically calls `form.validate()`.
-
-### Auto-discovery
-
-`src/task/step/__init__.py` loads the checked-in package manifest into `STEPS`.
-The 39 operators ship in core, genetics, expression, visualization and microbiome packages.
-Package installation validates entry points and atomically publishes a new registry.
-New workers load the selected package generation; running workers keep their lock.
-
-### Error handling
-
-- Input, parameter, and execution errors should raise `StepError`.
-- Some Steps have explicit failure policies, e.g. `regress` only skips known non-fittable cases.
-
----
-
-## Form Data Interface
-
-Form is the shared language between Readers and Steps.
-
-```python
-@dataclass
-class Form:
-    data: np.ndarray
-    dims: list[str]
-    labels: dict[str, dict[str, int]] = field(default_factory=dict)
-    info: dict = field(default_factory=dict)
-    axis_info: dict[str, list[str]] = field(default_factory=dict)
-```
-
-### Constraints
-
-- `len(dims) == data.ndim`.
-- `dims` must not contain duplicates.
-- Every dim must have labels.
-- Every axis position must be covered by at least one label.
-- Label positions must be int and within `0..size-1`.
-- Each key listed in `axis_info[dim]` must exist in info and have length equal to the axis size.
-- `subset_axis` trims data, labels, and axis-parallel info in sync.
-- `get_parallel(field, dim)` retrieves a data column by label, or an info array by `axis_info`.
-
-### Main methods
-
-- `axis(name)`: returns the axis index.
-- `get_parallel(field, dim)`: retrieves the parallel array.
-- `subset_axis(dim, indices)`: subsets along a dim.
-- `validate()`: structural validation.
-
----
-
-## Runtime: Context and Runner
-
-### Context
-
-Location: `src/task/context/base.py`
-
-Responsibilities:
-
-- Holds `forms`, `params`, `step_params`, `metadata`, `artifacts`.
-- Manages `out_dir`.
-- `__setitem__` automatically calls `form.validate()`.
-- `finalize()` writes:
-  - `output/run_summary.json`
-  - `output/run_summary.txt`
-
-### Runner
-
-Location: `src/task/runner.py`
-
-Responsibilities:
-
-- Executes steps in order.
-- Checks `inputs_arity`.
-- Resolves inputs from the Context.
-- Sets `ctx.step_params`.
-- Executes `step.run()`.
-- Checks `step.outputs`.
-- Calls `step.export()` to write `output/steps/NN_name.json`.
-- Records timings and metadata.
-
----
-
-## Built-in Readers
-
-Representative formats are shown below. The [complete searchable index](library/seed/reader_index.json) covers all 108 Readers.
-
-| Reader | Extensions | Main layout | Notes |
-|---|---|---|---|
-| FastaReader | `.fasta` `.fa` `.fna` `.faa` | sequence × position | Nucleotide/protein sequences, NaN-padded |
-| H5adReader | `.h5ad` | obs × var | AnnData, supports layers |
-| Gff3Reader | `.gff` `.gff3` | row × 9 columns | GFF3 annotation |
-| GtfReader | `.gtf` | row × 9 columns | GTF annotation |
-| VcfReader | `.vcf` `.vcf.gz` | variant × sample | GT to ALT count |
-| BedReader | `.bed` | row × column | UCSC BED, 3–12 columns |
-| CsvReader | `.csv` | row × column | Header supported |
-| ParquetReader | `.parquet` | row × column | Column names from metadata |
-| MtxReader | `.mtx` | gene × cell | 10x MEX |
-| Plink1Reader | `.bed` + `.bim` + `.fam` | variant × sample | PLINK 1.x |
-| Plink2Reader | `.pgen` + `.pvar` + `.psam` | variant × sample | PLINK 2.x |
-| BgenReader | `.bgen` | variant × sample | Expected ALT dosage |
-
----
-
-## Built-in Steps
-
-These examples are a small subset of the [425-operator index](library/seed/operator_index.json).
-
-| Category | Step |
-|---|---|
-| Data inspection | `describe` |
-| Dimension/label | `transpose`, `rename_dim`, `select`, `drop`, `concat`, `attach_info` |
-| QC filtering | `missing`, `maf`, `hwe`, `ld_prune` |
-| Statistical modeling | `pca`, `regress`, `correction` |
-| Plotting | `histogram`, `scatter`, `line`, `manhattan` |
-
----
-
-## Full Example: GWAS Pipeline
-
-The following example comes from `tasks/gwas_demo/task.yaml` in the repository, showing a complete GWAS analysis workflow:
-
-```yaml
-name: gwas_demo
-
-sources:
-  geno:
-    path: input/geno.vcf
-    dims: [variant, sample]
-    labels:
-      variant: builtin
-      sample: builtin
-  pheno:
-    path: input/phenotype.csv
-    dims: [sample, feature]
-    labels:
-      sample: {feature: 0}
-      feature: builtin
-  covar:
-    path: input/covariates.csv
-    dims: [sample, feature]
-    labels:
-      sample: {feature: 0}
-      feature: builtin
-
-steps:
-  - name: missing
-    inputs: [geno]
-    params: {dim: sample, threshold: 0.10, output: geno_sm}
-  - name: missing
-    inputs: [geno_sm]
-    params: {dim: variant, threshold: 0.05, output: geno_vm}
-  - name: maf
-    inputs: [geno_vm]
-    params: {dim: variant, threshold: 0.05, output: geno_maf}
-  - name: hwe
-    inputs: [geno_maf]
-    params: {dim: variant, threshold: 1.0e-4, output: geno_hwe}
-  - name: ld_prune
-    inputs: [geno_hwe]
-    params: {dim: variant, window: 50, r2: 0.2, output: geno_pruned}
-  - name: pca
-    inputs: [geno_pruned]
-    params: {dim: variant, n_components: 10, output: pcs}
-  - name: transpose
-    inputs: [geno_hwe]
-    params: {order: [sample, variant], output: geno_T}
-  - name: rename_dim
-    inputs: [geno_T]
-    params: {from: variant, to: feature, output: geno_f}
-  - name: concat
-    inputs: [geno_f, pheno, covar]
-    params: {axis: feature, output: combined}
-  - name: regress
-    inputs: [combined]
-    params:
-      dim: feature
-      response: trait_value
-      covariates: [sex, batch]
-      output: raw
-  - name: correction
-    inputs: [raw]
-    params: {method: fdr, alpha: 0.05, output: assoc_result}
-  - name: attach_info
-    inputs: [assoc_result, geno_hwe]
-    params:
-      fields: [chrom, pos]
-      target_dim: feature
-      output: assoc_with_pos
-  - name: manhattan
-    inputs: [assoc_with_pos]
-    params:
-      dim: feature
-      chrom_label: chrom
-      pos_label: pos
-      p_dim: statistic
-      p_label: P
-      filename: manhattan.png
-      title: GWAS Manhattan plot
-  - name: scatter
-    inputs: [pcs]
-    params:
-      dim: component
-      x_label: PC1
-      y_label: PC2
-      filename: pca_scatter.png
-  - name: histogram
-    inputs: [assoc_result]
-    params:
-      dim: statistic
-      value_label: P
-      bins: 20
-      filename: pvalue_hist.png
-  - name: describe
-    inputs: [assoc_result]
-```
-
-Run:
-
-```bash
-python scripts/run.py tasks/gwas_demo
-```
-
----
-
-## Output Structure
-
-```text
-output/
-  run_summary.json
-  run_summary.txt
-  steps/
-    01_missing.json
-    02_missing.json
-    03_maf.json
-    04_hwe.json
-    05_ld_prune.json
-    06_pca.json
-    07_transpose.json
-    08_rename_dim.json
-    09_concat.json
-    10_regress.json
-    11_correction.json
-    12_attach_info.json
-    13_manhattan.json
-    14_scatter.json
-    15_histogram.json
-    16_describe.json
-  figures/
-    manhattan.png
-    pca_scatter.png
-    pvalue_hist.png
-```
-
-- `run_summary.json`: run index with step names, timings, inputs, parameters, export paths.
-- `run_summary.txt`: human-readable index.
-- `steps/*.json`: full export of each Step.
-- `figures/*`: outputs of plotting steps.
-
----
-
-## Extension Guide
-
-For external plugins, use the [SDK quickstart](docs/sdk_quickstart.md) and
-[protocol](docs/operator_protocol.md). The instructions below are for maintaining
-built-ins inside the engine repository. Refresh the package index after source
-changes, then build and hot-install the affected package to update an open Studio:
-
-```bash
-python scripts/build_builtin_packages.py --refresh
-python scripts/build_builtin_packages.py --package operon-core --output build/packages
-operon plugin install build/packages/operon-core/dist/operon_core-1.0.0-py3-none-any.whl
-```
-
-Bump the package version in the manifest for a published update. Refresh operator
-source through the library manager to create a new immutable generation. Changes
-to the application framework itself require a restart. See [unified packages and resource
-protocols](docs/package_protocol.md) for disable/remove/restore, version locking,
-streaming operators, disk readers and an executable SDK-only example.
-
-### Add a Reader or Step
-
-1. Create the Python module and a neighboring parameter JSON, or use
-   `operon plugin init <project>` (`--template reader` for a Reader).
-2. Keep identity, input/output contracts, resource modes and optional UI metadata
-   in the class's literal `definition`. Reference the JSON with `parameters_file`.
-3. Put parameter types, defaults and constraints only in that JSON. Add adjacent
-   Markdown explaining purpose, input/output meaning, assumptions and examples.
-4. Implement `Reader.read`, `Operator.compute` or `Step.run`/`export`. Preserve
-   `info` and `axis_info` with the data. Declare only resource modes actually implemented.
-5. Run protocol checks and calculation tests, then `operon registry build` for
-   bundled source or `operon plugin build <project>` for a distributable wheel.
-   Include parameter JSON, Markdown and optional icons in wheel package data.
-
-Complete examples: [Readers](docs/reader_extensions.md),
-[Steps/Operators](docs/step_extensions.md), [SDK quickstart](docs/sdk_quickstart.md).
-
----
-
-## Design Principles
-
-- **Declarative orchestration**: task.yaml describes the pipeline.
-- **Plugin Readers**: adding formats does not touch the core.
-- **Plugin Steps**: adding operators does not touch the core.
-- **Unified Form**: all data shares one model.
-- **Complete label coverage**: every axis position must have a label.
-- **Axis-parallel metadata sync**: `axis_info` guarantees subset safety.
-- **Explicit errors**: a clear exception hierarchy.
-- **Full export**: every step's result is traceable.
-
----
-
-## Directory Structure
-
-```text
-operon/
-  application.py            # workflow, task and artifact services
-  control_api.py            # versioned HTTP integration
-  headless.py               # service without a desktop window
-  cli.py                    # command-line adapter
-  mcp_server.py             # external agent adapter
-  operator_docs.py          # bounded document search and retrieval
-  worker.py                 # installed scientific worker entry
-
-scripts/
-  run.py                    # source compatibility entry point
-
-src/
-  core/
-    errors/                 # error hierarchy
-    forms/
-      form.py               # Form data protocol
-
-  reader/
-    __init__.py             # read_source, pick_reader, indexed providers
-    base.py                 # Reader base class
-    readers/                # format-specific Readers
-      fasta_reader.py
-      vcf_reader.py
-      bed_reader.py
-      csv_reader.py
-      h5ad_reader.py
-      plink_reader.py
-      bgen_reader.py
-      mtx_reader.py
-      ...
-
-  task/
-    __init__.py
-    manifest.py             # task.yaml load and validation
-    runner.py               # step scheduling
-    context/
-      base.py               # Context
-    step/
-      __init__.py           # Indexed Step providers and maintenance scanning
-      base.py               # Step base class
-      steps/                # operators
-        maf.py
-        hwe.py
-        pca.py
-        regress.py
-        correction.py
-        manhattan.py
-        scatter.py
-        ...
-
-tasks/
-  csv_demo/                 # minimal CSV example
-  gwas_demo/                # full GWAS pipeline example
-  fasta_demo/               # FASTA example
-  vcf_demo/                 # VCF example
-  ...
-
-environment.yml             # Conda environment definition
-requirements.txt            # pip dependency manifest
-```
-
----
-
-## Development and Testing
-
-An opt-in fixed-order resource planner now supports lazy sources, run-local
-disk spill/reload, per-run logs, an RSS spill monitor, and streaming `describe`.
-See [Resource runtime](docs/resource_runtime.md) for budgets, limitations and
-reproducible verification. Use `requirements-runtime.txt` for the portable CPU
-runtime; format-specific Readers require their optional dependencies.
-
-```bash
-# Activate the environment
-conda activate operon
-
-# Install the opt-in test dependencies
-python -m pip install -r requirements-dev.txt
-
-# Run tests
-pytest
-
-# Run an example task
-python scripts/run.py tasks/csv_demo
-```
-
----
+- [Documentation index](docs/README.md)
+- [Windows Setup and isolated installations](docs/windows_setup.md)
+- [Command-line and Linux server installation](docs/command_line_installation.md)
+- [Linux server and terminal guide](docs/server_cli.md)
+- [SSH remote execution](docs/REMOTE_EXECUTION.md) and [server handshake](docs/SERVER_HANDSHAKE.md)
+- [Public workflow YAML](docs/workflow_yaml_v3.md)
+- [SDK 3.7 data formats](docs/data_formats.md) and [format migration](docs/format_migration_v37.md)
+- [Operator documentation and retrieval](docs/operator_documentation.md)
+- [HTTP API, CLI and MCP](docs/headless_api.md)
+- [Application API tutorial](docs/api_quickstart.md)
+- [Library extensions](docs/library_extensions.md)
+- [Release notes](docs/releases/)
+- [Contributing](CONTRIBUTING.md)
+
+## Verification and status
+
+The 8.0.1 evidence is recorded in
+[the operator audit](docs/verification/operator-audit-8.0.1.md):
+
+- L0 static contracts: **1,171 / 1,171 PASS**.
+- L1 contracts: **358 PASS, 705 explicit SKIP, 0 FAIL**.
+- L3 routing: **794 operators routed, 269 explicit SKIP**, and **79 / 79**
+  built-in route definitions rechecked against the 4.x registration path.
+- The 1,063 operator and 108 Reader counts are the shipped library totals.
+
+Historical release notes, validation reports and design records keep the versions
+they tested; they are not current installation instructions. Current schemas,
+source declarations and CLI help take precedence.
 
 ## License
 
 Copyright (c) 2026 Haojian Li and Operon contributors.
 
-Operon is licensed under the **[Apache License, Version 2.0](LICENSE)**.
-Use, copying, modification, redistribution, sublicensing and commercial use are
-permitted under that license; no separate commercial permission is required.
-Retain the license and applicable attribution notices and identify modifications
-when redistributing. See [NOTICE](NOTICE) for attribution.
-
-Third-party dependencies, external tools, model weights and datasets retain their
-own licenses. Their notices are preserved in `THIRD_PARTY_NOTICES/` and the
-individual packages; Operon's license does not replace those terms.
-
-### Source preparation and Studio configuration
-
-Managed H5AD and 10x MTX inputs now prepare dense disk arrays in bounded blocks,
-then hand their actual size and retained clean blocks to the fixed-budget planner.
-Large full-mode analysis still requires enough RAM; see [runtime details](docs/resource_runtime.md).
-Studio preserves global YAML parameters and disabled memory settings, renames axis
-label rules with dimensions, and supports configuration saves larger than 2 MiB.
-Reader and plotting options are described in the registry and exposed in forms.
-Use **Plugin management** in the operator library to install or remove local wheels;
-see [plugin lifecycle](docs/plugins.md) and [input formats](docs/input_formats.md).
-
-## Dependency conflicts
-
-Compatible entries share the runtime. Only conflicting entries use a private
-dependency directory and subprocess with the same Python executable. See
-[selective dependency isolation](docs/dependency_isolation.md) for declarations, streaming,
-memory accounting and supported metadata.
-
-### Extending static plotting
-
-Use the [public figure SDK and R adapter guide](docs/static_plotting.md) to wrap
-Matplotlib or domain plotting tools. Operators can return multiple named figures
-with direct links to saved PDF/SVG/PNG files. Optional R requirements are checked
-and prepared in managed libraries; existing v3 declarations and independently
-saved workflow parameters remain the authoring model. The
-[plotting examples](examples/plotting_plugin/README.md) include a Python volcano
-report and R ComplexHeatmap with explicit memory estimates.
-
-## Operator library and language settings
-
-The library management entry stays in the library footer. Its window has two
-pages: **Manage library** (refresh, dependencies, enable/disable/remove) and
-**Add operators** (operator/Reader packages, source directories, and saved or
-imported workflow operators). The library **+** opens Add operators directly.
-Importing a workflow here saves and registers it without changing the active canvas.
-
-**Settings → Language** selects Simplified Chinese, English, or the system language.
-The choice is saved in the current Operon profile. Switching does not reload the
-page or rewrite workflows. Existing v3 operator names stay in their original
-language; optional **v3.5 language packs** translate presentation independently of
-parameter schemas and frozen values. See [the localization guide](docs/localization.md).
+Licensed under the [Apache License, Version 2.0](LICENSE). See [NOTICE](NOTICE)
+for attribution and [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES) for bundled
+third-party terms.
