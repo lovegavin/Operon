@@ -30,7 +30,7 @@ jobs:
         shell: bash
         run: |
           version=$(python -c 'import json; print(json.load(open("library/release.json"))["build_application"])')
-          python -m pip install "https://github.com/lovegavin/Operon/releases/download/v${version}/operon_studio-${version}-py3-none-any.whl" pytest h5py scikit-learn biopython rdkit
+          python -m pip install "https://github.com/lovegavin/Operon/releases/download/v${version}/operon_studio-${version}-py3-none-any.whl" pytest pandas h5py scikit-learn biopython rdkit
           python -m pip install "torch>=2.0" --index-url https://download.pytorch.org/whl/cpu
       - name: Validate release rules
         run: python -I -m pytest tests/test_library_release.py -q --import-mode=importlib
