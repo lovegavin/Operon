@@ -404,10 +404,11 @@ internal sealed class InstallEngine
         // A running host or backend keeps files open and also holds the profile
         // lease. End only processes that live under this installation, before
         // the lease is requested, so a full uninstall can actually finish.
+        var receipt = ReadReceipt(root) ?? throw new InvalidOperationException("此目录没有 Operon 安装记录。");
+        DisconnectAgents(receipt.Profile);
         var stopped = TerminateManagedProcesses(root);
         if (stopped > 0) Log($"Stopped {stopped} process(es) under the installation.");
         using var lease = new InstallLease("Local\\OperonSetup-" + InstallLease.Identity(root));
-        var receipt = ReadReceipt(root) ?? throw new InvalidOperationException("此目录没有 Operon 安装记录。");
         using var profileLease = new InstallLease("Local\\OperonStudio-" + InstallLease.Identity(receipt.Profile));
         Report("正在卸载软件；用户档案和分析数据会保留…", 0);
         var expectedKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\OperonStudio-" + InstallLease.Identity(root);
@@ -448,6 +449,25 @@ internal sealed class InstallEngine
         catch (Exception error) { Log("Install root retained: " + error.Message); }
         Report("已卸载 Operon；用户档案、路线、数据和任务记录均已保留。",100);
         return new("uninstalled", root, null, receipt.Profile, LogPath);
+    }
+
+    private void DisconnectAgents(string profile)
+    {
+        try
+        {
+            var portFile = Path.Combine(profile, "port.txt");
+            if (!File.Exists(portFile) || !int.TryParse(File.ReadAllText(portFile), out var port) || port is < 1 or > 65535) return;
+            using var http = new HttpClient(new HttpClientHandler { UseProxy = false }) { Timeout = TimeSpan.FromSeconds(3) };
+            using var bootstrap = JsonDocument.Parse(http.GetStringAsync($"http://127.0.0.1:{port}/api/bootstrap").GetAwaiter().GetResult());
+            var token = bootstrap.RootElement.GetProperty("token").GetString();
+            if (string.IsNullOrEmpty(token)) return;
+            using var request = new HttpRequestMessage(HttpMethod.Post, $"http://127.0.0.1:{port}/api/agent/connections/revoke-all");
+            request.Headers.Add("X-Studio-Token", token);
+            request.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+            using var response = http.Send(request);
+            Log("Disconnected MCP clients: " + (int)response.StatusCode);
+        }
+        catch (Exception error) { Log("MCP disconnect skipped: " + error.Message); }
     }
 
     internal static int TerminateManagedProcesses(string installRoot)

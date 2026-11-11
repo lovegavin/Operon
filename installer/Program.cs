@@ -257,9 +257,6 @@ internal sealed class SetupWindow : Form
 
     private bool ConfirmForceUninstall(string target)
     {
-        MessageBox.Show(this,
-            "卸载前请先断开 DSH / MCP：在 DSH 中关闭 Operon MCP 服务。\n\n无论当前是否显示已连接，都请先断开，否则 MCP 可能重新启动 Python 并占用安装目录。",
-            "卸载前断开 MCP", MessageBoxButtons.OK, MessageBoxIcon.Warning);
         var answer = MessageBox.Show(this,
             $"是否强制终止所有 Operon Studio 和 Python 进程，并完全卸载？\n\n安装目录：{target}\n\n选择“是”将结束占用安装目录的进程，然后删除本安装程序管理的软件文件。\n用户档案、路线、数据和任务记录会保留。选择“否”将取消卸载。",
             "完全卸载 Operon Studio", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,

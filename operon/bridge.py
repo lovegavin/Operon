@@ -99,6 +99,14 @@ class Bridge:
             self.connections.pop(payload.get("id"), None)
             return {"revoked": True}
 
+        @app.post("/api/agent/connections/revoke-all")
+        def revoke_all(request: Request):
+            if not hmac.compare_digest(request.headers.get("x-studio-token", ""), self.studio_token):
+                raise HTTPException(403, "Only the desktop user can revoke connections")
+            revoked = len(self.connections)
+            self.connections.clear()
+            return {"revoked": revoked}
+
         @app.get("/api/agent/remote")
         def remote_status(request: Request):
             self.actor(request, "context")

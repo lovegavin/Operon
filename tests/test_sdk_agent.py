@@ -160,6 +160,20 @@ def test_gateway_capabilities_and_revocation(gateway):
     client.headers.pop("X-Studio-Token")
     assert client.get("/api/agent/sessions").status_code == 403
 
+def test_gateway_can_revoke_all_connections(gateway):
+    client, app, data, state = gateway
+    token = client.post("/api/agent/connect", headers={"X-Operon-Bridge": app.state.bridge.secret},
+                        json={"name": "bulk", "scopes": ["context"]}).json()["token"]
+    client.headers.pop("X-Studio-Token")
+    client.headers["Authorization"] = f"Bearer {token}"
+    assert len(client.get("/api/agent/connections").json()) == 1
+    client.headers["X-Studio-Token"] = data["token"]
+    response = client.post("/api/agent/connections/revoke-all")
+    assert response.status_code == 200, response.text
+    assert response.json() == {"revoked": 1}
+    client.headers.pop("X-Studio-Token")
+    assert client.get("/api/agent/sessions").status_code == 403
+
 
 def test_open_generated_graph_without_positions_and_keep_old_tab(gateway):
     client, app, data, state = gateway
