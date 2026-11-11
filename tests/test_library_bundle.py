@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture(scope='module')
 def library_bundle(tmp_path_factory):
-    return Path(build_bundle(ROOT, tmp_path_factory.mktemp('library'), '1.0.0')['bundle'])
+    return Path(build_bundle(ROOT, tmp_path_factory.mktemp('library'), '8.0.6')['bundle'])
 
 
 def test_sources_are_lazy_persistent_and_outside_application(tmp_path):
@@ -190,6 +190,6 @@ def test_new_library_rejects_runtime_without_shared_io(tmp_path, library_bundle,
     import operon
     monkeypatch.setattr(operon, '__version__', '0.116.1')
     destination = tmp_path / 'unsupported-runtime'
-    with pytest.raises(ValueError, match=r'requires Operon 2\.0\.1'):
+    with pytest.raises(ValueError, match=r'requires Operon 4\.1\.0'):
         unpack_bundle(library_bundle, destination)
     assert not destination.exists()

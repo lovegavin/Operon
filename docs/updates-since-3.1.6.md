@@ -94,6 +94,19 @@ server will be stopped and every session closed. The desktop will ask for
 confirmation. The old server processes and their shared pools are then retired
 before the new build is installed.
 
+## 4.1.0: isolated operator environments
+
+- Importing a library bundle now also provisions its declared isolated
+  environments in the background. Status is visible in **算子库管理**, with
+  prepare, retry and log actions; a missing environment no longer appears only
+  as an execution failure.
+- The library bundle carries `sources/operon/environments.json`; 4.1.0 rejects
+  operator libraries older than **8.0.6** so an environment model mismatch
+  cannot be hidden.
+- Operator and Reader dependency discovery uses only the operator-library
+  archive and the route archive. The optional `install-dependencies` helpers
+  published next to the library are not required.
+
 ## What did not change
 
 - Wire protocol 3 and SDK 3.7.

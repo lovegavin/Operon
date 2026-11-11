@@ -118,6 +118,11 @@
 .library-refresh {width:26px; height:26px; flex-shrink:0;}
 .plugin-note { color: var(--text-secondary, #888); font-size: 12px; line-height: 1.7; margin: 12px 0; }
 .plugin-packages { margin: 20px 0; max-height: 42vh; overflow: auto; }
+.plugin-environments {margin:18px 0; padding-top:14px; border-top:1px solid var(--border);}
+.plugin-environments .plugin-toolbar {margin-bottom:8px;}
+.plugin-environments .helper {margin:0 0 10px; color:var(--muted); font-size:12px;}
+.plugin-environments .modal-error {margin:8px 0 0;}
+.environment-log {margin:8px 0 0; max-height:180px; overflow:auto; padding:8px 10px; border-radius:7px; background:rgba(127,127,127,.09); font-size:11px; line-height:1.5; white-space:pre-wrap;}
 .plugin-package { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border, #333); }
 .plugin-package strong { font-size: 13px; margin-right: 10px; }
 .plugin-actions { display: flex; flex-shrink: 0; gap: 4px; }

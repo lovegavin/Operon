@@ -716,5 +716,19 @@
   "?????????????? --allow-plugins?????????????????????????????????????????????????????": "This is off by default. Enabling it adds --allow-plugins, permitting operator package changes and environment preparation; it is separate from canvas edit or run permission. Connected clients must reconnect before they gain it.",
   "允许 Agent 安装或修复算子包与运行环境": "Allow the Agent to install or repair operator packages and environments",
   "此选项默认关闭。开启后会加入 --allow-plugins，允许修改算子包和准备依赖环境；它不同于画布编辑或提交运行权限。已连接的客户端需要重新连接才会获得该权限。": "This is off by default. Enabling it adds --allow-plugins, permitting operator package changes and environment preparation; it is separate from canvas edit or run permission. Connected clients must reconnect before they gain it.",
-  "服务器可用资源不足，任务未进入队列。请降低单步内存或 CPU，或调整服务器资源上限后重试。": "The server does not have enough resources, so this job was not queued. Reduce memory or CPU per step, or raise the server resource limit and retry."
+  "服务器可用资源不足，任务未进入队列。请降低单步内存或 CPU，或调整服务器资源上限后重试。": "The server does not have enough resources, so this job was not queued. Reduce memory or CPU per step, or raise the server resource limit and retry.",
+  "隔离环境": "Isolated environments",
+  "准备缺失环境": "Prepare missing environments",
+  "隔离环境由当前算子库声明，缺少时算子无法执行。": "Isolated environments are declared by the installed operator library; operators cannot run until they are ready.",
+  "未安装": "Not installed",
+  "需要更新": "Update required",
+  "已就绪": "Ready",
+  "准备失败": "Preparation failed",
+  "准备": "Prepare",
+  "重试": "Retry",
+  "重新准备": "Prepare again",
+  "日志": "Log",
+  "隐藏日志": "Hide log",
+  "暂无日志": "No log yet",
+  "{n} 个算子": "{n} operators"
 }

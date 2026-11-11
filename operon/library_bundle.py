@@ -19,6 +19,7 @@ from operon.bytecode import filesystem_path
 
 
 LIBRARY_SUFFIXES = ('.operon-library.zip',)
+MINIMUM_LIBRARY_VERSION = '8.0.6'
 
 
 def is_library_bundle(path):
@@ -160,6 +161,11 @@ def install_bundle(manager, bundle, *, replace=False):
         with tempfile.TemporaryDirectory(prefix='library-', dir=staging) as temporary:
             temporary = Path(temporary)
             document = unpack_bundle(bundle, temporary / 'incoming')
+            from operon import __version__
+            if Version(document['version']) < Version(MINIMUM_LIBRARY_VERSION):
+                raise ValueError(
+                    f"Operator library {document['version']} is too old for Operon Studio "
+                    f"{__version__}; version {MINIMUM_LIBRARY_VERSION} or newer is required")
             # Do not hide unrefreshed author edits behind a new source pointer.
             previous = current.get('source_library') or {}
             if not replace and manager.managed_sources and manager.source_root.exists():

@@ -10,6 +10,19 @@ export type Readiness = {
 };
 export type CheckFeedback = {signature: string; readiness?: Readiness; error?: string};
 
+export type EnvironmentStatus = {
+  name: string; python: string; spec_sha256: string; interpreter: string; location: string;
+  imports: string[]; status: 'missing' | 'stale' | 'ready' | 'failed'; error: string; used_by: string[];
+};
+export type EnvironmentJob = {
+  id: string; name: string; status: 'running' | 'complete' | 'failed';
+  error: string | null; started_at: string; finished_at: string | null;
+};
+export type EnvironmentSnapshot = {
+  root: string; environments: Record<string, EnvironmentStatus>; operations: EnvironmentJob[];
+};
+
+
 const base =
   (import.meta as ImportMeta & { env: { VITE_API_BASE?: string } }).env
     .VITE_API_BASE || "";
@@ -64,6 +77,11 @@ export const api = {
   operatorSource: (id: string) => request<{available: boolean; code?: string; filename?: string; reason?: string}>(`/api/operators/${encodeURIComponent(id)}/source`),
   prepareEnvironment: (graph: Graph) => request<{readiness: Readiness}>('/api/prepare-environment', graph),
   checkEnvironment: (graph: Graph) => request<{readiness: Readiness}>('/api/check-environment', graph),
+  environments: () => request<EnvironmentSnapshot>('/api/environments'),
+  prepareEnvironments: (names?: string[]) => request<EnvironmentSnapshot & {prepared: {name: string; job: string; status: string}[]}>('/api/environments/prepare', names ? {names} : {}),
+  retryEnvironment: (name: string) => request<EnvironmentSnapshot & {job: string}>(`/api/environments/${encodeURIComponent(name)}/retry`, {}),
+  environmentLog: (name: string, limit = 200) => request<{name: string; text: string}>(`/api/environments/${encodeURIComponent(name)}/log?limit=${limit}`),
+
   savePreferences: (value: Partial<import('./preferences').UiPreferences>, initialize = false) => {
     // Keep responses in edit order when users switch settings sections quickly.
     const result = preferencesWrite.catch(() => {}).then(() => request<import('./preferences').UiPreferences>(`/api/preferences?initialize=${initialize}`, value));

@@ -6,6 +6,7 @@ import {t, useLocale} from './i18n';
 import {operatorText} from './operatorLocalization';
 import { api } from './api';
 import type { PluginOperation, PluginState } from './types';
+import type { EnvironmentSnapshot } from './api';
 
 export type LibraryTab = 'manage' | 'add';
 export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClose: () => void; onChanged: () => Promise<void>; initialTab?: LibraryTab}) {
@@ -13,9 +14,18 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
   const [tab, setTab] = useState<LibraryTab>(initialTab);
   const [state, setState] = useState<PluginState>({generation: null, packages: [], descriptors: []});
   const [pending, setPending] = useState(false), [error, setError] = useState(''), [message, setMessage] = useState('');
+  const [environments, setEnvironments] = useState<EnvironmentSnapshot | undefined>();
+  const [environmentLogs, setEnvironmentLogs] = useState<Record<string, string>>({});
   const busy = pending || !!state.dependencies?.running;
   const file = useRef<HTMLInputElement>(null);
   const mounted = useRef(true);
+  useEffect(() => {
+    let active = true;
+    const loadEnvironments = () => api.environments().then(value => {if (active) setEnvironments(value);}).catch(() => {});
+    void loadEnvironments();
+    const timer = setInterval(loadEnvironments, 4000);
+    return () => {active = false; clearInterval(timer);};
+  }, []);
   useEffect(() => {
     mounted.current = true;
     api.plugins().then(value => {if (mounted.current) setState(value);}).catch(e => {if (mounted.current) setError(e.message);});
@@ -27,6 +37,25 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
     return () => clearInterval(timer);
   }, [busy]);
   const dependencyLabels = {unchecked: t("待检测"), checking: t("检测中"), installing: t("安装中"), passed: t("依赖就绪"), failed: t("依赖未就绪")};
+  const environmentLabels: Record<string, string> = {missing: t("未安装"), stale: t("需要更新"), ready: t("已就绪"), failed: t("准备失败")};
+  const environmentBusy = !!environments?.operations?.some(job => job.status === 'running');
+  async function prepareEnvironments(names?: string[]) {
+    setError('');
+    try {
+      const latest = await api.prepareEnvironments(names);
+      if (mounted.current) setEnvironments(latest);
+    } catch (e) {if (mounted.current) setError((e as Error).message);}
+  }
+  async function toggleEnvironmentLog(name: string) {
+    if (Object.hasOwn(environmentLogs, name)) {
+      setEnvironmentLogs(current => {const next = {...current}; delete next[name]; return next;});
+      return;
+    }
+    try {
+      const result = await api.environmentLog(name);
+      if (mounted.current) setEnvironmentLogs(current => ({...current, [name]: result.text || t('暂无日志')}));
+    } catch (e) {if (mounted.current) setError((e as Error).message);}
+  }
   async function operate(begin: () => Promise<PluginOperation>) {
     setPending(true); setError(''); setMessage(t("正在扫描、校验并更新算子库…"));
     try {
@@ -85,6 +114,32 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
             <button className="subtle-button" disabled={busy} onClick={() => void operate(() => api.managePlugin(item.name, 'restore'))}><ArrowCounterClockwise size={15}/>{t("恢复")}</button></article>)}
       </div>
       </div>
+      <section className="plugin-environments" hidden={!Object.keys(environments?.environments ?? {}).length}>
+        <div className="plugin-toolbar">
+          <strong>{t('隔离环境')}</strong>
+          <button className="subtle-button" disabled={pending || environmentBusy} onClick={() => void prepareEnvironments()}>
+            <ArrowClockwise size={16} className={environmentBusy ? 'spin' : ''}/>{t('准备缺失环境')}
+          </button>
+        </div>
+        <p className="helper">{t('隔离环境由当前算子库声明，缺少时算子无法执行。')}</p>
+        {Object.values(environments?.environments ?? {}).map(item => <article className="plugin-package" key={item.name}>
+          <div>
+            <strong>{item.name}</strong><span className="route-version">Python {item.python}</span>
+            <p>{environmentLabels[item.status]}{item.used_by.length ? ` · ${t('{n} 个算子', {n: item.used_by.length})}` : ''}</p>
+            {item.status === 'failed' && item.error && <pre className="modal-error">{item.error}</pre>}
+            {Object.hasOwn(environmentLogs, item.name) && <pre className="environment-log">{environmentLogs[item.name]}</pre>}
+          </div>
+          <div className="plugin-actions">
+            <button className="subtle-button" disabled={pending || environmentBusy}
+              onClick={() => void prepareEnvironments([item.name])}>
+              {item.status === 'ready' ? t('重新准备') : item.status === 'failed' ? t('重试') : t('准备')}
+            </button>
+            <button className="subtle-button" onClick={() => void toggleEnvironmentLog(item.name)}>
+              {Object.hasOwn(environmentLogs, item.name) ? t('隐藏日志') : t('日志')}
+            </button>
+          </div>
+        </article>)}
+      </section>
       <div hidden={tab !== 'add'}><AddOperators state={state} busy={busy} onPackage={() => file.current?.click()}
         onRefresh={() => void operate(api.refreshPlugins)} onChanged={onChanged} onPending={setPending} onError={setError} onMessage={setMessage}/></div>
     </div>
