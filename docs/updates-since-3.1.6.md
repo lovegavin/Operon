@@ -7,8 +7,8 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 
 - The product is now called **Operon Studio** everywhere. The old Biopipe name
   is not kept as a compatibility alias.
-- The bundled operator library is **8.0.3**: 1,063 operators, 108 Readers,
-  1,171 descriptors and 79 built-in routes.
+- The bundled operator library is **8.0.6**: 1,063 operators, 108 Readers,
+  1,171 descriptors and 79 built-in routes. Studio 4.1.0 supports 8.0.6+ only.
 - Installing or upgrading a Linux server is one action in the desktop app.
   There is no per-package incremental upload.
 - New Windows installations keep their workspace under the installation root.
@@ -27,6 +27,9 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 - 4.0.8 accepts foreign non-empty install folders, deletes only Operon-managed
   files, disconnects all MCP clients before uninstall, offers force reinstall
   after failure, and uploads local inputs to the selected remote workspace.
+- 4.1.0 ships library 8.0.6, which can carry its environment manifest in the
+  bundle and declares the OpenMM 8.1.1 / PDBFixer 1.9 environment for the
+  structure operators. It requires Studio 4.1.0 or newer.
 - 4.0.10 clears old remote plugin pins before preparation and closes sessions on a forced server upgrade; 4.0.9 did not remove the stale pin.
 - 4.0.9 closes all remote workspace sessions on a forced server upgrade and
   prunes sessions left by an exited process before re-registering the library.
@@ -49,8 +52,9 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 | 4.0.6 | Fixes preview label order, stale readiness warnings, duplicate output names, and the memory-management warning. Library and protocol are unchanged. |
 | 4.0.7 | Fixes remote admission terminal-state display, stale readiness after canvas edits, unmanaged-memory whole-pool reservation, and oversized remote status. Library and protocol are unchanged. |
 | 4.0.8 | Installer accepts foreign folders and removes only Operon files; uninstall disconnects all MCP clients; Setup offers force reinstall after failure. Local files can be uploaded/staged for remote runs. Library 8.0.3 and protocol are unchanged. |
-| 4.0.10 | Remote submissions now clear stale canvas plugin pins before preparing against the selected server, correcting the incomplete 4.0.9 refresh. Forced server upgrades close workspace sessions and prune dead owners; normal upgrades still abort on active work. Library 8.0.3 and protocol are unchanged. |
 | 4.0.9 | A forced server upgrade closes every remote workspace client before the new application registers, stale sessions from an exited process are pruned, remote runs refresh old plugin pins, and MCP remote status is compact. Normal upgrades still abort on active work. Library 8.0.3 and protocol are unchanged. |
+| 4.0.10 | Exact-root install and uninstall, remote stale-pin refresh, forced-pool session close. Library 8.0.3 and protocol are unchanged. |
+| 4.1.0 | Requires library 8.0.6+. The library bundle carries environment manifests; the structure operators use the isolated OpenMM 8.1.1 / PDBFixer 1.9 environment. Protocol 3 / SDK 3.7 are unchanged. |
 
 ## Reinstall or upgrade a Windows installation
 
@@ -94,7 +98,7 @@ before the new build is installed.
 
 - Wire protocol 3 and SDK 3.7.
 - Saved workflow JSON and operator parameters remain valid.
-- The 8.0.2 operator and Reader APIs.
+- Operator and Reader APIs remain compatible; 4.1.0 requires library 8.0.6+.
 - Linux x86_64 is still the supported automatic server target.
 
 ## Known limitations

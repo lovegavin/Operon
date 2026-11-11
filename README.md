@@ -40,7 +40,7 @@ Operon does not bundle or require an AI model. Agent access is optional.
 | I want to… | Start here |
 | --- | --- |
 | Use the Windows desktop | Download **Operon_Setup.exe** from [Releases](https://github.com/lovegavin/Operon/releases/latest) |
-| Run a Linux server without a desktop | Download **Operon-4.0.10-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
+| Run a Linux server without a desktop | Download **Operon-4.1.0-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
 | Develop from source | `python -m pip install . ./library` with Python 3.11+ |
 | Connect an AI agent | Use the desktop **Agent** panel or `operon mcp`; see [agent operations](docs/agent_operations.md) |
 
@@ -49,7 +49,7 @@ profile. Scientific packages are installed only for the workflow and execution
 host you choose; they are not all bundled. If WebView2 is missing, Setup asks
 Microsoft's installer for it, which needs internet access.
 
-A new 4.0.10 installation puts the working workspace under the installation root
+A new 4.1.0 installation puts the working workspace under the installation root
 (for example, `workspace` under the installation root). Profile metadata, logs and browser
 state remain under `%USERPROFILE%\.operon`. Earlier installations keep their
 existing workspace. Uninstall removes the program but preserves the workspace
@@ -66,6 +66,20 @@ In short: install, open **Operon Studio**, add a CSV, connect it to **PCA**, che
 the local environment, and press **Run**. Results appear under **Run history →
 View results**. The first dependency check may need internet access; Operon never
 installs scientific packages silently during a run.
+
+## What is new in 4.1.0
+
+- Ships **Operon Operator Library 8.0.6**. Studio 4.1.0 supports library 8.0.6
+  and later only; earlier libraries use an environment model this application
+  does not load.
+- The library bundle now carries `operon/environments.json`. Imported libraries
+  can materialize their declared environments instead of reading only the
+  application seed.
+- The structure operators use the `openmm81` environment: OpenMM 8.1.1 and
+  PDBFixer 1.9 are installed together in an isolated Python 3.11 environment,
+  without downgrading the shared NumPy 2 runtime. The previous dependency range
+  could resolve PDBFixer 1.12 against an unavailable OpenMM 8.2 wheel.
+- All 4.0.10 installer, remote-pin and shared-pool fixes are included.
 
 ## What is new in 4.0.10
 
