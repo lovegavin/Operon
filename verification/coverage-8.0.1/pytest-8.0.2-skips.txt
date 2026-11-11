@@ -1,0 +1,218 @@
+total skipped tests: 209
+ 131  Rscript not available
+  36  model checkpoint or executable not configured
+  13  real SOP fixture not present
+   6  Windows-only test
+   5  fair-esm is shadowed by the ESM-3 package
+   4  missing optional Python module: allel
+   2  missing optional Python module: mudata
+   1  missing optional Python module: mrcfile
+   1  local ProteinMPNN checkout is not configured
+   1  torch_scatter is ABI-incompatible: Could not load this library: <site-packages>/torch_scatter/_scatter_cpu.so
+   1  official ProteinMPNN checkout/weights or fixture unavailable
+   1  official ProteinMPNN checkout or weights missing
+   1  official LigandMPNN checkout or weights missing
+   1  DockQ CLI is not installed
+   1  plink is not available
+   1  missing optional Python module: pgenlib
+   1  empty parameter set (route fixture absent)
+   1  explicit clean Linux installation acceptance
+   1  explicit Linux installation without usable Python
+
+# verbatim pytest -rs lines
+SKIPPED [1] tests/test_popgen_stats.py:16: could not import 'allel': No module named 'allel'
+SKIPPED [1] tests/sop/test_genotype_readers_sop.py:18: real SOP fixture is not present: tasks/vcf_demo/input/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz
+SKIPPED [1] tests/sop/test_genotype_readers_sop.py:18: real SOP fixture is not present: tasks/plink_demo/input/genotype.bed
+SKIPPED [1] tests/sop/test_genotype_readers_sop.py:18: real SOP fixture is not present: tasks/plink2_demo/input/genotype.pgen
+SKIPPED [1] tests/sop/test_genotype_readers_sop.py:18: real SOP fixture is not present: tasks/bgen_demo/input/example.bgen
+SKIPPED [1] tests/sop/test_readers_sop.py:28: real SOP fixture is not present: tasks/csv_demo/input/test_party_1.csv
+SKIPPED [1] tests/sop/test_readers_sop.py:28: real SOP fixture is not present: tasks/parquet_demo/input/alltypes.parquet
+SKIPPED [1] tests/sop/test_readers_sop.py:28: real SOP fixture is not present: tasks/bed_demo/input/example1.bed
+SKIPPED [1] tests/sop/test_readers_sop.py:28: real SOP fixture is not present: tasks/fasta_demo/input/sars_cov2.fasta
+SKIPPED [1] tests/sop/test_readers_sop.py:28: real SOP fixture is not present: tasks/gff3_demo/input/homo_sapiens.gff3.gz
+SKIPPED [1] tests/sop/test_readers_sop.py:28: real SOP fixture is not present: tasks/go_enrichment_demo/input/goa_human.gaf.gz
+SKIPPED [1] tests/sop/test_readers_sop.py:28: real SOP fixture is not present: tasks/mtx_demo/input/matrix.mtx.gz
+SKIPPED [1] tests/sop/test_readers_sop.py:28: real SOP fixture is not present: tasks/h5ad_demo/input/pbmc3k.h5ad
+SKIPPED [1] tests/sop/test_readers_sop.py:28: real SOP fixture is not present: tasks/multi_omics_route_demo/input/cite_seq_pbmc.h5
+SKIPPED [2] tests/test_bundled_long_imports.py:17: Windows native import paths
+SKIPPED [1] tests/test_bundled_long_imports.py:48: Windows import identity
+SKIPPED [1] tests/test_bundled_long_imports.py:59: Windows package resource paths
+SKIPPED [1] tests/test_extension100.py:266: could not import 'mrcfile': No module named 'mrcfile'
+SKIPPED [1] tests/test_extension110.py:293: official ProteinMPNN checkout or OPERON_RUN_PROTEINMPNN is absent
+SKIPPED [1] tests/test_extension115.py:188: set OPERON_ESM_CHECKPOINT to a local esm2_t6_8M_UR50D.pt
+SKIPPED [1] tests/test_extension123.py:230: OPERON_ESM_CHECKPOINT is not set
+SKIPPED [1] tests/test_extension125.py:237: local ProteinMPNN checkout is not configured
+SKIPPED [1] tests/test_extension132.py:256: set OPERON_LIGANDMPNN_PATH and OPERON_LIGANDMPNN_WEIGHTS for the official oracle
+SKIPPED [1] tests/test_extension133.py:232: set OPERON_LIGANDMPNN_PATH and OPERON_LIGANDMPNN_WEIGHTS for the official oracle
+SKIPPED [1] tests/test_extension138.py:57: ESM-IF checkpoint or dependencies missing
+SKIPPED [1] tests/test_extension138.py:82: ESM-IF checkpoint or dependencies missing
+SKIPPED [1] tests/test_extension138.py:103: ESM-IF checkpoint or dependencies missing
+SKIPPED [1] tests/test_extension138.py:111: ESM-IF checkpoint or dependencies missing
+SKIPPED [1] tests/test_extension138.py:136: ESM-IF checkpoint or dependencies missing
+SKIPPED [1] tests/test_extension138.py:158: ESM-IF checkpoint or dependencies missing
+SKIPPED [1] tests/test_extension139.py:111: fair-esm is shadowed by the ESM-3 package
+SKIPPED [1] tests/test_extension144.py:109: fair-esm is shadowed by the ESM-3 package
+SKIPPED [2] tests/test_extension150.py:56: fair-esm is shadowed by the ESM-3 package
+SKIPPED [1] tests/test_extension153.py:59: torch_scatter is ABI-incompatible: Could not load this library: <site-packages>/torch_scatter/_scatter_cpu.so
+SKIPPED [1] tests/test_extension158.py:175: official ProteinMPNN checkout/weights or fixture unavailable
+SKIPPED [1] tests/test_extension163.py:94: set OPERON_RUN_PROTEINMPNN=1 with a local ProteinMPNN checkout
+SKIPPED [1] tests/test_extension175.py:108: ESM-IF checkpoint or deps missing
+SKIPPED [1] tests/test_extension176.py:180: official ProteinMPNN checkout or weights missing
+SKIPPED [1] tests/test_extension177.py:179: official LigandMPNN checkout or weights missing
+SKIPPED [1] tests/test_extension181.py:190: fair-esm is shadowed by the ESM-3 package
+SKIPPED [1] tests/test_extension245.py:132: set OPERON_ESMFOLD_REAL=1 to run ESMFold 3B
+SKIPPED [1] tests/test_extension252.py:103: set OPERON_PRODIGAL_REAL=1 to run the real Prodigal check
+SKIPPED [1] tests/test_extension253.py:100: OPERON_PFAM_HMM or hmmscan is not available
+SKIPPED [1] tests/test_extension293.py:74: set OPERON_FOLDSEEK_BIN and OPERON_FOLDSEEK_DB to run the real search
+SKIPPED [1] tests/test_extension294.py:129: OPERON_ANTIFOLD_WEIGHTS is not set
+SKIPPED [1] tests/test_extension299.py:65: set OPERON_OPENMM_REAL=1 for a real trajectory
+SKIPPED [1] tests/test_extension300.py:139: set OPERON_ANTIFOLD_REAL=1 to run AntiFold
+SKIPPED [1] tests/test_extension302.py:92: set OPERON_OPENFOLD_REAL=1 for a real OpenFold run
+SKIPPED [1] tests/test_extension305.py:52: DockQ CLI is not installed
+SKIPPED [1] tests/test_extension325.py:79: set OPERON_ESM3_REAL=1 to run the real ESM-3 check
+SKIPPED [1] tests/test_extension326.py:111: set OPERON_ESM3_REAL=1 to run the real ESM-3 check
+SKIPPED [1] tests/test_extension327.py:104: set OPERON_ESM3_REAL=1 to run the real ESM-3 check
+SKIPPED [1] tests/test_extension343.py:110: set OPERON_ESM3_REAL=1 to run the ESM-3 track
+SKIPPED [1] tests/test_extension344.py:93: set OPERON_ESM3_REAL=1 to run the ESM-3 SASA track
+SKIPPED [1] tests/test_extension348.py:68: set OPERON_ESM3_REAL=1
+SKIPPED [1] tests/test_extension350.py:106: set OPERON_ANTISMASH_REAL=1 to run the real antiSMASH check
+SKIPPED [1] tests/test_extension351.py:78: set OPERON_RFAM_REAL=1 to run the real Rfam scan
+SKIPPED [1] tests/test_extension352.py:74: set OPERON_TRNA_REAL=1 to run the real tRNAscan-SE check
+SKIPPED [1] tests/test_extension353.py:88: set OPERON_AMRFINDER_REAL=1 to run the real AMRFinderPlus check
+SKIPPED [1] tests/test_extension354.py:114: set OPERON_REAL_ASSEMBLY=1
+SKIPPED [1] tests/test_extension355.py:115: set OPERON_REAL_ASSEMBLY=1
+SKIPPED [1] tests/test_extension356.py:110: set OPERON_REAL_CRISPR=1
+SKIPPED [1] tests/test_extension87.py:236: could not import 'allel': No module named 'allel'
+SKIPPED [1] tests/test_extension87.py:254: could not import 'allel': No module named 'allel'
+SKIPPED [1] tests/test_extension87.py:268: could not import 'allel': No module named 'allel'
+SKIPPED [2] tests/test_extension89.py:238: could not import 'mudata': No module named 'mudata'
+SKIPPED [1] tests/test_extension93.py:239: plink is not available
+SKIPPED [1] tests/test_hic_real.py:40: Set OPERON_HIC_REAL=1 in the Linux Hi-C environment
+SKIPPED [1] tests/test_hic_real.py:72: Set OPERON_HIC_REAL=1 in the Linux Hi-C environment
+SKIPPED [1] tests/test_plink2_native.py:7: could not import 'pgenlib': No module named 'pgenlib'
+SKIPPED [1] tests/test_portable_v3.py:43: Windows self-contained runtime relocation acceptance
+SKIPPED [1] tests/test_r_oracles.py:100: Rscript not found
+SKIPPED [1] tests/test_r_oracles.py:142: Rscript not found
+SKIPPED [1] tests/test_r_oracles.py:177: Rscript not found
+SKIPPED [1] tests/test_r_oracles.py:214: Rscript not found
+SKIPPED [1] tests/test_r_oracles.py:269: Rscript not found
+SKIPPED [1] tests/test_r_oracles.py:316: Rscript not found
+SKIPPED [1] tests/test_r_oracles.py:359: Rscript not found
+SKIPPED [1] tests/test_r_oracles10.py:113: Rscript not found
+SKIPPED [1] tests/test_r_oracles11.py:63: Rscript not found
+SKIPPED [1] tests/test_r_oracles12.py:98: Rscript not found
+SKIPPED [1] tests/test_r_oracles13.py:111: Rscript not found
+SKIPPED [1] tests/test_r_oracles14.py:105: Rscript not found
+SKIPPED [1] tests/test_r_oracles15.py:84: Rscript unavailable
+SKIPPED [1] tests/test_r_oracles16.py:67: Rscript unavailable
+SKIPPED [1] tests/test_r_oracles17.py:52: Rscript unavailable
+SKIPPED [1] tests/test_r_oracles18.py:50: Rscript unavailable
+SKIPPED [1] tests/test_r_oracles19.py:70: Rscript unavailable
+SKIPPED [1] tests/test_r_oracles2.py:48: Rscript not found
+SKIPPED [1] tests/test_r_oracles20.py:102: Rscript not available
+SKIPPED [1] tests/test_r_oracles21.py:65: Rscript not available
+SKIPPED [1] tests/test_r_oracles22.py:38: Rscript not available
+SKIPPED [1] tests/test_r_oracles23.py:36: Rscript not available
+SKIPPED [1] tests/test_r_oracles24.py:62: Rscript not available
+SKIPPED [1] tests/test_r_oracles25.py:55: Rscript not available
+SKIPPED [1] tests/test_r_oracles26.py:76: Rscript not available
+SKIPPED [1] tests/test_r_oracles27.py:76: Rscript not available
+SKIPPED [1] tests/test_r_oracles28.py:99: Rscript not available
+SKIPPED [1] tests/test_r_oracles29.py:68: Rscript not available
+SKIPPED [1] tests/test_r_oracles3.py:116: Rscript not found
+SKIPPED [1] tests/test_r_oracles3.py:144: Rscript not found
+SKIPPED [1] tests/test_r_oracles3.py:166: Rscript not found
+SKIPPED [1] tests/test_r_oracles3.py:188: Rscript not found
+SKIPPED [1] tests/test_r_oracles3.py:210: Rscript not found
+SKIPPED [1] tests/test_r_oracles3.py:234: Rscript not found
+SKIPPED [1] tests/test_r_oracles30.py:89: Rscript not available
+SKIPPED [1] tests/test_r_oracles31.py:95: Rscript not available
+SKIPPED [1] tests/test_r_oracles32.py:98: Rscript not available
+SKIPPED [1] tests/test_r_oracles33.py:125: Rscript not available
+SKIPPED [1] tests/test_r_oracles34.py:78: Rscript not available
+SKIPPED [1] tests/test_r_oracles35.py:77: Rscript not available
+SKIPPED [1] tests/test_r_oracles36.py:99: Rscript not available
+SKIPPED [1] tests/test_r_oracles37.py:81: Rscript not available
+SKIPPED [1] tests/test_r_oracles38.py:62: Rscript not available
+SKIPPED [1] tests/test_r_oracles39.py:87: Rscript not available
+SKIPPED [1] tests/test_r_oracles4.py:88: Rscript not found
+SKIPPED [1] tests/test_r_oracles4.py:112: Rscript not found
+SKIPPED [1] tests/test_r_oracles4.py:139: Rscript not found
+SKIPPED [1] tests/test_r_oracles4.py:163: Rscript not found
+SKIPPED [1] tests/test_r_oracles4.py:181: Rscript not found
+SKIPPED [1] tests/test_r_oracles4.py:215: Rscript not found
+SKIPPED [1] tests/test_r_oracles40.py:91: Rscript not available
+SKIPPED [1] tests/test_r_oracles41.py:83: Rscript not available
+SKIPPED [1] tests/test_r_oracles42.py:78: Rscript not available
+SKIPPED [1] tests/test_r_oracles43.py:77: Rscript not available
+SKIPPED [1] tests/test_r_oracles44.py:83: Rscript not available
+SKIPPED [1] tests/test_r_oracles45.py:57: Rscript not available
+SKIPPED [1] tests/test_r_oracles46.py:49: Rscript not available
+SKIPPED [1] tests/test_r_oracles47.py:59: Rscript not available
+SKIPPED [1] tests/test_r_oracles48.py:67: Rscript not available
+SKIPPED [1] tests/test_r_oracles49.py:75: Rscript not available
+SKIPPED [1] tests/test_r_oracles5.py:68: Rscript is not available
+SKIPPED [1] tests/test_r_oracles50.py:57: Rscript not available
+SKIPPED [1] tests/test_r_oracles51.py:61: Rscript not available
+SKIPPED [1] tests/test_r_oracles52.py:45: Rscript is unavailable
+SKIPPED [1] tests/test_r_oracles53.py:39: Rscript is unavailable
+SKIPPED [1] tests/test_r_oracles54.py:43: Rscript is unavailable
+SKIPPED [1] tests/test_r_oracles55.py:35: Rscript not available
+SKIPPED [1] tests/test_r_oracles56.py:36: Rscript not available
+SKIPPED [1] tests/test_r_oracles57.py:45: Rscript not available
+SKIPPED [1] tests/test_r_oracles58.py:44: Rscript not available
+SKIPPED [1] tests/test_r_oracles59.py:58: Rscript is not available
+SKIPPED [2] tests/test_r_oracles6.py:112: Rscript is not available
+SKIPPED [1] tests/test_r_oracles60.py:60: Rscript is not available
+SKIPPED [1] tests/test_r_oracles61.py:29: Rscript is not available
+SKIPPED [2] tests/test_r_oracles62.py:73: Rscript is not available
+SKIPPED [1] tests/test_r_oracles63.py:69: Rscript is not available
+SKIPPED [3] tests/test_r_oracles64.py:29: Rscript is not available
+SKIPPED [2] tests/test_r_oracles65.py:68: Rscript is not available
+SKIPPED [2] tests/test_r_oracles66.py:67: Rscript is not available
+SKIPPED [2] tests/test_r_oracles67.py:24: Rscript is not available
+SKIPPED [2] tests/test_r_oracles68.py:45: Rscript is not available
+SKIPPED [2] tests/test_r_oracles69.py:47: Rscript is not available
+SKIPPED [1] tests/test_r_oracles7.py:55: Rscript not found
+SKIPPED [2] tests/test_r_oracles70.py:45: Rscript is not available
+SKIPPED [1] tests/test_r_oracles71.py:44: Rscript is not available
+SKIPPED [1] tests/test_r_oracles72.py:44: Rscript is not available
+SKIPPED [1] tests/test_r_oracles73.py:58: Rscript is not available
+SKIPPED [1] tests/test_r_oracles74.py:55: Rscript is not available
+SKIPPED [1] tests/test_r_oracles75.py:47: Rscript is not available
+SKIPPED [1] tests/test_r_oracles76.py:44: Rscript is not available
+SKIPPED [1] tests/test_r_oracles77.py:44: Rscript is not available
+SKIPPED [1] tests/test_r_oracles78.py:50: Rscript is not available
+SKIPPED [1] tests/test_r_oracles79.py:39: Rscript is not installed
+SKIPPED [1] tests/test_r_oracles8.py:91: Rscript not found
+SKIPPED [1] tests/test_r_oracles80.py:92: Rscript not available
+SKIPPED [1] tests/test_r_oracles80.py:105: Rscript not available
+SKIPPED [1] tests/test_r_oracles81.py:49: Rscript is not available
+SKIPPED [1] tests/test_r_oracles82.py:39: Rscript is not available
+SKIPPED [1] tests/test_r_oracles83.py:42: Rscript is not available
+SKIPPED [1] tests/test_r_oracles84.py:86: Rscript is not available
+SKIPPED [1] tests/test_r_oracles84.py:101: Rscript is not available
+SKIPPED [1] tests/test_r_oracles85.py:76: Rscript is not available
+SKIPPED [1] tests/test_r_oracles86.py:81: Rscript is not available
+SKIPPED [1] tests/test_r_oracles87.py:136: Rscript is not available
+SKIPPED [1] tests/test_r_oracles88.py:97: Rscript is not available
+SKIPPED [1] tests/test_r_oracles89.py:92: Rscript is not available
+SKIPPED [1] tests/test_r_oracles9.py:83: Rscript not found
+SKIPPED [1] tests/test_r_oracles90.py:70: Rscript is unavailable
+SKIPPED [1] tests/test_r_oracles91.py:61: Rscript is not available
+SKIPPED [1] tests/test_r_oracles91.py:86: Rscript is not available
+SKIPPED [1] tests/test_r_oracles91.py:108: Rscript is not available
+SKIPPED [1] tests/test_r_oracles91.py:122: Rscript is not available
+SKIPPED [1] tests/test_r_oracles92.py:74: Rscript is unavailable
+SKIPPED [1] tests/test_r_oracles93.py:83: Rscript is required
+SKIPPED [1] tests/test_r_oracles94.py:93: Rscript is required
+SKIPPED [1] tests/test_r_oracles95.py:125: Rscript is not available
+SKIPPED [1] tests/test_r_oracles96.py:159: Rscript is not available
+SKIPPED [1] tests/test_r_oracles96.py:176: Rscript is not available
+SKIPPED [1] tests/test_r_oracles96.py:195: Rscript is not available
+SKIPPED [1] tests/test_r_oracles97.py:105: Rscript is not available
+SKIPPED [1] tests/test_r_oracles98.py:97: Rscript is not available
+SKIPPED [1] tests/test_route_combinations.py:86: got empty parameter set for (task_path)
+SKIPPED [1] tests/test_server_setup.py:90: Explicit clean Linux installation acceptance
+SKIPPED [1] tests/test_server_setup.py:129: Explicit Linux installation without a usable Python
+SKIPPED [1] tests/test_viewer_lifetime.py:14: Windows Job Object lifecycle

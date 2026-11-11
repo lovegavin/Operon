@@ -72,6 +72,36 @@ pin, and a stream-planned worker run. The 4.0.0 run relaxes the exact build
 application assertion to `>= minimum_application`; 4.0.0 is newer than the
 3.1.9 build target.
 
+## Full test suite (8.0.2)
+
+`python -m pytest -q -rs --tb=short` (bp-numpy21, NumPy 2.1.3) completed with
+**3722 passed, 209 skipped, 0 failed in 2435.17 s**. The 209 skips are
+environment gates, not failures. Every skip reason is recorded verbatim in
+`verification/coverage-8.0.1/pytest-8.0.2-skips.txt` (209 tests, 196 pytest
+report lines); the aggregate is:
+
+| Reason | Skipped tests |
+| --- | ---: |
+| Rscript not available | 131 |
+| Model checkpoint or executable not configured | 36 |
+| Real SOP fixture not present | 13 |
+| Windows-only test | 6 |
+| fair-esm shadowed by the ESM-3 package | 5 |
+| Missing optional Python module: allel | 4 |
+| Missing optional Python modules: mudata | 2 |
+| torch_scatter ABI-incompatible | 1 |
+| Missing optional Python module: mrcfile | 1 |
+| Missing optional Python module: pgenlib | 1 |
+| Local ProteinMPNN checkout not configured | 1 |
+| Official ProteinMPNN checkout/weights or fixture unavailable | 1 |
+| Official ProteinMPNN checkout or weights missing | 1 |
+| Official LigandMPNN checkout or weights missing | 1 |
+| DockQ CLI not installed | 1 |
+| plink not available | 1 |
+| Empty parameter set (route fixture absent) | 1 |
+| Explicit clean Linux installation acceptance | 1 |
+| Explicit Linux installation without a usable Python | 1 |
+
 ## Reproduce
 
 ```bash

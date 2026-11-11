@@ -41,6 +41,6 @@ after 1800 s). See `verification/coverage-8.0.1/l3_skips.json`.
 
 - `tests/test_l2_gap.py`: 12 passed.
 - `tests/test_library_release.py`: 9 passed.
-- Full pytest result is recorded with the release evidence.
+- Full pytest: **3722 passed, 209 skipped, 0 failed** in 2435.17 s (bp-numpy21, NumPy 2.1.3). The 209 environment-gate skip reasons are listed in `verification/coverage-8.0.1/pytest-8.0.2-skips.txt`.
 - Studio UI automation remains an explicit SKIP; bundle install and route
   validation were exercised on Studio 4.0.0.
