@@ -8,15 +8,16 @@ remain unchanged.
 
 | Product | Version/tag | Distribution | Installation |
 | --- | --- | --- | --- |
-| Studio application | `v4.0.7` (application SemVer) | Windows Setup, server ZIP, application wheel | Upgrade application |
+| Studio application | `v4.0.8` (application SemVer) | Windows Setup, server ZIP, application wheel | Upgrade application |
 | Operator library | `library-v8.0.4`; `library-v<version>` for later releases | `.operon-library.zip` | Library manager **Import package**, or CLI |
 | One provider | provider version | `.whl` | Same library manager |
 | Saved route | route's own revision | saved route and frozen parameter JSON | Import route |
 
-Library 8.0.4 requires application 4.0.7 or newer. Its `library/release.json`
-declares `minimum_application` and `build_application` `4.0.7`; 3.x applications
-are no longer supported. The application version remains independent:
-operator-only library changes continue to use the library release process.
+Library 8.0.4 requires application 4.0.7 or newer; the 4.0.8 application line
+integrates it. Its `library/release.json` declares `minimum_application` and
+`build_application` `4.0.7`; 3.x applications are no longer supported. The
+application version remains independent: operator-only library changes continue
+to use the library release process.
 
 `main` is a source branch, not an instruction to replace installed software.
 The library release branch/tag identifies the exact library sources used; the

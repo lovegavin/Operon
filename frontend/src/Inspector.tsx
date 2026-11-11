@@ -501,6 +501,7 @@ export function Inspector({
                   <strong>{uploading ? t("正在导入…") : t("选择本机文件")}</strong>
                   {uploadLimit != null && <small>{t("每个文件上限")} {uploadLimit} MiB</small>}
                 </button>
+                <p className="helper" role="status">{t("上传后会复制到 Operon 数据目录；远程运行时会自动上传到所选服务器工作区。")}</p>
                 {onBrowseRemote && <button className="subtle-button source-server-button" disabled={busy || uploading}
                   onClick={() => onBrowseRemote(node.source!.path, (path, source, location) => onNode(node.id,
                     {source: {...(source || node.source!), path, location: location || sourceLocation}}), true, sourceLocation, node.source!.reader)}>{t("选择服务器文件")}</button>}

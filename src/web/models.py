@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from operon_sdk.formats import Adaptation
 
 
@@ -18,6 +18,16 @@ class Position(StrictModel):
 class ExecutionTarget(StrictModel):
     kind: Literal["local", "ssh"] = "local"
     profile_id: str | None = Field(default=None, max_length=120)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _legacy_kind(cls, value: Any) -> Any:
+        """Accept the 4.0.5 shorthand ``"local"``/``"ssh"`` as a target."""
+        if isinstance(value, str):
+            if value not in ("local", "ssh"):
+                raise ValueError("target must be 'local', 'ssh', or an object")
+            return {"kind": value}
+        return value
 
 
 class Source(StrictModel):

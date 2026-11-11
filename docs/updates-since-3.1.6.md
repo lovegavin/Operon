@@ -7,7 +7,7 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 
 - The product is now called **Operon Studio** everywhere. The old Biopipe name
   is not kept as a compatibility alias.
-- The bundled operator library is **8.0.2**: 1,063 operators, 108 Readers,
+- The bundled operator library is **8.0.3**: 1,063 operators, 108 Readers,
   1,171 descriptors and 79 built-in routes.
 - Installing or upgrading a Linux server is one action in the desktop app.
   There is no per-package incremental upload.
@@ -24,6 +24,9 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 - 4.0.7 fixes remote admission failures that stayed queued, binds readiness to
   the graph digest, stops unmanaged memory from reserving the whole pool, and
   trims the remote status payload.
+- 4.0.8 accepts foreign non-empty install folders, deletes only Operon-managed
+  files, disconnects all MCP clients before uninstall, offers force reinstall
+  after failure, and uploads local inputs to the selected remote workspace.
 
 ## Upgrade path
 
@@ -40,6 +43,7 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 | 4.0.5 | Hides 强制重装 after a successful install and tells you to import the matching operator-library version when route import fails. Library and protocol are unchanged. |
 | 4.0.6 | Fixes preview label order, stale readiness warnings, duplicate output names, and the memory-management warning. Library and protocol are unchanged. |
 | 4.0.7 | Fixes remote admission terminal-state display, stale readiness after canvas edits, unmanaged-memory whole-pool reservation, and oversized remote status. Library and protocol are unchanged. |
+| 4.0.8 | Installer accepts foreign folders and removes only Operon files; uninstall disconnects all MCP clients; Setup offers force reinstall after failure. Local files can be uploaded/staged for remote runs. Library 8.0.3 and protocol are unchanged. |
 
 ## Reinstall or upgrade a Windows installation
 

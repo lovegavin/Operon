@@ -22,8 +22,9 @@ internet access; package availability, OS support and GPU drivers still matter.
 Windows x64, macOS, Linux and Windows ARM need separate tested distributions.
 
 The current library release is Operon Operator Library v8.0.4 (1,063 operators
-and 108 Readers), requiring Studio 4.0.7 or newer. Published 4.0.7 installers
-retain the library seed they were built with. Published installers retain the library seed they were built with. The runtime receipt lists Python dependency coverage, not a claim that
+and 108 Readers), requiring Studio 4.0.7 or newer. The 4.0.8 application line
+integrates it. Published installers retain the library seed they were built
+with. The runtime receipt lists Python dependency coverage, not a claim that
 every model or external executable is preinstalled. Large model weights,
 databases, Linux tools and declared dedicated environments remain separate.
 AntiFold, ESM-3 and Boltz retain their own environment requirements and dependency
