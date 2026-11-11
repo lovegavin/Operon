@@ -457,7 +457,14 @@ internal sealed class InstallEngine
         return new("uninstalled", root, null, receipt.Profile, LogPath);
     }
 
-    internal bool HasInstallation(string root) => ReadReceipt(root) is not null;
+    internal bool HasInstallation(string root)
+    {
+        // This is only a UI probe for the optional force-reinstall checkbox.
+        // A foreign/non-empty folder is not an Operon installation; Install will
+        // report the actionable directory error if the user actually proceeds.
+        try { return ReadReceipt(root) is not null; }
+        catch (Exception) { return false; }
+    }
 
     private void RemovePreviousInstallation(string root, InstallReceipt receipt)
     {
