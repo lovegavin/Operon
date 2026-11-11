@@ -1633,8 +1633,12 @@ class JobService:
         total = int(data.shape[0])
         window = data[offset:offset + limit, :min(data.shape[1], 12)].tolist()
         labels = self._artifact_labels(path)
-        columns = labels[1] if labels and len(labels) > 1 else [f"c{index}" for index in range(data.shape[1])]
-        row_labels = labels[0][offset:offset + len(window)] if labels and labels[0] else [str(offset + index) for index in range(len(window))]
+        dims = labels.get("dims", []) if labels else []
+        mapping = labels.get("labels", {}) if labels else {}
+        columns = mapping.get(dims[1]) if len(dims) > 1 else None
+        row_labels = mapping.get(dims[0]) if dims else None
+        columns = columns or [f"c{index}" for index in range(data.shape[1])]
+        row_labels = row_labels[offset:offset + len(window)] if row_labels else [str(offset + index) for index in range(len(window))]
         points = data[:200, :2].tolist() if data.shape[1] >= 2 else []
         del data
         return safe_json({"descriptor": descriptor, "rows": window, "points": points, "columns": columns,
@@ -1652,12 +1656,18 @@ class JobService:
         except Exception:  # noqa: BLE001 - labels are optional metadata
             return None
         labels = value.get("labels") if isinstance(value, dict) else None
-        if not isinstance(labels, dict) or len(labels) != 2:
+        if not isinstance(labels, dict):
             return None
-        ordered = []
-        for mapping in labels.values():
-            ordered.append([name for name, _ in sorted(mapping.items(), key=lambda item: item[1])])
-        return ordered
+        ordered = {}
+        for dim, mapping in labels.items():
+            if isinstance(mapping, dict):
+                ordered[dim] = [name for name, _ in sorted(mapping.items(), key=lambda item: item[1])]
+            elif isinstance(mapping, list):
+                ordered[dim] = list(mapping)
+        if not ordered:
+            return None
+        dims = value.get("dims") if isinstance(value.get("dims"), list) else list(ordered)
+        return {"dims": dims, "labels": ordered}
 
     def _file_payload(self, key, path):
         payload = read_json(path)

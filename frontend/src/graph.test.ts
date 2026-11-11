@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   autoLayout,
+  duplicateOutputs,
   executionOrder,
   makeNode,
   normalizeGraph,
@@ -151,6 +152,17 @@ describe("visual DAG contract", () => {
       final: 1,
     });
   });
+});
+
+it("reports duplicate output names before a run", () => {
+  const duplicated = {
+    ...graph,
+    nodes: graph.nodes.map((node, index) => index < 2
+      ? {...node, params: {...node.params, output: "shared"}}
+      : node),
+  };
+  expect(duplicateOutputs(duplicated)).toEqual([{name: "shared", nodes: ["source", "qc"]}]);
+  expect(duplicateOutputs(graph)).toEqual([]);
 });
 
 it('preserves imported global configuration and the disabled memory flag', () => {

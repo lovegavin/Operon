@@ -82,6 +82,7 @@ import {
   makeRouteNode,
   routeSpec,
   retainedOutputs,
+  duplicateOutputs,
 } from "./graph";
 import { copyFragment, isFragmentText, parseFragment, pasteFragment } from "./editing";
 import type { Fragment } from "./editing";
@@ -1063,6 +1064,14 @@ function Studio() {
   async function run() {
     setAction("run");
     try {
+      const duplicates = duplicateOutputs(graphRef.current);
+      if (duplicates.length) {
+        const first = duplicates[0];
+        notify(t("输出名称“{v0}”被多个节点使用：{v1}。请先改成唯一名称。", {v0: first.name, v1: first.nodes.join("、")}));
+        setInvalid(first.nodes[0]);
+        inspectNode(first.nodes[0]);
+        return;
+      }
       const current = await api.run(graphRef.current);
       setJob(current);
       setTab("results");

@@ -67,5 +67,7 @@ it('does not present an old success or repair result as valid after the graph ch
   await click('环境依赖检查');
   expect(render().some(node => node.props.children === '依赖已就绪')).toBe(true);
   const changed = {...graph, runtime: {execution: {kind: 'ssh', profile_id: 'new-server'}}};
-  expect(render(changed).some(node => node.props.children === '依赖已就绪')).toBe(false);
+  const stale = render(changed);
+  expect(stale.some(node => node.props.children === '依赖已就绪')).toBe(false);
+  expect(stale.some(node => node.props.children === '画布已修改，请重新检查运行条件')).toBe(true);
 });

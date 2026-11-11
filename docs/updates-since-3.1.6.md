@@ -18,6 +18,9 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
   type a non-empty folder that is not an existing Operon installation.
 - 4.0.5 hides the **强制重装** option once installation completes and adds a same-version operator-library hint to route-import errors; it remains
   available only for a reinstall decision or after a failed attempt.
+- 4.0.6 aligns artifact-preview labels with their values, warns when readiness
+  was checked before the canvas changed, blocks duplicate output names before a
+  run, and warns when memory management is disabled.
 
 ## Upgrade path
 
@@ -32,6 +35,7 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 | 4.0.3 | Force server upgrade cancels active remote tasks and closes all sessions. Uninstall disconnects connected MCP clients instead of asking you to do it. |
 | 4.0.4 | Setup no longer crashes when checking a non-empty folder that is not an existing Operon installation. If Setup asks to reinstall, normal reinstall still checks for running tasks; 强制重装 preserves the workspace. |
 | 4.0.5 | Hides 强制重装 after a successful install and tells you to import the matching operator-library version when route import fails. Library and protocol are unchanged. |
+| 4.0.6 | Fixes preview label order, stale readiness warnings, duplicate output names, and the memory-management warning. Library and protocol are unchanged. |
 
 ## Reinstall or upgrade a Windows installation
 

@@ -204,6 +204,11 @@ export type Preview = {
   info?: Record<string, unknown>;
   descriptor: Artifact;
   rows: (number | null)[][];
+  columns?: string[];
+  row_labels?: string[];
+  total?: number;
+  offset?: number;
+  limit?: number;
   points: (number | null)[][];
 };
 export type Bootstrap = {

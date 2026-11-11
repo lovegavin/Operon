@@ -327,6 +327,7 @@ export function Inspector({
               <input type="checkbox" aria-label={t("内存管理")} checked={memory.enabled} disabled={busy}
                 onChange={e => onMemory({...memory, enabled: e.target.checked})}/><span className="toggle-track"/>
             </label>
+            {!memory.enabled && <p className="field-error" role="status">{t("关闭内存管理后，运行会按整池预留资源；资源不足时任务可能无法进入队列。")}</p>}
             <div className="field">
               <span>{t("数据内存预算")}</span>
               <div className="segmented">
