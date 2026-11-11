@@ -3,14 +3,14 @@
 `main` is the integrated source branch for the current application and operator
 library. The application and the library remain independently versioned
 products: application releases use `vX.Y.Z`; library releases use
-`library-v<version>` (for example `library-v8.0.2`). An operator-only change
+`library-v<version>` (for example `library-v8.0.3`). An operator-only change
 does not require a new installer. An application release may bundle a tested
 library seed; compatibility is defined by SDK protocol revisions and validated
 declarations, not by requiring both products to share a version number.
 Published tags and assets remain immutable.
 
 Operon has two versioned products in one repository. Application releases use
-`vX.Y.Z`; operator releases use `library-v<version>` (for example `library-v8.0.2`). Adding or correcting an
+`vX.Y.Z`; operator releases use `library-v<version>` (for example `library-v8.0.3`). Adding or correcting an
 operator does not require an EXE release or an application version change.
 
 | Owner | Source | Published artifact |

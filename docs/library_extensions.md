@@ -1,7 +1,7 @@
 # Operator library extension forms
 
 This guide describes every supported way to extend the Operon operator library in
-Operon Studio 4.0.3 and later. The application ships the **8.0.2** library and
+Operon Studio 4.0.3 and later. The application ships the **8.0.3** library and
 requires **8.0.0 or newer**. It is written for library maintainers and for authors
 who publish independent providers, routes, or complete libraries.
 
@@ -205,7 +205,7 @@ component named `route` or `routes` and imports every entry whose name ends in
 `.operon.zip`:
 
 ```text
-routes-8.0.2.zip
+routes-8.0.3.zip
   route/
     gwas.operon.zip
     survival.operon.zip
@@ -254,7 +254,7 @@ sources, not a wheel and not a generic ZIP of miscellaneous files. Use the
 `.operon-library.zip` suffix:
 
 ```text
-Operon-Library-v8.0.2-Windows.operon-library.zip
+Operon-Library-v8.0.3-Windows.operon-library.zip
   library.json
   packages/operon_core-1.0.0-py3-none-any.whl
   packages/operon_readers-1.0.0-py3-none-any.whl
@@ -275,9 +275,9 @@ there is no separate `manifest.json` entry.
 Build and verify it with the maintenance tools from the released application:
 
 ```bash
-python -I scripts/release_library.py --output build/library --tag library-v8.0.2
+python -I scripts/release_library.py --output build/library --tag library-v8.0.3
 python -I scripts/verify_library_release.py \
-  --bundle build/library/Operon-Library-v8.0.2-Windows.operon-library.zip \
+  --bundle build/library/Operon-Library-v8.0.3-Windows.operon-library.zip \
   --work build/library-verify
 ```
 
@@ -356,7 +356,7 @@ Minimum acceptance for a new library:
 ## 10. Versioning and release rules
 
 - The application version and library version are independent. A 4.0.0
-  application may ship an 8.0.2 library.
+  application may ship an 8.0.3 library.
 - A library declares `minimum_application` and `build_application`; both must be
   tested, and a newer SDK feature may require a newer application.
 - Operator/provider versions express interface changes. Do not bump the
