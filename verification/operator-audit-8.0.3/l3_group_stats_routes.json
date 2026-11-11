@@ -1,0 +1,32 @@
+{
+  "version": "7.0.10",
+  "note": "two-CSV group comparison routes",
+  "executed": 25,
+  "passed": [
+    "anova",
+    "bartlett",
+    "brunner_munzel",
+    "cliffs_delta",
+    "conover_test",
+    "dunn_test",
+    "eta_squared",
+    "fligner_kruskal",
+    "games_howell",
+    "hotelling_t2",
+    "kruskal",
+    "ks_2samp",
+    "levene",
+    "mann_whitney",
+    "mood_median",
+    "rank_biserial",
+    "scheffe_test",
+    "sign_test",
+    "tost_equivalence",
+    "ttest_paired",
+    "tukey_hsd",
+    "var_test",
+    "welch_anova",
+    "wilcoxon",
+    "yuen_test"
+  ]
+}
