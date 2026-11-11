@@ -1,0 +1,38 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "patterson_fst",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "variant_dim": "variant",
+        "sample_dim": "sample",
+        "group_label": "group",
+        "group_a": "A",
+        "group_b": "B",
+        "output": "out_patterson_fst"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_patterson_fst"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "patterson_fst"
+      },
+      "context_params": {}
+    }
+  ]
+}

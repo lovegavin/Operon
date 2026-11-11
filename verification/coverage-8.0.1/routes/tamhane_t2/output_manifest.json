@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/tamhane_t2/output/artifacts",
+  "files": [
+    {
+      "path": "exports/9b104c9c79ea40f2a46de3addd962763/tamhane_t2.csv",
+      "size": 844,
+      "sha256": "c2fad99bcd07bcc74f7a0b2c1ede8ae6a9f0b83e9d961fd9fa69f5c4fe756b01"
+    },
+    {
+      "path": "exports/ab98acdc190b43fb9b232e14a909a169/tamhane_t2.csv",
+      "size": 844,
+      "sha256": "c2fad99bcd07bcc74f7a0b2c1ede8ae6a9f0b83e9d961fd9fa69f5c4fe756b01"
+    }
+  ]
+}

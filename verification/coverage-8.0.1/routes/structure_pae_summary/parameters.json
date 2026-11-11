@@ -1,0 +1,18 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "pae": {}
+  },
+  "steps": [
+    {
+      "name": "structure_pae_summary",
+      "inputs": [
+        "pae"
+      ],
+      "params": {},
+      "context_params": {}
+    }
+  ]
+}

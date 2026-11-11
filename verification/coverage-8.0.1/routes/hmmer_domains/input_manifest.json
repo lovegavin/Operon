@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/hmmer_domains/input",
+  "files": [
+    {
+      "path": "protein.fasta",
+      "size": 297,
+      "sha256": "453ed362234d406ccfeae42086dd55bfdb571d19c166321da0d1e3e712ebe3af"
+    }
+  ]
+}

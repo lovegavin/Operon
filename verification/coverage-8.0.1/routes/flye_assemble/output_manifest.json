@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_sequence/flye_assemble/output/artifacts",
+  "files": [
+    {
+      "path": "flye/07a7434794484362bf1a1f21575ead74/assembly.fasta",
+      "size": 48977,
+      "sha256": "0b9012dea462b7cf00c0ded5341f02f93725b479b13514c4eec4e1084781fac7"
+    },
+    {
+      "path": "flye/340dc34118cb45ae93a729486ae287fa/assembly.fasta",
+      "size": 48977,
+      "sha256": "0b9012dea462b7cf00c0ded5341f02f93725b479b13514c4eec4e1084781fac7"
+    }
+  ]
+}

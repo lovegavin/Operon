@@ -1,0 +1,37 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "unweighted_unifrac",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "taxon_dim": "feature",
+        "node_dim": "node",
+        "field_dim": "field",
+        "output": "out_unweighted_unifrac"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_unweighted_unifrac"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "unweighted_unifrac"
+      },
+      "context_params": {}
+    }
+  ]
+}

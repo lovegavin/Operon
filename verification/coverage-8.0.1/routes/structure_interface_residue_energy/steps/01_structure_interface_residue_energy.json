@@ -1,0 +1,8 @@
+{
+  "total_coulomb_kj": -1132.0795442214676,
+  "total_lj_kj": -363.6676289998282,
+  "total_interaction_kj": -1495.7471732212957,
+  "decomposed_total_kj": -1495.7471732212887,
+  "n_residues": 259,
+  "n_contacts": 3605877
+}

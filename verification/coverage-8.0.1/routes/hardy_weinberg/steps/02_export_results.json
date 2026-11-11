@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/hardy_weinberg/output/artifacts/exports/308c507629b947e48d14352a4b608086/hardy_weinberg.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 482,
+  "source": "out_hardy_weinberg",
+  "conversion": {}
+}

@@ -1,0 +1,49 @@
+{
+  "name": "qtl_interval_mapping",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "individual",
+        "marker"
+      ],
+      "labels": {
+        "individual": {
+          "marker": 0
+        },
+        "marker": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/x1.csv",
+      "dims": [
+        "individual",
+        "trait"
+      ],
+      "labels": {
+        "individual": {
+          "trait": 0
+        },
+        "trait": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "qtl_interval_mapping",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_qtl_interval_mapping"
+      ]
+    }
+  ]
+}

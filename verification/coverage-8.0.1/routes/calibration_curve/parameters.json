@@ -1,0 +1,37 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "calibration_curve",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "feature_dim": "feature",
+        "true_label": "truth",
+        "prob_label": "prob",
+        "n_bins": 4,
+        "strategy": "uniform",
+        "output": "out_calibration_curve"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_calibration_curve"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "out_calibration_curve"
+      },
+      "context_params": {}
+    }
+  ]
+}

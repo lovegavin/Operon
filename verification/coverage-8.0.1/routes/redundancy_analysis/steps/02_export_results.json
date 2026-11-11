@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/redundancy_analysis/output/artifacts/exports/c556756294334195941b4ae697881aa6/redundancy_analysis.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 171,
+  "source": "out_redundancy_analysis",
+  "conversion": {}
+}

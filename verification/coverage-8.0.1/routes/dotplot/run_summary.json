@@ -1,0 +1,66 @@
+{
+  "task_dir": "/tmp/cov_sequence/dotplot",
+  "generated_at": "2026-11-10T12:47:26.144505+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.2335,
+  "steps": [
+    {
+      "index": 1,
+      "name": "dotplot",
+      "elapsed": 0.2335,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "group_dim": "sample",
+        "features": [
+          "g1",
+          "g2",
+          "g3"
+        ],
+        "group_label": "batch",
+        "statistic": "mean",
+        "filename": "dotplot.png"
+      },
+      "export_path": "steps/01_dotplot.json",
+      "figures": [
+        {
+          "id": "figure-633bc66aa501eb92",
+          "title": "dotplot-2",
+          "format": "png",
+          "path": "/tmp/cov_sequence/dotplot/output/figures/dotplot-2.png",
+          "filename": "dotplot-2.png",
+          "width_mm": 88.89999999999999,
+          "height_mm": 76.19999999999999,
+          "dpi": 300
+        },
+        {
+          "id": "figure-633bc66aa501eb92",
+          "title": "dotplot-2",
+          "format": "pdf",
+          "path": "/tmp/cov_sequence/dotplot/output/figures/dotplot-2.pdf",
+          "filename": "dotplot-2.pdf",
+          "width_mm": 88.89999999999999,
+          "height_mm": 76.19999999999999,
+          "dpi": 300
+        },
+        {
+          "id": "figure-633bc66aa501eb92",
+          "title": "dotplot-2",
+          "format": "svg",
+          "path": "/tmp/cov_sequence/dotplot/output/figures/dotplot-2.svg",
+          "filename": "dotplot-2.svg",
+          "width_mm": 88.89999999999999,
+          "height_mm": 76.19999999999999,
+          "dpi": 300
+        }
+      ]
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124725-03e24f6c6c79",
+  "event_log": "/tmp/cov_sequence/dotplot/output/runs/20261110T124725-03e24f6c6c79/events.jsonl"
+}

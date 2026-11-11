@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/conditional_logistic/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1212,
+      "sha256": "449b1d7e30fccb754b6e4520a04237abf9a6e3f260d8c81b24462ab5b97f81e0"
+    }
+  ]
+}

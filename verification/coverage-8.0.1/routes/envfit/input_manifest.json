@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/envfit/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 277,
+      "sha256": "23e206ab52d0b9dfb88f35bf334b99a79fd0d31dcc6453f1a2bf85fa8999fe54"
+    },
+    {
+      "path": "x1.csv",
+      "size": 394,
+      "sha256": "0cc9d0d2cadef23c6179ea361dca7bba31b2164f88addbeda129c5a7b90416fc"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/mlp_regressor/output/artifacts/exports/eab916a2edf84ca4bedf0383a9eaaf97/mlp_regressor.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 67,
+  "source": "out_mlp_regressor",
+  "conversion": {}
+}

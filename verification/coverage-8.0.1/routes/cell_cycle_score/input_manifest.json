@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/cell_cycle_score/input",
+  "files": [
+    {
+      "path": "expr.csv",
+      "size": 177,
+      "sha256": "dd32f45f8a9ffaaadcbabb77cc8b02b338b6df696bc34eb418885d558ad264bc"
+    },
+    {
+      "path": "sets.csv",
+      "size": 82,
+      "sha256": "4c1344a1421acae5b4e0f9de2d2ee3e3f939bfe8489e334065edbebe0fa25182"
+    }
+  ]
+}

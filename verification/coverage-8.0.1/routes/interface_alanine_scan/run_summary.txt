@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_structure/interface_alanine_scan
+generated : 2026-11-10T12:30:23.865654+00:00
+steps     : 1
+elapsed   : 20.393s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   interface_alanine_scan   20.393s   steps/01_interface_alanine_scan.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

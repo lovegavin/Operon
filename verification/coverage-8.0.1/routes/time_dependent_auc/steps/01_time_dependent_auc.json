@@ -1,0 +1,8 @@
+{
+  "auc": 0.7615196488401252,
+  "predict_time": 1.0,
+  "n": 40,
+  "n_cases": 2,
+  "n_controls": 32,
+  "method": "KM"
+}

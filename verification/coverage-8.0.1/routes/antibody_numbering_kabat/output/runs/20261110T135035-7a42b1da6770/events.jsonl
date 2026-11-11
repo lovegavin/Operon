@@ -1,0 +1,5 @@
+{"message": "Loading the analysis engine", "time": "2026-11-10T13:50:35.760502+00:00", "event": "worker_started"}
+{"run_id": "20261110T135035-7a42b1da6770", "memory_enabled": false, "time": "2026-11-10T13:50:35.926372+00:00", "event": "run_started"}
+{"name": "sequence", "shape": [1, 117], "dims": ["sequence", "position"], "time": "2026-11-10T13:50:36.111738+00:00", "event": "source_loaded"}
+{"name": "antibody_numbering_kabat", "index": 1, "time": "2026-11-10T13:50:36.112033+00:00", "event": "step_started"}
+{"status": "failed", "error": "antibody_cdr_kabat: the conserved 'LSC' framework-1 cysteine was not found; this does not look like a VH/VHH domain", "time": "2026-11-10T13:50:36.212713+00:00", "event": "run_finished"}

@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_mltab/rdkit_fragment_overlap
+generated : 2026-11-10T12:27:14.200308+00:00
+steps     : 2
+elapsed   : 0.056s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   rdkit_fragment_overlap    0.055s   steps/01_rdkit_fragment_overlap.json
+2   export_results          0.001s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

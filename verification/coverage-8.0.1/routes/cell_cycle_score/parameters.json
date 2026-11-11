@@ -1,0 +1,36 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "cell_cycle_score",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "output": "out_cell_cycle_score",
+        "ctrl_size": 5,
+        "n_bins": 4,
+        "random_state": 0
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_cell_cycle_score"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "cell_cycle_score"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/meta_regression/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 720,
+      "sha256": "6db491468928b14e89ec433372c60fcd878ea3fb76c1aa3389904bcdfacdd864"
+    }
+  ]
+}

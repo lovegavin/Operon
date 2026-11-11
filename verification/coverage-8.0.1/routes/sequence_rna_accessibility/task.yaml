@@ -1,0 +1,26 @@
+{
+  "name": "sequence_rna_accessibility",
+  "sources": {
+    "x0": {
+      "path": "input/rna1.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sequence_rna_accessibility",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

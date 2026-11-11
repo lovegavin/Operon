@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/autoencoder_anomaly/input",
+  "files": [
+    {
+      "path": "ae.csv",
+      "size": 85,
+      "sha256": "425b07bbbfe5f263a3f499e7590074713162c62b802fb42f43a5165dfb53cee5"
+    }
+  ]
+}

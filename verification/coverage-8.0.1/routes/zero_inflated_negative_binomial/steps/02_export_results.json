@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/zero_inflated_negative_binomial/output/artifacts/exports/04351959a94049dfbad6fb6c2b5be1c2/zero_inflated_negative_binomial.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 626,
+  "source": "out_zero_inflated_negative_binomial",
+  "conversion": {}
+}

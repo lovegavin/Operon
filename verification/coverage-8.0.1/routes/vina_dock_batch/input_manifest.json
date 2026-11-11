@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/vina_routes/vina_dock_batch/input",
+  "files": [
+    {
+      "path": "ligand.pdbqt",
+      "size": 743,
+      "sha256": "879a1d95d4f412d0a86d2277a5b9f7597a95bb222d5b149e9292981895e55328"
+    },
+    {
+      "path": "ligand2.pdbqt",
+      "size": 503,
+      "sha256": "4ade0ca66bfc0f907b0145a568b0880c4b77df3f5ac7d563b25a0ffa535b08c9"
+    }
+  ]
+}

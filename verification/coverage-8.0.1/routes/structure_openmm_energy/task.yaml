@@ -1,0 +1,23 @@
+{
+  "name": "structure_openmm_energy",
+  "sources": {
+    "protein": {
+      "path": "input/1ubq_nohet.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_openmm_energy",
+      "inputs": [
+        "protein"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

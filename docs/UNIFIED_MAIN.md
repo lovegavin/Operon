@@ -1,7 +1,7 @@
 # Historical unified main integration
 
 > Historical snapshot: this page records the 2.0.1 integration, not the current
-> 4.0.2 application and 8.0.1 library. See [the documentation index](README.md).
+> 4.0.2 application and 8.0.2 library. See [the documentation index](README.md).
 
 This source update established one application and authoring protocol on
 `main`. Application version: **2.0.1**. SDK version: **3.1.0**. Operator protocol:

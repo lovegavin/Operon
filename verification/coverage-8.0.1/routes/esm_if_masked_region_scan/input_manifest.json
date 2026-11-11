@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/esm_if_masked_run2/input",
+  "files": [
+    {
+      "path": "1mel.pdb",
+      "size": 316548,
+      "sha256": "66ff3b49d541e1d1441065306d9b228d1cd0cda399673d74c35a416ad1b02686"
+    }
+  ]
+}

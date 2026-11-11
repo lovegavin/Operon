@@ -1,0 +1,42 @@
+{
+  "task_dir": "/tmp/cov_stats/tamhane_t2",
+  "generated_at": "2026-11-10T12:44:02.713841+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0032,
+  "steps": [
+    {
+      "index": 1,
+      "name": "tamhane_t2",
+      "elapsed": 0.0014,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "group_dim": "sample",
+        "group_label": "group",
+        "output": "out_tamhane_t2"
+      },
+      "export_path": "steps/01_tamhane_t2.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0018,
+      "inputs": [
+        "out_tamhane_t2"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "tamhane_t2"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124401-48f7be52fc64",
+  "event_log": "/tmp/cov_stats/tamhane_t2/output/runs/20261110T124401-48f7be52fc64/events.jsonl"
+}

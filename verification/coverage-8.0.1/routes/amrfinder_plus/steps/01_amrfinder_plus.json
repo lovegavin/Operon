@@ -1,0 +1,55 @@
+{
+  "dims": [
+    "hit",
+    "statistic"
+  ],
+  "labels": {
+    "hit": {
+      "blaTEM-116::0": 0
+    },
+    "statistic": {
+      "start": 0,
+      "stop": 1,
+      "target_length": 2,
+      "reference_length": 3,
+      "coverage": 4,
+      "identity": 5,
+      "alignment_length": 6
+    }
+  },
+  "info": {
+    "hits": [
+      {
+        "query": "query1",
+        "contig": "",
+        "start": null,
+        "stop": null,
+        "strand": "",
+        "gene": "blaTEM-116",
+        "name": "broad-spectrum class A beta-lactamase TEM-116",
+        "scope": "core",
+        "type": "AMR",
+        "subtype": "AMR",
+        "class": "BETA-LACTAM",
+        "subclass": "BETA-LACTAM",
+        "method": "ALLELEP",
+        "target_length": 286.0,
+        "reference_length": 286.0,
+        "coverage": 100.0,
+        "identity": 100.0,
+        "alignment_length": 286.0,
+        "accession": "WP_000027050.1",
+        "closest": "broad-spectrum class A beta-lactamase TEM-116"
+      }
+    ],
+    "n_hits": 1,
+    "mode": "protein",
+    "genes": [
+      "blaTEM-116"
+    ],
+    "classes": [
+      "BETA-LACTAM"
+    ],
+    "database": "/home/gavin/tools/amrfinder_db/2026-10-29.1"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "weighted_kappa",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "weights": "linear",
+        "output": "out_weighted_kappa"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_weighted_kappa"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "weighted_kappa"
+      },
+      "context_params": {}
+    }
+  ]
+}

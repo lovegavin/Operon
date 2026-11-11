@@ -1,0 +1,29 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_disorder_predictor",
+  "generated_at": "2026-11-10T12:46:00.726968+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0003,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_disorder_predictor",
+      "elapsed": 0.0003,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_disorder_predictor",
+        "window": 25,
+        "threshold": 0.0,
+        "min_length": 4
+      },
+      "export_path": "steps/01_sequence_disorder_predictor.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124600-3fe5e7e22f91",
+  "event_log": "/tmp/cov_sequence/sequence_disorder_predictor/output/runs/20261110T124600-3fe5e7e22f91/events.jsonl"
+}

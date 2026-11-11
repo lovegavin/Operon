@@ -1,0 +1,26 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_1mel": {}
+  },
+  "steps": [
+    {
+      "name": "interface_mmgbsa_delta",
+      "inputs": [
+        "structure_1mel"
+      ],
+      "params": {
+        "binder_chains": "A",
+        "target_chains": "L",
+        "forcefield": "amber14-all.xml",
+        "implicit_model": "implicit/gbn2.xml",
+        "ph": 7.0,
+        "term_dim": "term",
+        "output": "out_interface_mmgbsa_delta"
+      },
+      "context_params": {}
+    }
+  ]
+}

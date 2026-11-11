@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/patristic_distance/input",
+  "files": [
+    {
+      "path": "tree.nwk",
+      "size": 64,
+      "sha256": "44b446c7a9ecd652460cb344ed1220f7a3ee9f944a154dc0db46acf2d2e44783"
+    }
+  ]
+}

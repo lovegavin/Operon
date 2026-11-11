@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/rdkit_reaction_pairwise_enumerate/output/artifacts/exports/50d91f748b994b0fb7b8ffa0e6334703/rdkit_reaction_pairwise_enumerate.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 241,
+  "source": "out_rdkit_reaction_pairwise_enumerate",
+  "conversion": {}
+}

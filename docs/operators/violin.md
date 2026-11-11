@@ -1,0 +1,125 @@
+# Violin plot (`violin`)
+
+**Category:** 可视化  
+**Entry point:** `src.task.step.steps.violin:ViolinStep`  
+**Source:** [`library/seed/src/task/step/steps/violin.py`](../../library/seed/src/task/step/steps/violin.py) (359 lines)
+**Trust level: B — 真实执行（本地或 srv）**
+
+## 1. 代码说明
+
+Draw violin plots of a value column grouped by a
+
+> Violin plot of one value column split by groups. Two inputs share a sample dim. The first carries a per-sample value column; the second carries a group label column. For each group the operator draws a kernel density estimate of the values, optionally with an inner box, quartile markers, or points. Domain-agnostic. Any 2D data form + any 2D metadata form with a grouping column works. Params: dim : dim of the data form that holds the value column (default "feature") value_label : column label to plot (required) group_dim : sample dim shared by both forms (required) group_label : column label…
+
+关键符号：
+
+- `class ViolinStep (line 46)`
+
+协议：v3 / revision `3.7`；输出参数 `None`。
+
+### 输入与输出
+
+- 输入 1: ndim=2, numeric=True, dims=(dim, group_dim), info=(—)
+- 输入 2: ndim=2, numeric=True, dims=(group_dim), info=(—)
+- 输出: mode=report, schema={}
+
+### 参数
+
+| 参数 | 默认值 | 含义/约束 |
+| --- | --- | --- |
+| `dim` | `feature` | — |
+| `value_label` | `` | — |
+| `group_dim` | `` | — |
+| `group_label` | `` | — |
+| `groups` | `` | — |
+| `filename` | `` | — |
+| `title` | `` | — |
+| `xlabel` | `` | — |
+| `ylabel` | `` | — |
+| `inner` | `box` | choices: box, quartile, point, none |
+| `show_points` | `False` | — |
+| `point_size` | `4` | — |
+| `point_alpha` | `0.5` | min 0; max 1 |
+| `rotate_labels` | `False` | — |
+| `figure_width_mm` | `` | Figure width (mm) |
+| `figure_height_mm` | `` | Figure height (mm) |
+| `figure_dpi` | `300` | Figure resolution (DPI); min 72 |
+| `figure_font_size` | `8` | Figure font size (pt) |
+
+## 2. 用途与解释
+
+Violin plot of one value column split by groups.
+
+Two inputs share a sample dim. The first carries a per-sample value
+column; the second carries a group label column. For each group the
+operator draws a kernel density estimate of the values, optionally
+with an inner box, quartile markers, or points.
+
+Domain-agnostic. Any 2D data form + any 2D metadata form with a
+grouping column works.
+
+Params:
+dim             : dim of the data form that holds the value
+column (default "feature")
+value_label     : column label to plot (required)
+group_dim       : sample dim shared by both forms (required)
+group_label     : column label on the metadata's other dim
+(required)
+groups          : optional list of group names to keep, in order
+filename        : output file name (required)
+title           : optional plot title
+xlabel          : optional x label (default: group_label)
+ylabel          : optional 
+
+## 3. 正确性依据
+
+**结论：B 级。** 真实运行通过（1.76 s），导出 None 行，产物 sha256 n/a…。
+
+| 层 | 状态 | 证据 |
+| --- | --- | --- |
+| L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
+| L2 单元/oracle | UNIT | tests/test_axis_adapters.py,test_report_contracts_sop.py |
+| L3 真实执行 | EXECUTED | verification/coverage-8.0.1/routes/violin |
+| L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
+| L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
+
+本次执行细节：
+
+- 状态：PASS，耗时 1.76 s，导出 None 行。
+- 归档路线：`/tmp/cov_sequence/violin`。
+- 命令：`python scripts/run.py /tmp/cov_sequence/violin`。
+
+### 这个证据证明什么、不证明什么
+
+- 证明：契约可解析、输入输出维度一致；有执行记录时，真实数据能跑到 `Task finished` 并产生可校验产物。
+- 不证明：该算子在该数据集上的生物学结论正确；统计假设是否成立仍需使用者判断。
+
+## 4. 限制与失败模式
+
+Declared memory modes: full. Operon retains the existing planner, disk-backed
+inputs and emergency spill behavior; full-mode operators still require their
+declared working set. This generated reference has not been independently
+scientifically reviewed.
+
+## 5. 复现
+
+```bash
+cd /path/to/Operon-worktree
+python -m operon registry check --json
+grep '^violin,' verification/coverage-8.0.1/operator_coverage.csv
+```
+
+算子手册中的示例：
+
+```text
+Use the registry to discover compatible Readers and validate a complete workflow
+before execution. This generated page does not claim an executable scientific
+example. Add a tested example and replace this generated page with authored
+guidance when extending this operator.
+```
+
+未补齐证据：`L4_MEASURED`。
+
+---
+
+由 `scripts/build_operator_trust_docs.py` 生成；审计基线 8.0.1。

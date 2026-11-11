@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/youden_index/output/artifacts",
+  "files": [
+    {
+      "path": "exports/145232d9338f4d9da7029dd0fd7668e2/youden_index.csv",
+      "size": 156,
+      "sha256": "52200b733a56d90f39fd24e67f055fab126ac00536242afb33f04f3b4269aa1b"
+    },
+    {
+      "path": "exports/27cbf18742fc4d86b98c618735ee5b48/youden_index.csv",
+      "size": 156,
+      "sha256": "52200b733a56d90f39fd24e67f055fab126ac00536242afb33f04f3b4269aa1b"
+    }
+  ]
+}

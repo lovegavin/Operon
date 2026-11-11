@@ -1,0 +1,39 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "anosim",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "sample_b_dim": "sample_b",
+        "group_dim": "sample",
+        "group_label": "group",
+        "n_perm": 99,
+        "random_state": 0,
+        "output": "out_anosim"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_anosim"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "anosim"
+      },
+      "context_params": {}
+    }
+  ]
+}

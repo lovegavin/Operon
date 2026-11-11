@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/cohens_kappa/output/artifacts",
+  "files": [
+    {
+      "path": "exports/1cc8ecdd53d64b6bbcef86c23f6c93a4/cohens_kappa.csv",
+      "size": 158,
+      "sha256": "f8da4af83a5e60cde28c0768c21fe2842e85054a9363abbf5964d958025e39de"
+    },
+    {
+      "path": "exports/609e54b5c7ff469aaea1e478573825d6/cohens_kappa.csv",
+      "size": 158,
+      "sha256": "f8da4af83a5e60cde28c0768c21fe2842e85054a9363abbf5964d958025e39de"
+    }
+  ]
+}

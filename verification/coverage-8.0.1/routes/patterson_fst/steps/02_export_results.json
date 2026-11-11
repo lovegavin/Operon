@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/patterson_fst/output/artifacts/exports/5cb9c7bfd717460eab5b75b7c4ada818/patterson_fst.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 697,
+  "source": "out_patterson_fst",
+  "conversion": {}
+}

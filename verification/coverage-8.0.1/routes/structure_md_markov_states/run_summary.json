@@ -1,0 +1,29 @@
+{
+  "task_dir": "/tmp/cov_structure/structure_md_markov_states",
+  "generated_at": "2026-11-10T12:45:38.742405+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0165,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_md_markov_states",
+      "elapsed": 0.0165,
+      "inputs": [],
+      "params": {
+        "trajectory_path": "/tmp/cov_structure/structure_md_markov_states/input/1mel_traj.npy",
+        "topology_path": "/tmp/cov_structure/structure_md_markov_states/input/1mel_topology.pdb",
+        "cutoff": 1.5,
+        "max_states": 8,
+        "lag_frames": 1,
+        "frame_time_ps": 0.08,
+        "pseudo_count": 0.0,
+        "output": "out_structure_md_markov_states"
+      },
+      "export_path": "steps/01_structure_md_markov_states.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124538-3749ded6b11d",
+  "event_log": "/tmp/cov_structure/structure_md_markov_states/output/runs/20261110T124538-3749ded6b11d/events.jsonl"
+}

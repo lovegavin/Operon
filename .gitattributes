@@ -4,3 +4,4 @@ legacy/** -text
 *.jpg binary
 *.woff2 binary
 *.exe binary
+*.pdb whitespace=-blank-at-eol

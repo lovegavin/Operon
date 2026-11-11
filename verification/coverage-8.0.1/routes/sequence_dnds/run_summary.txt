@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_sequence/sequence_dnds
+generated : 2026-11-10T12:46:15.498906+00:00
+steps     : 2
+elapsed   : 0.014s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   sequence_dnds           0.013s   steps/01_sequence_dnds.json
+2   export_results          0.001s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

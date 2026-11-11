@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/faith_pd/output/artifacts/exports/d110bb99d3e349c1b0b845b861a7bcb4/faith_pd.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 251,
+  "source": "out_faith_pd",
+  "conversion": {}
+}

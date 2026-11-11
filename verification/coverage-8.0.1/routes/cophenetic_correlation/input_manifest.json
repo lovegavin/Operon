@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/cov_stats/cophenetic_correlation/input",
+  "files": [
+    {
+      "path": "tree.nwk",
+      "size": 23,
+      "sha256": "357a9509e8ee328c1203b81a824c148934d07481ac092a4b42e8d9a58f4d462d"
+    },
+    {
+      "path": "x0.csv",
+      "size": 147,
+      "sha256": "3d8bc02d207022994bd31f204ea85733ce9a8d7a88bf7284673e4817c90ebe49"
+    },
+    {
+      "path": "x1.csv",
+      "size": 71,
+      "sha256": "77bea52c69ef39f84844ac92231317172e09310c1cea42d84010d1e5401f76a9"
+    }
+  ]
+}

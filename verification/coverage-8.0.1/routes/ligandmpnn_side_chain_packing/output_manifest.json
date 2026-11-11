@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/ligandmpnn_sc2/output/artifacts",
+  "files": [
+    {
+      "path": "ligandmpnn_packing/2cf341201c5e4c9f84f14a3cef5566ea/packed.pdb",
+      "size": 75274,
+      "sha256": "318f149d65f8f71fb011156fd2ae5d9dcd1421fe8e7a00bae60e5f7abc50cdb8"
+    },
+    {
+      "path": "ligandmpnn_packing/7328ace4da324d6199a0819d4b260a41/packed.pdb",
+      "size": 75274,
+      "sha256": "318f149d65f8f71fb011156fd2ae5d9dcd1421fe8e7a00bae60e5f7abc50cdb8"
+    }
+  ]
+}

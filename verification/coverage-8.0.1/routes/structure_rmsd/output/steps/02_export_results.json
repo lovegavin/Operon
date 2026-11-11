@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/ligand_routes/structure_rmsd/output/artifacts/exports/35de6d4e86364c3095b1da8dd39ddb06/rmsd.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 8173,
+  "source": "rmsd",
+  "conversion": {}
+}

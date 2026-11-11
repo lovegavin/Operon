@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/nucleotide_diversity/output/artifacts",
+  "files": [
+    {
+      "path": "exports/3a99146fed1b44be92a2e9d15106f5b4/nucleotide_diversity.csv",
+      "size": 175,
+      "sha256": "f068d10139c3cbed0800e4a8f83dd060a75e40594a52019d38f7baa309d8bd6a"
+    },
+    {
+      "path": "exports/5c1a25269959462db2a65841b1e759d6/nucleotide_diversity.csv",
+      "size": 175,
+      "sha256": "f068d10139c3cbed0800e4a8f83dd060a75e40594a52019d38f7baa309d8bd6a"
+    }
+  ]
+}

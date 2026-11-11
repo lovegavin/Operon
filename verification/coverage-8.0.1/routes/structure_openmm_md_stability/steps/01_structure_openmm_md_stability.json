@@ -1,0 +1,170 @@
+{
+  "rows": [
+    {
+      "time_ps": 0.0,
+      "temperature_k": 185.98887602840162,
+      "potential_energy_kj": -10813.13202748127,
+      "rmsd_angstrom": 7.027698680612741e-15,
+      "radius_of_gyration_angstrom": 11.711581679714461
+    },
+    {
+      "time_ps": 0.05,
+      "temperature_k": 193.83523445762367,
+      "potential_energy_kj": -10760.852566339403,
+      "rmsd_angstrom": 0.24515872145489373,
+      "radius_of_gyration_angstrom": 11.72095710429385
+    },
+    {
+      "time_ps": 0.1,
+      "temperature_k": 204.9143092871394,
+      "potential_energy_kj": -10656.542027079795,
+      "rmsd_angstrom": 0.380315849552142,
+      "radius_of_gyration_angstrom": 11.726876488863022
+    },
+    {
+      "time_ps": 0.15,
+      "temperature_k": 206.28216215585627,
+      "potential_energy_kj": -10553.639105901862,
+      "rmsd_angstrom": 0.4808102898017853,
+      "radius_of_gyration_angstrom": 11.71727466654824
+    },
+    {
+      "time_ps": 0.2,
+      "temperature_k": 209.630630566452,
+      "potential_energy_kj": -10441.42816691708,
+      "rmsd_angstrom": 0.5750240892726846,
+      "radius_of_gyration_angstrom": 11.722071622330533
+    },
+    {
+      "time_ps": 0.25,
+      "temperature_k": 219.62451856785066,
+      "potential_energy_kj": -10377.051641634995,
+      "rmsd_angstrom": 0.6444665456911443,
+      "radius_of_gyration_angstrom": 11.72592198162195
+    },
+    {
+      "time_ps": 0.3,
+      "temperature_k": 231.21736562437965,
+      "potential_energy_kj": -10382.13989625029,
+      "rmsd_angstrom": 0.7073221530539383,
+      "radius_of_gyration_angstrom": 11.741702175117736
+    },
+    {
+      "time_ps": 0.35000000000000003,
+      "temperature_k": 222.5404233338329,
+      "potential_energy_kj": -10194.54667086714,
+      "rmsd_angstrom": 0.7661626704977773,
+      "radius_of_gyration_angstrom": 11.745181062343956
+    },
+    {
+      "time_ps": 0.4,
+      "temperature_k": 229.90721131429336,
+      "potential_energy_kj": -10249.301768522266,
+      "rmsd_angstrom": 0.8232973752604952,
+      "radius_of_gyration_angstrom": 11.750359696610284
+    },
+    {
+      "time_ps": 0.45,
+      "temperature_k": 242.2338308702247,
+      "potential_energy_kj": -10260.977926324693,
+      "rmsd_angstrom": 0.869892677883198,
+      "radius_of_gyration_angstrom": 11.756418876131475
+    },
+    {
+      "time_ps": 0.5,
+      "temperature_k": 226.11101334273295,
+      "potential_energy_kj": -9978.705248278726,
+      "rmsd_angstrom": 0.9230149130456908,
+      "radius_of_gyration_angstrom": 11.764109142594464
+    },
+    {
+      "time_ps": 0.55,
+      "temperature_k": 242.64699682178892,
+      "potential_energy_kj": -10098.352362877451,
+      "rmsd_angstrom": 0.9652120134444416,
+      "radius_of_gyration_angstrom": 11.764730847293261
+    },
+    {
+      "time_ps": 0.6,
+      "temperature_k": 244.0862027139029,
+      "potential_energy_kj": -10018.079784286787,
+      "rmsd_angstrom": 0.9969660516147433,
+      "radius_of_gyration_angstrom": 11.761587646843251
+    },
+    {
+      "time_ps": 0.65,
+      "temperature_k": 254.63930170303814,
+      "potential_energy_kj": -10122.344705286183,
+      "rmsd_angstrom": 1.0201426335399362,
+      "radius_of_gyration_angstrom": 11.759421461723294
+    },
+    {
+      "time_ps": 0.7000000000000001,
+      "temperature_k": 256.6944531626547,
+      "potential_energy_kj": -10114.826750651304,
+      "rmsd_angstrom": 1.042165689216477,
+      "radius_of_gyration_angstrom": 11.767775094725001
+    },
+    {
+      "time_ps": 0.75,
+      "temperature_k": 259.51453526540286,
+      "potential_energy_kj": -10151.743169958396,
+      "rmsd_angstrom": 1.066845719612847,
+      "radius_of_gyration_angstrom": 11.773231721372579
+    },
+    {
+      "time_ps": 0.8,
+      "temperature_k": 246.18905797491314,
+      "potential_energy_kj": -10003.107439111356,
+      "rmsd_angstrom": 1.0921215515514278,
+      "radius_of_gyration_angstrom": 11.775779551248677
+    },
+    {
+      "time_ps": 0.85,
+      "temperature_k": 250.57351459004198,
+      "potential_energy_kj": -9995.446499599,
+      "rmsd_angstrom": 1.1160321429755984,
+      "radius_of_gyration_angstrom": 11.77671316956543
+    },
+    {
+      "time_ps": 0.9,
+      "temperature_k": 259.32435848149925,
+      "potential_energy_kj": -9993.474943173023,
+      "rmsd_angstrom": 1.1349795718359417,
+      "radius_of_gyration_angstrom": 11.765500547125532
+    },
+    {
+      "time_ps": 0.9500000000000001,
+      "temperature_k": 255.05879177050585,
+      "potential_energy_kj": -9893.98855555187,
+      "rmsd_angstrom": 1.1520184986259108,
+      "radius_of_gyration_angstrom": 11.759737292132673
+    },
+    {
+      "time_ps": 1.0,
+      "temperature_k": 254.49163274833552,
+      "potential_energy_kj": -9888.72288944415,
+      "rmsd_angstrom": 1.1676486334617944,
+      "radius_of_gyration_angstrom": 11.75860951487001
+    }
+  ],
+  "summary": {
+    "n_frames": 21,
+    "mean_temperature_k": 233.1192581324224,
+    "rmsd_final_angstrom": 1.1676486334617944,
+    "rg_change_angstrom": 0.0470278351555482,
+    "seed": 7,
+    "n_particles": 1231,
+    "n_forces": 6,
+    "temperature": 300.0,
+    "steps": 500,
+    "step_size_fs": 2.0
+  },
+  "statistics": [
+    "time_ps",
+    "temperature_k",
+    "potential_energy_kj",
+    "rmsd_angstrom",
+    "radius_of_gyration_angstrom"
+  ]
+}

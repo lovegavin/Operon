@@ -1,0 +1,26 @@
+{
+  "name": "prodigal_genes",
+  "sources": {
+    "x0": {
+      "path": "input/genome.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "prodigal_genes",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

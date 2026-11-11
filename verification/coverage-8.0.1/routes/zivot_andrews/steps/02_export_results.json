@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/zivot_andrews/output/artifacts/exports/2b9f01650dd646928b25017cd1960ae2/zivot_andrews.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 207,
+  "source": "out_zivot_andrews",
+  "conversion": {}
+}

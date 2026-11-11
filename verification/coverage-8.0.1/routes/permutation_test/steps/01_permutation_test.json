@@ -1,0 +1,9 @@
+{
+  "n_features": 6,
+  "n_groups": 2,
+  "groups": [
+    0,
+    1
+  ],
+  "method": "permutation_test"
+}

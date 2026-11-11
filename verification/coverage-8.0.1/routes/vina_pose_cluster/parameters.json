@@ -1,0 +1,38 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "vina_dock",
+      "inputs": [],
+      "params": {
+        "receptor_path": "/tmp/vina_routes/vina_dock/input/receptor.pdbqt",
+        "ligand_path": "/tmp/vina_routes/vina_dock/input/ligand.pdbqt",
+        "vina_path": "/home/gavin/tools/smina-env/bin/smina",
+        "auto_center": true,
+        "num_modes": 3,
+        "exhaustiveness": 2,
+        "seed": 42,
+        "output": "pose"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "vina_pose_cluster",
+      "inputs": [
+        "pose"
+      ],
+      "params": {
+        "pose_dim": "pose",
+        "atom_dim": "atom",
+        "field_dim": "field",
+        "cutoff": 1.0,
+        "allow_symmetry": true,
+        "output": "clusters"
+      },
+      "context_params": {}
+    }
+  ]
+}

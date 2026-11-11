@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/leave_one_out/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 322,
+      "sha256": "520a85055aefff5504560d493021bb637bcff069042e5a4ee4efd42dbdbc5646"
+    }
+  ]
+}

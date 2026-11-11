@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/nt_variant_local/output/artifacts",
+  "files": [
+    {
+      "path": "nucleotide_transformer_variant_effect/4acf74e7a15b4b59baa56d4c81f94047/variant_effect.csv",
+      "size": 53,
+      "sha256": "8af691376075c5eb3bde9fec898949c387488b0f044ec655cf7e7579c5643d05"
+    }
+  ]
+}

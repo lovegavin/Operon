@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/youden_index/output/artifacts/exports/145232d9338f4d9da7029dd0fd7668e2/youden_index.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 156,
+  "source": "out_youden_index",
+  "conversion": {}
+}

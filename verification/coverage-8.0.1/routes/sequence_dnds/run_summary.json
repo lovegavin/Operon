@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_dnds",
+  "generated_at": "2026-11-10T12:46:15.498906+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0137,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_dnds",
+      "elapsed": 0.0125,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "output": "out_sequence_dnds"
+      },
+      "export_path": "steps/01_sequence_dnds.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0012,
+      "inputs": [
+        "out_sequence_dnds"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "out_sequence_dnds"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124614-12f7c59f2e30",
+  "event_log": "/tmp/cov_sequence/sequence_dnds/output/runs/20261110T124614-12f7c59f2e30/events.jsonl"
+}

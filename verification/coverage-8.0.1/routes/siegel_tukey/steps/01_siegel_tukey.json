@@ -1,0 +1,6 @@
+{
+  "n_features": 6,
+  "test": "Siegel-Tukey",
+  "alternative": "two-sided",
+  "exact": true
+}

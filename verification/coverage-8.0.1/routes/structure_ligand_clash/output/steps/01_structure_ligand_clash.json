@@ -1,0 +1,10 @@
+{
+  "n_ligand_atoms": 9,
+  "n_protein_atoms": 1692,
+  "n_clashes": 0,
+  "tolerance": 0.4,
+  "clash_scale": 0.8,
+  "ligand_resnames": [
+    "BEN"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/manova/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 502,
+      "sha256": "5eadb615f74202e9ef72380e9aab81c4816c5f6e69314e70e3b33d6e431c8b8e"
+    },
+    {
+      "path": "x1.csv",
+      "size": 99,
+      "sha256": "1425074ca14bc53abb8f3831b18b75310506f1601b4645b7c7e37eb8add434f5"
+    }
+  ]
+}

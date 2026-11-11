@@ -1,0 +1,23 @@
+{
+  "name": "interface_mmgbsa_delta",
+  "sources": {
+    "structure_1mel": {
+      "path": "input/1mel_nohet.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "interface_mmgbsa_delta",
+      "inputs": [
+        "structure_1mel"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

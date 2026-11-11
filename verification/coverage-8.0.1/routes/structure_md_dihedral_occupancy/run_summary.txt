@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_structure/structure_md_dihedral_occupancy
+generated : 2026-11-10T12:36:26.229607+00:00
+steps     : 1
+elapsed   : 0.703s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   structure_md_dihedral_occupancy    0.703s   steps/01_structure_md_dihedral_occupancy.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

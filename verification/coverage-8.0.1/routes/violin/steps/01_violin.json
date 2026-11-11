@@ -1,0 +1,70 @@
+{
+  "kind": "violin",
+  "filename": "violin-2.png",
+  "path": "/tmp/cov_sequence/violin/output/figures/violin-2.png",
+  "dim": "feature",
+  "value_label": "g1",
+  "group_dim": "sample",
+  "group_label": "batch",
+  "n_samples": 8,
+  "n_groups": 2,
+  "inner": "box",
+  "groups": [
+    "A",
+    "B"
+  ],
+  "summary": {
+    "A": {
+      "n": 4,
+      "min": 3.97,
+      "q25": 4.375,
+      "median": 4.83,
+      "q75": 5.41,
+      "max": 6.19,
+      "mean": 4.955,
+      "std": 0.8263625112503593
+    },
+    "B": {
+      "n": 4,
+      "min": 6.61,
+      "q25": 7.285,
+      "median": 8.004999999999999,
+      "q75": 8.567499999999999,
+      "max": 8.77,
+      "mean": 7.8475,
+      "std": 0.8547038960950158
+    }
+  },
+  "figures": [
+    {
+      "id": "figure-58e499b6f9f0bb8f",
+      "title": "violin-2",
+      "format": "png",
+      "path": "/tmp/cov_sequence/violin/output/figures/violin-2.png",
+      "filename": "violin-2.png",
+      "width_mm": 127.0,
+      "height_mm": 101.6,
+      "dpi": 300
+    },
+    {
+      "id": "figure-58e499b6f9f0bb8f",
+      "title": "violin-2",
+      "format": "pdf",
+      "path": "/tmp/cov_sequence/violin/output/figures/violin-2.pdf",
+      "filename": "violin-2.pdf",
+      "width_mm": 127.0,
+      "height_mm": 101.6,
+      "dpi": 300
+    },
+    {
+      "id": "figure-58e499b6f9f0bb8f",
+      "title": "violin-2",
+      "format": "svg",
+      "path": "/tmp/cov_sequence/violin/output/figures/violin-2.svg",
+      "filename": "violin-2.svg",
+      "width_mm": 127.0,
+      "height_mm": 101.6,
+      "dpi": 300
+    }
+  ]
+}

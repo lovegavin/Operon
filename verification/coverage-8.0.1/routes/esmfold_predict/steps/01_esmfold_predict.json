@@ -1,0 +1,15 @@
+{
+  "mean_plddt": 0.8197636176772868,
+  "n_residues": 132,
+  "num_recycles": 1,
+  "result_files": [
+    {
+      "id": "structure",
+      "path": "/tmp/esmfold_route/output/artifacts/esmfold/4c91abef67404500b58527efa0702ca9/prediction.pdb",
+      "filename": "prediction.pdb",
+      "format": "pdb",
+      "title": "ESMFold prediction",
+      "bytes": 78855
+    }
+  ]
+}

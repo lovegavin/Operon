@@ -1,0 +1,16 @@
+{
+  "sequence_dim": "sequence",
+  "position_dim": "position",
+  "window_size": 100,
+  "step_size": 50,
+  "sequence_length": 400,
+  "n_windows": 8,
+  "min_cumulative_skew": -0.11864406615495682,
+  "min_cumulative_skew_window": 0,
+  "max_cumulative_skew": -0.017543859779834747,
+  "max_cumulative_skew_window": 2,
+  "min_cumulative_gc": -32.0,
+  "min_cumulative_gc_window": 7,
+  "max_cumulative_gc": -3.0,
+  "max_cumulative_gc_window": 2
+}

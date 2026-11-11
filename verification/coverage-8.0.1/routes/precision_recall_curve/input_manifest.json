@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/precision_recall_curve/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 216,
+      "sha256": "9f6160d9cbd106b35e6589912059fb4e86e561e599db32eded28081dbf7169e9"
+    },
+    {
+      "path": "x1.csv",
+      "size": 465,
+      "sha256": "6d6b1ac37aee958b84c8db0484a9052da8f1bafd1ea66ce5462210fa3c1d4cff"
+    }
+  ]
+}

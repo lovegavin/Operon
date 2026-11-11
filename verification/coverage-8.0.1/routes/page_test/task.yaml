@@ -1,0 +1,34 @@
+{
+  "name": "page_test",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "block",
+        "treatment"
+      ],
+      "labels": {
+        "block": {
+          "treatment": 0
+        },
+        "treatment": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "page_test",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_page_test"
+      ]
+    }
+  ]
+}

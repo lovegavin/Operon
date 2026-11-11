@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/ligand_routes/structure_ligand_burial
+generated : 2026-11-10T19:50:20.199225+00:00
+steps     : 2
+elapsed   : 0.741s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   structure_ligand_burial    0.739s   steps/01_structure_ligand_burial.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

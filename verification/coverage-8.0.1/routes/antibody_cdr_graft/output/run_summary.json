@@ -1,0 +1,27 @@
+{
+  "task_dir": "/tmp/abroutes/antibody_cdr_graft",
+  "generated_at": "2026-11-10T13:51:08.604221+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0166,
+  "steps": [
+    {
+      "index": 1,
+      "name": "antibody_cdr_graft",
+      "elapsed": 0.0166,
+      "inputs": [
+        "sequence"
+      ],
+      "params": {
+        "donor_index": 1,
+        "acceptor_index": 2,
+        "regions": "CDR1,CDR2,CDR3",
+        "output": "grafts"
+      },
+      "export_path": "steps/01_antibody_cdr_graft.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T135108-9c7ae2473128",
+  "event_log": "/tmp/abroutes/antibody_cdr_graft/output/runs/20261110T135108-9c7ae2473128/events.jsonl"
+}

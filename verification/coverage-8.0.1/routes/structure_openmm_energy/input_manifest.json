@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_structure/structure_openmm_energy/input",
+  "files": [
+    {
+      "path": "1UBQ.pdb",
+      "size": 78570,
+      "sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161"
+    },
+    {
+      "path": "1ubq_nohet.pdb",
+      "size": 48762,
+      "sha256": "3c7f3fc307c4c579b7b90a2442f47206276492e0f5a5dfbfe1f86833e46dd985"
+    }
+  ]
+}

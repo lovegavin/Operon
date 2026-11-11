@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/ligand_routes/ligand_contact_profile/input",
+  "files": [
+    {
+      "path": "3ptb.pdb",
+      "size": 183384,
+      "sha256": "288f7954d4d013fa8eab3808e1037e2958e2dcd12c9eca65a3f1014404a9f9a2"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_structure/structure_ligand_redock_qc
+generated : 2026-11-10T12:32:09.320898+00:00
+steps     : 1
+elapsed   : 0.466s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   structure_ligand_redock_qc    0.466s   steps/01_structure_ligand_redock_qc.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

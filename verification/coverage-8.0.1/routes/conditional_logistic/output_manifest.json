@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/conditional_logistic/output/artifacts",
+  "files": [
+    {
+      "path": "exports/361cae0821604fe990937019861c72ae/conditional_logistic.csv",
+      "size": 175,
+      "sha256": "3a6ae4648c92ea13c2a680cfe0ac44181bd0d5ba71fba62eb81c8ef8f9191201"
+    },
+    {
+      "path": "exports/a682aba0154645f3bc6878c03c8f9eec/conditional_logistic.csv",
+      "size": 175,
+      "sha256": "3a6ae4648c92ea13c2a680cfe0ac44181bd0d5ba71fba62eb81c8ef8f9191201"
+    }
+  ]
+}

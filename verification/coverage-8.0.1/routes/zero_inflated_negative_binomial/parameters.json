@@ -1,0 +1,38 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "zero_inflated_negative_binomial",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "response_label": "y",
+        "count_predictors": [
+          "x1"
+        ],
+        "zero_predictors": [
+          "z1"
+        ],
+        "output": "out_zero_inflated_negative_binomial"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_zero_inflated_negative_binomial"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "zero_inflated_negative_binomial"
+      },
+      "context_params": {}
+    }
+  ]
+}

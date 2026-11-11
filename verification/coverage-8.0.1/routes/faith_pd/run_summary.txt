@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_omics/faith_pd
+generated : 2026-11-10T12:23:47.078464+00:00
+steps     : 2
+elapsed   : 0.003s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   faith_pd                0.001s   steps/01_faith_pd.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/patterson_fst/output/artifacts",
+  "files": [
+    {
+      "path": "exports/5cb9c7bfd717460eab5b75b7c4ada818/patterson_fst.csv",
+      "size": 697,
+      "sha256": "4346bc6277b0566a8d48cb1e0819423aab118ad4db4a90447c2a51266e81b38d"
+    },
+    {
+      "path": "exports/9c21245293b64378bd3fcfa78364b437/patterson_fst.csv",
+      "size": 697,
+      "sha256": "4346bc6277b0566a8d48cb1e0819423aab118ad4db4a90447c2a51266e81b38d"
+    }
+  ]
+}

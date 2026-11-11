@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/fba_flux_balance/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 52,
+      "sha256": "a669d4d00532c8a907ca13322a833eef1e36afee02a78d305a1fe00297c6a59d"
+    },
+    {
+      "path": "x1.csv",
+      "size": 57,
+      "sha256": "a69d78aa07e4dd50917a6efc8b2c1055b3f7ab9f1a857e6d5274ba59f69a335c"
+    }
+  ]
+}

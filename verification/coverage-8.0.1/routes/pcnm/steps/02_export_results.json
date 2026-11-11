@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/pcnm/output/artifacts/exports/7ed1b2f99d064ee6b739987534731504/pcnm.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1085,
+  "source": "out_pcnm",
+  "conversion": {}
+}

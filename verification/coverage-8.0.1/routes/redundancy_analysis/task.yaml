@@ -1,0 +1,49 @@
+{
+  "name": "redundancy_analysis",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "sample",
+        "response"
+      ],
+      "labels": {
+        "sample": {
+          "response": 0
+        },
+        "response": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/x1.csv",
+      "dims": [
+        "sample",
+        "predictor"
+      ],
+      "labels": {
+        "sample": {
+          "predictor": 0
+        },
+        "predictor": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "redundancy_analysis",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_redundancy_analysis"
+      ]
+    }
+  ]
+}

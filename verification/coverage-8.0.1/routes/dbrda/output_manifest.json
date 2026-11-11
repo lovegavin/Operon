@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/dbrda/output/artifacts",
+  "files": [
+    {
+      "path": "exports/dacfa10c8b004a318853e5e4014e6e32/dbrda.csv",
+      "size": 179,
+      "sha256": "daa4f54e45ef78008cef6b8c27b889ef6bed8487c1473458bb01ecad65a1823b"
+    },
+    {
+      "path": "exports/eb66232368e44868b10560f8986ea20a/dbrda.csv",
+      "size": 179,
+      "sha256": "daa4f54e45ef78008cef6b8c27b889ef6bed8487c1473458bb01ecad65a1823b"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "n_sequences": 3,
+  "n_repeats": 3,
+  "min_period": 2,
+  "max_period": 4,
+  "min_copies": 2
+}

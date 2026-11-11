@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/vina_routes/vina_pose_rmsd/output/artifacts",
+  "files": [
+    {
+      "path": "vina_dock/c7ae80dde2744465991f9eba8943b3fa/poses.pdbqt",
+      "size": 2457,
+      "sha256": "83e0b1e4118f1ccdc549edc8ef92781fb29ae0eff56175848f76c75513b0e81f"
+    }
+  ]
+}

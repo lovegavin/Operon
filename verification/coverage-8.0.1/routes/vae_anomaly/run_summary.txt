@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_mltab/vae_anomaly
+generated : 2026-11-10T12:25:56.692208+00:00
+steps     : 2
+elapsed   : 3.067s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   vae_anomaly             3.063s   steps/01_vae_anomaly.json
+2   export_results          0.004s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

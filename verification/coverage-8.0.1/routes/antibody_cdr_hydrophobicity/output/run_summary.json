@@ -1,0 +1,26 @@
+{
+  "task_dir": "/tmp/abroutes/antibody_cdr_hydrophobicity",
+  "generated_at": "2026-11-10T13:51:09.098723+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0356,
+  "steps": [
+    {
+      "index": 1,
+      "name": "antibody_cdr_hydrophobicity",
+      "elapsed": 0.0356,
+      "inputs": [
+        "sequence"
+      ],
+      "params": {
+        "regions": "CDR1,CDR2,CDR3",
+        "window": 7,
+        "output": "hydro"
+      },
+      "export_path": "steps/01_antibody_cdr_hydrophobicity.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T135108-f0590d787aa8",
+  "event_log": "/tmp/abroutes/antibody_cdr_hydrophobicity/output/runs/20261110T135108-f0590d787aa8/events.jsonl"
+}

@@ -1,0 +1,23 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_md_markov_states",
+      "inputs": [],
+      "params": {
+        "trajectory_path": "/tmp/cov_structure/structure_md_markov_states/input/1mel_traj.npy",
+        "topology_path": "/tmp/cov_structure/structure_md_markov_states/input/1mel_topology.pdb",
+        "cutoff": 1.5,
+        "max_states": 8,
+        "lag_frames": 1,
+        "frame_time_ps": 0.08,
+        "pseudo_count": 0.0,
+        "output": "out_structure_md_markov_states"
+      },
+      "context_params": {}
+    }
+  ]
+}

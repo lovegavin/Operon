@@ -1,0 +1,32 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "pcoa",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "n_components": 2,
+        "output": "out_pcoa"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_pcoa"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "pcoa"
+      },
+      "context_params": {}
+    }
+  ]
+}

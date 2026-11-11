@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/isoform_quantification_em/output/artifacts/exports/951a15a2c5a945eea1ed394f9aceb839/isoform_quantification_em.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 259,
+  "source": "out_isoform_quantification_em",
+  "conversion": {}
+}

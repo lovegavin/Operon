@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/johansen/output/artifacts/exports/1900253ee0b64baebf0675c6e32cfb4f/johansen.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 444,
+  "source": "out_johansen",
+  "conversion": {}
+}

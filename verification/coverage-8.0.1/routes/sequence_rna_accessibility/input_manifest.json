@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/sequence_rna_accessibility/input",
+  "files": [
+    {
+      "path": "rna1.fasta",
+      "size": 88,
+      "sha256": "ba7c2ff3b3f358c6527ff1d64d50dfce4c921712202b77bc84ca93865c472c19"
+    }
+  ]
+}

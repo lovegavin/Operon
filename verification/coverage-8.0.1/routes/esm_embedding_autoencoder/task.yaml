@@ -1,0 +1,34 @@
+{
+  "name": "esm_embedding_autoencoder",
+  "sources": {
+    "embedding": {
+      "path": "input/embeddings.csv",
+      "reader": "CsvReader",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "esm_embedding_autoencoder",
+      "inputs": [
+        "embedding"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "errors"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

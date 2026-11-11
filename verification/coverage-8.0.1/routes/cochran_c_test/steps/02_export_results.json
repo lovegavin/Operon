@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/cochran_c_test/output/artifacts/exports/c8dbd5dc61184e319403ffa57494beac/cochran_c_test.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 110,
+  "source": "out_cochran_c_test",
+  "conversion": {}
+}

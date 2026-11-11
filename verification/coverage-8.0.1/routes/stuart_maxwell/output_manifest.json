@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/stuart_maxwell/output/artifacts",
+  "files": [
+    {
+      "path": "exports/c0e1cd4e8f2848fe8a64f1d3ea0c5601/stuart_maxwell.csv",
+      "size": 103,
+      "sha256": "aea90adcbdb3669061a463b2394dd008a0553734f2085eb5ff43f22e7f4cf3b0"
+    },
+    {
+      "path": "exports/e7f9562365324b32ab20a1b3e37beae3/stuart_maxwell.csv",
+      "size": 103,
+      "sha256": "aea90adcbdb3669061a463b2394dd008a0553734f2085eb5ff43f22e7f4cf3b0"
+    }
+  ]
+}

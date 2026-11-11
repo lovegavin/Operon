@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_structure/interface_mmgbsa_delta
+generated : 2026-11-10T12:30:30.637166+00:00
+steps     : 1
+elapsed   : 4.646s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   interface_mmgbsa_delta    4.646s   steps/01_interface_mmgbsa_delta.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

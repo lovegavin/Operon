@@ -1,0 +1,36 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "sc_spatial_variable_genes",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "k": 3,
+        "output": "out_sc_spatial_variable_genes"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_sc_spatial_variable_genes"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "sc_spatial_variable_genes"
+      },
+      "context_params": {}
+    }
+  ]
+}

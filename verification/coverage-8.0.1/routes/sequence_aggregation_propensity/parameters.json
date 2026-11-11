@@ -1,0 +1,25 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_aggregation_propensity",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_aggregation_propensity",
+        "window": 5,
+        "threshold": 0.35,
+        "min_length": 3
+      },
+      "context_params": {}
+    }
+  ]
+}

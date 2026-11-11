@@ -1,0 +1,26 @@
+{
+  "name": "antibody_cdr_hydrophobicity",
+  "sources": {
+    "sequence": {
+      "path": "input/seq.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "auto",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "antibody_cdr_hydrophobicity",
+      "inputs": [
+        "sequence"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

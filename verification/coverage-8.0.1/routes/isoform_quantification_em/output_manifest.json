@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/isoform_quantification_em/output/artifacts",
+  "files": [
+    {
+      "path": "exports/951a15a2c5a945eea1ed394f9aceb839/isoform_quantification_em.csv",
+      "size": 259,
+      "sha256": "6d999771bb2c8129f1c4930c49cfa6d9b80ed500605aa5e4f575ad32423347e6"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/cov_stats/pedigree_inbreeding/output/artifacts",
+  "files": [
+    {
+      "path": "exports/4879e97c47c04621aa07ef2dd694eecf/pedigree_inbreeding.csv",
+      "size": 195,
+      "sha256": "99aa95998ee3eb157fc4ef67dcb044261bf76e5b3b483b8b9751d66876337399"
+    },
+    {
+      "path": "exports/df444d6afc29429b83600c566f353878/pedigree_inbreeding.csv",
+      "size": 206,
+      "sha256": "eec98ba91f40b2f7bc5d08a4169478a4a3a80a3b6a5ddb6f8a2e8043124f3134"
+    },
+    {
+      "path": "exports/eb09637e48e24ad7b8c3f5772a5580a1/pedigree_inbreeding.csv",
+      "size": 195,
+      "sha256": "99aa95998ee3eb157fc4ef67dcb044261bf76e5b3b483b8b9751d66876337399"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_omics/anosim
+generated : 2026-11-10T12:22:54.839416+00:00
+steps     : 2
+elapsed   : 0.013s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   anosim                  0.011s   steps/01_anosim.json
+2   export_results          0.003s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

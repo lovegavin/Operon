@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_mltab/gcn_node_classifier
+generated : 2026-11-10T12:25:19.079292+00:00
+steps     : 2
+elapsed   : 1.997s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   gcn_node_classifier     1.995s   steps/01_gcn_node_classifier.json
+2   export_results          0.003s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

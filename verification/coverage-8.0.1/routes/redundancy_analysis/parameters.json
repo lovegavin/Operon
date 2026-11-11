@@ -1,0 +1,34 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "redundancy_analysis",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "n_components": 2,
+        "output": "out_redundancy_analysis"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_redundancy_analysis"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "redundancy_analysis"
+      },
+      "context_params": {}
+    }
+  ]
+}

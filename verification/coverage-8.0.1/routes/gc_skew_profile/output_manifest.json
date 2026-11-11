@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/gc_skew_profile/output/artifacts",
+  "files": [
+    {
+      "path": "exports/875d6c0edfc44f40ace74a996e89043c/gc_skew_profile.csv",
+      "size": 843,
+      "sha256": "cee1455c58c7cb0731e6fdd7ac6a3d3d1e9a28d1447888ba25779f0be64d439b"
+    }
+  ]
+}

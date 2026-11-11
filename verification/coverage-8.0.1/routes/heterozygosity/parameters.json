@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "heterozygosity",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "variant_dim": "variant",
+        "sample_dim": "sample",
+        "output": "out_heterozygosity"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_heterozygosity"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "heterozygosity"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "task_dir": "/tmp/cov_stats/moran",
+  "generated_at": "2026-11-10T12:43:52.182283+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0023,
+  "steps": [
+    {
+      "index": 1,
+      "name": "moran",
+      "elapsed": 0.0004,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "value_label": "value",
+        "weighting": "inverse",
+        "output": "out_moran"
+      },
+      "export_path": "steps/01_moran.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0019,
+      "inputs": [
+        "out_moran"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "moran"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124350-66a731af8539",
+  "event_log": "/tmp/cov_stats/moran/output/runs/20261110T124350-66a731af8539/events.jsonl"
+}

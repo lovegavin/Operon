@@ -1,0 +1,10 @@
+{
+  "result": {
+    "fnat": 1.0,
+    "irmsd": 4.955409622557489e-15,
+    "lrmsd": 1.1779517141219173e-14,
+    "dockq": 1.0,
+    "n_native_contacts": 76,
+    "n_interface_residues": 119
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_sequence/bin/output/artifacts/exports/a5531009595049e1bbc7f22d8bb1de23/out_bin.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 76,
+  "source": "bin",
+  "conversion": {}
+}

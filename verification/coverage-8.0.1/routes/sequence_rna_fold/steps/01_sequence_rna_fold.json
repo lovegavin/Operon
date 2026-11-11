@@ -1,0 +1,13 @@
+{
+  "records": [
+    {
+      "sequence": "GCGGAUUUAGCUCAGUUGGGAGAGCGCCAGACUGAAGAUCUGGAGGUCCUGUGUUCGAUCCACAGAACUCGCACCA",
+      "structure": ".(((((((...((((((.((......)).)))))))))))))(((...(((((.......)))))..)))......",
+      "mfe": -22.4,
+      "ensemble": NaN,
+      "n_pairs": 23,
+      "gc": 0.5526315789473685
+    }
+  ],
+  "n_sequences": 1
+}

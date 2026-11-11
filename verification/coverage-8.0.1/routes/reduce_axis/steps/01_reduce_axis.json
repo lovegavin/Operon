@@ -1,0 +1,25 @@
+{
+  "dim": "feature",
+  "stats": [
+    "mean",
+    "std"
+  ],
+  "input_dims": [
+    "sample",
+    "feature"
+  ],
+  "input_shape": [
+    12,
+    5
+  ],
+  "output_dims": [
+    "sample",
+    "statistic"
+  ],
+  "output_shape": [
+    12,
+    2
+  ],
+  "n_reduced": 5,
+  "n_outer": 12
+}

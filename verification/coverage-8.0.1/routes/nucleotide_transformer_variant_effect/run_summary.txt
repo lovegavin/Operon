@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/nt_variant_local
+generated : 2026-11-11T04:14:33.430432+00:00
+steps     : 1
+elapsed   : 2.933s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   nucleotide_transformer_variant_effect    2.933s   steps/01_nucleotide_transformer_variant_effect.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

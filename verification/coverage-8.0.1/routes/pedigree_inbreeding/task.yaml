@@ -1,0 +1,34 @@
+{
+  "name": "pedigree_inbreeding",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "individual",
+        "field"
+      ],
+      "labels": {
+        "individual": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "pedigree_inbreeding",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_pedigree_inbreeding"
+      ]
+    }
+  ]
+}

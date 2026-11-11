@@ -1,0 +1,12 @@
+{
+  "donor_index": 1,
+  "acceptor_index": 2,
+  "regions": [
+    "CDR1",
+    "CDR2",
+    "CDR3"
+  ],
+  "acceptor_length": 132,
+  "grafted_length": 132,
+  "n_grafted": 3
+}

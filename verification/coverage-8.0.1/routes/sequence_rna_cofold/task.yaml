@@ -1,0 +1,26 @@
+{
+  "name": "sequence_rna_cofold",
+  "sources": {
+    "x0": {
+      "path": "input/rna2.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sequence_rna_cofold",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

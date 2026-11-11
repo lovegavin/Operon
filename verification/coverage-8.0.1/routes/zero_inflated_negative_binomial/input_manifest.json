@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/zero_inflated_negative_binomial/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 3535,
+      "sha256": "a4a6153e068be5b8654001f66e26f5f83c2c2db632e278f3a49810679103dc69"
+    }
+  ]
+}

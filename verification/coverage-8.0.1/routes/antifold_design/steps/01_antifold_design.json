@@ -1,0 +1,2688 @@
+{
+  "designs": [
+    {
+      "header": "T=0.20, sample=1, score=0.3324, global_score=0.7669, seq_recovery=0.9356, mutations=17",
+      "sequence": "VQLQASGGGSVQAGGSLRLSCAASGFSFGPYAIGWLRQAPGKEREGVAAINMGGGNTYYADSVKGRFTISQDNAKNTVYLLMNSLEPEDTAIYYCAADSTIYASYYYPGYGLSSGGYGYDSWGQGTQVTVSS/VQLQASGGGSVQAGGSLRLSCAASGFTIGPYSMGWYRQAPGKEREGVAAINMGGGITDYADSVKGRFTISQDNAKNTVYLLMNSLEPEDTAIYYCAADSTIYASYYHSGHGLSTGGYGYDSWGQGTQVTVSS",
+      "score": 0.3324,
+      "global_score": 0.7669,
+      "seq_recovery": 0.9356,
+      "mutations": 17,
+      "temperature": 0.2,
+      "sample": 1,
+      "is_wildtype": false,
+      "regions": ""
+    },
+    {
+      "header": "T=0.20, sample=2, score=0.3234, global_score=0.7645, seq_recovery=0.9318, mutations=18",
+      "sequence": "VQLQASGGGSVQAGGSLRLSCAASGFSFGPYAIGWLRQAPGKEREGVAAINMGGGNTGYADSVKGRFTISQDNAKNTVYLLMNSLEPEDTAIYYCAADSTIYASYYYPGYGLSSGGYGYDSWGQGTQVTVSS/VQLQASGGGSVQAGGSLRLSCAASGFTIGPYCMGWYQQAPGKEREGVAAINMGGGITDYADSVKGRFTISQDNAKNTVYLLMNSLEPEDTAIYYCAADSTIYASYYHSGHGLSTGGYGYDSWGQGTQVTVSS",
+      "score": 0.3234,
+      "global_score": 0.7645,
+      "seq_recovery": 0.9318,
+      "mutations": 18,
+      "temperature": 0.2,
+      "sample": 2,
+      "is_wildtype": false,
+      "regions": ""
+    }
+  ],
+  "wild_type": {
+    "header": "1mel_AB , score=0.8931, global_score=0.8931, regions=['CDR1', 'CDR2', 'CDR3'], model_name=AntiFold, seed=42",
+    "sequence": "VQLQASGGGSVQAGGSLRLSCAASGYTIGPYCMGWFRQAPGKEREGVAAINMGGGITYYADSVKGRFTISQDNAKNTVYLLMNSLEPEDTAIYYCAADSTIYASYYECGHGLSTGGYGYDSWGQGTQVTVSS/VQLQASGGGSVQAGGSLRLSCAASGYTIGPYCMGWFRQAPGKEREGVAAINMGGGITYYADSVKGRFTISQDNAKNTVYLLMNSLEPEDTAIYYCAADSTIYASYYECGHGLSTGGYGYDSWGQGTQVTVSS",
+    "score": 0.8931,
+    "global_score": 0.8931,
+    "seq_recovery": NaN,
+    "mutations": 0,
+    "temperature": NaN,
+    "sample": 0,
+    "is_wildtype": true,
+    "regions": "'CDR1', 'CDR2', 'CDR3'"
+  },
+  "profile": [
+    {
+      "position": 2,
+      "chain": "A",
+      "wild_type": "V",
+      "preferred": "M",
+      "perplexity": 1.5834,
+      "wild_type_logprob": -4.7247,
+      "preferred_logprob": -0.0778,
+      "is_preferred": true
+    },
+    {
+      "position": 3,
+      "chain": "A",
+      "wild_type": "Q",
+      "preferred": "Q",
+      "perplexity": 1.143,
+      "wild_type_logprob": -0.0193,
+      "preferred_logprob": -0.0193,
+      "is_preferred": false
+    },
+    {
+      "position": 4,
+      "chain": "A",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.0438,
+      "wild_type_logprob": -0.0059,
+      "preferred_logprob": -0.0059,
+      "is_preferred": false
+    },
+    {
+      "position": 5,
+      "chain": "A",
+      "wild_type": "Q",
+      "preferred": "V",
+      "perplexity": 1.237,
+      "wild_type_logprob": -6.7457,
+      "preferred_logprob": -0.0481,
+      "is_preferred": true
+    },
+    {
+      "position": 6,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "E",
+      "perplexity": 2.2124,
+      "wild_type_logprob": -6.0562,
+      "preferred_logprob": -0.551,
+      "is_preferred": true
+    },
+    {
+      "position": 7,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.4821,
+      "wild_type_logprob": -0.0813,
+      "preferred_logprob": -0.0813,
+      "is_preferred": false
+    },
+    {
+      "position": 8,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0007,
+      "wild_type_logprob": -0.0001,
+      "preferred_logprob": -0.0001,
+      "is_preferred": false
+    },
+    {
+      "position": 9,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0006,
+      "wild_type_logprob": -0.0,
+      "preferred_logprob": -0.0,
+      "is_preferred": false
+    },
+    {
+      "position": 10,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0019,
+      "wild_type_logprob": -0.0002,
+      "preferred_logprob": -0.0002,
+      "is_preferred": false
+    },
+    {
+      "position": 11,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "L",
+      "perplexity": 3.6499,
+      "wild_type_logprob": -3.2332,
+      "preferred_logprob": -0.5482,
+      "is_preferred": true
+    },
+    {
+      "position": 12,
+      "chain": "A",
+      "wild_type": "V",
+      "preferred": "V",
+      "perplexity": 2.0653,
+      "wild_type_logprob": -0.1684,
+      "preferred_logprob": -0.1684,
+      "is_preferred": false
+    },
+    {
+      "position": 13,
+      "chain": "A",
+      "wild_type": "Q",
+      "preferred": "K",
+      "perplexity": 4.4071,
+      "wild_type_logprob": -1.2722,
+      "preferred_logprob": -0.7366,
+      "is_preferred": true
+    },
+    {
+      "position": 14,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 2.9127,
+      "wild_type_logprob": -0.5497,
+      "preferred_logprob": -0.5497,
+      "is_preferred": false
+    },
+    {
+      "position": 15,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0193,
+      "wild_type_logprob": -0.0022,
+      "preferred_logprob": -0.0022,
+      "is_preferred": false
+    },
+    {
+      "position": 16,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.4573,
+      "wild_type_logprob": -0.1015,
+      "preferred_logprob": -0.1015,
+      "is_preferred": false
+    },
+    {
+      "position": 17,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.09,
+      "wild_type_logprob": -0.012,
+      "preferred_logprob": -0.012,
+      "is_preferred": false
+    },
+    {
+      "position": 18,
+      "chain": "A",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.1319,
+      "wild_type_logprob": -0.0189,
+      "preferred_logprob": -0.0189,
+      "is_preferred": false
+    },
+    {
+      "position": 19,
+      "chain": "A",
+      "wild_type": "R",
+      "preferred": "R",
+      "perplexity": 1.0566,
+      "wild_type_logprob": -0.0077,
+      "preferred_logprob": -0.0077,
+      "is_preferred": false
+    },
+    {
+      "position": 20,
+      "chain": "A",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.0043,
+      "wild_type_logprob": -0.0004,
+      "preferred_logprob": -0.0004,
+      "is_preferred": false
+    },
+    {
+      "position": 21,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.026,
+      "wild_type_logprob": -0.0031,
+      "preferred_logprob": -0.0031,
+      "is_preferred": false
+    },
+    {
+      "position": 22,
+      "chain": "A",
+      "wild_type": "C",
+      "preferred": "C",
+      "perplexity": 1.0068,
+      "wild_type_logprob": -0.0007,
+      "preferred_logprob": -0.0007,
+      "is_preferred": false
+    },
+    {
+      "position": 23,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 2.3239,
+      "wild_type_logprob": -0.2387,
+      "preferred_logprob": -0.2387,
+      "is_preferred": false
+    },
+    {
+      "position": 24,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.0865,
+      "wild_type_logprob": -0.0134,
+      "preferred_logprob": -0.0134,
+      "is_preferred": false
+    },
+    {
+      "position": 25,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.2411,
+      "wild_type_logprob": -0.0346,
+      "preferred_logprob": -0.0346,
+      "is_preferred": false
+    },
+    {
+      "position": 26,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0171,
+      "wild_type_logprob": -0.0019,
+      "preferred_logprob": -0.0019,
+      "is_preferred": false
+    },
+    {
+      "position": 27,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "F",
+      "perplexity": 1.1435,
+      "wild_type_logprob": -4.1927,
+      "preferred_logprob": -0.0228,
+      "is_preferred": true
+    },
+    {
+      "position": 28,
+      "chain": "A",
+      "wild_type": "T",
+      "preferred": "S",
+      "perplexity": 5.7978,
+      "wild_type_logprob": -1.1948,
+      "preferred_logprob": -0.9822,
+      "is_preferred": true
+    },
+    {
+      "position": 29,
+      "chain": "A",
+      "wild_type": "I",
+      "preferred": "F",
+      "perplexity": 2.3564,
+      "wild_type_logprob": -2.2532,
+      "preferred_logprob": -0.2392,
+      "is_preferred": true
+    },
+    {
+      "position": 30,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 2.2677,
+      "wild_type_logprob": -0.1893,
+      "preferred_logprob": -0.1893,
+      "is_preferred": false
+    },
+    {
+      "position": 31,
+      "chain": "A",
+      "wild_type": "P",
+      "preferred": "P",
+      "perplexity": 1.3016,
+      "wild_type_logprob": -0.0529,
+      "preferred_logprob": -0.0529,
+      "is_preferred": false
+    },
+    {
+      "position": 32,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 5.3689,
+      "wild_type_logprob": -0.9195,
+      "preferred_logprob": -0.9195,
+      "is_preferred": false
+    },
+    {
+      "position": 33,
+      "chain": "A",
+      "wild_type": "C",
+      "preferred": "A",
+      "perplexity": 6.2548,
+      "wild_type_logprob": -4.8526,
+      "preferred_logprob": -0.953,
+      "is_preferred": true
+    },
+    {
+      "position": 34,
+      "chain": "A",
+      "wild_type": "M",
+      "preferred": "I",
+      "perplexity": 2.4744,
+      "wild_type_logprob": -4.0035,
+      "preferred_logprob": -0.3522,
+      "is_preferred": true
+    },
+    {
+      "position": 35,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.2842,
+      "wild_type_logprob": -0.0482,
+      "preferred_logprob": -0.0482,
+      "is_preferred": false
+    },
+    {
+      "position": 36,
+      "chain": "A",
+      "wild_type": "W",
+      "preferred": "W",
+      "perplexity": 1.0072,
+      "wild_type_logprob": -0.0007,
+      "preferred_logprob": -0.0007,
+      "is_preferred": false
+    },
+    {
+      "position": 37,
+      "chain": "A",
+      "wild_type": "F",
+      "preferred": "L",
+      "perplexity": 3.6789,
+      "wild_type_logprob": -1.7217,
+      "preferred_logprob": -0.5017,
+      "is_preferred": true
+    },
+    {
+      "position": 38,
+      "chain": "A",
+      "wild_type": "R",
+      "preferred": "R",
+      "perplexity": 1.0032,
+      "wild_type_logprob": -0.0003,
+      "preferred_logprob": -0.0003,
+      "is_preferred": false
+    },
+    {
+      "position": 39,
+      "chain": "A",
+      "wild_type": "Q",
+      "preferred": "Q",
+      "perplexity": 1.2877,
+      "wild_type_logprob": -0.0449,
+      "preferred_logprob": -0.0449,
+      "is_preferred": false
+    },
+    {
+      "position": 40,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.0284,
+      "wild_type_logprob": -0.0033,
+      "preferred_logprob": -0.0033,
+      "is_preferred": false
+    },
+    {
+      "position": 41,
+      "chain": "A",
+      "wild_type": "P",
+      "preferred": "P",
+      "perplexity": 1.0417,
+      "wild_type_logprob": -0.0053,
+      "preferred_logprob": -0.0053,
+      "is_preferred": false
+    },
+    {
+      "position": 42,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0034,
+      "wild_type_logprob": -0.0003,
+      "preferred_logprob": -0.0003,
+      "is_preferred": false
+    },
+    {
+      "position": 43,
+      "chain": "A",
+      "wild_type": "K",
+      "preferred": "K",
+      "perplexity": 1.1479,
+      "wild_type_logprob": -0.0219,
+      "preferred_logprob": -0.0219,
+      "is_preferred": false
+    },
+    {
+      "position": 44,
+      "chain": "A",
+      "wild_type": "E",
+      "preferred": "G",
+      "perplexity": 2.4641,
+      "wild_type_logprob": -4.9487,
+      "preferred_logprob": -0.2935,
+      "is_preferred": true
+    },
+    {
+      "position": 45,
+      "chain": "A",
+      "wild_type": "R",
+      "preferred": "L",
+      "perplexity": 4.1522,
+      "wild_type_logprob": -5.7968,
+      "preferred_logprob": -0.8621,
+      "is_preferred": true
+    },
+    {
+      "position": 46,
+      "chain": "A",
+      "wild_type": "E",
+      "preferred": "E",
+      "perplexity": 1.1092,
+      "wild_type_logprob": -0.0197,
+      "preferred_logprob": -0.0197,
+      "is_preferred": false
+    },
+    {
+      "position": 47,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.489,
+      "wild_type_logprob": -0.1102,
+      "preferred_logprob": -0.1102,
+      "is_preferred": false
+    },
+    {
+      "position": 48,
+      "chain": "A",
+      "wild_type": "V",
+      "preferred": "L",
+      "perplexity": 1.2354,
+      "wild_type_logprob": -3.8256,
+      "preferred_logprob": -0.0428,
+      "is_preferred": true
+    },
+    {
+      "position": 49,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "S",
+      "perplexity": 2.2757,
+      "wild_type_logprob": -0.8868,
+      "preferred_logprob": -0.5754,
+      "is_preferred": true
+    },
+    {
+      "position": 50,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 3.5448,
+      "wild_type_logprob": -0.552,
+      "preferred_logprob": -0.552,
+      "is_preferred": false
+    },
+    {
+      "position": 51,
+      "chain": "A",
+      "wild_type": "I",
+      "preferred": "I",
+      "perplexity": 1.2196,
+      "wild_type_logprob": -0.0395,
+      "preferred_logprob": -0.0395,
+      "is_preferred": false
+    },
+    {
+      "position": 52,
+      "chain": "A",
+      "wild_type": "N",
+      "preferred": "N",
+      "perplexity": 3.2059,
+      "wild_type_logprob": -0.5474,
+      "preferred_logprob": -0.5474,
+      "is_preferred": false
+    },
+    {
+      "position": 53,
+      "chain": "A",
+      "wild_type": "M",
+      "preferred": "V",
+      "perplexity": 11.1883,
+      "wild_type_logprob": -2.9587,
+      "preferred_logprob": -1.4273,
+      "is_preferred": true
+    },
+    {
+      "position": 54,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 9.4051,
+      "wild_type_logprob": -0.9886,
+      "preferred_logprob": -0.9886,
+      "is_preferred": false
+    },
+    {
+      "position": 55,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.6042,
+      "wild_type_logprob": -0.0936,
+      "preferred_logprob": -0.0936,
+      "is_preferred": false
+    },
+    {
+      "position": 56,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0269,
+      "wild_type_logprob": -0.003,
+      "preferred_logprob": -0.003,
+      "is_preferred": false
+    },
+    {
+      "position": 57,
+      "chain": "A",
+      "wild_type": "I",
+      "preferred": "N",
+      "perplexity": 7.8298,
+      "wild_type_logprob": -4.2124,
+      "preferred_logprob": -1.0322,
+      "is_preferred": true
+    },
+    {
+      "position": 58,
+      "chain": "A",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.0629,
+      "wild_type_logprob": -0.0082,
+      "preferred_logprob": -0.0082,
+      "is_preferred": false
+    },
+    {
+      "position": 59,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "G",
+      "perplexity": 5.2364,
+      "wild_type_logprob": -1.0966,
+      "preferred_logprob": -0.9672,
+      "is_preferred": true
+    },
+    {
+      "position": 60,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.0274,
+      "wild_type_logprob": -0.0033,
+      "preferred_logprob": -0.0033,
+      "is_preferred": false
+    },
+    {
+      "position": 61,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.3448,
+      "wild_type_logprob": -0.0658,
+      "preferred_logprob": -0.0658,
+      "is_preferred": false
+    },
+    {
+      "position": 62,
+      "chain": "A",
+      "wild_type": "D",
+      "preferred": "D",
+      "perplexity": 1.2806,
+      "wild_type_logprob": -0.0413,
+      "preferred_logprob": -0.0413,
+      "is_preferred": false
+    },
+    {
+      "position": 63,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.1135,
+      "wild_type_logprob": -0.0173,
+      "preferred_logprob": -0.0173,
+      "is_preferred": false
+    },
+    {
+      "position": 64,
+      "chain": "A",
+      "wild_type": "V",
+      "preferred": "V",
+      "perplexity": 1.0065,
+      "wild_type_logprob": -0.0007,
+      "preferred_logprob": -0.0007,
+      "is_preferred": false
+    },
+    {
+      "position": 65,
+      "chain": "A",
+      "wild_type": "K",
+      "preferred": "K",
+      "perplexity": 1.4939,
+      "wild_type_logprob": -0.0839,
+      "preferred_logprob": -0.0839,
+      "is_preferred": false
+    },
+    {
+      "position": 66,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0022,
+      "wild_type_logprob": -0.0002,
+      "preferred_logprob": -0.0002,
+      "is_preferred": false
+    },
+    {
+      "position": 67,
+      "chain": "A",
+      "wild_type": "R",
+      "preferred": "R",
+      "perplexity": 1.0068,
+      "wild_type_logprob": -0.0007,
+      "preferred_logprob": -0.0007,
+      "is_preferred": false
+    },
+    {
+      "position": 68,
+      "chain": "A",
+      "wild_type": "F",
+      "preferred": "F",
+      "perplexity": 1.0087,
+      "wild_type_logprob": -0.001,
+      "preferred_logprob": -0.001,
+      "is_preferred": false
+    },
+    {
+      "position": 69,
+      "chain": "A",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.0799,
+      "wild_type_logprob": -0.0119,
+      "preferred_logprob": -0.0119,
+      "is_preferred": false
+    },
+    {
+      "position": 70,
+      "chain": "A",
+      "wild_type": "I",
+      "preferred": "I",
+      "perplexity": 1.0354,
+      "wild_type_logprob": -0.0054,
+      "preferred_logprob": -0.0054,
+      "is_preferred": false
+    },
+    {
+      "position": 71,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.0236,
+      "wild_type_logprob": -0.0027,
+      "preferred_logprob": -0.0027,
+      "is_preferred": false
+    },
+    {
+      "position": 72,
+      "chain": "A",
+      "wild_type": "Q",
+      "preferred": "R",
+      "perplexity": 4.1036,
+      "wild_type_logprob": -3.5341,
+      "preferred_logprob": -0.5497,
+      "is_preferred": true
+    },
+    {
+      "position": 73,
+      "chain": "A",
+      "wild_type": "D",
+      "preferred": "D",
+      "perplexity": 1.1264,
+      "wild_type_logprob": -0.0185,
+      "preferred_logprob": -0.0185,
+      "is_preferred": false
+    },
+    {
+      "position": 74,
+      "chain": "A",
+      "wild_type": "N",
+      "preferred": "N",
+      "perplexity": 2.9892,
+      "wild_type_logprob": -0.3467,
+      "preferred_logprob": -0.3467,
+      "is_preferred": false
+    },
+    {
+      "position": 75,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "S",
+      "perplexity": 2.3721,
+      "wild_type_logprob": -1.551,
+      "preferred_logprob": -0.3217,
+      "is_preferred": true
+    },
+    {
+      "position": 76,
+      "chain": "A",
+      "wild_type": "K",
+      "preferred": "K",
+      "perplexity": 1.817,
+      "wild_type_logprob": -0.1392,
+      "preferred_logprob": -0.1392,
+      "is_preferred": false
+    },
+    {
+      "position": 77,
+      "chain": "A",
+      "wild_type": "N",
+      "preferred": "N",
+      "perplexity": 1.3172,
+      "wild_type_logprob": -0.0609,
+      "preferred_logprob": -0.0609,
+      "is_preferred": false
+    },
+    {
+      "position": 78,
+      "chain": "A",
+      "wild_type": "T",
+      "preferred": "S",
+      "perplexity": 2.1435,
+      "wild_type_logprob": -0.7252,
+      "preferred_logprob": -0.6861,
+      "is_preferred": true
+    },
+    {
+      "position": 79,
+      "chain": "A",
+      "wild_type": "V",
+      "preferred": "I",
+      "perplexity": 6.8728,
+      "wild_type_logprob": -1.9774,
+      "preferred_logprob": -1.0873,
+      "is_preferred": true
+    },
+    {
+      "position": 80,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.8132,
+      "wild_type_logprob": -0.151,
+      "preferred_logprob": -0.151,
+      "is_preferred": false
+    },
+    {
+      "position": 81,
+      "chain": "A",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.0033,
+      "wild_type_logprob": -0.0003,
+      "preferred_logprob": -0.0003,
+      "is_preferred": false
+    },
+    {
+      "position": 82,
+      "chain": "A",
+      "wild_type": "L",
+      "preferred": "Q",
+      "perplexity": 1.0264,
+      "wild_type_logprob": -9.7304,
+      "preferred_logprob": -0.0033,
+      "is_preferred": true
+    },
+    {
+      "position": 83,
+      "chain": "A",
+      "wild_type": "M",
+      "preferred": "M",
+      "perplexity": 1.019,
+      "wild_type_logprob": -0.0022,
+      "preferred_logprob": -0.0022,
+      "is_preferred": false
+    },
+    {
+      "position": 84,
+      "chain": "A",
+      "wild_type": "N",
+      "preferred": "N",
+      "perplexity": 2.0104,
+      "wild_type_logprob": -0.1888,
+      "preferred_logprob": -0.1888,
+      "is_preferred": false
+    },
+    {
+      "position": 85,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.3922,
+      "wild_type_logprob": -0.0657,
+      "preferred_logprob": -0.0657,
+      "is_preferred": false
+    },
+    {
+      "position": 86,
+      "chain": "A",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.002,
+      "wild_type_logprob": -0.0002,
+      "preferred_logprob": -0.0002,
+      "is_preferred": false
+    },
+    {
+      "position": 87,
+      "chain": "A",
+      "wild_type": "E",
+      "preferred": "R",
+      "perplexity": 1.4829,
+      "wild_type_logprob": -7.3625,
+      "preferred_logprob": -0.0845,
+      "is_preferred": true
+    },
+    {
+      "position": 88,
+      "chain": "A",
+      "wild_type": "P",
+      "preferred": "P",
+      "perplexity": 4.5021,
+      "wild_type_logprob": -0.658,
+      "preferred_logprob": -0.658,
+      "is_preferred": false
+    },
+    {
+      "position": 89,
+      "chain": "A",
+      "wild_type": "E",
+      "preferred": "E",
+      "perplexity": 1.376,
+      "wild_type_logprob": -0.0727,
+      "preferred_logprob": -0.0727,
+      "is_preferred": false
+    },
+    {
+      "position": 90,
+      "chain": "A",
+      "wild_type": "D",
+      "preferred": "D",
+      "perplexity": 1.0013,
+      "wild_type_logprob": -0.0001,
+      "preferred_logprob": -0.0001,
+      "is_preferred": false
+    },
+    {
+      "position": 91,
+      "chain": "A",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.0409,
+      "wild_type_logprob": -0.0065,
+      "preferred_logprob": -0.0065,
+      "is_preferred": false
+    },
+    {
+      "position": 92,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.007,
+      "wild_type_logprob": -0.0008,
+      "preferred_logprob": -0.0008,
+      "is_preferred": false
+    },
+    {
+      "position": 93,
+      "chain": "A",
+      "wild_type": "I",
+      "preferred": "L",
+      "perplexity": 2.7176,
+      "wild_type_logprob": -4.0169,
+      "preferred_logprob": -0.5705,
+      "is_preferred": true
+    },
+    {
+      "position": 94,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.016,
+      "wild_type_logprob": -0.0021,
+      "preferred_logprob": -0.0021,
+      "is_preferred": false
+    },
+    {
+      "position": 95,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.3558,
+      "wild_type_logprob": -0.0734,
+      "preferred_logprob": -0.0734,
+      "is_preferred": false
+    },
+    {
+      "position": 96,
+      "chain": "A",
+      "wild_type": "C",
+      "preferred": "C",
+      "perplexity": 1.025,
+      "wild_type_logprob": -0.003,
+      "preferred_logprob": -0.003,
+      "is_preferred": false
+    },
+    {
+      "position": 97,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.101,
+      "wild_type_logprob": -0.0142,
+      "preferred_logprob": -0.0142,
+      "is_preferred": false
+    },
+    {
+      "position": 98,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 2.3267,
+      "wild_type_logprob": -0.311,
+      "preferred_logprob": -0.311,
+      "is_preferred": false
+    },
+    {
+      "position": 99,
+      "chain": "A",
+      "wild_type": "D",
+      "preferred": "D",
+      "perplexity": 4.4453,
+      "wild_type_logprob": -0.4565,
+      "preferred_logprob": -0.4565,
+      "is_preferred": false
+    },
+    {
+      "position": 100,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "L",
+      "perplexity": 9.4134,
+      "wild_type_logprob": -2.1869,
+      "preferred_logprob": -1.2157,
+      "is_preferred": true
+    },
+    {
+      "position": 101,
+      "chain": "A",
+      "wild_type": "T",
+      "preferred": "Y",
+      "perplexity": 13.9735,
+      "wild_type_logprob": -2.4802,
+      "preferred_logprob": -1.7749,
+      "is_preferred": true
+    },
+    {
+      "position": 102,
+      "chain": "A",
+      "wild_type": "I",
+      "preferred": "I",
+      "perplexity": 9.5045,
+      "wild_type_logprob": -1.4434,
+      "preferred_logprob": -1.4434,
+      "is_preferred": false
+    },
+    {
+      "position": 103,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "P",
+      "perplexity": 7.6869,
+      "wild_type_logprob": -1.536,
+      "preferred_logprob": -1.3639,
+      "is_preferred": true
+    },
+    {
+      "position": 104,
+      "chain": "A",
+      "wild_type": "A",
+      "preferred": "Y",
+      "perplexity": 10.8667,
+      "wild_type_logprob": -3.5676,
+      "preferred_logprob": -1.3388,
+      "is_preferred": true
+    },
+    {
+      "position": 105,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 10.7744,
+      "wild_type_logprob": -1.4439,
+      "preferred_logprob": -1.4439,
+      "is_preferred": false
+    },
+    {
+      "position": 106,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 10.8772,
+      "wild_type_logprob": -1.3813,
+      "preferred_logprob": -1.3813,
+      "is_preferred": false
+    },
+    {
+      "position": 107,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.7505,
+      "wild_type_logprob": -0.1122,
+      "preferred_logprob": -0.1122,
+      "is_preferred": false
+    },
+    {
+      "position": 108,
+      "chain": "A",
+      "wild_type": "E",
+      "preferred": "Y",
+      "perplexity": 2.259,
+      "wild_type_logprob": -4.5841,
+      "preferred_logprob": -0.1835,
+      "is_preferred": true
+    },
+    {
+      "position": 109,
+      "chain": "A",
+      "wild_type": "C",
+      "preferred": "P",
+      "perplexity": 2.9444,
+      "wild_type_logprob": -1.2097,
+      "preferred_logprob": -0.5537,
+      "is_preferred": true
+    },
+    {
+      "position": 110,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.2183,
+      "wild_type_logprob": -0.0341,
+      "preferred_logprob": -0.0341,
+      "is_preferred": false
+    },
+    {
+      "position": 111,
+      "chain": "A",
+      "wild_type": "H",
+      "preferred": "Y",
+      "perplexity": 11.9331,
+      "wild_type_logprob": -3.9781,
+      "preferred_logprob": -1.3369,
+      "is_preferred": true
+    },
+    {
+      "position": 112,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0369,
+      "wild_type_logprob": -0.0042,
+      "preferred_logprob": -0.0042,
+      "is_preferred": false
+    },
+    {
+      "position": 113,
+      "chain": "A",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.9259,
+      "wild_type_logprob": -0.1767,
+      "preferred_logprob": -0.1767,
+      "is_preferred": false
+    },
+    {
+      "position": 114,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 10.7924,
+      "wild_type_logprob": -1.4012,
+      "preferred_logprob": -1.4012,
+      "is_preferred": false
+    },
+    {
+      "position": 115,
+      "chain": "A",
+      "wild_type": "T",
+      "preferred": "S",
+      "perplexity": 8.8606,
+      "wild_type_logprob": -2.5035,
+      "preferred_logprob": -1.1502,
+      "is_preferred": true
+    },
+    {
+      "position": 116,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.1852,
+      "wild_type_logprob": -0.0245,
+      "preferred_logprob": -0.0245,
+      "is_preferred": false
+    },
+    {
+      "position": 117,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 3.8926,
+      "wild_type_logprob": -0.4104,
+      "preferred_logprob": -0.4104,
+      "is_preferred": false
+    },
+    {
+      "position": 118,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 10.5459,
+      "wild_type_logprob": -0.9665,
+      "preferred_logprob": -0.9665,
+      "is_preferred": false
+    },
+    {
+      "position": 119,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0599,
+      "wild_type_logprob": -0.0071,
+      "preferred_logprob": -0.0071,
+      "is_preferred": false
+    },
+    {
+      "position": 120,
+      "chain": "A",
+      "wild_type": "Y",
+      "preferred": "F",
+      "perplexity": 3.0058,
+      "wild_type_logprob": -2.549,
+      "preferred_logprob": -0.4702,
+      "is_preferred": true
+    },
+    {
+      "position": 121,
+      "chain": "A",
+      "wild_type": "D",
+      "preferred": "D",
+      "perplexity": 1.1633,
+      "wild_type_logprob": -0.0218,
+      "preferred_logprob": -0.0218,
+      "is_preferred": false
+    },
+    {
+      "position": 122,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "V",
+      "perplexity": 5.2386,
+      "wild_type_logprob": -3.0409,
+      "preferred_logprob": -0.7885,
+      "is_preferred": true
+    },
+    {
+      "position": 123,
+      "chain": "A",
+      "wild_type": "W",
+      "preferred": "W",
+      "perplexity": 1.0025,
+      "wild_type_logprob": -0.0002,
+      "preferred_logprob": -0.0002,
+      "is_preferred": false
+    },
+    {
+      "position": 124,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.001,
+      "wild_type_logprob": -0.0001,
+      "preferred_logprob": -0.0001,
+      "is_preferred": false
+    },
+    {
+      "position": 125,
+      "chain": "A",
+      "wild_type": "Q",
+      "preferred": "Q",
+      "perplexity": 1.3566,
+      "wild_type_logprob": -0.0544,
+      "preferred_logprob": -0.0544,
+      "is_preferred": false
+    },
+    {
+      "position": 126,
+      "chain": "A",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0008,
+      "wild_type_logprob": -0.0001,
+      "preferred_logprob": -0.0001,
+      "is_preferred": false
+    },
+    {
+      "position": 127,
+      "chain": "A",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.3183,
+      "wild_type_logprob": -0.0587,
+      "preferred_logprob": -0.0587,
+      "is_preferred": false
+    },
+    {
+      "position": 128,
+      "chain": "A",
+      "wild_type": "Q",
+      "preferred": "L",
+      "perplexity": 1.6092,
+      "wild_type_logprob": -4.6715,
+      "preferred_logprob": -0.0929,
+      "is_preferred": true
+    },
+    {
+      "position": 129,
+      "chain": "A",
+      "wild_type": "V",
+      "preferred": "V",
+      "perplexity": 1.0214,
+      "wild_type_logprob": -0.0028,
+      "preferred_logprob": -0.0028,
+      "is_preferred": false
+    },
+    {
+      "position": 130,
+      "chain": "A",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.7436,
+      "wild_type_logprob": -0.1789,
+      "preferred_logprob": -0.1789,
+      "is_preferred": false
+    },
+    {
+      "position": 131,
+      "chain": "A",
+      "wild_type": "V",
+      "preferred": "V",
+      "perplexity": 1.0102,
+      "wild_type_logprob": -0.0012,
+      "preferred_logprob": -0.0012,
+      "is_preferred": false
+    },
+    {
+      "position": 132,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.4288,
+      "wild_type_logprob": -0.0763,
+      "preferred_logprob": -0.0763,
+      "is_preferred": false
+    },
+    {
+      "position": 133,
+      "chain": "A",
+      "wild_type": "S",
+      "preferred": "G",
+      "perplexity": 1.787,
+      "wild_type_logprob": -1.5192,
+      "preferred_logprob": -0.2568,
+      "is_preferred": true
+    },
+    {
+      "position": 2,
+      "chain": "B",
+      "wild_type": "V",
+      "preferred": "I",
+      "perplexity": 3.6674,
+      "wild_type_logprob": -1.5968,
+      "preferred_logprob": -0.5136,
+      "is_preferred": true
+    },
+    {
+      "position": 3,
+      "chain": "B",
+      "wild_type": "Q",
+      "preferred": "V",
+      "perplexity": 2.8046,
+      "wild_type_logprob": -2.5091,
+      "preferred_logprob": -0.2763,
+      "is_preferred": true
+    },
+    {
+      "position": 4,
+      "chain": "B",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.2285,
+      "wild_type_logprob": -0.0461,
+      "preferred_logprob": -0.0461,
+      "is_preferred": false
+    },
+    {
+      "position": 5,
+      "chain": "B",
+      "wild_type": "Q",
+      "preferred": "T",
+      "perplexity": 1.2591,
+      "wild_type_logprob": -8.3984,
+      "preferred_logprob": -0.0405,
+      "is_preferred": true
+    },
+    {
+      "position": 6,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "Q",
+      "perplexity": 1.1785,
+      "wild_type_logprob": -5.5153,
+      "preferred_logprob": -0.0268,
+      "is_preferred": true
+    },
+    {
+      "position": 7,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.1612,
+      "wild_type_logprob": -0.0277,
+      "preferred_logprob": -0.0277,
+      "is_preferred": false
+    },
+    {
+      "position": 8,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0035,
+      "wild_type_logprob": -0.0003,
+      "preferred_logprob": -0.0003,
+      "is_preferred": false
+    },
+    {
+      "position": 9,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0009,
+      "wild_type_logprob": -0.0001,
+      "preferred_logprob": -0.0001,
+      "is_preferred": false
+    },
+    {
+      "position": 10,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0033,
+      "wild_type_logprob": -0.0003,
+      "preferred_logprob": -0.0003,
+      "is_preferred": false
+    },
+    {
+      "position": 11,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 3.7243,
+      "wild_type_logprob": -0.6077,
+      "preferred_logprob": -0.6077,
+      "is_preferred": false
+    },
+    {
+      "position": 12,
+      "chain": "B",
+      "wild_type": "V",
+      "preferred": "A",
+      "perplexity": 5.2684,
+      "wild_type_logprob": -2.2102,
+      "preferred_logprob": -0.621,
+      "is_preferred": true
+    },
+    {
+      "position": 13,
+      "chain": "B",
+      "wild_type": "Q",
+      "preferred": "A",
+      "perplexity": 5.4812,
+      "wild_type_logprob": -3.3296,
+      "preferred_logprob": -0.9597,
+      "is_preferred": true
+    },
+    {
+      "position": 14,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 3.1018,
+      "wild_type_logprob": -0.8205,
+      "preferred_logprob": -0.8205,
+      "is_preferred": false
+    },
+    {
+      "position": 15,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0032,
+      "wild_type_logprob": -0.0003,
+      "preferred_logprob": -0.0003,
+      "is_preferred": false
+    },
+    {
+      "position": 16,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0002,
+      "wild_type_logprob": -0.0,
+      "preferred_logprob": -0.0,
+      "is_preferred": false
+    },
+    {
+      "position": 17,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.2136,
+      "wild_type_logprob": -0.0394,
+      "preferred_logprob": -0.0394,
+      "is_preferred": false
+    },
+    {
+      "position": 18,
+      "chain": "B",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.1429,
+      "wild_type_logprob": -0.025,
+      "preferred_logprob": -0.025,
+      "is_preferred": false
+    },
+    {
+      "position": 19,
+      "chain": "B",
+      "wild_type": "R",
+      "preferred": "R",
+      "perplexity": 3.3549,
+      "wild_type_logprob": -0.5492,
+      "preferred_logprob": -0.5492,
+      "is_preferred": false
+    },
+    {
+      "position": 20,
+      "chain": "B",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.0105,
+      "wild_type_logprob": -0.0012,
+      "preferred_logprob": -0.0012,
+      "is_preferred": false
+    },
+    {
+      "position": 21,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.5045,
+      "wild_type_logprob": -0.1359,
+      "preferred_logprob": -0.1359,
+      "is_preferred": false
+    },
+    {
+      "position": 22,
+      "chain": "B",
+      "wild_type": "C",
+      "preferred": "C",
+      "perplexity": 1.0001,
+      "wild_type_logprob": -0.0,
+      "preferred_logprob": -0.0,
+      "is_preferred": false
+    },
+    {
+      "position": 23,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "R",
+      "perplexity": 3.9129,
+      "wild_type_logprob": -2.6252,
+      "preferred_logprob": -0.6045,
+      "is_preferred": true
+    },
+    {
+      "position": 24,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.0953,
+      "wild_type_logprob": -0.0161,
+      "preferred_logprob": -0.0161,
+      "is_preferred": false
+    },
+    {
+      "position": 25,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.1324,
+      "wild_type_logprob": -0.0173,
+      "preferred_logprob": -0.0173,
+      "is_preferred": false
+    },
+    {
+      "position": 26,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0241,
+      "wild_type_logprob": -0.0027,
+      "preferred_logprob": -0.0027,
+      "is_preferred": false
+    },
+    {
+      "position": 27,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "F",
+      "perplexity": 1.5588,
+      "wild_type_logprob": -2.0697,
+      "preferred_logprob": -0.1451,
+      "is_preferred": true
+    },
+    {
+      "position": 28,
+      "chain": "B",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 4.551,
+      "wild_type_logprob": -0.6833,
+      "preferred_logprob": -0.6833,
+      "is_preferred": false
+    },
+    {
+      "position": 29,
+      "chain": "B",
+      "wild_type": "I",
+      "preferred": "I",
+      "perplexity": 1.4297,
+      "wild_type_logprob": -0.0658,
+      "preferred_logprob": -0.0658,
+      "is_preferred": false
+    },
+    {
+      "position": 30,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0825,
+      "wild_type_logprob": -0.012,
+      "preferred_logprob": -0.012,
+      "is_preferred": false
+    },
+    {
+      "position": 31,
+      "chain": "B",
+      "wild_type": "P",
+      "preferred": "P",
+      "perplexity": 1.2978,
+      "wild_type_logprob": -0.0522,
+      "preferred_logprob": -0.0522,
+      "is_preferred": false
+    },
+    {
+      "position": 32,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.5036,
+      "wild_type_logprob": -0.0828,
+      "preferred_logprob": -0.0828,
+      "is_preferred": false
+    },
+    {
+      "position": 33,
+      "chain": "B",
+      "wild_type": "C",
+      "preferred": "C",
+      "perplexity": 6.1051,
+      "wild_type_logprob": -0.7767,
+      "preferred_logprob": -0.7767,
+      "is_preferred": false
+    },
+    {
+      "position": 34,
+      "chain": "B",
+      "wild_type": "M",
+      "preferred": "M",
+      "perplexity": 1.3979,
+      "wild_type_logprob": -0.0682,
+      "preferred_logprob": -0.0682,
+      "is_preferred": false
+    },
+    {
+      "position": 35,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0034,
+      "wild_type_logprob": -0.0003,
+      "preferred_logprob": -0.0003,
+      "is_preferred": false
+    },
+    {
+      "position": 36,
+      "chain": "B",
+      "wild_type": "W",
+      "preferred": "W",
+      "perplexity": 1.0007,
+      "wild_type_logprob": -0.0001,
+      "preferred_logprob": -0.0001,
+      "is_preferred": false
+    },
+    {
+      "position": 37,
+      "chain": "B",
+      "wild_type": "F",
+      "preferred": "Y",
+      "perplexity": 3.9461,
+      "wild_type_logprob": -1.2703,
+      "preferred_logprob": -0.823,
+      "is_preferred": true
+    },
+    {
+      "position": 38,
+      "chain": "B",
+      "wild_type": "R",
+      "preferred": "R",
+      "perplexity": 2.6643,
+      "wild_type_logprob": -0.5869,
+      "preferred_logprob": -0.5869,
+      "is_preferred": false
+    },
+    {
+      "position": 39,
+      "chain": "B",
+      "wild_type": "Q",
+      "preferred": "Q",
+      "perplexity": 1.05,
+      "wild_type_logprob": -0.0066,
+      "preferred_logprob": -0.0066,
+      "is_preferred": false
+    },
+    {
+      "position": 40,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.0997,
+      "wild_type_logprob": -0.0138,
+      "preferred_logprob": -0.0138,
+      "is_preferred": false
+    },
+    {
+      "position": 41,
+      "chain": "B",
+      "wild_type": "P",
+      "preferred": "P",
+      "perplexity": 1.0082,
+      "wild_type_logprob": -0.0009,
+      "preferred_logprob": -0.0009,
+      "is_preferred": false
+    },
+    {
+      "position": 42,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0033,
+      "wild_type_logprob": -0.0003,
+      "preferred_logprob": -0.0003,
+      "is_preferred": false
+    },
+    {
+      "position": 43,
+      "chain": "B",
+      "wild_type": "K",
+      "preferred": "K",
+      "perplexity": 1.2228,
+      "wild_type_logprob": -0.0388,
+      "preferred_logprob": -0.0388,
+      "is_preferred": false
+    },
+    {
+      "position": 44,
+      "chain": "B",
+      "wild_type": "E",
+      "preferred": "A",
+      "perplexity": 2.152,
+      "wild_type_logprob": -1.7087,
+      "preferred_logprob": -0.2702,
+      "is_preferred": true
+    },
+    {
+      "position": 45,
+      "chain": "B",
+      "wild_type": "R",
+      "preferred": "P",
+      "perplexity": 1.3989,
+      "wild_type_logprob": -5.9514,
+      "preferred_logprob": -0.0671,
+      "is_preferred": true
+    },
+    {
+      "position": 46,
+      "chain": "B",
+      "wild_type": "E",
+      "preferred": "E",
+      "perplexity": 4.1236,
+      "wild_type_logprob": -1.0086,
+      "preferred_logprob": -1.0086,
+      "is_preferred": false
+    },
+    {
+      "position": 47,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0007,
+      "wild_type_logprob": -0.0001,
+      "preferred_logprob": -0.0001,
+      "is_preferred": false
+    },
+    {
+      "position": 48,
+      "chain": "B",
+      "wild_type": "V",
+      "preferred": "V",
+      "perplexity": 1.0315,
+      "wild_type_logprob": -0.0046,
+      "preferred_logprob": -0.0046,
+      "is_preferred": false
+    },
+    {
+      "position": 49,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 2.1886,
+      "wild_type_logprob": -0.2272,
+      "preferred_logprob": -0.2272,
+      "is_preferred": false
+    },
+    {
+      "position": 50,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.1307,
+      "wild_type_logprob": -0.0232,
+      "preferred_logprob": -0.0232,
+      "is_preferred": false
+    },
+    {
+      "position": 51,
+      "chain": "B",
+      "wild_type": "I",
+      "preferred": "I",
+      "perplexity": 1.031,
+      "wild_type_logprob": -0.0041,
+      "preferred_logprob": -0.0041,
+      "is_preferred": false
+    },
+    {
+      "position": 52,
+      "chain": "B",
+      "wild_type": "N",
+      "preferred": "N",
+      "perplexity": 1.6196,
+      "wild_type_logprob": -0.0921,
+      "preferred_logprob": -0.0921,
+      "is_preferred": false
+    },
+    {
+      "position": 53,
+      "chain": "B",
+      "wild_type": "M",
+      "preferred": "T",
+      "perplexity": 3.6619,
+      "wild_type_logprob": -1.0658,
+      "preferred_logprob": -0.8295,
+      "is_preferred": true
+    },
+    {
+      "position": 54,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 2.7712,
+      "wild_type_logprob": -0.2555,
+      "preferred_logprob": -0.2555,
+      "is_preferred": false
+    },
+    {
+      "position": 55,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 2.2592,
+      "wild_type_logprob": -0.359,
+      "preferred_logprob": -0.359,
+      "is_preferred": false
+    },
+    {
+      "position": 56,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.007,
+      "wild_type_logprob": -0.0007,
+      "preferred_logprob": -0.0007,
+      "is_preferred": false
+    },
+    {
+      "position": 57,
+      "chain": "B",
+      "wild_type": "I",
+      "preferred": "I",
+      "perplexity": 5.362,
+      "wild_type_logprob": -0.7279,
+      "preferred_logprob": -0.7279,
+      "is_preferred": false
+    },
+    {
+      "position": 58,
+      "chain": "B",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.0096,
+      "wild_type_logprob": -0.001,
+      "preferred_logprob": -0.001,
+      "is_preferred": false
+    },
+    {
+      "position": 59,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "D",
+      "perplexity": 4.1323,
+      "wild_type_logprob": -1.498,
+      "preferred_logprob": -0.6215,
+      "is_preferred": true
+    },
+    {
+      "position": 60,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.03,
+      "wild_type_logprob": -0.0044,
+      "preferred_logprob": -0.0044,
+      "is_preferred": false
+    },
+    {
+      "position": 61,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.0229,
+      "wild_type_logprob": -0.003,
+      "preferred_logprob": -0.003,
+      "is_preferred": false
+    },
+    {
+      "position": 62,
+      "chain": "B",
+      "wild_type": "D",
+      "preferred": "D",
+      "perplexity": 1.1641,
+      "wild_type_logprob": -0.0228,
+      "preferred_logprob": -0.0228,
+      "is_preferred": false
+    },
+    {
+      "position": 63,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.0064,
+      "wild_type_logprob": -0.0006,
+      "preferred_logprob": -0.0006,
+      "is_preferred": false
+    },
+    {
+      "position": 64,
+      "chain": "B",
+      "wild_type": "V",
+      "preferred": "V",
+      "perplexity": 1.0144,
+      "wild_type_logprob": -0.0017,
+      "preferred_logprob": -0.0017,
+      "is_preferred": false
+    },
+    {
+      "position": 65,
+      "chain": "B",
+      "wild_type": "K",
+      "preferred": "K",
+      "perplexity": 1.1776,
+      "wild_type_logprob": -0.0279,
+      "preferred_logprob": -0.0279,
+      "is_preferred": false
+    },
+    {
+      "position": 66,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0043,
+      "wild_type_logprob": -0.0004,
+      "preferred_logprob": -0.0004,
+      "is_preferred": false
+    },
+    {
+      "position": 67,
+      "chain": "B",
+      "wild_type": "R",
+      "preferred": "R",
+      "perplexity": 1.0032,
+      "wild_type_logprob": -0.0003,
+      "preferred_logprob": -0.0003,
+      "is_preferred": false
+    },
+    {
+      "position": 68,
+      "chain": "B",
+      "wild_type": "F",
+      "preferred": "F",
+      "perplexity": 1.0004,
+      "wild_type_logprob": -0.0,
+      "preferred_logprob": -0.0,
+      "is_preferred": false
+    },
+    {
+      "position": 69,
+      "chain": "B",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.3358,
+      "wild_type_logprob": -0.0744,
+      "preferred_logprob": -0.0744,
+      "is_preferred": false
+    },
+    {
+      "position": 70,
+      "chain": "B",
+      "wild_type": "I",
+      "preferred": "I",
+      "perplexity": 1.0077,
+      "wild_type_logprob": -0.0009,
+      "preferred_logprob": -0.0009,
+      "is_preferred": false
+    },
+    {
+      "position": 71,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.0028,
+      "wild_type_logprob": -0.0003,
+      "preferred_logprob": -0.0003,
+      "is_preferred": false
+    },
+    {
+      "position": 72,
+      "chain": "B",
+      "wild_type": "Q",
+      "preferred": "R",
+      "perplexity": 2.2991,
+      "wild_type_logprob": -3.4167,
+      "preferred_logprob": -0.2655,
+      "is_preferred": true
+    },
+    {
+      "position": 73,
+      "chain": "B",
+      "wild_type": "D",
+      "preferred": "D",
+      "perplexity": 1.0277,
+      "wild_type_logprob": -0.0034,
+      "preferred_logprob": -0.0034,
+      "is_preferred": false
+    },
+    {
+      "position": 74,
+      "chain": "B",
+      "wild_type": "N",
+      "preferred": "N",
+      "perplexity": 1.2971,
+      "wild_type_logprob": -0.049,
+      "preferred_logprob": -0.049,
+      "is_preferred": false
+    },
+    {
+      "position": 75,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.0269,
+      "wild_type_logprob": -0.0034,
+      "preferred_logprob": -0.0034,
+      "is_preferred": false
+    },
+    {
+      "position": 76,
+      "chain": "B",
+      "wild_type": "K",
+      "preferred": "K",
+      "perplexity": 1.0542,
+      "wild_type_logprob": -0.0068,
+      "preferred_logprob": -0.0068,
+      "is_preferred": false
+    },
+    {
+      "position": 77,
+      "chain": "B",
+      "wild_type": "N",
+      "preferred": "N",
+      "perplexity": 1.0199,
+      "wild_type_logprob": -0.0022,
+      "preferred_logprob": -0.0022,
+      "is_preferred": false
+    },
+    {
+      "position": 78,
+      "chain": "B",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.4929,
+      "wild_type_logprob": -0.1129,
+      "preferred_logprob": -0.1129,
+      "is_preferred": false
+    },
+    {
+      "position": 79,
+      "chain": "B",
+      "wild_type": "V",
+      "preferred": "I",
+      "perplexity": 4.8098,
+      "wild_type_logprob": -1.21,
+      "preferred_logprob": -0.9336,
+      "is_preferred": true
+    },
+    {
+      "position": 80,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 2.5894,
+      "wild_type_logprob": -0.5281,
+      "preferred_logprob": -0.5281,
+      "is_preferred": false
+    },
+    {
+      "position": 81,
+      "chain": "B",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.0016,
+      "wild_type_logprob": -0.0002,
+      "preferred_logprob": -0.0002,
+      "is_preferred": false
+    },
+    {
+      "position": 82,
+      "chain": "B",
+      "wild_type": "L",
+      "preferred": "Q",
+      "perplexity": 1.0248,
+      "wild_type_logprob": -8.665,
+      "preferred_logprob": -0.0028,
+      "is_preferred": true
+    },
+    {
+      "position": 83,
+      "chain": "B",
+      "wild_type": "M",
+      "preferred": "M",
+      "perplexity": 1.039,
+      "wild_type_logprob": -0.0055,
+      "preferred_logprob": -0.0055,
+      "is_preferred": false
+    },
+    {
+      "position": 84,
+      "chain": "B",
+      "wild_type": "N",
+      "preferred": "N",
+      "perplexity": 1.2169,
+      "wild_type_logprob": -0.0336,
+      "preferred_logprob": -0.0336,
+      "is_preferred": false
+    },
+    {
+      "position": 85,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.6888,
+      "wild_type_logprob": -0.1273,
+      "preferred_logprob": -0.1273,
+      "is_preferred": false
+    },
+    {
+      "position": 86,
+      "chain": "B",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.0132,
+      "wild_type_logprob": -0.0017,
+      "preferred_logprob": -0.0017,
+      "is_preferred": false
+    },
+    {
+      "position": 87,
+      "chain": "B",
+      "wild_type": "E",
+      "preferred": "Q",
+      "perplexity": 1.9248,
+      "wild_type_logprob": -3.9794,
+      "preferred_logprob": -0.1902,
+      "is_preferred": true
+    },
+    {
+      "position": 88,
+      "chain": "B",
+      "wild_type": "P",
+      "preferred": "P",
+      "perplexity": 1.2889,
+      "wild_type_logprob": -0.0543,
+      "preferred_logprob": -0.0543,
+      "is_preferred": false
+    },
+    {
+      "position": 89,
+      "chain": "B",
+      "wild_type": "E",
+      "preferred": "E",
+      "perplexity": 1.0409,
+      "wild_type_logprob": -0.0052,
+      "preferred_logprob": -0.0052,
+      "is_preferred": false
+    },
+    {
+      "position": 90,
+      "chain": "B",
+      "wild_type": "D",
+      "preferred": "D",
+      "perplexity": 1.0007,
+      "wild_type_logprob": -0.0001,
+      "preferred_logprob": -0.0001,
+      "is_preferred": false
+    },
+    {
+      "position": 91,
+      "chain": "B",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.1719,
+      "wild_type_logprob": -0.0269,
+      "preferred_logprob": -0.0269,
+      "is_preferred": false
+    },
+    {
+      "position": 92,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.0011,
+      "wild_type_logprob": -0.0001,
+      "preferred_logprob": -0.0001,
+      "is_preferred": false
+    },
+    {
+      "position": 93,
+      "chain": "B",
+      "wild_type": "I",
+      "preferred": "V",
+      "perplexity": 3.5364,
+      "wild_type_logprob": -1.0403,
+      "preferred_logprob": -0.8249,
+      "is_preferred": true
+    },
+    {
+      "position": 94,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.0076,
+      "wild_type_logprob": -0.0009,
+      "preferred_logprob": -0.0009,
+      "is_preferred": false
+    },
+    {
+      "position": 95,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.2142,
+      "wild_type_logprob": -0.0457,
+      "preferred_logprob": -0.0457,
+      "is_preferred": false
+    },
+    {
+      "position": 96,
+      "chain": "B",
+      "wild_type": "C",
+      "preferred": "C",
+      "perplexity": 1.0011,
+      "wild_type_logprob": -0.0001,
+      "preferred_logprob": -0.0001,
+      "is_preferred": false
+    },
+    {
+      "position": 97,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 3.5206,
+      "wild_type_logprob": -0.5873,
+      "preferred_logprob": -0.5873,
+      "is_preferred": false
+    },
+    {
+      "position": 98,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 2.4418,
+      "wild_type_logprob": -0.4907,
+      "preferred_logprob": -0.4907,
+      "is_preferred": false
+    },
+    {
+      "position": 99,
+      "chain": "B",
+      "wild_type": "D",
+      "preferred": "R",
+      "perplexity": 7.8634,
+      "wild_type_logprob": -1.7608,
+      "preferred_logprob": -0.8906,
+      "is_preferred": true
+    },
+    {
+      "position": 100,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "L",
+      "perplexity": 7.5647,
+      "wild_type_logprob": -1.3726,
+      "preferred_logprob": -1.0219,
+      "is_preferred": true
+    },
+    {
+      "position": 101,
+      "chain": "B",
+      "wild_type": "T",
+      "preferred": "S",
+      "perplexity": 12.3706,
+      "wild_type_logprob": -2.6888,
+      "preferred_logprob": -1.7385,
+      "is_preferred": true
+    },
+    {
+      "position": 102,
+      "chain": "B",
+      "wild_type": "I",
+      "preferred": "I",
+      "perplexity": 9.7855,
+      "wild_type_logprob": -1.5651,
+      "preferred_logprob": -1.5651,
+      "is_preferred": false
+    },
+    {
+      "position": 103,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.2831,
+      "wild_type_logprob": -0.0414,
+      "preferred_logprob": -0.0414,
+      "is_preferred": false
+    },
+    {
+      "position": 104,
+      "chain": "B",
+      "wild_type": "A",
+      "preferred": "A",
+      "perplexity": 1.081,
+      "wild_type_logprob": -0.0115,
+      "preferred_logprob": -0.0115,
+      "is_preferred": false
+    },
+    {
+      "position": 105,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.0141,
+      "wild_type_logprob": -0.0015,
+      "preferred_logprob": -0.0015,
+      "is_preferred": false
+    },
+    {
+      "position": 106,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.2918,
+      "wild_type_logprob": -0.0413,
+      "preferred_logprob": -0.0413,
+      "is_preferred": false
+    },
+    {
+      "position": 107,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.1039,
+      "wild_type_logprob": -0.0146,
+      "preferred_logprob": -0.0146,
+      "is_preferred": false
+    },
+    {
+      "position": 108,
+      "chain": "B",
+      "wild_type": "E",
+      "preferred": "H",
+      "perplexity": 9.7108,
+      "wild_type_logprob": -3.1599,
+      "preferred_logprob": -1.192,
+      "is_preferred": true
+    },
+    {
+      "position": 109,
+      "chain": "B",
+      "wild_type": "C",
+      "preferred": "S",
+      "perplexity": 3.7025,
+      "wild_type_logprob": -2.2327,
+      "preferred_logprob": -0.5022,
+      "is_preferred": true
+    },
+    {
+      "position": 110,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0069,
+      "wild_type_logprob": -0.0007,
+      "preferred_logprob": -0.0007,
+      "is_preferred": false
+    },
+    {
+      "position": 111,
+      "chain": "B",
+      "wild_type": "H",
+      "preferred": "H",
+      "perplexity": 3.734,
+      "wild_type_logprob": -0.4206,
+      "preferred_logprob": -0.4206,
+      "is_preferred": false
+    },
+    {
+      "position": 112,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0234,
+      "wild_type_logprob": -0.0028,
+      "preferred_logprob": -0.0028,
+      "is_preferred": false
+    },
+    {
+      "position": 113,
+      "chain": "B",
+      "wild_type": "L",
+      "preferred": "L",
+      "perplexity": 1.4214,
+      "wild_type_logprob": -0.1021,
+      "preferred_logprob": -0.1021,
+      "is_preferred": false
+    },
+    {
+      "position": 114,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 2.9325,
+      "wild_type_logprob": -0.2757,
+      "preferred_logprob": -0.2757,
+      "is_preferred": false
+    },
+    {
+      "position": 115,
+      "chain": "B",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.6395,
+      "wild_type_logprob": -0.1245,
+      "preferred_logprob": -0.1245,
+      "is_preferred": false
+    },
+    {
+      "position": 116,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.1784,
+      "wild_type_logprob": -0.0231,
+      "preferred_logprob": -0.0231,
+      "is_preferred": false
+    },
+    {
+      "position": 117,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0219,
+      "wild_type_logprob": -0.0025,
+      "preferred_logprob": -0.0025,
+      "is_preferred": false
+    },
+    {
+      "position": 118,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "Y",
+      "perplexity": 1.127,
+      "wild_type_logprob": -0.0169,
+      "preferred_logprob": -0.0169,
+      "is_preferred": false
+    },
+    {
+      "position": 119,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0133,
+      "wild_type_logprob": -0.0013,
+      "preferred_logprob": -0.0013,
+      "is_preferred": false
+    },
+    {
+      "position": 120,
+      "chain": "B",
+      "wild_type": "Y",
+      "preferred": "F",
+      "perplexity": 1.7599,
+      "wild_type_logprob": -3.2485,
+      "preferred_logprob": -0.1524,
+      "is_preferred": true
+    },
+    {
+      "position": 121,
+      "chain": "B",
+      "wild_type": "D",
+      "preferred": "D",
+      "perplexity": 1.3655,
+      "wild_type_logprob": -0.0542,
+      "preferred_logprob": -0.0542,
+      "is_preferred": false
+    },
+    {
+      "position": 122,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "S",
+      "perplexity": 1.1362,
+      "wild_type_logprob": -0.0183,
+      "preferred_logprob": -0.0183,
+      "is_preferred": false
+    },
+    {
+      "position": 123,
+      "chain": "B",
+      "wild_type": "W",
+      "preferred": "W",
+      "perplexity": 1.0281,
+      "wild_type_logprob": -0.0038,
+      "preferred_logprob": -0.0038,
+      "is_preferred": false
+    },
+    {
+      "position": 124,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0001,
+      "wild_type_logprob": -0.0,
+      "preferred_logprob": -0.0,
+      "is_preferred": false
+    },
+    {
+      "position": 125,
+      "chain": "B",
+      "wild_type": "Q",
+      "preferred": "Q",
+      "perplexity": 1.1399,
+      "wild_type_logprob": -0.0191,
+      "preferred_logprob": -0.0191,
+      "is_preferred": false
+    },
+    {
+      "position": 126,
+      "chain": "B",
+      "wild_type": "G",
+      "preferred": "G",
+      "perplexity": 1.0004,
+      "wild_type_logprob": -0.0,
+      "preferred_logprob": -0.0,
+      "is_preferred": false
+    },
+    {
+      "position": 127,
+      "chain": "B",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 1.0102,
+      "wild_type_logprob": -0.0011,
+      "preferred_logprob": -0.0011,
+      "is_preferred": false
+    },
+    {
+      "position": 128,
+      "chain": "B",
+      "wild_type": "Q",
+      "preferred": "Q",
+      "perplexity": 4.5068,
+      "wild_type_logprob": -0.5931,
+      "preferred_logprob": -0.5931,
+      "is_preferred": false
+    },
+    {
+      "position": 129,
+      "chain": "B",
+      "wild_type": "V",
+      "preferred": "V",
+      "perplexity": 1.1072,
+      "wild_type_logprob": -0.0209,
+      "preferred_logprob": -0.0209,
+      "is_preferred": false
+    },
+    {
+      "position": 130,
+      "chain": "B",
+      "wild_type": "T",
+      "preferred": "T",
+      "perplexity": 2.6893,
+      "wild_type_logprob": -0.4381,
+      "preferred_logprob": -0.4381,
+      "is_preferred": false
+    },
+    {
+      "position": 131,
+      "chain": "B",
+      "wild_type": "V",
+      "preferred": "V",
+      "perplexity": 1.0142,
+      "wild_type_logprob": -0.0017,
+      "preferred_logprob": -0.0017,
+      "is_preferred": false
+    },
+    {
+      "position": 132,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "L",
+      "perplexity": 1.2558,
+      "wild_type_logprob": -4.7574,
+      "preferred_logprob": -0.0376,
+      "is_preferred": true
+    },
+    {
+      "position": 133,
+      "chain": "B",
+      "wild_type": "S",
+      "preferred": "G",
+      "perplexity": 1.5604,
+      "wild_type_logprob": -2.8879,
+      "preferred_logprob": -0.1102,
+      "is_preferred": true
+    }
+  ],
+  "profile_summary": {
+    "n_residues": 264,
+    "n_preferred_changes": 63,
+    "n_preferred_identical": 201,
+    "mean_perplexity": 2.3968261363636363
+  }
+}

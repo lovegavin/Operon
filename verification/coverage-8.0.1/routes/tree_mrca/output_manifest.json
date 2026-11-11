@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/tree_mrca/output/artifacts",
+  "files": [
+    {
+      "path": "exports/1a287cd4e5ce4a3487f39d7779676fff/tree_mrca.csv",
+      "size": 75,
+      "sha256": "14128e6cbba3c2fac228ec30c206b37415bddd28d31f018f48660ba0b4140f98"
+    },
+    {
+      "path": "exports/6c5e581a17304e33985c004222877a6b/tree_mrca.csv",
+      "size": 75,
+      "sha256": "14128e6cbba3c2fac228ec30c206b37415bddd28d31f018f48660ba0b4140f98"
+    }
+  ]
+}

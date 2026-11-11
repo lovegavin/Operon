@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/snk_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/837365e3064d43c7b1fc6cffe9435cd3/snk_test.csv",
+      "size": 758,
+      "sha256": "1b9c8a645525a8a2385c5d8b77bf1e44b2ffabe44a800b17824dfb56ba7b94f1"
+    },
+    {
+      "path": "exports/8bc0351d65d24c6da7d86560b7ff23a9/snk_test.csv",
+      "size": 758,
+      "sha256": "1b9c8a645525a8a2385c5d8b77bf1e44b2ffabe44a800b17824dfb56ba7b94f1"
+    }
+  ]
+}

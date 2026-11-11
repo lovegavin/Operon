@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/probe_routes/esm_embedding_mlp_probe/input",
+  "files": [
+    {
+      "path": "embeddings.csv",
+      "size": 18371,
+      "sha256": "762e192a6066453ee436617ccc561cfc2b81387a4fef8b0b9ad0022c0931bf72"
+    }
+  ]
+}

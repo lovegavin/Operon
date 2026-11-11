@@ -13,10 +13,10 @@ CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
 The current source integrates **Operon Studio 4.0.2** with the independently
-versioned **8.0.1 operator library**: **1,063 operators, 108 Readers (1,171
+versioned **8.0.2 operator library**: **1,063 operators, 108 Readers (1,171
 descriptors), seven provider packages and 79 route templates**. Operators and
 Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
-Markdown documentation. Library 8.0.1 declares minimum application 3.1.9 and is
+Markdown documentation. Library 8.0.2 declares minimum application 3.1.9 and is
 the built-in library shipped with 4.0.2.
 
 Operon does not bundle or require an AI model. Agent access is optional.
@@ -80,7 +80,7 @@ installs scientific packages silently during a run.
 - Dependency readiness is reported as **install on demand** rather than as a
   startup-wide failure count.
 
-Application 4.0.2 and library 8.0.1 do not change the wire protocol (v3) or SDK
+Application 4.0.2 and library 8.0.2 do not change the wire protocol (v3) or SDK
 (3.7). Published tags and release assets are immutable.
 
 ## Open source
@@ -132,13 +132,17 @@ See [application/library boundary](docs/application_library_boundary.md) and
 
 ## Verification and status
 
-The 8.0.1 evidence is recorded in
-[the operator audit](docs/verification/operator-audit-8.0.1.md):
+The 8.0.2 evidence is recorded in
+[the operator audit](docs/verification/operator-audit-8.0.2.md):
 
-- L0 static contracts: **1,171 / 1,171 PASS**.
-- L1 contracts: **358 PASS, 705 explicit SKIP, 0 FAIL**.
-- L3 routing: **794 operators routed, 269 explicit SKIP**, and **79 / 79**
-  built-in route definitions rechecked against the 4.x registration path.
+- L1 static contracts: **1,063 PASS, 0 FAIL, 0 SKIP**.
+- L2 unit/oracle evidence: **11 oracle, 8 smoke, 1,044 referenced unit tests;
+  0 SKIP**.
+- L3 execution/routing: **223 local executions, 47 server executions, 789
+  compiled routes; 4 documented SKIP**.
+- L4 memory/determinism: **37 measured, 1,026 resource estimates; 0 SKIP**.
+- Full test suite: **3,722 passed, 209 skipped, 0 failed**; the skipped cases
+  and their reasons are listed in the 8.0.2 audit.
 - The 1,063 operator and 108 Reader counts are the shipped library totals.
 
 Historical release notes, validation reports and design records keep the versions

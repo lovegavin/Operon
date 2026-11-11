@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/qtl_interval_mapping/output/artifacts",
+  "files": [
+    {
+      "path": "exports/6deb17259119442484663dbb20a0f0c0/qtl_interval_mapping.csv",
+      "size": 1050,
+      "sha256": "f8c856078d36c05cbd713c3c6a4e3645e372d666c810f4f688b416cfbf1276ec"
+    },
+    {
+      "path": "exports/6efc21cd6ecd47bd92b4aba523b1ab36/qtl_interval_mapping.csv",
+      "size": 1050,
+      "sha256": "f8c856078d36c05cbd713c3c6a4e3645e372d666c810f4f688b416cfbf1276ec"
+    }
+  ]
+}

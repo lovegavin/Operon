@@ -1,0 +1,40 @@
+{
+  "task_dir": "/tmp/cov_stats/leave_one_out",
+  "generated_at": "2026-11-10T12:43:48.394760+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0067,
+  "steps": [
+    {
+      "index": 1,
+      "name": "leave_one_out",
+      "elapsed": 0.0044,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "effect_label": "effect",
+        "variance_label": "variance",
+        "method": "random",
+        "output": "out_leave_one_out"
+      },
+      "export_path": "steps/01_leave_one_out.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0023,
+      "inputs": [
+        "out_leave_one_out"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "leave_one_out"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124346-6507ee7306ee",
+  "event_log": "/tmp/cov_stats/leave_one_out/output/runs/20261110T124346-6507ee7306ee/events.jsonl"
+}

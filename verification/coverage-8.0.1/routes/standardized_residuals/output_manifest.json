@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/standardized_residuals/output/artifacts",
+  "files": [
+    {
+      "path": "exports/27f9d3af4c0d49f6bf5cf16379568f4e/standardized_residuals.csv",
+      "size": 1000,
+      "sha256": "b5a0d54f575781b767094f9248bf2e35c9eb9427af3a07002b46f2a60e056d5f"
+    },
+    {
+      "path": "exports/df77ede141564dfeacab40d6b92fbc8d/standardized_residuals.csv",
+      "size": 1000,
+      "sha256": "b5a0d54f575781b767094f9248bf2e35c9eb9427af3a07002b46f2a60e056d5f"
+    }
+  ]
+}

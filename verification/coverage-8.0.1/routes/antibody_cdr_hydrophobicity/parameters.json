@@ -1,0 +1,22 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "sequence": {}
+  },
+  "steps": [
+    {
+      "name": "antibody_cdr_hydrophobicity",
+      "inputs": [
+        "sequence"
+      ],
+      "params": {
+        "regions": "CDR1,CDR2,CDR3",
+        "window": 7,
+        "output": "hydro"
+      },
+      "context_params": {}
+    }
+  ]
+}

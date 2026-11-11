@@ -1,0 +1,63 @@
+{
+ "mode": "synthetic",
+ "spill_route": "24 sources x 800x4 -> 24 distance matrices (24 spill events)",
+ "budget_mb": 100,
+ "disk_quota_mb": 500,
+ "runs": [
+  {
+   "run": "20261110T023650-780ce31d062d",
+   "status": "complete",
+   "spill_events": 24,
+   "disk_bytes": 59186515,
+   "managed_peak_bytes": 63998644
+  },
+  {
+   "run": "20261110T023702-c227380a40b0",
+   "status": "complete",
+   "spill_events": 24,
+   "disk_bytes": 59186515,
+   "managed_peak_bytes": 63998644
+  },
+  {
+   "run": "20261110T023720-03f979de3546",
+   "status": "complete",
+   "spill_events": 24,
+   "disk_bytes": 59186515,
+   "managed_peak_bytes": 63998644
+  },
+  {
+   "run": "20261110T023729-5a001b729a39",
+   "status": "failed",
+   "spill_events": 0,
+   "disk_bytes": 0,
+   "managed_peak_bytes": 63998644
+  }
+ ],
+ "spilled_export_md5": [
+  {
+   "path": "/tmp/l4spill24/output/artifacts/exports/0c35fac155c84b64b7194209f4368b5d/pca.csv",
+   "md5": "84a92e0063bc840ccc8ce7e81d6f8766"
+  },
+  {
+   "path": "/tmp/l4spill24/output/artifacts/exports/751bc32b4bcb46e7bcde8cf2316d92a3/pca.csv",
+   "md5": "84a92e0063bc840ccc8ce7e81d6f8766"
+  },
+  {
+   "path": "/tmp/l4spill24/output/artifacts/exports/993d21976aab4964b52df0f5c27bd1e2/pca.csv",
+   "md5": "84a92e0063bc840ccc8ce7e81d6f8766"
+  }
+ ],
+ "deterministic_after_spill": true,
+ "quota": {
+  "disk_mb": 1,
+  "error": "DiskBudgetError: Spill quota exhausted; original RAM copy retained"
+ },
+ "wire": {
+  "form_roundtrip": true,
+  "dims_labels_equal": true,
+  "npy_files": [
+   "b193e14d712041d9.npy",
+   "payload"
+  ]
+ }
+}

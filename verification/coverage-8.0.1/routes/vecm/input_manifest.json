@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/vecm/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 2588,
+      "sha256": "64fb0bc1838a28d6f4d0e17e939c2ddd8e1b6071580175fa2bf24de3ea8f415a"
+    }
+  ]
+}

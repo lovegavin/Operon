@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/antismash_bgc/input",
+  "files": [
+    {
+      "path": "nisin.fasta",
+      "size": 15238,
+      "sha256": "2e35c0c3e5584255396c77bc5ebdc9ba2497223926aa0a62e68007fbc81196c4"
+    }
+  ]
+}

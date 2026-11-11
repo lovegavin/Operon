@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_sequence/annotate/output/artifacts/exports/4fe4d6c436714e618cba516e738fee76/out_annotate.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 296,
+  "source": "out_annotate",
+  "conversion": {}
+}

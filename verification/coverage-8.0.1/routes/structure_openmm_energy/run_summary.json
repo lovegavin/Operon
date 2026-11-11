@@ -1,0 +1,22 @@
+{
+  "task_dir": "/tmp/cov_structure/structure_openmm_energy",
+  "generated_at": "2026-11-10T12:49:39.995078+00:00",
+  "n_steps": 1,
+  "total_elapsed": 17.7372,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_openmm_energy",
+      "elapsed": 17.7372,
+      "inputs": [
+        "protein"
+      ],
+      "params": {},
+      "export_path": "steps/01_structure_openmm_energy.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124921-0c055a7cb8f9",
+  "event_log": "/tmp/cov_structure/structure_openmm_energy/output/runs/20261110T124921-0c055a7cb8f9/events.jsonl"
+}

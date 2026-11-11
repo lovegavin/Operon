@@ -1,0 +1,26 @@
+{
+  "name": "sequence_transmembrane_topology",
+  "sources": {
+    "x0": {
+      "path": "input/tm.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sequence_transmembrane_topology",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

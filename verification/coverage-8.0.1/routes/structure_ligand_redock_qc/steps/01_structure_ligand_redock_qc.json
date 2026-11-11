@@ -1,0 +1,18 @@
+{
+  "rmsd": true,
+  "n_failed": 5,
+  "metrics": [
+    {
+      "metric": "rmsd",
+      "value": 0.44288862407306606
+    },
+    {
+      "metric": "kabsch_rmsd",
+      "value": 0.0004113332193067495
+    },
+    {
+      "metric": "centroid_distance",
+      "value": 0.3419088211428739
+    }
+  ]
+}

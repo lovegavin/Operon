@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/sc_leiden_cluster/output/artifacts/exports/fbef970253164fb9871fa05a6630b355/sc_leiden_cluster.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 170,
+  "source": "out_sc_leiden_cluster",
+  "conversion": {}
+}

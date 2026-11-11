@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/patristic_distance/output/artifacts",
+  "files": [
+    {
+      "path": "exports/82b0ff2f80554723b7cc51defb2a32db/patristic_distance.csv",
+      "size": 577,
+      "sha256": "4c5e07f154ecd5bdc38fb134a9d635617664a4037ef3f8998c28eed30cd96a11"
+    }
+  ]
+}

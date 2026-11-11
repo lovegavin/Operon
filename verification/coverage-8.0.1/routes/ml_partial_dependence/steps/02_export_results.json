@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/ml_partial_dependence/output/artifacts/exports/aa5042a35a4248f3915e5b4fac659807/ml_partial_dependence.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 157,
+  "source": "out_ml_partial_dependence",
+  "conversion": {}
+}

@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/cov_stats/power_prop_test",
+  "generated_at": "2026-11-10T12:43:56.499938+00:00",
+  "n_steps": 2,
+  "total_elapsed": 1.0241,
+  "steps": [
+    {
+      "index": 1,
+      "name": "power_prop_test",
+      "elapsed": 1.0225,
+      "inputs": [],
+      "params": {
+        "p1": 0.5,
+        "p2": 0.7,
+        "nobs1": 50,
+        "nobs2": 50,
+        "output": "out_power_prop_test"
+      },
+      "export_path": "steps/01_power_prop_test.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0016,
+      "inputs": [
+        "out_power_prop_test"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "power_prop_test"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124354-e882323d86ee",
+  "event_log": "/tmp/cov_stats/power_prop_test/output/runs/20261110T124354-e882323d86ee/events.jsonl"
+}

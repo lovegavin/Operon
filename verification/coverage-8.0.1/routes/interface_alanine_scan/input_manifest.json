@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_structure/interface_alanine_scan/input",
+  "files": [
+    {
+      "path": "1mel.pdb",
+      "size": 361017,
+      "sha256": "321aa847a20535c018b12cf340d2e057628dce42b4005c185916dd17bdd24de4"
+    },
+    {
+      "path": "1mel_nohet.pdb",
+      "size": 316548,
+      "sha256": "66ff3b49d541e1d1441065306d9b228d1cd0cda399673d74c35a416ad1b02686"
+    }
+  ]
+}

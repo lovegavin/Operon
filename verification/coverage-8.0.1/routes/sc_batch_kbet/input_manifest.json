@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/sc_batch_kbet/input",
+  "files": [
+    {
+      "path": "batch.csv",
+      "size": 41,
+      "sha256": "fe8d31c791f99382bffc554b173893f6aede8ba585246967ecfd6b6df619557c"
+    },
+    {
+      "path": "graph.csv",
+      "size": 191,
+      "sha256": "04d0a66376239c466d6db990c61c4feeb2356944556ac8ec20bfed15ef0f5ec3"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/nmds/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1379,
+      "sha256": "802d350ff86f7467aa07392e7edb5da0f35605ffabcdab64b083cc14552804c1"
+    }
+  ]
+}

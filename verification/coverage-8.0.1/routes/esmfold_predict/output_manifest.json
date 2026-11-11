@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/esmfold_route/output/artifacts",
+  "files": [
+    {
+      "path": "esmfold/4c91abef67404500b58527efa0702ca9/prediction.pdb",
+      "size": 78855,
+      "sha256": "be565c8e9c4acbc250fc696c105d27a77b6670a3a48576f7c0f363195199c36f"
+    },
+    {
+      "path": "exports/745170c54b55444ab14ed2aabf1d8b7f/esmfold.pdb",
+      "size": 78855,
+      "sha256": "be565c8e9c4acbc250fc696c105d27a77b6670a3a48576f7c0f363195199c36f"
+    }
+  ]
+}

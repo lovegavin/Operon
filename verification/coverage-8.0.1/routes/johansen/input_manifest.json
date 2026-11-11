@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/johansen/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 2549,
+      "sha256": "63a8558e64b68ef16d9c2526494b9774563d8cd4a4f5ad2d7c4d7aff7bb0305b"
+    }
+  ]
+}

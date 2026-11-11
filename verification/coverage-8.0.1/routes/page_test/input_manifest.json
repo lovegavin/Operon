@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/page_test/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 103,
+      "sha256": "661a06953df56b8119344f3fbeddef9979d0113e628d4b58e5e9b2c4fdf56007"
+    }
+  ]
+}

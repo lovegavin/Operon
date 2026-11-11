@@ -1,0 +1,19 @@
+{
+  "application": "4.0.2",
+  "library": "8.0.2",
+  "bundle_sha256": "ac1d49af271a0ab8126d682d730e36256e632be6de2ea4bf831ecd70522516e4",
+  "operators": 1063,
+  "readers": 108,
+  "added": [],
+  "application_unchanged": true,
+  "old_pin_and_parameters_preserved": true,
+  "idempotent_install": true,
+  "disabled_provider_preserved": true,
+  "worker_streaming": true,
+  "external_tools": "Synthetic adapters only; real tool/database execution not tested",
+  "passed": true,
+  "application_actual": "4.0.2",
+  "version_gate": "minimum_application >= 3.1.9; verified on 4.0.2 main merge",
+  "pytest": "95 passed, 2 skipped, 7 deselected",
+  "source": "merge/library-8.0.2-into-main"
+}

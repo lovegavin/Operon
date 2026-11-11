@@ -1,0 +1,19 @@
+{
+  "format": "operon.task",
+  "version": 1,
+  "id": "vina_pose_cluster_route",
+  "parameters_file": "parameters.json",
+  "sources": {},
+  "steps": [
+    {
+      "name": "vina_dock",
+      "inputs": []
+    },
+    {
+      "name": "vina_pose_cluster",
+      "inputs": [
+        "pose"
+      ]
+    }
+  ]
+}

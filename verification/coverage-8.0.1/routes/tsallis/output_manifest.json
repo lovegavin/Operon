@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/tsallis/output/artifacts",
+  "files": [
+    {
+      "path": "exports/db09ed6e861141478fd79e45bcb40a43/tsallis.csv",
+      "size": 534,
+      "sha256": "04d193655551f57c91e329240cb469fc40ae3d44e1893db00aa399909a8d0d36"
+    }
+  ]
+}

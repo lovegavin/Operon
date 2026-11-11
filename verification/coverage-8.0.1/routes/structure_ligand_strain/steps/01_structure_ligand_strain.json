@@ -1,0 +1,6 @@
+{
+  "resname": "BEN",
+  "force_field": "MMFF94",
+  "n_atoms": 9,
+  "strain_energy": 169.895160065161
+}

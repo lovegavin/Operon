@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/heterozygosity/output/artifacts/exports/c19f117a29f94c6192bd5c4ec0d191f7/heterozygosity.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 488,
+  "source": "out_heterozygosity",
+  "conversion": {}
+}

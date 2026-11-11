@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/cnn_image_classifier/output/artifacts",
+  "files": [
+    {
+      "path": "exports/4718b596895141a38d43af072a14a37f/cnn_image_classifier.csv",
+      "size": 102,
+      "sha256": "cf4291a0a647be5a4549e12789781159b06dd70b2be984cd88717fde5e5bb100"
+    }
+  ]
+}

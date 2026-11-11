@@ -1,0 +1,37 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "manova",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "response_dim": "response",
+        "group_dim": "feature",
+        "group_label": "group",
+        "output": "out_manova"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_manova"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "manova"
+      },
+      "context_params": {}
+    }
+  ]
+}

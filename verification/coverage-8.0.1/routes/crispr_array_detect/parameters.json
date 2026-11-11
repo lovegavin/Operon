@@ -1,0 +1,23 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "crispr_array_detect",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "minced_path": "/home/gavin/miniconda3/envs/assembly/bin/minced",
+        "min_repeats": 3,
+        "timeout_seconds": 300,
+        "output": "out_crispr_array_detect"
+      },
+      "context_params": {}
+    }
+  ]
+}

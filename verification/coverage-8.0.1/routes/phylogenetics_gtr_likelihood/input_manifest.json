@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/phylogenetics_gtr_likelihood/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 54,
+      "sha256": "ec24ef6380220481ee7ea52263774c4174a7028fa407037c81bf520ab623fab3"
+    },
+    {
+      "path": "x1.csv",
+      "size": 486,
+      "sha256": "e30cd1a5edb1abe5f43969f8d8294547c8f6f4f22589e8a0265f0aa3cf007fee"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "ligand_resname": "BEN",
+  "ligand_chains": [],
+  "cutoff": 4.0,
+  "n_ligand_atoms": 9,
+  "n_contacted_residues": 11,
+  "min_distance": 2.8153411871387823,
+  "nearest_residue": "A:SER:190"
+}

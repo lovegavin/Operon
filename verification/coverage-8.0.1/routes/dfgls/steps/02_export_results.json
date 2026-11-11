@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/dfgls/output/artifacts/exports/77b17595577540c3b794e427a11b6111/dfgls.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 217,
+  "source": "out_dfgls",
+  "conversion": {}
+}

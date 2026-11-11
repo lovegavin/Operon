@@ -1,0 +1,28 @@
+{
+  "task_dir": "/tmp/cov_sequence/antismash_bgc",
+  "generated_at": "2026-11-10T12:46:23.107376+00:00",
+  "n_steps": 1,
+  "total_elapsed": 3.7302,
+  "steps": [
+    {
+      "index": 1,
+      "name": "antismash_bgc",
+      "elapsed": 3.7302,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "antismash_path": "/home/gavin/miniconda3/envs/antismash/bin/antismash",
+        "database_dir": "/home/gavin/tools/antismash_db",
+        "taxon": "bacteria",
+        "timeout_seconds": 1200,
+        "output": "out_antismash_bgc"
+      },
+      "export_path": "steps/01_antismash_bgc.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124618-129da842174d",
+  "event_log": "/tmp/cov_sequence/antismash_bgc/output/runs/20261110T124618-129da842174d/events.jsonl"
+}

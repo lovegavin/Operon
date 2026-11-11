@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/ligand_routes/structure_rmsd",
+  "generated_at": "2026-11-10T19:50:23.363063+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0448,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_rmsd",
+      "elapsed": 0.043,
+      "inputs": [
+        "structure",
+        "reference"
+      ],
+      "params": {
+        "atom_names": "CA",
+        "output": "rmsd"
+      },
+      "export_path": "steps/01_structure_rmsd.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0018,
+      "inputs": [
+        "rmsd"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "rmsd"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T195022-ff0fcd542cbb",
+  "event_log": "/tmp/ligand_routes/structure_rmsd/output/runs/20261110T195022-ff0fcd542cbb/events.jsonl"
+}

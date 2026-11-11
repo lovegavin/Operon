@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/isoform_quantification_em/input",
+  "files": [
+    {
+      "path": "compat.csv",
+      "size": 53,
+      "sha256": "1077c885d8ac3dfaa748eb98fda26c7cb62419c4ee416283ec3777c9e9d262fc"
+    },
+    {
+      "path": "counts.csv",
+      "size": 32,
+      "sha256": "59f74e6b283fc11faab575ffc1fd8435d0aa4b9e98ea751dd16708909f505ee4"
+    }
+  ]
+}

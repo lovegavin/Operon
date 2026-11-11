@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/ligand_routes/antibody_cdr_redesign/output/artifacts",
+  "files": [
+    {
+      "path": "exports/c952b9b1859a4a6fbe381ac660c8ac27/designs.csv",
+      "size": 174,
+      "sha256": "1d8b151acf959fa8b43cf5f45dc67b1a6c0c8edd9752601ec4522d671795608f"
+    }
+  ]
+}

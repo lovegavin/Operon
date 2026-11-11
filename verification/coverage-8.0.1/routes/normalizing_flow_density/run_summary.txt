@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_mltab/normalizing_flow_density
+generated : 2026-11-10T12:25:34.833368+00:00
+steps     : 2
+elapsed   : 2.985s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   normalizing_flow_density    2.982s   steps/01_normalizing_flow_density.json
+2   export_results          0.003s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/nemenyi_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/3bd77187268e47a192431027fe552861/nemenyi_test.csv",
+      "size": 615,
+      "sha256": "d5724a552c0520364da4bed24cf25d5b8add59089a158acfffd8ea569e47a889"
+    },
+    {
+      "path": "exports/7ca361ffe7bf47cea2ab47071a0747f3/nemenyi_test.csv",
+      "size": 615,
+      "sha256": "d5724a552c0520364da4bed24cf25d5b8add59089a158acfffd8ea569e47a889"
+    }
+  ]
+}

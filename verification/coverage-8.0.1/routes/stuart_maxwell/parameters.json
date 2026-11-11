@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "stuart_maxwell",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "rater_a": "rater_a",
+        "rater_b": "rater_b",
+        "output": "out_stuart_maxwell"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_stuart_maxwell"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "stuart_maxwell"
+      },
+      "context_params": {}
+    }
+  ]
+}

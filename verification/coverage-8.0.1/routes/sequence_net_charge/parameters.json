@@ -1,0 +1,23 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_net_charge",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_net_charge",
+        "window": 9
+      },
+      "context_params": {}
+    }
+  ]
+}

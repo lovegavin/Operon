@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/sc_leiden_cluster/input",
+  "files": [
+    {
+      "path": "adj.csv",
+      "size": 325,
+      "sha256": "1ebba8313083e701ef4ca268c8b0f914ee490effaf52d21c7747d40567c56d61"
+    }
+  ]
+}

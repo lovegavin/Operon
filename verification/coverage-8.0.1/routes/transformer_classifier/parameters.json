@@ -1,0 +1,40 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "trans": {}
+  },
+  "steps": [
+    {
+      "name": "transformer_classifier",
+      "inputs": [
+        "trans"
+      ],
+      "params": {
+        "output": "out_transformer_classifier",
+        "row_dim": "row",
+        "field_dim": "field",
+        "label_column": "label",
+        "d_model": 8,
+        "nhead": 2,
+        "layers": 1,
+        "epochs": 100,
+        "learning_rate": 0.01,
+        "seed": 3
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_transformer_classifier"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "transformer_classifier"
+      },
+      "context_params": {}
+    }
+  ]
+}

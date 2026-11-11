@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/nt_local/input",
+  "files": [
+    {
+      "path": "data.csv",
+      "size": 406,
+      "sha256": "8a5260d79e8c1d267cf688eea67deb690ddf91910a4cd9e1d04c99472b668685"
+    }
+  ]
+}

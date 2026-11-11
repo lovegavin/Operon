@@ -1,0 +1,26 @@
+{
+  "name": "rfam_scan",
+  "sources": {
+    "x0": {
+      "path": "input/rna1.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "rfam_scan",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

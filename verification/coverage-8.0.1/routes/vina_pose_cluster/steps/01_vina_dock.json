@@ -1,0 +1,15 @@
+{
+  "operator": "vina_dock",
+  "result_files": [
+    {
+      "id": "poses",
+      "path": "/tmp/vina_routes/vina_pose_cluster/output/artifacts/vina_dock/89d97f2e82e34f248078907d98030f4c/poses.pdbqt",
+      "filename": "poses.pdbqt",
+      "format": "pdbqt",
+      "title": "Vina docking poses",
+      "bytes": 2457
+    }
+  ],
+  "n_poses": 3,
+  "best_affinity": -4.8
+}

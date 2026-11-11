@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/sequence_dnds/input",
+  "files": [
+    {
+      "path": "dnds.csv",
+      "size": 71,
+      "sha256": "bbb94a074513cc115364a828e308d56ab27c9649b493d576abb96f6dfb901542"
+    }
+  ]
+}

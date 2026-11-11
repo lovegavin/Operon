@@ -1,0 +1,24 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "antismash_bgc",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "antismash_path": "/home/gavin/miniconda3/envs/antismash/bin/antismash",
+        "database_dir": "/home/gavin/tools/antismash_db",
+        "taxon": "bacteria",
+        "timeout_seconds": 1200,
+        "output": "out_antismash_bgc"
+      },
+      "context_params": {}
+    }
+  ]
+}

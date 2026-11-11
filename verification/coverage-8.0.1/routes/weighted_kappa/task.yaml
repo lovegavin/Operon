@@ -1,0 +1,34 @@
+{
+  "name": "weighted_kappa",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "subject",
+        "rater"
+      ],
+      "labels": {
+        "subject": {
+          "rater": 0
+        },
+        "rater": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "weighted_kappa",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_weighted_kappa"
+      ]
+    }
+  ]
+}

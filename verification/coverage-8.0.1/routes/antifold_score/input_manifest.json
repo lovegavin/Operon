@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/antifold_score2/input",
+  "files": [
+    {
+      "path": "backbone16_A.pdb",
+      "size": 5257,
+      "sha256": "0205e28f0bd93529f78ac6be41a8b3126b9eee590d743c0a17cb01d54e0eeb16"
+    }
+  ]
+}

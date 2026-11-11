@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/mauchly_test/output/artifacts/exports/c2d8e3ca516b4a41bd6c042dff8f5a5f/mauchly_test.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 117,
+  "source": "out_mauchly_test",
+  "conversion": {}
+}

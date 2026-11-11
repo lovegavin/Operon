@@ -1,0 +1,32 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure": {}
+  },
+  "steps": [
+    {
+      "name": "structure_metal_coordination",
+      "inputs": [
+        "structure"
+      ],
+      "params": {
+        "cutoff": 2.8,
+        "output": "metal_sites"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "metal_sites"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "metal_sites"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/probe_routes/esm_embedding_autoencoder
+generated : 2026-11-10T20:13:06.379495+00:00
+steps     : 2
+elapsed   : 2.068s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   esm_embedding_autoencoder    2.066s   steps/01_esm_embedding_autoencoder.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

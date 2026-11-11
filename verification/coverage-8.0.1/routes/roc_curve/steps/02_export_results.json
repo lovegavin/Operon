@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/roc_curve/output/artifacts/exports/6001b8c7ab914c809e8384e7c7b7941d/roc_curve.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1004,
+  "source": "out_roc_curve",
+  "conversion": {}
+}

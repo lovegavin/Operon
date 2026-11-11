@@ -1,0 +1,22 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_3ptb": {}
+  },
+  "steps": [
+    {
+      "name": "structure_ligand_interaction_fingerprint",
+      "inputs": [
+        "structure_3ptb"
+      ],
+      "params": {
+        "ligand_resnames": "BEN",
+        "cutoff": 4.5,
+        "output": "out_structure_ligand_interaction_fingerprint"
+      },
+      "context_params": {}
+    }
+  ]
+}

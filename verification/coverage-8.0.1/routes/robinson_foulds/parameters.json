@@ -1,0 +1,37 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "robinson_foulds",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "node_dim": "node",
+        "field_dim": "field",
+        "node_dim_b": "node",
+        "field_dim_b": "field",
+        "output": "out_robinson_foulds"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_robinson_foulds"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "robinson_foulds"
+      },
+      "context_params": {}
+    }
+  ]
+}

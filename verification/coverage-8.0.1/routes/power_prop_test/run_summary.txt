@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_stats/power_prop_test
+generated : 2026-11-10T12:43:56.499938+00:00
+steps     : 2
+elapsed   : 1.024s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   power_prop_test         1.022s   steps/01_power_prop_test.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/transformer_classifier/output/artifacts/exports/28ce44b55aef45d1b552e1f137731f27/transformer_classifier.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 89,
+  "source": "out_transformer_classifier",
+  "conversion": {}
+}

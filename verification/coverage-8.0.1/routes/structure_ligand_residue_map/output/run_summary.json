@@ -1,0 +1,40 @@
+{
+  "task_dir": "/tmp/ligand_routes/structure_ligand_residue_map",
+  "generated_at": "2026-11-10T19:50:21.781733+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.1462,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_ligand_residue_map",
+      "elapsed": 0.1443,
+      "inputs": [
+        "structure"
+      ],
+      "params": {
+        "ligand_resnames": "BEN",
+        "cutoff": 4.0,
+        "value": "count",
+        "output": "contact_map"
+      },
+      "export_path": "steps/01_structure_ligand_residue_map.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0019,
+      "inputs": [
+        "contact_map"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "contact_map"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T195021-9737888dc9d2",
+  "event_log": "/tmp/ligand_routes/structure_ligand_residue_map/output/runs/20261110T195021-9737888dc9d2/events.jsonl"
+}

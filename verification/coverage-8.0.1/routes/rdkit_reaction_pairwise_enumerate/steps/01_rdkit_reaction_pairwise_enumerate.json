@@ -1,0 +1,6 @@
+{
+  "n_pairs": 4,
+  "n_products": 4,
+  "truncated": false,
+  "reaction_smarts": "[C:1](=[O:2])[Cl:3].[N:4]>>[C:1](=[O:2])[N:4]"
+}

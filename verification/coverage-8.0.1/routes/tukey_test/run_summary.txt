@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_stats/tukey_test
+generated : 2026-11-10T12:44:03.494974+00:00
+steps     : 2
+elapsed   : 0.086s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   tukey_test              0.085s   steps/01_tukey_test.json
+2   export_results          0.001s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

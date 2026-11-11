@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/cov_stats/storey_qvalue",
+  "generated_at": "2026-11-10T12:44:00.188196+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.002,
+  "steps": [
+    {
+      "index": 1,
+      "name": "storey_qvalue",
+      "elapsed": 0.0003,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "value_dim": "pvalue",
+        "lambda": 0.5,
+        "output": "out_storey_qvalue"
+      },
+      "export_path": "steps/01_storey_qvalue.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "out_storey_qvalue"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "storey_qvalue"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124359-8bea438f105f",
+  "event_log": "/tmp/cov_stats/storey_qvalue/output/runs/20261110T124359-8bea438f105f/events.jsonl"
+}

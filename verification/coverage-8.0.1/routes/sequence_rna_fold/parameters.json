@@ -1,0 +1,28 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_rna_fold",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_rna_fold",
+        "rnafold_path": "/usr/bin/RNAfold",
+        "temperature": 37.0,
+        "dangles": 2,
+        "no_lonely_pairs": false,
+        "timeout_seconds": 600,
+        "sequence_output_dim": "sequence"
+      },
+      "context_params": {}
+    }
+  ]
+}

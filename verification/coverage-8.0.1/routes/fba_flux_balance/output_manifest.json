@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/fba_flux_balance/output/artifacts",
+  "files": [
+    {
+      "path": "exports/a5d60c86158046b099ca47c004c450b3/fba_flux_balance.csv",
+      "size": 64,
+      "sha256": "b48257ef5ce8b0a265c9254610086866acc73027bb2757a9da3d5200eb788060"
+    },
+    {
+      "path": "exports/be8b56d2aed944a894b5e2609156d571/fba_flux_balance.csv",
+      "size": 64,
+      "sha256": "b48257ef5ce8b0a265c9254610086866acc73027bb2757a9da3d5200eb788060"
+    }
+  ]
+}

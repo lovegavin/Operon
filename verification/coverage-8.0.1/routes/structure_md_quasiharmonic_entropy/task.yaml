@@ -1,0 +1,11 @@
+{
+  "name": "structure_md_quasiharmonic_entropy",
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_md_quasiharmonic_entropy",
+      "inputs": []
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "power_prop_test",
+  "sources": {},
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "power_prop_test",
+      "inputs": []
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_power_prop_test"
+      ]
+    }
+  ]
+}

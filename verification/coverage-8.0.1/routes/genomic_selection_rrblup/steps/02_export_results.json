@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/genomic_selection_rrblup/output/artifacts/exports/0ca55ef52ab94ea2b4170e067388d5ab/genomic_selection_rrblup.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1274,
+  "source": "out_genomic_selection_rrblup",
+  "conversion": {}
+}

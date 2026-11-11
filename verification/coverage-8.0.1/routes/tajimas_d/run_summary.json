@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/cov_omics/tajimas_d",
+  "generated_at": "2026-11-10T12:30:19.039595+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0034,
+  "steps": [
+    {
+      "index": 1,
+      "name": "tajimas_d",
+      "elapsed": 0.0004,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "variant_dim": "variant",
+        "sample_dim": "sample",
+        "output": "out_tajimas_d"
+      },
+      "export_path": "steps/01_tajimas_d.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.003,
+      "inputs": [
+        "out_tajimas_d"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "tajimas_d"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T123017-7f724455f290",
+  "event_log": "/tmp/cov_omics/tajimas_d/output/runs/20261110T123017-7f724455f290/events.jsonl"
+}

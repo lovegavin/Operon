@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_mltab/gcn_node_classifier/input",
+  "files": [
+    {
+      "path": "edges.csv",
+      "size": 65,
+      "sha256": "6238b859f80a6c348cb1694eb7a118cda875529806985e822fe71538a6bf6274"
+    },
+    {
+      "path": "nodes.csv",
+      "size": 126,
+      "sha256": "5351ae21b7c27a2bf08116c898e325a00d8f61c9b277d04395f359510f9290d7"
+    }
+  ]
+}

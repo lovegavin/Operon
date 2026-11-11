@@ -1,0 +1,46 @@
+{
+  "task_dir": "/tmp/cov_mltab/transformer_classifier",
+  "generated_at": "2026-11-10T12:25:50.519263+00:00",
+  "n_steps": 2,
+  "total_elapsed": 4.1563,
+  "steps": [
+    {
+      "index": 1,
+      "name": "transformer_classifier",
+      "elapsed": 4.1538,
+      "inputs": [
+        "trans"
+      ],
+      "params": {
+        "output": "out_transformer_classifier",
+        "row_dim": "row",
+        "field_dim": "field",
+        "label_column": "label",
+        "d_model": 8,
+        "nhead": 2,
+        "layers": 1,
+        "epochs": 100,
+        "learning_rate": 0.01,
+        "seed": 3
+      },
+      "export_path": "steps/01_transformer_classifier.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0025,
+      "inputs": [
+        "out_transformer_classifier"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "transformer_classifier"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122544-c75b2de54e3b",
+  "event_log": "/tmp/cov_mltab/transformer_classifier/output/runs/20261110T122544-c75b2de54e3b/events.jsonl"
+}

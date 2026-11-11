@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/watterson_theta/output/artifacts",
+  "files": [
+    {
+      "path": "exports/0065900582e24b0aa2758e24a2602ce8/watterson_theta.csv",
+      "size": 161,
+      "sha256": "a37bcddbf7f6c9dff9d74ad475ba1fba8383d7e46edfef97f52dbefc06a5e68d"
+    },
+    {
+      "path": "exports/933ce2e60eb343c5a787bd3d8ed90e90/watterson_theta.csv",
+      "size": 161,
+      "sha256": "a37bcddbf7f6c9dff9d74ad475ba1fba8383d7e46edfef97f52dbefc06a5e68d"
+    }
+  ]
+}

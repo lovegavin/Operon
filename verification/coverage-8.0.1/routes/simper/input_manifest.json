@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/simper/input",
+  "files": [
+    {
+      "path": "meta.csv",
+      "size": 146,
+      "sha256": "4d625e585fa2007f03944926c0a30519c3862026bf02080c6e00f835d608a8a8"
+    },
+    {
+      "path": "x0.csv",
+      "size": 161,
+      "sha256": "181f45b239ece2e9d72d33684893237434f348213a37f860cf4a60e542a5b9ae"
+    }
+  ]
+}

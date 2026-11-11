@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sc_leiden_cluster",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "output": "out_sc_leiden_cluster",
+        "resolution": 1.0,
+        "seed": 0
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_sc_leiden_cluster"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "sc_leiden_cluster"
+      },
+      "context_params": {}
+    }
+  ]
+}

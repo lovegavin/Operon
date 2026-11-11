@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/md_lig/input",
+  "files": [
+    {
+      "path": "topology.pdb",
+      "size": 133260,
+      "sha256": "6949b891258b08127136804707f42bccd62fdca50ca9162c9f67b45df74cdbbc"
+    },
+    {
+      "path": "trajectory.dcd",
+      "size": 39636,
+      "sha256": "edfb9d86ce027164b760cbddeaa61aa9e60a7d7484e7ee831f15e87491e7bacd"
+    },
+    {
+      "path": "trajectory.npy",
+      "size": 39440,
+      "sha256": "cca3db714d5e1d3869ce5cad3f4dfc10631ce2781deaaac725928bb69bbfe5be"
+    }
+  ]
+}

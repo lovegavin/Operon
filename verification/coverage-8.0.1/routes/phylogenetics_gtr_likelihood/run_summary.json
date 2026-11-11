@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/cov_stats/phylogenetics_gtr_likelihood",
+  "generated_at": "2026-11-10T12:43:56.361692+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.7561,
+  "steps": [
+    {
+      "index": 1,
+      "name": "phylogenetics_gtr_likelihood",
+      "elapsed": 0.7541,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "base_freqs": "0.25,0.25,0.25,0.25",
+        "rates": "1.0,1.0,1.0,1.0,1.0,1.0"
+      },
+      "export_path": "steps/01_phylogenetics_gtr_likelihood.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.002,
+      "inputs": [
+        "gtr"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "phylogenetics_gtr_likelihood"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124354-da97076ec8de",
+  "event_log": "/tmp/cov_stats/phylogenetics_gtr_likelihood/output/runs/20261110T124354-da97076ec8de/events.jsonl"
+}

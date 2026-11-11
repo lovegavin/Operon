@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/roc_comparison/output/artifacts",
+  "files": [
+    {
+      "path": "exports/3c538795052a4cb7b9ca2841a63d1569/roc_comparison.csv",
+      "size": 249,
+      "sha256": "d5d67e4e81e46558d167b02c3189013ecbe7fa59182f85447dd630347833808e"
+    },
+    {
+      "path": "exports/58cfb24618cb4d66a0b774811ab196a5/roc_comparison.csv",
+      "size": 249,
+      "sha256": "d5d67e4e81e46558d167b02c3189013ecbe7fa59182f85447dd630347833808e"
+    }
+  ]
+}

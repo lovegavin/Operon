@@ -1,0 +1,34 @@
+{
+  "name": "cnn_image_classifier",
+  "sources": {
+    "cnn": {
+      "path": "input/cnn.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "cnn_image_classifier",
+      "inputs": [
+        "cnn"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_cnn_image_classifier"
+      ]
+    }
+  ]
+}

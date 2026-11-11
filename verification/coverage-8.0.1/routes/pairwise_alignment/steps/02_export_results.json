@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/pairwise_alignment/output/artifacts/exports/6191ce1f5dea442588d083066565942d/pairwise_alignment.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 178,
+  "source": "out_pairwise_alignment",
+  "conversion": {}
+}

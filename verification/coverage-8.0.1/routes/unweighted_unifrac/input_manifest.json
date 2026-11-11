@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/unweighted_unifrac/input",
+  "files": [
+    {
+      "path": "tree.nwk",
+      "size": 64,
+      "sha256": "44b446c7a9ecd652460cb344ed1220f7a3ee9f944a154dc0db46acf2d2e44783"
+    },
+    {
+      "path": "x0.csv",
+      "size": 161,
+      "sha256": "181f45b239ece2e9d72d33684893237434f348213a37f860cf4a60e542a5b9ae"
+    }
+  ]
+}

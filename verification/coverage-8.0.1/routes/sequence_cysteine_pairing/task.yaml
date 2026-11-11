@@ -1,0 +1,26 @@
+{
+  "name": "sequence_cysteine_pairing",
+  "sources": {
+    "x0": {
+      "path": "input/cys.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sequence_cysteine_pairing",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

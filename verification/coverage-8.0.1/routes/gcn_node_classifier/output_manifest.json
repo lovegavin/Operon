@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/gcn_node_classifier/output/artifacts",
+  "files": [
+    {
+      "path": "exports/84595b0a70fb4024a196beea8e22de8c/gcn_node_classifier.csv",
+      "size": 94,
+      "sha256": "83d1cbc5cfe6e06a37999024183ac7988254a9d370b55e15ff6275ff91ca419e"
+    }
+  ]
+}

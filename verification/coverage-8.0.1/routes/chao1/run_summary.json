@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/cov_omics/chao1",
+  "generated_at": "2026-11-10T12:22:46.969915+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0021,
+  "steps": [
+    {
+      "index": 1,
+      "name": "chao1",
+      "elapsed": 0.001,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "feature_dim": "feature",
+        "output": "out_chao1"
+      },
+      "export_path": "steps/01_chao1.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0011,
+      "inputs": [
+        "out_chao1"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "chao1"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122246-dfeb020de2ed",
+  "event_log": "/tmp/cov_omics/chao1/output/runs/20261110T122246-dfeb020de2ed/events.jsonl"
+}

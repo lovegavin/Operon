@@ -1,0 +1,11 @@
+{
+  "name": "replay_ligandmpnn_side_chain_packing",
+  "sources": {},
+  "steps": [
+    {
+      "name": "ligandmpnn_side_chain_packing",
+      "inputs": []
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

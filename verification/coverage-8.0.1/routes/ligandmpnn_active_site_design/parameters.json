@@ -1,0 +1,39 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "ligandmpnn_active_site_design",
+      "inputs": [],
+      "params": {
+        "structure_path": "/tmp/ligand_routes/ligandmpnn_active_site_design/input/3ptb.pdb",
+        "ligandmpnn_path": "/home/gavin/tools/LigandMPNN",
+        "weights_path": "/home/gavin/tools/LigandMPNN/model_params/ligandmpnn_v_32_010_25.pt",
+        "python_executable": "/home/gavin/bp-numpy21/bin/python",
+        "ligand_resnames": "BEN",
+        "chains": "A",
+        "cutoff": 8.0,
+        "num_seq_per_target": 2,
+        "temperature": 0.1,
+        "seed": 1,
+        "device": "cpu",
+        "timeout": 1800,
+        "output": "designs"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "designs"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "designs"
+      },
+      "context_params": {}
+    }
+  ]
+}

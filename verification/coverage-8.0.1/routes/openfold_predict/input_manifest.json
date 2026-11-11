@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/openfold_gpu_route/input",
+  "files": [
+    {
+      "path": "vhh.fasta",
+      "size": 138,
+      "sha256": "f417b46d21fef5493c4c0f371d749e3ede91d54e2f8a691e82e9b74e8b497b2b"
+    }
+  ]
+}

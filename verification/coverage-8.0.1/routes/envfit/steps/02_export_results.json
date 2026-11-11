@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/envfit/output/artifacts/exports/5c6a32b413254b67aac63c48c501e04f/envfit.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 209,
+  "source": "out_envfit",
+  "conversion": {}
+}

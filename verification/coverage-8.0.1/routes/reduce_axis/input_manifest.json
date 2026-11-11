@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/reduce_axis/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 596,
+      "sha256": "93e72c6ec45c8021859a5f636f478916f5bfdf51979c2799c74d175eac83ade8"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "foldseek_align",
+      "inputs": [],
+      "params": {
+        "query_path": "/tmp/cov_structure/foldseek_align/input/1UBQ.pdb",
+        "target_path": "/tmp/cov_structure/foldseek_align/input/1mel_nohet.pdb",
+        "foldseek_path": "/tmp/foldseek/bin/foldseek",
+        "timeout_seconds": 300,
+        "output": "out_foldseek_align"
+      },
+      "context_params": {}
+    }
+  ]
+}

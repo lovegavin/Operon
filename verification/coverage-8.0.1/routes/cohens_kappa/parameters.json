@@ -1,0 +1,32 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "cohens_kappa",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "weights": "none",
+        "output": "out_cohens_kappa"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_cohens_kappa"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "cohens_kappa"
+      },
+      "context_params": {}
+    }
+  ]
+}

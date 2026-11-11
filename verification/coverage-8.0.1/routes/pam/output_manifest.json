@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/pam/output/artifacts",
+  "files": [
+    {
+      "path": "exports/4f7d8a37ab8549ef8cb9a193ec466722/pam.csv",
+      "size": 722,
+      "sha256": "02905009db8d98a15b5d6efb3882ab3d45de9a33e8b11389c968c31aba691c7e"
+    },
+    {
+      "path": "exports/706c8b4067564555bb5acd58bc7371aa/pam.csv",
+      "size": 722,
+      "sha256": "02905009db8d98a15b5d6efb3882ab3d45de9a33e8b11389c968c31aba691c7e"
+    }
+  ]
+}

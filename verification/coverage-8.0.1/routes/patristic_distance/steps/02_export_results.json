@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/patristic_distance/output/artifacts/exports/82b0ff2f80554723b7cc51defb2a32db/patristic_distance.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 577,
+  "source": "out_patristic_distance",
+  "conversion": {}
+}

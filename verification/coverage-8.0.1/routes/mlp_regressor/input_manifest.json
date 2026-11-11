@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/mlp_regressor/input",
+  "files": [
+    {
+      "path": "reg.csv",
+      "size": 79,
+      "sha256": "1df1e3547b9dfed9865f960e58fbcc74f51c715cda04d7b5e6ee8386ac47480e"
+    }
+  ]
+}

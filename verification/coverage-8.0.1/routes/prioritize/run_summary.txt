@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_sequence/prioritize
+generated : 2026-11-10T12:47:34.531990+00:00
+steps     : 2
+elapsed   : 0.001s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   annotate                0.000s   steps/01_annotate.json
+2   prioritize              0.000s   steps/02_prioritize.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/mauchly_test/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1521,
+      "sha256": "521bff813ea48d5a76c66edca4844f100152a93c733304cc36a92108e96e92a6"
+    }
+  ]
+}

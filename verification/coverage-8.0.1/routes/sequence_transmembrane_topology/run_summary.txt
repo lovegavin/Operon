@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_sequence/sequence_transmembrane_topology
+generated : 2026-11-10T12:46:14.060590+00:00
+steps     : 1
+elapsed   : 0.000s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   sequence_transmembrane_topology    0.000s   steps/01_sequence_transmembrane_topology.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

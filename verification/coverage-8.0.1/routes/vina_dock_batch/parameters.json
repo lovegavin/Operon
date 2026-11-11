@@ -1,0 +1,29 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "vina_dock_batch",
+      "inputs": [],
+      "params": {
+        "receptor_path": "/tmp/vina_routes/vina_dock/input/receptor.pdbqt",
+        "ligand_paths": "/tmp/vina_routes/vina_dock/input/ligand.pdbqt,/tmp/vina_routes/vina_dock_batch/input/ligand2.pdbqt",
+        "vina_path": "/home/gavin/tools/smina-env/bin/smina",
+        "center_x": -1.9,
+        "center_y": 14.3,
+        "center_z": 16.7,
+        "size_x": 20,
+        "size_y": 20,
+        "size_z": 20,
+        "num_modes": 3,
+        "exhaustiveness": 2,
+        "seed": 42,
+        "timeout_seconds": 600,
+        "output": "results"
+      },
+      "context_params": {}
+    }
+  ]
+}

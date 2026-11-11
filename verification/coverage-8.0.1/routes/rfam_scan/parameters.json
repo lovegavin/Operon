@@ -1,0 +1,25 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "rfam_scan",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "rfam_cm": "/home/gavin/tools/rfam/Rfam.cm",
+        "cmscan_path": "/usr/bin/cmscan",
+        "evalue": 1e-05,
+        "cpu": 2,
+        "timeout_seconds": 600,
+        "output": "out_rfam_scan"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/vina_routes/vina_pose_rmsd
+generated : 2026-11-11T04:11:41.411357+00:00
+steps     : 2
+elapsed   : 0.417s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   vina_dock               0.415s   steps/01_vina_dock.json
+2   vina_pose_rmsd          0.002s   steps/02_vina_pose_rmsd.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

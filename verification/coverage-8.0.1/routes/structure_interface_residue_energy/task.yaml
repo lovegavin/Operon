@@ -1,0 +1,11 @@
+{
+  "name": "structure_interface_residue_energy",
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_interface_residue_energy",
+      "inputs": []
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

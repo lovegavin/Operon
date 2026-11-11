@@ -1,0 +1,33 @@
+{
+  "name": "structure_ligand_pose_rmsd",
+  "sources": {
+    "structure_3ptb_pose": {
+      "path": "input/3PTB.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    },
+    "structure_3ptb_ref": {
+      "path": "input/3PTB.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_ligand_pose_rmsd",
+      "inputs": [
+        "structure_3ptb_pose",
+        "structure_3ptb_ref"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

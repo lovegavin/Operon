@@ -1,0 +1,43 @@
+{
+  "task_dir": "/tmp/cov_mltab/mlp_regressor",
+  "generated_at": "2026-11-10T12:25:29.536341+00:00",
+  "n_steps": 2,
+  "total_elapsed": 2.2674,
+  "steps": [
+    {
+      "index": 1,
+      "name": "mlp_regressor",
+      "elapsed": 2.2655,
+      "inputs": [
+        "reg"
+      ],
+      "params": {
+        "output": "out_mlp_regressor",
+        "row_dim": "row",
+        "field_dim": "field",
+        "hidden": 8,
+        "epochs": 100,
+        "learning_rate": 0.02,
+        "seed": 3
+      },
+      "export_path": "steps/01_mlp_regressor.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0019,
+      "inputs": [
+        "out_mlp_regressor"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "mlp_regressor"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122526-edb21a854f52",
+  "event_log": "/tmp/cov_mltab/mlp_regressor/output/runs/20261110T122526-edb21a854f52/events.jsonl"
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/mack_wolfe/output/artifacts",
+  "files": [
+    {
+      "path": "exports/6a483b416ab5414e80494541bd846649/mack_wolfe.csv",
+      "size": 316,
+      "sha256": "0ccf408986df14b0c944f5b96afb4074ea4e63f5c67139cb1a9cd9bd951ee079"
+    },
+    {
+      "path": "exports/8a3035c7dcc64ead85ee97724ec1215e/mack_wolfe.csv",
+      "size": 316,
+      "sha256": "0ccf408986df14b0c944f5b96afb4074ea4e63f5c67139cb1a9cd9bd951ee079"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "dbrda",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "distance": "bray",
+        "n_components": 2,
+        "output": "out_dbrda"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_dbrda"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "dbrda"
+      },
+      "context_params": {}
+    }
+  ]
+}

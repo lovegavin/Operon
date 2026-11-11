@@ -1,0 +1,23 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_md_dssp_transitions",
+      "inputs": [],
+      "params": {
+        "trajectory_path": "/tmp/cov_structure/structure_md_dssp_transitions/input/1mel_traj.npy",
+        "topology_path": "/tmp/cov_structure/structure_md_dssp_transitions/input/1mel_topology.pdb",
+        "dssp_path": "/usr/bin/mkdssp",
+        "lag_frames": 1,
+        "frame_time_ps": 0.08,
+        "n_residues": 0,
+        "timeout_seconds": 600,
+        "output": "out_structure_md_dssp_transitions"
+      },
+      "context_params": {}
+    }
+  ]
+}

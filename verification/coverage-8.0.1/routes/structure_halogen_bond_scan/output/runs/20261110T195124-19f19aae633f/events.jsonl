@@ -1,0 +1,10 @@
+{"message": "Loading the analysis engine", "time": "2026-11-10T19:51:24.331182+00:00", "event": "worker_started"}
+{"run_id": "20261110T195124-19f19aae633f", "memory_enabled": false, "time": "2026-11-10T19:51:24.451459+00:00", "event": "run_started"}
+{"name": "structure", "shape": [1703, 12], "dims": ["atom", "field"], "time": "2026-11-10T19:51:24.788103+00:00", "event": "source_loaded"}
+{"name": "structure_halogen_bond_scan", "index": 1, "time": "2026-11-10T19:51:24.788529+00:00", "event": "step_started"}
+{"name": "structure_halogen_bond_scan", "inputs": 1, "outputs": ["halogen_bonds"], "contract_version": 1, "time": "2026-11-10T19:51:24.856430+00:00", "event": "contract_checked"}
+{"name": "structure_halogen_bond_scan", "index": 1, "seconds": 0.0028191269957460463, "time": "2026-11-10T19:51:24.856481+00:00", "event": "step_finished"}
+{"name": "export_results", "index": 2, "time": "2026-11-10T19:51:24.856614+00:00", "event": "step_started"}
+{"name": "export_results", "inputs": 1, "outputs": ["export_results"], "contract_version": 1, "time": "2026-11-10T19:51:24.915175+00:00", "event": "contract_checked"}
+{"name": "export_results", "index": 2, "seconds": 0.0016470100090373307, "time": "2026-11-10T19:51:24.915209+00:00", "event": "step_finished"}
+{"status": "complete", "error": null, "time": "2026-11-10T19:51:24.915224+00:00", "event": "run_finished"}

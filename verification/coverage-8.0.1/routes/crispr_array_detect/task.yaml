@@ -1,0 +1,26 @@
+{
+  "name": "crispr_array_detect",
+  "sources": {
+    "x0": {
+      "path": "input/crispr.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "crispr_array_detect",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

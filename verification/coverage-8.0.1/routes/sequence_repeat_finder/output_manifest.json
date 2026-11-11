@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/sequence_repeat_finder/output/artifacts",
+  "files": [
+    {
+      "path": "exports/a338181070e344b1b8e86e4abc8112ae/sequence_repeat_finder.csv",
+      "size": 111,
+      "sha256": "58ab702ca6384eaa5f5dda75e0817348631340fdc2432dc1491c71b4ea6ac4a7"
+    }
+  ]
+}

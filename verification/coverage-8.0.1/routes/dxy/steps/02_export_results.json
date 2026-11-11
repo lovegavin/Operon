@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/dxy/output/artifacts/exports/bdb29903c20a4a23967be3d2703536ec/dxy.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 360,
+  "source": "out_dxy",
+  "conversion": {}
+}

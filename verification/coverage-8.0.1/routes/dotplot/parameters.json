@@ -1,0 +1,31 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "dotplot",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "group_dim": "sample",
+        "features": [
+          "g1",
+          "g2",
+          "g3"
+        ],
+        "group_label": "batch",
+        "statistic": "mean",
+        "filename": "dotplot.png"
+      },
+      "context_params": {}
+    }
+  ]
+}

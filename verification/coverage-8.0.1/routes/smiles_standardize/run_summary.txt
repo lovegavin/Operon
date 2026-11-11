@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_mltab/smiles_standardize
+generated : 2026-11-10T12:25:43.903005+00:00
+steps     : 2
+elapsed   : 0.051s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   smiles_standardize      0.049s   steps/01_smiles_standardize.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

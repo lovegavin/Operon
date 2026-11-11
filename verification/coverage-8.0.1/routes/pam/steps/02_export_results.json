@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/pam/output/artifacts/exports/706c8b4067564555bb5acd58bc7371aa/pam.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 722,
+  "source": "out_pam",
+  "conversion": {}
+}

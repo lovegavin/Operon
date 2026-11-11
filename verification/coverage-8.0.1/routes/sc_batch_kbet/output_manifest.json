@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/sc_batch_kbet/output/artifacts",
+  "files": [
+    {
+      "path": "exports/9681c4f534914aef8cb047dee29f438a/sc_batch_kbet.csv",
+      "size": 393,
+      "sha256": "2216d2fd0f3880895f4213cb10de6c7307c32e5e686df6db925db04c9b6d2a30"
+    }
+  ]
+}

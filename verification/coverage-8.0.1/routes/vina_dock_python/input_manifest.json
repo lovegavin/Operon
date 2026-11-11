@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_structure/vina_dock_python/input",
+  "files": [
+    {
+      "path": "3PTB_nohet.pdb",
+      "size": 132034,
+      "sha256": "12d37bdae58319e2458558bfebc578645821e104f22dbd0c999852ac158733b8"
+    },
+    {
+      "path": "BEN.pdbqt",
+      "size": 734,
+      "sha256": "6164280b414d1ac7c82b74c5896e0d0675c9bd87bee20f21a72e24569b2766fa"
+    }
+  ]
+}

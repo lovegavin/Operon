@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/cophenetic_correlation/output/artifacts/exports/7cbc7f67c58d41b2a572cc99e6bce9ad/cophenetic_correlation.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 94,
+  "source": "out_cophenetic_correlation",
+  "conversion": {}
+}

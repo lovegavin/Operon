@@ -1,0 +1,30 @@
+{
+  "task_dir": "/tmp/cov_sequence/flye_assemble",
+  "generated_at": "2026-11-10T12:47:17.541851+00:00",
+  "n_steps": 1,
+  "total_elapsed": 50.606,
+  "steps": [
+    {
+      "index": 1,
+      "name": "flye_assemble",
+      "elapsed": 50.606,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "flye_path": "/home/gavin/miniconda3/envs/assembly/bin/flye",
+        "mode": "nano-raw",
+        "genome_size": "48k",
+        "threads": 2,
+        "min_overlap": 1000,
+        "timeout_seconds": 1200,
+        "output": "out_flye_assemble"
+      },
+      "export_path": "steps/01_flye_assemble.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124626-b47ebfd7decd",
+  "event_log": "/tmp/cov_sequence/flye_assemble/output/runs/20261110T124626-b47ebfd7decd/events.jsonl"
+}

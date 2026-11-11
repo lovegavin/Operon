@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/redundancy_analysis/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1221,
+      "sha256": "17cb9cab0695e76486b0785fa3cc6c601aedee669e66bbf9c2b1780fed323b7a"
+    },
+    {
+      "path": "x1.csv",
+      "size": 779,
+      "sha256": "470bc5527fe333a7cdfc983040523f63fe96be731b3497c3651393c13f3424cd"
+    }
+  ]
+}

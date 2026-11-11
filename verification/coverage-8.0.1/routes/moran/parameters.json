@@ -1,0 +1,35 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "moran",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "value_label": "value",
+        "weighting": "inverse",
+        "output": "out_moran"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_moran"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "moran"
+      },
+      "context_params": {}
+    }
+  ]
+}

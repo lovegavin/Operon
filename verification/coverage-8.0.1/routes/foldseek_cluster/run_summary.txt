@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/l2_routes/foldseek_cluster
+generated : 2026-11-11T05:18:17.254780+00:00
+steps     : 2
+elapsed   : 2.325s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   foldseek_cluster        2.323s   steps/01_foldseek_cluster.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

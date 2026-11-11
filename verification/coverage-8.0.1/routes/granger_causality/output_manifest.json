@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/granger_causality/output/artifacts",
+  "files": [
+    {
+      "path": "exports/3da5e414a83546e5a8ba1d3cb3075ff3/granger_causality.csv",
+      "size": 135,
+      "sha256": "c9b9fa010cefc83965d2eacca31c32cac9d8c3aae59a1853ab1d0e936b883c81"
+    },
+    {
+      "path": "exports/97d9d99abcfe455ba54c9a0467ab7ba7/granger_causality.csv",
+      "size": 135,
+      "sha256": "c9b9fa010cefc83965d2eacca31c32cac9d8c3aae59a1853ab1d0e936b883c81"
+    }
+  ]
+}

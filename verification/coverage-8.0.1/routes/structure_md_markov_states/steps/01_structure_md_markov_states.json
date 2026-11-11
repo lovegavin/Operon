@@ -1,0 +1,10 @@
+{
+  "n_frames": 26,
+  "n_states": 2,
+  "lag_frames": 1,
+  "frame_time_ps": 0.08,
+  "implied_timescales_ps": [
+    0.5991100551534895
+  ],
+  "n_transitions": 25
+}

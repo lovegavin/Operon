@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/zivot_andrews/output/artifacts",
+  "files": [
+    {
+      "path": "exports/2b9f01650dd646928b25017cd1960ae2/zivot_andrews.csv",
+      "size": 207,
+      "sha256": "48e09e7e4114fdf1629647bddf04a7a87501474b4406fdc0389f69a4a1422e6a"
+    },
+    {
+      "path": "exports/5b0a4f05a84f4aa08058b4a7cb2bf2aa/zivot_andrews.csv",
+      "size": 207,
+      "sha256": "48e09e7e4114fdf1629647bddf04a7a87501474b4406fdc0389f69a4a1422e6a"
+    }
+  ]
+}

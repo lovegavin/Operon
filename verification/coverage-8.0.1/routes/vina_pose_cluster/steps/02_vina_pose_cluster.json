@@ -1,0 +1,5 @@
+{
+  "operator": "vina_pose_cluster",
+  "n_poses": 3,
+  "n_clusters": 1
+}

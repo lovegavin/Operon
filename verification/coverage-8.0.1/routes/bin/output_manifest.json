@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_sequence/bin/output/artifacts",
+  "files": [
+    {
+      "path": "exports/00f7acb3051a4f09998fc427980ed38e/out_bin.csv",
+      "size": 76,
+      "sha256": "699a979f67856d978c52cbaf593cceb77dfc77405e7fc3d38bd9909ee6416ca1"
+    },
+    {
+      "path": "exports/a5531009595049e1bbc7f22d8bb1de23/out_bin.csv",
+      "size": 76,
+      "sha256": "699a979f67856d978c52cbaf593cceb77dfc77405e7fc3d38bd9909ee6416ca1"
+    }
+  ]
+}

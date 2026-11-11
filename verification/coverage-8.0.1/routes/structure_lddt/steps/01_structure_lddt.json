@@ -1,0 +1,1235 @@
+{
+  "rows": [
+    {
+      "residue": "LYS:1",
+      "lddt": 1.0,
+      "n_pairs": 34.0
+    },
+    {
+      "residue": "VAL:2",
+      "lddt": 1.0,
+      "n_pairs": 35.0
+    },
+    {
+      "residue": "PHE:3",
+      "lddt": 1.0,
+      "n_pairs": 41.0
+    },
+    {
+      "residue": "GLN:3",
+      "lddt": 1.0,
+      "n_pairs": 38.0
+    },
+    {
+      "residue": "GLY:4",
+      "lddt": 1.0,
+      "n_pairs": 35.0
+    },
+    {
+      "residue": "LEU:4",
+      "lddt": 1.0,
+      "n_pairs": 51.0
+    },
+    {
+      "residue": "ARG:5",
+      "lddt": 1.0,
+      "n_pairs": 40.0
+    },
+    {
+      "residue": "GLN:5",
+      "lddt": 1.0,
+      "n_pairs": 46.0
+    },
+    {
+      "residue": "CYS:6",
+      "lddt": 1.0,
+      "n_pairs": 35.0
+    },
+    {
+      "residue": "ALA:6",
+      "lddt": 1.0,
+      "n_pairs": 53.0
+    },
+    {
+      "residue": "SER:7",
+      "lddt": 1.0,
+      "n_pairs": 48.0
+    },
+    {
+      "residue": "GLU:7",
+      "lddt": 1.0,
+      "n_pairs": 39.0
+    },
+    {
+      "residue": "GLY:8",
+      "lddt": 1.0,
+      "n_pairs": 47.0
+    },
+    {
+      "residue": "LEU:8",
+      "lddt": 1.0,
+      "n_pairs": 51.0
+    },
+    {
+      "residue": "GLY:9",
+      "lddt": 1.0,
+      "n_pairs": 54.0
+    },
+    {
+      "residue": "ALA:9",
+      "lddt": 1.0,
+      "n_pairs": 49.0
+    },
+    {
+      "residue": "ALA:10",
+      "lddt": 1.0,
+      "n_pairs": 37.0
+    },
+    {
+      "residue": "GLY:10",
+      "lddt": 1.0,
+      "n_pairs": 40.0
+    },
+    {
+      "residue": "SER:11",
+      "lddt": 1.0,
+      "n_pairs": 35.0
+    },
+    {
+      "residue": "ALA:11",
+      "lddt": 1.0,
+      "n_pairs": 45.0
+    },
+    {
+      "residue": "MET:12",
+      "lddt": 1.0,
+      "n_pairs": 54.0
+    },
+    {
+      "residue": "VAL:12",
+      "lddt": 1.0,
+      "n_pairs": 32.0
+    },
+    {
+      "residue": "LYS:13",
+      "lddt": 1.0,
+      "n_pairs": 41.0
+    },
+    {
+      "residue": "GLN:13",
+      "lddt": 1.0,
+      "n_pairs": 26.0
+    },
+    {
+      "residue": "ALA:14",
+      "lddt": 1.0,
+      "n_pairs": 30.0
+    },
+    {
+      "residue": "ARG:14",
+      "lddt": 1.0,
+      "n_pairs": 32.0
+    },
+    {
+      "residue": "HIS:15",
+      "lddt": 1.0,
+      "n_pairs": 39.0
+    },
+    {
+      "residue": "GLY:15",
+      "lddt": 1.0,
+      "n_pairs": 29.0
+    },
+    {
+      "residue": "GLY:16",
+      "lddt": 1.0,
+      "n_pairs": 33.0
+    },
+    {
+      "residue": "SER:17",
+      "lddt": 1.0,
+      "n_pairs": 41.0
+    },
+    {
+      "residue": "LEU:17",
+      "lddt": 1.0,
+      "n_pairs": 46.0
+    },
+    {
+      "residue": "ASP:18",
+      "lddt": 1.0,
+      "n_pairs": 40.0
+    },
+    {
+      "residue": "LEU:18",
+      "lddt": 1.0,
+      "n_pairs": 50.0
+    },
+    {
+      "residue": "ARG:19",
+      "lddt": 1.0,
+      "n_pairs": 56.0
+    },
+    {
+      "residue": "ASN:19",
+      "lddt": 1.0,
+      "n_pairs": 30.0
+    },
+    {
+      "residue": "TYR:20",
+      "lddt": 1.0,
+      "n_pairs": 39.0
+    },
+    {
+      "residue": "LEU:20",
+      "lddt": 1.0,
+      "n_pairs": 62.0
+    },
+    {
+      "residue": "SER:21",
+      "lddt": 1.0,
+      "n_pairs": 57.0
+    },
+    {
+      "residue": "ARG:21",
+      "lddt": 1.0,
+      "n_pairs": 28.0
+    },
+    {
+      "residue": "GLY:22",
+      "lddt": 1.0,
+      "n_pairs": 28.0
+    },
+    {
+      "residue": "CYS:22",
+      "lddt": 1.0,
+      "n_pairs": 64.0
+    },
+    {
+      "residue": "TYR:23",
+      "lddt": 1.0,
+      "n_pairs": 43.0
+    },
+    {
+      "residue": "ALA:23",
+      "lddt": 1.0,
+      "n_pairs": 55.0
+    },
+    {
+      "residue": "ALA:24",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "SER:24",
+      "lddt": 1.0,
+      "n_pairs": 42.0
+    },
+    {
+      "residue": "SER:25",
+      "lddt": 1.0,
+      "n_pairs": 39.0
+    },
+    {
+      "residue": "LEU:25",
+      "lddt": 1.0,
+      "n_pairs": 50.0
+    },
+    {
+      "residue": "GLY:26",
+      "lddt": 1.0,
+      "n_pairs": 30.0
+    },
+    {
+      "residue": "ASN:27",
+      "lddt": 1.0,
+      "n_pairs": 60.0
+    },
+    {
+      "residue": "TYR:27",
+      "lddt": 1.0,
+      "n_pairs": 41.0
+    },
+    {
+      "residue": "TRP:28",
+      "lddt": 1.0,
+      "n_pairs": 75.0
+    },
+    {
+      "residue": "THR:28",
+      "lddt": 1.0,
+      "n_pairs": 34.0
+    },
+    {
+      "residue": "ILE:29",
+      "lddt": 1.0,
+      "n_pairs": 49.0
+    },
+    {
+      "residue": "VAL:29",
+      "lddt": 1.0,
+      "n_pairs": 64.0
+    },
+    {
+      "residue": "CYS:30",
+      "lddt": 1.0,
+      "n_pairs": 59.0
+    },
+    {
+      "residue": "GLY:30",
+      "lddt": 1.0,
+      "n_pairs": 65.0
+    },
+    {
+      "residue": "ALA:31",
+      "lddt": 1.0,
+      "n_pairs": 72.0
+    },
+    {
+      "residue": "PRO:31",
+      "lddt": 1.0,
+      "n_pairs": 74.0
+    },
+    {
+      "residue": "ALA:32",
+      "lddt": 1.0,
+      "n_pairs": 79.0
+    },
+    {
+      "residue": "TYR:32",
+      "lddt": 1.0,
+      "n_pairs": 84.0
+    },
+    {
+      "residue": "LYS:33",
+      "lddt": 1.0,
+      "n_pairs": 58.0
+    },
+    {
+      "residue": "CYS:33",
+      "lddt": 1.0,
+      "n_pairs": 81.0
+    },
+    {
+      "residue": "MET:34",
+      "lddt": 1.0,
+      "n_pairs": 84.0
+    },
+    {
+      "residue": "PHE:34",
+      "lddt": 1.0,
+      "n_pairs": 50.0
+    },
+    {
+      "residue": "GLY:35",
+      "lddt": 1.0,
+      "n_pairs": 87.0
+    },
+    {
+      "residue": "GLU:35",
+      "lddt": 1.0,
+      "n_pairs": 56.0
+    },
+    {
+      "residue": "TRP:36",
+      "lddt": 1.0,
+      "n_pairs": 87.0
+    },
+    {
+      "residue": "SER:36",
+      "lddt": 1.0,
+      "n_pairs": 55.0
+    },
+    {
+      "residue": "PHE:37",
+      "lddt": 1.0,
+      "n_pairs": 76.0
+    },
+    {
+      "residue": "ASN:37",
+      "lddt": 1.0,
+      "n_pairs": 45.0
+    },
+    {
+      "residue": "PHE:38",
+      "lddt": 1.0,
+      "n_pairs": 50.0
+    },
+    {
+      "residue": "ARG:38",
+      "lddt": 1.0,
+      "n_pairs": 72.0
+    },
+    {
+      "residue": "ASN:39",
+      "lddt": 1.0,
+      "n_pairs": 46.0
+    },
+    {
+      "residue": "GLN:39",
+      "lddt": 1.0,
+      "n_pairs": 42.0
+    },
+    {
+      "residue": "THR:40",
+      "lddt": 1.0,
+      "n_pairs": 50.0
+    },
+    {
+      "residue": "ALA:40",
+      "lddt": 1.0,
+      "n_pairs": 36.0
+    },
+    {
+      "residue": "PRO:41",
+      "lddt": 1.0,
+      "n_pairs": 26.0
+    },
+    {
+      "residue": "GLN:41",
+      "lddt": 1.0,
+      "n_pairs": 41.0
+    },
+    {
+      "residue": "ALA:42",
+      "lddt": 1.0,
+      "n_pairs": 42.0
+    },
+    {
+      "residue": "GLY:42",
+      "lddt": 1.0,
+      "n_pairs": 18.0
+    },
+    {
+      "residue": "THR:43",
+      "lddt": 1.0,
+      "n_pairs": 48.0
+    },
+    {
+      "residue": "LYS:43",
+      "lddt": 1.0,
+      "n_pairs": 22.0
+    },
+    {
+      "residue": "ASN:44",
+      "lddt": 1.0,
+      "n_pairs": 46.0
+    },
+    {
+      "residue": "GLU:44",
+      "lddt": 1.0,
+      "n_pairs": 27.0
+    },
+    {
+      "residue": "ARG:45",
+      "lddt": 1.0,
+      "n_pairs": 45.0
+    },
+    {
+      "residue": "GLU:46",
+      "lddt": 1.0,
+      "n_pairs": 50.0
+    },
+    {
+      "residue": "ASN:46",
+      "lddt": 1.0,
+      "n_pairs": 46.0
+    },
+    {
+      "residue": "THR:47",
+      "lddt": 1.0,
+      "n_pairs": 33.0
+    },
+    {
+      "residue": "GLY:47",
+      "lddt": 1.0,
+      "n_pairs": 62.0
+    },
+    {
+      "residue": "ASP:48",
+      "lddt": 1.0,
+      "n_pairs": 45.0
+    },
+    {
+      "residue": "VAL:48",
+      "lddt": 1.0,
+      "n_pairs": 77.0
+    },
+    {
+      "residue": "ALA:49",
+      "lddt": 1.0,
+      "n_pairs": 69.0
+    },
+    {
+      "residue": "GLY:49",
+      "lddt": 1.0,
+      "n_pairs": 38.0
+    },
+    {
+      "residue": "ALA:50",
+      "lddt": 1.0,
+      "n_pairs": 81.0
+    },
+    {
+      "residue": "SER:50",
+      "lddt": 1.0,
+      "n_pairs": 46.0
+    },
+    {
+      "residue": "THR:51",
+      "lddt": 1.0,
+      "n_pairs": 56.0
+    },
+    {
+      "residue": "ILE:51",
+      "lddt": 1.0,
+      "n_pairs": 71.0
+    },
+    {
+      "residue": "ASP:52",
+      "lddt": 1.0,
+      "n_pairs": 66.0
+    },
+    {
+      "residue": "ASN:52",
+      "lddt": 1.0,
+      "n_pairs": 77.0
+    },
+    {
+      "residue": "MET:53",
+      "lddt": 1.0,
+      "n_pairs": 75.0
+    },
+    {
+      "residue": "TYR:53",
+      "lddt": 1.0,
+      "n_pairs": 66.0
+    },
+    {
+      "residue": "GLY:54",
+      "lddt": 1.0,
+      "n_pairs": 63.0
+    },
+    {
+      "residue": "ILE:55",
+      "lddt": 1.0,
+      "n_pairs": 69.0
+    },
+    {
+      "residue": "GLY:55",
+      "lddt": 1.0,
+      "n_pairs": 59.0
+    },
+    {
+      "residue": "LEU:56",
+      "lddt": 1.0,
+      "n_pairs": 81.0
+    },
+    {
+      "residue": "GLY:56",
+      "lddt": 1.0,
+      "n_pairs": 51.0
+    },
+    {
+      "residue": "ILE:57",
+      "lddt": 1.0,
+      "n_pairs": 54.0
+    },
+    {
+      "residue": "GLN:57",
+      "lddt": 1.0,
+      "n_pairs": 78.0
+    },
+    {
+      "residue": "THR:58",
+      "lddt": 1.0,
+      "n_pairs": 57.0
+    },
+    {
+      "residue": "ILE:58",
+      "lddt": 1.0,
+      "n_pairs": 79.0
+    },
+    {
+      "residue": "ASN:59",
+      "lddt": 1.0,
+      "n_pairs": 76.0
+    },
+    {
+      "residue": "TYR:59",
+      "lddt": 1.0,
+      "n_pairs": 58.0
+    },
+    {
+      "residue": "TYR:60",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "SER:60",
+      "lddt": 1.0,
+      "n_pairs": 61.0
+    },
+    {
+      "residue": "ARG:61",
+      "lddt": 1.0,
+      "n_pairs": 58.0
+    },
+    {
+      "residue": "ALA:61",
+      "lddt": 1.0,
+      "n_pairs": 49.0
+    },
+    {
+      "residue": "TRP:62",
+      "lddt": 1.0,
+      "n_pairs": 67.0
+    },
+    {
+      "residue": "ASP:62",
+      "lddt": 1.0,
+      "n_pairs": 35.0
+    },
+    {
+      "residue": "SER:63",
+      "lddt": 1.0,
+      "n_pairs": 41.0
+    },
+    {
+      "residue": "TRP:63",
+      "lddt": 1.0,
+      "n_pairs": 68.0
+    },
+    {
+      "residue": "CYS:64",
+      "lddt": 1.0,
+      "n_pairs": 56.0
+    },
+    {
+      "residue": "VAL:64",
+      "lddt": 1.0,
+      "n_pairs": 53.0
+    },
+    {
+      "residue": "ASN:65",
+      "lddt": 1.0,
+      "n_pairs": 41.0
+    },
+    {
+      "residue": "LYS:65",
+      "lddt": 1.0,
+      "n_pairs": 37.0
+    },
+    {
+      "residue": "ASP:66",
+      "lddt": 1.0,
+      "n_pairs": 42.0
+    },
+    {
+      "residue": "GLY:66",
+      "lddt": 1.0,
+      "n_pairs": 28.0
+    },
+    {
+      "residue": "ARG:67",
+      "lddt": 1.0,
+      "n_pairs": 38.0
+    },
+    {
+      "residue": "GLY:67",
+      "lddt": 1.0,
+      "n_pairs": 32.0
+    },
+    {
+      "residue": "PHE:68",
+      "lddt": 1.0,
+      "n_pairs": 56.0
+    },
+    {
+      "residue": "ARG:68",
+      "lddt": 1.0,
+      "n_pairs": 30.0
+    },
+    {
+      "residue": "THR:69",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "PRO:70",
+      "lddt": 1.0,
+      "n_pairs": 31.0
+    },
+    {
+      "residue": "ILE:70",
+      "lddt": 1.0,
+      "n_pairs": 64.0
+    },
+    {
+      "residue": "SER:71",
+      "lddt": 1.0,
+      "n_pairs": 55.0
+    },
+    {
+      "residue": "GLY:71",
+      "lddt": 1.0,
+      "n_pairs": 41.0
+    },
+    {
+      "residue": "SER:72",
+      "lddt": 1.0,
+      "n_pairs": 43.0
+    },
+    {
+      "residue": "GLN:72",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "ASP:73",
+      "lddt": 1.0,
+      "n_pairs": 40.0
+    },
+    {
+      "residue": "ARG:73",
+      "lddt": 1.0,
+      "n_pairs": 49.0
+    },
+    {
+      "residue": "ASN:74",
+      "lddt": 1.0,
+      "n_pairs": 44.0
+    },
+    {
+      "residue": "ALA:75",
+      "lddt": 1.0,
+      "n_pairs": 34.0
+    },
+    {
+      "residue": "LEU:75",
+      "lddt": 1.0,
+      "n_pairs": 54.0
+    },
+    {
+      "residue": "CYS:76",
+      "lddt": 1.0,
+      "n_pairs": 47.0
+    },
+    {
+      "residue": "LYS:76",
+      "lddt": 1.0,
+      "n_pairs": 41.0
+    },
+    {
+      "residue": "ASN:77",
+      "lddt": 1.0,
+      "n_pairs": 55.0
+    },
+    {
+      "residue": "ILE:78",
+      "lddt": 1.0,
+      "n_pairs": 40.0
+    },
+    {
+      "residue": "THR:78",
+      "lddt": 1.0,
+      "n_pairs": 58.0
+    },
+    {
+      "residue": "PRO:79",
+      "lddt": 1.0,
+      "n_pairs": 44.0
+    },
+    {
+      "residue": "VAL:79",
+      "lddt": 1.0,
+      "n_pairs": 63.0
+    },
+    {
+      "residue": "CYS:80",
+      "lddt": 1.0,
+      "n_pairs": 54.0
+    },
+    {
+      "residue": "TYR:80",
+      "lddt": 1.0,
+      "n_pairs": 60.0
+    },
+    {
+      "residue": "SER:81",
+      "lddt": 1.0,
+      "n_pairs": 43.0
+    },
+    {
+      "residue": "LEU:81",
+      "lddt": 1.0,
+      "n_pairs": 72.0
+    },
+    {
+      "residue": "ALA:82",
+      "lddt": 1.0,
+      "n_pairs": 38.0
+    },
+    {
+      "residue": "LEU:82",
+      "lddt": 1.0,
+      "n_pairs": 59.0
+    },
+    {
+      "residue": "MET:83",
+      "lddt": 1.0,
+      "n_pairs": 63.0
+    },
+    {
+      "residue": "LEU:83",
+      "lddt": 1.0,
+      "n_pairs": 57.0
+    },
+    {
+      "residue": "LEU:84",
+      "lddt": 1.0,
+      "n_pairs": 46.0
+    },
+    {
+      "residue": "ASN:84",
+      "lddt": 1.0,
+      "n_pairs": 43.0
+    },
+    {
+      "residue": "SER:85",
+      "lddt": 1.0,
+      "n_pairs": 36.0
+    },
+    {
+      "residue": "LEU:86",
+      "lddt": 1.0,
+      "n_pairs": 45.0
+    },
+    {
+      "residue": "SER:86",
+      "lddt": 1.0,
+      "n_pairs": 38.0
+    },
+    {
+      "residue": "ASP:87",
+      "lddt": 1.0,
+      "n_pairs": 40.0
+    },
+    {
+      "residue": "GLU:87",
+      "lddt": 1.0,
+      "n_pairs": 40.0
+    },
+    {
+      "residue": "PRO:88",
+      "lddt": 1.0,
+      "n_pairs": 37.0
+    },
+    {
+      "residue": "ILE:88",
+      "lddt": 1.0,
+      "n_pairs": 56.0
+    },
+    {
+      "residue": "GLU:89",
+      "lddt": 1.0,
+      "n_pairs": 46.0
+    },
+    {
+      "residue": "THR:89",
+      "lddt": 1.0,
+      "n_pairs": 47.0
+    },
+    {
+      "residue": "ASP:90",
+      "lddt": 1.0,
+      "n_pairs": 59.0
+    },
+    {
+      "residue": "ALA:90",
+      "lddt": 1.0,
+      "n_pairs": 49.0
+    },
+    {
+      "residue": "SER:91",
+      "lddt": 1.0,
+      "n_pairs": 67.0
+    },
+    {
+      "residue": "THR:91",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "VAL:92",
+      "lddt": 1.0,
+      "n_pairs": 69.0
+    },
+    {
+      "residue": "ALA:92",
+      "lddt": 1.0,
+      "n_pairs": 53.0
+    },
+    {
+      "residue": "ILE:93",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "ASN:93",
+      "lddt": 1.0,
+      "n_pairs": 47.0
+    },
+    {
+      "residue": "TYR:94",
+      "lddt": 1.0,
+      "n_pairs": 70.0
+    },
+    {
+      "residue": "CYS:94",
+      "lddt": 1.0,
+      "n_pairs": 57.0
+    },
+    {
+      "residue": "ALA:95",
+      "lddt": 1.0,
+      "n_pairs": 76.0
+    },
+    {
+      "residue": "TYR:95",
+      "lddt": 1.0,
+      "n_pairs": 70.0
+    },
+    {
+      "residue": "LYS:96",
+      "lddt": 1.0,
+      "n_pairs": 56.0
+    },
+    {
+      "residue": "CYS:96",
+      "lddt": 1.0,
+      "n_pairs": 79.0
+    },
+    {
+      "residue": "LYS:97",
+      "lddt": 1.0,
+      "n_pairs": 48.0
+    },
+    {
+      "residue": "ALA:97",
+      "lddt": 1.0,
+      "n_pairs": 73.0
+    },
+    {
+      "residue": "ILE:98",
+      "lddt": 1.0,
+      "n_pairs": 62.0
+    },
+    {
+      "residue": "ALA:98",
+      "lddt": 1.0,
+      "n_pairs": 77.0
+    },
+    {
+      "residue": "ASP:99",
+      "lddt": 1.0,
+      "n_pairs": 78.0
+    },
+    {
+      "residue": "VAL:99",
+      "lddt": 1.0,
+      "n_pairs": 53.0
+    },
+    {
+      "residue": "SER:100",
+      "lddt": 1.0,
+      "n_pairs": 66.0
+    },
+    {
+      "residue": "ASP:101",
+      "lddt": 1.0,
+      "n_pairs": 37.0
+    },
+    {
+      "residue": "THR:101",
+      "lddt": 1.0,
+      "n_pairs": 66.0
+    },
+    {
+      "residue": "GLY:102",
+      "lddt": 1.0,
+      "n_pairs": 38.0
+    },
+    {
+      "residue": "ILE:102",
+      "lddt": 1.0,
+      "n_pairs": 69.0
+    },
+    {
+      "residue": "ASN:103",
+      "lddt": 1.0,
+      "n_pairs": 54.0
+    },
+    {
+      "residue": "TYR:103",
+      "lddt": 1.0,
+      "n_pairs": 73.0
+    },
+    {
+      "residue": "ALA:104",
+      "lddt": 1.0,
+      "n_pairs": 81.0
+    },
+    {
+      "residue": "GLY:104",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "SER:105",
+      "lddt": 1.0,
+      "n_pairs": 84.0
+    },
+    {
+      "residue": "MET:105",
+      "lddt": 1.0,
+      "n_pairs": 61.0
+    },
+    {
+      "residue": "ASN:106",
+      "lddt": 1.0,
+      "n_pairs": 61.0
+    },
+    {
+      "residue": "TYR:106",
+      "lddt": 1.0,
+      "n_pairs": 74.0
+    },
+    {
+      "residue": "ALA:107",
+      "lddt": 1.0,
+      "n_pairs": 73.0
+    },
+    {
+      "residue": "TYR:107",
+      "lddt": 1.0,
+      "n_pairs": 70.0
+    },
+    {
+      "residue": "GLU:108",
+      "lddt": 1.0,
+      "n_pairs": 67.0
+    },
+    {
+      "residue": "TRP:108",
+      "lddt": 1.0,
+      "n_pairs": 70.0
+    },
+    {
+      "residue": "CYS:109",
+      "lddt": 1.0,
+      "n_pairs": 68.0
+    },
+    {
+      "residue": "VAL:109",
+      "lddt": 1.0,
+      "n_pairs": 62.0
+    },
+    {
+      "residue": "ALA:110",
+      "lddt": 1.0,
+      "n_pairs": 54.0
+    },
+    {
+      "residue": "GLY:110",
+      "lddt": 1.0,
+      "n_pairs": 60.0
+    },
+    {
+      "residue": "TRP:111",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "HIS:111",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "GLY:112",
+      "lddt": 1.0,
+      "n_pairs": 56.0
+    },
+    {
+      "residue": "ARG:112",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "LEU:113",
+      "lddt": 1.0,
+      "n_pairs": 54.0
+    },
+    {
+      "residue": "ASN:113",
+      "lddt": 1.0,
+      "n_pairs": 40.0
+    },
+    {
+      "residue": "ARG:114",
+      "lddt": 1.0,
+      "n_pairs": 32.0
+    },
+    {
+      "residue": "SER:114",
+      "lddt": 1.0,
+      "n_pairs": 44.0
+    },
+    {
+      "residue": "THR:115",
+      "lddt": 1.0,
+      "n_pairs": 38.0
+    },
+    {
+      "residue": "CYS:115",
+      "lddt": 1.0,
+      "n_pairs": 35.0
+    },
+    {
+      "residue": "LYS:116",
+      "lddt": 1.0,
+      "n_pairs": 34.0
+    },
+    {
+      "residue": "GLY:116",
+      "lddt": 1.0,
+      "n_pairs": 38.0
+    },
+    {
+      "residue": "GLY:117",
+      "lddt": 1.0,
+      "n_pairs": 48.0
+    },
+    {
+      "residue": "TYR:118",
+      "lddt": 1.0,
+      "n_pairs": 52.0
+    },
+    {
+      "residue": "THR:118",
+      "lddt": 1.0,
+      "n_pairs": 28.0
+    },
+    {
+      "residue": "ASP:119",
+      "lddt": 1.0,
+      "n_pairs": 23.0
+    },
+    {
+      "residue": "GLY:119",
+      "lddt": 1.0,
+      "n_pairs": 56.0
+    },
+    {
+      "residue": "VAL:120",
+      "lddt": 1.0,
+      "n_pairs": 40.0
+    },
+    {
+      "residue": "TYR:120",
+      "lddt": 1.0,
+      "n_pairs": 61.0
+    },
+    {
+      "residue": "GLN:121",
+      "lddt": 1.0,
+      "n_pairs": 34.0
+    },
+    {
+      "residue": "ASP:121",
+      "lddt": 1.0,
+      "n_pairs": 51.0
+    },
+    {
+      "residue": "ALA:122",
+      "lddt": 1.0,
+      "n_pairs": 30.0
+    },
+    {
+      "residue": "SER:122",
+      "lddt": 1.0,
+      "n_pairs": 54.0
+    },
+    {
+      "residue": "TRP:123",
+      "lddt": 1.0,
+      "n_pairs": 55.0
+    },
+    {
+      "residue": "ILE:124",
+      "lddt": 1.0,
+      "n_pairs": 35.0
+    },
+    {
+      "residue": "GLY:124",
+      "lddt": 1.0,
+      "n_pairs": 53.0
+    },
+    {
+      "residue": "GLN:125",
+      "lddt": 1.0,
+      "n_pairs": 39.0
+    },
+    {
+      "residue": "ARG:125",
+      "lddt": 1.0,
+      "n_pairs": 25.0
+    },
+    {
+      "residue": "GLY:126",
+      "lddt": 1.0,
+      "n_pairs": 48.0
+    },
+    {
+      "residue": "THR:127",
+      "lddt": 1.0,
+      "n_pairs": 47.0
+    },
+    {
+      "residue": "CYS:127",
+      "lddt": 1.0,
+      "n_pairs": 23.0
+    },
+    {
+      "residue": "GLN:128",
+      "lddt": 1.0,
+      "n_pairs": 49.0
+    },
+    {
+      "residue": "VAL:129",
+      "lddt": 1.0,
+      "n_pairs": 53.0
+    },
+    {
+      "residue": "THR:130",
+      "lddt": 1.0,
+      "n_pairs": 40.0
+    },
+    {
+      "residue": "VAL:131",
+      "lddt": 1.0,
+      "n_pairs": 39.0
+    },
+    {
+      "residue": "SER:132",
+      "lddt": 1.0,
+      "n_pairs": 28.0
+    },
+    {
+      "residue": "SER:133",
+      "lddt": 1.0,
+      "n_pairs": 20.0
+    }
+  ],
+  "mean_lddt": 1.0
+}

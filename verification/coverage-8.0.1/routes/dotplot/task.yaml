@@ -1,0 +1,43 @@
+{
+  "name": "dotplot",
+  "sources": {
+    "x0": {
+      "path": "input/expr.csv",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/meta.csv",
+      "dims": [
+        "sample",
+        "group"
+      ],
+      "labels": {
+        "sample": {
+          "group": 0
+        },
+        "group": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "dotplot",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    }
+  ]
+}

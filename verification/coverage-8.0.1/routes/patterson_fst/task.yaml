@@ -1,0 +1,47 @@
+{
+  "name": "patterson_fst",
+  "sources": {
+    "x0": {
+      "path": "input/geno.vcf",
+      "dims": [
+        "variant",
+        "sample"
+      ],
+      "labels": {
+        "variant": "builtin",
+        "sample": "builtin"
+      },
+      "reader": "VcfReader"
+    },
+    "x1": {
+      "path": "input/meta.csv",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "patterson_fst",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_patterson_fst"
+      ]
+    }
+  ]
+}

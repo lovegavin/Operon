@@ -354,7 +354,7 @@ esm3_sequence_generation,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measure
 esm_embedding,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
 esm_embedding_autoencoder,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: torch | definition.outputs null (file outputs declared through contracts)
 esm_embedding_isolation_forest,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs null (file outputs declared through contracts)
-esm_embedding_kmeans_silhouette,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+esm_embedding_kmeans_silhouette,operator,PASS,PASS,N/A,,,generated_route,deterministic,definition.outputs empty
 esm_embedding_knn_density,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs null (file outputs declared through contracts)
 esm_embedding_linear_probe,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,esm_embedding_linear_probe: labels are required; pass a comma-separated labels parameter or store them in info['labels'] | info predicates 1/2 rejected | definition.outputs empty
 esm_embedding_mlp_probe,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,esm_embedding_mlp_probe: labels are required; pass a comma-separated labels parameter or store them in info['labels'] | info predicates 1/2 rejected | definition.outputs empty
@@ -364,7 +364,7 @@ esm_embedding_pca,operator,PASS,PASS,N/A,,,generated_route,not_measured,definiti
 esm_embedding_pca_loadings,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
 esm_embedding_pca_reconstruction,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs null (file outputs declared through contracts)
 esm_embedding_ridge_probe,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,esm_embedding_ridge_probe: targets are required; pass a comma-separated targets parameter or store them in info['targets'] | info predicates 2/2 rejected | definition.outputs empty
-esm_embedding_umap_projection,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
+esm_embedding_umap_projection,operator,PASS,PASS,N/A,,,generated_route,deterministic,definition.outputs empty
 esm_if_design,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
 esm_if_interface_redesign,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: biotite>=0.37 fair-esm>=2.0 numpy>=1.24 scipy>=1.10 torch>=2.0 | definition.outputs empty
 esm_if_masked_region_scan,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: biotite>=0.37 fair-esm>=2.0 numpy>=1.24 torch>=2.0 | definition.outputs empty
@@ -433,7 +433,7 @@ gc_skew_profile,operator,PASS,SKIP_DOMAIN,PASS,,,no_route,not_measured,"gc_skew_
 gcn_node_classifier,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: torch | definition.outputs empty
 gene_list_to_hits,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,gene_list_to_hits: 'genes' must be a non-empty list | definition.outputs empty
 gene_structure,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,gene_structure: 'type' column is not encoded | info predicates 1/2 rejected | definition.outputs empty
-genome_alignment_stats,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty
+genome_alignment_stats,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,deterministic,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty
 genome_cds_check,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,"genome_cds_check: no 'seqid' label found. Tried aliases ['seqid', 'seqname'], available columns ['axis_info_open', 'category', 'contracts', 'data_formats', 'declare', 'default', 'description', 'dims', 'encoders', 'end', 'estimate', 'estimate_memory', 'field', 'field_dim', 'form', 'full', 'genome_cds_check', 'icon', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'internal_stops', 'kind', 'labels', 'length_ok', 'logical_type', 'memory_modes', 'metadata', 'missing_code', 'mode', 'ndim', 'null | info predicates 2/4 rejected | definition.outputs empty"
 genome_gene_density,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,"genome_gene_density: no 'seqid' label found. Tried aliases ['seqid', 'seqname'], available columns ['aligned_bp', 'aligned_fraction', 'axis_info_open', 'category', 'contracts', 'data', 'data_formats', 'declare', 'default', 'description', 'dims', 'encoders', 'end', 'estimate', 'estimate_memory', 'feature_type', 'features_per_kb', 'field', 'field_dim', 'form', 'full', 'genome_gene_density', 'icon', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'labels', 'logical_type', 'memory_modes | info predicates 1/2 rejected | definition.outputs empty"
 genome_intergenic_regions,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,genome_intergenic_regions: 'seqid' column is not encoded | info predicates 1/2 rejected | definition.outputs empty
@@ -442,8 +442,8 @@ genome_kmer_spectrum,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured
 genome_mash_distance,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,genome_mash_distance: FASTA input lacks info.sequences | info predicates 2/4 rejected | definition.outputs empty
 genome_promoter_extract,operator,PASS,SKIP_DOMAIN,FAIL,,,builtin_route,not_measured,"genome_promoter_extract: no 'seqid' label found. Tried aliases ['seqid', 'seqname'], available columns ['axis_info_open', 'category', 'contracts', 'data', 'data_formats', 'declare', 'default', 'description', 'dims', 'encoders', 'end', 'estimate', 'estimate_memory', 'feature_type', 'field', 'field_dim', 'form', 'full', 'gene', 'genome_promoter_extract', 'icon', 'id', 'info', 'info_open', 'inputs', 'inputs_arity', 'kind', 'labels', 'logical_type', 'memory_modes', 'metadata', 'missing_code', 'mode' | info predicates 2/4 rejected | definition.outputs empty"
 genome_rearrangement,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
-genome_rearrangement_summary,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty
-genome_synteny_blocks,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,not_measured,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty
+genome_rearrangement_summary,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,deterministic,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty
+genome_synteny_blocks,operator,PASS,SKIP_HARNESS,SKIP,,,builtin_route,deterministic,form synthesis: ValueError('contract declares no dimensions') | definition.outputs empty
 genomic_selection_rrblup,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"population genetics input: missing field 'phenotype' in ['0', '1', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '2', '20', '21', '22', '23', '3', '4', '5', '6', '7', '8', '9'] | definition.outputs empty"
 genotype_allele_balance,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
 genotype_call_rate_qc,operator,PASS,PASS,N/A,l2_oracle,0.0,generated_route,not_measured,definition.outputs empty
@@ -468,9 +468,9 @@ grubbs_test,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.out
 gsea,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
 gsva_plage,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
 gtdb_taxonomy_parse,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
-gwas_association,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
-gwas_inflation,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,gwas_inflation: association column 'p' is missing | definition.outputs empty
-gwas_top_hits,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,gwas_top_hits: association column 'p' is missing | definition.outputs empty
+gwas_association,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,deterministic,file port requires a format-specific fixture | definition.outputs empty
+gwas_inflation,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,deterministic,gwas_inflation: association column 'p' is missing | definition.outputs empty
+gwas_top_hits,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,deterministic,gwas_top_hits: association column 'p' is missing | definition.outputs empty
 gwet_ac1,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
 haplotype_blocks,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
 haplotype_diversity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,haplotype_diversity: sequences differ in length | definition.outputs empty
@@ -801,9 +801,9 @@ protein_rollup,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.ou
 proteinmpnn_bias_matrix,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_bias_matrix: structure_path . is not a file | definition.outputs empty
 proteinmpnn_bias_scan,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,"proteinmpnn_bias_scan: structure_path must point at a PDB file, got '.' | definition.outputs empty"
 proteinmpnn_design,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: torch | definition.outputs empty
-proteinmpnn_design_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_design_cluster: structure_path is required | definition.outputs empty
+proteinmpnn_design_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,deterministic,proteinmpnn_design_cluster: structure_path is required | definition.outputs empty
 proteinmpnn_design_diversity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_design_diversity: structure_path is required | definition.outputs empty
-proteinmpnn_design_profile,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,external model dependency: numpy>=1.24 torch>=2.0 | definition.outputs empty
+proteinmpnn_design_profile,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,deterministic,external model dependency: numpy>=1.24 torch>=2.0 | definition.outputs empty
 proteinmpnn_ensemble_score,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_ensemble_score: structure_path '.' is not a file | definition.outputs empty
 proteinmpnn_hotspot_masked_design,operator,PASS,SKIP_DOMAIN,FAIL,,,no_route,not_measured,proteinmpnn_hotspot_masked_design: structure_path is required | info predicates 0/1 rejected | definition.outputs empty
 proteinmpnn_interface_design,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,proteinmpnn_interface_design: structure_path '.' is not a file | definition.outputs empty
@@ -857,7 +857,7 @@ rdd,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdd: need at le
 rdkit_admet_rules,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
 rdkit_atom_environment_histogram,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_atom_environment_histogram: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
 rdkit_charge_profile,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_charge_profile: cannot parse SMILES 'x' for molecule 'mol1' | definition.outputs empty
-rdkit_conformer_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_conformer_cluster: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
+rdkit_conformer_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,deterministic,rdkit_conformer_cluster: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
 rdkit_conformer_energy,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
 rdkit_descriptors,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_descriptors: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
 rdkit_esol,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_esol: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
@@ -867,7 +867,7 @@ rdkit_functional_group_counts,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,no
 rdkit_mcs,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs empty
 rdkit_mcs_cluster,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_mcs_cluster: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
 rdkit_morgan_fingerprint,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_morgan_fingerprint: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
-rdkit_murcko_fingerprint,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_murcko_fingerprint: cannot parse SMILES 'x' | definition.outputs empty
+rdkit_murcko_fingerprint,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,deterministic,rdkit_murcko_fingerprint: cannot parse SMILES 'x' | definition.outputs empty
 rdkit_oral_bioavailability,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_oral_bioavailability: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
 rdkit_pharmacophore_features,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_pharmacophore_features: smiles is required; give one 'SMILES [name]' line per molecule | definition.outputs empty
 rdkit_qed,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,rdkit_qed: smiles must contain at least one SMILES line ('SMILES [name]' per line) | definition.outputs empty
@@ -944,7 +944,7 @@ sequence_beta_propensity,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,s
 sequence_cai,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,missing column 'w' in dimension 'field' | definition.outputs empty
 sequence_codon_adaptation,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 2/2 rejected | definition.outputs empty
 sequence_complexity,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 3/3 rejected | definition.outputs empty
-sequence_cpg_island,operator,PASS,PASS,PASS,,,generated_route,not_measured,info predicates 1/1 rejected | definition.outputs empty
+sequence_cpg_island,operator,PASS,PASS,PASS,,,generated_route,deterministic,info predicates 1/1 rejected | definition.outputs empty
 sequence_cysteine_pairing,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs null (file outputs declared through contracts)
 sequence_disorder_predictor,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence input is not a sequence_codes Form | definition.outputs null (file outputs declared through contracts)
 sequence_dnds,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sequence_dnds: 0 length is not a multiple of three | definition.outputs empty
@@ -1001,12 +1001,12 @@ standardized_residuals,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,sta
 stats_fdr,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,"stats_fdr: expected an (n, 1) p-value matrix | definition.outputs empty"
 storey_qvalue,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,storey_qvalue expects exactly one p-value column | definition.outputs empty; dims param 'value_dim' default differs from parameters_schema
 structure_altloc_inventory,operator,PASS,PASS,N/A,,,builtin_route,not_measured,definition.outputs empty
-structure_amide_pi_bonds,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,"structure_amide_pi_bonds: the PDB form needs 'resname', 'atom_name' and 'chain' columns | definition.outputs empty"
+structure_amide_pi_bonds,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,deterministic,"structure_amide_pi_bonds: the PDB form needs 'resname', 'atom_name' and 'chain' columns | definition.outputs empty"
 structure_anm_modes,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
-structure_aromatic_stacking,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,structure_aromatic_stacking: the PDB form needs 'resname' and 'atom_name' columns | definition.outputs empty
+structure_aromatic_stacking,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,deterministic,structure_aromatic_stacking: the PDB form needs 'resname' and 'atom_name' columns | definition.outputs empty
 structure_bfactor_profile,operator,PASS,SKIP_DOMAIN,FAIL,,,generated_route,not_measured,"structure form must carry chain, resname and residue_number columns | info predicates 0/1 rejected | definition.outputs empty"
 structure_ca_distance_matrix,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
-structure_cation_pi,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
+structure_cation_pi,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,deterministic,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
 structure_cavity_druggability,operator,PASS,SKIP_DOMAIN,FAIL,,,generated_route,not_measured,the PDB form has no 'z' column | info predicates 0/1 rejected | definition.outputs empty
 structure_cavity_lining,operator,PASS,SKIP_DOMAIN,FAIL,,,generated_route,not_measured,structure_cavity_lining: the structure form has no 'z' column | info predicates 0/1 rejected | definition.outputs empty
 structure_cavity_scan,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,structure_cavity_scan: the structure form has no 'z' column | definition.outputs empty
@@ -1021,16 +1021,16 @@ structure_domain_boundary,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_me
 structure_dssp_segments,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_dssp_segments: structure_path . is not a file | definition.outputs null (file outputs declared through contracts)
 structure_glycosylation_sites,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
 structure_gnm_flexibility,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,"structure form must carry chain, resname and residue_number columns | definition.outputs empty"
-structure_halogen_bond_scan,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_helix_helix_angle: the structure form has no 'z' column | definition.outputs empty
+structure_halogen_bond_scan,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,deterministic,structure_helix_helix_angle: the structure form has no 'z' column | definition.outputs empty
 structure_hbonds,operator,PASS,SKIP_DOMAIN,SKIP,,,generated_route,not_measured,domain precondition: 'z' | definition.outputs empty
-structure_helix_bend,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,structure_helix_helix_angle: the structure form has no 'atom_name' column | definition.outputs empty
+structure_helix_bend,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,deterministic,structure_helix_helix_angle: the structure form has no 'atom_name' column | definition.outputs empty
 structure_helix_geometry,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,structure_helix_geometry: at least three CA atoms are required | definition.outputs empty
-structure_helix_helix_angle,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,not_measured,structure_helix_helix_angle: the structure form has no 'z' column | definition.outputs empty
+structure_helix_helix_angle,operator,PASS,SKIP_DOMAIN,N/A,,,generated_route,deterministic,structure_helix_helix_angle: the structure form has no 'z' column | definition.outputs empty
 structure_interface_core,operator,PASS,SKIP_DOMAIN,N/A,,,builtin_route,not_measured,structure_interface_core: no 'z' column | definition.outputs empty
 structure_interface_residue_energy,operator,PASS,SKIP_EXTERNAL,SKIP,,,no_route,not_measured,source imports: openmm | definition.outputs empty
 structure_lddt,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_lddt: reference_path is required | definition.outputs empty
 structure_ligand_burial,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,the PDB form has no 'z' column | definition.outputs empty
-structure_ligand_clash,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_clash: the structure form has no 'z' column | definition.outputs empty
+structure_ligand_clash,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,deterministic,structure_ligand_clash: the structure form has no 'z' column | definition.outputs empty
 structure_ligand_geometry_qc,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_geometry_qc: no atoms match residue names ['LIG'] | definition.outputs empty
 structure_ligand_interaction_fingerprint,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_interaction_fingerprint: no ligand atom matches the requested residue names | definition.outputs null (file outputs declared through contracts)
 structure_ligand_pose_qc,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,structure_ligand_pose_qc: no atom carries the residue name 'LIG' | definition.outputs empty
@@ -1138,12 +1138,12 @@ varpart,operator,PASS,PASS,N/A,,,generated_route,not_measured,definition.outputs
 vcf_concat,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
 vcf_concordance,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
 vcf_filter,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
-vcf_hardy_weinberg,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_hardy_weinberg,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,deterministic,file port requires a format-specific fixture | definition.outputs empty
 vcf_merge,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
 vcf_normalize,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
 vcf_relatedness,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
-vcf_sample_stats,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
-vcf_site_missingness,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
+vcf_sample_stats,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,deterministic,file port requires a format-specific fixture | definition.outputs empty
+vcf_site_missingness,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,deterministic,file port requires a format-specific fixture | definition.outputs empty
 vcf_stats,operator,PASS,SKIP_FILE,SKIP,,,builtin_route,not_measured,file port requires a format-specific fixture | definition.outputs empty
 vecm,operator,PASS,SKIP_DOMAIN,N/A,,,no_route,not_measured,vecm: VECM fit failed: Singular matrix | definition.outputs empty
 vhh_humanization_mutations,operator,PASS,SKIP_DOMAIN,PASS,,,generated_route,not_measured,"vhh_humanization_mutations: expected exactly one sequence, got 24 | info predicates 3/3 rejected | definition.outputs empty"

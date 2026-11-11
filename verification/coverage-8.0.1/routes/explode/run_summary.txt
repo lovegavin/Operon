@@ -1,0 +1,19 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_sequence/explode
+generated : 2026-11-10T12:47:28.746261+00:00
+steps     : 3
+elapsed   : 0.002s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   find_orfs               0.000s   steps/01_find_orfs.json
+2   explode                 0.000s   steps/02_explode.json
+3   export_results          0.001s   steps/03_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

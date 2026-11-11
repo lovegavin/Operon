@@ -1,0 +1,34 @@
+{
+  "name": "rainbow_test",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "sample",
+        "variable"
+      ],
+      "labels": {
+        "sample": {
+          "variable": 0
+        },
+        "variable": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "rainbow_test",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_rainbow_test"
+      ]
+    }
+  ]
+}

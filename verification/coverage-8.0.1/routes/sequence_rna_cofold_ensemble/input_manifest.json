@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/sequence_rna_cofold_ensemble/input",
+  "files": [
+    {
+      "path": "rna2.fasta",
+      "size": 82,
+      "sha256": "4eab59234a3f9060da6d85f5ac72c59e6dec99e5c221fee7dfce952db540db5d"
+    }
+  ]
+}

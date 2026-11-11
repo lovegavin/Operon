@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "site_frequency_spectrum",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "variant_dim": "variant",
+        "sample_dim": "sample",
+        "output": "out_site_frequency_spectrum"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_site_frequency_spectrum"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "site_frequency_spectrum"
+      },
+      "context_params": {}
+    }
+  ]
+}

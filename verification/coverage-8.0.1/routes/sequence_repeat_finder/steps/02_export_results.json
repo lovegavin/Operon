@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/sequence_repeat_finder/output/artifacts/exports/a338181070e344b1b8e86e4abc8112ae/sequence_repeat_finder.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 111,
+  "source": "out_sequence_repeat_finder",
+  "conversion": {}
+}

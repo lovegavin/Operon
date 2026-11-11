@@ -1,0 +1,40 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "nodes": {},
+    "edges": {}
+  },
+  "steps": [
+    {
+      "name": "gcn_node_classifier",
+      "inputs": [
+        "nodes",
+        "edges"
+      ],
+      "params": {
+        "output": "out_gcn_node_classifier",
+        "row_dim": "row",
+        "field_dim": "field",
+        "label_column": "label",
+        "hidden": 8,
+        "epochs": 100,
+        "learning_rate": 0.05,
+        "seed": 1
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_gcn_node_classifier"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "gcn_node_classifier"
+      },
+      "context_params": {}
+    }
+  ]
+}

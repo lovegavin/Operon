@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_structure/structure_zinc_sites/input",
+  "files": [
+    {
+      "path": "1ZAA.pdb",
+      "size": 142398,
+      "sha256": "a017f39f9cea8bb9c9ac4bfa9bb043f9f8a23e324fe1d470274015833eb73f7f"
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "var_model",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "lags": 2,
+        "trend": "c",
+        "output": "out_var_model"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_var_model"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "var_model"
+      },
+      "context_params": {}
+    }
+  ]
+}

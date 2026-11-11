@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_stats/stuart_maxwell
+generated : 2026-11-10T12:44:01.166452+00:00
+steps     : 2
+elapsed   : 0.003s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   stuart_maxwell          0.002s   steps/01_stuart_maxwell.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

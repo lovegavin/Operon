@@ -1,0 +1,45 @@
+{
+  "name": "pairwise_alignment",
+  "sources": {
+    "x0": {
+      "path": "input/seq1.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    },
+    "x1": {
+      "path": "input/seq2.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "pairwise_alignment",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_pairwise_alignment"
+      ]
+    }
+  ]
+}

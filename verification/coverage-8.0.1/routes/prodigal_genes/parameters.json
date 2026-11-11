@@ -1,0 +1,23 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "prodigal_genes",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "prodigal_path": "/usr/bin/prodigal",
+        "mode": "single",
+        "timeout_seconds": 600,
+        "output": "out_prodigal_genes"
+      },
+      "context_params": {}
+    }
+  ]
+}

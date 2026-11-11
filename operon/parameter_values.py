@@ -43,6 +43,8 @@ def restore_task(manifest, values):
     def invalid():
         raise ValueError("Task parameter values do not match task.yaml")
 
+    if isinstance(values, dict) and values.get("format") == "biopipe.task-parameters":
+        values = {**values, "format": "operon.task-parameters"}
     if (not isinstance(values, dict) or set(values) != {"format", "schema_version", "params", "sources", "steps"}
             or values["format"] != "operon.task-parameters" or values["schema_version"] != 1
             or not isinstance(values["params"], dict) or not isinstance(values["sources"], dict)

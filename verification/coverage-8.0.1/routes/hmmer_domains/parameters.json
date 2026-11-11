@@ -1,0 +1,24 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "hmmer_domains",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "hmm_path": "/home/gavin/db/Pfam-A.hmm",
+        "hmmscan_path": "/usr/bin/hmmscan",
+        "cpu": 2,
+        "timeout_seconds": 600,
+        "output": "out_hmmer_domains"
+      },
+      "context_params": {}
+    }
+  ]
+}

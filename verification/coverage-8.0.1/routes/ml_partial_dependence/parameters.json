@@ -1,0 +1,41 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "X": {},
+    "y": {}
+  },
+  "steps": [
+    {
+      "name": "ml_partial_dependence",
+      "inputs": [
+        "X",
+        "y"
+      ],
+      "params": {
+        "output": "out_ml_partial_dependence",
+        "row_dim": "row",
+        "field_dim": "field",
+        "value_dim": "value",
+        "grid_dim": "grid",
+        "statistic": "statistic",
+        "feature": 0,
+        "alpha": 0.001,
+        "n_grid": 5
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_ml_partial_dependence"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "ml_partial_dependence"
+      },
+      "context_params": {}
+    }
+  ]
+}

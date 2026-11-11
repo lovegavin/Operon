@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/sequence_repeat_finder/input",
+  "files": [
+    {
+      "path": "repeats.fasta",
+      "size": 107,
+      "sha256": "05ff97985645d04069f44a9f5b50468bf1a7487239e02682b669542fc5b6a675"
+    }
+  ]
+}

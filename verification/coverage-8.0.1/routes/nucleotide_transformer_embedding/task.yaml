@@ -1,0 +1,29 @@
+{
+  "name": "nucleotide_transformer_embedding",
+  "sources": {
+    "data": {
+      "reader": "CsvReader",
+      "path": "input/data.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "r0": 0,
+          "r1": 1
+        },
+        "field": "builtin"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "nucleotide_transformer_embedding",
+      "inputs": [
+        "data"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/haplotype_diversity/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 643,
+      "sha256": "a65da629475a996a4943b874f0a95454eedea30af996e3b8229ff7f147860d13"
+    }
+  ]
+}

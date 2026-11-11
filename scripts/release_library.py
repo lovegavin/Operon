@@ -60,10 +60,45 @@ def released_application(root, config):
         raise ValueError(f"Expected released Operon {config['build_application']}; got {operon.__version__}")
 
 
+def quickstart(root, output, version):
+    """Package only the bilingual Quick Start documents; examples are shipped separately."""
+    documents = [root / 'QUICKSTART.md', root / 'QUICKSTART.zh.md']
+    missing = [str(path) for path in documents if not path.is_file()]
+    if missing:
+        raise FileNotFoundError('Quickstart documents are missing: ' + ', '.join(missing))
+    sources = documents
+    archive = output / f'Operon-Quickstart-v{version}.zip'
+    with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as target:
+        for source in sources:
+            target.write(source, source.relative_to(root).as_posix())
+    return archive
+
+
+def audit_archive(root, output, version):
+    """Package the audit scripts and evidence next to the library release."""
+    evidence = root / 'verification' / f'operator-audit-{version}'
+    scripts = root / 'scripts' / 'operator_audit'
+    report = root / 'docs' / 'verification' / f'operator-audit-{version}.md'
+    if not evidence.is_dir():
+        raise FileNotFoundError(f'Audit evidence is missing: {evidence}')
+    if not report.is_file():
+        raise FileNotFoundError(f'Audit report is missing: {report}')
+    archive = output / f'Operon-Operator-Audit-v{version}.zip'
+    with zipfile.ZipFile(archive, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as target:
+        target.write(report, f'docs/verification/{report.name}')
+        for source in sorted(scripts.glob('*.py')) + sorted(scripts.glob('*.md')):
+            target.write(source, f'scripts/operator_audit/{source.name}')
+        for source in sorted(evidence.rglob('*')):
+            if source.is_file():
+                target.write(source, 'verification/' + source.relative_to(root / 'verification').as_posix())
+    return archive
+
+
 def build(root, output, tag=None):
     config = configuration(root, tag)
     released_application(root, config)
     from operon.library_bundle import build_bundle, sha256
+    legacy_only = LEGACY_APPLICATION
     source = root / 'library/seed'
     result = build_bundle(source if source.is_dir() else root, output, config['version'])
     path = Path(result['bundle'])
@@ -85,7 +120,15 @@ def build(root, output, tag=None):
     if system not in {'Windows', 'Linux'}:
         raise ValueError('Official library bundles currently target Windows and Linux')
     native = path.with_name(f'Operon-Library-v{config["version"]}-{system}.operon-library.zip')
-    path.replace(native)
+    legacy_native = native.with_name(f'BioPipe-Library-v{config["version"]}-{system}.biopipe-library.zip')
+    if legacy_only:
+        # Studio 3.1.0's UI accepts only the legacy envelope name.
+        import shutil
+        path.replace(native)
+        shutil.copyfile(native, legacy_native)
+        result['legacy_bundle'] = str(legacy_native)
+    else:
+        path.replace(native)
     path = native
     result['bundle'] = str(path)
     result.update(sha256=sha256(path), minimum_application=config['minimum_application'],

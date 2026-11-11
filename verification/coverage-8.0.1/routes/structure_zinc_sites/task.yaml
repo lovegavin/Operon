@@ -1,0 +1,23 @@
+{
+  "name": "structure_zinc_sites",
+  "sources": {
+    "structure_1zaa": {
+      "path": "input/1ZAA.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_zinc_sites",
+      "inputs": [
+        "structure_1zaa"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

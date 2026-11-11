@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/pam/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 852,
+      "sha256": "341f0767d2bbc59912ebc86adeb04125b091117f4ecc2fe62863f0932a755a29"
+    }
+  ]
+}

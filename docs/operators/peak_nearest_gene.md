@@ -1,0 +1,119 @@
+# peak_nearest_gene (`peak_nearest_gene`)
+
+**Category:** analysis  
+**Entry point:** `src.task.step.steps.peak_nearest_gene:PeakNearestGeneStep`  
+**Source:** [`library/seed/src/task/step/steps/peak_nearest_gene.py`](../../library/seed/src/task/step/steps/peak_nearest_gene.py) (365 lines)
+**Trust level: C — 专用测试引用 + 可编译路线**
+
+## 1. 代码说明
+
+Assign every BED interval to its nearest annotated
+
+> Associate every BED interval with its nearest annotated gene. Inputs: A BED [region, field] with chrom / chromStart / chromEnd B GFF3 [record, field] with seqid / type / start / end / strand For every A interval, find the gene record on the same chromosome whose span is closest. Overlapping intervals get distance 0. Distance: overlap -> 0 A ends before B -> B.start - A.end A starts after B -> A.start - B.end Chromosome names are normalised before matching: if one side uses "chr1" and the other "1", the "chr" prefix is added to the shorter form. A column may or may not be encoded: if the…
+
+关键符号：
+
+- `class PeakNearestGeneStep (line 113)`
+
+协议：v3 / revision `3.7`；输出参数 `output`。
+
+### 输入与输出
+
+- 输入 1: ndim=2, numeric=True, dims=(a_region_dim, a_field_dim), info=(encoders, missing_code)
+- 输入 2: ndim=2, numeric=True, dims=(b_record_dim, b_field_dim), info=(encoders, missing_code)
+- 输出: mode=declare, schema={"ndim": 2, "numeric": true, "info_open": true, "axis_info_open": true}
+
+### 参数
+
+| 参数 | 默认值 | 含义/约束 |
+| --- | --- | --- |
+| `a_region_dim` | `region` | — |
+| `a_field_dim` | `field` | — |
+| `a_chrom_field` | `chrom` | — |
+| `a_start_field` | `chromStart` | — |
+| `a_end_field` | `chromEnd` | — |
+| `b_record_dim` | `record` | — |
+| `b_field_dim` | `field` | — |
+| `b_chrom_field` | `seqid` | — |
+| `b_start_field` | `start` | — |
+| `b_end_field` | `end` | — |
+| `b_strand_field` | `strand` | — |
+| `feature_type` | `gene` | — |
+| `max_distance` | `None` | — |
+| `output` | `` | — |
+
+## 2. 用途与解释
+
+Associate every BED interval with its nearest annotated gene.
+
+Inputs:
+A  BED   [region, field]  with chrom / chromStart / chromEnd
+B  GFF3  [record, field]  with seqid / type / start / end / strand
+
+For every A interval, find the gene record on the same chromosome
+whose span is closest. Overlapping intervals get distance 0.
+
+Distance:
+overlap          -> 0
+A ends before B  -> B.start - A.end
+A starts after B -> A.start - B.end
+
+Chromosome names are normalised before matching: if one side uses
+"chr1" and the other "1", the "chr" prefix is added to the shorter
+form. A column may or may not be encoded: if the reader encoded it,
+the encoder's inverse is used; otherwise the numeric value is
+stringified without a trailing ".0".
+
+Output:
+data   2D float32, shape (n_peaks, 5)
+dims   [peak, statistic]
+statistic = [distance, gene_start, gene_end, gene_length, strand]
+info["peak_id"]  axis-paralle
+
+## 3. 正确性依据
+
+**结论：C 级。** 路线已编译进 79 条内置路线，并有专用测试引用；没有记录为本算子单独执行过真实数据。
+
+| 层 | 状态 | 证据 |
+| --- | --- | --- |
+| L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
+| L2 单元/oracle | UNIT | tests/test_l2_gap.py |
+| L3 真实执行 | ROUTE | operator_table.csv:generated_route |
+| L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
+| L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
+
+### 这个证据证明什么、不证明什么
+
+- 证明：契约可解析、输入输出维度一致；有执行记录时，真实数据能跑到 `Task finished` 并产生可校验产物。
+- 不证明：该算子在该数据集上的生物学结论正确；统计假设是否成立仍需使用者判断。
+- 注意：该算子没有独立数值 oracle， correctness 仅到“契约/测试/执行”层级。
+
+## 4. 限制与失败模式
+
+Declared memory modes: full. Operon retains the existing planner, disk-backed
+inputs and emergency spill behavior; full-mode operators still require their
+declared working set. This generated reference has not been independently
+scientifically reviewed.
+
+## 5. 复现
+
+```bash
+cd /path/to/Operon-worktree
+python -m operon registry check --json
+grep '^peak_nearest_gene,' verification/coverage-8.0.1/operator_coverage.csv
+```
+
+算子手册中的示例：
+
+```text
+Use the registry to discover compatible Readers and validate a complete workflow
+before execution. This generated page does not claim an executable scientific
+example. Add a tested example and replace this generated page with authored
+guidance when extending this operator.
+```
+
+未补齐证据：`L4_MEASURED`。
+
+---
+
+由 `scripts/build_operator_trust_docs.py` 生成；审计基线 8.0.1。

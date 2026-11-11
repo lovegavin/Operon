@@ -1,0 +1,27 @@
+{
+  "task_dir": "/tmp/cov_structure/structure_md_interface_occupancy",
+  "generated_at": "2026-11-10T12:45:37.559360+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.3135,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_md_interface_occupancy",
+      "elapsed": 0.3135,
+      "inputs": [],
+      "params": {
+        "trajectory_path": "/tmp/cov_structure/structure_md_interface_occupancy/input/1mel_traj.npy",
+        "topology_path": "/tmp/cov_structure/structure_md_interface_occupancy/input/1mel_topology.pdb",
+        "binder_chains": "A",
+        "target_chains": "L",
+        "cutoff": 5.0,
+        "output": "out_structure_md_interface_occupancy"
+      },
+      "export_path": "steps/01_structure_md_interface_occupancy.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124536-3d922badf800",
+  "event_log": "/tmp/cov_structure/structure_md_interface_occupancy/output/runs/20261110T124536-3d922badf800/events.jsonl"
+}

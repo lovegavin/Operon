@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/colabfold_predict_route/output/artifacts",
+  "files": [
+    {
+      "path": "colabfold/5edfc4749b2e4f65ac438d96b74d6a36/prediction.pdb",
+      "size": 89343,
+      "sha256": "cbb33deab2acb982088f4ffc7e594165b43963ac4204776deca9a6b8c9c2edaf"
+    },
+    {
+      "path": "colabfold/5edfc4749b2e4f65ac438d96b74d6a36/scores.json",
+      "size": 128817,
+      "sha256": "506473e1146da9c0715801feb66a56ed0cb183d991edab6ee4da14aaf2d2cc05"
+    }
+  ]
+}

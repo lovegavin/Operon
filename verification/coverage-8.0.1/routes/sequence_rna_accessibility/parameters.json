@@ -1,0 +1,25 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_rna_accessibility",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_rna_accessibility",
+        "temperature": 37.0,
+        "threshold": 0.5,
+        "min_length": 2
+      },
+      "context_params": {}
+    }
+  ]
+}

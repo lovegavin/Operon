@@ -1,0 +1,9 @@
+{
+  "dim": "sample",
+  "n_before": 8,
+  "n_after": 6,
+  "dropped_labels": [
+    "S1",
+    "S2"
+  ]
+}

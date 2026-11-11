@@ -1,0 +1,36 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "reduce_axis",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "dim": "feature",
+        "stats": [
+          "mean",
+          "std"
+        ],
+        "output": "out_reduce_axis"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_reduce_axis"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "reduce_axis"
+      },
+      "context_params": {}
+    }
+  ]
+}

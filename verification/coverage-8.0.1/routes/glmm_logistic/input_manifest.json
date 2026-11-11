@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/glmm_logistic/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 747,
+      "sha256": "2f0cc2cde5613c88082461c715f21f824a0247086967f3cab9b5a61044c48316"
+    },
+    {
+      "path": "x1.csv",
+      "size": 343,
+      "sha256": "4d31c042fbcf250db9d2d48e120776ffac1328503240dd32e11f595e77351065"
+    }
+  ]
+}

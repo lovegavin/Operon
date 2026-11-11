@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/precision_recall_curve/output/artifacts",
+  "files": [
+    {
+      "path": "exports/4070e772425e4f7391e9e490a1b406dc/precision_recall_curve.csv",
+      "size": 1884,
+      "sha256": "fb23d46bc8d92fcff33f100bfe82f18c29976b4ab20b2e445fb079fadfe3f480"
+    },
+    {
+      "path": "exports/f6d89d8b72c64611bec354dcc8c3b1d1/precision_recall_curve.csv",
+      "size": 1884,
+      "sha256": "fb23d46bc8d92fcff33f100bfe82f18c29976b4ab20b2e445fb079fadfe3f480"
+    }
+  ]
+}

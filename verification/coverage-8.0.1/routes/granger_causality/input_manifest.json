@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/granger_causality/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 2770,
+      "sha256": "e8c341586d183e355e335b5cdce842d681451bc20f1b7307ec30795fa1f3f97c"
+    }
+  ]
+}

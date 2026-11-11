@@ -1,0 +1,32 @@
+{
+  "name": "nucleotide_diversity",
+  "sources": {
+    "x0": {
+      "path": "input/geno.vcf",
+      "dims": [
+        "variant",
+        "sample"
+      ],
+      "labels": {
+        "variant": "builtin",
+        "sample": "builtin"
+      },
+      "reader": "VcfReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "nucleotide_diversity",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_nucleotide_diversity"
+      ]
+    }
+  ]
+}

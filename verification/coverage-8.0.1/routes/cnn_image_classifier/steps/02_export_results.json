@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/cnn_image_classifier/output/artifacts/exports/4718b596895141a38d43af072a14a37f/cnn_image_classifier.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 102,
+  "source": "out_cnn_image_classifier",
+  "conversion": {}
+}

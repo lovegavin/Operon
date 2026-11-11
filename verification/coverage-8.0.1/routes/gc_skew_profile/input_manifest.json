@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/gc_skew_profile/input",
+  "files": [
+    {
+      "path": "seq.fasta",
+      "size": 417,
+      "sha256": "223d1c62112e13922d9d1a007bd52fe7aead6c074de885e94d0909154e76f1fb"
+    }
+  ]
+}

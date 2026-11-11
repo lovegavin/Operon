@@ -1,0 +1,46 @@
+{
+  "task_dir": "/tmp/cov_sequence/order_axis",
+  "generated_at": "2026-11-10T12:47:33.133156+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0007,
+  "steps": [
+    {
+      "index": 1,
+      "name": "annotate",
+      "elapsed": 0.0004,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "target_dim": "sample",
+        "source_dim": "sample",
+        "field_dim": "feature",
+        "fields": [
+          "score"
+        ],
+        "output": "attached"
+      },
+      "export_path": "steps/01_annotate.json"
+    },
+    {
+      "index": 2,
+      "name": "order_axis",
+      "elapsed": 0.0003,
+      "inputs": [
+        "attached"
+      ],
+      "params": {
+        "dim": "sample",
+        "by": "score",
+        "descending": true,
+        "output": "out_order_axis"
+      },
+      "export_path": "steps/02_order_axis.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124732-779b4627b3dc",
+  "event_log": "/tmp/cov_sequence/order_axis/output/runs/20261110T124732-779b4627b3dc/events.jsonl"
+}

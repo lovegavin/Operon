@@ -1,0 +1,40 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "ora",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "p_label": "Q_VALUE",
+        "lfc_label": "log2FC",
+        "p_threshold": 0.05,
+        "lfc_threshold": 0.5,
+        "direction": "both",
+        "correction": "fdr",
+        "min_set_size": 2,
+        "output": "out_ora"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_ora"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "ora"
+      },
+      "context_params": {}
+    }
+  ]
+}

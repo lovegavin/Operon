@@ -1,0 +1,42 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "mack_wolfe",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "group_dim": "sample",
+        "group_label": "group",
+        "peak": "A",
+        "group_order": [
+          "A",
+          "B"
+        ],
+        "output": "out_mack_wolfe"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_mack_wolfe"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "mack_wolfe"
+      },
+      "context_params": {}
+    }
+  ]
+}

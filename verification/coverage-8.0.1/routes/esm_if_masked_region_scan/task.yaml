@@ -1,0 +1,26 @@
+{
+  "name": "esm_if_masked_region_scan",
+  "sources": {
+    "structure": {
+      "path": "input/1mel.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {
+        "atom": "builtin",
+        "field": "builtin"
+      },
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "esm_if_masked_region_scan",
+      "inputs": [
+        "structure"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

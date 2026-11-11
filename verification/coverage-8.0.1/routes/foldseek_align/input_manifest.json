@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_structure/foldseek_align/input",
+  "files": [
+    {
+      "path": "1UBQ.pdb",
+      "size": 78570,
+      "sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161"
+    },
+    {
+      "path": "1mel_nohet.pdb",
+      "size": 316548,
+      "sha256": "66ff3b49d541e1d1441065306d9b228d1cd0cda399673d74c35a416ad1b02686"
+    }
+  ]
+}

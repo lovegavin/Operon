@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/sc_pseudobulk_de/output/artifacts/exports/7079ab83acad41dfb9f3ee794831a218/sc_pseudobulk_de.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 664,
+  "source": "out_sc_pseudobulk_de",
+  "conversion": {}
+}

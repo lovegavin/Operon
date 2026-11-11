@@ -1,0 +1,39 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "simper",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "taxon_dim": "feature",
+        "group_dim": "sample",
+        "group_label": "group",
+        "group_a": "A",
+        "group_b": "B",
+        "output": "out_simper"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_simper"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "simper"
+      },
+      "context_params": {}
+    }
+  ]
+}

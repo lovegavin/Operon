@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/esmfold_route/input",
+  "files": [
+    {
+      "path": "vhh.fasta",
+      "size": 145,
+      "sha256": "7d148d84823f753a2ec06c8ef4db206efd6b057bedad6bac476fcbfb994b4fa5"
+    }
+  ]
+}

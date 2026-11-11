@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_mltab/deep_survival/output/artifacts/exports/cf0fcca01b7a4c28a7d4818d3fc4fcb6/deep_survival.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 104,
+  "source": "out_deep_survival",
+  "conversion": {}
+}

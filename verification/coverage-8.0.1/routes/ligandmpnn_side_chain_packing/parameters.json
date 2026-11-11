@@ -1,0 +1,25 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "ligandmpnn_side_chain_packing",
+      "inputs": [],
+      "params": {
+        "ligandmpnn_path": "/public/home/lihj/biopipe-verify-301/third_party/LigandMPNN_patched",
+        "python_executable": "/public/home/lihj/biopipe-verify-301/venv/bin/python",
+        "structure_path": "/public/home/lihj/operon715/cov_ml2/esm_if_masked_region_scan/input/1mel.pdb",
+        "weights_path": "/public/home/lihj/biopipe-verify-301/third_party/LigandMPNN_patched/model_params",
+        "sc_checkpoint": "ligandmpnn_sc_v_32_002_16.pt",
+        "device": "cpu",
+        "seed": 1,
+        "number_of_packs_per_design": 1,
+        "chains": "A",
+        "timeout_seconds": 1800
+      },
+      "context_params": {}
+    }
+  ]
+}

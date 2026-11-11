@@ -1,0 +1,29 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure": {}
+  },
+  "steps": [
+    {
+      "name": "esm_if_masked_region_scan",
+      "inputs": [
+        "structure"
+      ],
+      "params": {
+        "atom_dim": "atom",
+        "field_dim": "field",
+        "chain": "A",
+        "model_path": "/public/home/lihj/.cache/torch/hub/checkpoints/esm_if1_gvp4_t16_142M_UR50.pt",
+        "window": 6,
+        "step": 6,
+        "num_samples": 1,
+        "temperature": 0.1,
+        "seed": 1,
+        "output": "windows"
+      },
+      "context_params": {}
+    }
+  ]
+}

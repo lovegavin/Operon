@@ -1,0 +1,49 @@
+{
+  "name": "bioenv",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/x1.csv",
+      "dims": [
+        "sample",
+        "env"
+      ],
+      "labels": {
+        "sample": {
+          "env": 0
+        },
+        "env": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "bioenv",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_bioenv"
+      ]
+    }
+  ]
+}

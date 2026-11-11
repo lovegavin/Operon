@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_omics/heterozygosity
+generated : 2026-11-10T12:30:09.905213+00:00
+steps     : 2
+elapsed   : 0.004s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   heterozygosity          0.000s   steps/01_heterozygosity.json
+2   export_results          0.003s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,34 @@
+{
+  "name": "storey_qvalue",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "feature",
+        "pvalue"
+      ],
+      "labels": {
+        "feature": {
+          "pvalue": 0
+        },
+        "pvalue": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "storey_qvalue",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_storey_qvalue"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "task_dir": "/tmp/cov_stats/meta_regression",
+  "generated_at": "2026-11-10T12:43:50.715787+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0041,
+  "steps": [
+    {
+      "index": 1,
+      "name": "meta_regression",
+      "elapsed": 0.0024,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "effect_label": "effect",
+        "variance_label": "variance",
+        "moderators": [
+          "mod"
+        ],
+        "method": "random",
+        "output": "out_meta_regression"
+      },
+      "export_path": "steps/01_meta_regression.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "out_meta_regression"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "meta_regression"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124348-938a2a90730d",
+  "event_log": "/tmp/cov_stats/meta_regression/output/runs/20261110T124348-938a2a90730d/events.jsonl"
+}

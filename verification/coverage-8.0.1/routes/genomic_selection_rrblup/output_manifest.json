@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/genomic_selection_rrblup/output/artifacts",
+  "files": [
+    {
+      "path": "exports/0ca55ef52ab94ea2b4170e067388d5ab/genomic_selection_rrblup.csv",
+      "size": 1274,
+      "sha256": "1b3666a332cc77645a78991f7101f5eb3d13a11494785993244c3fc2e1532a8d"
+    },
+    {
+      "path": "exports/43e84b47e88d40b68a308fd35d9c42df/genomic_selection_rrblup.csv",
+      "size": 1274,
+      "sha256": "1b3666a332cc77645a78991f7101f5eb3d13a11494785993244c3fc2e1532a8d"
+    }
+  ]
+}

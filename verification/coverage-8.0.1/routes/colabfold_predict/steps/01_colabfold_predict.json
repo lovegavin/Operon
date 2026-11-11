@@ -1,0 +1,24 @@
+{
+  "result_files": [
+    {
+      "id": "structure",
+      "path": "/public/home/lihj/operon715/cov_ml4/colabfold_predict/output/artifacts/colabfold/5edfc4749b2e4f65ac438d96b74d6a36/prediction.pdb",
+      "filename": "prediction.pdb",
+      "format": "pdb",
+      "title": "ColabFold prediction",
+      "bytes": 89343
+    },
+    {
+      "id": "scores",
+      "path": "/public/home/lihj/operon715/cov_ml4/colabfold_predict/output/artifacts/colabfold/5edfc4749b2e4f65ac438d96b74d6a36/scores.json",
+      "filename": "scores.json",
+      "format": "json",
+      "title": "ColabFold scores",
+      "bytes": 128817
+    }
+  ],
+  "mean_plddt": 30.540878378378373,
+  "ptm": 0.26,
+  "max_pae": 29.92,
+  "n_residues": 148
+}

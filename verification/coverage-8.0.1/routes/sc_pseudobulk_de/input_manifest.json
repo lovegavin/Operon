@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/sc_pseudobulk_de/input",
+  "files": [
+    {
+      "path": "counts.csv",
+      "size": 131,
+      "sha256": "f10262e635ff3db9b92c94beeb2f4498b615c16b1710310745359805b63bccb7"
+    },
+    {
+      "path": "meta.csv",
+      "size": 41,
+      "sha256": "2c87e1a47b8eb05a4ac72118432ec6025b14eb0e1e038b56a473fcc0e1dcb9f5"
+    }
+  ]
+}

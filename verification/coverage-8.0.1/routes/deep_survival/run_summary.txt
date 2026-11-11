@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_mltab/deep_survival
+generated : 2026-11-10T12:25:14.871668+00:00
+steps     : 2
+elapsed   : 2.016s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   deep_survival           2.014s   steps/01_deep_survival.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

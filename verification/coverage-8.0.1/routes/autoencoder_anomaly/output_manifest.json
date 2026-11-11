@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/autoencoder_anomaly/output/artifacts",
+  "files": [
+    {
+      "path": "exports/3e04b40ff82843028cf9b68592159e45/autoencoder_anomaly.csv",
+      "size": 88,
+      "sha256": "da4e36e4b2dfdeaf543e997e19067dbcda1f68e6ff732ea21d2537b9a2e47d9f"
+    }
+  ]
+}

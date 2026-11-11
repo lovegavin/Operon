@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/probe_routes/esm_embedding_linear_probe/output/artifacts",
+  "files": [
+    {
+      "path": "exports/54a63c7a44644778b233d34e283a6d12/esm_embedding_linear_probe.csv",
+      "size": 187,
+      "sha256": "79d528b60fb2e10af5cc5b1aebd85280cfd312998a71abfd3c39a9f772029937"
+    }
+  ]
+}

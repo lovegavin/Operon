@@ -1,0 +1,11 @@
+{
+  "statistics": {
+    "n_atoms": 9.0,
+    "n_bonds": 9.0,
+    "n_bond_outliers": 0.0,
+    "max_bond_deviation": 0.0,
+    "n_clashes": 0.0,
+    "min_protein_distance": 2.8153411871387823
+  },
+  "outliers": []
+}

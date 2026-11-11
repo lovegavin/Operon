@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_sequence/sequence_dnds/output/artifacts/exports/160e1940062d4f0baeecc165d0f7f3f3/out_sequence_dnds.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 560,
+  "source": "out_sequence_dnds",
+  "conversion": {}
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/mardia_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/131a913867b941a79378af35921fecfc/mardia_test.csv",
+      "size": 276,
+      "sha256": "fbea598ea5d6d0729528c90d12e00df1d070c01280878d92a4fc0bc9c4ba3513"
+    },
+    {
+      "path": "exports/bbecf9f95b5e4136a1d3c1c01a0d6232/mardia_test.csv",
+      "size": 276,
+      "sha256": "fbea598ea5d6d0729528c90d12e00df1d070c01280878d92a4fc0bc9c4ba3513"
+    }
+  ]
+}

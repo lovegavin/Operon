@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/nucleotide_diversity/input",
+  "files": [
+    {
+      "path": "geno.vcf",
+      "size": 875,
+      "sha256": "17b925444387370259aaee5b4084ff31412cc49f4c613f553670663a80a766ae"
+    },
+    {
+      "path": "meta.csv",
+      "size": 53,
+      "sha256": "5f30c5c2489aeef6f9b7bc1c5266dd366c61c712a56f7e43dff9d53c8b10d966"
+    }
+  ]
+}

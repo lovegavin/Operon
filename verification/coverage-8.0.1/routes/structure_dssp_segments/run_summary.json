@@ -1,0 +1,26 @@
+{
+  "task_dir": "/tmp/cov_structure/structure_dssp_segments",
+  "generated_at": "2026-11-10T12:25:09.375953+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.3578,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_dssp_segments",
+      "elapsed": 0.3578,
+      "inputs": [
+        "structure_1mel"
+      ],
+      "params": {
+        "structure_path": "/tmp/cov_structure/structure_dssp_segments/input/1mel.pdb",
+        "mkdssp_path": "/usr/bin/mkdssp",
+        "output": "out_structure_dssp_segments"
+      },
+      "export_path": "steps/01_structure_dssp_segments.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122508-369eb7706bfb",
+  "event_log": "/tmp/cov_structure/structure_dssp_segments/output/runs/20261110T122508-369eb7706bfb/events.jsonl"
+}

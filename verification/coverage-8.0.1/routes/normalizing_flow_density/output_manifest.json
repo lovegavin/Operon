@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/normalizing_flow_density/output/artifacts",
+  "files": [
+    {
+      "path": "exports/c77fb3d5ec2745fcb4d31589c7876f16/normalizing_flow_density.csv",
+      "size": 120,
+      "sha256": "2925868038cd8d9ba192b822357617c5d8fbc0438f4cbf15422a424b22412ee7"
+    }
+  ]
+}

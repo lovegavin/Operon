@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure": {}
+  },
+  "steps": [
+    {
+      "name": "ligand_contact_profile",
+      "inputs": [
+        "structure"
+      ],
+      "params": {
+        "ligand_resname": "BEN",
+        "cutoff": 4.0,
+        "output": "contacts"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "contacts"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "contacts"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "fba_flux_balance",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/x1.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "fba_flux_balance",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_fba_flux_balance"
+      ]
+    }
+  ]
+}

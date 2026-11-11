@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/nmds/output/artifacts/exports/08d8b28fca154777b4358db184487d07/nmds.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 553,
+  "source": "out_nmds",
+  "conversion": {}
+}

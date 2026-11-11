@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/genomic_selection_rrblup/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 1127,
+      "sha256": "4e6da267578d7a28468b4c915bc2039bc7a41501feb38948e1e440a1f600bab9"
+    },
+    {
+      "path": "x1.csv",
+      "size": 334,
+      "sha256": "a362f83fcb7863d29312efb5623a0af795e0612b8ba3f1e1d144a4f81eafa53f"
+    }
+  ]
+}

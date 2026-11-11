@@ -1,0 +1,39 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "annotate",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "target_dim": "sample",
+        "source_dim": "sample",
+        "field_dim": "feature",
+        "fields": [
+          "score"
+        ],
+        "output": "out_annotate"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_annotate"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "out_annotate"
+      },
+      "context_params": {}
+    }
+  ]
+}

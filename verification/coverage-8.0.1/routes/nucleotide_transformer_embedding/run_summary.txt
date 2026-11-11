@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/nt_local
+generated : 2026-11-11T04:14:13.160358+00:00
+steps     : 1
+elapsed   : 4.351s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   nucleotide_transformer_embedding    4.351s   steps/01_nucleotide_transformer_embedding.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

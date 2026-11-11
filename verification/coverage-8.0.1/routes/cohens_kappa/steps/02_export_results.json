@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/cohens_kappa/output/artifacts/exports/609e54b5c7ff469aaea1e478573825d6/cohens_kappa.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 158,
+  "source": "out_cohens_kappa",
+  "conversion": {}
+}

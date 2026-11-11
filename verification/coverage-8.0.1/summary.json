@@ -1,0 +1,52 @@
+{
+  "operators": 1063,
+  "layers": {
+    "l1": {
+      "PASS": 1063
+    },
+    "l2": {
+      "ORACLE": 11,
+      "SMOKE": 8,
+      "UNIT": 1044
+    },
+    "l3": {
+      "EXECUTED": 223,
+      "EXECUTED_SRV": 47,
+      "ROUTE": 789,
+      "SKIP": 4
+    },
+    "l4": {
+      "ESTIMATE": 1026,
+      "MEASURED": 37
+    },
+    "l5": {
+      "INSTALL": 984,
+      "ROUTE": 79
+    }
+  },
+  "gap_layers": {
+    "L2_ORACLE": 8,
+    "L3": 4,
+    "L4_MEASURED": 1026
+  },
+  "fully_executed_layers": {
+    "L1": 1063,
+    "L2_oracle_or_unit": 1055,
+    "L2_any": 1063,
+    "L3_executed": 270,
+    "L3_route_or_executed": 1059,
+    "L4_measured": 37,
+    "L4_measured_or_estimate": 1063,
+    "L5_installed": 1063
+  },
+  "gap_examples": {
+    "L2": [],
+    "L3": [
+      "boltz_affinity_summary",
+      "boltz_complex_confidence",
+      "boltz_predict",
+      "rfdiffusion_design"
+    ],
+    "L4": []
+  }
+}

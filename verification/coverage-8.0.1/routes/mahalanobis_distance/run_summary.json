@@ -1,0 +1,37 @@
+{
+  "task_dir": "/tmp/cov_stats/mahalanobis_distance",
+  "generated_at": "2026-11-10T12:43:49.097877+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0037,
+  "steps": [
+    {
+      "index": 1,
+      "name": "mahalanobis_distance",
+      "elapsed": 0.0018,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "output": "out_mahalanobis_distance"
+      },
+      "export_path": "steps/01_mahalanobis_distance.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0019,
+      "inputs": [
+        "out_mahalanobis_distance"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "mahalanobis_distance"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124347-009ae59572e6",
+  "event_log": "/tmp/cov_stats/mahalanobis_distance/output/runs/20261110T124347-009ae59572e6/events.jsonl"
+}

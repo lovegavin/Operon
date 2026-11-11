@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/cov_stats/phylogenetics_gtr_likelihood/output/artifacts",
+  "files": [
+    {
+      "path": "exports/5943c7f51d224f8192b716a474d219da/phylogenetics_gtr_likelihood.csv",
+      "size": 66,
+      "sha256": "58fd9d50da735d1527aefac500336c3e510c7c50d2f6e5847458de7690b0b290"
+    },
+    {
+      "path": "exports/7cd28bb501794e37a255da85503e2b84/phylogenetics_gtr_likelihood.csv",
+      "size": 66,
+      "sha256": "58fd9d50da735d1527aefac500336c3e510c7c50d2f6e5847458de7690b0b290"
+    },
+    {
+      "path": "exports/ee7e9d5f6a20450bbf174584479700c9/phylogenetics_gtr_likelihood.csv",
+      "size": 64,
+      "sha256": "8e9c0b490be981907b2ef6659dc5e3ebdf832bb6361a008eb4fd8cb6362f0b73"
+    }
+  ]
+}

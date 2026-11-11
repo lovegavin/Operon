@@ -1,0 +1,47 @@
+{
+  "name": "cophenetic_correlation",
+  "sources": {
+    "x0": {
+      "path": "input/tree.nwk",
+      "dims": [
+        "node",
+        "field"
+      ],
+      "labels": {
+        "node": "builtin",
+        "field": "builtin"
+      },
+      "reader": "NewickReader"
+    },
+    "x1": {
+      "path": "input/x1.csv",
+      "dims": [
+        "sample",
+        "sample_b"
+      ],
+      "labels": {
+        "sample": {
+          "sample_b": 0
+        },
+        "sample_b": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "cophenetic_correlation",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_cophenetic_correlation"
+      ]
+    }
+  ]
+}

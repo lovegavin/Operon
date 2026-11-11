@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/ligand_routes/ligandmpnn_active_site_design/output/artifacts",
+  "files": [
+    {
+      "path": "exports/58d61a5c944346909490e600aaa3b78b/designs.csv",
+      "size": 177,
+      "sha256": "f0ccf426d072a1922179a319b64ff39a686dae27f3e1cabe65e4ad8d698ef28a"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/moses_test/output/artifacts/exports/3135d730a5f641d0a773a57886d48d9c/moses_test.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 81,
+  "source": "out_moses_test",
+  "conversion": {}
+}

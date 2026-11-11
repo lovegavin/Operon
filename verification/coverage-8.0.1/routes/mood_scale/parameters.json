@@ -1,0 +1,39 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "mood_scale",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "group_dim": "sample",
+        "group_label": "group",
+        "group_a": "A",
+        "group_b": "B",
+        "output": "out_mood_scale"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_mood_scale"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "mood_scale"
+      },
+      "context_params": {}
+    }
+  ]
+}

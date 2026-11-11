@@ -1,0 +1,32 @@
+{
+  "name": "tajimas_d",
+  "sources": {
+    "x0": {
+      "path": "input/geno.vcf",
+      "dims": [
+        "variant",
+        "sample"
+      ],
+      "labels": {
+        "variant": "builtin",
+        "sample": "builtin"
+      },
+      "reader": "VcfReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "tajimas_d",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_tajimas_d"
+      ]
+    }
+  ]
+}

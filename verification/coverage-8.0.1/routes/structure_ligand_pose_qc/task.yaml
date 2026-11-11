@@ -1,0 +1,23 @@
+{
+  "name": "structure_ligand_pose_qc",
+  "sources": {
+    "structure_3ptb": {
+      "path": "input/3PTB.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_ligand_pose_qc",
+      "inputs": [
+        "structure_3ptb"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

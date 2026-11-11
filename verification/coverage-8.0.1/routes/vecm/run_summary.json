@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/cov_stats/vecm",
+  "generated_at": "2026-11-10T12:44:04.676685+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.6492,
+  "steps": [
+    {
+      "index": 1,
+      "name": "vecm",
+      "elapsed": 0.6475,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "coint_rank": 1,
+        "k_ar_diff": 1,
+        "output": "out_vecm"
+      },
+      "export_path": "steps/01_vecm.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "out_vecm"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "vecm"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124403-aa631cf91d6f",
+  "event_log": "/tmp/cov_stats/vecm/output/runs/20261110T124403-aa631cf91d6f/events.jsonl"
+}

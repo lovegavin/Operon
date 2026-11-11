@@ -1,0 +1,25 @@
+{
+  "molecule_dim": "molecule",
+  "statistics": [
+    "n_atoms",
+    "n_heavy_atoms",
+    "n_fragments",
+    "n_rings"
+  ],
+  "canonical_smiles": [
+    "CCO",
+    "O=C(O)c1ccccc1",
+    "C[N+](C)(C)C",
+    "Oc1ccccc1",
+    "CC(=O)[O-]"
+  ],
+  "input_smiles": [
+    "CCO",
+    "O=C(O)c1ccccc1",
+    "C[N+](C)(C)C",
+    "c1ccccc1O",
+    "CC(=O)[O-]"
+  ],
+  "keep_largest_fragment": true,
+  "neutralize": false
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/mood_scale/output/artifacts",
+  "files": [
+    {
+      "path": "exports/35730f2b3fa84a209ac6706e13b8a557/mood_scale.csv",
+      "size": 326,
+      "sha256": "68a195c145072746300c409d40ce188c96105ee3b60036dacfbc7aed1134826b"
+    },
+    {
+      "path": "exports/603dc780b7ce423cbd6e01a58d6e65e1/mood_scale.csv",
+      "size": 326,
+      "sha256": "68a195c145072746300c409d40ce188c96105ee3b60036dacfbc7aed1134826b"
+    }
+  ]
+}

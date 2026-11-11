@@ -1,0 +1,32 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "pam",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "n_clusters": 3,
+        "output": "out_pam"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_pam"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "pam"
+      },
+      "context_params": {}
+    }
+  ]
+}

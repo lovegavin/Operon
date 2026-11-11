@@ -1,0 +1,44 @@
+{
+  "task_dir": "/tmp/cov_stats/van_waerden",
+  "generated_at": "2026-11-10T12:44:03.640715+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0033,
+  "steps": [
+    {
+      "index": 1,
+      "name": "van_waerden",
+      "elapsed": 0.0021,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "group_dim": "sample",
+        "group_label": "group",
+        "group_a": "A",
+        "group_b": "B",
+        "output": "out_van_waerden"
+      },
+      "export_path": "steps/01_van_waerden.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0012,
+      "inputs": [
+        "out_van_waerden"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "van_waerden"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124402-340e639023da",
+  "event_log": "/tmp/cov_stats/van_waerden/output/runs/20261110T124402-340e639023da/events.jsonl"
+}

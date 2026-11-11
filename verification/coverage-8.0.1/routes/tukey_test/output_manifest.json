@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/tukey_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/c0c2e48536364f08ae4ebbbf72a2b91c/tukey_test.csv",
+      "size": 762,
+      "sha256": "51acd05f883115fca64051aca8cd830438ee5ff55a0757bed52fb527ed5805b7"
+    },
+    {
+      "path": "exports/e70acf2ca8bd444794befec1184ede13/tukey_test.csv",
+      "size": 762,
+      "sha256": "51acd05f883115fca64051aca8cd830438ee5ff55a0757bed52fb527ed5805b7"
+    }
+  ]
+}

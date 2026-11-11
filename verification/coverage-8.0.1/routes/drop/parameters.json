@@ -1,0 +1,35 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "drop",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "dim": "sample",
+        "labels": [
+          "S1",
+          "S2"
+        ]
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "drop"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "out_drop"
+      },
+      "context_params": {}
+    }
+  ]
+}

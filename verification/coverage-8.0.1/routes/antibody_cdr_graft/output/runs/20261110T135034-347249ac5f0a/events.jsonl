@@ -1,0 +1,5 @@
+{"message": "Loading the analysis engine", "time": "2026-11-10T13:50:34.869934+00:00", "event": "worker_started"}
+{"run_id": "20261110T135034-347249ac5f0a", "memory_enabled": false, "time": "2026-11-10T13:50:34.986815+00:00", "event": "run_started"}
+{"name": "sequence", "shape": [2, 117], "dims": ["sequence", "position"], "time": "2026-11-10T13:50:35.161250+00:00", "event": "source_loaded"}
+{"name": "antibody_cdr_graft", "index": 1, "time": "2026-11-10T13:50:35.161527+00:00", "event": "step_started"}
+{"status": "failed", "error": "antibody_cdr_graft: the conserved 'LSC' framework-1 cysteine was not found; this does not look like a VH/VHH domain (donor sequence)", "time": "2026-11-10T13:50:35.225920+00:00", "event": "run_finished"}

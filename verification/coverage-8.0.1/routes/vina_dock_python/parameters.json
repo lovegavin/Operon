@@ -1,0 +1,30 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_3ptb": {}
+  },
+  "steps": [
+    {
+      "name": "vina_dock_python",
+      "inputs": [
+        "structure_3ptb"
+      ],
+      "params": {
+        "ligand_path": "/tmp/cov_structure/vina_dock_python/input/BEN.pdbqt",
+        "size_x": 20.0,
+        "size_y": 20.0,
+        "size_z": 20.0,
+        "exhaustiveness": 8,
+        "num_modes": 9,
+        "seed": 42,
+        "cpu": 1,
+        "scoring": "vina",
+        "pose_dim": "pose",
+        "output": "out_vina_dock_python"
+      },
+      "context_params": {}
+    }
+  ]
+}

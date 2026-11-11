@@ -1,0 +1,40 @@
+{
+  "task_dir": "/tmp/cov_mltab/rdkit_fragment_overlap",
+  "generated_at": "2026-11-10T12:27:14.200308+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0564,
+  "steps": [
+    {
+      "index": 1,
+      "name": "rdkit_fragment_overlap",
+      "elapsed": 0.0551,
+      "inputs": [],
+      "params": {
+        "output": "out_rdkit_fragment_overlap",
+        "molecule_a_dim": "molecule_a",
+        "molecule_b_dim": "molecule_b",
+        "min_fragment_size": 4,
+        "smiles_a": "CC(=O)Oc1ccccc1C(=O)O aspirin\nCC(=O)Nc1ccc(O)cc1 paracetamol\nCC(C)Cc1ccc(cc1)C(C)C(=O)O ibuprofen",
+        "smiles_b": "CC(=O)Oc1ccccc1C(=O)O aspirin\nCn1c(=O)c2c(ncn2C)n(C)c1=O caffeine\nCC(=O)Nc1ccc(O)cc1 paracetamol"
+      },
+      "export_path": "steps/01_rdkit_fragment_overlap.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0013,
+      "inputs": [
+        "out_rdkit_fragment_overlap"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "rdkit_fragment_overlap"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122713-c5fcad0bceca",
+  "event_log": "/tmp/cov_mltab/rdkit_fragment_overlap/output/runs/20261110T122713-c5fcad0bceca/events.jsonl"
+}

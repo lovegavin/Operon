@@ -1,0 +1,31 @@
+{
+  "dim": "sample",
+  "by": "score",
+  "ascending": false,
+  "top_n": 3,
+  "n_before": 8,
+  "n_after": 3,
+  "kept_labels": [
+    "S1",
+    "S2",
+    "S3"
+  ],
+  "ranking": [
+    {
+      "rank": 1,
+      "label": "S1",
+      "value": 9.5
+    },
+    {
+      "rank": 2,
+      "label": "S2",
+      "value": 8.9
+    },
+    {
+      "rank": 3,
+      "label": "S3",
+      "value": 8.3
+    }
+  ],
+  "n_excluded": 5
+}

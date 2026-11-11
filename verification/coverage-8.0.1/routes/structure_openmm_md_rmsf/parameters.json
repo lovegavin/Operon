@@ -1,0 +1,27 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_1ubq": {}
+  },
+  "steps": [
+    {
+      "name": "structure_openmm_md_rmsf",
+      "inputs": [
+        "structure_1ubq"
+      ],
+      "params": {
+        "chains": "",
+        "platform": "CPU",
+        "report_interval": 25,
+        "steps": 500,
+        "temperature": 300.0,
+        "timestep_fs": 2.0,
+        "residue_dim": "residue",
+        "output": "out_structure_openmm_md_rmsf"
+      },
+      "context_params": {}
+    }
+  ]
+}

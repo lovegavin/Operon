@@ -1,0 +1,28 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_1mel": {}
+  },
+  "steps": [
+    {
+      "name": "interface_alanine_scan",
+      "inputs": [
+        "structure_1mel"
+      ],
+      "params": {
+        "binder_chains": "A",
+        "target_chains": "L",
+        "cutoff": 4.5,
+        "max_residues": 3,
+        "forcefield": "amber14-all.xml",
+        "implicit_model": "implicit/gbn2.xml",
+        "ph": 7.0,
+        "mutation_dim": "mutation",
+        "output": "out_interface_alanine_scan"
+      },
+      "context_params": {}
+    }
+  ]
+}

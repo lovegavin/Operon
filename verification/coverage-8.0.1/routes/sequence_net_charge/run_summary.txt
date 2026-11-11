@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_sequence/sequence_net_charge
+generated : 2026-11-10T12:46:03.767789+00:00
+steps     : 1
+elapsed   : 0.001s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   sequence_net_charge     0.001s   steps/01_sequence_net_charge.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

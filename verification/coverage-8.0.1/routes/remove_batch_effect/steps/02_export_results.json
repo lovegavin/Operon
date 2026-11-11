@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_sequence/remove_batch_effect/output/artifacts/exports/2bdee9e463f14acab20ec7b951fef3b6/out_remove_batch_effect.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 921,
+  "source": "out_remove_batch_effect",
+  "conversion": {}
+}

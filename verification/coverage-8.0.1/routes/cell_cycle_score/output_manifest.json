@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/cell_cycle_score/output/artifacts",
+  "files": [
+    {
+      "path": "exports/8659744c74bb4dc18e020c23ef5f5092/cell_cycle_score.csv",
+      "size": 293,
+      "sha256": "9648865e8a882243334d0f77014e2ced0f955410396835e9501e67a3f608bdef"
+    }
+  ]
+}

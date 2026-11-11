@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_mltab/rdkit_reaction_pairwise_enumerate
+generated : 2026-11-10T12:27:15.523261+00:00
+steps     : 2
+elapsed   : 0.063s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   rdkit_reaction_pairwise_enumerate    0.062s   steps/01_rdkit_reaction_pairwise_enumerate.json
+2   export_results          0.001s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

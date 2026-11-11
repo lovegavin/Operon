@@ -1,0 +1,49 @@
+{
+  "name": "cell_cycle_score",
+  "sources": {
+    "x0": {
+      "path": "input/expr.csv",
+      "dims": [
+        "cell",
+        "gene"
+      ],
+      "labels": {
+        "cell": {
+          "gene": 0
+        },
+        "gene": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/sets.csv",
+      "dims": [
+        "gene",
+        "gene_set"
+      ],
+      "labels": {
+        "gene": {
+          "gene_set": 0
+        },
+        "gene_set": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "cell_cycle_score",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_cell_cycle_score"
+      ]
+    }
+  ]
+}

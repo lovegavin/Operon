@@ -1,0 +1,42 @@
+{
+  "task_dir": "/tmp/cov_omics/faith_pd",
+  "generated_at": "2026-11-10T12:23:47.078464+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0025,
+  "steps": [
+    {
+      "index": 1,
+      "name": "faith_pd",
+      "elapsed": 0.0005,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "taxon_dim": "feature",
+        "node_dim": "node",
+        "field_dim": "field",
+        "output": "out_faith_pd"
+      },
+      "export_path": "steps/01_faith_pd.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.002,
+      "inputs": [
+        "out_faith_pd"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "faith_pd"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122345-fbc6eda44b09",
+  "event_log": "/tmp/cov_omics/faith_pd/output/runs/20261110T122345-fbc6eda44b09/events.jsonl"
+}

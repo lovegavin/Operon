@@ -1,0 +1,25 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "amrfinder_plus",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "amrfinder_path": "/home/gavin/miniconda3/envs/amrfinder/bin/amrfinder",
+        "database_dir": "/home/gavin/tools/amrfinder_db/2026-10-29.1",
+        "mode": "protein",
+        "threads": 1,
+        "timeout_seconds": 600,
+        "output": "out_amrfinder_plus"
+      },
+      "context_params": {}
+    }
+  ]
+}

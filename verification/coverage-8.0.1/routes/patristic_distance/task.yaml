@@ -1,0 +1,29 @@
+{
+  "name": "patristic_distance",
+  "sources": {
+    "x0": {
+      "path": "input/tree.nwk",
+      "dims": [
+        "node",
+        "field"
+      ],
+      "labels": {},
+      "reader": "NewickReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "patristic_distance",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_patristic_distance"
+      ]
+    }
+  ]
+}

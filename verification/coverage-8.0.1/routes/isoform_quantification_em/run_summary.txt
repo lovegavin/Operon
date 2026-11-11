@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_omics/isoform_quantification_em
+generated : 2026-11-10T12:29:06.422955+00:00
+steps     : 2
+elapsed   : 0.005s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   isoform_quantification_em    0.003s   steps/01_isoform_quantification_em.json
+2   export_results          0.002s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

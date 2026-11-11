@@ -1,0 +1,19 @@
+{
+  "n_regions": 3,
+  "regions": [
+    "CDR1",
+    "CDR2",
+    "CDR3"
+  ],
+  "lengths": {
+    "CDR1": 5,
+    "CDR2": 17,
+    "CDR3": 24
+  },
+  "max_moments": {
+    "CDR1": 1.0157,
+    "CDR2": 1.3807,
+    "CDR3": 1.7172
+  },
+  "window": 7
+}

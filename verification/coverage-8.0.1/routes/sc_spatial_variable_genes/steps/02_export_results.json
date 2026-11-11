@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/sc_spatial_variable_genes/output/artifacts/exports/8594985e1e03417bb6207569ee8cf27f/sc_spatial_variable_genes.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 209,
+  "source": "out_sc_spatial_variable_genes",
+  "conversion": {}
+}

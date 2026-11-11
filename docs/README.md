@@ -21,7 +21,7 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 - **[English quick start: your first workflow in 10 minutes](../QUICKSTART.en.md)**
 - [Detailed quick start: Windows, Linux and your first workflow](quickstart.md)
 
-Current guides describe **Operon Studio 4.0.2** with the **8.0.1** operator library.
+Current guides describe **Operon Studio 4.0.2** with the **8.0.2** operator library.
 Release notes, verification reports and dated design records preserve the versions
 they tested; they are historical evidence, not current installation instructions.
 
@@ -94,6 +94,13 @@ they tested; they are historical evidence, not current installation instructions
 - [Library installation and maintenance](plugins.md)
 - [Independent software and operator-library releases](library_releases.md)
 - [Importing operator libraries and routes](library_import_compatibility.md)
+- [Operator library release standard](library_release_standard.md)
+- [Five-layer library test standard](verification/five-layer-test-standard.md)
+- [Per-operator trust sheets](operators/README.md)
+- [Library 3.x full verification](verification/library-3.0.0-full.md)
+- [Operon 4.0.0 release](releases/v4.0.0.md)
+- [Biological evidence for 4.0.0](verification/biological-evidence-4.0.0.md)
+- [Known biological discrepancies](verification/biological-issues-4.0.0.md)
 - [Static registry maintenance](registry_maintenance.md)
 - [Backend versioning](backend_versioning.md)
 - [Selective frontend integration](FRONTEND_MERGE.md)

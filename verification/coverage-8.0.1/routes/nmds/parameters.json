@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "nmds",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "n_components": 2,
+        "max_iter": 300,
+        "output": "out_nmds"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_nmds"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "nmds"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "name": "partial_correlation",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/x1.csv",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x2": {
+      "path": "input/x2.csv",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "partial_correlation",
+      "inputs": [
+        "x0",
+        "x1",
+        "x2"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_partial_correlation"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "antifold_score",
+      "inputs": [],
+      "params": {
+        "chains": "A",
+        "structure_path": "/public/home/lihj/operon715/closure_replay/antifold_score/input/backbone16_A.pdb",
+        "weights_path": "/public/home/lihj/biopipe-verify-301/closure_c_data/antifold_model.pt"
+      },
+      "context_params": {}
+    }
+  ]
+}

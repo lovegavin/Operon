@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "chao1",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "feature_dim": "feature",
+        "output": "out_chao1"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_chao1"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "chao1"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/press/output/artifacts",
+  "files": [
+    {
+      "path": "exports/90727ae925e042e4afa92e4626184b1f/press.csv",
+      "size": 82,
+      "sha256": "78e278021c68dd4e468316bcf04896a35b57b5222b49f1d68722180f8e941a66"
+    },
+    {
+      "path": "exports/f6ee67df7b1c4080afb5bdc110ac3ac1/press.csv",
+      "size": 82,
+      "sha256": "78e278021c68dd4e468316bcf04896a35b57b5222b49f1d68722180f8e941a66"
+    }
+  ]
+}

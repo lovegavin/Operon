@@ -1,0 +1,29 @@
+{
+  "name": "structure_ligand_burial on 3PTB",
+  "sources": {
+    "structure": {
+      "path": "input/3ptb.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {},
+      "reader": "PdbReader"
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_ligand_burial",
+      "inputs": [
+        "structure"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "burial"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

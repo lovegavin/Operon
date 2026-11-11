@@ -1,0 +1,23 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "structure_1mel": {}
+  },
+  "steps": [
+    {
+      "name": "structure_tm_score",
+      "inputs": [
+        "structure_1mel"
+      ],
+      "params": {
+        "reference_path": "/tmp/cov_structure/structure_tm_score/input/1mel.pdb",
+        "model_dim": "model",
+        "model_label": "model",
+        "output": "out_structure_tm_score"
+      },
+      "context_params": {}
+    }
+  ]
+}

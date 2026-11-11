@@ -1,0 +1,21 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_md_communication_path",
+      "inputs": [],
+      "params": {
+        "trajectory_path": "/tmp/cov_structure/structure_md_communication_path/input/1mel_traj.npy",
+        "topology_path": "/tmp/cov_structure/structure_md_communication_path/input/1mel_topology.pdb",
+        "source": 1,
+        "target": 300,
+        "min_correlation": 0.05,
+        "output": "out_structure_md_communication_path"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "name": "site_frequency_spectrum",
+  "sources": {
+    "x0": {
+      "path": "input/geno.vcf",
+      "dims": [
+        "variant",
+        "sample"
+      ],
+      "labels": {
+        "variant": "builtin",
+        "sample": "builtin"
+      },
+      "reader": "VcfReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "site_frequency_spectrum",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_site_frequency_spectrum"
+      ]
+    }
+  ]
+}

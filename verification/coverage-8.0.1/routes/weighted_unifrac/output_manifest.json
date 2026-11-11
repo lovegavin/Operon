@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/weighted_unifrac/output/artifacts",
+  "files": [
+    {
+      "path": "exports/3b2bdce3db6e438cae3ec82784327285/weighted_unifrac.csv",
+      "size": 1172,
+      "sha256": "e0a9294851f287352ffcbebae2120c547b250ad5aa86d7241e1356c46edd4023"
+    }
+  ]
+}

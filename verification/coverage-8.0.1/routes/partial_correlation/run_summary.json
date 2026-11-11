@@ -1,0 +1,42 @@
+{
+  "task_dir": "/tmp/cov_stats/partial_correlation",
+  "generated_at": "2026-11-10T12:43:53.679632+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0026,
+  "steps": [
+    {
+      "index": 1,
+      "name": "partial_correlation",
+      "elapsed": 0.0009,
+      "inputs": [
+        "x0",
+        "x1",
+        "x2"
+      ],
+      "params": {
+        "x_feature_dim": "feature",
+        "y_feature_dim": "feature",
+        "covariate_dim": "feature",
+        "output": "out_partial_correlation"
+      },
+      "export_path": "steps/01_partial_correlation.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "out_partial_correlation"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "partial_correlation"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124351-fd9a854afbf5",
+  "event_log": "/tmp/cov_stats/partial_correlation/output/runs/20261110T124351-fd9a854afbf5/events.jsonl"
+}

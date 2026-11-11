@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/neighbor_joining/output/artifacts/exports/a68c9b7529284ff1b8dcde6f1a0be2e3/neighbor_joining.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 448,
+  "source": "out_neighbor_joining",
+  "conversion": {}
+}

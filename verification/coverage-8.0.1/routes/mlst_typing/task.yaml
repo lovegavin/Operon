@@ -1,0 +1,34 @@
+{
+  "name": "mlst_typing",
+  "sources": {
+    "x0": {
+      "path": "input/profiles.csv",
+      "dims": [
+        "isolate",
+        "field"
+      ],
+      "labels": {
+        "isolate": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "mlst_typing",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_mlst_typing"
+      ]
+    }
+  ]
+}

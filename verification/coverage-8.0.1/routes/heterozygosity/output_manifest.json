@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_omics/heterozygosity/output/artifacts",
+  "files": [
+    {
+      "path": "exports/74258ed45f104aaabe98e76ada1e64e8/heterozygosity.csv",
+      "size": 488,
+      "sha256": "7ff6606a742814db727ab05604e269d1dc505544fc4dcf2b889c0fe40ffef7c8"
+    },
+    {
+      "path": "exports/c19f117a29f94c6192bd5c4ec0d191f7/heterozygosity.csv",
+      "size": 488,
+      "sha256": "7ff6606a742814db727ab05604e269d1dc505544fc4dcf2b889c0fe40ffef7c8"
+    }
+  ]
+}

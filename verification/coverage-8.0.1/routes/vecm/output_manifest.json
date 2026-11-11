@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/vecm/output/artifacts",
+  "files": [
+    {
+      "path": "exports/0bcfd926ff914821947281dc31a80ef4/vecm.csv",
+      "size": 360,
+      "sha256": "dac66101e8f52945557a2cdecad3fb9f3cbe925450fd3d3b70eb4bb7406a3b2b"
+    },
+    {
+      "path": "exports/45e9a93c8b6040748cfa0786769c41c0/vecm.csv",
+      "size": 360,
+      "sha256": "dac66101e8f52945557a2cdecad3fb9f3cbe925450fd3d3b70eb4bb7406a3b2b"
+    }
+  ]
+}

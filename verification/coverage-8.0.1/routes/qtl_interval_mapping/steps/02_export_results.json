@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/qtl_interval_mapping/output/artifacts/exports/6efc21cd6ecd47bd92b4aba523b1ab36/qtl_interval_mapping.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 1050,
+  "source": "out_qtl_interval_mapping",
+  "conversion": {}
+}

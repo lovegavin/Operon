@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/mismatch_distribution/output/artifacts",
+  "files": [
+    {
+      "path": "exports/4269aaac0da041c9848df388d8b978f0/mismatch_distribution.csv",
+      "size": 141,
+      "sha256": "4fe14cdf0e26ebaf36882a1b6f21b8dc132b131a1ddd55cb489e0280de8bb8d7"
+    },
+    {
+      "path": "exports/6b04d34b6e63482c928d057f6ddcd315/mismatch_distribution.csv",
+      "size": 141,
+      "sha256": "4fe14cdf0e26ebaf36882a1b6f21b8dc132b131a1ddd55cb489e0280de8bb8d7"
+    }
+  ]
+}

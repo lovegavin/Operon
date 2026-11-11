@@ -1,0 +1,45 @@
+{
+  "task_dir": "/tmp/cov_omics/ora",
+  "generated_at": "2026-11-10T12:29:09.839048+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0077,
+  "steps": [
+    {
+      "index": 1,
+      "name": "ora",
+      "elapsed": 0.0054,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "p_label": "Q_VALUE",
+        "lfc_label": "log2FC",
+        "p_threshold": 0.05,
+        "lfc_threshold": 0.5,
+        "direction": "both",
+        "correction": "fdr",
+        "min_set_size": 2,
+        "output": "out_ora"
+      },
+      "export_path": "steps/01_ora.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0023,
+      "inputs": [
+        "out_ora"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "ora"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122908-a4970f190fa3",
+  "event_log": "/tmp/cov_omics/ora/output/runs/20261110T122908-a4970f190fa3/events.jsonl"
+}

@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/ora/output/artifacts/exports/65c25052f462412d9a6804b9c022c409/ora.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 192,
+  "source": "out_ora",
+  "conversion": {}
+}

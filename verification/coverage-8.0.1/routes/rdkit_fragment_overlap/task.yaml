@@ -1,0 +1,17 @@
+{
+  "name": "rdkit_fragment_overlap",
+  "sources": {},
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "rdkit_fragment_overlap",
+      "inputs": []
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_rdkit_fragment_overlap"
+      ]
+    }
+  ]
+}

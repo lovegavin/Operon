@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "vecm",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "coint_rank": 1,
+        "k_ar_diff": 1,
+        "output": "out_vecm"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_vecm"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "vecm"
+      },
+      "context_params": {}
+    }
+  ]
+}

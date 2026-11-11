@@ -1,0 +1,39 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "van_waerden",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "group_dim": "sample",
+        "group_label": "group",
+        "group_a": "A",
+        "group_b": "B",
+        "output": "out_van_waerden"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_van_waerden"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "van_waerden"
+      },
+      "context_params": {}
+    }
+  ]
+}

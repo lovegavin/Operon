@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/glmm_logistic/output/artifacts/exports/d93b9ef5c7644be0b377b75eb8238d03/glmm_logistic.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 388,
+  "source": "out_glmm_logistic",
+  "conversion": {}
+}

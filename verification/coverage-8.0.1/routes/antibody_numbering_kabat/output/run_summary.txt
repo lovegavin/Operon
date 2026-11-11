@@ -1,0 +1,17 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/abroutes/antibody_numbering_kabat
+generated : 2026-11-10T13:51:09.564233+00:00
+steps     : 1
+elapsed   : 0.017s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   antibody_numbering_kabat    0.017s   steps/01_antibody_numbering_kabat.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

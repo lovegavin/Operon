@@ -1,0 +1,8 @@
+{
+  "n_frames": 26,
+  "n_occupied": 24,
+  "bins": 20,
+  "temperature": 300.0,
+  "min_free_energy_kj": -0.0,
+  "max_free_energy_kj": 2.740311241741927
+}

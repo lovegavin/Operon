@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/ligand_routes/ligand_contact_profile/output/artifacts/exports/7a3e41f1058c405da6beefdfbc1c7a3b/contacts.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 333,
+  "source": "contacts",
+  "conversion": {}
+}

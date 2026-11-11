@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_stats/storey_qvalue/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 432,
+      "sha256": "d95bee92b03b88ff5391dacab38e4299b42e7d133a81b24c2f4befa98c70c635"
+    }
+  ]
+}

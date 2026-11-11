@@ -1,0 +1,27 @@
+{
+  "task_dir": "/tmp/cov_sequence/prodigal_genes",
+  "generated_at": "2026-11-10T12:47:20.503783+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0504,
+  "steps": [
+    {
+      "index": 1,
+      "name": "prodigal_genes",
+      "elapsed": 0.0504,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "prodigal_path": "/usr/bin/prodigal",
+        "mode": "single",
+        "timeout_seconds": 600,
+        "output": "out_prodigal_genes"
+      },
+      "export_path": "steps/01_prodigal_genes.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124719-b68c769703f4",
+  "event_log": "/tmp/cov_sequence/prodigal_genes/output/runs/20261110T124719-b68c769703f4/events.jsonl"
+}

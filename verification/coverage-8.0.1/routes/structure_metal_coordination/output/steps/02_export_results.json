@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/ligand_routes/structure_metal_coordination/output/artifacts/exports/1adca6f1266245aaa97dee72b38e7195/metal_sites.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 105,
+  "source": "metal_sites",
+  "conversion": {}
+}

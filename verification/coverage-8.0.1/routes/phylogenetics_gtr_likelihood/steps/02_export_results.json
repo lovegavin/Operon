@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/phylogenetics_gtr_likelihood/output/artifacts/exports/5943c7f51d224f8192b716a474d219da/phylogenetics_gtr_likelihood.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 66,
+  "source": "gtr",
+  "conversion": {}
+}

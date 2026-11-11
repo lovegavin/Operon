@@ -1,0 +1,28 @@
+{
+  "name": "nucleotide_transformer_variant_effect",
+  "sources": {
+    "data": {
+      "reader": "CsvReader",
+      "path": "input/data.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "r0": 0
+        },
+        "field": "builtin"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "nucleotide_transformer_variant_effect",
+      "inputs": [
+        "data"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

@@ -1,0 +1,26 @@
+{
+  "name": "sequence_tm_segments",
+  "sources": {
+    "x0": {
+      "path": "input/tm.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sequence_tm_segments",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

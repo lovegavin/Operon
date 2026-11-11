@@ -139,6 +139,7 @@ def test_run_wiring_with_stub_model(monkeypatch, tmp_path):
         )
     )
     monkeypatch.setitem(sys.modules, "esm", fake_esm)
+    (tmp_path / "fake.pt").write_bytes(b"stub")
     form = _protein_form("ACDE")
     ctx = Ctx({
         "mutations": "A1V,C2D",

@@ -1,0 +1,49 @@
+{
+  "name": "ora",
+  "sources": {
+    "x0": {
+      "path": "input/stats.csv",
+      "dims": [
+        "gene",
+        "statistic"
+      ],
+      "labels": {
+        "gene": {
+          "statistic": 0
+        },
+        "statistic": "builtin"
+      },
+      "reader": "CsvReader"
+    },
+    "x1": {
+      "path": "input/sets.csv",
+      "dims": [
+        "gene",
+        "gene_set"
+      ],
+      "labels": {
+        "gene": {
+          "gene_set": 0
+        },
+        "gene_set": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "ora",
+      "inputs": [
+        "x0",
+        "x1"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_ora"
+      ]
+    }
+  ]
+}

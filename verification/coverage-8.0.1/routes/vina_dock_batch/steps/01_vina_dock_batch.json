@@ -1,0 +1,27 @@
+{
+  "n_ligands": 2,
+  "best_affinity": -4.800000190734863,
+  "receptor_path": "/tmp/vina_routes/vina_dock/input/receptor.pdbqt",
+  "ligands": [
+    "/tmp/vina_routes/vina_dock/input/ligand.pdbqt",
+    "/tmp/vina_routes/vina_dock_batch/input/ligand2.pdbqt"
+  ],
+  "result_files": [
+    {
+      "id": "poses_1",
+      "path": "/tmp/vina_routes/vina_dock_batch/output/artifacts/vina_batch/430c8b4e7d2f4c21912ae9fd0c38c1d6/ligand_out.pdbqt",
+      "filename": "ligand_out.pdbqt",
+      "format": "pdbqt",
+      "title": "Docking poses 1",
+      "bytes": 2455
+    },
+    {
+      "id": "poses_2",
+      "path": "/tmp/vina_routes/vina_dock_batch/output/artifacts/vina_batch/430c8b4e7d2f4c21912ae9fd0c38c1d6/ligand2_out.pdbqt",
+      "filename": "ligand2_out.pdbqt",
+      "format": "pdbqt",
+      "title": "Docking poses 2",
+      "bytes": 1737
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "name": "sequence_dnds",
+  "sources": {
+    "x0": {
+      "path": "input/dnds.csv",
+      "dims": [
+        "row",
+        "field"
+      ],
+      "labels": {
+        "row": {
+          "field": 0
+        },
+        "field": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "sequence_dnds",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_sequence_dnds"
+      ]
+    }
+  ]
+}

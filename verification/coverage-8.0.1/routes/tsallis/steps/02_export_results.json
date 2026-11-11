@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/tsallis/output/artifacts/exports/db09ed6e861141478fd79e45bcb40a43/tsallis.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 534,
+  "source": "out_tsallis",
+  "conversion": {}
+}

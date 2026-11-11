@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "watterson_theta",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "variant_dim": "variant",
+        "sample_dim": "sample",
+        "output": "out_watterson_theta"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_watterson_theta"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "watterson_theta"
+      },
+      "context_params": {}
+    }
+  ]
+}

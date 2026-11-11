@@ -1,0 +1,27 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_cysteine_pairing",
+  "generated_at": "2026-11-10T12:45:59.689568+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0001,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_cysteine_pairing",
+      "elapsed": 0.0001,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_cysteine_pairing",
+        "scheme": "adjacent"
+      },
+      "export_path": "steps/01_sequence_cysteine_pairing.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124559-7d6b2bc45074",
+  "event_log": "/tmp/cov_sequence/sequence_cysteine_pairing/output/runs/20261110T124559-7d6b2bc45074/events.jsonl"
+}

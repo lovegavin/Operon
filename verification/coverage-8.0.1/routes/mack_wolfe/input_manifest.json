@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/mack_wolfe/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 596,
+      "sha256": "7bb630a4e8fec345f9fd2288735d4afdb404a2aa9187d5023fdc2c1c93398a08"
+    },
+    {
+      "path": "x1.csv",
+      "size": 75,
+      "sha256": "0563ebfbc75b4292ed02334201839ff9dc612ca64c40c68d99eaceb01bddfd08"
+    }
+  ]
+}

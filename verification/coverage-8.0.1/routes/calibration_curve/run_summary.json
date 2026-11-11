@@ -1,0 +1,43 @@
+{
+  "task_dir": "/tmp/cov_sequence/calibration_curve",
+  "generated_at": "2026-11-10T12:47:39.636530+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0026,
+  "steps": [
+    {
+      "index": 1,
+      "name": "calibration_curve",
+      "elapsed": 0.0012,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "feature_dim": "feature",
+        "true_label": "truth",
+        "prob_label": "prob",
+        "n_bins": 4,
+        "strategy": "uniform",
+        "output": "out_calibration_curve"
+      },
+      "export_path": "steps/01_calibration_curve.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0014,
+      "inputs": [
+        "out_calibration_curve"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "out_calibration_curve"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124738-5d952ac9b65d",
+  "event_log": "/tmp/cov_sequence/calibration_curve/output/runs/20261110T124738-5d952ac9b65d/events.jsonl"
+}

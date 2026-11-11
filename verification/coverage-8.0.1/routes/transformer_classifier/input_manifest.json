@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/transformer_classifier/input",
+  "files": [
+    {
+      "path": "trans.csv",
+      "size": 104,
+      "sha256": "1551dda0cf454618a231ed81a5439ee78cfe5c80fca91246fe5e5f1039e30a44"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "root": "/tmp/cov_structure/structure_ligand_redock_qc/input",
+  "files": [
+    {
+      "path": "3PTB_nohet.pdb",
+      "size": 132034,
+      "sha256": "12d37bdae58319e2458558bfebc578645821e104f22dbd0c999852ac158733b8"
+    },
+    {
+      "path": "BEN_ligand.sdf",
+      "size": 819,
+      "sha256": "e1f89a4a837854b3a63dcfbc3a4bb59a5b24cf59926c393a6db1368e91689bcd"
+    },
+    {
+      "path": "BEN_pose_docked.sdf",
+      "size": 819,
+      "sha256": "385edcc4bd0286eb52197323e4bf08a2ab2ee791e2d7e25ef63b10fff39daa76"
+    }
+  ]
+}

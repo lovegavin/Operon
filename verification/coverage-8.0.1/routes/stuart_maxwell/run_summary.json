@@ -1,0 +1,39 @@
+{
+  "task_dir": "/tmp/cov_stats/stuart_maxwell",
+  "generated_at": "2026-11-10T12:44:01.166452+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0032,
+  "steps": [
+    {
+      "index": 1,
+      "name": "stuart_maxwell",
+      "elapsed": 0.0015,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "rater_a": "rater_a",
+        "rater_b": "rater_b",
+        "output": "out_stuart_maxwell"
+      },
+      "export_path": "steps/01_stuart_maxwell.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0017,
+      "inputs": [
+        "out_stuart_maxwell"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "stuart_maxwell"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124359-a9661856483f",
+  "event_log": "/tmp/cov_stats/stuart_maxwell/output/runs/20261110T124359-a9661856483f/events.jsonl"
+}

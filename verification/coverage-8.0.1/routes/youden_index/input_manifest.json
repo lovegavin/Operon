@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/youden_index/input",
+  "files": [
+    {
+      "path": "x0.csv",
+      "size": 216,
+      "sha256": "9f6160d9cbd106b35e6589912059fb4e86e561e599db32eded28081dbf7169e9"
+    },
+    {
+      "path": "x1.csv",
+      "size": 464,
+      "sha256": "de0c359733cab7d55b02ac6bdf8f1b72e994dc92c0622381268dee1c4552bf44"
+    }
+  ]
+}

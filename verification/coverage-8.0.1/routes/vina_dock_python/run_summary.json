@@ -1,0 +1,34 @@
+{
+  "task_dir": "/tmp/cov_structure/vina_dock_python",
+  "generated_at": "2026-11-10T12:31:26.597865+00:00",
+  "n_steps": 1,
+  "total_elapsed": 3.0182,
+  "steps": [
+    {
+      "index": 1,
+      "name": "vina_dock_python",
+      "elapsed": 3.0182,
+      "inputs": [
+        "structure_3ptb"
+      ],
+      "params": {
+        "ligand_path": "/tmp/cov_structure/vina_dock_python/input/BEN.pdbqt",
+        "size_x": 20.0,
+        "size_y": 20.0,
+        "size_z": 20.0,
+        "exhaustiveness": 8,
+        "num_modes": 9,
+        "seed": 42,
+        "cpu": 1,
+        "scoring": "vina",
+        "pose_dim": "pose",
+        "output": "out_vina_dock_python"
+      },
+      "export_path": "steps/01_vina_dock_python.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T123122-1d3d2142c30b",
+  "event_log": "/tmp/cov_structure/vina_dock_python/output/runs/20261110T123122-1d3d2142c30b/events.jsonl"
+}

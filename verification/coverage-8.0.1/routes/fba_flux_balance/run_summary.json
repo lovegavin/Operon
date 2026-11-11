@@ -1,0 +1,38 @@
+{
+  "task_dir": "/tmp/cov_stats/fba_flux_balance",
+  "generated_at": "2026-11-10T12:43:45.888078+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.5409,
+  "steps": [
+    {
+      "index": 1,
+      "name": "fba_flux_balance",
+      "elapsed": 0.5391,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "output": "out_fba_flux_balance"
+      },
+      "export_path": "steps/01_fba_flux_balance.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0018,
+      "inputs": [
+        "out_fba_flux_balance"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "fba_flux_balance"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124344-8e547416f5bc",
+  "event_log": "/tmp/cov_stats/fba_flux_balance/output/runs/20261110T124344-8e547416f5bc/events.jsonl"
+}

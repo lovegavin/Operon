@@ -1,0 +1,42 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "cuzick_test",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "group_dim": "sample",
+        "group_label": "group",
+        "group_scores": [
+          1,
+          2
+        ],
+        "alternative": "two.sided",
+        "output": "out_cuzick_test"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_cuzick_test"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "cuzick_test"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "leverage",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "response": "y",
+        "output": "out_leverage"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_leverage"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "leverage"
+      },
+      "context_params": {}
+    }
+  ]
+}

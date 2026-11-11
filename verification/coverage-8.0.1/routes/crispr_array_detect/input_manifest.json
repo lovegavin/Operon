@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/crispr_array_detect/input",
+  "files": [
+    {
+      "path": "crispr.fasta",
+      "size": 592,
+      "sha256": "86f00864e7207e21bdf5422e30c3fbe7cf2616a29019df877b8a90622015dfa7"
+    }
+  ]
+}

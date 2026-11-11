@@ -1,0 +1,13 @@
+{
+  "n_cells": 6,
+  "cell_sets": [
+    "S",
+    "G2M"
+  ],
+  "phase_counts": {
+    "S": 3,
+    "G2M": 3
+  },
+  "ctrl_size": 5,
+  "n_bins": 4
+}

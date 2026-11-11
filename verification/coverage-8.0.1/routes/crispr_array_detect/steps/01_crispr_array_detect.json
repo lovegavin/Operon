@@ -1,0 +1,12 @@
+{
+  "output": "out_crispr_array_detect",
+  "n_arrays": 1,
+  "arrays": [
+    {
+      "start": 201,
+      "end": 534,
+      "n_repeats": 6,
+      "consensus_repeat": "CGGTTTATCCCCGCTGGCGCGGGGAACTC"
+    }
+  ]
+}

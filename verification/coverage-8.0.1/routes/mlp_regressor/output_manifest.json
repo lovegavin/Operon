@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/mlp_regressor/output/artifacts",
+  "files": [
+    {
+      "path": "exports/eab916a2edf84ca4bedf0383a9eaaf97/mlp_regressor.csv",
+      "size": 67,
+      "sha256": "cfb01deb71efc0f7fa2691426a3dfbdff063e2aca7c3ec581ca8385b0ac521b4"
+    }
+  ]
+}

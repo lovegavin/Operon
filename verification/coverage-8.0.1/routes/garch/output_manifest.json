@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/garch/output/artifacts",
+  "files": [
+    {
+      "path": "exports/345e7cdc1cc341c4841c03df8347eb7a/garch.csv",
+      "size": 372,
+      "sha256": "0e17b6ced8f0f87bc888b1d248bac6d371fc9d3d490039f2a2b863c8d2cba134"
+    },
+    {
+      "path": "exports/e26efa8c8cb44725b6b7509d3304b94e/garch.csv",
+      "size": 372,
+      "sha256": "0e17b6ced8f0f87bc888b1d248bac6d371fc9d3d490039f2a2b863c8d2cba134"
+    }
+  ]
+}

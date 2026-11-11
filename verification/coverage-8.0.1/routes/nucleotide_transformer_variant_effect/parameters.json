@@ -1,0 +1,26 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "data": {}
+  },
+  "steps": [
+    {
+      "name": "nucleotide_transformer_variant_effect",
+      "inputs": [
+        "data"
+      ],
+      "context_params": {},
+      "params": {
+        "row_dim": "row",
+        "field_dim": "field",
+        "model_path": "/home/gavin/.cache/operon-weights/NTv2-50M",
+        "max_length": 512,
+        "ref_column": "ref",
+        "alt_column": "alt",
+        "output": "effect"
+      }
+    }
+  ]
+}

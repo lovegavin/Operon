@@ -1,0 +1,44 @@
+{
+  "task_dir": "/tmp/probe_routes/esm_embedding_autoencoder",
+  "generated_at": "2026-11-10T20:13:06.379495+00:00",
+  "n_steps": 2,
+  "total_elapsed": 2.0676,
+  "steps": [
+    {
+      "index": 1,
+      "name": "esm_embedding_autoencoder",
+      "elapsed": 2.0658,
+      "inputs": [
+        "embedding"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "feature_dim": "feature",
+        "hidden": 8,
+        "latent": 2,
+        "epochs": 60,
+        "learning_rate": 0.01,
+        "random_state": 0,
+        "output": "errors"
+      },
+      "export_path": "steps/01_esm_embedding_autoencoder.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0018,
+      "inputs": [
+        "errors"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "esm_embedding_autoencoder"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T201303-2b4e0278c7b5",
+  "event_log": "/tmp/probe_routes/esm_embedding_autoencoder/output/runs/20261110T201303-2b4e0278c7b5/events.jsonl"
+}

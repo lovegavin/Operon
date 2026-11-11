@@ -1,0 +1,29 @@
+{
+  "task_dir": "/tmp/cov_sequence/sequence_transmembrane_topology",
+  "generated_at": "2026-11-10T12:46:14.060590+00:00",
+  "n_steps": 1,
+  "total_elapsed": 0.0003,
+  "steps": [
+    {
+      "index": 1,
+      "name": "sequence_transmembrane_topology",
+      "elapsed": 0.0003,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_transmembrane_topology",
+        "window": 19,
+        "threshold": 1.6,
+        "min_length": 12
+      },
+      "export_path": "steps/01_sequence_transmembrane_topology.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124613-d051fa27fb90",
+  "event_log": "/tmp/cov_sequence/sequence_transmembrane_topology/output/runs/20261110T124613-d051fa27fb90/events.jsonl"
+}

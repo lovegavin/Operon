@@ -1,0 +1,41 @@
+{
+  "task_dir": "/tmp/cov_stats/rainbow_test",
+  "generated_at": "2026-11-10T12:43:57.990591+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0027,
+  "steps": [
+    {
+      "index": 1,
+      "name": "rainbow_test",
+      "elapsed": 0.0008,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "response": "y",
+        "regressor": "x",
+        "fraction": 0.5,
+        "center": 0.5,
+        "output": "out_rainbow_test"
+      },
+      "export_path": "steps/01_rainbow_test.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0019,
+      "inputs": [
+        "out_rainbow_test"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "rainbow_test"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124356-459182423ee0",
+  "event_log": "/tmp/cov_stats/rainbow_test/output/runs/20261110T124356-459182423ee0/events.jsonl"
+}

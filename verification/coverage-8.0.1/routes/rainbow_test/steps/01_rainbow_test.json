@@ -1,0 +1,15 @@
+{
+  "statistic": 1.188179354234226,
+  "df1": 30,
+  "df2": 28,
+  "p": 0.3245639398053499,
+  "n": 60,
+  "subset_n": 30,
+  "from": 16,
+  "to": 45,
+  "fraction": 0.5,
+  "center": 0.5,
+  "response": "y",
+  "regressor": "x",
+  "order_by": "x"
+}

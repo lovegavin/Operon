@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/moses_test/output/artifacts",
+  "files": [
+    {
+      "path": "exports/3135d730a5f641d0a773a57886d48d9c/moses_test.csv",
+      "size": 81,
+      "sha256": "b3b62e0391044056fe25990eaf4323467f4641363d1d8440db24aade9bdd9119"
+    },
+    {
+      "path": "exports/f10c34008821435c982d9722b10db907/moses_test.csv",
+      "size": 81,
+      "sha256": "b3b62e0391044056fe25990eaf4323467f4641363d1d8440db24aade9bdd9119"
+    }
+  ]
+}

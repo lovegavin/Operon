@@ -1,0 +1,34 @@
+{
+  "name": "pcnm",
+  "sources": {
+    "x0": {
+      "path": "input/x0.csv",
+      "dims": [
+        "sample",
+        "sample_b"
+      ],
+      "labels": {
+        "sample": {
+          "sample_b": 0
+        },
+        "sample_b": "builtin"
+      },
+      "reader": "CsvReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "pcnm",
+      "inputs": [
+        "x0"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_pcnm"
+      ]
+    }
+  ]
+}

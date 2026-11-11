@@ -1,0 +1,18 @@
+============================================================
+Run summary
+============================================================
+task      : /tmp/cov_mltab/sequence_repeat_finder
+generated : 2026-11-10T12:25:41.810245+00:00
+steps     : 2
+elapsed   : 0.009s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   sequence_repeat_finder    0.000s   steps/01_sequence_repeat_finder.json
+2   export_results          0.009s   steps/02_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

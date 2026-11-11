@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/explode/input",
+  "files": [
+    {
+      "path": "orfs.fasta",
+      "size": 207,
+      "sha256": "205ddc0fd7fe03691e86953e191cdf0583addc76f45a3f05969f2d8ec0b7ecf9"
+    }
+  ]
+}

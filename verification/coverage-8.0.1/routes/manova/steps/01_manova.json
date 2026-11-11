@@ -1,0 +1,14 @@
+{
+  "test": "pillai",
+  "statistic": 0.8339018294793956,
+  "approx_f": 20.082143635072743,
+  "num_df": 3.0,
+  "den_df": 12.0,
+  "p_value": 5.702480036465106e-05,
+  "n_samples": 16,
+  "n_groups": 2,
+  "groups": [
+    "A",
+    "B"
+  ]
+}

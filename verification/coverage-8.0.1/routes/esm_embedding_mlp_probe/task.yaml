@@ -1,0 +1,34 @@
+{
+  "name": "esm_embedding_mlp_probe",
+  "sources": {
+    "embedding": {
+      "path": "input/embeddings.csv",
+      "reader": "CsvReader",
+      "dims": [
+        "sample",
+        "feature"
+      ],
+      "labels": {
+        "sample": {
+          "feature": 0
+        },
+        "feature": "builtin"
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "esm_embedding_mlp_probe",
+      "inputs": [
+        "embedding"
+      ]
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "probe"
+      ]
+    }
+  ],
+  "parameters_file": "parameters.json"
+}

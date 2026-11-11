@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_sequence/sequence_beta_propensity/input",
+  "files": [
+    {
+      "path": "beta.fasta",
+      "size": 80,
+      "sha256": "0bb595378f33eb860b9f37a08294519efecbdc9c467ce9f8f45569b1b9bd6790"
+    }
+  ]
+}

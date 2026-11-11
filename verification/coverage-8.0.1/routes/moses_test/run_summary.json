@@ -1,0 +1,42 @@
+{
+  "task_dir": "/tmp/cov_stats/moses_test",
+  "generated_at": "2026-11-10T12:43:52.270440+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0076,
+  "steps": [
+    {
+      "index": 1,
+      "name": "moses_test",
+      "elapsed": 0.0056,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "value_label": "value",
+        "group_label": "group",
+        "group_a": "A",
+        "group_b": "B",
+        "extreme": 2,
+        "output": "out_moses_test"
+      },
+      "export_path": "steps/01_moses_test.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.002,
+      "inputs": [
+        "out_moses_test"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "moses_test"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124350-b3bf35b25db4",
+  "event_log": "/tmp/cov_stats/moses_test/output/runs/20261110T124350-b3bf35b25db4/events.jsonl"
+}

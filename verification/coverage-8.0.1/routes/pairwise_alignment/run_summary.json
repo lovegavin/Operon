@@ -1,0 +1,43 @@
+{
+  "task_dir": "/tmp/cov_omics/pairwise_alignment",
+  "generated_at": "2026-11-10T12:29:12.112773+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0047,
+  "steps": [
+    {
+      "index": 1,
+      "name": "pairwise_alignment",
+      "elapsed": 0.0009,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "mode": "global",
+        "match": 2,
+        "mismatch": -1,
+        "gap_open": -2,
+        "gap_extend": -1,
+        "output": "out_pairwise_alignment"
+      },
+      "export_path": "steps/01_pairwise_alignment.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0038,
+      "inputs": [
+        "out_pairwise_alignment"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "pairwise_alignment"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T122910-dc402a04a216",
+  "event_log": "/tmp/cov_omics/pairwise_alignment/output/runs/20261110T122910-dc402a04a216/events.jsonl"
+}

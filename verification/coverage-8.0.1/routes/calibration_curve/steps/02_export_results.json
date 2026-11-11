@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_sequence/calibration_curve/output/artifacts/exports/a759941ffdad41359618c5b5c4542ab5/out_calibration_curve.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 227,
+  "source": "out_calibration_curve",
+  "conversion": {}
+}

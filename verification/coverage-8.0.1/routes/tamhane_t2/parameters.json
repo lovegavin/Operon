@@ -1,0 +1,37 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {},
+    "x1": {}
+  },
+  "steps": [
+    {
+      "name": "tamhane_t2",
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "group_dim": "sample",
+        "group_label": "group",
+        "output": "out_tamhane_t2"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_tamhane_t2"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "tamhane_t2"
+      },
+      "context_params": {}
+    }
+  ]
+}

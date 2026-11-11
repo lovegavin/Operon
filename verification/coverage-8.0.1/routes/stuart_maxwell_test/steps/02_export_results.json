@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_stats/stuart_maxwell_test/output/artifacts/exports/205bee396f494b09b93a4f710e7bcfd1/stuart_maxwell_test.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 87,
+  "source": "out_stuart_maxwell_test",
+  "conversion": {}
+}

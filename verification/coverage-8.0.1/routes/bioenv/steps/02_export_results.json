@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/tmp/cov_omics/bioenv/output/artifacts/exports/725e823bc7784a84b4a4046552d009f5/bioenv.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 54,
+  "source": "out_bioenv",
+  "conversion": {}
+}

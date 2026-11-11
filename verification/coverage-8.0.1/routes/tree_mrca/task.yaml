@@ -1,0 +1,17 @@
+{
+  "name": "tree_mrca",
+  "sources": {},
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "tree_mrca",
+      "inputs": []
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_tree_mrca"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/glmm_logistic/output/artifacts",
+  "files": [
+    {
+      "path": "exports/60e03b3ec416449785be804c9a667aa2/glmm_logistic.csv",
+      "size": 388,
+      "sha256": "ff30deb0a52458fdcca0967c997b615e545d66d40374e2dba1c3616e62fa06e8"
+    },
+    {
+      "path": "exports/d93b9ef5c7644be0b377b75eb8238d03/glmm_logistic.csv",
+      "size": 388,
+      "sha256": "ff30deb0a52458fdcca0967c997b615e545d66d40374e2dba1c3616e62fa06e8"
+    }
+  ]
+}

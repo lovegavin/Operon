@@ -1,0 +1,21 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_md_ligand_rmsd",
+      "inputs": [],
+      "context_params": {},
+      "params": {
+        "trajectory_path": "/tmp/md_lig/input/trajectory.npy",
+        "topology_path": "/tmp/md_lig/input/topology.pdb",
+        "receptor_chains": "A",
+        "ligand_resname": "BEN",
+        "stride": 1,
+        "output": "ligand_rmsd"
+      }
+    }
+  ]
+}

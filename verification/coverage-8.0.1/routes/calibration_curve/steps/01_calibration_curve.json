@@ -1,0 +1,35 @@
+{
+  "strategy": "uniform",
+  "n_bins": 4,
+  "n_samples": 8,
+  "bins": [
+    {
+      "lower": 0.0,
+      "upper": 0.25,
+      "mean_predicted": 0.13333333333333333,
+      "observed_fraction": 0.0,
+      "n": 3
+    },
+    {
+      "lower": 0.25,
+      "upper": 0.5,
+      "mean_predicted": 0.35,
+      "observed_fraction": 0.0,
+      "n": 1
+    },
+    {
+      "lower": 0.5,
+      "upper": 0.75,
+      "mean_predicted": 0.675,
+      "observed_fraction": 1.0,
+      "n": 2
+    },
+    {
+      "lower": 0.75,
+      "upper": 1.0,
+      "mean_predicted": 0.875,
+      "observed_fraction": 1.0,
+      "n": 2
+    }
+  ]
+}

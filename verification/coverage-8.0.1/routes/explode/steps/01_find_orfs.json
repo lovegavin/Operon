@@ -1,0 +1,8 @@
+{
+  "sequence_dim": "sequence",
+  "position_dim": "position",
+  "min_aa": 20,
+  "alphabet": "dna",
+  "n_sequences": 2,
+  "n_orfs": 2
+}

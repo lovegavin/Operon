@@ -1,0 +1,42 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "renyi",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "taxon_dim": "feature",
+        "scales": [
+          0,
+          0.5,
+          1,
+          2,
+          4
+        ],
+        "include_inf": true,
+        "hill": false,
+        "output": "out_renyi"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_renyi"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "renyi"
+      },
+      "context_params": {}
+    }
+  ]
+}

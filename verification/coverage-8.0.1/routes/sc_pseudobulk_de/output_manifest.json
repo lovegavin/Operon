@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_omics/sc_pseudobulk_de/output/artifacts",
+  "files": [
+    {
+      "path": "exports/7079ab83acad41dfb9f3ee794831a218/sc_pseudobulk_de.csv",
+      "size": 664,
+      "sha256": "4a3d828de7682a528ca5ddbf0293add35d9b79a9ab614defbf619371328f5fb2"
+    }
+  ]
+}

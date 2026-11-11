@@ -1,0 +1,38 @@
+{
+  "task_dir": "/tmp/cov_stats/weighted_kappa",
+  "generated_at": "2026-11-10T12:44:04.679909+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0021,
+  "steps": [
+    {
+      "index": 1,
+      "name": "weighted_kappa",
+      "elapsed": 0.0006,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "weights": "linear",
+        "output": "out_weighted_kappa"
+      },
+      "export_path": "steps/01_weighted_kappa.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0015,
+      "inputs": [
+        "out_weighted_kappa"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "weighted_kappa"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124403-12e73f6dc1dc",
+  "event_log": "/tmp/cov_stats/weighted_kappa/output/runs/20261110T124403-12e73f6dc1dc/events.jsonl"
+}

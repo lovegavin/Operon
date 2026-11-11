@@ -1,0 +1,44 @@
+{
+  "task_dir": "/tmp/cov_stats/mood_scale",
+  "generated_at": "2026-11-10T12:43:51.564504+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0036,
+  "steps": [
+    {
+      "index": 1,
+      "name": "mood_scale",
+      "elapsed": 0.0021,
+      "inputs": [
+        "x0",
+        "x1"
+      ],
+      "params": {
+        "feature_dim": "feature",
+        "sample_dim": "sample",
+        "group_dim": "sample",
+        "group_label": "group",
+        "group_a": "A",
+        "group_b": "B",
+        "output": "out_mood_scale"
+      },
+      "export_path": "steps/01_mood_scale.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0015,
+      "inputs": [
+        "out_mood_scale"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "mood_scale"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124349-e26a209b2893",
+  "event_log": "/tmp/cov_stats/mood_scale/output/runs/20261110T124349-e26a209b2893/events.jsonl"
+}

@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_mltab/cnn_image_classifier/input",
+  "files": [
+    {
+      "path": "cnn.csv",
+      "size": 360,
+      "sha256": "1e432cae9bd85fd7be548b6617385b7e6933c91465cd80a3e1296cd0d675aa27"
+    }
+  ]
+}

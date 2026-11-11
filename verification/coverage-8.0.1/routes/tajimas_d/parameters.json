@@ -1,0 +1,33 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "tajimas_d",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "variant_dim": "variant",
+        "sample_dim": "sample",
+        "output": "out_tajimas_d"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_tajimas_d"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "tajimas_d"
+      },
+      "context_params": {}
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "result_files": [
+    {
+      "id": "structure",
+      "path": "/public/home/lihj/operon715/cov_mpnn3/ligandmpnn_side_chain_packing2/output/artifacts/ligandmpnn_packing/7328ace4da324d6199a0819d4b260a41/packed.pdb",
+      "filename": "packed.pdb",
+      "format": "pdb",
+      "title": "LigandMPNN packed structure",
+      "bytes": 75274
+    }
+  ],
+  "packed_path": "1mel_packed_1_1.pdb",
+  "n_atoms": 928,
+  "model_type": "ligand_mpnn",
+  "packed_suffix": "_packed"
+}

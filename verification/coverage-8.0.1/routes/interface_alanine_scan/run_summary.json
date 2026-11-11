@@ -1,0 +1,32 @@
+{
+  "task_dir": "/tmp/cov_structure/interface_alanine_scan",
+  "generated_at": "2026-11-10T12:30:23.865654+00:00",
+  "n_steps": 1,
+  "total_elapsed": 20.3932,
+  "steps": [
+    {
+      "index": 1,
+      "name": "interface_alanine_scan",
+      "elapsed": 20.3932,
+      "inputs": [
+        "structure_1mel"
+      ],
+      "params": {
+        "binder_chains": "A",
+        "target_chains": "L",
+        "cutoff": 4.5,
+        "max_residues": 3,
+        "forcefield": "amber14-all.xml",
+        "implicit_model": "implicit/gbn2.xml",
+        "ph": 7.0,
+        "mutation_dim": "mutation",
+        "output": "out_interface_alanine_scan"
+      },
+      "export_path": "steps/01_interface_alanine_scan.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T123002-721ee97496a8",
+  "event_log": "/tmp/cov_structure/interface_alanine_scan/output/runs/20261110T123002-721ee97496a8/events.jsonl"
+}

@@ -1,0 +1,23 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_cysteine_pairing",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_cysteine_pairing",
+        "scheme": "adjacent"
+      },
+      "context_params": {}
+    }
+  ]
+}

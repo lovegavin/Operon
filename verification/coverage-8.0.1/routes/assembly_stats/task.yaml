@@ -1,0 +1,26 @@
+{
+  "name": "assembly_stats",
+  "sources": {
+    "x0": {
+      "path": "input/contigs.fasta",
+      "dims": [
+        "sequence",
+        "position"
+      ],
+      "labels": {
+        "sequence": "builtin",
+        "position": "auto"
+      },
+      "reader": "FastaReader"
+    }
+  },
+  "parameters_file": "parameters.json",
+  "steps": [
+    {
+      "name": "assembly_stats",
+      "inputs": [
+        "x0"
+      ]
+    }
+  ]
+}

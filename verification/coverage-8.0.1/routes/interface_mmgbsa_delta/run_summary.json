@@ -1,0 +1,30 @@
+{
+  "task_dir": "/tmp/cov_structure/interface_mmgbsa_delta",
+  "generated_at": "2026-11-10T12:30:30.637166+00:00",
+  "n_steps": 1,
+  "total_elapsed": 4.6461,
+  "steps": [
+    {
+      "index": 1,
+      "name": "interface_mmgbsa_delta",
+      "elapsed": 4.6461,
+      "inputs": [
+        "structure_1mel"
+      ],
+      "params": {
+        "binder_chains": "A",
+        "target_chains": "L",
+        "forcefield": "amber14-all.xml",
+        "implicit_model": "implicit/gbn2.xml",
+        "ph": 7.0,
+        "term_dim": "term",
+        "output": "out_interface_mmgbsa_delta"
+      },
+      "export_path": "steps/01_interface_mmgbsa_delta.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T123025-6de0f57bee5f",
+  "event_log": "/tmp/cov_structure/interface_mmgbsa_delta/output/runs/20261110T123025-6de0f57bee5f/events.jsonl"
+}

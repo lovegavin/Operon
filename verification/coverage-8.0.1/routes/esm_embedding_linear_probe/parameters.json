@@ -1,0 +1,37 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "embedding": {}
+  },
+  "steps": [
+    {
+      "name": "esm_embedding_linear_probe",
+      "inputs": [
+        "embedding"
+      ],
+      "params": {
+        "sample_dim": "sample",
+        "feature_dim": "feature",
+        "cv_folds": 5,
+        "max_iter": 1000,
+        "random_state": 0,
+        "labels": "control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case,control,case",
+        "output": "probe"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "probe"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "esm_embedding_linear_probe"
+      },
+      "context_params": {}
+    }
+  ]
+}

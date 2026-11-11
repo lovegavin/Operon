@@ -1,0 +1,23 @@
+{
+  "format": "operon.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "sequence_rna_cofold_ensemble",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "sequence_dim": "sequence",
+        "position_dim": "position",
+        "output": "out_sequence_rna_cofold_ensemble",
+        "temperature": 37.0
+      },
+      "context_params": {}
+    }
+  ]
+}

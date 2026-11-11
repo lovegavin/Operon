@@ -1,0 +1,18 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {},
+  "steps": [
+    {
+      "name": "structure_interface_residue_energy",
+      "inputs": [],
+      "params": {
+        "structure_path": "/tmp/cov_structure/structure_interface_residue_energy/input/1mel_nohet.pdb",
+        "binder_chains": "A",
+        "target_chains": "L"
+      },
+      "context_params": {}
+    }
+  ]
+}

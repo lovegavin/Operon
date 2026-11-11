@@ -1,0 +1,13 @@
+{
+  "format": "native",
+  "files": {
+    "file_1": "/tmp/esmfold_route/output/artifacts/exports/745170c54b55444ab14ed2aabf1d8b7f/esmfold.pdb"
+  },
+  "formats": {
+    "file_1": "pdb"
+  },
+  "reused_roles": [],
+  "bytes": 78855,
+  "source": "structure",
+  "conversion": {}
+}

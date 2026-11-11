@@ -1,0 +1,38 @@
+{
+  "task_dir": "/tmp/ligand_routes/structure_metal_coordination",
+  "generated_at": "2026-11-10T19:50:22.619665+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.0041,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_metal_coordination",
+      "elapsed": 0.0026,
+      "inputs": [
+        "structure"
+      ],
+      "params": {
+        "cutoff": 2.8,
+        "output": "metal_sites"
+      },
+      "export_path": "steps/01_structure_metal_coordination.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.0015,
+      "inputs": [
+        "metal_sites"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "metal_sites"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T195021-6cd97e8da607",
+  "event_log": "/tmp/ligand_routes/structure_metal_coordination/output/runs/20261110T195021-6cd97e8da607/events.jsonl"
+}

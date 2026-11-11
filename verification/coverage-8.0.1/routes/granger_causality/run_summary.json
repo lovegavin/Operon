@@ -1,0 +1,40 @@
+{
+  "task_dir": "/tmp/cov_stats/granger_causality",
+  "generated_at": "2026-11-10T12:43:46.623849+00:00",
+  "n_steps": 2,
+  "total_elapsed": 0.008,
+  "steps": [
+    {
+      "index": 1,
+      "name": "granger_causality",
+      "elapsed": 0.004,
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "cause_label": "x",
+        "effect_label": "y",
+        "max_lag": 2,
+        "output": "out_granger_causality"
+      },
+      "export_path": "steps/01_granger_causality.json"
+    },
+    {
+      "index": 2,
+      "name": "export_results",
+      "elapsed": 0.004,
+      "inputs": [
+        "out_granger_causality"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "granger_causality"
+      },
+      "export_path": "steps/02_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261110T124344-4be9cc54c40c",
+  "event_log": "/tmp/cov_stats/granger_causality/output/runs/20261110T124344-4be9cc54c40c/events.jsonl"
+}

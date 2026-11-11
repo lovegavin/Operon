@@ -1,0 +1,32 @@
+{
+  "format": "biopipe.task-parameters",
+  "schema_version": 1,
+  "params": {},
+  "sources": {
+    "x0": {}
+  },
+  "steps": [
+    {
+      "name": "standardized_residuals",
+      "inputs": [
+        "x0"
+      ],
+      "params": {
+        "response": "y",
+        "output": "out_standardized_residuals"
+      },
+      "context_params": {}
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "out_standardized_residuals"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "standardized_residuals"
+      },
+      "context_params": {}
+    }
+  ]
+}

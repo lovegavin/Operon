@@ -1,0 +1,10 @@
+{
+  "root": "/tmp/cov_structure/structure_openmm_md_stability/input",
+  "files": [
+    {
+      "path": "1UBQ.pdb",
+      "size": 78570,
+      "sha256": "d4a6812d8951cf6594e6a0763f089e35f5a80b62acb3c117b2c5565228a7b161"
+    }
+  ]
+}

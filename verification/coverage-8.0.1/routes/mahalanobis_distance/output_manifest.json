@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/mahalanobis_distance/output/artifacts",
+  "files": [
+    {
+      "path": "exports/550d7b4f8dc5430e929ef75500c59e4a/mahalanobis_distance.csv",
+      "size": 1713,
+      "sha256": "db6e787dded49fefe0ce46d59ab2ecad872a5af02bc2314e8a88bf354d7aca86"
+    },
+    {
+      "path": "exports/5b211e65deed4a4aa7f38277384fbbe5/mahalanobis_distance.csv",
+      "size": 1713,
+      "sha256": "db6e787dded49fefe0ce46d59ab2ecad872a5af02bc2314e8a88bf354d7aca86"
+    }
+  ]
+}

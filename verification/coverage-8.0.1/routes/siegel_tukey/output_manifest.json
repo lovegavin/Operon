@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_stats/siegel_tukey/output/artifacts",
+  "files": [
+    {
+      "path": "exports/032ab898c4bc414d841ebb9b0f1d7f09/siegel_tukey.csv",
+      "size": 222,
+      "sha256": "356ab563a1326e192186ee621780e257e83ca624433f9dcd5c28b6d53c34f170"
+    },
+    {
+      "path": "exports/6816d1bf2cec4887b7f7345382ce9b80/siegel_tukey.csv",
+      "size": 222,
+      "sha256": "356ab563a1326e192186ee621780e257e83ca624433f9dcd5c28b6d53c34f170"
+    }
+  ]
+}

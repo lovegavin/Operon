@@ -1,0 +1,15 @@
+{
+  "root": "/tmp/cov_sequence/calibration_curve/output/artifacts",
+  "files": [
+    {
+      "path": "exports/2108245a265e4c9583c81905cf15b044/out_calibration_curve.csv",
+      "size": 227,
+      "sha256": "4a96e43247deab1ee67874e42d7561f04be1911126cef8ef64baf74cd1f02522"
+    },
+    {
+      "path": "exports/a759941ffdad41359618c5b5c4542ab5/out_calibration_curve.csv",
+      "size": 227,
+      "sha256": "4a96e43247deab1ee67874e42d7561f04be1911126cef8ef64baf74cd1f02522"
+    }
+  ]
+}
