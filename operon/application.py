@@ -67,7 +67,47 @@ class Application:
         plan = self.executions.dependency_plan(graph)
         result = {'execution_plan': plan}
         readiness = self.readiness.validate(graph, result, dependencies_only=True, repair=repair)
-        return {**result, 'scope': 'dependencies', 'graph': graph.model_dump(mode='json'), 'readiness': readiness}
+        response = {**result, 'scope': 'dependencies', 'graph': graph.model_dump(mode='json'), 'readiness': readiness}
+        if repair:
+            response['environments'] = self.prepare_isolated_environments(graph=graph)
+        return response
+
+    def isolated_environments(self):
+        """Declared isolated environments for the active library, without installing."""
+        from . import environment_install
+        from .environments import manifest_path, root
+        try:
+            source = str(self.service.plugins.source_root)
+        except Exception:
+            source = None
+        descriptors = self.service.plugins.state().get('descriptors') or []
+        path = manifest_path(source)
+        return {'root': str(root()), 'manifest': {'path': str(path), 'present': path.is_file()},
+                'environments': environment_install.plan(root(), descriptors, source=source)}
+
+    def prepare_isolated_environments(self, names=None, *, graph=None):
+        """Install isolated environments, optionally limited to those a graph uses."""
+        from . import environment_install
+        from .environments import root
+        try:
+            source = str(self.service.plugins.source_root)
+        except Exception:
+            source = None
+        descriptors = self.service.plugins.state().get('descriptors') or []
+        plan = environment_install.plan(root(), descriptors, source=source)
+        wanted = list(names) if names else [name for name, item in plan.items()
+                                            if item['status'] in ('missing', 'stale')]
+        if graph is not None:
+            used = {getattr(node, 'operator', None) for node in graph.nodes}
+            wanted = [name for name in wanted if used.intersection(plan.get(name, {}).get('used_by') or [])]
+        prepared = []
+        for name in wanted:
+            try:
+                result = environment_install.prepare(name, root(), source=source)
+                prepared.append({'name': name, 'status': result.get('status'), 'error': result.get('error')})
+            except Exception as exc:
+                prepared.append({'name': name, 'status': 'failed', 'error': str(exc)})
+        return prepared
 
     def shutdown(self):
         self.service.dependencies.cancel.set()

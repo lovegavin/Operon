@@ -19,7 +19,8 @@ export type EnvironmentJob = {
   error: string | null; started_at: string; finished_at: string | null;
 };
 export type EnvironmentSnapshot = {
-  root: string; environments: Record<string, EnvironmentStatus>; operations: EnvironmentJob[];
+  root: string; manifest: {path: string; present: boolean};
+  environments: Record<string, EnvironmentStatus>; operations: EnvironmentJob[];
 };
 
 

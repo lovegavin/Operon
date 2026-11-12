@@ -35,6 +35,19 @@ def sha256(path):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
+def wheel_contents(path):
+    """Map entry name to payload hash, ignoring container metadata.
+
+    Provider wheels are rebuilt on the installing machine. Zip records the build
+    platform in every entry's "version made by" field, and RECORD order follows
+    the filesystem's path collation, so whole-file hashes differ between Windows
+    and Linux even when every payload byte is identical.
+    """
+    with zipfile.ZipFile(_io_path(path)) as archive:
+        return {info.filename: hashlib.sha256(archive.read(info)).hexdigest()
+                for info in archive.infolist()}
+
+
 def build_bundle(root, output, version, minimum_application=None):
     """Compile declarations statically; never import author operator modules."""
     from operon.registry import scan_sources, package_manifest, read_json
@@ -145,7 +158,7 @@ def unpack_bundle(path, destination):
                 raise ValueError('Library package identity mismatch')
             wheel_entries(wheel)  # Protocol and executable identity before invoking pip.
             rebuilt = provider_wheel(definitions[item['name']], destination / 'sources', destination / 'verified')
-            if sha256(rebuilt) != sha256(wheel):
+            if wheel_contents(rebuilt) != wheel_contents(wheel):
                 raise ValueError(f"Library source does not match wheel: {item['name']}")
     return document
 

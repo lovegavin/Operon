@@ -140,7 +140,8 @@ def _validate(spec: dict):
         if 'file:' in lowered or 'ssh:' in lowered or lowered.startswith(('/', '.')) or 'git@' in lowered:
             raise ValueError(f'unsupported package source: {value}')
     for value in spec.get('no_build_isolation') or []:
-        if not (value.startswith('https://') or value.startswith('git+https://')):
+        candidate = value.split(' @ ', 1)[1].strip() if ' @ ' in value else value.strip()
+        if not (candidate.startswith('https://') or candidate.startswith('git+https://')):
             raise ValueError(f'only https package sources are allowed: {value}')
 
 
@@ -245,6 +246,10 @@ def _probe(python: Path, entry: dict, log):
 
 def prepare(name: str, root=None, source=None, log=None) -> dict:
     """Create or refresh one declared environment; safe to call concurrently."""
+    manifest = environments.manifest_path(source)
+    if not manifest.is_file():
+        raise FileNotFoundError(
+            f"Operator library does not declare isolated environments: {manifest}")
     entry = environments.describe(name, source)
     _validate(entry)
     base(root).mkdir(parents=True, exist_ok=True)

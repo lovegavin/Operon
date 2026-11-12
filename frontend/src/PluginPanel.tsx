@@ -114,7 +114,7 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
             <button className="subtle-button" disabled={busy} onClick={() => void operate(() => api.managePlugin(item.name, 'restore'))}><ArrowCounterClockwise size={15}/>{t("恢复")}</button></article>)}
       </div>
       </div>
-      <section className="plugin-environments" hidden={!Object.keys(environments?.environments ?? {}).length}>
+      <section className="plugin-environments" hidden={!environments || (!Object.keys(environments.environments).length && environments.manifest.present)}>
         <div className="plugin-toolbar">
           <strong>{t('隔离环境')}</strong>
           <button className="subtle-button" disabled={pending || environmentBusy} onClick={() => void prepareEnvironments()}>
@@ -122,6 +122,7 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
           </button>
         </div>
         <p className="helper">{t('隔离环境由当前算子库声明，缺少时算子无法执行。')}</p>
+        {environments && !environments.manifest.present && <p className="helper">{t('当前算子库未声明隔离环境，请导入 8.0.6 或更新的算子库。')}</p>}
         {Object.values(environments?.environments ?? {}).map(item => <article className="plugin-package" key={item.name}>
           <div>
             <strong>{item.name}</strong><span className="route-version">Python {item.python}</span>

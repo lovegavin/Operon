@@ -92,6 +92,24 @@ def create_server(client):
         return client.request('/v1/workflows/prepare-environment', {'graph': graph})
 
     @server.tool()
+    def operon_environments() -> dict:
+        """List isolated operator environments declared by the active library and their status.
+
+        Read-only. status is missing, stale, ready or failed; used_by lists the operators that
+        need the environment. Installation is explicit and never happens during a check.
+        """
+        return client.request('/v1/environments')
+
+    @server.tool()
+    def operon_environments_prepare(names: list[str] | None = None) -> dict:
+        """Install declared isolated environments; requires --allow-plugins and explicit user intent.
+
+        Missing environments are all prepared when names is omitted. Each environment is a
+        dedicated Python interpreter; installing one can take several minutes.
+        """
+        return client.request('/v1/environments/prepare', {'names': names})
+
+    @server.tool()
     def operon_submit(request_id: str, graph: dict | None = None, workflow_id: str | None = None,
                        expected_version: int | None = None, view: str = 'brief') -> dict:
         """Submit a workflow without a canvas; requires --allow-run. Exactly one graph or workflow_id.

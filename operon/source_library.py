@@ -29,8 +29,13 @@ def snapshot_sources(root, staged=None):
     from .library_location import source_root
     root = source_root(root)
     digest = hashlib.sha256()
-    for relative in [*SOURCE_DIRS.values(), "operon/builtin_packages.json",
-                     "operon/environments.json"]:
+    # 4.0.x source trees predate the environment manifest. Including it only
+    # when present keeps their receipt stable, so an upgrade of the operator
+    # library still imports instead of failing on a missing file.
+    entries = [*SOURCE_DIRS.values(), "operon/builtin_packages.json"]
+    if (root / "operon/environments.json").is_file():
+        entries.append("operon/environments.json")
+    for relative in entries:
         source = root / relative
         target = (staged / relative if source.is_dir() else (staged / relative).parent) if staged is not None else None
         digest.update(relative.encode() + snapshot(source, target).encode())

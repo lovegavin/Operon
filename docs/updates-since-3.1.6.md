@@ -123,3 +123,17 @@ before the new build is installed.
   code.
 - Historical design and verification pages keep their original version numbers
   and machine paths. They are records, not current setup instructions.
+
+## 4.1.1: upgrade-path fixes
+
+- Library import no longer fails on 4.0.x source trees that lack
+  `operon/environments.json`; the manifest joins the fingerprint only when the
+  imported library declares it.
+- Bundle verification compares per-entry wheel contents, so Windows-built and
+  Linux-built libraries validate on either platform.
+- A library without an environment manifest is reported explicitly instead of
+  silently using the application seed.
+- Isolated environments are installed only when the user installs dependencies
+  from the pre-run check, or explicitly through the environment API/MCP tools.
+- Minimizing the desktop window keeps its taskbar button; closing hides it to
+  the tray.

@@ -35,9 +35,13 @@ def mount_environments(app, service):
     def plan():
         return environment_install.plan(environments.root(), descriptors(), source=source_root())
 
+    def manifest():
+        path = environments.manifest_path(source_root())
+        return {'path': str(path), 'present': path.is_file()}
+
     def snapshot():
-        return {'root': str(environments.root()), 'environments': plan(),
-                'operations': list(jobs.values())[-20:]}
+        return {'root': str(environments.root()), 'manifest': manifest(),
+                'environments': plan(), 'operations': list(jobs.values())[-20:]}
 
     def log_path(name):
         logs.mkdir(parents=True, exist_ok=True)
@@ -79,16 +83,12 @@ def mount_environments(app, service):
         task.add_done_callback(app.state.environment_tasks.discard)
         return job
 
-    def prepare_missing():
-        result = []
-        for name, item in plan().items():
-            if item['status'] not in ('missing', 'stale'):
-                continue
-            job = start(name)
-            result.append({'name': name, 'job': job['id'], 'status': job['status']})
-        return result
+    def import_summary():
+        """Report declared environments after an import; installation stays explicit."""
+        return {'root': str(environments.root()), 'manifest': manifest(),
+                'environments': plan(), 'prepared': []}
 
-    service.environments_after_install = prepare_missing
+    service.environments_after_install = import_summary
 
     @app.get('/api/environments')
     def list_environments():

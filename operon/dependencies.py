@@ -250,10 +250,24 @@ class DependencySession:
                     for entry in failed:
                         if self.cancel.is_set():
                             raise ValueError('Dependency preparation cancelled: Studio is closing')
-                        # A named interpreter has its own Python version and
-                        # dependency pins. Shared pip targets cannot repair it.
-                        # Retain the probe's actionable environment error.
-                        if (entry.get('resources') or {}).get('environment'):
+                        environment = (entry.get('resources') or {}).get('environment')
+                        if environment:
+                            from operon import environment_install
+                            from operon.environments import root as environments_root
+                            self._update([entry['id']], 'installing')
+                            try:
+                                source = getattr(self.manager, 'source_root', None)
+                                result = environment_install.prepare(
+                                    environment, environments_root(),
+                                    source=str(source) if source else None)
+                                if result.get('status') != 'ready':
+                                    raise ValueError(result.get('error') or f'environment {environment} is not ready')
+                                checked = self._inspect(state, [entry])[entry['id']]
+                                if checked['status'] != 'passed':
+                                    raise ValueError(checked['error'])
+                                self._update([entry['id']], **checked)
+                            except Exception as exc:
+                                self._update([entry['id']], 'failed', str(exc))
                             continue
                         if not entry['dependencies']:
                             continue

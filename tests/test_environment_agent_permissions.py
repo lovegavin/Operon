@@ -160,3 +160,47 @@ def test_cli_diff_and_targeted_undo_are_bounded_and_do_not_request_run_or_instal
     cli.execute(cli.parser().parse_args([*prefix, 'events', 'get', '--after', '2', '--limit', '1']))
     assert calls[-1] == ('/sessions/selected/events?after=2&limit=1', None)
     assert 'plugins' not in scopes and 'run' not in scopes
+
+
+def test_environments_tools_are_read_only_until_prepare_is_requested(environment, monkeypatch):
+    from operon.mcp_server import create_server
+    app = create_headless_app(Settings(environment, environment / '.studio', environment / 'no-ui',
+                                       testing=True, code_root=ROOT))
+    application = app.state.application
+    prepared = []
+    monkeypatch.setattr(application, 'isolated_environments', lambda: {
+        'root': '/tmp/environments', 'manifest': {'path': '/tmp/library/operon/environments.json', 'present': True},
+        'environments': {'openmm81': {'status': 'missing', 'used_by': ['structure_openmm_energy']}}})
+    monkeypatch.setattr(application, 'prepare_isolated_environments',
+                        lambda names=None: prepared.append(names) or [{'name': name} for name in (names or [])])
+    with TestClient(app, base_url='http://127.0.0.1') as http:
+        class HTTPClient:
+            def request(self, path, payload=None):
+                response = http.get('/api' + path) if payload is None else http.post('/api' + path, json=payload)
+                return Client.decode(response)
+        server = create_server(HTTPClient())
+        http.headers.update(auth(http, app, ['context']))
+        listed = http.get('/api/v1/environments')
+        assert listed.status_code == 200 and listed.json()['environments']['openmm81']['status'] == 'missing'
+        assert http.post('/api/v1/environments/prepare', json={}).status_code == 403
+        assert prepared == []
+        http.headers.update(auth(http, app, ['context', 'plugins']))
+        asyncio.run(server.call_tool('operon_environments_prepare', {'names': ['openmm81']}))
+        assert prepared == [['openmm81']]
+
+
+def test_environment_repair_reports_installed_environments(environment, monkeypatch):
+    app = create_headless_app(Settings(environment, environment / '.studio', environment / 'no-ui',
+                                       testing=True, code_root=ROOT))
+    application = app.state.application
+    calls = []
+    monkeypatch.setattr(application.readiness, 'validate', lambda value, result, **options: {'status': 'ready'})
+    monkeypatch.setattr(application, 'prepare_isolated_environments',
+                        lambda names=None, graph=None: calls.append(graph is not None) or [{'name': 'openmm81', 'status': 'ready'}])
+    body = graph(environment)
+    with TestClient(app, base_url='http://127.0.0.1') as http:
+        http.headers.update(auth(http, app, ['context', 'plugins']))
+        response = http.post('/api/v1/workflows/prepare-environment', json={'graph': body})
+        assert response.status_code == 200
+        assert response.json()['environments'] == [{'name': 'openmm81', 'status': 'ready'}]
+        assert calls == [True]

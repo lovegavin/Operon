@@ -730,5 +730,6 @@
   "日志": "Log",
   "隐藏日志": "Hide log",
   "暂无日志": "No log yet",
-  "{n} 个算子": "{n} operators"
+  "{n} 个算子": "{n} operators",
+  "当前算子库未声明隔离环境，请导入 8.0.6 或更新的算子库。": "This operator library declares no isolated environments. Import library 8.0.6 or newer."
 }

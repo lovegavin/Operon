@@ -133,7 +133,7 @@ internal sealed class StudioWindow : Form
         Controls.Add(status); Controls.Add(view);
         Shown += async (_, _) => await StartStudio();
         FormClosing += ClosingStudio;
-        Resize += (_, _) => { if (WindowState == FormWindowState.Minimized && !exitRequested) HideToTray(); };
+        // Minimizing keeps the window in the taskbar; only closing hides it to the tray.
     }
 
     private void Log(string text) => desktopLog.Write(text);
@@ -329,7 +329,7 @@ internal sealed class StudioWindow : Form
         {
             trayHintShown = true;
             tray?.ShowBalloonTip(3000, "Operon Studio 仍在运行",
-                "工作台已最小化到托盘。右键托盘图标选择“完全退出（停止 Python）”。", ToolTipIcon.Info);
+                "工作台仍在后台运行。右键托盘图标可重新打开，或选择“完全退出（停止 Python）”。", ToolTipIcon.Info);
         }
     }
 
