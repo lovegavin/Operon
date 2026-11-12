@@ -37,7 +37,7 @@
     },
     "esm3": {
       "title": "ESM-3 sequence and structure generation",
-      "python": "3.12",
+      "python": "3.11",
       "imports": [
         "esm",
         "esm.sdk.api"
@@ -126,26 +126,21 @@
       "notes": "Standalone micromamba env: conda supplies rdkit/gemmi/dm-tree (no wheels on this host) and the CPU torch wheel comes from download.pytorch.org; Boltz itself is installed with --no-deps because its strict scipy/wandb pins would otherwise downgrade the shared stack. Verified on glibc 2.17: `import boltz.main` succeeds."
     },
     "openmm81": {
-      "title": "OpenMM 8.1.1 / PDBFixer 1.9 structure preparation",
-      "python": "3.12",
+      "title": "OpenMM 8.1.1 structure preparation (PDBFixer bundled)",
+      "python": "3.11",
       "imports": [
         "openmm",
-        "pdbfixer",
-        "numpy",
-        "pkg_resources"
+        "numpy"
       ],
       "requirements": [
         "openmm==8.1.1",
         "numpy==1.26.4",
-        "setuptools<81",
+        "setuptools>=68,<81",
         "wheel"
       ],
-      "no_build_isolation": [
-        "pdbfixer @ https://github.com/openmm/pdbfixer/archive/6bf10e138f6475f6f1850dae78d7bf1b420a1612.tar.gz"
-      ],
-      "notes": "OpenMM 8.1.1 wheels use the NumPy 1 ABI and PDBFixer 1.9 is not published on PyPI. This isolated venv shares the host Python (3.12 on Studio 4.1.x) and pins OpenMM, NumPy, setuptools<81 and PDBFixer without downgrading the shared NumPy 2 runtime. PDBFixer is built from the pinned upstream commit without build isolation; setuptools<81 is installed first and verified so its pkg_resources import is available.",
+      "notes": "OpenMM 8.1.1 wheels use the NumPy 1 ABI. This isolated venv shares the host Python (3.11 on Studio 4.1.9; venv_shared ignores the declared version) and pins OpenMM 8.1.1 plus NumPy 1.26 without downgrading the shared NumPy 2 runtime. PDBFixer 1.9 is bundled inside the operator library, so environment creation needs no GitHub download and no external pdbfixer package.",
       "pip_wheels": [
-        "setuptools<81",
+        "setuptools>=68,<81",
         "wheel"
       ],
       "venv_shared": true

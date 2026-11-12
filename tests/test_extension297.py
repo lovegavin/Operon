@@ -64,12 +64,29 @@ def test_interface_contacts_are_ranked():
     workdir = Path(tempfile.mkdtemp())
     path = workdir / "complex.pdb"
     path.write_text(_complex_text(workdir))
-    contacts = module.interface_contacts(path, ("A", "B"), ("L", "M"), 4.5)
-    assert contacts
-    assert all(chain in ("L", "M") for chain, _ in contacts)
+    target = module.interface_contacts(path, ("A", "B"), ("L", "M"), 4.5)
+    binder = module.interface_contacts(path, ("A", "B"), ("L", "M"), 4.5, "binder")
+    both = module.interface_contacts(path, ("A", "B"), ("L", "M"), 4.5, "both")
+    assert target
+    assert all(chain in ("L", "M") for chain, _ in target)
+    assert binder
+    assert all(chain in ("A", "B") for chain, _ in binder)
+    assert set(target) | set(binder) == set(both)
 
 
-def test_real_alanine_scan(tmp_path):
+def test_scan_residues_respects_mutation_side(tmp_path):
+    import tempfile
+
+    workdir = Path(tempfile.mkdtemp())
+    path = workdir / "complex.pdb"
+    text = _complex_text(workdir)
+    path.write_text(text)
+    binder = module.interface_contacts(path, ("A", "B"), ("L", "M"), 4.5, "binder")
+    assert binder
+    assert all(chain in ("A", "B") for chain, _ in binder)
+
+
+def test_real_alanine_scan(tmp_path, monkeypatch):
     import tempfile
     from pathlib import Path
 
@@ -77,6 +94,9 @@ def test_real_alanine_scan(tmp_path):
     from src.task.context import Context
     from src.task.runner import run
 
+    import sys
+
+    monkeypatch.setenv("OPERON_ENV_OPENMM81", sys.executable)
     path = tmp_path / "complex.pdb"
     path.write_text(_complex_text(tmp_path))
     form = read_source(str(path), ["atom", "field"], {"atom": "auto", "field": "builtin"})
@@ -103,3 +123,8 @@ def test_real_alanine_scan(tmp_path):
     deltas = result.data[:, 2].astype(float)
     assert any(abs(value) > 1e-6 for value in deltas)
     assert result.info["wt_delta_kj"] == pytest.approx(float(result.data[0, 0]), rel=1e-5)
+    assert result.info["mutation_side"] == "target"
+    assert result.info["protocol"]["single_point"] is True
+    assert result.info["protocol"]["calibrated"] is False
+    assert result.info["copy_replicates"]["available"] is False
+    assert "not calibrated" in result.info["warnings"][0]

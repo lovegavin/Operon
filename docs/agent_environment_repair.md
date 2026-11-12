@@ -77,11 +77,11 @@ python -m venv ~/antifold-env
 
 结构类算子（`structure_interface_core`、`interface_mmgbsa_delta` 等）使用独立的
 `openmm81` 环境，不会装进 Studio 主运行时。它由算子库的
-`operon/environments.json` 声明。Library 8.0.7 起使用 `venv_shared: true`：
-环境由 Studio 4.1.x 自带的 Python 3.12 创建，不依赖 micromamba；依赖为
-`openmm==8.1.1`、`numpy==1.26.4`、`setuptools<81`、`wheel`，以及禁用 build
-isolation 的 PDBFixer 1.9 tarball。OpenMM 8.1.1 使用 NumPy 1 ABI，因此环境内
-固定 NumPy 1.26.4，不能回退到共享解释器。
+`operon/environments.json` 声明。Library 8.0.8 起使用 `venv_shared: true`：
+环境由 Studio 4.1.x 自带的 Python 3.11 创建，不依赖 micromamba；依赖为
+`openmm==8.1.1`、`numpy==1.26.4`、`setuptools>=68,<81`、`wheel`。PDBFixer 1.9
+随算子库一起分发，不在安装期间访问 GitHub。OpenMM 8.1.1 使用 NumPy 1 ABI，
+因此环境内固定 NumPy 1.26.4，不能回退到共享解释器。
 
 ```bash
 python -c "from operon import environment_install as e; print(e.state('openmm81'))"

@@ -48,7 +48,7 @@ def prepare(pdb_path: Path, *, ph: float = 7.0):
     """Repair the structure and add hydrogens with PDBFixer."""
 
     try:
-        from pdbfixer import PDBFixer
+        from ._pdbfixer import PDBFixer
     except ImportError as exc:  # pragma: no cover - dependency guard
         raise StepError("structure_openmm_md_rmsf: openmm is required; install it with 'python -m pip install openmm'") from exc
     fixer = PDBFixer(filename=str(pdb_path))
@@ -228,7 +228,7 @@ class StructureOpenmmMdRmsfStep(Step):
         },
         "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
         "dependencies": ["openmm==8.1.1", "numpy==1.26.4"],
-        "dependency_imports": ["openmm", "pdbfixer"],
+        "dependency_imports": ["openmm"],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",

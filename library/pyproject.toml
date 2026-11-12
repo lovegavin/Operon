@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "operon-builtin-library"
-version = "8.0.7"
+version = "8.0.8"
 description = "Independent Operon reference operators, Readers and route templates"
 requires-python = ">=3.11"
 
@@ -14,4 +14,4 @@ package-dir = {operon_builtin_library = "seed"}
 include-package-data = false
 
 [tool.setuptools.package-data]
-operon_builtin_library = ["operator_index.json", "reader_index.json", "src/**/*.py", "src/**/*.json", "src/**/*.md", "src/**/*.png", "src/**/*.jpg", "src/**/*.jpeg", "src/**/*.svg", "src/**/*.webp", "src/**/*.gif", "operon/*.json", "routes/**/*.json", "routes/**/*.yaml", "routes/**/*.yml"]
+operon_builtin_library = ["operator_index.json", "reader_index.json", "src/**/*.py", "src/**/*.json", "src/**/*.md", "src/**/*.xml", "src/**/*.pdb", "src/**/*.png", "src/**/*.jpg", "src/**/*.jpeg", "src/**/*.svg", "src/**/*.webp", "src/**/*.gif", "operon/*.json", "routes/**/*.json", "routes/**/*.yaml", "routes/**/*.yml"]

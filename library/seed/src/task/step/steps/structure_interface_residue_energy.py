@@ -33,7 +33,7 @@ def prepare_structure(path: Path | str) -> dict:
         import openmm
         from openmm import unit
         from openmm.app import ForceField, NoCutoff, PDBFile
-        from pdbfixer import PDBFixer
+        from ._pdbfixer import PDBFixer
     except ImportError:
         raise StepError(
             "structure_interface_residue_energy: OpenMM and PDBFixer are required; "
@@ -132,7 +132,7 @@ class StructureInterfaceResidueEnergyStep(Step):
         },
         "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
         "dependencies": ["openmm==8.1.1", "numpy==1.26.4"],
-        "dependency_imports": ["openmm", "pdbfixer"],
+        "dependency_imports": ["openmm"],
         "inputs_arity": 0,
         "outputs": [],
         "output_parameter": "output",

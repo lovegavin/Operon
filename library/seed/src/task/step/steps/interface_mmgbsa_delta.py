@@ -62,7 +62,7 @@ def _systems(fixer, forcefield, keep_chains):
 def mmgbsa_terms(pdb_path: Path, *, forcefield_name: str, implicit: str, ph: float, binder: tuple[str, ...], target: tuple[str, ...]) -> dict:
     from openmm import Context, LangevinMiddleIntegrator, Platform, unit
     from openmm.app import ForceField
-    from pdbfixer import PDBFixer
+    from ._pdbfixer import PDBFixer
 
     fixer = PDBFixer(filename=str(pdb_path))
     fixer.removeHeterogens(False)
@@ -131,7 +131,7 @@ class InterfaceMmgbsaDeltaStep(Step):
         },
         "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
         "dependencies": ["openmm==8.1.1", "numpy==1.26.4"],
-        "dependency_imports": ["openmm", "pdbfixer"],
+        "dependency_imports": ["openmm"],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
@@ -183,6 +183,24 @@ class InterfaceMmgbsaDeltaStep(Step):
             "forcefield": str(params.get("forcefield", "amber14-all.xml")),
             "implicit_model": str(params.get("implicit_model", "implicit/gbn2.xml")),
             "ph": ph,
+            "protocol": {
+                "single_point": True,
+                "entropy_included": False,
+                "ensemble": False,
+                "calibrated": False,
+                "energy_units": "kJ/mol",
+                "delta_sign": "complex - binder - target",
+            },
+            "quality": {
+                "single_point": True,
+                "entropy_included": False,
+                "ensemble": False,
+                "calibrated": False,
+            },
+            "warnings": [
+                "Single-point MM/GBSA without entropy, ensemble averaging or calibration; "
+                "the value is a force-field estimate, not a measured binding affinity."
+            ],
         }
         output = Form(
             data=data,
