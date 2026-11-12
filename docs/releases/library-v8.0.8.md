@@ -6,7 +6,7 @@ Release date: 2026-11-13
 
 - **Minimum application: Studio 4.1.0**
 - Built and compatibility-tested with Studio 4.0.8 using the forward-minimum path.
-- Three-end installation evidence was produced on Studio 4.1.9 (environment installer and PDBFixer probe).
+- Environment installation was probed on Studio 4.1.9, but from the source manifest rather than the frozen bundle. The published artifact was not installed into a clean 4.1.9 profile before release; under the revised L5 standard this release is **verification incomplete**. See [acceptance-gap.md](../../verification/operator-audit-8.0.8/acceptance-gap.md).
 - Linux bundle SHA256: `e4884979192e69c3998d8ad573df1572419c9d668c49f8dcb42c5dbffdcf2d1e`.
 
 ## Fixes

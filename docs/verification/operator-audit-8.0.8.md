@@ -21,6 +21,11 @@ runtime on a clean Windows host. Evidence:
 
 JSON evidence: `verification/operator-audit-8.0.8/application-4.1.9-openmm81.json`.
 
+L5 status under the revised standard: **verification incomplete**. This probe
+used a source-tree manifest, not the manifest inside the frozen bundle. See
+[`acceptance-gap.md`](../../verification/operator-audit-8.0.8/acceptance-gap.md).
+
+
 ## Bundle
 
 Linux bundle SHA256: `e4884979192e69c3998d8ad573df1572419c9d668c49f8dcb42c5dbffdcf2d1e`.

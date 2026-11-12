@@ -44,7 +44,7 @@ layer passed while an earlier layer failed. Every layer reports one of:
 | L2 unit and oracle | Do the changed units behave correctly against an independent oracle? | domain owner | yes |
 | L3 route runtime | Does each changed route run end to end from files through its declared Readers? | route owner | yes |
 | L4 resource and regression | Does the full suite, memory path and installation path still work? | release manager | yes |
-| L5 adapter and application integration | Can the target application install the bundle and import/run its routes? | integration owner | yes for a claimed compatible release |
+| L5 release-artifact installation | Can the frozen bundle install into a clean target profile, prepare its environments and run a changed route? | integration owner | yes for every claimed application/OS |
 
 L1–L3 are per-change. L4 and L5 are per-release.
 
@@ -207,28 +207,49 @@ Required checks:
 Pass criterion: full suite zero failures, release verification true, and no
 unexplained skip.
 
-## 7. L5 — adapter and application integration
+## 7. L5 — release-artifact installation and runtime acceptance
 
-Purpose: prove the artifact works where users install it, not only in the
-source tree.
+Purpose: prove that the **exact zip users download** installs into a clean
+profile and runs where it is installed. Source-tree execution, a rebuilt bundle
+or a build-compatibility run is not L5 evidence.
 
-Required checks:
+Normative rules:
 
-1. Install the bundle into a clean profile of the minimum supported application
-   and of the target application. Record the application version and exit code.
-2. Import the Routes zip. Require every bundle to contain exactly
-   `graph.json`, `parameters.json` and `execution.json`, and every route to
-   register. Record `registered/total`.
-3. Open at least one route and run it, or execute the same route through the
-   application CLI/HTTP/MCP adapter. Compare artifact names and hashes with the
-   L3 run where the inputs are identical.
-4. For a Windows compatibility claim, repeat the install and one route run on
-   Windows. A Linux-only run cannot support a Windows claim.
-5. Studio UI automation is optional; when it is not run, say so explicitly and
-   do not claim UI verification.
+1. **Freeze the artifact first.** Build the release bundle once, record its
+   SHA256, and use that path for every L5 command. Rebuilding after L5 starts
+   invalidates the evidence.
+2. **Install the artifact, not the checkout.** Use a fresh application profile
+   with no previously installed library. Install the `.operon-library.zip`
+   through the application library-install API or UI. Record the application
+   version, OS, profile root, install exit code, installed library version and
+   the active source root. The source root must be inside the profile.
+3. **Prove source identity.** Compare the installed source root with the frozen
+   bundle digest. If the application reports that the bundle upgraded a factory
+   seed, record both the baseline and the installed version.
+4. **Prepare environments from the installed library.** For every environment
+   added or changed in the release, call the environment installer through the
+   installed library, not from the checkout. Record the receipt
+   `spec_sha256`, interpreter path, byte/file count, every declared import and a
+   real tool invocation. A manifest that only parses is not installation.
+5. **Run an operator route from the installed library.** Execute at least one
+   changed operator through the application CLI, HTTP or MCP adapter, using the
+   installed source root. Record input hashes, output artifact hashes and the
+   numeric values. Compare with the L3 source-tree run; differences need an
+   explicit tolerance and explanation.
+6. **Test the target runtime.** Minimum and target application versions must be
+   installed and run separately. A `verify_library_release.py` run against the
+   build application is build compatibility only; it does not satisfy L5.
+7. **Test each claimed OS.** A Linux-only run cannot support a Windows claim.
+   UI automation remains optional, but when skipped say so and do not claim UI
+   verification.
+8. **Write evidence before publishing.** L5 evidence is generated from the
+   frozen artifact and committed before the tag is pushed. It cannot be filled
+   in after the release.
 
-Pass criterion: install and route import pass on every claimed application
-version. Adapter parity is required only for adapters named in the release note.
+Pass criterion: the frozen bundle installs, activates, prepares every changed
+environment and runs the changed operator on every application version and OS
+claimed in the release note. Any missing step is `verification incomplete`, not
+`PASS`, and blocks the release.
 
 ## 8. Change impact matrix
 
@@ -238,8 +259,8 @@ version. Adapter parity is required only for adapters named in the release note.
 | Operator contract / `info` | required | required | affected routes | full suite | install + route import |
 | Reader source or selection | required | required | affected routes | full suite | install + route import |
 | Route `task.yaml` | required | not required | required | full suite | route import |
-| Manifest / packaging | required | archive tests | not required | required | required |
-| Version / release metadata only | required | not required | not required | full suite | required |
+| Manifest / packaging | required | archive tests | not required | required | install + environment prepare + operator route |
+| Version / release metadata only | required | not required | not required | full suite | install + one route |
 | Documentation only | docs check | not required | not required | not required | not required |
 
 "Affected routes" means every route that references the changed operator,
@@ -247,45 +268,100 @@ Reader or contract, not only the route named in the release note.
 
 ## 9. Release gate
 
-A release may be tagged only when:
+A release may be tagged or published only when:
 
 1. L1 and L4 are `PASS`, including the catalog-wide dependency audit.
 2. L2 is `PASS` for every changed operator/Reader, including the composition
    matrix for every declared dimension and label.
 3. L3 is `PASS` for every changed route.
-4. L5 is `PASS` for every application version named in the release note.
-5. Any `SKIP` is listed in the release note with reason, owner and impact.
-6. The evidence file matches the tagged commit.
+4. L5 is `PASS` for the **frozen artifact**: clean install, environment
+   preparation and operator smoke on every application version and OS named in
+   the release note. Source-tree tests and build-compatibility runs are not a
+   substitute.
+5. The L5 JSON records the artifact SHA256, installed source root, application
+   version, environment receipt and route artifact hashes; it matches the
+   tagged commit and the uploaded assets.
+6. Any `SKIP` is listed in the release note with reason, owner and impact.
+7. The evidence file matches the tagged commit.
 
 A hotfix may shorten the schedule, not the evidence. If a layer cannot run, the
 release note says which layer is missing and the release is marked
-`verification incomplete`; it is not described as fully tested.
+`verification incomplete`; it is not described as fully tested. Manual
+publication is not an exception: the publisher must run
+`scripts/check_release_acceptance.py` against the frozen artifact and the
+committed acceptance JSON before creating the release.
 
 ## 10. Evidence file
 
 Store one JSON file per release, for example
-`verification/five-layer-<version>.json`, plus raw logs under the same directory.
+`verification/release-acceptance-<version>.json`, plus raw logs under the same
+directory. The file is generated from the frozen artifact and is a release
+blocker, not a post-release note.
 
 ```json
 {
-  "library_version": "8.0.1",
-  "commit": "62a0f5a8",
-  "application": "3.1.9",
-  "target_application": "4.0.0",
-  "generated_at": "2026-11-11T00:00:00+08:00",
+  "schema_version": 1,
+  "library_version": "8.0.8",
+  "commit": "4a566727",
+  "bundle": {
+    "asset": "Operon-Library-v8.0.8-Linux.operon-library.zip",
+    "sha256": "e4884979..."
+  },
+  "application": "4.1.9",
+  "os": "windows",
+  "profile": {"clean": true, "root": "<profile>"},
+  "install": {
+    "status": "PASS",
+    "installed_version": "8.0.8",
+    "source_root": "<profile>/library/8.0.8",
+    "exit_code": 0
+  },
+  "environment": {
+    "name": "openmm81",
+    "status": "PASS",
+    "spec_sha256": "59c91e69...",
+    "interpreter": "<profile>/.../python.exe",
+    "bytes": 154686868,
+    "files": 3748,
+    "imports": ["openmm", "numpy"],
+    "tool_probe": "PDBFixer 1MEL -> 8247 atoms / 587 residues"
+  },
+  "operator": {
+    "id": "interface_alanine_scan",
+    "status": "PASS",
+    "command": "operon ...",
+    "input_sha256": ["..."],
+    "outputs": [{"name": "alanine.csv", "sha256": "..."}]
+  },
   "layers": {
     "L1": {"status": "PASS", "checks": []},
     "L2": {"status": "PASS", "summary": {"passed": 0, "failed": 0, "skipped": 0}},
     "L3": {"status": "PASS", "routes": []},
     "L4": {"status": "PASS", "pytest": {"passed": 0, "failed": 0, "skipped": 0}},
-    "L5": {"status": "SKIP", "reason": "Studio UI not automated"}
+    "L5": {"status": "PASS", "summary": "frozen artifact installed and ran"}
   },
   "release_blocking": []
 }
 ```
 
-Each check has `name`, `command`, `status`, `key_output` and `error`. Logs are
-referenced by path relative to the evidence directory.
+`bundle.sha256` must equal the uploaded asset digest. `install.source_root` must
+be inside the clean profile. `environment.spec_sha256` must match the receipt
+created by the installed library. `operator.outputs` must be hashes of files
+produced by the installed route, not copied from a source-tree run.
+
+## 11. Lessons that changed this standard
+
+| Incident | What passed | What users saw | Rule now |
+| --- | --- | --- | --- |
+| 8.0.7 `openmm81` | Source-tree environment probe and 4.0.8 build verify | `pkg_resources` missing; micromamba CRL failure; GitHub tarball timeout | Prepare from the installed library and run the real tool; no source-tree substitute |
+| 8.0.8 PDBFixer | Bundled files, source probe, 4.0.8 forward verify | Environment worked, but the final bundle was not installed into 4.1.9 before publish | L5 must install the frozen artifact and run an operator from it |
+| 8.0.3/8.0.4 contracts | Positive contract sample | `join`/`aggregate` failed on labels that were never exercised | Exact-compatible composition matrix, every declared dimension and label |
+| 8.0.5 doc hashes | Tests and registry check | CI verify failed because generated doc hashes were stale | Rebuild docs, registry and packages before freezing the artifact |
+| 8.0.6 Routes | Library bundle verified | Release failed because `Operon-Routes-*.zip` was never packaged | Build every asset declared in the release note; checksum the frozen set |
+
+The general rule: a test that runs in a different root, with a different
+artifact, or against a different application version is a useful pre-check,
+not release acceptance.
 
 ## Appendix A — 8.0.1 inventory
 
@@ -361,10 +437,11 @@ $PY scripts/build_operator_docs.py --check
 $PY scripts/audit_portability.py
 $PY -m pytest -q tests/test_upstream_operators.py tests/test_builtin_routes.py \
   tests/test_contracts.py tests/test_library_release.py \
-  tests/test_contract_compositions.py tests/test_interface_contracts.py
+  tests/test_contract_compositions.py tests/test_interface_contracts.py \n  tests/test_release_acceptance.py
 $PY scripts/run.py /tmp/routes/gwas --check
 $PY scripts/run.py /tmp/routes/gwas
 $PY -m pytest -q
 $PY scripts/release_library.py --tag library-v<version> --output /tmp/build-<version>
-$PY scripts/verify_library_release.py --bundle /tmp/build-<version>/Operon-Library-v<version>-Linux.operon-library.zip
+$PY scripts/verify_library_release.py --bundle /tmp/build-<version>/Operon-Library-v<version>-Linux.operon-library.zip  # build compatibility, not L5
+ -I scripts/check_release_acceptance.py verification/release-acceptance-<version>.json \n  --bundle /tmp/build-<version>/Operon-Library-v<version>-Linux.operon-library.zip  # L5 gate
 ```

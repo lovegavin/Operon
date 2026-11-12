@@ -93,13 +93,28 @@ CI uses two runners, Windows and Ubuntu, Python 3.11. Each runner:
    blocker. Runtime lookup reads the active source root first and falls back to
    the application seed/wheel only when no imported library is active.
 
-7. Environments that set `venv_shared: true` must be installed and probed on a
-   clean host before the release is tagged. The probe must import every declared
-   module in the created interpreter, not the shared application interpreter.
-   `openmm81` additionally requires `setuptools<81` before PDBFixer so that
-   `pkg_resources` remains importable; the recorded install must state the
-   interpreter path, byte/file count and a real PDBFixer run. A failed
-   environment install is a release blocker, not a post-release note.
+7. Environments that set `venv_shared: true` must be installed and probed
+   **from the generated bundle installed into a clean profile** on a clean host.
+   A source-tree `prepare()` call is a pre-check, not L5 acceptance. The probe
+   must import every declared module in the created interpreter, not the shared
+   application interpreter. `openmm81` additionally requires
+   `setuptools<81` and its bundled PDBFixer; the recorded install must state the
+   artifact SHA256, installed source root, interpreter path, byte/file count and
+   a real tool run. A failed environment install is a release blocker, not a
+   post-release note.
+8. The frozen artifact must pass L5 on every application version and OS named
+   in the release note: clean install, environment preparation and one operator
+   route from the installed library. Write
+   `verification/release-acceptance-<version>.json` and run:
+
+   ```bash
+   python -I scripts/check_release_acceptance.py \
+     verification/release-acceptance-<version>.json \
+     --bundle <frozen-bundle>
+   ```
+
+   The validator must exit 0 before the tag is pushed. Build-compatibility runs
+   on `build_application` are not a substitute for target-runtime acceptance.
 
 The builder produces a native envelope per platform
 (`Operon-Library-v<version>-<Windows|Linux>.operon-library.zip`), a
@@ -121,6 +136,18 @@ gh release create "$GITHUB_REF_NAME" --verify-tag --latest=false \
 `--latest=false` keeps the newest **software** release as GitHub's latest; a
 library update must not replace it. Release notes state the base application,
 the supported minimum, changed operators/Readers, dependency changes and limits.
+
+Before creating the release, the publisher runs:
+
+```bash
+python -I scripts/check_release_acceptance.py \
+  verification/release-acceptance-<version>.json \
+  --bundle <Operon-Library-v<version>-<OS>.operon-library.zip>
+```
+
+A missing acceptance record, a SHA256 mismatch, a non-clean profile or a
+source-tree route run blocks publication. Manual publication has no exception:
+the release author does not make a failed gate disappear.
 
 ## 6. Artifacts and installation
 
