@@ -137,3 +137,9 @@ before the new build is installed.
   from the pre-run check, or explicitly through the environment API/MCP tools.
 - Minimizing the desktop window keeps its taskbar button; closing hides it to
   the tray.
+
+## 4.1.2: cross-platform library verification
+
+Provider wheels rebuilt on Windows and Linux now compare equal even though their
+`RECORD` rows are ordered differently. Libraries packaged on one platform import
+on the other without `Library source does not match wheel`.

@@ -39,13 +39,15 @@ def wheel_contents(path):
     """Map entry name to payload hash, ignoring container metadata.
 
     Provider wheels are rebuilt on the installing machine. Zip records the build
-    platform in every entry's "version made by" field, and RECORD order follows
-    the filesystem's path collation, so whole-file hashes differ between Windows
-    and Linux even when every payload byte is identical.
+    platform in every entry's "version made by" field, RECORD order follows the
+    filesystem's path collation, and RECORD itself merely restates the hashes of
+    the other entries, so all three differ between Windows and Linux even when
+    every payload byte is identical.
     """
     with zipfile.ZipFile(_io_path(path)) as archive:
         return {info.filename: hashlib.sha256(archive.read(info)).hexdigest()
-                for info in archive.infolist()}
+                for info in archive.infolist()
+                if not info.filename.endswith('.dist-info/RECORD')}
 
 
 def build_bundle(root, output, version, minimum_application=None):

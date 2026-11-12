@@ -64,3 +64,17 @@ def test_prepare_without_manifest_is_explicit(tmp_path):
     (tmp_path / 'library').mkdir()
     with pytest.raises(FileNotFoundError, match='does not declare isolated environments'):
         environment_install.prepare('openmm81', root=tmp_path / 'env', source=tmp_path / 'library')
+
+
+def test_wheel_identity_ignores_record_row_order(tmp_path):
+    from operon.library_bundle import sha256, wheel_contents
+    rows = ['pkg/__init__.py,sha256=aaa,1\r\n', 'pkg/METADATA,sha256=bbb,2\r\n']
+    first = tmp_path / 'first-record.whl'
+    second = tmp_path / 'second-record.whl'
+    for path, order in ((first, rows), (second, list(reversed(rows)))):
+        with zipfile.ZipFile(path, 'w') as archive:
+            archive.writestr('pkg/__init__.py', 'value = 1\n')
+            archive.writestr('pkg/METADATA', 'Name: demo\n')
+            archive.writestr('pkg-1.0.dist-info/RECORD', ''.join(order))
+    assert sha256(first) != sha256(second)
+    assert wheel_contents(first) == wheel_contents(second)
