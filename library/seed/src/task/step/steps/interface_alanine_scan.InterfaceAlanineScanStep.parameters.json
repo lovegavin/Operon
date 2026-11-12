@@ -33,6 +33,19 @@
       "x-ui-group": "输入",
       "x-ui-order": 4
     },
+    "mutation_side": {
+      "title": "突变侧",
+      "description": "target 扫描靶方，binder 扫描结合方，both 同时扫描两侧。",
+      "type": "string",
+      "enum": [
+        "target",
+        "binder",
+        "both"
+      ],
+      "default": "target",
+      "x-ui-group": "输入",
+      "x-ui-order": 5
+    },
     "cutoff": {
       "title": "界面距离阈值 Å",
       "type": "number",

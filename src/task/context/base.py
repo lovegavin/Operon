@@ -17,7 +17,7 @@ from src.task.memory.runtime import MemoryRuntime
 class Context:
     """Holds forms, params and task-scoped state."""
 
-    def __init__(self, task_dir: Path, manifest: dict, *, run_log=None):
+    def __init__(self, task_dir: Path, manifest: dict, *, run_log=None, out_dir=None):
         self.task_dir = Path(task_dir).resolve()
         self.manifest = manifest
         self.params = manifest.get("params", {})
@@ -28,7 +28,7 @@ class Context:
         self.output_validator = None
         self.written_outputs = set()
 
-        self.out_dir = self.task_dir / "output"
+        self.out_dir = Path(out_dir).resolve() if out_dir else self.task_dir / "output"
         io_path(self.out_dir).mkdir(parents=True, exist_ok=True)
         self._run_status = "created"
         self._run_error = None

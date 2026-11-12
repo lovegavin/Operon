@@ -710,6 +710,7 @@ class JobService:
                        "principal": principal or (self._pool_principal or
                                                   (self.engine.principal if self.engine is not None else None) or
                                                   self.owner.get('service_id')),
+                       "output_dir": self._job_output_dir(graph, key),
                        "allocation": allocation, 'queued_reason': 'Waiting for available host memory and CPU',
                        'reservation_key': str(directory.resolve()),
                        'compute_complete': False, 'tree_exited': False,
@@ -792,7 +793,8 @@ class JobService:
         run, unit = payload['run'], payload['unit']
         attempt = payload.get('attempt') or payload
         job_id = run['id']
-        output = self.jobs_dir / job_id / 'output'
+        job = self.jobs.get(job_id) or {}
+        output = Path(job.get('output_dir') or (self.jobs_dir / job_id / 'output'))
         if not output.is_dir():
             return {}
         files = []
@@ -920,6 +922,27 @@ class JobService:
                 # released; the reservation is already committed.
                 self._start(job)
 
+    def _job_output_dir(self, graph, key):
+        """Results live with the task folder, never inside ``.studio``."""
+        if isinstance(graph, dict):
+            base = graph.get("base_dir")
+            runtime = graph.get("runtime") or {}
+        else:
+            base = getattr(graph, "base_dir", None)
+            runtime = getattr(graph, "runtime", None) or {}
+        code_root = self.settings.code_root or self.root
+        if not io_path(Path(code_root) / "operon/worker.py").is_file():
+            # Legacy/custom worker roots write task/output/run_summary.json and
+            # do not understand --output; keep their original contract.
+            return str(self.jobs_dir / key / "output")
+        explicit = runtime.get("results_root") if isinstance(runtime, dict) else None
+        if explicit:
+            return str((Path(explicit) / key).resolve())
+        base = base or "."
+        path = Path(base)
+        base_root = path if path.is_absolute() else Path(self.root) / path
+        return str((base_root / "results" / key).resolve())
+
     def _start(self, job, *, allocation=None, coordinated=False):
         key = job['id']; directory = self.jobs_dir / key
         console = None
@@ -966,7 +989,7 @@ class JobService:
                 # Wheels have no scripts/ tree. Preserve code selection when
                 # dependency resolution chooses a different Python runtime.
                 env['PYTHONPATH'] = os.pathsep.join(part for part in (str(code_root), env.get('PYTHONPATH')) if part)
-                command = [python, '-P', '-m', 'operon.worker', str(directory)]
+                command = [python, '-P', '-m', 'operon.worker', str(directory), '--output', job['output_dir']]
             else:
                 # Older server distributions and explicit custom worker roots.
                 command = [python, str(code_root / 'scripts/run.py'), str(directory)]
@@ -1201,7 +1224,7 @@ class JobService:
         tree_exited = not remaining
         with self.lock:
             job = self.jobs[key]
-            summary = read_json(self.jobs_dir / key / "output/run_summary.json", {})
+            summary = read_json(Path(job.get("output_dir") or (self.jobs_dir / key / "output")) / "run_summary.json", {})
             compute_complete = bool(code == 0 and summary.get("status") == "complete" and
                                     not pressure_error and not tree_error)
             job['compute_complete'] = compute_complete
@@ -1269,6 +1292,14 @@ class JobService:
             except Exception as exc:  # noqa: BLE001
                 self.engine_error = f'event journal failed: {type(exc).__name__}: {exc}'
 
+    def _output_dir(self, key):
+        """Resolve the run output directory, including task-folder results."""
+        job = getattr(self, 'jobs', {}).get(key)
+        if not job:
+            job = read_json(self.jobs_dir / key / "job.json") or {}
+        value = job.get("output_dir")
+        return Path(value) if value else (self.jobs_dir / key / "output")
+
     def require(self, key):
         # Jobs created by the other launcher become visible without restarting.
         with self.lock:
@@ -1281,14 +1312,14 @@ class JobService:
 
     def events_path(self, key):
         self.require(key)
-        paths = list(_glob_paths(self.jobs_dir / key / "output/runs", "*/events.jsonl"))
+        paths = list(_glob_paths(self._output_dir(key) / "runs", "*/events.jsonl"))
         return paths[0] if paths else None
 
     def event_paths(self, key):
         self.require(key)
         directory = self.jobs_dir / key
         return [p for p in [directory / "launcher.events.jsonl",
-                *sorted(_glob_paths(directory / "output/runs", "*/events.jsonl"))] if io_path(p).is_file()]
+                *sorted(_glob_paths(self._output_dir(key) / "runs", "*/events.jsonl"))] if io_path(p).is_file()]
 
     def console_snapshot(self, key, job, previous=None, limit=64 * 1024):
         """A bounded display tail; the downloadable file remains complete."""
@@ -1327,11 +1358,16 @@ class JobService:
             job['lifecycle'] = self._lifecycle(job)
         # File reads and progress parsing happen on a snapshot, outside the
         # state lock: a large report must not block another client's status.
-        directory = self.jobs_dir / key
-        summary = read_json(directory / "output/run_summary.json")
+        directory = Path(job.get("output_dir") or (self.jobs_dir / key / "output"))
+        summary = read_json(directory / "run_summary.json")
         job["summary"] = summary
         job['progress'] = self._progress(job)
-        report = read_json(self._record_path(key, summary["memory_report"], summary)) if summary and summary.get("memory_report") else None
+        report = None
+        if summary and summary.get("memory_report"):
+            try:
+                report = read_json(self._record_path(key, summary["memory_report"], summary))
+            except KeyError:
+                report = None
         if report:
             # Reports retain original audit locations on disk. API paths follow a moved workspace.
             for artifact in report.get("artifacts", []):
@@ -1372,7 +1408,7 @@ class JobService:
         progress['total'] = total
         # Read a bounded journal tail, using real step indices instead of a
         # timer-derived percentage. Long-running tools remain at their step.
-        paths = sorted(_glob_paths(self.jobs_dir / job['id'] / 'output/runs', '*/events.jsonl'))
+        paths = sorted(_glob_paths(self._output_dir(job['id']) / 'runs', '*/events.jsonl'))
         current = None
         if paths:
             with io_path(paths[-1]).open('rb') as stream:
@@ -1399,7 +1435,7 @@ class JobService:
 
     def _record_path(self, key, value, summary):
         """Resolve current or historical paths without depending on the original machine."""
-        directory = self.jobs_dir / key
+        directory = self._output_dir(key)
         # Read Windows-authored records on POSIX as well as POSIX records on Windows.
         path_type = PureWindowsPath if PureWindowsPath(value).drive or "\\" in value else PurePosixPath
         stored = path_type(value)
@@ -1407,14 +1443,22 @@ class JobService:
             candidate = directory.joinpath(*stored.parts).resolve()
         else:
             old_task = path_type(summary.get("task_dir", str(directory)))
-            old_root = old_task
-            for _ in directory.relative_to(self.root).parts:
-                old_root = old_root.parent
-            try:
-                relative = stored.relative_to(old_root)
-            except ValueError as exc:
-                raise KeyError("记录中的文件不在原工作目录内，请迁移完整工作目录。") from exc
-            candidate = self.root.joinpath(*relative.parts).resolve()
+            candidate = None
+            # Records may come from the legacy jobs/<key>/output layout or from
+            # the task-folder results/<key> layout. Find the recorded workspace
+            # root by trying the task directory's ancestors, then rebasing onto
+            # the current workspace.
+            for ancestor in (old_task, *old_task.parents):
+                try:
+                    relative = stored.relative_to(ancestor)
+                except ValueError:
+                    continue
+                rebased = self.root.joinpath(*relative.parts).resolve()
+                if rebased.exists():
+                    candidate = rebased
+                    break
+            if candidate is None:
+                raise KeyError("记录中的文件不在原工作目录内，请迁移完整工作目录。")
         if not candidate.is_relative_to(self.root):
             raise KeyError("记录中的路径超出当前工作目录。")
         return candidate
@@ -1652,7 +1696,7 @@ class JobService:
                     "columns": table["columns"], "row_labels": table["row_labels"],
                     "total": table["total"], "offset": table["offset"], "limit": table["limit"],
                     "files": [{"role": role, "name": Path(value).name,
-                                 "downloadable": Path(value).resolve().is_relative_to((self.jobs_dir / key / "output").resolve()),
+                                 "downloadable": Path(value).resolve().is_relative_to(self._output_dir(key).resolve()),
                                  "bytes": payload["fingerprints"][role]["size"]}
                               for role, value in payload["files"].items()], "info": payload["info"]}
 
@@ -1749,7 +1793,7 @@ class JobService:
         # Download generated outputs only. Source references can point outside
         # the job, but the HTTP endpoint must not become an arbitrary file reader.
         target = Path(artifact.files[role]).resolve()
-        if not target.is_relative_to((self.jobs_dir / key / "output").resolve()):
+        if not target.is_relative_to(self._output_dir(key).resolve()):
             raise KeyError("This file is an external input, not a downloadable job output")
         return target
 
@@ -1758,8 +1802,8 @@ class JobService:
         exports = summary.get("steps", [])
         if not 0 <= index < len(exports):
             raise KeyError("找不到步骤报告。")
-        directory = self.jobs_dir / key
-        path = (directory / "output" / exports[index]["export_path"]).resolve()
+        directory = self._output_dir(key)
+        path = (directory / exports[index]["export_path"]).resolve()
         if not path.is_relative_to(directory):
             raise KeyError("报告路径不可用。")
         return path
@@ -1785,9 +1829,9 @@ class JobService:
                 raise KeyError("此运行没有保存该格式的图表。")
         if not value or Path(value).suffix.lower() not in {".png", ".pdf", ".svg", ".jpg", ".jpeg", ".webp", ".tif", ".tiff"}:
             raise KeyError("此步骤没有图像产物。")
-        summary = read_json(self.jobs_dir / key / "output/run_summary.json", {})
+        summary = read_json(self._output_dir(key) / "run_summary.json", {})
         path = self._record_path(key, value, summary)
-        directory = (self.jobs_dir / key).resolve()
+        directory = self._output_dir(key).resolve()
         if not path.is_relative_to(directory) or not io_path(path).is_file():
             raise KeyError("图像路径不可用。")
         return path

@@ -862,8 +862,14 @@ class ExecutionService:
                 # Reconcile an interrupted response before starting a new worker.
                 prior = next((r for r in self.service.jobs.values() if r.get('graph', {}).get('runtime', {}).get('execution_unit_id') == key + unit['id']), None)
                 stage.runtime['execution_unit_id'] = key + unit['id']
+                if graph.base_dir:
+                    prompt = Path(graph.base_dir)
+                    prompt_root = prompt if prompt.is_absolute() else Path(self.service.root) / prompt
+                    stage.runtime['results_root'] = str((prompt_root / 'results').resolve())
                 result = self.service.details(prior['id']) if prior else self.service.launch(stage, **({'request_id': hashlib.sha256((key + unit['id']).encode()).hexdigest()} if self.service.pool_remote else {}))
             else:
+                if graph.base_dir:
+                    stage = stage.model_copy(update={'base_dir': graph.base_dir})
                 request_id = hashlib.sha256((key + unit['id']).encode()).hexdigest()[:32]
                 result = self._rpc(key, target_key(unit['target']), 'run', {'graph': stage.model_dump(mode='json'), 'request_id': request_id})
             child = {'unit_id': unit['id'], 'id': result['id'], 'target': unit['target'], 'status': result['status']}

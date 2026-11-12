@@ -18,10 +18,12 @@ def main() -> None:
     parser.add_argument("--memory-mb", type=float, help="Managed data + workspace budget in MiB")
     parser.add_argument("--process-memory-mb", type=float, help="RSS admission limit in MiB")
     parser.add_argument("--disk-mb", type=float, help="Run-local spill quota in MiB")
+    parser.add_argument("--output", type=Path, help="Result directory (defaults to the task directory)")
     parser.add_argument("--cache-dir", help="Spill parent directory")
     parser.add_argument("--no-auto-spill", action="store_true")
     args = parser.parse_args()
     task_dir = args.task_dir.resolve()
+    out_dir = args.output.resolve() if args.output else task_dir / "output"
     if args.check:
         import json
         from src.task.manifest import load_manifest
@@ -30,7 +32,7 @@ def main() -> None:
         print(json.dumps(report, ensure_ascii=False, indent=2))
         print('CHECK OK' if report['ok'] else 'CHECK FAILED')
         raise SystemExit(0 if report['ok'] else 2)
-    run_log = RunLog(task_dir / "output")
+    run_log = RunLog(out_dir)
     run_log.event("worker_started", message="Loading the analysis engine")
     ctx = None
     try:
@@ -66,7 +68,7 @@ def main() -> None:
             memory["enabled"] = True
             if args.no_auto_spill:
                 memory["auto_spill"] = False
-        ctx = Context(task_dir, manifest, run_log=run_log)
+        ctx = Context(task_dir, manifest, run_log=run_log, out_dir=out_dir)
         for name, spec in manifest["sources"].items():
             ctx.register_source(name, spec)
         run(ctx, manifest["steps"])

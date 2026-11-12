@@ -22,7 +22,7 @@ def _load_openmm():
         import openmm
         from openmm import LangevinMiddleIntegrator, LocalEnergyMinimizer, Platform, unit
         from openmm.app import ForceField, HBonds, NoCutoff
-        from pdbfixer import PDBFixer
+        from ._pdbfixer import PDBFixer
     except ImportError as exc:  # pragma: no cover - dependency guard
         raise StepError(
             "structure_openmm_md_stability: openmm is required; install them with "
@@ -205,7 +205,7 @@ class StructureOpenmmMdStabilityStep(Step):
         },
         "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
         "dependencies": ["openmm==8.1.1", "numpy==1.26.4"],
-        "dependency_imports": ["openmm", "pdbfixer"],
+        "dependency_imports": ["openmm"],
         "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
