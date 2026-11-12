@@ -9,12 +9,17 @@ from pathlib import Path
 
 
 def manifest_path(root=None) -> Path:
-    """Prefer the active imported library source over the application seed."""
-    if root is None:
-        root = os.environ.get("OPERON_LIBRARY_SOURCE")
-    if root:
-        candidate = Path(root).expanduser() / "operon/environments.json"
-        if candidate.is_file():
+    """Return the active imported library manifest, else the application seed.
+
+    An imported root wins even when the file is absent, so an old library tree
+    never silently reports environments it did not declare. A root that does not
+    exist yet means no library has been imported, so the bundled seed applies.
+    """
+    explicit = root if root is not None else os.environ.get("OPERON_LIBRARY_SOURCE")
+    if explicit:
+        base = Path(explicit).expanduser()
+        candidate = base / "operon/environments.json"
+        if candidate.is_file() or base.exists():
             return candidate
     from .library_location import asset_path
     return asset_path('operon/environments.json')
@@ -22,7 +27,12 @@ def manifest_path(root=None) -> Path:
 
 def load(root=None) -> dict:
     path = manifest_path(root)
-    return json.loads(path.read_text(encoding='utf-8')).get('environments', {}) if path.is_file() else {}
+    if not path.is_file():
+        return {}
+    document = json.loads(path.read_text(encoding='utf-8'))
+    if not isinstance(document, dict) or not isinstance(document.get('environments'), dict):
+        raise ValueError(f"Invalid isolated environment manifest: {path}")
+    return document['environments']
 
 
 def root() -> Path:

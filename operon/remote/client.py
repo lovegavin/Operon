@@ -56,7 +56,7 @@ class SSHConnection:
                 return (prefix + 'unset PYTHONHOME PYTHONPATH; export PYTHONNOUSERSITE=1; cd -- '
                         + shlex.quote(profile['app_dir']) + ' && exec ' + shlex.quote(profile['python'])
                         + ' -u -m operon.remote.server --workspace ' + shlex.quote(profile['workspace'])
-                        + (' --upgrade' if install else ''))
+                        + (' --upgrade' if install else '') + (' --force-upgrade' if force else ''))
             if profile.get('mode', 'exec') == 'shell':
                 self.channel = self.client.invoke_shell(term='vt100', width=160, height=50)
                 self._enter_shell(profile.get('menu_choice', ''))
@@ -203,7 +203,9 @@ class SSHConnection:
                 hard_deadline = time.monotonic() + 1800
                 # Explicit dependency repair can download/build packages before
                 # returning its first frame. Ordinary metadata RPC stays short.
-                response_timeout = 1800 if method == 'validate_environment' and (params or {}).get('repair') is True else 100
+                response_timeout = (1800 if method == 'validate_environment' and (params or {}).get('repair') is True
+                            else 300 if method in ('environments', 'environments_prepare', 'environments_log')
+                            else 100)
                 deadline = min(hard_deadline, time.monotonic() + response_timeout)
                 progress = 0
                 while True:

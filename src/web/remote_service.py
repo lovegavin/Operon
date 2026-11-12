@@ -68,6 +68,7 @@ class RemoteManager:
         self.connections, self.credentials, self.pending_keys = {}, {}, {}
         self.connecting, self.progress = {}, {}
         self.library_operations = {}
+        self.pools = {}
         self.lock = threading.RLock()
         self._build = None
 
@@ -101,18 +102,45 @@ class RemoteManager:
         if key not in self.state['profiles']: raise KeyError('找不到服务器连接配置。')
         return self.state['profiles'][key]
 
-    def status(self):
+    def pool_info(self, key):
+        """Live shared-pool view for a connected server, briefly cached."""
+        connection = self.connections.get(key)
+        if connection is None or not connection.connected:
+            return None
+        with self.lock:
+            cached = self.pools.get(key)
+            if cached and time.monotonic() - cached[0] < 5:
+                return deepcopy(cached[1])
+        try:
+            value = connection.call('pool_info', {})
+        except RemoteError as exc:
+            message = str(exc)
+            value = {'available': False, 'unsupported': 'Unknown remote operation' in message,
+                     'error': message}
+        if not isinstance(value, dict):
+            value = {'available': False, 'error': 'malformed pool_info response'}
+        with self.lock:
+            self.pools[key] = (time.monotonic(), value)
+        return deepcopy(value)
+
+    def status(self, *, brief=False):
         def summary(key):
             info = read_json(self.directory/(key+'.catalog.json'))
             if not info:
                 return None
+            if brief:
+                # MCP status is often consumed by agents; the full catalog can
+                # be many megabytes.  Keep only connection/build facts.
+                return {k: info.get(k) for k in ('build', 'build_id', 'library_check')
+                        if k in info}
             # Status is polled every few seconds by the desktop.  Keep the
             # catalog and resource numbers, but never resend job history.
             return {k: v for k, v in info.items() if k not in ('history', 'setup', 'connections')}
         return [{'profile': {k: v for k, v in profile.items() if k != 'host_key'},
                  'fingerprint': profile.get('host_key', {}).get('fingerprint'),
                  'connected': bool(self.connections.get(key) and self.connections[key].connected),
-                 'info': summary(key)}
+                 'info': summary(key),
+                 'pool': self.pool_info(key)}
                 for key, profile in self.state['profiles'].items()]
 
     def save(self, value):
@@ -380,6 +408,7 @@ class RemoteManager:
     def disconnect(self, key):
         with self.lock:
             if key in self.connecting: self.connecting[key].set()
+            self.pools.pop(key, None)
             connection = self.connections.pop(key, None)
             if connection: connection.close()
             self.credentials.pop(key, None)
@@ -398,6 +427,15 @@ class RemoteManager:
             self.state['jobs'] = {k:v for k,v in self.state['jobs'].items() if v['profile_id'] != key}
             (self.directory/(key+'.catalog.json')).unlink(missing_ok=True)
             self.persist()
+
+    def environments(self, key: str) -> dict:
+        return self.call(key, 'environments')
+
+    def prepare_environments(self, key: str, names=None, dependencies: bool = False) -> dict:
+        return self.call(key, 'environments_prepare', {'names': names, 'dependencies': dependencies})
+
+    def environment_log(self, key: str, name: str, limit: int = 200) -> dict:
+        return self.call(key, 'environments_log', {'name': name, 'limit': limit})
 
     def call(self, key, method, params=None):
         self.profile(key)

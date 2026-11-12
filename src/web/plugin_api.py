@@ -41,6 +41,11 @@ def mount_plugins(app, service):
                 await asyncio.to_thread(service.plugins.manage, name, action)
             else:
                 await asyncio.to_thread(service.plugins.install, wheel, remove=remove)
+                hook = getattr(service, 'environments_after_install', None)
+                if hook is not None and wheel is not None:
+                    from operon.library_bundle import is_library_bundle
+                    if is_library_bundle(wheel):
+                        operations[key]['environments'] = await asyncio.to_thread(hook)
             # Registration is metadata-only. Installation/refresh must not
             # prepare a scientific environment before an execution target exists.
             service.dependencies.sync(service.plugins.state())

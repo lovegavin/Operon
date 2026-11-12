@@ -67,7 +67,97 @@ class Application:
         plan = self.executions.dependency_plan(graph)
         result = {'execution_plan': plan}
         readiness = self.readiness.validate(graph, result, dependencies_only=True, repair=repair)
-        return {**result, 'scope': 'dependencies', 'graph': graph.model_dump(mode='json'), 'readiness': readiness}
+        response = {**result, 'scope': 'dependencies', 'graph': graph.model_dump(mode='json'), 'readiness': readiness}
+        if repair:
+            from src.web.source_paths import remote_profile
+            if remote_profile(graph) is None:
+                response['environments'] = self.prepare_isolated_environments(graph=graph)
+            else:
+                # Remote readiness repair already installs on the target; repeating it locally only wastes minutes.
+                response['environments'] = []
+        return response
+
+    def isolated_environments(self):
+        """Declared isolated environments for the active library, without installing."""
+        from . import environment_install
+        from .environments import manifest_path, root
+        try:
+            source = str(self.service.plugins.source_root)
+        except Exception:
+            source = None
+        descriptors = self.service.plugins.state().get('descriptors') or []
+        path = manifest_path(source)
+        return {'root': str(root()), 'manifest': {'path': str(path), 'present': path.is_file()},
+                'environments': environment_install.plan(root(), descriptors, source=source)}
+
+    def prepare_isolated_environments(self, names=None, *, graph=None):
+        """Install isolated environments, optionally limited to those a graph uses."""
+        from . import environment_install
+        from .environments import root
+        try:
+            source = str(self.service.plugins.source_root)
+        except Exception:
+            source = None
+        descriptors = self.service.plugins.state().get('descriptors') or []
+        plan = environment_install.plan(root(), descriptors, source=source)
+        wanted = list(names) if names else [name for name, item in plan.items()
+                                            if item['status'] in ('missing', 'stale')]
+        if graph is not None:
+            used = {getattr(node, 'operator', None) for node in graph.nodes}
+            wanted = [name for name in wanted if used.intersection(plan.get(name, {}).get('used_by') or [])]
+        prepared = []
+        for name in wanted:
+            try:
+                result = environment_install.prepare(name, root(), source=source)
+                prepared.append({'name': name, 'status': result.get('status'), 'error': result.get('error')})
+            except Exception as exc:
+                prepared.append({'name': name, 'status': 'failed', 'error': str(exc)})
+        return prepared
+
+    def start_isolated_environments(self, names=None, *, graph=None):
+        """Start installation in the background and return immediately."""
+        import threading
+        import time
+        import uuid
+        from . import environment_install
+        from .environments import root
+        try:
+            source = str(self.service.plugins.source_root)
+        except Exception:
+            source = None
+        descriptors = self.service.plugins.state().get('descriptors') or []
+        plan = environment_install.plan(root(), descriptors, source=source)
+        wanted = list(names) if names else [name for name, item in plan.items()
+                                            if item['status'] in ('missing', 'stale')]
+        if graph is not None:
+            used = {getattr(node, 'operator', None) for node in graph.nodes}
+            wanted = [name for name in wanted if used.intersection(plan.get(name, {}).get('used_by') or [])]
+        jobs = getattr(self, '_environment_jobs', None)
+        if jobs is None:
+            jobs = self._environment_jobs = {}
+        running = {job['name'] for job in jobs.values() if job['status'] == 'running'}
+        started = []
+        for name in wanted:
+            if name in running:
+                continue
+            key = uuid.uuid4().hex
+            job = {'id': key, 'name': name, 'status': 'running', 'error': None,
+                   'started_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
+            jobs[key] = job
+            def work(name=name, job=job):
+                try:
+                    result = environment_install.prepare(name, root(), source=source)
+                    job['status'] = 'complete' if (result or {}).get('status') == 'ready' else 'failed'
+                    job['error'] = (result or {}).get('error') or None
+                except Exception as exc:
+                    job['status'] = 'failed'
+                    job['error'] = str(exc)
+                finally:
+                    job['finished_at'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+            job['thread'] = threading.Thread(target=work, daemon=True, name=f'environment-{name}')
+            job['thread'].start()
+            started.append({'name': name, 'job': key, 'status': 'running'})
+        return started
 
     def shutdown(self):
         self.service.dependencies.cancel.set()
@@ -235,6 +325,16 @@ class TaskService:
 
     def _prepare_submission(self, graph):
         original = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
+        from src.web.source_paths import remote_profile
+        remote = remote_profile(original)
+        if remote is not None:
+            # A remote target owns its catalog. Drop pins from an older canvas
+            # before local preparation or readiness rejects them before the
+            # remote service can resolve the target's implementation.
+            from operon.pins import graphs
+            original = original.model_copy(deep=True)
+            for part in graphs(original):
+                part.plugin_lock.clear()
         prepared = self.app.prepare(original)
         # Freeze values while retaining historical implementation requirements.
         # The worker-launch snapshot must resolve those pins itself so its
@@ -245,7 +345,9 @@ class TaskService:
             for node in before.nodes:
                 if node.kind == 'route':
                     retain_pins(node.route.graph, nodes[node.id].route.graph)
-        retain_pins(original, prepared)
+        # Local workers retain historical pins for immutable evidence.
+        if remote is None:
+            retain_pins(original, prepared)
         self.app.readiness.require_ready(self.app.validate(prepared, require_files=True))
         return prepared
 

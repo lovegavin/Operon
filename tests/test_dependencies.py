@@ -36,16 +36,22 @@ def test_dedicated_environment_failure_never_repairs_shared_python(tmp_path, mon
     manager = Manager(tmp_path)
     manager.value['descriptors'][1]['resources'] = {'environment': 'antifold'}
     repairs = []
+    prepared = []
     def inspector(python, entries, directory):
         return {e['id']: {'status': 'passed' if e['id'] == 'a' else 'failed',
                          'error': '' if e['id'] == 'a' else 'isolated environment is not installed'} for e in entries}
     def install(*args):
         repairs.append(args[2][0]['id'])
         raise ValueError('Shared pip must not provision a dedicated interpreter')
+    def prepare(name, root, *, source=None, log=None):
+        prepared.append(name)
+        raise ValueError('isolated environment is not installed')
     monkeypatch.setattr('operon.install_targets.repair_entries', install)
+    monkeypatch.setattr('operon.environment_install.prepare', prepare)
     session = DependencySession(manager, inspector=inspector)
     state = session.check()
     assert repairs == []
+    assert prepared == ['antifold']
     assert state['entries'][1]['status'] == 'failed'
     assert 'isolated environment' in state['entries'][1]['error']
 

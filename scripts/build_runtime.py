@@ -30,6 +30,12 @@ def runtime_requirements(project, manifest, mode='management'):
     if mode not in {'management', 'analysis'}:
         raise ValueError('Unknown runtime mode: ' + mode)
     specs = set(project['dependencies'] + project['optional-dependencies']['agent'] + ['build>=1.2', 'setuptools>=69'])
+    recipe = Path(__file__).resolve().parents[1] / 'requirements-runtime.txt'
+    if recipe.is_file():
+        for line in recipe.read_text(encoding='utf-8').splitlines():
+            line = line.strip()
+            if line and not line.startswith('#'):
+                specs.add(line)
     descriptors = windows_descriptors(manifest) if mode == 'analysis' else []
     specs.update(r for descriptor in descriptors for r in descriptor.get('dependencies', []))
     return sorted(specs), descriptors

@@ -7,8 +7,8 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 
 - The product is now called **Operon Studio** everywhere. The old Biopipe name
   is not kept as a compatibility alias.
-- The bundled operator library is **8.0.3**: 1,063 operators, 108 Readers,
-  1,171 descriptors and 79 built-in routes.
+- The bundled operator library is **8.0.6**: 1,063 operators, 108 Readers,
+  1,171 descriptors and 79 built-in routes. Studio 4.1.0 supports 8.0.6+ only.
 - Installing or upgrading a Linux server is one action in the desktop app.
   There is no per-package incremental upload.
 - New Windows installations keep their workspace under the installation root.
@@ -27,6 +27,14 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 - 4.0.8 accepts foreign non-empty install folders, deletes only Operon-managed
   files, disconnects all MCP clients before uninstall, offers force reinstall
   after failure, and uploads local inputs to the selected remote workspace.
+- 4.1.0 ships library 8.0.6, which can carry its environment manifest in the
+  bundle and declares the OpenMM 8.1.1 / PDBFixer 1.9 environment for the
+  structure operators. It requires Studio 4.1.0 or newer.
+- 4.0.10 clears old remote plugin pins before preparation and closes sessions on a forced server upgrade; 4.0.9 did not remove the stale pin.
+- 4.0.9 closes all remote workspace sessions on a forced server upgrade and
+  prunes sessions left by an exited process before re-registering the library.
+- Remote runs refresh stale plugin pins against the selected server; MCP remote
+  status returns a compact summary instead of the full catalog.
 
 ## Upgrade path
 
@@ -44,6 +52,9 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 | 4.0.6 | Fixes preview label order, stale readiness warnings, duplicate output names, and the memory-management warning. Library and protocol are unchanged. |
 | 4.0.7 | Fixes remote admission terminal-state display, stale readiness after canvas edits, unmanaged-memory whole-pool reservation, and oversized remote status. Library and protocol are unchanged. |
 | 4.0.8 | Installer accepts foreign folders and removes only Operon files; uninstall disconnects all MCP clients; Setup offers force reinstall after failure. Local files can be uploaded/staged for remote runs. Library 8.0.3 and protocol are unchanged. |
+| 4.0.9 | A forced server upgrade closes every remote workspace client before the new application registers, stale sessions from an exited process are pruned, remote runs refresh old plugin pins, and MCP remote status is compact. Normal upgrades still abort on active work. Library 8.0.3 and protocol are unchanged. |
+| 4.0.10 | Exact-root install and uninstall, remote stale-pin refresh, forced-pool session close. Library 8.0.3 and protocol are unchanged. |
+| 4.1.0 | Requires library 8.0.6+. The library bundle carries environment manifests; the structure operators use the isolated OpenMM 8.1.1 / PDBFixer 1.9 environment. Protocol 3 / SDK 3.7 are unchanged. |
 
 ## Reinstall or upgrade a Windows installation
 
@@ -83,11 +94,37 @@ server will be stopped and every session closed. The desktop will ask for
 confirmation. The old server processes and their shared pools are then retired
 before the new build is installed.
 
+## 4.1.0: isolated operator environments
+
+- Importing a library bundle now also provisions its declared isolated
+  environments in the background. Status is visible in **算子库管理**, with
+  prepare, retry and log actions; a missing environment no longer appears only
+  as an execution failure.
+- The library bundle carries `sources/operon/environments.json`; 4.1.0 rejects
+  operator libraries older than **8.0.6** so an environment model mismatch
+  cannot be hidden.
+- Operator and Reader dependency discovery uses only the operator-library
+  archive and the route archive. The optional `install-dependencies` helpers
+  published next to the library are not required.
+
+## 4.1.7: remote environments
+
+- **MCP/agent**: `operon_environments` and `operon_environments_prepare` take a
+  `profile_id`; the same tools now read and prepare isolated environments on the
+  selected server, not only locally. `dependencies=True` also runs the server's
+  dependency repair.
+- **Desktop**: each connected server card shows a **远程环境** section; load the
+  plan and prepare missing environments without leaving the app.
+- **Installer fix**: environment creation bootstraps `setuptools`/`wheel`, which
+  fixes `pkg_resources` failures in `openmm81`; old receipts are rebuilt once.
+- **Diagnostics**: progress carries the PID and command, and failed staging is
+  kept as `.failed-<name>-<id>` instead of being deleted.
+
 ## What did not change
 
 - Wire protocol 3 and SDK 3.7.
 - Saved workflow JSON and operator parameters remain valid.
-- The 8.0.2 operator and Reader APIs.
+- Operator and Reader APIs remain compatible; 4.1.0 requires library 8.0.6+.
 - Linux x86_64 is still the supported automatic server target.
 
 ## Known limitations
@@ -99,3 +136,57 @@ before the new build is installed.
   code.
 - Historical design and verification pages keep their original version numbers
   and machine paths. They are records, not current setup instructions.
+
+## 4.1.1: upgrade-path fixes
+
+- Library import no longer fails on 4.0.x source trees that lack
+  `operon/environments.json`; the manifest joins the fingerprint only when the
+  imported library declares it.
+- Bundle verification compares per-entry wheel contents, so Windows-built and
+  Linux-built libraries validate on either platform.
+- A library without an environment manifest is reported explicitly instead of
+  silently using the application seed.
+- Isolated environments are installed only when the user installs dependencies
+  from the pre-run check, or explicitly through the environment API/MCP tools.
+- Minimizing the desktop window keeps its taskbar button; closing hides it to
+  the tray.
+
+## 4.1.2: cross-platform library verification
+
+Provider wheels rebuilt on Windows and Linux now compare equal even though their
+`RECORD` rows are ordered differently. Libraries packaged on one platform import
+on the other without `Library source does not match wheel`.
+
+## 4.1.6
+
+- 远程服务器现在会报告真正承载其工作区的共享池：版本、PID、退出状态、会话数，
+  以及仍在排队、运行或恢复的任务。
+- 运行状态面板新增“远程共享池”，与服务器应用版本、算子库版本并列显示。
+- 旧版服务端不认识池查询时只提示“服务端版本较旧”，不会导致连接失败。
+- 查询本身不会启动新的共享池；没有池在运行时显示“尚未启动共享池”。
+
+## 4.1.5: visible environment preparation and runtime dependencies
+
+Environment preparation returns immediately and reports its phase and size
+while micromamba works; requests no longer time out mid-install. The portable
+runtime now bundles `requirements-runtime.txt`. A new runtime status dialog
+shows the local pool, active jobs, environment progress, and server
+connections.
+
+## 4.1.4: runtime ships the matching application package
+
+The Windows runtime now carries the same `operon` package version as the
+application. Before this release the runtime kept an old 3.1.8 copy in
+`site-packages`, so an MCP client that started `python -m operon` outside the
+version directory loaded stale code and failed the handshake. Packaging now
+rejects a runtime whose package version or distribution metadata does not
+match.
+
+## 4.1.3: installation prompts and unified environment repair
+
+- The installer confirmation states the exact root directory and that uninstall
+  removes everything there except `workspace`.
+- Isolated environments are prepared only through dependency repair; the
+  separate environment panel was removed.
+- Remote runs skip local environment preparation because the server already
+  performed it.

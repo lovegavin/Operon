@@ -75,22 +75,54 @@ python -m venv ~/antifold-env
 
 ## 开启 OpenMM 算子
 
-The structure energy and interface operators use the `openmm81` isolated
-environment. Library 8.0.7 and newer ship `sources/operon/environments.json`
-inside the `.operon-library.zip`; import that bundle before preparing the
-environment. The definition uses `venv_shared: true`, so the environment is a
-venv created from the Studio 4.1.x runtime and does not require micromamba.
+结构类算子（`structure_interface_core`、`interface_mmgbsa_delta` 等）使用独立的
+`openmm81` 环境，不会装进 Studio 主运行时。它由算子库的
+`operon/environments.json` 声明。Library 8.0.7 起使用 `venv_shared: true`：
+环境由 Studio 4.1.x 自带的 Python 3.12 创建，不依赖 micromamba；依赖为
+`openmm==8.1.1`、`numpy==1.26.4`、`setuptools<81`、`wheel`，以及禁用 build
+isolation 的 PDBFixer 1.9 tarball。OpenMM 8.1.1 使用 NumPy 1 ABI，因此环境内
+固定 NumPy 1.26.4，不能回退到共享解释器。
 
 ```bash
 python -c "from operon import environment_install as e; print(e.state('openmm81'))"
 python -c "from operon import environment_install as e; e.prepare('openmm81')"
 ```
 
-`OPERON_ENV_OPENMM81` can point at an existing interpreter for a local
-diagnostic, but it must contain OpenMM 8.1.1, NumPy 1.26.4, PDBFixer 1.9 and
-setuptools<81. Do not point it at the shared Studio interpreter: OpenMM 8.1.1
-uses the NumPy 1 ABI and will fail against the shared NumPy 2 runtime.
+安装位置是安装根下的 `external/openmm81/`，成功后写 `receipt.json`。
 
+### 桌面端
+
+**算子库管理 → 依赖 → 修复依赖** 或运行状态面板里的环境进度会创建缺失环境。
+进度每 2 秒写入 `<install root>/external/.operon-environment-progress`，包含
+`phase`、`detail`、`bytes`、`files`、`pid`。
+
+### MCP
+
+```python
+operon_environments(profile_id="srv")                 # 只读：计划、状态、进度
+operon_environments_prepare(names=["openmm81"], profile_id="srv", dependencies=True)
+```
+
+不带 `profile_id` 时只作用于本机；带 `profile_id` 时在指定服务器的安装根下准备，
+接口立即返回，安装继续在服务器后台运行。
+
+### 安装失败时
+
+失败不会删除现场：staging 目录会改名为
+`external/.failed-openmm81-<id>/`，错误写入
+`external/.operon-environment-errors/openmm81.json`，日志在
+`<workspace>/.studio/environments/openmm81.log`。用 `progress.pid` 可以判断安装
+进程是否还在运行。
+
+常见报错：
+
+- `No module named 'pkg_resources'`：环境缺 setuptools。8.0.7 清单先装
+  `setuptools<81`，保留 `pkg_resources`；旧 receipt 会自动视为 stale 并重建一次。
+- `No matching distribution found for pdbfixer`：pdbfixer 不在 PyPI，只发
+  conda-forge 或 GitHub tarball。清单已改用 tarball，不要手动改回 PyPI。
+- `The isolated environment 'openmm81' is not installed`：环境尚未准备，按上面的
+  方式触发安装。不要在共享解释器里补装 `openmm`，那会污染主运行时并重现
+  NumPy ABI 冲突。
 
 ## Decision tree
 

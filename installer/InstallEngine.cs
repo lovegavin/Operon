@@ -9,7 +9,8 @@ namespace Operon.Setup;
 internal sealed record InstallOptions(string InstallDir, string? Payload = null,
     bool Register = true, bool ForceReinstall = false);
 internal sealed record InstallReceipt(string Owner, string Version, string Current, string Profile,
-    List<string> Versions, Dictionary<string, string> Shortcuts, string? UninstallKey);
+    List<string> Versions, Dictionary<string, string> Shortcuts, string? UninstallKey,
+    string? InstallRoot = null);
 internal sealed record InstallResult(string Status, string InstallDir, string? Executable, string? Profile,
     string Log, string? Message = null);
 
@@ -90,21 +91,28 @@ internal sealed class InstallEngine
         var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(selected.Trim()));
         InstallFiles.NoLinks(root);
         if (File.Exists(root)) throw new IOException("安装位置是文件，请选择文件夹。");
-        if (Available(root)) return root;
-        for (int suffix = 1; ; suffix++)
-        {
-            var child = Path.Combine(root, suffix == 1 ? "Operon Studio" : $"Operon Studio-{suffix}");
-            InstallFiles.NoLinks(child);
-            if (Available(child)) return child;
-        }
+        if (Directory.Exists(root)) ValidateConflict(root);
+        return root;
     }
 
     internal static string NamedDestination(string selected)
     {
-        var path = Path.TrimEndingDirectorySeparator(Path.GetFullPath(selected.Trim()));
-        return string.Equals(Path.GetFileName(path), "Operon Studio", StringComparison.OrdinalIgnoreCase)
-            ? path
-            : Path.Combine(path, "Operon Studio");
+        if (string.IsNullOrWhiteSpace(selected)) throw new ArgumentException("请选择安装目录。");
+        return Path.TrimEndingDirectorySeparator(Path.GetFullPath(selected.Trim()));
+    }
+
+    private static void ValidateConflict(string root)
+    {
+        foreach (var name in new[] { "versions", "workspace" })
+        {
+            var path = Path.Combine(root, name);
+            if (File.Exists(path)) throw new IOException($"安装目录中的 {name} 是文件，请移走后重试。");
+        }
+        foreach (var name in new[] { "Operon_Uninstall.exe", ".operon-setup.json", "installation.json" })
+        {
+            var path = Path.Combine(root, name);
+            if (Directory.Exists(path)) throw new IOException($"安装目录中的 {name} 是目录，请移走后重试。");
+        }
     }
 
     private static bool Available(string root)
@@ -144,6 +152,10 @@ internal sealed class InstallEngine
         var receipt = JsonSerializer.Deserialize<InstallReceipt>(File.ReadAllText(file), InstallFiles.Json);
         if (receipt?.Owner != InstallFiles.Owner || !receipt.Versions.Contains(receipt.Current))
             throw new InvalidDataException("安装记录无效，请保留此目录并选择新的安装位置。");
+        if (receipt.InstallRoot is not null &&
+            !string.Equals(Path.GetFullPath(receipt.InstallRoot).TrimEnd(Path.DirectorySeparatorChar),
+                root.TrimEnd(Path.DirectorySeparatorChar), StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("安装记录中的根目录与当前目录不一致，请从原安装目录卸载。");
         foreach (var item in receipt.Versions)
         {
             var path = InstallFiles.Inside(root, item);
@@ -271,10 +283,15 @@ internal sealed class InstallEngine
         var committed = false;
         try
         {
-            if (options.ForceReinstall && (old is not null || HasManagedArtifacts(root)))
+            if (old is null && LooksLikeOperonRoot(root) && !options.ForceReinstall)
+                throw new InvalidOperationException("此目录已有旧版 Operon 安装。请勾选“强制重装”以在同一个目录重新安装。");
+            if (options.ForceReinstall && (old is not null || LooksLikeOperonRoot(root)))
             {
                 Report("正在强制卸载安装目录中的旧版本…", 1);
-                RemovePreviousInstallation(root, old);
+                if (old is not null) RemovePreviousInstallation(root, old);
+                RemoveRootExceptWorkspace(root);
+                RemoveRegistrationsUnder(root);
+                RemoveShortcutsUnder(root);
                 old = null;
             }
             var cache = Path.Combine(Path.GetDirectoryName(work)!, "cache");
@@ -354,7 +371,7 @@ internal sealed class InstallEngine
             }
             var allVersions = old?.Versions.ToList() ?? [];
             allVersions.Add(relative);
-            var receipt = new InstallReceipt(InstallFiles.Owner, spec.Version, relative, resolvedProfile, allVersions, shortcuts, registrationKey);
+            var receipt = new InstallReceipt(InstallFiles.Owner, spec.Version, relative, resolvedProfile, allVersions, shortcuts, registrationKey, root);
             InstallFiles.AtomicJson(ReceiptPath(root), receipt); committed = true;
             // Old software is removable only through its own receipt. Failure to
             // clean an old version never redirects or blocks the fresh runtime.
@@ -469,8 +486,8 @@ internal sealed class InstallEngine
         {
             Registry.CurrentUser.DeleteSubKeyTree(expectedKey, false);
         }
-        File.Delete(ReceiptPath(root));
-        File.Delete(Path.Combine(root, ".operon-setup.json"));
+        RemoveRegistrationsUnder(root);
+        RemoveShortcutsUnder(root);
         var uninstaller = Path.Combine(root,"Operon_Uninstall.exe");
         if (File.Exists(uninstaller) && !string.Equals(uninstaller, Environment.ProcessPath, StringComparison.OrdinalIgnoreCase))
         {
@@ -481,23 +498,30 @@ internal sealed class InstallEngine
                 catch (UnauthorizedAccessException) { Thread.Sleep(250); }
             }
         }
-        try
-        {
-            var versions = Path.Combine(root, "versions");
-            if (Directory.Exists(versions) && !Directory.EnumerateFileSystemEntries(versions).Any()) Directory.Delete(versions);
-            if (Directory.Exists(root) && !Directory.EnumerateFileSystemEntries(root).Any()) Directory.Delete(root);
-        }
-        catch (Exception error) { Log("Install root retained: " + error.Message); }
+        RemoveRootExceptWorkspace(root);
+        Log("Uninstall root cleaned; workspace preserved.");
         Report("已卸载 Operon；用户档案、路线、数据和任务记录均已保留。",100);
         return new("uninstalled", root, null, receipt.Profile, LogPath);
     }
 
     private InstallResult UninstallManagedOnly(string root)
     {
-        Report("正在卸载 Operon 管理的文件；其他文件会保留…", 0);
+        Report("正在卸载 Operon…", 0);
         using var lease = new InstallLease("Local\\OperonSetup-" + InstallLease.Identity(root));
-        RemovePreviousInstallation(root, null);
-        Report("已卸载 Operon；其他文件和用户数据均已保留。", 100);
+        if (LooksLikeOperonRoot(root))
+        {
+            DisconnectAgents(null);
+            TerminateManagedProcesses(root);
+            RemoveRegistrationsUnder(root);
+            RemoveShortcutsUnder(root);
+            RemoveAutostart();
+            RemoveRootExceptWorkspace(root);
+        }
+        else
+        {
+            RemovePreviousInstallation(root, null);
+        }
+        Report("已卸载 Operon；工作区保留。", 100);
         return new("uninstalled", root, null, null, LogPath);
     }
 
@@ -534,12 +558,84 @@ internal sealed class InstallEngine
         catch (Exception error) { Log("Registration retained: " + error.Message); }
     }
 
+    internal bool LooksLikeOperonRoot(string root)
+    {
+        if (!Directory.Exists(root)) return false;
+        if (File.Exists(Path.Combine(root, "Operon_Uninstall.exe"))) return true;
+        if (OwnedJson(Path.Combine(root, ".operon-setup.json")) || OwnedReceipt(root)) return true;
+        try
+        {
+            foreach (var directory in Directory.EnumerateDirectories(root))
+            {
+                if (string.Equals(Path.GetFileName(directory), "workspace", StringComparison.OrdinalIgnoreCase)) continue;
+                if (File.Exists(Path.Combine(directory, "Operon_Uninstall.exe"))) return true;
+                if (OwnedReceipt(directory)) return true;
+            }
+        }
+        catch (Exception) { }
+        return false;
+    }
+
+    private void RemoveRootExceptWorkspace(string root)
+    {
+        if (!Directory.Exists(root)) return;
+        foreach (var entry in Directory.EnumerateFileSystemEntries(root))
+        {
+            if (string.Equals(Path.GetFileName(entry), "workspace", StringComparison.OrdinalIgnoreCase)) continue;
+            try
+            {
+                if (Directory.Exists(entry)) Directory.Delete(entry, true);
+                else File.Delete(entry);
+            }
+            catch (Exception error) { Log("Root entry retained: " + entry + " (" + error.Message + ")"); }
+        }
+    }
+
+    private static bool IsUnderOrEqual(string path, string root)
+    {
+        var full = Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar);
+        var prefix = Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar);
+        return string.Equals(full, prefix, StringComparison.OrdinalIgnoreCase) ||
+            full.StartsWith(prefix + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void RemoveRegistrationsUnder(string root)
+    {
+        try
+        {
+            using var uninstall = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Uninstall");
+            if (uninstall is null) return;
+            foreach (var name in uninstall.GetSubKeyNames())
+            {
+                if (!name.StartsWith("OperonStudio-", StringComparison.OrdinalIgnoreCase)) continue;
+                using var key = uninstall.OpenSubKey(name);
+                if (key?.GetValue("InstallLocation") is not string location) continue;
+                if (!IsUnderOrEqual(location, root)) continue;
+                Registry.CurrentUser.DeleteSubKeyTree(@"Software\Microsoft\Windows\CurrentVersion\Uninstall\" + name, false);
+            }
+        }
+        catch (Exception error) { Log("Registration cleanup retained: " + error.Message); }
+    }
+
+    private static void RemoveShortcutsUnder(string root)
+    {
+        var links = new[] {
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Operon Studio.lnk"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Operon", "Operon Studio.lnk")
+        };
+        foreach (var path in links)
+        {
+            try { if (File.Exists(path) && ShortcutIsStale(path, root)) File.Delete(path); }
+            catch (Exception) { }
+        }
+    }
+
     internal bool HasInstallation(string root)
     {
         // This is only a UI probe for the optional force-reinstall checkbox.
         // A foreign/non-empty folder is not an Operon installation; Install will
         // report the actionable directory error if the user actually proceeds.
-        try { return ReadReceipt(root) is not null; }
+        try { return ReadReceipt(root) is not null || LooksLikeOperonRoot(root); }
         catch (Exception) { return false; }
     }
 

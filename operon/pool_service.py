@@ -271,15 +271,37 @@ class PoolService:
         return EngineRuntime(self.engine.store, self.engine.spec, workspace_root=root,
                              mode='legacy', principal=principal or pool_owner())
 
+    def _prune_dead_sessions(self, workspace_id):
+        """Drop subscriptions left by a process that no longer exists."""
+        removed = []
+        with self._state_lock:
+            for session_id, session in list(self.sessions.items()):
+                if session.get('workspace_id') != workspace_id:
+                    continue
+                owner = session.get('owner')
+                if not isinstance(owner, dict) or owner.get('created') is None:
+                    continue
+                if not identity_alive(owner):
+                    self.sessions.pop(session_id, None)
+                    removed.append(session_id)
+        return removed
+
+    def _close_workspace_sessions(self, workspace_id):
+        """Close every client subscription for one workspace (force upgrade only)."""
+        with self._state_lock:
+            for session_id, session in list(self.sessions.items()):
+                if session.get('workspace_id') == workspace_id:
+                    self.sessions.pop(session_id, None)
+
     def add_workspace(self, root, *, principal=None, data_dir=None, code_root=None, input_roots=None,
-                      worker_python=None, manifest_only_registry=False):
+                      worker_python=None, manifest_only_registry=False, force=False):
         with self._registration_lock:
             return self._add_workspace(root, principal=principal, data_dir=data_dir, code_root=code_root,
                                        input_roots=input_roots, worker_python=worker_python,
-                                       manifest_only_registry=manifest_only_registry)
+                                       manifest_only_registry=manifest_only_registry, force=force)
 
     def _add_workspace(self, root, *, principal=None, data_dir=None, code_root=None, input_roots=None,
-                       worker_python=None, manifest_only_registry=False):
+                       worker_python=None, manifest_only_registry=False, force=False):
         from src.web.service import JobService, Settings
         root = _resolve(root)
         if str(root) in self.workspaces:
@@ -299,9 +321,15 @@ class PoolService:
             if changed_code or selected_python != service.plugins.python or changed_policy:
                 active = any(job.get('status') in ('queued', 'preparing', 'running', 'recovery_required')
                              or job.get('logs_complete') is False for job in service.jobs.values())
+                if active:
+                    raise PoolError('Finish tasks before changing its application, interpreter or catalog policy')
+                if force:
+                    self._close_workspace_sessions(service.engine.workspace_id)
+                else:
+                    self._prune_dead_sessions(service.engine.workspace_id)
                 subscribed = any(s['workspace_id'] == service.engine.workspace_id
                                  for s in list(self.sessions.values()))
-                if active or subscribed:
+                if subscribed:
                     raise PoolError('Finish tasks and close workspace clients before changing its application, interpreter or catalog policy')
                 if changed_code:
                     service.settings.code_root = _resolve(code_root)

@@ -111,8 +111,8 @@ class Client:
 
     def request(self, path, payload=None):
         route = '/api' + path if path.startswith('/v1/') else '/api/agent' + path
-        preparation = path == '/v1/workflows/prepare-environment'
-        timeout = 1800 if preparation else 660 if path == '/plugins/install' else 120
+        preparation = path in ('/v1/workflows/prepare-environment', '/v1/environments/prepare')
+        timeout = None if preparation else 660 if path == '/plugins/install' else 120
         response = self.http.get(route) if payload is None else self.http.post(
             route, json=payload, timeout=timeout)
         # Preparation is an explicit mutation. Do not transparently replay it;

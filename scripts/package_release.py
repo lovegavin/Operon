@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import tomllib
@@ -40,6 +41,31 @@ def verify_frontend_versions(frontend):
     return lock
 
 
+def verify_runtime_package(python_root, version):
+    """Reject a runtime that carries a different application package version."""
+    packages = Path(python_root) / 'Lib' / 'site-packages'
+    init = packages / 'operon' / '__init__.py'
+    if not init.is_file():
+        raise SystemExit(f'Bundled runtime is missing operon: {init}')
+    match = re.search(r'__version__\s*=\s*[\'\"]([^\'\"]+)', init.read_text(encoding='utf-8'))
+    found = match.group(1) if match else 'unknown'
+    if found != version:
+        raise SystemExit(f'Bundled runtime carries operon {found}, expected {version}. '
+                         'Rebuild it with scripts/build_runtime.py for this release.')
+    metadata = sorted(packages.glob('operon_studio-*.dist-info'))
+    names = {item.name for item in metadata}
+    expected = f'operon_studio-{version}.dist-info'
+    if names != {expected}:
+        raise SystemExit(f'Bundled runtime distribution metadata is {sorted(names)}, expected {expected}.')
+    probe = subprocess.run([str(Path(python_root) / 'python.exe'), '-I', '-c',
+                            'import scipy, pandas, matplotlib, statsmodels; print(scipy.__version__)'],
+                           capture_output=True, text=True)
+    if probe.returncode != 0:
+        raise SystemExit('Bundled runtime is missing requirements-runtime.txt packages: '
+                         + (probe.stderr or probe.stdout).strip()[-600:])
+    return found
+
+
 def main():
     root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser(description=__doc__)
@@ -71,6 +97,7 @@ def main():
         shutil.copytree(io_path(args.runtime), destination / 'runtime/python')
         copy(root / 'scripts/bundled_paths.pth', 'runtime/python/Lib/site-packages/00_operon_paths.pth')
         copy(root / 'scripts/bundled_imports.py', 'runtime/python/Lib/operon_import_paths.py')
+        verify_runtime_package(destination / 'runtime/python', version)
         bootstrapper = destination / 'runtime/MicrosoftEdgeWebview2Setup.exe'
         url = 'https://go.microsoft.com/fwlink/p/?LinkId=2124703'
         if args.webview_bootstrapper:

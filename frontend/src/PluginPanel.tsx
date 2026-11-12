@@ -59,7 +59,7 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
       <div className="plugin-toolbar">
         {state.library_release && <span className="route-version" title={t("最近导入的算子库版本，独立于软件版本")}>{t("库 v")}{state.library_release.version}</span>}
         <button className="primary-button" disabled={busy} onClick={() => void operate(api.refreshPlugins)}><ArrowClockwise size={16} className={pending ? 'spin' : ''}/>{t("刷新算子库")}</button>
-        <button className="subtle-button" disabled={pending || state.dependencies?.running} onClick={() => void operate(api.repairDependencies)}><ArrowClockwise size={16}/>{state.dependencies?.running ? t("准备环境…") : t("修复依赖")}</button>
+        <button className="subtle-button" title={t("修复缺失依赖，并按需安装算子库声明的隔离环境")} disabled={pending || state.dependencies?.running} onClick={() => void operate(api.repairDependencies)}><ArrowClockwise size={16}/>{state.dependencies?.running ? t("修复中…") : t("修复依赖")}</button>
       </div>
       <div className="plugin-packages">
         {!state.packages.length && <div className="modal-empty"><Package size={30}/><p>{t("尚未安装算子包")}</p></div>}

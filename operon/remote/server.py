@@ -57,6 +57,122 @@ def socket_path(workspace):
     return directory / (key + '.sock')
 
 
+def pool_snapshot(service):
+    """Read-only view of the shared pool that serves this workspace.
+
+    Observation never starts a pool daemon: when nothing is running the
+    desktop reports that no shared pool is active instead of masking the
+    real owner of the workspace.
+    """
+    from operon import managed_pool
+    try:
+        snapshot = managed_pool.inspect_pool()
+    except Exception as exc:  # noqa: BLE001 - status must not break a connection
+        return {'available': False, 'error': f'{type(exc).__name__}: {exc}'}
+    result = dict(snapshot or {'available': False})
+    active, seen = [], set()
+    try:
+        history = service.history()
+    except Exception:  # noqa: BLE001 - history is optional for liveness
+        history = []
+    for job in history or []:
+        if not isinstance(job, dict):
+            continue
+        status = job.get('status')
+        if status not in ('queued', 'preparing', 'running', 'recovery_required') and job.get('logs_complete') is not False:
+            continue
+        job_id = job.get('id')
+        if job_id in seen:
+            continue
+        seen.add(job_id)
+        active.append({'id': job_id, 'status': status,
+                       'title': job.get('title') or job.get('name') or '',
+                       'updated_at': job.get('updated_at')})
+    result['active_jobs'] = active[:50]
+    result['active_count'] = len(active)
+    return result
+
+
+_ENVIRONMENT_JOBS: dict[str, dict] = {}
+_ENVIRONMENT_LOCK = threading.Lock()
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _environment_plan(service):
+    from operon import environment_install, environments
+    root = environments.root()
+    source = service.plugins.source_root
+    descriptors = (service.state() or {}).get('descriptors') or []
+    return root, source, environment_install.plan(root, descriptors, source=str(source))
+
+
+def environment_snapshot(service) -> dict:
+    try:
+        root, source, plan = _environment_plan(service)
+    except Exception as exc:
+        return {'root': None, 'source': None, 'environments': {}, 'running': {},
+                'error': f'{type(exc).__name__}: {exc}'}
+    with _ENVIRONMENT_LOCK:
+        running = {name: dict(value) for name, value in _ENVIRONMENT_JOBS.items()}
+    return {'root': str(root), 'source': str(source), 'environments': plan, 'running': running}
+
+
+def environment_log(service, name: str, limit: int = 200) -> dict:
+    path = Path(service.directory) / 'environments' / f'{name}.log'
+    if not path.is_file():
+        return {'name': name, 'text': '', 'path': str(path)}
+    try:
+        size = max(1, min(int(limit or 200), 2000))
+    except (TypeError, ValueError):
+        size = 200
+    lines = path.read_text(encoding='utf-8', errors='replace').splitlines()[-size:]
+    return {'name': name, 'text': '\n'.join(lines), 'path': str(path)}
+
+
+def environment_prepare(service, payload: dict | None = None) -> dict:
+    from operon import environment_install
+    payload = payload or {}
+    names = payload.get('names') or None
+    dependencies = bool(payload.get('dependencies'))
+    snapshot = environment_snapshot(service)
+    if snapshot.get('error'):
+        return snapshot
+    started = []
+    with _ENVIRONMENT_LOCK:
+        for name, entry in (snapshot.get('environments') or {}).items():
+            if names is not None and name not in names:
+                continue
+            if (entry or {}).get('status') not in ('missing', 'stale', 'failed'):
+                continue
+            if name in _ENVIRONMENT_JOBS:
+                continue
+            _ENVIRONMENT_JOBS[name] = {'phase': 'queued', 'started_at': _now_iso()}
+            started.append(name)
+
+    def worker(name: str):
+        try:
+            environment_install.prepare(name, snapshot['root'], source=snapshot['source'])
+        except Exception:
+            pass
+        finally:
+            with _ENVIRONMENT_LOCK:
+                _ENVIRONMENT_JOBS.pop(name, None)
+
+    for name in started:
+        threading.Thread(target=worker, args=(name,), name=f'environment-{name}', daemon=True).start()
+    if dependencies:
+        def repair():
+            try:
+                service.dependencies.check(repair=True, repair_r=True)
+            except Exception:
+                pass
+        threading.Thread(target=repair, name='dependency-repair', daemon=True).start()
+    return {**environment_snapshot(service), 'started': started, 'dependencies': dependencies}
+
+
 class RemoteService:
     def __init__(self, workspace, input_roots=None):
         self._lifecycle = threading.RLock()
@@ -282,6 +398,15 @@ class RemoteService:
             return {'build': deepcopy(self.handshake.build),
                     'build_id': self.handshake.build.get('build_id', ''),
                     'library': deepcopy(self.handshake.build.get('library', {}))}
+        if method == 'pool_info':
+            return pool_snapshot(self.service)
+            if method == 'environments':
+                return environment_snapshot(self.service)
+            if method == 'environments_prepare':
+                return environment_prepare(self.service, params or {})
+            if method == 'environments_log':
+                return environment_log(self.service, str((params or {}).get('name') or ''),
+                                       (params or {}).get('limit') or 200)
         if method == 'library_install':
             # JobService wraps _install_many in the shared environment gate.
             # Acquiring it here too would reject our own install as concurrent
@@ -820,7 +945,10 @@ def main():
     parser.add_argument('--workspace', required=True)
     parser.add_argument('--serve', action='store_true')
     parser.add_argument('--upgrade', action='store_true', help='Retire an idle previous installation before reconnecting')
+    parser.add_argument('--force-upgrade', action='store_true', help='Close all clients before replacing an installation')
     args = parser.parse_args()
+    if args.force_upgrade:
+        os.environ['OPERON_FORCE_POOL_REBIND'] = '1'
     workspace = Path(args.workspace).expanduser().resolve()
     if args.serve:
         serve(workspace); return

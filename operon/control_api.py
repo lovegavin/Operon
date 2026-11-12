@@ -39,6 +39,11 @@ class SubmissionRequest(BaseModel):
         return self
 
 
+class EnvironmentRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    names: list[str] | None = Field(default=None, max_length=20)
+
+
 class DescribeRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     ids: list[str] = Field(min_length=1, max_length=20)
@@ -84,6 +89,17 @@ def mount_control(app, application, bridge):
     def environment_status(request: Request):
         authorize(request)
         return application.environment_status()
+
+    @app.get('/api/v1/environments')
+    def environments(request: Request):
+        authorize(request)
+        return application.isolated_environments()
+
+    @app.post('/api/v1/environments/prepare')
+    def prepare_environments(request: Request, payload: EnvironmentRequest):
+        authorize(request, 'plugins')
+        return {**application.isolated_environments(),
+                'prepared': application.start_isolated_environments(payload.names)}
 
     @app.get('/api/v1/guides')
     def guides(request: Request):

@@ -58,6 +58,10 @@ def create_app(settings=None):
     app.state.bridge = bridge
     from .plugin_api import mount_plugins
     mount_plugins(app, service)
+    from .pool_api import mount_pool
+    mount_pool(app, service)
+    from .environment_api import mount_environments
+    mount_environments(app, service)
     from .script_api import mount_scripts
     mount_scripts(app, service)
     from .preferences import mount_preferences

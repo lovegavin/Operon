@@ -19,6 +19,7 @@ from operon.bytecode import filesystem_path
 
 
 LIBRARY_SUFFIXES = ('.operon-library.zip',)
+MINIMUM_LIBRARY_VERSION = '8.0.6'
 
 
 def is_library_bundle(path):
@@ -32,6 +33,21 @@ def _io_path(path):
 def sha256(path):
     with _io_path(path).open("rb") as stream:
         return hashlib.file_digest(stream, "sha256").hexdigest()
+
+
+def wheel_contents(path):
+    """Map entry name to payload hash, ignoring container metadata.
+
+    Provider wheels are rebuilt on the installing machine. Zip records the build
+    platform in every entry's "version made by" field, RECORD order follows the
+    filesystem's path collation, and RECORD itself merely restates the hashes of
+    the other entries, so all three differ between Windows and Linux even when
+    every payload byte is identical.
+    """
+    with zipfile.ZipFile(_io_path(path)) as archive:
+        return {info.filename: hashlib.sha256(archive.read(info)).hexdigest()
+                for info in archive.infolist()
+                if not info.filename.endswith('.dist-info/RECORD')}
 
 
 def build_bundle(root, output, version, minimum_application=None):
@@ -144,7 +160,7 @@ def unpack_bundle(path, destination):
                 raise ValueError('Library package identity mismatch')
             wheel_entries(wheel)  # Protocol and executable identity before invoking pip.
             rebuilt = provider_wheel(definitions[item['name']], destination / 'sources', destination / 'verified')
-            if sha256(rebuilt) != sha256(wheel):
+            if wheel_contents(rebuilt) != wheel_contents(wheel):
                 raise ValueError(f"Library source does not match wheel: {item['name']}")
     return document
 
@@ -160,6 +176,11 @@ def install_bundle(manager, bundle, *, replace=False):
         with tempfile.TemporaryDirectory(prefix='library-', dir=staging) as temporary:
             temporary = Path(temporary)
             document = unpack_bundle(bundle, temporary / 'incoming')
+            from operon import __version__
+            if Version(document['version']) < Version(MINIMUM_LIBRARY_VERSION):
+                raise ValueError(
+                    f"Operator library {document['version']} is too old for Operon Studio "
+                    f"{__version__}; version {MINIMUM_LIBRARY_VERSION} or newer is required")
             # Do not hide unrefreshed author edits behind a new source pointer.
             previous = current.get('source_library') or {}
             if not replace and manager.managed_sources and manager.source_root.exists():

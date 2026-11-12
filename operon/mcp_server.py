@@ -92,6 +92,33 @@ def create_server(client):
         return client.request('/v1/workflows/prepare-environment', {'graph': graph})
 
     @server.tool()
+    def operon_environments(profile_id: str | None = None) -> dict:
+        """List isolated operator environments declared by the active library and their status.
+
+        Read-only. status is missing, stale, ready or failed; used_by lists the operators that
+        need the environment. Pass profile_id to inspect one configured remote server instead of
+        this host; a remote read never installs anything.
+        """
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/environments')
+        return client.request('/v1/environments')
+
+    @server.tool()
+    def operon_environments_prepare(names: list[str] | None = None, profile_id: str | None = None,
+                                    dependencies: bool = False) -> dict:
+        """Install isolated environments and optionally repair operator dependencies.
+
+        Requires --allow-plugins and explicit user intent. Pass profile_id to install on that
+        configured remote server; its install runs on the server and survives a client timeout.
+        Missing environments are all prepared when names is omitted. Each environment is a
+        dedicated Python interpreter; installing one can take several minutes.
+        """
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/environments/prepare',
+                                  {'names': names, 'dependencies': dependencies})
+        return client.request('/v1/environments/prepare', {'names': names})
+
+    @server.tool()
     def operon_submit(request_id: str, graph: dict | None = None, workflow_id: str | None = None,
                        expected_version: int | None = None, view: str = 'brief') -> dict:
         """Submit a workflow without a canvas; requires --allow-run. Exactly one graph or workflow_id.
@@ -147,7 +174,7 @@ def create_server(client):
     @server.tool()
     def operon_remote_status() -> dict:
         """List SSH execution profiles with their connected state."""
-        return client.request('/remote')
+        return client.request('/remote/summary')
 
     @server.tool()
     def operon_remote_ensure(profile_id: str) -> dict:

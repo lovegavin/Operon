@@ -181,6 +181,7 @@ class ManagedPoolClient(PoolClient):
                 'manifest_only_registry': self.settings.manifest_only_registry,
                 'input_roots': [str(p.resolve()) for p in self.settings.input_roots or []],
                 'implementation': implementation(str(Path(__file__).resolve().parents[1])),
+                'force': os.environ.get('OPERON_FORCE_POOL_REBIND') == '1',
             })
             self.address, self.token, self.record = plain.address, plain.token, record
             if self._session_context:
@@ -254,6 +255,7 @@ class ManagedControlServer(PoolControlServer):
             self.last_activity = time.monotonic()
         try:
             if method == 'workspace.register':
+                force = params.get('force') is True
                 if params.get('implementation') != self.identity:
                     raise PoolError('Client and pool application versions differ', code='pool_upgrade_required')
                 spec = {key: params.get(key) for key in ('root', 'data_dir', 'code_root', 'principal', 'input_roots', 'worker_python')}
@@ -271,7 +273,7 @@ class ManagedControlServer(PoolControlServer):
                 # Persist bindings before acknowledging. Only registration owns
                 # this lock; slow job dispatch/status never waits on registry I/O.
                 with self.pool._registration_lock:
-                    service = self.pool.add_workspace(**spec)
+                    service = self.pool.add_workspace(**spec, force=force)
                     records = _read(self.root / 'workspaces.json', {})
                     spec['input_roots'] = [str(p) for p in service.settings.input_roots]
                     records[str(service.root)] = spec

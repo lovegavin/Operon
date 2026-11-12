@@ -24,6 +24,10 @@ def mount_remote(app, service):
     def profiles():
         return manager.status()
 
+    @app.get('/api/remote/summary')
+    def summary():
+        return manager.status(brief=True)
+
     @app.post('/api/remote/profiles')
     def save(payload: dict):
         return manager.save(payload)
@@ -66,6 +70,19 @@ def mount_remote(app, service):
     @app.get('/api/remote/{key}/library/status')
     def library_status(key: str):
         return manager.library_status(key)
+
+    @app.get('/api/remote/{key}/environments')
+    def remote_environments(key: str):
+        return manager.environments(key)
+
+    @app.post('/api/remote/{key}/environments/prepare')
+    def remote_prepare_environments(key: str, payload: dict | None = None):
+        payload = payload or {}
+        return manager.prepare_environments(key, payload.get('names'), bool(payload.get('dependencies')))
+
+    @app.get('/api/remote/{key}/environments/{name}/log')
+    def remote_environment_log(key: str, name: str, limit: int = 200):
+        return manager.environment_log(key, name, limit)
 
     @app.post('/api/remote/{key}/trust')
     def trust(key: str, payload: dict):

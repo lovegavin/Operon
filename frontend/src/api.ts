@@ -10,6 +10,57 @@ export type Readiness = {
 };
 export type CheckFeedback = {signature: string; readiness?: Readiness; error?: string};
 
+export type EnvironmentProgress = {phase?: string; bytes?: number; files?: number; updated_at?: number};
+export type EnvironmentStatus = {
+  name: string; python: string; spec_sha256: string; interpreter: string; location: string;
+  imports: string[]; status: 'missing' | 'stale' | 'ready' | 'failed'; error: string; used_by: string[];
+  progress?: EnvironmentProgress | null;
+};
+export type EnvironmentJob = {
+  id: string; name: string; status: 'running' | 'complete' | 'failed';
+  error: string | null; started_at: string; finished_at: string | null;
+  phase?: string; bytes?: number; files?: number; detail?: string; updated_at?: number;
+};
+export type RemotePoolJob = {id: string; status?: string; title?: string; updated_at?: string};
+export type RemotePool = {
+  available?: boolean; unsupported?: boolean; error?: string; running?: boolean;
+  version?: string; implementation?: string; closing?: boolean; sessions?: number;
+  owner?: {pid?: number}; active_count?: number; active_jobs?: RemotePoolJob[];
+  workspaces?: {workspace_id?: string; root?: string; jobs?: number; running?: number}[];
+};
+export type RemoteEnvironmentProgress = {
+  phase?: string; detail?: string; bytes?: number; files?: number; pid?: number;
+  updated_at?: string;
+};
+
+export type RemoteEnvironment = {
+  name?: string; python?: string; status?: string; imports?: string[]; used_by?: string[];
+  interpreter?: string; location?: string; error?: string;
+  progress?: RemoteEnvironmentProgress | null;
+};
+
+export type RemoteEnvironments = {
+  root?: string | null; source?: string | null;
+  environments?: Record<string, RemoteEnvironment>;
+  running?: Record<string, {phase?: string; started_at?: string}>;
+  error?: string; started?: string[]; dependencies?: boolean;
+};
+
+export type PoolStatus = {
+  location: string;
+  instance: {version?: string; implementation?: string; address?: number[]; pid?: number; closing: boolean};
+  workspaces: {root: string; code_root?: string; jobs: number}[];
+  active: {id: string; status: string; title: string; updated_at?: string; workspace: string}[];
+  remotes: {profile: {id: string; name: string; host: string}; connected: boolean;
+    info?: {build?: {application?: {version?: string}}; library_check?: {replacement_required?: boolean}} | null;
+    pool?: RemotePool | null}[];
+};
+export type EnvironmentSnapshot = {
+  root: string; manifest: {path: string; present: boolean};
+  environments: Record<string, EnvironmentStatus>; operations: EnvironmentJob[];
+};
+
+
 const base =
   (import.meta as ImportMeta & { env: { VITE_API_BASE?: string } }).env
     .VITE_API_BASE || "";
@@ -64,6 +115,17 @@ export const api = {
   operatorSource: (id: string) => request<{available: boolean; code?: string; filename?: string; reason?: string}>(`/api/operators/${encodeURIComponent(id)}/source`),
   prepareEnvironment: (graph: Graph) => request<{readiness: Readiness}>('/api/prepare-environment', graph),
   checkEnvironment: (graph: Graph) => request<{readiness: Readiness}>('/api/check-environment', graph),
+  environments: () => request<EnvironmentSnapshot>('/api/environments'),
+  prepareEnvironments: (names?: string[]) => request<EnvironmentSnapshot & {prepared: {name: string; job: string; status: string}[]}>('/api/environments/prepare', names ? {names} : {}),
+  retryEnvironment: (name: string) => request<EnvironmentSnapshot & {job: string}>(`/api/environments/${encodeURIComponent(name)}/retry`, {}),
+  environmentLog: (name: string, limit = 200) => request<{name: string; text: string}>(`/api/environments/${encodeURIComponent(name)}/log?limit=${limit}`),
+  pool: () => request<PoolStatus>('/api/pool'),
+  remoteEnvironments: (id: string) =>
+    request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments`),
+  remotePrepareEnvironments: (id: string, names?: string[], dependencies = false) =>
+    request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments/prepare`,
+      {names, dependencies}),
+
   savePreferences: (value: Partial<import('./preferences').UiPreferences>, initialize = false) => {
     // Keep responses in edit order when users switch settings sections quickly.
     const result = preferencesWrite.catch(() => {}).then(() => request<import('./preferences').UiPreferences>(`/api/preferences?initialize=${initialize}`, value));
