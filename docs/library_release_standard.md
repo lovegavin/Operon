@@ -93,6 +93,14 @@ CI uses two runners, Windows and Ubuntu, Python 3.11. Each runner:
    blocker. Runtime lookup reads the active source root first and falls back to
    the application seed/wheel only when no imported library is active.
 
+7. Environments that set `venv_shared: true` must be installed and probed on a
+   clean host before the release is tagged. The probe must import every declared
+   module in the created interpreter, not the shared application interpreter.
+   `openmm81` additionally requires `setuptools<81` before PDBFixer so that
+   `pkg_resources` remains importable; the recorded install must state the
+   interpreter path, byte/file count and a real PDBFixer run. A failed
+   environment install is a release blocker, not a post-release note.
+
 The builder produces a native envelope per platform
 (`Operon-Library-v<version>-<Windows|Linux>.operon-library.zip`), a
 `library-build.json`, a platform `SHA256SUMS-<system>.txt` and a

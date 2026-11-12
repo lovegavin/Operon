@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 import pytest
 
 from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.reader.readers._encoder import LabelEncoder
+from src.reader.readers.pdb_reader import PdbReader
 from src.task.context.base import Context
 from src.task.runner import run
 from src.task.step.steps.structure_interface_core import (
@@ -141,3 +144,39 @@ def test_errors(tmp_path) -> None:
             ],
         )
     assert StructureInterfaceCoreStep.definition["inputs_arity"] == 1
+
+
+def test_interface_core_golden_1mel(tmp_path) -> None:
+    path = Path(__file__).parent / "fixtures" / "vhh_1mel.pdb"
+    form = PdbReader().read(path, dims=["atom", "field"], labels={}, encoders={})
+    ctx = Context(str(tmp_path / "task"), {"params": {}})
+    ctx["pdb"] = form
+    run(
+        ctx,
+        [
+            {
+                "name": "structure_interface_core",
+                "inputs": ["pdb"],
+                "params": {
+                    "output": "core",
+                    "binder_chains": "A",
+                    "target_chains": "L",
+                },
+            }
+        ],
+    )
+    out = ctx["core"]
+    assert out.data.shape == (46, 4)
+    assert out.info["n_interface"] == 46
+    assert out.info["n_core"] == 28
+    assert out.info["n_rim"] == 18
+    residues = out.labels["residue"]
+    sum_delta = {"A": 0.0, "L": 0.0}
+    column = out.labels["statistic"]["delta_sasa"]
+    for index, label in enumerate(residues):
+        chain = label.split(":")[0]
+        sum_delta[chain] += float(out.data[index, column])
+    assert sum_delta["A"] == pytest.approx(905.8944680690765, abs=1e-6)
+    assert sum_delta["L"] == pytest.approx(763.2626737356186, abs=1e-6)
+    assert sum(1 for label in residues if label.startswith("A:")) == 22
+    assert sum(1 for label in residues if label.startswith("L:")) == 24

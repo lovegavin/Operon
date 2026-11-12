@@ -120,3 +120,16 @@ def test_bridge_uses_portable_interpreter_and_process_environment(monkeypatch, t
     assert env['PYTHONPATH'] == str(environments.code_root())
     assert env['PATH'].split(os.pathsep)[0] == str(executable.parent)
     assert env['HF_ENDPOINT'] == 'https://example.invalid/models'
+
+
+def test_openmm81_manifest_installs_setuptools_before_pdbfixer():
+    manifest = json.loads(
+        (Path(__file__).resolve().parents[1] / "library/seed/operon/environments.json").read_text(encoding="utf-8")
+    )
+    entry = manifest["environments"]["openmm81"]
+    assert "pkg_resources" in entry["imports"]
+    assert "setuptools<81" in entry["requirements"]
+    assert entry.get("venv_shared") is True
+    assert entry["python"] == "3.12"
+    assert entry["pip_wheels"][0] == "setuptools<81"
+    assert "pdbfixer @ https://github.com/openmm/pdbfixer/archive/" in entry["no_build_isolation"][0]

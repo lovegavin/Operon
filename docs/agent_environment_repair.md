@@ -75,6 +75,23 @@ python -m venv ~/antifold-env
 
 ## 开启 OpenMM 算子
 
+The structure energy and interface operators use the `openmm81` isolated
+environment. Library 8.0.7 and newer ship `sources/operon/environments.json`
+inside the `.operon-library.zip`; import that bundle before preparing the
+environment. The definition uses `venv_shared: true`, so the environment is a
+venv created from the Studio 4.1.x runtime and does not require micromamba.
+
+```bash
+python -c "from operon import environment_install as e; print(e.state('openmm81'))"
+python -c "from operon import environment_install as e; e.prepare('openmm81')"
+```
+
+`OPERON_ENV_OPENMM81` can point at an existing interpreter for a local
+diagnostic, but it must contain OpenMM 8.1.1, NumPy 1.26.4, PDBFixer 1.9 and
+setuptools<81. Do not point it at the shared Studio interpreter: OpenMM 8.1.1
+uses the NumPy 1 ABI and will fail against the shared NumPy 2 runtime.
+
+
 ## Decision tree
 
 1. **Is the Python package installed?** `python -c "import operon"` and

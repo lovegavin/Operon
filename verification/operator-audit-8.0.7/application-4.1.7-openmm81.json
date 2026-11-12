@@ -1,0 +1,26 @@
+{
+  "format": "operon.environment-install-evidence",
+  "version": 1,
+  "application": "4.1.7",
+  "library": "8.0.7",
+  "environment": "openmm81",
+  "status": "ready",
+  "venv_shared": true,
+  "python": "3.12",
+  "interpreter": "C:\\OperonBuild\\envtest807c\\root\\openmm81\\Scripts\\python.exe",
+  "bytes": 157355136,
+  "files": 3823,
+  "seconds": 17,
+  "probes": {
+    "openmm": true,
+    "pdbfixer": true,
+    "numpy": true,
+    "pkg_resources": true
+  },
+  "pdbfixer": {
+    "input": "tests/fixtures/vhh_1mel.pdb",
+    "atoms": 8148,
+    "residues": 554
+  },
+  "command": "environment_install.prepare('openmm81', log=note)"
+}
