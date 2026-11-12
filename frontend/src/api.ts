@@ -28,6 +28,24 @@ export type RemotePool = {
   owner?: {pid?: number}; active_count?: number; active_jobs?: RemotePoolJob[];
   workspaces?: {workspace_id?: string; root?: string; jobs?: number; running?: number}[];
 };
+export type RemoteEnvironmentProgress = {
+  phase?: string; detail?: string; bytes?: number; files?: number; pid?: number;
+  updated_at?: string;
+};
+
+export type RemoteEnvironment = {
+  name?: string; python?: string; status?: string; imports?: string[]; used_by?: string[];
+  interpreter?: string; location?: string; error?: string;
+  progress?: RemoteEnvironmentProgress | null;
+};
+
+export type RemoteEnvironments = {
+  root?: string | null; source?: string | null;
+  environments?: Record<string, RemoteEnvironment>;
+  running?: Record<string, {phase?: string; started_at?: string}>;
+  error?: string; started?: string[]; dependencies?: boolean;
+};
+
 export type PoolStatus = {
   location: string;
   instance: {version?: string; implementation?: string; address?: number[]; pid?: number; closing: boolean};
@@ -102,6 +120,11 @@ export const api = {
   retryEnvironment: (name: string) => request<EnvironmentSnapshot & {job: string}>(`/api/environments/${encodeURIComponent(name)}/retry`, {}),
   environmentLog: (name: string, limit = 200) => request<{name: string; text: string}>(`/api/environments/${encodeURIComponent(name)}/log?limit=${limit}`),
   pool: () => request<PoolStatus>('/api/pool'),
+  remoteEnvironments: (id: string) =>
+    request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments`),
+  remotePrepareEnvironments: (id: string, names?: string[], dependencies = false) =>
+    request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments/prepare`,
+      {names, dependencies}),
 
   savePreferences: (value: Partial<import('./preferences').UiPreferences>, initialize = false) => {
     // Keep responses in edit order when users switch settings sections quickly.

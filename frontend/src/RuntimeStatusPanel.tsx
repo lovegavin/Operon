@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Modal } from './RouteDialogs';
 import { t } from './i18n';
 import { api } from './api';
-import type { EnvironmentSnapshot, PoolStatus } from './api';
+import type { EnvironmentSnapshot, PoolStatus, RemoteEnvironments } from './api';
 
 function size(bytes: number) {
   if (!bytes) return '0 B';
@@ -22,6 +22,9 @@ export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
   const [pool, setPool] = useState<PoolStatus | null>(null);
   const [environments, setEnvironments] = useState<EnvironmentSnapshot | null>(null);
   const [error, setError] = useState('');
+  const [remoteEnvironments, setRemoteEnvironments] = useState<Record<string, RemoteEnvironments>>({});
+  const [remoteEnvironmentBusy, setRemoteEnvironmentBusy] = useState<Record<string, boolean>>({});
+  const [remoteEnvironmentError, setRemoteEnvironmentError] = useState<Record<string, string>>({});
   const mounted = useRef(true);
   useEffect(() => {
     mounted.current = true;
@@ -37,6 +40,36 @@ export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
     const timer = setInterval(refresh, 3000);
     return () => {mounted.current = false; clearInterval(timer);};
   }, []);
+  const loadRemoteEnvironments = async (id: string) => {
+    setRemoteEnvironmentBusy(current => ({...current, [id]: true}));
+    try {
+      const next = await api.remoteEnvironments(id);
+      setRemoteEnvironments(current => ({...current, [id]: next}));
+      setRemoteEnvironmentError(current => ({...current, [id]: ''}));
+    } catch (failure) {
+      setRemoteEnvironmentError(current => ({...current, [id]: (failure as Error).message}));
+    } finally {
+      setRemoteEnvironmentBusy(current => ({...current, [id]: false}));
+    }
+  };
+  const prepareRemoteEnvironments = async (id: string) => {
+    setRemoteEnvironmentBusy(current => ({...current, [id]: true}));
+    try {
+      await api.remotePrepareEnvironments(id);
+      setRemoteEnvironmentError(current => ({...current, [id]: ''}));
+    } catch (failure) {
+      setRemoteEnvironmentError(current => ({...current, [id]: (failure as Error).message}));
+    } finally {
+      setRemoteEnvironmentBusy(current => ({...current, [id]: false}));
+      await loadRemoteEnvironments(id);
+    }
+  };
+  useEffect(() => {
+    (pool?.remotes || []).filter(remote => remote.connected && !remoteEnvironments[remote.profile.id])
+      .forEach(remote => {void loadRemoteEnvironments(remote.profile.id);});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pool]);
+
   const instance = pool?.instance;
   const jobs = environments?.operations || [];
   const running = jobs.filter(job => job.status === 'running');
@@ -88,6 +121,30 @@ export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
                 <span>{statusLabel[job.status || ''] || job.status}</span></li>)}</ul>}
           </> : <p className="muted">{remote.pool?.unsupported ? t('服务端版本较旧，无法读取池状态')
             : (remote.pool?.error || t('尚未启动共享池'))}</p>}
+        </div>}
+        {remote.connected && <div className="runtime-remote-pool">
+          <h5>{t('远程环境')}
+            <button className="subtle-button" onClick={() => void loadRemoteEnvironments(remote.profile.id)}>
+              {t('读取')}
+            </button>
+          </h5>
+          {remoteEnvironmentBusy[remote.profile.id] && <p className="muted">{t('读取中…')}</p>}
+          {remoteEnvironmentError[remote.profile.id] &&
+            <p className="muted">{remoteEnvironmentError[remote.profile.id]}</p>}
+          {remoteEnvironments[remote.profile.id]?.error &&
+            <p className="muted">{remoteEnvironments[remote.profile.id].error}</p>}
+          {!!Object.keys(remoteEnvironments[remote.profile.id]?.environments || {}).length && <>
+            <ul className="runtime-list">
+              {Object.entries(remoteEnvironments[remote.profile.id]?.environments || {}).map(([name, item]) =>
+                <li key={name}><strong>{name}</strong>
+                  <span>{statusLabel[item.status || ''] || item.status}
+                    {item.progress?.phase ? ` · ${item.progress.phase}` : ''}
+                    {item.progress?.detail ? ` · ${item.progress.detail}` : ''}</span></li>)}
+            </ul>
+            <button className="primary-button" onClick={() => void prepareRemoteEnvironments(remote.profile.id)}>
+              {t('准备远程环境')}
+            </button>
+          </>}
         </div>}
       </article>)}
     </section>

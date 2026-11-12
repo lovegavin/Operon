@@ -107,6 +107,19 @@ before the new build is installed.
   archive and the route archive. The optional `install-dependencies` helpers
   published next to the library are not required.
 
+## 4.1.7: remote environments
+
+- **MCP/agent**: `operon_environments` and `operon_environments_prepare` take a
+  `profile_id`; the same tools now read and prepare isolated environments on the
+  selected server, not only locally. `dependencies=True` also runs the server's
+  dependency repair.
+- **Desktop**: each connected server card shows a **远程环境** section; load the
+  plan and prepare missing environments without leaving the app.
+- **Installer fix**: environment creation bootstraps `setuptools`/`wheel`, which
+  fixes `pkg_resources` failures in `openmm81`; old receipts are rebuilt once.
+- **Diagnostics**: progress carries the PID and command, and failed staging is
+  kept as `.failed-<name>-<id>` instead of being deleted.
+
 ## What did not change
 
 - Wire protocol 3 and SDK 3.7.

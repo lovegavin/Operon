@@ -137,6 +137,10 @@ def plan(root=None, descriptors=None, source=None) -> dict:
     return result
 
 
+def _now() -> str:
+    return time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+
+
 def _emit(log, message):
     if log is not None:
         log(message)
@@ -144,16 +148,28 @@ def _emit(log, message):
         print(message, flush=True)
 
 
-def _run(argv, *, log, env=None, timeout=3600):
-    _emit(log, '$ ' + ' '.join(str(part) for part in argv))
-    completed = subprocess.run([str(part) for part in argv], capture_output=True, text=True,
-                               encoding='utf-8', errors='replace', env=env, timeout=timeout)
-    tail = (completed.stdout or '') + (completed.stderr or '')
+def _run(argv, *, log, env=None, timeout=3600, progress=None):
+    command = [str(part) for part in argv]
+    _emit(log, '$ ' + ' '.join(command))
+    if progress is not None:
+        progress.update({'command': ' '.join(command)[:400], 'pid': None, 'updated_at': _now()})
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+                               encoding='utf-8', errors='replace', env=env)
+    if progress is not None:
+        progress['pid'] = process.pid
+        progress['updated_at'] = _now()
+    try:
+        output, _ = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        output, _ = process.communicate()
+        raise RuntimeError(f'{" ".join(command[:3])} timed out after {timeout}s')
+    tail = output or ''
     for line in [line for line in tail.splitlines() if line.strip()][-25:]:
         _emit(log, '  ' + line)
-    if completed.returncode:
+    if process.returncode:
         detail = " | ".join(line for line in tail.splitlines() if line.strip())[-600:]
-        raise RuntimeError(f'{" ".join(str(p) for p in argv[:2])} exited with {completed.returncode}: {detail}')
+        raise RuntimeError(f'{" ".join(command[:2])} exited with {process.returncode}: {detail}')
     return tail
 
 
@@ -224,55 +240,66 @@ def _mamba_env(directory: Path) -> dict:
     return env
 
 
-def _create(entry: dict, staging: Path, log, root=None):
+def _create(entry: dict, staging: Path, log, root=None, progress=None):
     if entry.get('venv_shared'):
-        _run([sys.executable, '-m', 'venv', '--system-site-packages', staging], log=log, timeout=900)
+        _run([sys.executable, '-m', 'venv', '--system-site-packages', staging], log=log, timeout=900,
+             progress=progress)
         return
     mamba = _micromamba(base(root), log)
     env = _mamba_env(base(root))
     if entry.get('clone_shared'):
-        _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '--clone', sys.prefix], log=log, env=env, timeout=1800)
+        _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '--clone', sys.prefix], log=log, env=env,
+             timeout=1800, progress=progress)
     else:
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '-c', CONDA_FORGE, '--override-channels',
               '--strict-channel-priority', 'python=' + str(entry.get('python', '3.11')), 'pip'],
-             log=log, env=env, timeout=1800)
+             log=log, env=env, timeout=1800, progress=progress)
 
 
-def _install(entry: dict, staging: Path, log, root=None):
+def _install(entry: dict, staging: Path, log, root=None, progress=None):
     python = _python(staging)
+    direct = entry.get('pip_pypi') or []
+    # Base build tooling must exist before any source build or `--no-build-isolation` install.
+    if not entry.get('venv_shared'):
+        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--no-input', *PIP_INDEX,
+              'setuptools>=68', 'wheel'], log=log, timeout=900, progress=progress)
     conda_packages = entry.get('conda_packages') or []
     if conda_packages:
         mamba = _micromamba(base(root), log)
         _run([mamba, '--no-rc', 'install', '-y', '-p', staging, '-c', CONDA_FORGE, '--override-channels',
-              '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)), timeout=1800)
+              '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
+             timeout=1800, progress=progress)
     if entry.get('torch_cpu'):
         _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, 'torch',
-              '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800)
-    direct = entry.get('pip_pypi') or []
+              '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
+             progress=progress)
     if direct:
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, *PIP_INDEX, *direct], log=log, timeout=1800)
+        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, *PIP_INDEX, *direct], log=log,
+             timeout=1800, progress=progress)
     wheels = entry.get('pip_wheels') or []
     if wheels:
         _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--only-binary=:all:', *PIP_INDEX, *wheels],
-             log=log, timeout=1800)
+             log=log, timeout=1800, progress=progress)
     requirements = entry.get('requirements') or []
     if requirements:
         _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *requirements],
-             log=log, timeout=2400)
+             log=log, timeout=2400, progress=progress)
     no_deps = entry.get('no_deps') or []
     if no_deps:
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *no_deps], log=log, timeout=2400)
+        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *no_deps], log=log,
+             timeout=2400, progress=progress)
     no_build = entry.get('no_build_isolation') or []
     if no_build:
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--no-build-isolation', *no_build], log=log, timeout=3600)
+        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--no-build-isolation', *no_build], log=log,
+             timeout=3600, progress=progress)
 
 
-def _probe(python: Path, entry: dict, log):
+def _probe(python: Path, entry: dict, log, progress=None):
     modules = entry.get('imports') or []
     if not modules:
         return ''
     script = ';'.join('import ' + module for module in modules)
-    _run([python, '-c', script], log=log, timeout=600)
+    _run([python, '-c', script], log=log, timeout=600, progress=progress)
     return script
 
 
@@ -310,22 +337,23 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
                 size, files = _usage(staging, base(root) / 'packages')
             except OSError:
                 continue
-            progress.update({'bytes': size, 'files': files, 'updated_at': now()})
+            progress.update({'bytes': size, 'files': files, 'updated_at': _now()})
             _write_progress(name, root, progress)
 
     threading.Thread(target=watch, name=f'environment-progress-{name}', daemon=True).start()
     try:
         note(f'preparing isolated environment {name} at {target(name, root)}')
-        _create(entry, staging, note, root)
+        _create(entry, staging, note, root, progress=progress)
         progress['phase'] = 'installing'
-        _install(entry, staging, note, root)
+        _install(entry, staging, note, root, progress=progress)
         progress['phase'] = 'probing'
         python = _python(staging)
-        script = _probe(python, entry, note)
+        script = _probe(python, entry, note, progress=progress)
         progress['phase'] = 'committing'
         (staging / 'receipt.json').write_text(json.dumps({
             'schema': 1, 'name': name, 'python': str(entry.get('python', '3.11')),
             'spec_sha256': spec_sha256(entry), 'imports': script,
+            'bootstrap': 'setuptools>=68 wheel', 'installer': 'environment_install/2',
             'created_at': now(),
         }, indent=2), encoding='utf-8')
         final = target(name, root)
@@ -342,7 +370,14 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
     except BaseException as error:
         progress['phase'] = 'failed'
         progress['error'] = str(error)
-        shutil.rmtree(staging, ignore_errors=True)
+        for leftover in base(root).glob(f'.failed-{name}-*'):
+            shutil.rmtree(leftover, ignore_errors=True)
+        try:
+            failed = base(root) / f'.failed-{name}-{uuid.uuid4().hex[:8]}'
+            staging.rename(failed)
+            progress['staging'] = str(failed)
+        except OSError:
+            shutil.rmtree(staging, ignore_errors=True)
         path = _error_path(name, root)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps({'message': str(error), 'at': now()}, indent=2), encoding='utf-8')
@@ -351,7 +386,7 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
         stop.set()
         try:
             size, files = _usage(target(name, root), base(root) / 'packages')
-            progress.update({'bytes': size, 'files': files, 'updated_at': now()})
+            progress.update({'bytes': size, 'files': files, 'updated_at': _now()})
             _write_progress(name, root, progress)
         except OSError:
             pass

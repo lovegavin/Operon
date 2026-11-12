@@ -93,6 +93,86 @@ def pool_snapshot(service):
     return result
 
 
+_ENVIRONMENT_JOBS: dict[str, dict] = {}
+_ENVIRONMENT_LOCK = threading.Lock()
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _environment_plan(service):
+    from operon import environment_install, environments
+    root = environments.root()
+    source = service.plugins.source_root
+    descriptors = (service.state() or {}).get('descriptors') or []
+    return root, source, environment_install.plan(root, descriptors, source=str(source))
+
+
+def environment_snapshot(service) -> dict:
+    try:
+        root, source, plan = _environment_plan(service)
+    except Exception as exc:
+        return {'root': None, 'source': None, 'environments': {}, 'running': {},
+                'error': f'{type(exc).__name__}: {exc}'}
+    with _ENVIRONMENT_LOCK:
+        running = {name: dict(value) for name, value in _ENVIRONMENT_JOBS.items()}
+    return {'root': str(root), 'source': str(source), 'environments': plan, 'running': running}
+
+
+def environment_log(service, name: str, limit: int = 200) -> dict:
+    path = Path(service.directory) / 'environments' / f'{name}.log'
+    if not path.is_file():
+        return {'name': name, 'text': '', 'path': str(path)}
+    try:
+        size = max(1, min(int(limit or 200), 2000))
+    except (TypeError, ValueError):
+        size = 200
+    lines = path.read_text(encoding='utf-8', errors='replace').splitlines()[-size:]
+    return {'name': name, 'text': '\n'.join(lines), 'path': str(path)}
+
+
+def environment_prepare(service, payload: dict | None = None) -> dict:
+    from operon import environment_install
+    payload = payload or {}
+    names = payload.get('names') or None
+    dependencies = bool(payload.get('dependencies'))
+    snapshot = environment_snapshot(service)
+    if snapshot.get('error'):
+        return snapshot
+    started = []
+    with _ENVIRONMENT_LOCK:
+        for name, entry in (snapshot.get('environments') or {}).items():
+            if names is not None and name not in names:
+                continue
+            if (entry or {}).get('status') not in ('missing', 'stale', 'failed'):
+                continue
+            if name in _ENVIRONMENT_JOBS:
+                continue
+            _ENVIRONMENT_JOBS[name] = {'phase': 'queued', 'started_at': _now_iso()}
+            started.append(name)
+
+    def worker(name: str):
+        try:
+            environment_install.prepare(name, snapshot['root'], source=snapshot['source'])
+        except Exception:
+            pass
+        finally:
+            with _ENVIRONMENT_LOCK:
+                _ENVIRONMENT_JOBS.pop(name, None)
+
+    for name in started:
+        threading.Thread(target=worker, args=(name,), name=f'environment-{name}', daemon=True).start()
+    if dependencies:
+        def repair():
+            try:
+                service.dependencies.check(repair=True, repair_r=True)
+            except Exception:
+                pass
+        threading.Thread(target=repair, name='dependency-repair', daemon=True).start()
+    return {**environment_snapshot(service), 'started': started, 'dependencies': dependencies}
+
+
 class RemoteService:
     def __init__(self, workspace, input_roots=None):
         self._lifecycle = threading.RLock()
@@ -320,6 +400,13 @@ class RemoteService:
                     'library': deepcopy(self.handshake.build.get('library', {}))}
         if method == 'pool_info':
             return pool_snapshot(self.service)
+            if method == 'environments':
+                return environment_snapshot(self.service)
+            if method == 'environments_prepare':
+                return environment_prepare(self.service, params or {})
+            if method == 'environments_log':
+                return environment_log(self.service, str((params or {}).get('name') or ''),
+                                       (params or {}).get('limit') or 200)
         if method == 'library_install':
             # JobService wraps _install_many in the shared environment gate.
             # Acquiring it here too would reject our own install as concurrent

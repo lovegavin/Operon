@@ -75,6 +75,51 @@ python -m venv ~/antifold-env
 
 ## 开启 OpenMM 算子
 
+结构类算子（`structure_interface_core`、`interface_mmgbsa_delta` 等）使用独立的
+`openmm81` 环境，不会装进 Studio 主运行时。它由算子库的
+`operon/environments.json` 声明：
+
+- Python 3.11
+- `openmm==8.1.1`、`numpy==1.26.4`、`setuptools>=68`、`wheel`
+- `pdbfixer` 用上游 GitHub tarball，并禁用 build isolation
+
+安装位置是安装根下的 `external/openmm81/`，成功后写 `receipt.json`。
+
+### 桌面端
+
+**算子库管理 → 依赖 → 修复依赖** 或运行状态面板里的环境进度会创建缺失环境。
+进度每 2 秒写入 `<install root>/external/.operon-environment-progress`，包含
+`phase`、`detail`、`bytes`、`files`、`pid`。首次需要下载 conda-forge 的
+repodata（约 400–500 MB），可能持续 20 分钟以上，属于正常现象。
+
+### MCP
+
+```python
+operon_environments(profile_id="srv")                 # 只读：计划、状态、进度
+operon_environments_prepare(names=["openmm81"], profile_id="srv", dependencies=True)
+```
+
+不带 `profile_id` 时只作用于本机；带 `profile_id` 时在指定服务器的安装根下准备，
+接口立即返回，安装继续在服务器后台运行。
+
+### 安装失败时
+
+失败不会删除现场：staging 目录会改名为
+`external/.failed-openmm81-<id>/`，错误写入
+`external/.operon-environment-errors/openmm81.json`，日志在
+`<workspace>/.studio/environments/openmm81.log`。用 `progress.pid` 可以判断安装
+进程是否还在运行。
+
+常见报错：
+
+- `No module named 'pkg_resources'`：环境缺 setuptools。4.1.7 起安装器会先
+  bootstrap `setuptools>=68 wheel`；旧 receipt 会自动视为 stale 并重建一次。
+- `No matching distribution found for pdbfixer`：pdbfixer 不在 PyPI，只发
+  conda-forge 或 GitHub tarball。清单已改用 tarball，不要手动改回 PyPI。
+- `The isolated environment 'openmm81' is not installed`：环境尚未准备，按上面的
+  方式触发安装。不要在共享解释器里补装 `openmm`，那会污染主运行时并重现
+  NumPy ABI 冲突。
+
 ## Decision tree
 
 1. **Is the Python package installed?** `python -c "import operon"` and

@@ -428,6 +428,15 @@ class RemoteManager:
             (self.directory/(key+'.catalog.json')).unlink(missing_ok=True)
             self.persist()
 
+    def environments(self, key: str) -> dict:
+        return self.call(key, 'environments')
+
+    def prepare_environments(self, key: str, names=None, dependencies: bool = False) -> dict:
+        return self.call(key, 'environments_prepare', {'names': names, 'dependencies': dependencies})
+
+    def environment_log(self, key: str, name: str, limit: int = 200) -> dict:
+        return self.call(key, 'environments_log', {'name': name, 'limit': limit})
+
     def call(self, key, method, params=None):
         self.profile(key)
         connection = self.connections.get(key)
