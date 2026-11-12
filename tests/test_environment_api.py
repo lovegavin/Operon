@@ -1,4 +1,5 @@
 """Environment status endpoint and unknown-name handling."""
+import json
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -7,6 +8,7 @@ from src.web.api import create_app
 from src.web.service import Settings
 
 ROOT = Path(__file__).resolve().parents[1]
+ENVIRONMENT_MANIFEST = ROOT / 'library/seed/operon/environments.json'
 
 
 def studio(tmp_path):
@@ -23,7 +25,8 @@ def test_environments_endpoint_reports_declared_environments(tmp_path):
         assert body['root']
         assert {'antifold', 'esm3', 'boltz', 'openmm81'} <= set(body['environments'])
         item = body['environments']['openmm81']
-        assert item['python'] == '3.11'
+        expected = json.loads(ENVIRONMENT_MANIFEST.read_text(encoding='utf-8'))
+        assert item['python'] == expected['environments']['openmm81']['python']
         assert item['status'] in {'missing', 'stale', 'ready', 'failed'}
         assert 'used_by' in item
 

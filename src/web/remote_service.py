@@ -123,6 +123,12 @@ class RemoteManager:
             self.pools[key] = (time.monotonic(), value)
         return deepcopy(value)
 
+    def pool_stop(self, key, force=False):
+        """Stop the remote shared pool; force cancels its active tasks."""
+        with self.lock:
+            self.pools.pop(key, None)
+        return self.call(key, 'pool_stop', {'force': bool(force)})
+
     def status(self, *, brief=False):
         def summary(key):
             info = read_json(self.directory/(key+'.catalog.json'))

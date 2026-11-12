@@ -182,6 +182,37 @@ def create_server(client):
         return client.request('/remote/' + quote(profile_id, safe='') + '/ensure', {})
 
     @server.tool()
+    def operon_remote_install(profile_id: str, force: bool = False) -> dict:
+        """Start installing or upgrading the Operon server on a configured SSH profile.
+
+        force=True lets the remote retire busy tasks and previous installations.
+        Poll operon_remote_install_status for progress.
+        """
+        return client.request('/remote/' + quote(profile_id, safe='') + '/install',
+                              {'force': force})
+
+    @server.tool()
+    def operon_remote_install_status(profile_id: str) -> dict:
+        """Read the background server installation/upgrade progress for a profile."""
+        return client.request('/remote/' + quote(profile_id, safe='') + '/setup')
+
+    @server.tool()
+    def operon_pool_status() -> dict:
+        """Show the local shared pool: version, owner, workspaces and active tasks."""
+        return client.request('/pool')
+
+    @server.tool()
+    def operon_pool_stop(force: bool = False) -> dict:
+        """Stop the local shared pool. force=True discards its active tasks."""
+        return client.request('/pool/stop', {'force': force})
+
+    @server.tool()
+    def operon_remote_pool_stop(profile_id: str, force: bool = False) -> dict:
+        """Stop one remote server's shared pool. force=True discards its active tasks."""
+        return client.request('/remote/' + quote(profile_id, safe='') + '/pool/stop',
+                              {'force': force})
+
+    @server.tool()
     def operon_validate(graph: dict) -> dict:
         """Validate a complete route without running it or installing dependencies. Check readiness before running.
 

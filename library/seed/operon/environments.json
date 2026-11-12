@@ -127,22 +127,28 @@
     },
     "openmm81": {
       "title": "OpenMM 8.1.1 / PDBFixer 1.9 structure preparation",
-      "python": "3.11",
+      "python": "3.12",
       "imports": [
         "openmm",
         "pdbfixer",
-        "numpy"
+        "numpy",
+        "pkg_resources"
       ],
       "requirements": [
         "openmm==8.1.1",
         "numpy==1.26.4",
-        "setuptools>=68",
+        "setuptools<81",
         "wheel"
       ],
       "no_build_isolation": [
         "pdbfixer @ https://github.com/openmm/pdbfixer/archive/6bf10e138f6475f6f1850dae78d7bf1b420a1612.tar.gz"
       ],
-      "notes": "OpenMM 8.1.1 wheels use the NumPy 1 ABI and PDBFixer 1.9 is not published on PyPI. This isolated Python 3.11 environment pins both without downgrading the shared NumPy 2 runtime; PDBFixer is built from the pinned upstream commit without build isolation."
+      "notes": "OpenMM 8.1.1 wheels use the NumPy 1 ABI and PDBFixer 1.9 is not published on PyPI. This isolated venv shares the host Python (3.12 on Studio 4.1.x) and pins OpenMM, NumPy, setuptools<81 and PDBFixer without downgrading the shared NumPy 2 runtime. PDBFixer is built from the pinned upstream commit without build isolation; setuptools<81 is installed first and verified so its pkg_resources import is available.",
+      "pip_wheels": [
+        "setuptools<81",
+        "wheel"
+      ],
+      "venv_shared": true
     }
   }
 }

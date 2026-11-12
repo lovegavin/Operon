@@ -81,6 +81,8 @@ internal sealed class InstallEngine
         lock (logGate) File.AppendAllText(LogPath, DateTimeOffset.Now.ToString("O") + " " + line + Environment.NewLine, Encoding.UTF8);
     }
     private void Report(string message, int percent) { Log(message); progress.Report(new(message, percent)); }
+
+    private void ReportText(string message) => Report(message, 1);
     private static string ReceiptPath(string root) => Path.Combine(root, "installation.json");
 
     // Resolve without modifying anything. Both UI and unattended installation
@@ -265,6 +267,46 @@ internal sealed class InstallEngine
         }
     }
 
+    internal sealed class PoolBusyException(string message) : Exception(message);
+
+    internal static InstallUpgrade.PoolState? InspectPool() => InstallUpgrade.InspectPool();
+
+    // Updating never keeps an old version around: every connection is closed,
+    // the shared pool is emptied, and the previous install is deleted first.
+    private void PrepareReplacement(string root, InstallReceipt? old, bool force, Action<string> report)
+    {
+        MigrateEnvironments(root);
+        report("正在断开旧版本的全部连接…");
+        if (old is not null) DisconnectAgents(old.Profile);
+        foreach (var target in UpgradeTargets(root))
+            try { DisconnectAgents(target.Profile); }
+            catch (Exception error) { Log("Disconnect " + target.Profile + ": " + error.Message); }
+        var pool = InstallUpgrade.InspectPool();
+        if (pool is { Busy: true } && !force)
+            throw new PoolBusyException(pool.Reason + " 如需立即更新，请勾选“强制重装”，安装程序将停止共享池中的任务并清空池状态。");
+        if (pool is not null)
+        {
+            report("正在清空共享池…");
+            InstallUpgrade.ClearPool(report);
+        }
+        if (old is not null)
+        {
+            RemovePreviousInstallation(root, old);
+            return;
+        }
+        if (!HasManagedArtifacts(root) && !LooksLikeOperonRoot(root)) return;
+        TerminateManagedProcesses(root);
+        RemoveRootExceptWorkspace(root);
+        RemoveRegistrationsUnder(root);
+        RemoveShortcutsUnder(root);
+    }
+
+    private static IReadOnlyList<UpgradeTarget> UpgradeTargets(string root)
+    {
+        var receipt = ReadReceipt(root);
+        return receipt is null ? [] : InstallUpgrade.Targets(root, receipt);
+    }
+
     internal async Task<InstallResult> Install(InstallOptions options, CancellationToken token)
     {
         string root = ResolveDestination(options.InstallDir);
@@ -273,8 +315,6 @@ internal sealed class InstallEngine
         var old = ReadReceipt(root);
         string? stage = null, installed = null, resolvedProfile = null;
         InstallLease? profileLease = null;
-        InstallUpgrade? upgrade = null;
-        IReadOnlyList<UpgradeTarget> upgradeTargets = [];
         var priorLinks = new Dictionary<string, byte[]?>();
         string? registrationKey = null;
         Dictionary<string, (object Value, RegistryValueKind Kind)>? priorRegistration = null;
@@ -283,15 +323,10 @@ internal sealed class InstallEngine
         var committed = false;
         try
         {
-            if (old is null && LooksLikeOperonRoot(root) && !options.ForceReinstall)
-                throw new InvalidOperationException("此目录已有旧版 Operon 安装。请勾选“强制重装”以在同一个目录重新安装。");
-            if (options.ForceReinstall && (old is not null || LooksLikeOperonRoot(root)))
+            if (old is not null || LooksLikeOperonRoot(root) || HasManagedArtifacts(root))
             {
-                Report("正在强制卸载安装目录中的旧版本…", 1);
-                if (old is not null) RemovePreviousInstallation(root, old);
-                RemoveRootExceptWorkspace(root);
-                RemoveRegistrationsUnder(root);
-                RemoveShortcutsUnder(root);
+                Report("正在准备完整更新：断开连接、清空共享池并删除旧版本…", 1);
+                PrepareReplacement(root, old, options.ForceReinstall, ReportText);
                 old = null;
             }
             var cache = Path.Combine(Path.GetDirectoryName(work)!, "cache");
@@ -329,16 +364,12 @@ internal sealed class InstallEngine
             token.ThrowIfCancellationRequested();
             // A fresh profile is never populated from an old registry or target.
             if (Directory.Exists(resolvedProfile)) throw new IOException("新档案目录已存在，请重新运行安装程序。");
-            if (old is not null)
-            {
-                upgradeTargets = InstallUpgrade.Targets(root, old);
-                Report("正在检查旧版本并准备安全更新…", 86);
-                upgrade = await InstallUpgrade.Prepare(upgradeTargets, message => Report(message, 88), token);
-            }
             Report("正在启用独立安装…", 90);
             var relative = "versions/" + spec.Version + "-" + Guid.NewGuid().ToString("N")[..12];
             installed = InstallFiles.Inside(root, relative);
             Directory.Move(stage, installed); stage = null;
+            PointCurrent(root, relative);
+            WriteLaunchers(root, relative);
             var shortcuts = new Dictionary<string, string>();
             if (options.Register)
             {
@@ -373,16 +404,8 @@ internal sealed class InstallEngine
             allVersions.Add(relative);
             var receipt = new InstallReceipt(InstallFiles.Owner, spec.Version, relative, resolvedProfile, allVersions, shortcuts, registrationKey, root);
             InstallFiles.AtomicJson(ReceiptPath(root), receipt); committed = true;
-            // Old software is removable only through its own receipt. Failure to
-            // clean an old version never redirects or blocks the fresh runtime.
-            if (old is not null)
-            {
-                Report("正在清理旧版本；用户档案会保留…", 98);
-                foreach (var previous in old.Versions)
-                    try { CleanVersion(root, previous, Path.GetDirectoryName(old.Profile)!,
-                        upgradeTargets.FirstOrDefault(t => t.Directory == InstallFiles.Inside(root, previous))?.Profile); }
-                    catch (Exception cleanupError) { Log("Old version retained: " + cleanupError.Message); }
-            }
+            // Previous versions were already deleted before extraction; only
+            // the fresh version remains under versions/.
             Report("安装完成", 100);
             return new("installed", root, Path.Combine(installed, "Operon Studio.exe"), resolvedProfile, LogPath);
         }
@@ -408,7 +431,7 @@ internal sealed class InstallEngine
             }
             throw;
         }
-        finally { upgrade?.Dispose(); profileLease?.Dispose(); }
+        finally { profileLease?.Dispose(); }
     }
 
     private void RepairPinnedShortcut(string installed, string profile)
@@ -422,6 +445,60 @@ internal sealed class InstallEngine
             CreateShortcut(link, Path.Combine(installed, "Operon Studio.exe"), profile);
         }
         catch (Exception e) { Log("Taskbar shortcut repair: " + e.Message); }
+    }
+
+    private static void RemoveLink(string path)
+    {
+        try
+        {
+            if (!Directory.Exists(path) && !File.Exists(path)) return;
+            var start = new ProcessStartInfo("cmd.exe", "/c rmdir \"" + path + "\"")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+            using var process = Process.Start(start);
+            process?.WaitForExit(15000);
+        }
+        catch { }
+    }
+
+    private static void PointCurrent(string root, string relative)
+    {
+        var link = Path.Combine(root, "current");
+        var target = Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar));
+        if (!Directory.Exists(target)) return;
+        RemoveLink(link);
+        try
+        {
+            var start = new ProcessStartInfo("cmd.exe", "/c mklink /J \"" + link + "\" \"" + target + "\"")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+            using var process = Process.Start(start);
+            process?.WaitForExit(15000);
+        }
+        catch { }
+    }
+
+    private static void WriteLaunchers(string root, string relative)
+    {
+        var bin = Path.Combine(root, "bin");
+        Directory.CreateDirectory(bin);
+        var version = Path.Combine(root, relative.Replace('/', '\\'));
+        var python = Path.Combine(version, "runtime", "python", "python.exe");
+        var studio = Path.Combine(version, "Operon Studio.exe");
+        File.WriteAllText(Path.Combine(bin, "python.cmd"),
+            "@echo off\r\n\"" + python + "\" %*\r\n");
+        File.WriteAllText(Path.Combine(bin, "operon.cmd"),
+            "@echo off\r\n\"" + python + "\" -I -m operon %*\r\n");
+        File.WriteAllText(Path.Combine(bin, "operon-studio.cmd"),
+            "@echo off\r\nstart \"\" \"" + studio + "\"\r\n");
     }
 
     private static void CreateShortcut(string path, string executable, string profile)
@@ -582,12 +659,38 @@ internal sealed class InstallEngine
         foreach (var entry in Directory.EnumerateFileSystemEntries(root))
         {
             if (string.Equals(Path.GetFileName(entry), "workspace", StringComparison.OrdinalIgnoreCase)) continue;
+            if (string.Equals(Path.GetFileName(entry), "environments", StringComparison.OrdinalIgnoreCase)) continue;
+            if (string.Equals(Path.GetFileName(entry), "current", StringComparison.OrdinalIgnoreCase))
+            {
+                RemoveLink(entry);
+                continue;
+            }
             try
             {
                 if (Directory.Exists(entry)) Directory.Delete(entry, true);
                 else File.Delete(entry);
             }
             catch (Exception error) { Log("Root entry retained: " + entry + " (" + error.Message + ")"); }
+        }
+    }
+
+    private void MigrateEnvironments(string root)
+    {
+        var target = Path.Combine(root, "environments");
+        if (Directory.Exists(target)) return;
+        var versions = Path.Combine(root, "versions");
+        if (!Directory.Exists(versions)) return;
+        foreach (var version in Directory.EnumerateDirectories(versions).OrderByDescending(Path.GetFileName))
+        {
+            var external = Path.Combine(version, "runtime", "python", "external");
+            if (!Directory.Exists(external)) continue;
+            try
+            {
+                Directory.Move(external, target);
+                Log("Migrated isolated environments to " + target);
+                return;
+            }
+            catch (Exception error) { Log("Environment migration failed: " + error.Message); }
         }
     }
 
@@ -647,6 +750,7 @@ internal sealed class InstallEngine
             var foreignStopped = TerminateManagedProcesses(root);
             if (foreignStopped > 0) Log($"Stopped {foreignStopped} owned process(es).");
             RemoveManagedVersions(root);
+            RemoveVersionTrees(root);
             RemoveAutostart();
             RemovePinnedShortcut(root);
             RemoveManagedRegistration(root);
@@ -662,7 +766,7 @@ internal sealed class InstallEngine
         // its managed versions and shell integration. Profiles, workspace data
         // and analysis results stay outside this deletion.
         DisconnectAgents(receipt.Profile);
-        var stopped = TerminateManagedProcesses(root);
+        var stopped = TerminateManagedProcesses(root, strict: false);
         if (stopped > 0) Log($"Stopped {stopped} process(es) from the previous installation.");
         var allowedLinks = new[] {
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Operon Studio.lnk"),
@@ -676,9 +780,7 @@ internal sealed class InstallEngine
         }
         RemoveAutostart();
         RemovePinnedShortcut(root);
-        foreach (var relative in receipt.Versions)
-            try { CleanVersion(root, relative, Path.GetDirectoryName(receipt.Profile)!, receipt.Profile); }
-            catch (Exception error) { Log("Old version retained: " + error.Message); }
+        RemoveVersionTrees(root);
         if (receipt.UninstallKey is not null)
             try { Registry.CurrentUser.DeleteSubKeyTree(receipt.UninstallKey, false); }
             catch (Exception error) { Log("Old registration retained: " + error.Message); }
@@ -741,7 +843,7 @@ internal sealed class InstallEngine
         catch (Exception error) { Log("MCP disconnect skipped: " + error.Message); }
     }
 
-    internal static int TerminateManagedProcesses(string installRoot)
+    internal static int TerminateManagedProcesses(string installRoot, bool strict = true)
     {
         var root = Path.GetFullPath(installRoot).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         var self = Environment.ProcessId;
@@ -769,6 +871,7 @@ internal sealed class InstallEngine
         }
         // Verify that nothing under the installation survived; refusing here is
         // safer than deleting a partially locked tree.
+        if (strict)
         foreach (var process in Process.GetProcesses())
         {
             if (process.Id == self) { process.Dispose(); continue; }
@@ -786,6 +889,43 @@ internal sealed class InstallEngine
             finally { process.Dispose(); }
         }
         return stopped.Count;
+    }
+
+    private void RemoveVersionTrees(string root)
+    {
+        var versions = Path.Combine(root, "versions");
+        if (!Directory.Exists(versions)) return;
+        for (var attempt = 0; attempt < 15; attempt++)
+        {
+            var remaining = Directory.EnumerateDirectories(versions)
+                .Where(item => !Path.GetFileName(item).StartsWith(".install-", StringComparison.Ordinal)).ToList();
+            if (remaining.Count == 0) break;
+            try { TerminateManagedProcesses(root, strict: false); }
+            catch (Exception error) { Log("Stop for version cleanup: " + error.Message); }
+            foreach (var directory in remaining)
+            {
+                try { ClearReadOnly(directory); Directory.Delete(directory, true); }
+                catch (Exception error) { Log("Old version retained: " + error.Message); }
+            }
+            if (!Directory.EnumerateDirectories(versions)
+                .Any(item => !Path.GetFileName(item).StartsWith(".install-", StringComparison.Ordinal))) break;
+            Thread.Sleep(400);
+        }
+        try
+        {
+            if (Directory.Exists(versions) && !Directory.EnumerateFileSystemEntries(versions).Any())
+                Directory.Delete(versions);
+        }
+        catch (Exception error) { Log("Old versions directory retained: " + error.Message); }
+    }
+
+    private static void ClearReadOnly(string path)
+    {
+        try { File.SetAttributes(path, File.GetAttributes(path) & ~(FileAttributes.ReadOnly | FileAttributes.System)); }
+        catch (Exception) { }
+        foreach (var item in Directory.EnumerateFileSystemEntries(path, "*", SearchOption.AllDirectories))
+            try { File.SetAttributes(item, File.GetAttributes(item) & ~(FileAttributes.ReadOnly | FileAttributes.System)); }
+            catch (Exception) { }
     }
 
     private static bool ShortcutIsStale(string path, string root)
