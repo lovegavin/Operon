@@ -87,13 +87,17 @@ python -m venv ~/antifold-env
 python -c "from operon import environment_install as e; print(e.state('openmm81'))"
 python -c "from operon import environment_install as e; e.prepare('openmm81')"
 ```
+- Python 3.12（共享宿主解释器）
+- `openmm==8.1.1`、`numpy==1.26.4`、`setuptools<81`、`wheel`
+- `imports` 包含 `pkg_resources`，安装器会先安装并验证 `setuptools<81`
+- `pdbfixer` 用上游 GitHub tarball，并禁用 build isolation
 
-安装位置是安装根下的 `external/openmm81/`，成功后写 `receipt.json`。
+安装位置是安装根下的 `environments/openmm81/`，成功后写 `receipt.json`。
 
 ### 桌面端
 
 **算子库管理 → 依赖 → 修复依赖** 或运行状态面板里的环境进度会创建缺失环境。
-进度每 2 秒写入 `<install root>/external/.operon-environment-progress`，包含
+进度每 2 秒写入 `<install root>/environments/.operon-environment-progress`，包含
 `phase`、`detail`、`bytes`、`files`、`pid`。
 
 ### MCP
@@ -116,8 +120,12 @@ operon_environments_prepare(names=["openmm81"], profile_id="srv", dependencies=T
 
 常见报错：
 
-- `No module named 'pkg_resources'`：环境缺 setuptools。8.0.7 清单先装
-  `setuptools<81`，保留 `pkg_resources`；旧 receipt 会自动视为 stale 并重建一次。
+- `No module named 'pkg_resources'`：环境缺 setuptools，或旧环境的
+  setuptools 已损坏。8.0.7 清单固定 `setuptools<81` 并在探测时导入
+  `pkg_resources`；旧 receipt 会自动视为 stale 并重建一次。如果重装后仍报错，
+  先删除安装根下的 `environments/openmm81/` 强制清除旧环境，再执行
+  `operon_environments_prepare(names=["openmm81"], dependencies=True)`
+  （或桌面端 **修复依赖**）重新安装。
 - `No matching distribution found for pdbfixer`：pdbfixer 不在 PyPI，只发
   conda-forge 或 GitHub tarball。清单已改用 tarball，不要手动改回 PyPI。
 - `The isolated environment 'openmm81' is not installed`：环境尚未准备，按上面的

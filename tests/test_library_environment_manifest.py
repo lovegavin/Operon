@@ -7,10 +7,11 @@ from operon.library_bundle import build_bundle, unpack_bundle
 from operon.plugins import _runtime_class
 
 ROOT = Path(__file__).resolve().parents[1]
+LIBRARY_VERSION = json.loads((ROOT / "library/release.json").read_text(encoding="utf-8"))["version"]
 
 
 def test_bundle_carries_environment_manifest(tmp_path):
-    result = build_bundle(ROOT, tmp_path / "out", "8.0.6")
+    result = build_bundle(ROOT, tmp_path / "out", LIBRARY_VERSION)
     with zipfile.ZipFile(result["bundle"]) as archive:
         names = set(archive.namelist())
         document = json.loads(archive.read("library.json"))

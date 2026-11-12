@@ -25,6 +25,7 @@ class FakeService:
         self.plugins = SimpleNamespace(source_root=source)
         self.dependencies = SimpleNamespace(calls=[], check=self._check)
         self._descriptors = descriptors or [{'id': 'alpha', 'resources': {'environment': 'demo'}}]
+        self.catalog = {'operators': list(self._descriptors), 'readers': []}
 
     def _check(self, **kwargs):
         self.dependencies.calls.append(kwargs)

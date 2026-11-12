@@ -25,6 +25,7 @@ export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
   const [remoteEnvironments, setRemoteEnvironments] = useState<Record<string, RemoteEnvironments>>({});
   const [remoteEnvironmentBusy, setRemoteEnvironmentBusy] = useState<Record<string, boolean>>({});
   const [remoteEnvironmentError, setRemoteEnvironmentError] = useState<Record<string, string>>({});
+  const [poolBusy, setPoolBusy] = useState('');
   const mounted = useRef(true);
   useEffect(() => {
     mounted.current = true;
@@ -50,6 +51,23 @@ export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
       setRemoteEnvironmentError(current => ({...current, [id]: (failure as Error).message}));
     } finally {
       setRemoteEnvironmentBusy(current => ({...current, [id]: false}));
+    }
+  };
+  const stopPool = async (force: boolean) => {
+    try {
+      const result = await api.stopPool(force);
+      setPoolBusy(result.busy ? t('共享池中仍有任务，请确认后强制停止') : '');
+    } catch (failure) {
+      setPoolBusy((failure as Error).message);
+    }
+  };
+  const stopRemotePool = async (id: string, force: boolean) => {
+    try {
+      const result = await api.remotePoolStop(id, force);
+      setRemoteEnvironmentError(current => ({...current,
+        [id]: result.busy ? t('远程共享池中仍有任务，请确认后强制停止') : ''}));
+    } catch (failure) {
+      setRemoteEnvironmentError(current => ({...current, [id]: (failure as Error).message}));
     }
   };
   const prepareRemoteEnvironments = async (id: string) => {
@@ -81,7 +99,12 @@ export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
         <p>{t('版本')} <span className="mono">{instance.version}</span> · PID <span className="mono">{instance.pid || '—'}</span>
           {instance.closing && <> · {t('正在退出')}</>}</p>
         <p className="muted">{t('已注册工作区')} {pool?.workspaces.length || 0} · {t('运行中任务')} {pool?.active.length || 0}</p>
+        <button className="subtle-button" onClick={() => void stopPool(false)}>{t('停止共享池')}</button>
+        <button className="subtle-button" onClick={() => {
+          if (window.confirm(t('共享池仍有任务，是否强制清除？'))) void stopPool(true);
+        }}>{t('强制清除共享池')}</button>
       </>}
+      {poolBusy && <p className="muted">{poolBusy}</p>}
       {!!pool?.active.length && <ul className="runtime-list">{pool.active.map(item =>
         <li key={`${item.workspace}:${item.id}`}><strong>{item.title || item.id}</strong>
           <span>{statusLabel[item.status || ''] || item.status} · {item.workspace}</span></li>)}</ul>}
@@ -114,6 +137,11 @@ export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
             <p><span className="mono">{remote.pool.version || '—'}</span> · PID{' '}
               <span className="mono">{remote.pool.owner?.pid || '—'}</span>
               {remote.pool.closing && <> · {t('正在退出')}</>}</p>
+            <button className="subtle-button" onClick={() => {
+              if (window.confirm(t('远程共享池中仍有任务，是否强制清除？'))) {
+                void stopRemotePool(remote.profile.id, true);
+              }
+            }}>{t('强制清除远程共享池')}</button>
             <p className="muted">{t('运行中任务')} {remote.pool.active_count || 0}
               {' · '}{t('会话')} {remote.pool.sessions ?? 0}</p>
             {!!remote.pool.active_jobs?.length && <ul className="runtime-list">{remote.pool.active_jobs.map(job =>

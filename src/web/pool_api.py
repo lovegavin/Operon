@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from fastapi import HTTPException
+
 ACTIVE = {'queued', 'preparing', 'running', 'recovery_required'}
 
 
@@ -46,3 +48,10 @@ def mount_pool(app, service):
                              'closing': bool(instance.get('closing'))},
                 'workspaces': workspaces, 'active': active,
                 'remotes': service.remotes.status(brief=True) if getattr(service, 'remotes', None) else []}
+
+    @app.post('/api/pool/stop')
+    def pool_stop(payload: dict | None = None):
+        try:
+            return managed_pool.stop_pool(force=bool((payload or {}).get('force')))
+        except managed_pool.PoolClientError as exc:
+            raise HTTPException(409, str(exc)) from exc

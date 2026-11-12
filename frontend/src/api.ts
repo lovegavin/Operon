@@ -120,6 +120,11 @@ export const api = {
   retryEnvironment: (name: string) => request<EnvironmentSnapshot & {job: string}>(`/api/environments/${encodeURIComponent(name)}/retry`, {}),
   environmentLog: (name: string, limit = 200) => request<{name: string; text: string}>(`/api/environments/${encodeURIComponent(name)}/log?limit=${limit}`),
   pool: () => request<PoolStatus>('/api/pool'),
+  stopPool: (force = false) =>
+    request<{stopped: boolean; forced?: boolean; busy?: boolean; error?: string}>('/api/pool/stop', {force}),
+  remotePoolStop: (id: string, force = false) =>
+    request<{stopped: boolean; forced?: boolean; busy?: boolean; error?: string}>(
+      `/api/remote/${encodeURIComponent(id)}/pool/stop`, {force}),
   remoteEnvironments: (id: string) =>
     request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments`),
   remotePrepareEnvironments: (id: string, names?: string[], dependencies = false) =>

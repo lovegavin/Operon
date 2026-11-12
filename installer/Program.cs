@@ -173,7 +173,7 @@ internal sealed class SetupWindow : Form
     private readonly Label state = new();
     private readonly CheckBox forceReinstall = new()
     {
-        Text = "强制重装（终止旧版本任务，保留工作区）",
+        Text = "强制重装（停止共享池任务并彻底删除旧版本，保留工作区）",
         AutoSize = true,
         Visible = false,
         ForeColor = Color.FromArgb(190, 70, 40)
@@ -206,7 +206,7 @@ internal sealed class SetupWindow : Form
             if (dialog.ShowDialog(this) == DialogResult.OK) destination.Text = dialog.SelectedPath; };
         state.SetBounds(34, 222, 562, 52); state.Text = uninstall
             ? "将清理这个根目录下除 workspace 外的全部内容。"
-            : "该目录就是安装根目录；卸载时除 workspace 外全部删除。";
+            : "该目录就是安装根目录；更新会先断开连接、清空共享池并删除旧版本。";
         progress.SetBounds(34, 284, 562, 6); progress.Style = ProgressBarStyle.Continuous;
         forceReinstall.SetBounds(34, 297, 500, 24);
         logs.SetBounds(34, 335, 150, 30); logs.Text = "查看安装日志"; logs.Visible = false;
@@ -241,7 +241,20 @@ internal sealed class SetupWindow : Form
             else
             {
                 if (!ConfirmInstall(target)) return;
-                if (engine.HasInstallation(target) && !ConfirmReinstall(target)) return;
+                if (engine.HasInstallation(target) || engine.HasManagedArtifacts(target))
+                {
+                    var pool = InstallEngine.InspectPool();
+                    if (pool is { Busy: true } && !forceReinstall.Checked)
+                    {
+                        var answer = MessageBox.Show(this,
+                            $"共享池中仍有任务：\n\n{pool.Reason}\n\n是否强制更新？将立即停止这些任务、清空共享池中的全部状态，然后删除旧版本并安装新版本。\n\n安装目录：{target}",
+                            "共享池仍有任务", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
+                            MessageBoxDefaultButton.Button2);
+                        if (answer != DialogResult.Yes) return;
+                        forceReinstall.Checked = true;
+                    }
+                    if (!ConfirmReinstall(target)) return;
+                }
             }
             destination.Text = target;
             running = true; action.Text = uninstall ? "卸载中…" : "安装中…";
@@ -295,8 +308,8 @@ internal sealed class SetupWindow : Form
         var forced = forceReinstall.Checked;
         var answer = MessageBox.Show(this,
             forced
-                ? $"检测到旧版本。将强制终止旧版本的所有 Operon / Python 进程，删除旧版本文件，然后安装新版本。\n\n安装目录：{target}\n\n旧用户档案、工作区、路线、数据和任务记录会保留。是否继续？"
-                : $"检测到已安装的 Operon Studio，是否覆盖重装？\n\n安装目录：{target}\n\n安装程序会先安全关闭旧版本；如果旧版本仍有进行中的任务，安装会被拒绝。\n如需立即终止旧任务并重装，请勾选“强制重装（终止旧版本任务，保留工作区）”。",
+                ? $"检测到旧版本。将强制断开所有连接、清空共享池并删除旧版本的全部文件，然后安装新版本。\n\n安装目录：{target}\n\n旧用户档案、工作区、路线、数据和任务记录会保留。是否继续？"
+                : $"检测到已安装的 Operon Studio，将完整更新。\n\n安装目录：{target}\n\n安装程序会先断开所有连接、清空共享池并删除旧版本；如果共享池内仍有任务，会先询问是否强制更新。\n如需立即停止池内任务并彻底重装，请勾选“强制重装”。",
             forced ? "强制重装 Operon Studio" : "覆盖安装 Operon Studio",
             MessageBoxButtons.YesNo, forced ? MessageBoxIcon.Warning : MessageBoxIcon.Information,
             MessageBoxDefaultButton.Button2);

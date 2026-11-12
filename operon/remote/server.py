@@ -105,7 +105,8 @@ def _environment_plan(service):
     from operon import environment_install, environments
     root = environments.root()
     source = service.plugins.source_root
-    descriptors = (service.state() or {}).get('descriptors') or []
+    catalog = getattr(service, 'catalog', None) or {}
+    descriptors = list(catalog.get('operators') or ()) + list(catalog.get('readers') or ())
     return root, source, environment_install.plan(root, descriptors, source=str(source))
 
 
@@ -149,7 +150,8 @@ def environment_prepare(service, payload: dict | None = None) -> dict:
                 continue
             if name in _ENVIRONMENT_JOBS:
                 continue
-            _ENVIRONMENT_JOBS[name] = {'phase': 'queued', 'started_at': _now_iso()}
+            _ENVIRONMENT_JOBS[name] = {'id': 'env-' + uuid.uuid4().hex[:12], 'phase': 'queued',
+                                       'started_at': _now_iso()}
             started.append(name)
 
     def worker(name: str):
@@ -170,7 +172,19 @@ def environment_prepare(service, payload: dict | None = None) -> dict:
             except Exception:
                 pass
         threading.Thread(target=repair, name='dependency-repair', daemon=True).start()
-    return {**environment_snapshot(service), 'started': started, 'dependencies': dependencies}
+    jobs = {name: _ENVIRONMENT_JOBS[name].get('id') for name in started if name in _ENVIRONMENT_JOBS}
+    return {**environment_snapshot(service), 'started': started, 'jobs': jobs,
+            'dependencies': dependencies}
+
+
+def pool_stop(service, payload):
+    """Stop the pool serving this workspace; force discards active work."""
+    from operon import managed_pool
+    force = payload.get('force') is True
+    try:
+        return managed_pool.stop_pool(force=force)
+    except managed_pool.PoolClientError as exc:
+        return {'stopped': False, 'forced': force, 'busy': True, 'error': str(exc)}
 
 
 class RemoteService:
@@ -400,13 +414,15 @@ class RemoteService:
                     'library': deepcopy(self.handshake.build.get('library', {}))}
         if method == 'pool_info':
             return pool_snapshot(self.service)
-            if method == 'environments':
-                return environment_snapshot(self.service)
-            if method == 'environments_prepare':
-                return environment_prepare(self.service, params or {})
-            if method == 'environments_log':
-                return environment_log(self.service, str((params or {}).get('name') or ''),
-                                       (params or {}).get('limit') or 200)
+        if method == 'pool_stop':
+            return pool_stop(self.service, params or {})
+        if method == 'environments':
+            return environment_snapshot(self.service)
+        if method == 'environments_prepare':
+            return environment_prepare(self.service, params or {})
+        if method == 'environments_log':
+            return environment_log(self.service, str((params or {}).get('name') or ''),
+                                   (params or {}).get('limit') or 200)
         if method == 'library_install':
             # JobService wraps _install_many in the shared environment gate.
             # Acquiring it here too would reject our own install as concurrent

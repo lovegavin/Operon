@@ -7,8 +7,9 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 
 - The product is now called **Operon Studio** everywhere. The old Biopipe name
   is not kept as a compatibility alias.
-- The bundled operator library is **8.0.6**: 1,063 operators, 108 Readers,
-  1,171 descriptors and 79 built-in routes. Studio 4.1.0 supports 8.0.6+ only.
+- The bundled operator library is **8.0.7**: 1,063 operators, 108 Readers,
+  1,171 descriptors and 79 built-in routes. Studio 4.1.8 ships 8.0.7 and keeps
+  the same library compatibility floor as 4.1.0.
 - Installing or upgrading a Linux server is one action in the desktop app.
   There is no per-package incremental upload.
 - New Windows installations keep their workspace under the installation root.
@@ -55,6 +56,7 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 | 4.0.9 | A forced server upgrade closes every remote workspace client before the new application registers, stale sessions from an exited process are pruned, remote runs refresh old plugin pins, and MCP remote status is compact. Normal upgrades still abort on active work. Library 8.0.3 and protocol are unchanged. |
 | 4.0.10 | Exact-root install and uninstall, remote stale-pin refresh, forced-pool session close. Library 8.0.3 and protocol are unchanged. |
 | 4.1.0 | Requires library 8.0.6+. The library bundle carries environment manifests; the structure operators use the isolated OpenMM 8.1.1 / PDBFixer 1.9 environment. Protocol 3 / SDK 3.7 are unchanged. |
+| 4.1.8 | Full replacement before install: disconnects agents, clears the shared pool, removes old versions, then installs. MCP gains pool status/stop tools; the remote environment RPC dispatch and `/api/agent/remote/*` proxy are fixed. Ships library 8.0.7 (`openmm81`: Python 3.12, `setuptools<81`, `pkg_resources`). Protocol 3 / SDK 3.7 are unchanged. |
 
 ## Reinstall or upgrade a Windows installation
 
@@ -120,11 +122,30 @@ before the new build is installed.
 - **Diagnostics**: progress carries the PID and command, and failed staging is
   kept as `.failed-<name>-<id>` instead of being deleted.
 
+## 4.1.8: clean replacement, pool control and library 8.0.7
+
+- The built-in operator library is **8.0.7**: 1,063 operators, 108 Readers,
+  1,171 descriptors and 79 routes. `openmm81` now uses Python 3.12 and pins
+  `setuptools<81`; its probe imports `pkg_resources`, fixing OL-01.
+- Installing or upgrading now disconnects all agents, clears the shared pool,
+  removes every previous version and only then unpacks the new build. Setup
+  asks before cancelling active pool tasks; `--force` skips the question.
+- `operon_pool_status`, `operon_pool_stop` and `operon_remote_pool_stop` expose
+  the local and remote shared pool to MCP clients, and the runtime status
+  panel has matching buttons.
+- Remote environment RPCs from 4.1.7 now actually dispatch, so MCP can prepare
+  an isolated environment on a selected server. The desktop adds the missing
+  `/api/agent/remote/*` proxy.
+- The installer creates `<install root>\bin\python.cmd`, `operon.cmd` and
+  `operon-studio.cmd` as stable command entry points.
+- `workspace`, profiles and logs are preserved across the replacement.
+
 ## What did not change
 
 - Wire protocol 3 and SDK 3.7.
 - Saved workflow JSON and operator parameters remain valid.
-- Operator and Reader APIs remain compatible; 4.1.0 requires library 8.0.6+.
+- Operator and Reader APIs remain compatible; the library compatibility floor
+  is unchanged.
 - Linux x86_64 is still the supported automatic server target.
 
 ## Known limitations

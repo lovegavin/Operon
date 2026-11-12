@@ -34,6 +34,93 @@ internal sealed class InstallUpgrade : IDisposable
     }
 
     private sealed record OwnedProcess(int Id, DateTime Started, string Executable);
+
+    internal sealed record PoolState(string Directory, int OwnerPid, bool Busy, string Reason);
+
+    internal static string PoolDirectory() => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+        ".operon", "admission", Environment.MachineName, "managed-pool");
+
+    // A shared pool is the only component that outlives the desktop host. Its
+    // state must be empty before any old version is removed.
+    internal static PoolState? InspectPool()
+    {
+        var pool = PoolDirectory();
+        var instance = Path.Combine(pool, "instance.json");
+        if (!File.Exists(instance)) return null;
+        InstallFiles.NoLinks(pool);
+        using var record = JsonDocument.Parse(File.ReadAllText(instance));
+        var owner = record.RootElement.GetProperty("owner");
+        var pid = owner.GetProperty("pid").GetInt32();
+        var created = owner.TryGetProperty("created", out var stamp) ? stamp.GetDouble() : 0;
+        var alive = false;
+        try
+        {
+            using var process = Process.GetProcessById(pid);
+            alive = Math.Abs(new DateTimeOffset(process.StartTime).ToUnixTimeSeconds() - created) < 2
+                || process.ProcessName.Contains("python", StringComparison.OrdinalIgnoreCase)
+                || process.ProcessName.Contains("operon", StringComparison.OrdinalIgnoreCase);
+        }
+        catch (Exception error) when (error is ArgumentException or InvalidOperationException or Win32Exception) { }
+        if (!alive) return new(pool, pid, false, "");
+        var registry = Path.Combine(pool, "workspaces.json");
+        if (File.Exists(registry))
+        {
+            InstallFiles.NoLinks(registry);
+            using var registrations = JsonDocument.Parse(File.ReadAllText(registry));
+            foreach (var entry in registrations.RootElement.EnumerateObject())
+            {
+                if (!entry.Value.TryGetProperty("data_dir", out var data) || data.GetString() is not { Length: > 0 } directory)
+                    continue;
+                if (!Path.IsPathFullyQualified(directory)) continue;
+                try { CheckDataTasks(directory); }
+                catch (Exception error) when (error is InvalidOperationException or IOException or JsonException)
+                { return new(pool, pid, true, error.Message); }
+            }
+        }
+        return new(pool, pid, false, "");
+    }
+
+    internal static void KillTree(int pid)
+    {
+        try
+        {
+            using var process = Process.GetProcessById(pid);
+            process.Kill(true);
+            process.WaitForExit(5000);
+        }
+        catch (Exception error) when (error is ArgumentException or InvalidOperationException or Win32Exception) { }
+    }
+
+    // Forced replacement removes the whole pool directory, including the
+    // registration of every workspace, after stopping the pool owner.
+    internal static void ClearPool(Action<string> report)
+    {
+        var pool = PoolDirectory();
+        var instance = Path.Combine(pool, "instance.json");
+        if (File.Exists(instance))
+        {
+            try
+            {
+                using var record = JsonDocument.Parse(File.ReadAllText(instance));
+                if (record.RootElement.TryGetProperty("owner", out var owner) &&
+                    owner.TryGetProperty("pid", out var pid) && pid.TryGetInt32(out var value))
+                    KillTree(value);
+            }
+            catch (Exception error) when (error is JsonException or InvalidOperationException or IOException) { }
+        }
+        report("正在删除共享池状态与工作区注册…");
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                if (Directory.Exists(pool)) Directory.Delete(pool, true);
+                return;
+            }
+            catch (Exception error) when ((error is IOException or UnauthorizedAccessException) && attempt < 40)
+            { Thread.Sleep(250); }
+        }
+    }
     private static List<OwnedProcess> Processes(IReadOnlyList<UpgradeTarget> targets)
     {
         var result = new List<OwnedProcess>();
@@ -153,7 +240,6 @@ internal sealed class InstallUpgrade : IDisposable
         {
             var processes = Processes(targets);
             var hosts = processes.Where(IsHost).ToList();
-            CheckPoolWorkspaces(targets, processes);
             // Check every affected workspace before closing any window.
             foreach (var target in targets)
             {

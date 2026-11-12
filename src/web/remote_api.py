@@ -84,6 +84,14 @@ def mount_remote(app, service):
     def remote_environment_log(key: str, name: str, limit: int = 200):
         return manager.environment_log(key, name, limit)
 
+    @app.get('/api/remote/{key}/pool')
+    def remote_pool(key: str):
+        return manager.pool_info(key)
+
+    @app.post('/api/remote/{key}/pool/stop')
+    def remote_pool_stop(key: str, payload: dict | None = None):
+        return manager.pool_stop(key, force=bool((payload or {}).get('force')))
+
     @app.post('/api/remote/{key}/trust')
     def trust(key: str, payload: dict):
         manager.trust(key, payload.get('fingerprint'))
