@@ -56,6 +56,7 @@ affect day-to-day use. Detailed release notes are in `docs/releases/`.
 | 4.0.9 | A forced server upgrade closes every remote workspace client before the new application registers, stale sessions from an exited process are pruned, remote runs refresh old plugin pins, and MCP remote status is compact. Normal upgrades still abort on active work. Library 8.0.3 and protocol are unchanged. |
 | 4.0.10 | Exact-root install and uninstall, remote stale-pin refresh, forced-pool session close. Library 8.0.3 and protocol are unchanged. |
 | 4.1.0 | Requires library 8.0.6+. The library bundle carries environment manifests; the structure operators use the isolated OpenMM 8.1.1 / PDBFixer 1.9 environment. Protocol 3 / SDK 3.7 are unchanged. |
+| 4.1.9 | MCP can read exported CSV/TSV tables and page through them; stale bundled pins auto-refresh on the next prepare/run; `operon_job` wait is capped at 30 s and returns `wait_timed_out`; isolated environments always bootstrap `setuptools>=68,<81` so `pkg_resources` exists. Protocol 3 / SDK 3.7 unchanged. |
 | 4.1.8 | Full replacement before install: disconnects agents, clears the shared pool, removes old versions, then installs. MCP gains pool status/stop tools; the remote environment RPC dispatch and `/api/agent/remote/*` proxy are fixed. Ships library 8.0.7 (`openmm81`: Python 3.12, `setuptools<81`, `pkg_resources`). Protocol 3 / SDK 3.7 are unchanged. |
 
 ## Reinstall or upgrade a Windows installation

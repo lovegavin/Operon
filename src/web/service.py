@@ -1647,11 +1647,15 @@ class JobService:
         path, descriptor = self.artifact(key, artifact_id)
         if descriptor.get("kind") == "file":
             payload = self._file_payload(key, path)
-            return {"descriptor": descriptor, "rows": [], "points": [], "format": payload["format"],
+            table = self._csv_table(payload, offset=offset, limit=limit)
+            return {"descriptor": descriptor, "rows": table["rows"], "points": [], "format": payload["format"],
+                    "columns": table["columns"], "row_labels": table["row_labels"],
+                    "total": table["total"], "offset": table["offset"], "limit": table["limit"],
                     "files": [{"role": role, "name": Path(value).name,
                                  "downloadable": Path(value).resolve().is_relative_to((self.jobs_dir / key / "output").resolve()),
-                               "bytes": payload["fingerprints"][role]["size"]}
+                                 "bytes": payload["fingerprints"][role]["size"]}
                               for role, value in payload["files"].items()], "info": payload["info"]}
+
         import numpy as np
         data = np.load(path, mmap_mode="r", allow_pickle=False)
         if data.ndim != 2 or data.dtype.kind not in "biuf":
@@ -1671,6 +1675,31 @@ class JobService:
         del data
         return safe_json({"descriptor": descriptor, "rows": window, "points": points, "columns": columns,
                           "row_labels": row_labels, "total": total, "offset": offset, "limit": limit})
+
+    def _csv_table(self, payload, offset=0, limit=20):
+        """Bounded CSV preview for exported file artifacts."""
+        import csv
+        offset = max(0, int(offset))
+        limit = max(1, min(int(limit), 1000))
+        candidates = [value for value in (payload.get('files') or {}).values()
+                      if str(value).lower().endswith(('.csv', '.tsv', '.txt'))]
+        if not candidates:
+            return {"columns": [], "rows": [], "row_labels": [], "total": 0, "offset": offset, "limit": limit}
+        target = Path(sorted(candidates)[0])
+        if not target.is_file():
+            return {"columns": [], "rows": [], "row_labels": [], "total": 0, "offset": offset, "limit": limit}
+        delimiter = '\t' if target.suffix.lower() in ('.tsv', '.txt') else ','
+        try:
+            with target.open('r', encoding='utf-8', errors='replace', newline='') as handle:
+                reader = csv.reader(handle, delimiter=delimiter)
+                header = next(reader, [])
+                rows = list(reader)
+        except OSError:
+            return {"columns": [], "rows": [], "row_labels": [], "total": 0, "offset": offset, "limit": limit}
+        window = rows[offset:offset + limit]
+        return {"columns": header, "rows": window,
+                "row_labels": [str(offset + index) for index in range(len(window))],
+                "total": len(rows), "offset": offset, "limit": limit, "file": target.name}
 
     @staticmethod
     def _artifact_labels(path):

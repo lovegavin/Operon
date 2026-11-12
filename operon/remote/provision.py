@@ -366,6 +366,21 @@ print("BP_CLEANUP_OK")
 """
 
 
+def application_root() -> Path:
+    """Locate the shipped application tree, never the interpreter's site-packages.
+
+    The desktop runtime imports `operon` from
+    `runtime/python/Lib/site-packages`, so `Path(__file__).parents[2]` points at
+    site-packages when the package is imported there. `code_root()` already
+    knows how to find the version directory that holds `operon` and `src/task`.
+    """
+    try:
+        from operon.environments import code_root
+        return Path(code_root())
+    except Exception:
+        return Path(__file__).resolve().parents[2]
+
+
 def provision(connection, profile, progress, cancel, root=None, expected=None, force=False):
     from .client import RemoteError
     shell = Shell(connection, progress, cancel)
@@ -383,10 +398,10 @@ def provision(connection, profile, progress, cancel, root=None, expected=None, f
     managed = base + '/managed-v1'
     shell.run('umask 077; mkdir -p -- ' + q(managed))
     _retire_old_servers(shell, home[1].rstrip('/'), managed, progress, force=force)
-    data = source_archive(root or Path(__file__).resolve().parents[2])
+    data = source_archive(root or application_root())
     digest = hashlib.sha256(data).hexdigest()
     from operon.build_identity import build_identity
-    identity = build_identity(root or Path(__file__).resolve().parents[2], source_sha256=digest)
+    identity = build_identity(root or application_root(), source_sha256=digest)
     if expected is not None and expected.get('build_id') != identity['build_id']:
         raise RemoteError('本地程序在准备期间发生变化，请重试。', code='build_changed')
     code = managed + '/code-' + digest[:20]

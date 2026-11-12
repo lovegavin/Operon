@@ -305,11 +305,11 @@ def create_server(client):
 
     @server.tool()
     def operon_job(job_id: str, view: str = 'brief', wait_seconds: float = 0) -> dict:
-        """Read brief status, or wait internally up to 60 seconds; timeout never cancels/resubmits. view=full restores all details."""
+        """Read brief status, or wait internally up to 30 seconds; a closed window returns running with wait_timed_out, never a failure."""
         import math
         from .agent_views import job_view, wait_job
-        if not math.isfinite(wait_seconds) or not 0 <= wait_seconds <= 60:
-            raise ValueError('wait_seconds must be between 0 and 60')
+        if not math.isfinite(wait_seconds) or not 0 <= wait_seconds <= 30:
+            raise ValueError('wait_seconds must be between 0 and 30')
         job_view({}, view)
         job = client.request('/v1/jobs/' + quote(job_id, safe='') + '?view=' + view)
         return wait_job(client, job, wait_seconds, view=view) if wait_seconds else job
