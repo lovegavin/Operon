@@ -206,7 +206,7 @@ internal sealed class SetupWindow : Form
             if (dialog.ShowDialog(this) == DialogResult.OK) destination.Text = dialog.SelectedPath; };
         state.SetBounds(34, 222, 562, 52); state.Text = uninstall
             ? "将清理这个根目录下除 workspace 外的全部内容。"
-            : "创建独立环境。旧档案保留，可稍后导入路线。";
+            : "该目录就是安装根目录；卸载时除 workspace 外全部删除。";
         progress.SetBounds(34, 284, 562, 6); progress.Style = ProgressBarStyle.Continuous;
         forceReinstall.SetBounds(34, 297, 500, 24);
         logs.SetBounds(34, 335, 150, 30); logs.Text = "查看安装日志"; logs.Visible = false;
@@ -284,7 +284,7 @@ internal sealed class SetupWindow : Form
     private bool ConfirmInstall(string target)
     {
         var answer = MessageBox.Show(this,
-            $"将安装 Operon Studio 到：\n\n{target}\n\n安装位置已自动补全，可返回修改。是否继续？",
+            $"将安装 Operon Studio 到：\n\n{target}\n\n该目录就是安装根目录，不会自动追加子目录。\n卸载时会删除该目录下除 workspace 外的全部内容（workspace 会保留）。是否继续？",
             "确认安装位置", MessageBoxButtons.YesNo, MessageBoxIcon.Information,
             MessageBoxDefaultButton.Button1);
         return answer == DialogResult.Yes;
@@ -306,7 +306,7 @@ internal sealed class SetupWindow : Form
     private bool ConfirmForceUninstall(string target)
     {
         var answer = MessageBox.Show(this,
-            $"是否强制终止所有 Operon Studio 和 Python 进程，并完全卸载？\n\n安装目录：{target}\n\n选择“是”将结束占用安装目录的进程，然后删除本安装程序管理的软件文件。\n用户档案、路线、数据和任务记录会保留。选择“否”将取消卸载。",
+            $"是否强制终止所有 Operon Studio 和 Python 进程，并完全卸载？\n\n安装目录：{target}\n\n选择“是”将结束占用安装目录的进程，然后删除该目录下除 workspace 外的全部内容。\nworkspace（工作区、路线、数据与任务记录）会保留。选择“否”将取消卸载。",
             "完全卸载 Operon Studio", MessageBoxButtons.YesNo, MessageBoxIcon.Warning,
             MessageBoxDefaultButton.Button2);
         return answer == DialogResult.Yes;

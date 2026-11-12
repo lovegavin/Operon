@@ -204,3 +204,21 @@ def test_environment_repair_reports_installed_environments(environment, monkeypa
         assert response.status_code == 200
         assert response.json()['environments'] == [{'name': 'openmm81', 'status': 'ready'}]
         assert calls == [True]
+
+def test_remote_graphs_prepare_environments_on_the_server_only(environment, monkeypatch):
+    app = create_headless_app(Settings(environment, environment / '.studio', environment / 'no-ui',
+                                       testing=True, code_root=ROOT))
+    application = app.state.application
+    calls = []
+    monkeypatch.setattr(application.readiness, 'validate', lambda value, result, **options: {'status': 'ready'})
+    monkeypatch.setattr(application.executions, 'dependency_plan', lambda value: {})
+    monkeypatch.setattr(application, 'prepare_isolated_environments',
+                        lambda names=None, graph=None: calls.append(graph) or [])
+    body = graph(environment)
+    body['runtime'] = {'execution': {'kind': 'ssh', 'profile_id': 'licai'}}
+    with TestClient(app, base_url='http://127.0.0.1') as http:
+        http.headers.update(auth(http, app, ['context', 'plugins']))
+        response = http.post('/api/v1/workflows/prepare-environment', json={'graph': body})
+        assert response.status_code == 200, response.text
+        assert response.json()['environments'] == []
+        assert calls == []

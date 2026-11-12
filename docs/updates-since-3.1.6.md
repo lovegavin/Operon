@@ -143,3 +143,12 @@ before the new build is installed.
 Provider wheels rebuilt on Windows and Linux now compare equal even though their
 `RECORD` rows are ordered differently. Libraries packaged on one platform import
 on the other without `Library source does not match wheel`.
+
+## 4.1.3: installation prompts and unified environment repair
+
+- The installer confirmation states the exact root directory and that uninstall
+  removes everything there except `workspace`.
+- Isolated environments are prepared only through dependency repair; the
+  separate environment panel was removed.
+- Remote runs skip local environment preparation because the server already
+  performed it.

@@ -69,7 +69,12 @@ class Application:
         readiness = self.readiness.validate(graph, result, dependencies_only=True, repair=repair)
         response = {**result, 'scope': 'dependencies', 'graph': graph.model_dump(mode='json'), 'readiness': readiness}
         if repair:
-            response['environments'] = self.prepare_isolated_environments(graph=graph)
+            from src.web.source_paths import remote_profile
+            if remote_profile(graph) is None:
+                response['environments'] = self.prepare_isolated_environments(graph=graph)
+            else:
+                # Remote readiness repair already installs on the target; repeating it locally only wastes minutes.
+                response['environments'] = []
         return response
 
     def isolated_environments(self):
