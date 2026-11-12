@@ -144,6 +144,15 @@ Provider wheels rebuilt on Windows and Linux now compare equal even though their
 `RECORD` rows are ordered differently. Libraries packaged on one platform import
 on the other without `Library source does not match wheel`.
 
+## 4.1.4: runtime ships the matching application package
+
+The Windows runtime now carries the same `operon` package version as the
+application. Before this release the runtime kept an old 3.1.8 copy in
+`site-packages`, so an MCP client that started `python -m operon` outside the
+version directory loaded stale code and failed the handshake. Packaging now
+rejects a runtime whose package version or distribution metadata does not
+match.
+
 ## 4.1.3: installation prompts and unified environment repair
 
 - The installer confirmation states the exact root directory and that uninstall
