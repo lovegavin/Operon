@@ -1,6 +1,7 @@
 import {t, useLocale} from './i18n';
 import {getPreferences, setPreferences} from './preferences';
 import { PluginPanel } from "./PluginPanel";
+import { RuntimeStatusPanel } from "./RuntimeStatusPanel";
 import { version as studioVersion } from "../package.json";
 import {
   Component,
@@ -212,6 +213,7 @@ function Studio() {
     }});
   };
   const [pluginsOpen, setPluginsOpen] = useState<"manage" | "add" | null>(null);
+  const [statusOpen, setStatusOpen] = useState(false);
   const [refreshingPlugins, setRefreshingPlugins] = useState(false);
   const catalogUpdates = useRef(new CatalogUpdates());
   const bootstrapCatalog = useRef(bootstrap?.catalog);
@@ -1495,6 +1497,7 @@ function Studio() {
           </div>
           <div className="library-footer">
             <button className="library-packages" onClick={() => selectedServerId ? setAppSettings('servers') : setPluginsOpen("manage")}><Package size={16}/>{selectedServerId ? t("服务器算子库") : t("算子库管理")}</button>
+            <button className="library-packages" onClick={() => setStatusOpen(true)}><List size={16}/>{t("运行状态")}</button>
           </div>
           <PanelResizeHandle side="library" width={displayedPanels.library} min={panelLimits.library.min}
             max={panelMaximum("library", displayedPanels, windowWidth)} onResize={value => resizePanel("library", value)}
@@ -1873,6 +1876,7 @@ function Studio() {
           </>)}
         </div>
       </>}
+      {statusOpen && <RuntimeStatusPanel onClose={() => setStatusOpen(false)}/>}
       {pluginsOpen && <PluginPanel initialTab={pluginsOpen} onClose={() => setPluginsOpen(null)} onChanged={async () => {const expected = catalogUpdates.current.checkpoint(); const latest = await api.catalog(); acceptCatalog(latest, undefined, expected); await refreshRoutes();}}/>}
       {picker && <WorkflowPicker mode={picker} onClose={() => setPicker(null)} onOpen={openSaved} onRegister={refreshRoutes} onImport={() => routeImport.current?.click()}/>}
       {saveDialog && <SaveWorkflowDialog graph={saveDialog} catalog={catalog} workflowId={documents.find(doc=>doc.id===activeId)?.workflow_id} version={documents.find(doc=>doc.id===activeId)?.workflow_version} onClose={() => setSaveDialog(null)} onSaved={savedWorkflow}/>}

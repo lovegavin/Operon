@@ -57,6 +57,12 @@ def verify_runtime_package(python_root, version):
     expected = f'operon_studio-{version}.dist-info'
     if names != {expected}:
         raise SystemExit(f'Bundled runtime distribution metadata is {sorted(names)}, expected {expected}.')
+    probe = subprocess.run([str(Path(python_root) / 'python.exe'), '-I', '-c',
+                            'import scipy, pandas, matplotlib, statsmodels; print(scipy.__version__)'],
+                           capture_output=True, text=True)
+    if probe.returncode != 0:
+        raise SystemExit('Bundled runtime is missing requirements-runtime.txt packages: '
+                         + (probe.stderr or probe.stdout).strip()[-600:])
     return found
 
 

@@ -102,7 +102,7 @@ def test_explicit_preparation_waits_longer_but_never_retries_or_upgrades_permiss
     client.restart = lambda: pytest.fail('An explicit preparation must not reconnect or broaden permission')
     with pytest.raises(ClientError, match='plugins'):
         client.request('/v1/workflows/prepare-environment', {'graph': {}})
-    assert len(calls) == 1 and calls[0][1]['timeout'] == 1800
+    assert len(calls) == 1 and calls[0][1]['timeout'] is None
     def timeout(path, **options):
         calls.append((path, options))
         raise httpx.ReadTimeout('installer still running')
@@ -171,8 +171,8 @@ def test_environments_tools_are_read_only_until_prepare_is_requested(environment
     monkeypatch.setattr(application, 'isolated_environments', lambda: {
         'root': '/tmp/environments', 'manifest': {'path': '/tmp/library/operon/environments.json', 'present': True},
         'environments': {'openmm81': {'status': 'missing', 'used_by': ['structure_openmm_energy']}}})
-    monkeypatch.setattr(application, 'prepare_isolated_environments',
-                        lambda names=None: prepared.append(names) or [{'name': name} for name in (names or [])])
+    monkeypatch.setattr(application, 'start_isolated_environments',
+                        lambda names=None, graph=None: prepared.append(names) or [{'name': name} for name in (names or [])])
     with TestClient(app, base_url='http://127.0.0.1') as http:
         class HTTPClient:
             def request(self, path, payload=None):

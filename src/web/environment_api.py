@@ -40,8 +40,17 @@ def mount_environments(app, service):
         return {'path': str(path), 'present': path.is_file()}
 
     def snapshot():
+        operations = []
+        for job in list(jobs.values())[-20:]:
+            value = dict(job)
+            if value.get('status') == 'running':
+                info = environment_install.read_progress(value['name'])
+                value.update({'phase': info.get('phase'), 'bytes': info.get('bytes', 0),
+                              'files': info.get('files', 0), 'detail': info.get('detail', ''),
+                              'updated_at': info.get('updated_at')})
+            operations.append(value)
         return {'root': str(environments.root()), 'manifest': manifest(),
-                'environments': plan(), 'operations': list(jobs.values())[-20:]}
+                'environments': plan(), 'operations': operations}
 
     def log_path(name):
         logs.mkdir(parents=True, exist_ok=True)

@@ -114,6 +114,51 @@ class Application:
                 prepared.append({'name': name, 'status': 'failed', 'error': str(exc)})
         return prepared
 
+    def start_isolated_environments(self, names=None, *, graph=None):
+        """Start installation in the background and return immediately."""
+        import threading
+        import time
+        import uuid
+        from . import environment_install
+        from .environments import root
+        try:
+            source = str(self.service.plugins.source_root)
+        except Exception:
+            source = None
+        descriptors = self.service.plugins.state().get('descriptors') or []
+        plan = environment_install.plan(root(), descriptors, source=source)
+        wanted = list(names) if names else [name for name, item in plan.items()
+                                            if item['status'] in ('missing', 'stale')]
+        if graph is not None:
+            used = {getattr(node, 'operator', None) for node in graph.nodes}
+            wanted = [name for name in wanted if used.intersection(plan.get(name, {}).get('used_by') or [])]
+        jobs = getattr(self, '_environment_jobs', None)
+        if jobs is None:
+            jobs = self._environment_jobs = {}
+        running = {job['name'] for job in jobs.values() if job['status'] == 'running'}
+        started = []
+        for name in wanted:
+            if name in running:
+                continue
+            key = uuid.uuid4().hex
+            job = {'id': key, 'name': name, 'status': 'running', 'error': None,
+                   'started_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())}
+            jobs[key] = job
+            def work(name=name, job=job):
+                try:
+                    result = environment_install.prepare(name, root(), source=source)
+                    job['status'] = 'complete' if (result or {}).get('status') == 'ready' else 'failed'
+                    job['error'] = (result or {}).get('error') or None
+                except Exception as exc:
+                    job['status'] = 'failed'
+                    job['error'] = str(exc)
+                finally:
+                    job['finished_at'] = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+            job['thread'] = threading.Thread(target=work, daemon=True, name=f'environment-{name}')
+            job['thread'].start()
+            started.append({'name': name, 'job': key, 'status': 'running'})
+        return started
+
     def shutdown(self):
         self.service.dependencies.cancel.set()
         self.executions.shutdown()

@@ -33,3 +33,14 @@ def test_environment_retry_rejects_unknown_name(tmp_path):
         client.headers['X-Studio-Token'] = client.get('/api/bootstrap').json()['token']
         response = client.post('/api/environments/nope/retry')
         assert response.status_code == 404
+
+
+def test_pool_status_endpoint_reports_local_state(tmp_path):
+    with TestClient(studio(tmp_path)) as client:
+        client.headers['X-Studio-Token'] = client.get('/api/bootstrap').json()['token']
+        response = client.get('/api/pool')
+        assert response.status_code == 200
+        body = response.json()
+        assert {'location', 'instance', 'workspaces', 'active', 'remotes'} <= set(body)
+        assert isinstance(body['active'], list)
+        assert 'closing' in body['instance']

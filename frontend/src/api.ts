@@ -10,13 +10,24 @@ export type Readiness = {
 };
 export type CheckFeedback = {signature: string; readiness?: Readiness; error?: string};
 
+export type EnvironmentProgress = {phase?: string; bytes?: number; files?: number; updated_at?: number};
 export type EnvironmentStatus = {
   name: string; python: string; spec_sha256: string; interpreter: string; location: string;
   imports: string[]; status: 'missing' | 'stale' | 'ready' | 'failed'; error: string; used_by: string[];
+  progress?: EnvironmentProgress | null;
 };
 export type EnvironmentJob = {
   id: string; name: string; status: 'running' | 'complete' | 'failed';
   error: string | null; started_at: string; finished_at: string | null;
+  phase?: string; bytes?: number; files?: number; detail?: string; updated_at?: number;
+};
+export type PoolStatus = {
+  location: string;
+  instance: {version?: string; implementation?: string; address?: number[]; pid?: number; closing: boolean};
+  workspaces: {root: string; code_root?: string; jobs: number}[];
+  active: {id: string; status: string; title: string; updated_at?: string; workspace: string}[];
+  remotes: {profile: {id: string; name: string; host: string}; connected: boolean;
+    info?: {build?: {application?: {version?: string}}; library_check?: {replacement_required?: boolean}} | null}[];
 };
 export type EnvironmentSnapshot = {
   root: string; manifest: {path: string; present: boolean};
@@ -82,6 +93,7 @@ export const api = {
   prepareEnvironments: (names?: string[]) => request<EnvironmentSnapshot & {prepared: {name: string; job: string; status: string}[]}>('/api/environments/prepare', names ? {names} : {}),
   retryEnvironment: (name: string) => request<EnvironmentSnapshot & {job: string}>(`/api/environments/${encodeURIComponent(name)}/retry`, {}),
   environmentLog: (name: string, limit = 200) => request<{name: string; text: string}>(`/api/environments/${encodeURIComponent(name)}/log?limit=${limit}`),
+  pool: () => request<PoolStatus>('/api/pool'),
 
   savePreferences: (value: Partial<import('./preferences').UiPreferences>, initialize = false) => {
     // Keep responses in edit order when users switch settings sections quickly.

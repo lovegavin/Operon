@@ -144,6 +144,14 @@ Provider wheels rebuilt on Windows and Linux now compare equal even though their
 `RECORD` rows are ordered differently. Libraries packaged on one platform import
 on the other without `Library source does not match wheel`.
 
+## 4.1.5: visible environment preparation and runtime dependencies
+
+Environment preparation returns immediately and reports its phase and size
+while micromamba works; requests no longer time out mid-install. The portable
+runtime now bundles `requirements-runtime.txt`. A new runtime status dialog
+shows the local pool, active jobs, environment progress, and server
+connections.
+
 ## 4.1.4: runtime ships the matching application package
 
 The Windows runtime now carries the same `operon` package version as the

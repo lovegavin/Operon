@@ -16,6 +16,7 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import threading
 import time
 import urllib.request
 import uuid
@@ -27,6 +28,7 @@ PIP_TRANSFER = ['--disable-pip-version-check', '--no-input', '--timeout', '120',
 PIP_INDEX = ['--index-url', 'https://pypi.org/simple']
 CONDA_FORGE = 'conda-forge'
 ERRORS = '.operon-environment-errors'
+PROGRESS = '.operon-environment-progress'
 
 
 def base(root=None) -> Path:
@@ -54,6 +56,35 @@ def receipt(name: str, root=None) -> dict:
 
 def _error_path(name: str, root=None) -> Path:
     return base(root) / ERRORS / f'{name}.json'
+
+
+def progress_path(name: str, root=None) -> Path:
+    return base(root) / PROGRESS / f'{name}.json'
+
+
+def read_progress(name: str, root=None) -> dict:
+    return _read(progress_path(name, root))
+
+
+def _write_progress(name: str, root, value: dict) -> None:
+    path = progress_path(name, root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix('.tmp')
+    temporary.write_text(json.dumps(value, indent=2), encoding='utf-8')
+    temporary.replace(path)
+
+
+def _usage(*directories) -> tuple[int, int]:
+    size = files = 0
+    for directory in directories:
+        for parent, _, names in os.walk(directory):
+            for item in names:
+                try:
+                    size += (Path(parent) / item).stat().st_size
+                    files += 1
+                except OSError:
+                    pass
+    return size, files
 
 
 def state(name: str, root=None, source=None) -> dict:
@@ -87,6 +118,7 @@ def state(name: str, root=None, source=None) -> dict:
         result['status'] = 'ready'
         result['error'] = ''
     result['used_by'] = []
+    result['progress'] = read_progress(name, root)
     return result
 
 
@@ -260,16 +292,41 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
     except TimeoutError:
         raise RuntimeError(f'environment {name} is already being prepared')
     staging = base(root) / f'.staging-{name}-{uuid.uuid4().hex[:8]}'
+    now = lambda: time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+    progress = {'name': name, 'phase': 'creating', 'detail': '', 'bytes': 0, 'files': 0,
+                'started_at': now(), 'updated_at': now()}
+    _write_progress(name, root, progress)
+    stop = threading.Event()
+
+    def note(line):
+        progress['detail'] = str(line)[:400]
+        progress['lines'] = progress.get('lines', 0) + 1
+        if log is not None:
+            log(line)
+
+    def watch():
+        while not stop.wait(2.0):
+            try:
+                size, files = _usage(staging, base(root) / 'packages')
+            except OSError:
+                continue
+            progress.update({'bytes': size, 'files': files, 'updated_at': now()})
+            _write_progress(name, root, progress)
+
+    threading.Thread(target=watch, name=f'environment-progress-{name}', daemon=True).start()
     try:
-        _emit(log, f'preparing isolated environment {name} at {target(name, root)}')
-        _create(entry, staging, log, root)
-        _install(entry, staging, log, root)
+        note(f'preparing isolated environment {name} at {target(name, root)}')
+        _create(entry, staging, note, root)
+        progress['phase'] = 'installing'
+        _install(entry, staging, note, root)
+        progress['phase'] = 'probing'
         python = _python(staging)
-        script = _probe(python, entry, log)
+        script = _probe(python, entry, note)
+        progress['phase'] = 'committing'
         (staging / 'receipt.json').write_text(json.dumps({
             'schema': 1, 'name': name, 'python': str(entry.get('python', '3.11')),
             'spec_sha256': spec_sha256(entry), 'imports': script,
-            'created_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
+            'created_at': now(),
         }, indent=2), encoding='utf-8')
         final = target(name, root)
         previous = None
@@ -280,15 +337,24 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
         if previous is not None:
             shutil.rmtree(previous, ignore_errors=True)
         _error_path(name, root).unlink(missing_ok=True)
-        _emit(log, f'environment {name} is ready')
+        progress['phase'] = 'ready'
+        note(f'environment {name} is ready')
     except BaseException as error:
+        progress['phase'] = 'failed'
+        progress['error'] = str(error)
         shutil.rmtree(staging, ignore_errors=True)
         path = _error_path(name, root)
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps({'message': str(error), 'at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())},
-                                   indent=2), encoding='utf-8')
+        path.write_text(json.dumps({'message': str(error), 'at': now()}, indent=2), encoding='utf-8')
         raise
     finally:
+        stop.set()
+        try:
+            size, files = _usage(target(name, root), base(root) / 'packages')
+            progress.update({'bytes': size, 'files': files, 'updated_at': now()})
+            _write_progress(name, root, progress)
+        except OSError:
+            pass
         lock.__exit__(None, None, None)
     return state(name, root, source)
 

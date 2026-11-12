@@ -99,7 +99,7 @@ def mount_control(app, application, bridge):
     def prepare_environments(request: Request, payload: EnvironmentRequest):
         authorize(request, 'plugins')
         return {**application.isolated_environments(),
-                'prepared': application.prepare_isolated_environments(payload.names)}
+                'prepared': application.start_isolated_environments(payload.names)}
 
     @app.get('/api/v1/guides')
     def guides(request: Request):

@@ -731,5 +731,19 @@
   "{n} 个算子": "{n} operators",
   "当前算子库未声明隔离环境，请导入 8.0.6 或更新的算子库。": "This operator library declares no isolated environments. Import library 8.0.6 or newer.",
   "修复中…": "Repairing…",
-  "修复缺失依赖，并按需安装算子库声明的隔离环境": "Repair missing dependencies and install the isolated environments declared by the operator library when needed"
+  "修复缺失依赖，并按需安装算子库声明的隔离环境": "Repair missing dependencies and install the isolated environments declared by the operator library when needed",
+  "运行状态": "Runtime status",
+  "本地共享池": "Local shared pool",
+  "尚未启动共享池": "The shared pool is not running",
+  "版本": "Version",
+  "正在退出": "stopping",
+  "已注册工作区": "Registered workspaces",
+  "运行中任务": "Active tasks",
+  "隔离环境安装进度": "Isolated environment progress",
+  "当前算子库没有环境清单": "The current library declares no environments",
+  "个文件": "files",
+  "没有配置服务器": "No servers configured",
+  "算子库需要更新": "library needs update",
+  "排队中": "queued",
+  "需要恢复": "recovery required"
 }
