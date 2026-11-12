@@ -57,6 +57,10 @@ class Application:
 
     def validate(self, graph, *, require_files=False, repair=False):
         graph = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
+        from operon.pins import refresh_missing
+        migrations = refresh_missing(graph, self.service.plugins.state())
+        if migrations:
+            graph.runtime['pin_migrations'] = migrations
         result = (self.executions.validate(graph, require_files=require_files) if self.executions.applies(graph)
                   else self.service.validate_graph(graph, require_files=require_files))
         readiness = self.readiness.validate(graph, result, require_files=require_files, repair=repair)
@@ -335,6 +339,12 @@ class TaskService:
             original = original.model_copy(deep=True)
             for part in graphs(original):
                 part.plugin_lock.clear()
+        if remote is None:
+            from operon.pins import refresh_missing
+            state = self.service.plugins.state()
+            migrations = refresh_missing(original, state)
+            if migrations:
+                original.runtime['pin_migrations'] = migrations
         prepared = self.app.prepare(original)
         # Freeze values while retaining historical implementation requirements.
         # The worker-launch snapshot must resolve those pins itself so its

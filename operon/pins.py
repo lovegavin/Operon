@@ -89,6 +89,47 @@ def matches(state, required):
                for key, pin in required.items())
 
 
+def refresh_missing(graph, state):
+    """Refresh pins whose exact implementation is not installed.
+
+    Only bundled descriptors are considered: their executable identity follows
+    the installed source, and the run records a migration receipt. Wheel pins
+    are never replaced because their artifact digest is the trust boundary.
+    """
+    available = {d['id']: d for d in (state or {}).get('descriptors', [])
+                 if d.get('implementation')}
+    migrations = []
+    for part in graphs(graph):
+        for key, before in list(part.plugin_lock.items()):
+            descriptor = available.get(key)
+            if descriptor is None:
+                continue
+            if matches(state, {key: before}):
+                continue
+            pending = descriptor.get('implementation') or {}
+            rebuilt = descriptor.get('origin') != 'bundled'
+            legacy = not (before.get('version') or before.get('package') or before.get('distribution'))
+            if rebuilt and not legacy:
+                # Imported libraries install rebuilt provider wheels. A pin from a
+                # previous build of the same distribution and version can be
+                # refreshed; unrelated or differently versioned pins stay fatal.
+                # Pins with no distribution metadata predate that format and name
+                # this same operator, so they follow the installed library.
+                if (before.get('package') or before.get('distribution')) != descriptor.get('distribution'):
+                    continue
+                if before.get('version') != pending.get('version'):
+                    continue
+            after = deepcopy(pending)
+            part.plugin_lock[key] = after
+            migrations.append({'operator': key, 'before': before, 'after': after,
+                               'reason': ('Pinned implementation is no longer installed; '
+                                          'refreshed from the current rebuilt library'
+                                          if rebuilt else
+                                          'Pinned implementation is no longer installed; '
+                                          'refreshed from the current bundled library')})
+    return migrations
+
+
 def refresh_bundled(candidate, bundled):
     """Replace metadata-only bundled entries, leaving wheel code/targets intact."""
     current = {p['name']: p for p in bundled['packages']}

@@ -21,7 +21,7 @@ Already-bundled CPU analyses do not require downloads. New extensions may need
 internet access; package availability, OS support and GPU drivers still matter.
 Windows x64, macOS, Linux and Windows ARM need separate tested distributions.
 
-The 4.1.8 application line ships Operon Operator Library v8.0.7 (1,063 operators
+The 4.1.9 application line ships Operon Operator Library v8.0.7 (1,063 operators
 and 108 Readers). The library declares Studio 4.1.0 or newer. Published
 installers retain the library seed they were built with. The runtime receipt
 lists Python dependency coverage, not a claim that every model or external

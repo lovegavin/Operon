@@ -1,5 +1,6 @@
 # Portable CPU runtime for the pipeline engine.
-# Format-specific dependencies (cyvcf2, bed-reader, h5py, etc.) remain optional.
+# h5py and biopython are bundled because export_results declares them;
+# other format-specific dependencies (cyvcf2, bed-reader, ...) remain optional.
 numpy>=1.26
 pandas>=2.0
 PyYAML>=6.0
@@ -10,3 +11,5 @@ psutil>=5.9
 jsonschema>=4.23,<5
 pydantic>=2.7
 packaging>=24
+h5py>=3.8
+biopython>=1.81

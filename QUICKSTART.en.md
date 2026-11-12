@@ -4,7 +4,7 @@ This is a click-by-click guide. You will do one thing: run a tiny PCA on a small
 
 You do not need Python, Conda or an AI account. The data are made up. The result only checks the workflow; it is not a biological finding.
 
-This guide matches **Operon Studio 4.1.8** with the built-in **8.0.7** operator library.
+This guide matches **Operon Studio 4.1.9** with the built-in **8.0.7** operator library.
 
 ## Before you start
 
@@ -73,12 +73,12 @@ You should see a completed task with PCA output and two components. This example
 
 Skip this unless you actually have a Linux server.
 
-1. Download **Operon-4.1.8-Server.zip** from Releases and upload it to the server.
+1. Download **Operon-4.1.9-Server.zip** from Releases and upload it to the server.
 2. On the server:
 
 ```sh
-unzip Operon-4.1.8-Server.zip
-cd Operon-4.1.8-Server
+unzip Operon-4.1.9-Server.zip
+cd Operon-4.1.9-Server
 bash install.sh --prefix "$HOME/operon" --result "$PWD/server-install.json"
 ```
 
@@ -97,7 +97,7 @@ See the [server installation guide](docs/command_line_installation.md#linux-serv
 - **Blank window**: wait 1–2 minutes, then fully quit and reopen. Do not run several copies at once.
 - **Environment check fails**: confirm internet access, then click **Prepare environment**. Behind a corporate proxy, configure the system proxy first.
 - **Install folder is not writable**: use a normal folder such as `D:\Operon Studio`, not `C:\Program Files`.
-- **Uninstall**: use Windows Apps, or run `Operon_Uninstall.exe` in the install folder. Operon 4.1.8 keeps the workspace and results under `<install folder>\workspace`; delete them manually only when you no longer need them.
+- **Uninstall**: use Windows Apps, or run `Operon_Uninstall.exe` in the install folder. Operon 4.1.9 keeps the workspace and results under `<install folder>\workspace`; delete them manually only when you no longer need them.
 - **Logs**: `%USERPROFILE%\.operon\profiles\<profile-id>\logs\desktop-YYYYMMDD.log`.
 
 ## Next

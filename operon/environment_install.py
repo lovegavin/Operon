@@ -260,9 +260,9 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None):
     python = _python(staging)
     direct = entry.get('pip_pypi') or []
     # Base build tooling must exist before any source build or `--no-build-isolation` install.
-    if not entry.get('venv_shared'):
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--no-input', *PIP_INDEX,
-              'setuptools>=68', 'wheel'], log=log, timeout=900, progress=progress)
+    # `pkg_resources` ships with setuptools below 81; some packages (pdbfixer) still import it.
+    _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--no-input', *PIP_INDEX,
+          'setuptools>=68,<81', 'wheel'], log=log, timeout=900, progress=progress)
     conda_packages = entry.get('conda_packages') or []
     if conda_packages:
         mamba = _micromamba(base(root), log)
@@ -353,7 +353,7 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
         (staging / 'receipt.json').write_text(json.dumps({
             'schema': 1, 'name': name, 'python': str(entry.get('python', '3.11')),
             'spec_sha256': spec_sha256(entry), 'imports': script,
-            'bootstrap': 'setuptools>=68 wheel', 'installer': 'environment_install/2',
+            'bootstrap': 'setuptools>=68,<81 wheel', 'installer': 'environment_install/2',
             'created_at': now(),
         }, indent=2), encoding='utf-8')
         final = target(name, root)

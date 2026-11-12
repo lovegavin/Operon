@@ -202,7 +202,10 @@ class ExecutionService:
         # Retain old pins; each selected host resolves them against its immutable
         # installed generations on stage submission. Defaults are already frozen.
         available = {s['id']: s.get('implementation') for s in catalog['operators'] + catalog['readers']}
-        from operon.pins import graphs
+        from operon.pins import graphs, refresh_missing
+        migrations = refresh_missing(graph, self.service.plugins.state())
+        if migrations:
+            graph.runtime['pin_migrations'] = migrations
         for part in graphs(graph):
             for node in part.nodes:
                 if node.kind == 'operator' and available.get(node.operator):
@@ -1103,9 +1106,11 @@ class ExecutionService:
     def preview(self, key, artifact_id, offset=0, limit=20):
         child, match = self._artifact_ref(key, artifact_id)
         if child['target']['kind'] == 'local':
-            result = self.service.preview(child['id'], match['child_artifact_id'])
+            result = self.service.preview(child['id'], match['child_artifact_id'], offset=offset, limit=limit)
         else:
-            result = self.service.remotes.call(target_key(child['target']), 'preview', {'job_id': child['id'], 'artifact_id': match['child_artifact_id']})
+            result = self.service.remotes.call(target_key(child['target']), 'preview',
+                                               {'job_id': child['id'], 'artifact_id': match['child_artifact_id'],
+                                                'offset': offset, 'limit': limit})
         result['descriptor'] = match
         return result
 
