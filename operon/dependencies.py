@@ -64,6 +64,12 @@ def scope():
     return set()
 
 
+def _probe_cwd(python):
+    """Neutral working directory so the interpreter never shadows its own packages."""
+    base = Path(str(python)).resolve()
+    return str(base.parent.parent if base.parent.name.lower() in {'scripts', 'bin'} else base.parent)
+
+
 def probe_environment(entry_id, environment, imports):
     """Check an operator that declares a dedicated interpreter environment."""
     from operon.environments import resolve
@@ -75,7 +81,11 @@ def probe_environment(entry_id, environment, imports):
                          'or use Linux server environment repair (docs/agent_environment_repair.md)'}
     names = imports or []
     script = ';'.join(f'import {name}' for name in names) or 'pass'
-    result = subprocess.run([str(python), '-c', script], capture_output=True, text=True, timeout=300)
+    env = os.environ.copy()
+    for name in ('PYTHONPATH', 'PYTHONHOME'):
+        env.pop(name, None)
+    env['PYTHONNOUSERSITE'] = '1'
+    result = subprocess.run([str(python), '-c', script], capture_output=True, text=True, timeout=300, env=env, cwd=_probe_cwd(python))
     if result.returncode:
         tail = (result.stderr or result.stdout).strip().splitlines()[-3:] or ['import failed']
         return {'status': 'failed', 'error': f'{environment}: ' + ' | '.join(tail),
@@ -244,7 +254,8 @@ class DependencySession:
                 failed = [v for v in pending if results[v['id']]['status'] != 'passed']
                 for entry in pending:
                     result = results[entry['id']]
-                    self._update([entry['id']], **({'status': 'checking', 'error': ''} if entry.get('r') is not None and result['status'] == 'passed' else result))
+                    status = 'checking' if entry.get('r') is not None and result['status'] == 'passed' else result['status']
+                    self._update([entry['id']], status, '' if status == 'checking' else result.get('error', ''))
                 if repair:
                     from operon.install_targets import repair_entries
                     for entry in failed:
@@ -265,7 +276,7 @@ class DependencySession:
                                 checked = self._inspect(state, [entry])[entry['id']]
                                 if checked['status'] != 'passed':
                                     raise ValueError(checked['error'])
-                                self._update([entry['id']], **checked)
+                                self._update([entry['id']], checked.get('status', 'passed'), checked.get('error', ''))
                             except Exception as exc:
                                 self._update([entry['id']], 'failed', str(exc))
                             continue
@@ -280,7 +291,7 @@ class DependencySession:
                                 raise ValueError(checked['error'])
                             state = self.manager._publish(candidate)
                             self.sync(state)
-                            self._update([entry['id']], **checked)
+                            self._update([entry['id']], checked.get('status', 'passed'), checked.get('error', ''))
                         except Exception as exc:
                             self._update([entry['id']], 'failed', str(exc))
                 from operon.r_runtime import RRuntime

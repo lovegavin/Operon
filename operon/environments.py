@@ -35,11 +35,34 @@ def load(root=None) -> dict:
     return document['environments']
 
 
+def _install_root(prefix: Path) -> Path | None:
+    """Return the managed install root for a bundled runtime, when present."""
+    candidate = prefix
+    for _ in range(5):
+        candidate = candidate.parent
+        if (candidate / 'installation.json').is_file() and (candidate / 'versions').is_dir():
+            return candidate
+    return None
+
+
 def root() -> Path:
+    """Return the stable directory that keeps isolated interpreters.
+
+    Environments must survive application upgrades, so they never live inside a
+    version directory: managed servers keep them next to ``env-*`` under
+    ``managed-v1/environments`` and desktop installs under ``<root>/environments``.
+    """
     value = os.environ.get('OPERON_ENVIRONMENTS_ROOT')
     if value:
         return Path(value).expanduser()
-    return Path(sys.prefix) / 'external'
+    prefix = Path(sys.prefix).resolve()
+    parent = prefix.parent
+    if parent.name == 'managed-v1' and prefix.name.startswith('env-'):
+        return parent / 'environments'
+    install = _install_root(prefix)
+    if install is not None:
+        return install / 'environments'
+    return prefix / 'external'
 
 
 def describe(name: str, root=None) -> dict:
@@ -68,6 +91,12 @@ def resolve(name: str) -> Path | None:
     return None
 
 
+def _probe_cwd(python):
+    """Neutral working directory so the interpreter never shadows its own packages."""
+    base = Path(str(python)).resolve()
+    return str(base.parent.parent if base.parent.name.lower() in {'scripts', 'bin'} else base.parent)
+
+
 def probe(name: str, imports=None, root=None) -> tuple[bool, str, str]:
     entry = describe(name, root)
     python = resolve(name)
@@ -75,7 +104,11 @@ def probe(name: str, imports=None, root=None) -> tuple[bool, str, str]:
         return False, '', f'isolated environment {name!r} is not installed under {root() / name}'
     names = imports or entry.get('imports', [])
     script = ';'.join('import ' + module for module in names) or 'pass'
-    result = subprocess.run([str(python), '-c', script], capture_output=True, text=True, timeout=300)
+    env = os.environ.copy()
+    for name in ('PYTHONPATH', 'PYTHONHOME'):
+        env.pop(name, None)
+    env['PYTHONNOUSERSITE'] = '1'
+    result = subprocess.run([str(python), '-c', script], capture_output=True, text=True, timeout=300, env=env, cwd=_probe_cwd(python))
     if result.returncode:
         tail = (result.stderr or result.stdout).strip().splitlines()[-1:] or ['import failed']
         return False, str(python), tail[0]
@@ -122,14 +155,25 @@ def code_root() -> Path:
     """
     import os
     import sys
+    import operon
     candidates = []
     if os.environ.get("OPERON_CODE_ROOT"):
         candidates.append(Path(os.environ["OPERON_CODE_ROOT"]))
-    import operon
-    candidates.append(Path(operon.__file__).resolve().parent.parent)
+    package = Path(operon.__file__).resolve()
+    candidates.append(package.parent.parent)
     candidates.extend(Path(prefix) for prefix in sys.path if prefix)
+    # Managed installs keep the sources beside the runtime (``versions/<v>`` or
+    # ``managed-v1/code-<digest>``), never inside site-packages.
+    for parent in package.parents:
+        candidates.append(parent)
+        try:
+            candidates.extend(sorted(parent.glob("code-*")))
+        except OSError:
+            continue
     candidates.extend(Path(sys.prefix).resolve().parent.glob("code-*"))
     for candidate in candidates:
+        if any(part in {"site-packages", "dist-packages"} for part in candidate.parts):
+            continue
         if (candidate / "src/task").is_dir() and (candidate / "operon").is_dir():
             return candidate
     raise RuntimeError("cannot locate the Operon source tree for the environment bridge")
@@ -160,17 +204,19 @@ def _jsonable(value):
     return value
 
 
-def run_step(descriptor: dict, inputs, params: dict, python: Path, *, timeout: int = 3600):
+def run_step(descriptor: dict, inputs, params: dict, python: Path, *, timeout: int = 3600, paths=()):
     """Execute one step in ``python`` and return (form, export, console tail)."""
     with tempfile.TemporaryDirectory(prefix="envbridge-") as temporary:
-        return _run_step(Path(temporary), descriptor, inputs, params, python, timeout=timeout)
+        return _run_step(Path(temporary), descriptor, inputs, params, python, timeout=timeout, paths=paths)
 
 
-def worker_environment(python: Path) -> dict[str, str]:
+def worker_environment(python: Path, paths=()) -> dict[str, str]:
     """Keep OS/DLL/download settings while isolating Python module resolution."""
     env = os.environ.copy()
     env.pop('PYTHONHOME', None)
-    env['PYTHONPATH'] = str(code_root())
+    entries = [str(code_root())]
+    entries.extend(str(value) for value in paths if value)
+    env['PYTHONPATH'] = os.pathsep.join(entries)
     env['PYTHONNOUSERSITE'] = '1'
     env['PYTHONUTF8'] = '1'
     env['PYTHONIOENCODING'] = 'utf-8'
@@ -180,7 +226,7 @@ def worker_environment(python: Path) -> dict[str, str]:
     return env
 
 
-def _run_step(directory, descriptor, inputs, params, python, *, timeout):
+def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=()):
     from src.core.errors import StepError
     request = {"entry_point": descriptor["entry_point"], "params": params, "inputs": []}
     for index, form in enumerate(inputs):
@@ -188,12 +234,27 @@ def _run_step(directory, descriptor, inputs, params, python, *, timeout):
     (directory / "request.json").write_text(json.dumps(request), encoding="utf-8")
     command = [str(python), "-m", "operon.env_worker", str(directory)]
     completed = subprocess.run(command, capture_output=True, text=True, encoding='utf-8',
-                               errors='replace', timeout=timeout, env=worker_environment(python))
+                               errors='replace', timeout=timeout, env=worker_environment(python, paths), cwd=str(directory))
     if completed.returncode:
         tail = (completed.stderr or completed.stdout).strip().splitlines()[-6:]
         raise StepError("environment bridge failed with exit code " + str(completed.returncode) + ": " + " | ".join(tail))
     message = json.loads((directory / "result.json").read_text(encoding="utf-8"))
     if "error" in message:
+        try:
+            _log = Path(tempfile.gettempdir()) / 'operon-envbridge-error.log'
+            _log.write_text(json.dumps({
+                'python': str(python),
+                'pythonpath': worker_environment(python, paths).get('PYTHONPATH', ''),
+                'command': command,
+                'cwd': str(directory),
+                'returncode': completed.returncode,
+                'stdout': completed.stdout,
+                'stderr': completed.stderr,
+                'error': message['error'],
+                'descriptor': descriptor.get('id'),
+            }, ensure_ascii=False, indent=2), encoding='utf-8')
+        except Exception:
+            pass
         raise StepError(message["error"])
     from src.core.forms import Form
     from operon.env_worker import _revive
@@ -203,10 +264,11 @@ def _run_step(directory, descriptor, inputs, params, python, *, timeout):
     return form, _revive(message.get("export", {})), "\n".join((completed.stderr or "").strip().splitlines()[-4:])
 
 
-def proxy_step(descriptor: dict):
+def proxy_step(descriptor: dict, paths=()):
     """Build a Step-compatible proxy that executes in the environment interpreter."""
     from src.task.step.base import Step
     from src.core.errors import StepError
+    _paths = tuple(paths)
 
     class EnvironmentStep(Step):
         name = descriptor["id"]
@@ -233,7 +295,8 @@ def proxy_step(descriptor: dict):
             if python is None:
                 raise StepError(f"{descriptor['id']}: isolated environment {self._environment!r} is not installed")
             form, export, tail = run_step(descriptor, inputs, dict(ctx.step_params), python,
-                                          timeout=int(ctx.step_params.get("timeout_seconds", 3600)) + 60)
+                                          timeout=int(ctx.step_params.get("timeout_seconds", 3600)) + 60,
+                                          paths=_paths)
             ctx[ctx.step_params["output"]] = form
             self._export_data = export
             if tail:

@@ -21,12 +21,12 @@ Already-bundled CPU analyses do not require downloads. New extensions may need
 internet access; package availability, OS support and GPU drivers still matter.
 Windows x64, macOS, Linux and Windows ARM need separate tested distributions.
 
-The 4.1.0 application line integrates Operon Operator Library v8.0.6 (1,063 operators
-and 108 Readers), requiring Studio 4.1.0 or newer. Published installers retain
-the library seed they were built with. The runtime receipt lists Python
-dependency coverage, not a claim that
-every model or external executable is preinstalled. Large model weights,
-databases, Linux tools and declared dedicated environments remain separate.
+The 4.1.8 application line ships Operon Operator Library v8.0.7 (1,063 operators
+and 108 Readers). The library declares Studio 4.1.0 or newer. Published
+installers retain the library seed they were built with. The runtime receipt
+lists Python dependency coverage, not a claim that every model or external
+executable is preinstalled. Large model weights, databases, Linux tools and
+declared dedicated environments remain separate.
 AntiFold, ESM-3 and Boltz retain their own environment requirements and dependency
 status. Neither the builder nor automatic shared dependency repair installs
 these dedicated environments into the shared Windows Python. Configure their

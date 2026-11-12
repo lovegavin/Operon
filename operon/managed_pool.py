@@ -344,6 +344,77 @@ def inspect_pool(*, stop=False):
     return client.request('pool.retire') if stop else client.status()
 
 
+def _terminate(pid):
+    """Terminate one pool owner and its descendants; True when it is gone."""
+    try:
+        import psutil
+    except ImportError:
+        return False
+    try:
+        process = psutil.Process(int(pid))
+    except (psutil.NoSuchProcess, ValueError):
+        return True
+    for child in process.children(recursive=True):
+        try:
+            child.kill()
+        except psutil.Error:
+            pass
+    try:
+        process.terminate()
+        process.wait(timeout=5)
+    except psutil.TimeoutExpired:
+        try:
+            process.kill()
+            process.wait(timeout=5)
+        except psutil.Error:
+            pass
+    except psutil.Error:
+        pass
+    try:
+        return not process.is_running()
+    except psutil.Error:
+        return True
+
+
+def clear_pool(root=None):
+    """Terminate the pool owner and delete every shared-pool file."""
+    _, location = locations()
+    directory = Path(root or location)
+    record = _read(directory / 'instance.json', None) or {}
+    owner = record.get('owner') or {}
+    killed = False
+    if owner.get('pid'):
+        killed = _terminate(owner['pid'])
+    import shutil
+    try:
+        shutil.rmtree(directory)
+    except FileNotFoundError:
+        pass
+    except OSError as exc:
+        raise PoolClientError(f'Cannot remove shared pool state: {exc}',
+                              code='engine_unavailable') from exc
+    return {'cleared': True, 'killed': killed, 'path': str(directory)}
+
+
+def stop_pool(*, force=False):
+    """Stop the local shared pool; force discards any active work."""
+    _, root = locations()
+    record = _read(root / 'instance.json', None)
+    if not _alive(record):
+        if record or root.exists():
+            clear_pool(root)
+        return {'available': False, 'running': False, 'stopped': True, 'forced': False}
+    try:
+        client = _client(record, root)
+        value = client.request('pool.retire')
+        return {**dict(value or {}), 'stopped': True, 'forced': False}
+    except PoolClientError:
+        if not force:
+            raise
+        cleared = clear_pool(root)
+        return {'stopped': True, 'forced': True, 'active_tasks_cancelled': True, **cleared}
+
+
 def _windows_pool_flags():
     """Leave an Operon desktop job, while respecting an enclosing host job.
 

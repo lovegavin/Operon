@@ -5,6 +5,7 @@ import hmac
 import json
 import os
 import secrets
+import threading
 import time
 import uuid
 
@@ -107,15 +108,86 @@ class Bridge:
             self.connections.clear()
             return {"revoked": revoked}
 
+        @app.get("/api/agent/pool")
+        def pool_status(request: Request):
+            self.actor(request, "context")
+            from operon import managed_pool
+            return managed_pool.inspect_pool()
+
+        @app.post("/api/agent/pool/stop")
+        def pool_stop(request: Request, payload: dict | None = None):
+            self.actor(request, "run")
+            from operon import managed_pool
+            try:
+                return managed_pool.stop_pool(force=bool((payload or {}).get("force")))
+            except managed_pool.PoolClientError as exc:
+                raise HTTPException(409, str(exc)) from exc
+
         @app.get("/api/agent/remote")
         def remote_status(request: Request):
             self.actor(request, "context")
             return service.remotes.status()
 
+        @app.get("/api/agent/remote/summary")
+        def remote_summary(request: Request):
+            self.actor(request, "context")
+            return service.remotes.status(brief=True)
+
         @app.post("/api/agent/remote/{key}/ensure")
         def remote_ensure(key: str, request: Request, payload: dict | None = None):
             self.actor(request, "run")
             return service.remotes.ensure(key)
+
+        @app.post("/api/agent/remote/{key}/install")
+        def remote_install(key: str, request: Request, payload: dict | None = None):
+            self.actor(request, "run")
+            body = payload or {}
+            status = service.remotes.setup_status(key)
+            if status.get("running"):
+                return {"started": False, "running": True}
+            secret = {name: str(body[name]) for name in ("password", "passphrase") if body.get(name)}
+            force = bool(body.get("force"))
+
+            def work():
+                try:
+                    service.remotes.connect(key, secret, install=True, force=force)
+                except Exception:
+                    pass
+
+            threading.Thread(target=work, name="operon-remote-install", daemon=True).start()
+            return {"started": True, "running": True}
+
+        @app.get("/api/agent/remote/{key}/setup")
+        def remote_setup(key: str, request: Request):
+            self.actor(request, "context")
+            return service.remotes.setup_status(key)
+
+        @app.get("/api/agent/remote/{key}/pool")
+        def remote_pool(key: str, request: Request):
+            self.actor(request, "context")
+            return service.remotes.pool_info(key)
+
+        @app.post("/api/agent/remote/{key}/pool/stop")
+        def remote_pool_stop(key: str, request: Request, payload: dict | None = None):
+            self.actor(request, "run")
+            return service.remotes.pool_stop(key, force=bool((payload or {}).get("force")))
+
+        @app.get("/api/agent/remote/{key}/environments")
+        def remote_environments(key: str, request: Request):
+            self.actor(request, "context")
+            return service.remotes.environments(key)
+
+        @app.post("/api/agent/remote/{key}/environments/prepare")
+        def remote_environments_prepare(key: str, request: Request, payload: dict | None = None):
+            self.actor(request, "plugins")
+            body = payload or {}
+            return service.remotes.prepare_environments(
+                key, names=body.get("names"), dependencies=bool(body.get("dependencies")))
+
+        @app.get("/api/agent/remote/{key}/environments/{name}/log")
+        def remote_environment_log(key: str, name: str, request: Request, limit: int = 200):
+            self.actor(request, "context")
+            return service.remotes.environment_log(key, name, limit=limit)
 
         @app.get("/api/agent/sessions")
         def sessions(request: Request):

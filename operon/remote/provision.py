@@ -136,7 +136,7 @@ def locate(connection, profile, progress, cancel, expected=None):
 
 
 RETIRE_SCRIPT = r"""
-import glob, hashlib, json, os, signal, socket, struct, sys, tempfile, time
+import glob, hashlib, json, os, shutil, signal, socket, struct, sys, tempfile, time
 home = os.path.realpath(sys.argv[1])
 force = len(sys.argv) > 2 and sys.argv[2] == "force"
 uid = os.getuid()
@@ -297,6 +297,7 @@ if force:
                 blocked.append({"pid": pid, "reason": "shared pool did not exit"})
             else:
                 pools.append({"pid": pid, "record": path})
+                shutil.rmtree(os.path.dirname(path), ignore_errors=True)
 print("BP_RETIRE_RESULT " + json.dumps({"retired": retired, "forced": forced, "blocked": blocked,
                                          "skipped": skipped, "pools": pools},
                                          ensure_ascii=False, separators=(",", ":")))
@@ -341,6 +342,28 @@ def _retire_old_servers(shell, home, managed, progress, force=False):
         progress('已强制停止 %d 个旧版服务端' % len(result['forced']))
     if result.get('pools'):
         progress('已关闭 %d 个旧版共享池' % len(result['pools']))
+
+
+CLEANUP_SCRIPT = r"""
+import glob, os, shutil, sys
+
+managed, code, env, log = sys.argv[1:5]
+keep = {os.path.basename(code), os.path.basename(env), os.path.basename(log)}
+for name in os.listdir(managed):
+    if name in keep:
+        continue
+    if not name.startswith(("code-", "env-", "source-", "install-", "retire-", "setup-")):
+        continue
+    target = os.path.join(managed, name)
+    try:
+        if os.path.isdir(target) and not os.path.islink(target):
+            shutil.rmtree(target, ignore_errors=True)
+        else:
+            os.unlink(target)
+    except OSError:
+        pass
+print("BP_CLEANUP_OK")
+"""
 
 
 def provision(connection, profile, progress, cancel, root=None, expected=None, force=False):
@@ -443,6 +466,17 @@ export OPERON_MAMBA={q(mamba)}
               + ' --app-dir ' + q(code) + ' --workspace ' + q(workspace)
               + ' --source-sha256 ' + q(digest)
               + ' --build ' + q(json.dumps(identity, separators=(',', ':'))))
+    progress('清理旧的程序与运行环境')
+    cleanup = managed + '/cleanup-' + uuid.uuid4().hex + '.py'
+    shell.upload(cleanup, CLEANUP_SCRIPT.encode())
+    try:
+        shell.run(q(python) + ' -I ' + q(cleanup) + ' ' + q(managed) + ' ' + q(code) + ' ' + q(env) + ' ' + q(log),
+                  timeout=300)
+    finally:
+        try:
+            shell.run('rm -f -- ' + q(cleanup))
+        except RemoteError:
+            pass
     progress('环境就绪，正在连接运行服务')
     return {**profile, 'python': python, 'app_dir': code, 'workspace': workspace,
             'setup_log': log, 'managed_root': base, 'build': identity}

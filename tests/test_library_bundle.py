@@ -12,11 +12,12 @@ from operon.source_library import SOURCE_DIRS
 from test_packages import run_worker
 
 ROOT = Path(__file__).resolve().parents[1]
+LIBRARY_VERSION = json.loads((ROOT / 'library/release.json').read_text(encoding='utf-8'))['version']
 
 
 @pytest.fixture(scope='module')
 def library_bundle(tmp_path_factory):
-    return Path(build_bundle(ROOT, tmp_path_factory.mktemp('library'), '8.0.6')['bundle'])
+    return Path(build_bundle(ROOT, tmp_path_factory.mktemp('library'), LIBRARY_VERSION)['bundle'])
 
 
 def test_sources_are_lazy_persistent_and_outside_application(tmp_path):

@@ -340,6 +340,13 @@
   "读取": "Load",
   "读取中…": "Loading…",
   "准备远程环境": "Prepare remote environments",
+  "停止共享池": "Stop shared pool",
+  "强制清除共享池": "Force clear shared pool",
+  "强制清除远程共享池": "Force clear remote shared pool",
+  "共享池中仍有任务，请确认后强制停止": "The shared pool still has tasks; confirm a forced stop.",
+  "远程共享池中仍有任务，请确认后强制停止": "The remote shared pool still has tasks; confirm a forced stop.",
+  "共享池仍有任务，是否强制清除？": "The shared pool still has tasks. Force clear it?",
+  "远程共享池中仍有任务，是否强制清除？": "The remote shared pool still has tasks. Force clear it?",
   "服务端不兼容，请升级指定环境中的 Operon 后重试。": "Incompatible server. Upgrade Operon in the selected environment and try again.",
   "服务端不兼容，请安装 / 升级服务端后重试。": "Incompatible server. Install or upgrade the server and try again.",
   "服务端安装记录": "Server installation log",
@@ -733,7 +740,7 @@
   "隐藏日志": "Hide log",
   "暂无日志": "No log yet",
   "{n} 个算子": "{n} operators",
-  "当前算子库未声明隔离环境，请导入 8.0.6 或更新的算子库。": "This operator library declares no isolated environments. Import library 8.0.6 or newer.",
+  "当前算子库未声明隔离环境，请导入 8.0.7 或更新的算子库。": "This operator library declares no isolated environments. Import library 8.0.7 or newer.",
   "修复中…": "Repairing…",
   "修复缺失依赖，并按需安装算子库声明的隔离环境": "Repair missing dependencies and install the isolated environments declared by the operator library when needed",
   "运行状态": "Runtime status",
@@ -752,5 +759,6 @@
   "没有配置服务器": "No servers configured",
   "算子库需要更新": "library needs update",
   "排队中": "queued",
-  "需要恢复": "recovery required"
+  "需要恢复": "recovery required",
+  "当前算子库未声明隔离环境，请导入 8.0.6 或更新的算子库。": "This operator library declares no isolated environments. Import library 8.0.6 or newer."
 }

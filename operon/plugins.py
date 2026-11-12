@@ -81,8 +81,13 @@ def run_process(args, *, timeout=180, env=None):
 def _runtime_class(descriptor, lock):
     environment = (descriptor.get('resources') or {}).get('environment')
     if environment and descriptor.get('kind') == 'operator':
+        from pathlib import Path
         from operon.environments import proxy_step
-        return proxy_step(descriptor)
+        base = Path(lock.get('_runtime_root') or '')
+        relatives = [*lock.get('code_paths', []),
+                     *((descriptor.get('execution') or {}).get('paths') or [])]
+        paths = [str(base / value) for value in relatives if value] if base else []
+        return proxy_step(descriptor, paths)
     if descriptor.get('execution', {}).get('mode') == 'isolated':
         from operon.isolation import proxy_step, proxy_reader
         return (proxy_step if descriptor['kind'] == 'operator' else proxy_reader)(descriptor, lock)
