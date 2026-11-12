@@ -75,6 +75,20 @@ export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
         <div><strong>{remote.profile.name || remote.profile.host}</strong>
           <span>{remote.connected ? t('已连接') : t('未连接')}</span></div>
         <p>{remote.info?.build?.application?.version || '—'}{remote.info?.library_check?.replacement_required ? ` · ${t('算子库需要更新')}` : ''}</p>
+        {remote.connected && <div className="runtime-remote-pool">
+          <h5>{t('远程共享池')}</h5>
+          {remote.pool?.available ? <>
+            <p><span className="mono">{remote.pool.version || '—'}</span> · PID{' '}
+              <span className="mono">{remote.pool.owner?.pid || '—'}</span>
+              {remote.pool.closing && <> · {t('正在退出')}</>}</p>
+            <p className="muted">{t('运行中任务')} {remote.pool.active_count || 0}
+              {' · '}{t('会话')} {remote.pool.sessions ?? 0}</p>
+            {!!remote.pool.active_jobs?.length && <ul className="runtime-list">{remote.pool.active_jobs.map(job =>
+              <li key={job.id}><strong>{job.title || job.id}</strong>
+                <span>{statusLabel[job.status || ''] || job.status}</span></li>)}</ul>}
+          </> : <p className="muted">{remote.pool?.unsupported ? t('服务端版本较旧，无法读取池状态')
+            : (remote.pool?.error || t('尚未启动共享池'))}</p>}
+        </div>}
       </article>)}
     </section>
   </Modal>;

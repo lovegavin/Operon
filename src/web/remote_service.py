@@ -68,6 +68,7 @@ class RemoteManager:
         self.connections, self.credentials, self.pending_keys = {}, {}, {}
         self.connecting, self.progress = {}, {}
         self.library_operations = {}
+        self.pools = {}
         self.lock = threading.RLock()
         self._build = None
 
@@ -101,6 +102,27 @@ class RemoteManager:
         if key not in self.state['profiles']: raise KeyError('找不到服务器连接配置。')
         return self.state['profiles'][key]
 
+    def pool_info(self, key):
+        """Live shared-pool view for a connected server, briefly cached."""
+        connection = self.connections.get(key)
+        if connection is None or not connection.connected:
+            return None
+        with self.lock:
+            cached = self.pools.get(key)
+            if cached and time.monotonic() - cached[0] < 5:
+                return deepcopy(cached[1])
+        try:
+            value = connection.call('pool_info', {})
+        except RemoteError as exc:
+            message = str(exc)
+            value = {'available': False, 'unsupported': 'Unknown remote operation' in message,
+                     'error': message}
+        if not isinstance(value, dict):
+            value = {'available': False, 'error': 'malformed pool_info response'}
+        with self.lock:
+            self.pools[key] = (time.monotonic(), value)
+        return deepcopy(value)
+
     def status(self, *, brief=False):
         def summary(key):
             info = read_json(self.directory/(key+'.catalog.json'))
@@ -117,7 +139,8 @@ class RemoteManager:
         return [{'profile': {k: v for k, v in profile.items() if k != 'host_key'},
                  'fingerprint': profile.get('host_key', {}).get('fingerprint'),
                  'connected': bool(self.connections.get(key) and self.connections[key].connected),
-                 'info': summary(key)}
+                 'info': summary(key),
+                 'pool': self.pool_info(key)}
                 for key, profile in self.state['profiles'].items()]
 
     def save(self, value):
@@ -385,6 +408,7 @@ class RemoteManager:
     def disconnect(self, key):
         with self.lock:
             if key in self.connecting: self.connecting[key].set()
+            self.pools.pop(key, None)
             connection = self.connections.pop(key, None)
             if connection: connection.close()
             self.credentials.pop(key, None)

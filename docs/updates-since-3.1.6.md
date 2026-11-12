@@ -144,6 +144,14 @@ Provider wheels rebuilt on Windows and Linux now compare equal even though their
 `RECORD` rows are ordered differently. Libraries packaged on one platform import
 on the other without `Library source does not match wheel`.
 
+## 4.1.6
+
+- 远程服务器现在会报告真正承载其工作区的共享池：版本、PID、退出状态、会话数，
+  以及仍在排队、运行或恢复的任务。
+- 运行状态面板新增“远程共享池”，与服务器应用版本、算子库版本并列显示。
+- 旧版服务端不认识池查询时只提示“服务端版本较旧”，不会导致连接失败。
+- 查询本身不会启动新的共享池；没有池在运行时显示“尚未启动共享池”。
+
 ## 4.1.5: visible environment preparation and runtime dependencies
 
 Environment preparation returns immediately and reports its phase and size
