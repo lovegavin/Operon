@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "value_dim": {"type": "string", "default": "value"},
+    "output": {"type": "string", "default": "gini_coefficient"}
+  },
+  "required": ["value_dim"],
+  "additionalProperties": false
+}

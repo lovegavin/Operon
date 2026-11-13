@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "sequence_dim": {"type": "string", "default": "sequence"},
+    "position_dim": {"type": "string", "default": "position"},
+    "output": {"type": "string", "default": "dinucleotide_frequency"}
+  },
+  "required": ["sequence_dim", "position_dim"],
+  "additionalProperties": false
+}

@@ -84,3 +84,5 @@ node_modules/
 # Local verification workspace (routes, oracle inputs, downloaded fixtures)
 /workdir/
 library/seed/src/web/builtin_routes.json
+
+tmp/

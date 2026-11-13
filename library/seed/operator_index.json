@@ -2110,6 +2110,16 @@
     "status": "generated"
   },
   {
+    "id": "diversity_simpson",
+    "kind": "operator",
+    "title": "Simpson diversity",
+    "category": "Population genetics",
+    "version": "1.0.0",
+    "description": "Computes Simpson diversity, inverse Simpson, evenness and richness of an abundance vector.",
+    "doc": "src/task/step/steps/diversity_simpson.DiversitySimpsonStep.md",
+    "status": "authored"
+  },
+  {
     "id": "dmr_window_scan",
     "kind": "operator",
     "title": "Differentially methylated window scan",
@@ -5780,6 +5790,16 @@
     "status": "authored"
   },
   {
+    "id": "numeric_gini_coefficient",
+    "kind": "operator",
+    "title": "Gini coefficient",
+    "category": "Statistics",
+    "version": "1.0.0",
+    "description": "Computes the Gini coefficient, count, total and mean of a non-negative numeric vector.",
+    "doc": "src/task/step/steps/numeric_gini_coefficient.NumericGiniCoefficientStep.md",
+    "status": "authored"
+  },
+  {
     "id": "odds_ratio",
     "kind": "operator",
     "title": "Odds ratio",
@@ -8348,6 +8368,16 @@
     "description": "",
     "doc": "src/task/step/steps/sequence_cysteine_pairing.SequenceCysteinePairingStep.md",
     "status": "generated"
+  },
+  {
+    "id": "sequence_dinucleotide_frequency",
+    "kind": "operator",
+    "title": "Dinucleotide frequency",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Counts overlapping dinucleotides, reports their frequencies and the CpG observed/expected ratio.",
+    "doc": "src/task/step/steps/sequence_dinucleotide_frequency.SequenceDinucleotideFrequencyStep.md",
+    "status": "authored"
   },
   {
     "id": "sequence_disorder_predictor",

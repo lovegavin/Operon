@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "abundance_dim": {"type": "string", "default": "abundance"},
+    "output": {"type": "string", "default": "simpson_diversity"}
+  },
+  "required": ["abundance_dim"],
+  "additionalProperties": false
+}
