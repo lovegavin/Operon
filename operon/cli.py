@@ -254,6 +254,7 @@ def parser():
     library.add_argument("action", choices=["install", "list", "remove"])
     library.add_argument("path", nargs="?")
     library.add_argument("--name")
+    library.add_argument("--version")
     routes = commands.add_parser("routes", help="Import a route collection built for the installed library")
     routes.add_argument("action", choices=["import"])
     routes.add_argument("path")
@@ -421,6 +422,8 @@ def execute(args):
             payload = {'path': str(path)}
             if args.name:
                 payload['name'] = args.name
+            if args.version:
+                payload['version'] = args.version
             return client.request('/v1/libraries/install', payload)
         if args.command == 'routes':
             path = Path(args.path).expanduser().resolve()

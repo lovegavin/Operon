@@ -791,5 +791,7 @@
   "路线库请选择 .zip 集合包（包含 routes/*.operon.zip）。": "Choose a .zip collection (containing routes/*.operon.zip) for the route library.",
   "路线库包：.zip 集合包": "Route library: .zip collection",
   "库名称（可选）": "Library name (optional)",
-  "全新安装的 Operon Studio 不包含算子。请先导入算子库包，再导入路线库包。": "A new Operon Studio installation contains no operators. Import the operator library bundle first, then the route library."
+  "全新安装的 Operon Studio 不包含算子。请先导入算子库包，再导入路线库包。": "A new Operon Studio installation contains no operators. Import the operator library bundle first, then the route library.",
+  "库名称（如 main、fork1）": "Library name (e.g. main, fork1)",
+  "版本（留空则跟随库包）": "Version (blank = bundle version)"
 }

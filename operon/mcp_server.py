@@ -351,8 +351,9 @@ def create_server(client):
         return client.request("/plugins/install", {"wheel": wheel})
 
     @server.tool()
-    def operon_library_install(path: str, name: str | None = None) -> dict:
-        """Install an Operon 5.0.0 operator library bundle as a named branch.
+    def operon_library_install(path: str, name: str | None = None,
+                               version: str | None = None) -> dict:
+        """Install an operator library bundle as ``<name>-v<version>``.
 
         Libraries are equal-status branches (main, fork1, ...); operator and
         Reader ids must not overlap. Requires --allow-plugins.
@@ -360,6 +361,8 @@ def create_server(client):
         payload = {'path': path}
         if name:
             payload['name'] = name
+        if version:
+            payload['version'] = version
         return client.request('/v1/libraries/install', payload)
 
     @server.tool()

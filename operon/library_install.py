@@ -294,12 +294,28 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def _label_for(requested: str | None, document: dict) -> str:
-    label = (requested or f"v{document['library_version']}").strip().lower()
-    if not LABEL.fullmatch(label):
+def _label_for(requested: str | None, document: dict,
+               version: str | None = None) -> str:
+    name = (requested or "main").strip().lower()
+    if not LABEL.fullmatch(name):
         raise _invalid(
-            f"Invalid library name {label!r}: use lower-case letters, digits, dot, dash or underscore."
+            f"Invalid library name {name!r}: use lower-case letters, digits, dot, dash or underscore."
         )
+    actual = str(document["library_version"]).strip().lower()
+    chosen = (version or actual).strip().lower()
+    if chosen.startswith("v"):
+        chosen = chosen[1:]
+    try:
+        Version(chosen)
+    except InvalidVersion as error:
+        raise _invalid(f"Invalid library version {chosen!r}.") from error
+    if chosen != actual:
+        raise _invalid(
+            f"Library version {chosen!r} does not match the bundle version {actual!r}."
+        )
+    label = f"{name}-v{chosen}"
+    if not LABEL.fullmatch(label):
+        raise _invalid(f"Invalid library label {label!r}.")
     return label
 
 
@@ -577,7 +593,7 @@ def _result(document: dict, *, label: str, libraries: list[str],
 
 
 def install_library(manager, path, *, name: str | None = None,
-                    replace: bool = True) -> dict:
+                    version: str | None = None, replace: bool = True) -> dict:
     """Install a 5.0.0 archive as an equal-status named library.
 
     Libraries are branches, not replacements: every imported bundle keeps its
@@ -591,7 +607,7 @@ def install_library(manager, path, *, name: str | None = None,
         inspected = inspect_library(source)
         try:
             document = inspected["manifest"]
-            label = _label_for(name, document)
+            label = _label_for(name, document, version)
             current = manager.state()
             libraries = _libraries(current)
             identifiers = sorted({

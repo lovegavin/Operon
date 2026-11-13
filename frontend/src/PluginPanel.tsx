@@ -23,6 +23,7 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
   const busy = pending || !!state.dependencies?.running;
   const file = useRef<HTMLInputElement>(null);
   const libraryLabel = useRef('');
+  const libraryVersion = useRef('');
   const mounted = useRef(true);
   useEffect(() => {
     mounted.current = true;
@@ -134,8 +135,10 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
         if (!selected) return;
         const bundle = isLibraryBundleFile(selected.name);
         const label = libraryLabel.current.trim();
+        const version = libraryVersion.current.trim();
         libraryLabel.current = '';
-        void operate(bundle ? () => api.installLibrary(selected, label || undefined) : () => api.installPlugin(selected), {library: bundle});
+        libraryVersion.current = '';
+        void operate(bundle ? () => api.installLibrary(selected, label || undefined, version || undefined) : () => api.installPlugin(selected), {library: bundle});
       }}/>
       <div hidden={tab !== "manage"}>
       <div className="plugin-toolbar">
@@ -163,7 +166,7 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
         {records.length > 0 && <p className="operator-install-note">{t('算子库可同时安装多个，内部算子不再单独管理。')}</p>}
       </div>
       </div>
-      <div hidden={tab !== "add"}><AddOperators busy={busy} onPackage={name => {libraryLabel.current = name ?? ''; file.current?.click();}}
+      <div hidden={tab !== "add"}><AddOperators busy={busy} onPackage={(name, version) => {libraryLabel.current = name ?? ''; libraryVersion.current = version ?? ''; file.current?.click();}}
         onChanged={onChanged} onPending={setPending} onError={setError} onMessage={setMessage}/></div>
     </div>
     {legacy && <LegacyLibraryAlert message={legacy} onChoose={() => {libraryLabel.current = ''; setLegacy(''); setTab('add'); file.current?.click();}}/>}

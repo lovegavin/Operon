@@ -79,6 +79,7 @@ class LibraryRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     path: str = Field(min_length=1, max_length=1000)
     name: str | None = Field(default=None, max_length=64)
+    version: str | None = Field(default=None, max_length=32)
 
 
 class RouteCollectionRequest(LibraryRequest):
@@ -147,7 +148,7 @@ def mount_control(app, application, bridge):
         authorize(request, 'plugins')
         from .library_install import install_library as install
         try:
-            result = install(application.service.plugins, payload.path, name=payload.name)
+            result = install(application.service.plugins, payload.path, name=payload.name, version=payload.version)
         except ValueError as error:
             raise CommandError('library_install_failed', str(error)) from error
         application.service.refresh_catalog()

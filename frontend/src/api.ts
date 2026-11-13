@@ -207,10 +207,11 @@ export const api = {
   },
   libraries: () => request<import('./types').LibraryList>('/api/libraries'),
   /** 5.1.0: install one bundled library and optionally label it (e.g. fork-v0.0.0). */
-  installLibrary: async (file: File, name?: string): Promise<import('./types').LibraryInstallResult> => {
+  installLibrary: async (file: File, name?: string, version?: string): Promise<import('./types').LibraryInstallResult> => {
     const body = new FormData();
     body.append('file', file, file.name);
     if (name?.trim()) body.append('name', name.trim());
+    if (version?.trim()) body.append('version', version.trim());
     const response = await fetch(base + '/api/libraries/install', {
       method: 'POST', headers: {'X-Studio-Token': token}, body,
     });

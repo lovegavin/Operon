@@ -13,15 +13,19 @@ BAD_NAME = '\\/:*?"<>|'
 
 def mount_library(app, service):
     async def receive(request: Request, label: str):
-        """Return (archive path, temporary directory to clean up)."""
+        """Return (archive path, temporary directory, name, version)."""
         content_type = (request.headers.get("content-type") or "").split(";")[0].strip().lower()
         key = uuid.uuid4().hex
         name = None
+        version = None
         if content_type == "multipart/form-data":
             form = await request.form()
             raw_name = form.get("name")
             if isinstance(raw_name, str) and raw_name.strip():
                 name = raw_name.strip()
+            raw_version = form.get("version")
+            if isinstance(raw_version, str) and raw_version.strip():
+                version = raw_version.strip()
             upload = form.get("file")
             if not isinstance(upload, UploadFile):
                 raise HTTPException(422, f"请选择要导入的{label} ZIP 文件。")
@@ -46,7 +50,7 @@ def mount_library(app, service):
                         output.write(chunk)
                 if not size:
                     raise HTTPException(422, "文件为空。")
-                return target, temporary, name
+                return target, temporary, name, version
             except BaseException:
                 shutil.rmtree(temporary, ignore_errors=True)
                 raise
@@ -64,7 +68,10 @@ def mount_library(app, service):
             raw_name = payload.get("name")
             if isinstance(raw_name, str) and raw_name.strip():
                 name = raw_name.strip()
-            return source, None, name
+            raw_version = payload.get("version")
+            if isinstance(raw_version, str) and raw_version.strip():
+                version = raw_version.strip()
+            return source, None, name, version
         raise HTTPException(
             415, '请使用 multipart/form-data 上传文件，或发送 {"path": "..."} 的 JSON 请求。'
         )
@@ -77,11 +84,11 @@ def mount_library(app, service):
     @app.post("/api/libraries/install")
     async def install_library_route(request: Request):
         from operon.library_install import LegacyLibrary, LibraryConflict, install_library
-        path, temporary, name = await receive(request, "算子库")
+        path, temporary, name, version = await receive(request, "算子库")
         try:
             try:
                 result = await asyncio.to_thread(
-                    install_library, service.plugins, path, name=name
+                    install_library, service.plugins, path, name=name, version=version
                 )
             except LegacyLibrary as exc:
                 raise HTTPException(400, str(exc)) from exc
@@ -115,7 +122,7 @@ def mount_library(app, service):
     @app.post("/api/routes/import-collection")
     async def import_collection_route(request: Request):
         from operon.library_install import RoutePinMismatch, install_routes_collection
-        path, temporary, _name = await receive(request, "路线包")
+        path, temporary, _name, _version = await receive(request, "路线包")
         try:
             try:
                 return await asyncio.to_thread(install_routes_collection, service, path)
