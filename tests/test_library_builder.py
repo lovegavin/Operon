@@ -283,11 +283,15 @@ def test_real_seed_build_and_gate(tmp_path: Path) -> None:
     assert cli_main(["verify", "--dist", str(dist)]) == 0
 
     document, descriptors = manifest.verify_entries(manifest.read_entries(bundle))
-    assert len(document["packages"]) == 7
-    assert document["descriptor_count"] == 1171
-    assert document["operator_count"] == 1063
-    assert document["reader_count"] == 108
-    assert len(descriptors) == 1171
+    catalog = json.loads((SEED / "operon" / "builtin_packages.json").read_text(encoding="utf-8"))
+    declared = [d for package in catalog["packages"] for d in package["descriptors"]]
+    operators = [d for d in declared if d.get("kind") == "operator"]
+    readers = [d for d in declared if d.get("kind") == "reader"]
+    assert len(document["packages"]) == len(catalog["packages"])
+    assert document["descriptor_count"] == len(declared)
+    assert document["operator_count"] == len(operators)
+    assert document["reader_count"] == len(readers)
+    assert len(descriptors) == len(declared)
 
     checks = gate(bundle)
     assert len(checks) == 3 + len(document["packages"])
