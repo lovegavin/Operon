@@ -152,6 +152,10 @@ def capability(node, info):
             return f"{item.operator} is not installed"
         failure = descriptor_capability(spec, info, pin)
         if failure:
+            if info.get('target', {}).get('kind') == 'ssh' and 'pinned implementation is unavailable' in failure:
+                host = info.get('name') or target_key(info.get('target'))
+                failure += (f' (the operator library on {host} does not match this workspace; '
+                            'install or upgrade that server with operon_remote_install force=true, then retry)')
             return failure
     return None
 
@@ -192,7 +196,11 @@ def _metadata(graph, infos, stat_file, warnings, *, dependencies_only=False, req
         value, error = cached_stats[key]
         if error and not optional:
             if require_files:
-                raise GraphError(f'{label}: input file unavailable: {path} ({error})')
+                message = f'{label}: input file unavailable: {path} ({error})'
+                if target_key(location) != 'local':
+                    message += (' (the file is not on the SSH workspace; reference a local source '
+                                'so Operon uploads it, or copy it into the server workspace first)')
+                raise GraphError(message)
             warning = f'{label}: input size unavailable ({error})'
             if warning not in warning_keys:
                 warnings.append(warning); warning_keys.add(warning)

@@ -16,6 +16,7 @@ from .documents import CommandError
 DEFAULT_FOLDERS = ('input', 'results', 'reports', 'figures')
 PROTECTED_ROOTS = frozenset({'.studio', '.operon', '.admission'})
 MAX_TEXT_BYTES = 10 * 1024 * 1024
+MAX_BINARY_BYTES = 50 * 1024 * 1024
 
 
 def _normalize(value, label):
@@ -95,18 +96,8 @@ def scaffold(root, base_dir, folders=None):
     }
 
 
-def write_text(root, relative, content, overwrite=True):
-    """Write UTF-8 text to a workspace-relative path, creating parent folders."""
+def _write_data(root, relative, data, overwrite=True):
     root = _workspace(root)
-    if not isinstance(content, str):
-        raise CommandError('invalid_content', 'content must be a string')
-    data = content.encode('utf-8')
-    if len(data) > MAX_TEXT_BYTES:
-        raise CommandError(
-            'content_too_large',
-            f'content exceeds {MAX_TEXT_BYTES // (1024 * 1024)} MiB',
-            413,
-        )
     _, target = _target(root, relative, 'path')
     existed = target.exists()
     if existed:
@@ -125,8 +116,8 @@ def write_text(root, relative, content, overwrite=True):
         raise CommandError('invalid_path', 'path escapes the workspace')
     handle, temporary = tempfile.mkstemp(prefix='.' + target.name + '.', dir=target.parent)
     try:
-        with os.fdopen(handle, 'w', encoding='utf-8', newline='') as stream:
-            stream.write(content)
+        with os.fdopen(handle, 'wb') as stream:
+            stream.write(data)
         os.replace(temporary, target)
     except BaseException:
         try:
@@ -140,6 +131,34 @@ def write_text(root, relative, content, overwrite=True):
         'bytes': len(data),
         'created': not existed,
     }
+
+
+def write_text(root, relative, content, overwrite=True):
+    """Write UTF-8 text to a workspace-relative path, creating parent folders."""
+    if not isinstance(content, str):
+        raise CommandError('invalid_content', 'content must be a string')
+    data = content.encode('utf-8')
+    if len(data) > MAX_TEXT_BYTES:
+        raise CommandError(
+            'content_too_large',
+            f'content exceeds {MAX_TEXT_BYTES // (1024 * 1024)} MiB',
+            413,
+        )
+    return _write_data(root, relative, data, overwrite)
+
+
+def write_binary(root, relative, content, overwrite=True):
+    """Write bytes (PNG, PDF, ZIP, ...) to a workspace-relative path."""
+    if not isinstance(content, (bytes, bytearray, memoryview)):
+        raise CommandError('invalid_content', 'content must be bytes')
+    data = bytes(content)
+    if len(data) > MAX_BINARY_BYTES:
+        raise CommandError(
+            'content_too_large',
+            f'content exceeds {MAX_BINARY_BYTES // (1024 * 1024)} MiB',
+            413,
+        )
+    return _write_data(root, relative, data, overwrite)
 
 
 class TaskFiles:
@@ -157,3 +176,6 @@ class TaskFiles:
 
     def write_text(self, path, content, overwrite=True):
         return write_text(self.root, path, content, overwrite)
+
+    def write_binary(self, path, content, overwrite=True):
+        return write_binary(self.root, path, content, overwrite)

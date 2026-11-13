@@ -82,3 +82,36 @@ def test_import_archive_rejects_empty_collection(studio):
     response = client.post('/api/routes/import-archive', content=stream.getvalue(), headers={'Content-Type': 'application/zip'})
     assert response.status_code == 422
     assert '没有 route/' in response.json()['message']
+
+def test_import_archive_rejects_unprovable_route_pins(studio):
+    client, bootstrap = studio
+    graph = deepcopy(bootstrap['demo'])
+    catalog = client.get('/api/operators').json()
+    descriptors = {item['id']: item for item in (catalog.get('operators') or []) + (catalog.get('readers') or [])}
+    node = next(node for node in graph['nodes'] if node.get('operator') in descriptors)
+    key = node['operator']
+    descriptor = descriptors[key]
+    implementation = descriptor['implementation']
+    graph['plugin_lock'] = {key: {'version': implementation['version'],
+                                  'package': descriptor['distribution'],
+                                  'code_sha': '0' * 64}}
+    before = len(client.get('/api/workflows').json())
+    response = client.post('/api/routes/import-archive', content=collection([graph]),
+                           headers={'Content-Type': 'application/zip'})
+    assert response.status_code == 422, response.text
+    message = response.json()['message']
+    assert key in message and 'Unable to prove pin correspondence' in message
+    assert len(client.get('/api/workflows').json()) == before
+    assert client.get('/api/routes').json() == []
+
+
+def test_import_archive_accepts_route_without_pins(studio):
+    client, bootstrap = studio
+    graph = deepcopy(bootstrap['demo'])
+    graph.pop('plugin_lock', None)
+    response = client.post('/api/routes/import-archive', content=collection([graph]),
+                           headers={'Content-Type': 'application/zip'})
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body['pin_migrations'] == []
+    assert len(body['routes']) == 1

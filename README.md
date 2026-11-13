@@ -84,6 +84,26 @@ installs scientific packages silently during a run.
   message that points at an `operon-library-v0.0.x` bundle built for Operon
   5.0.0.
 
+## What is new in 4.2.4
+
+- **Binary workspace writes.** `operon_write_binary(path=..., content_base64=...)`
+  and `POST /api/v1/workspace/files/binary` write PNG, PDF, ZIP or any other
+  binary payload through the backend. Path rules match text writes; the decoded
+  payload is limited to 50 MiB, while UTF-8 text writes stay at 10 MiB.
+- **Remote library diagnostics.** A pinned-implementation failure against an SSH
+  target now names the host and points at `operon_remote_install(force=true)`,
+  and a missing input on an SSH target explains that only local source files are
+  uploaded.
+- **Operator library 8.0.10.** All 1,171 descriptors carry consistent `code_sha`
+  values in this release; Studio 4.2.4 requires library **8.0.10 or newer**.
+
+## What is new in 4.2.3
+
+- Route archives now separate provable pin migrations from unprovable ones. `POST
+  /api/routes/import-archive` rewrites a pin only when the installed library proves the
+  source-to-wheel identity, reports it in `pin_migrations`, and rejects anything else with an
+  explicit error instead of guessing.
+
 ## What is new in 4.2.2
 
 - **Task folders, including scaffolds written by the backend.**

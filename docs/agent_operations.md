@@ -63,12 +63,19 @@ its own permissions, and every path is workspace-relative.
 operon_task(base_dir="task1")                     # input, results, reports, figures
 operon_task(base_dir="project/task2", folders=["input", "reports"])
 operon_write_text(path="task1/reports/summary.md", content="# Summary\n")
+operon_write_binary(path="task1/figures/chart.png", content_base64="iVBORw0...")
 ```
 
 HTTP equivalents (edit scope): `POST /api/v1/tasks` with
-`{"base_dir": "...", "folders": [...]}` and `POST /api/v1/workspace/files`
-with `{"path": "...", "content": "...", "overwrite": true}`. Capabilities
-`task-scaffolding` and `workspace-files` advertise them.
+`{"base_dir": "...", "folders": [...]}`, `POST /api/v1/workspace/files`
+with `{"path": "...", "content": "...", "overwrite": true}`, and
+`POST /api/v1/workspace/files/binary` with
+`{"path": "...", "content": "<base64>", "overwrite": true}`. Capabilities
+`task-scaffolding`, `workspace-files` and `workspace-binary-files` advertise
+them.
+
+Binary payloads are decoded as standard base64 (no data-URL prefix) and limited
+to 50 MiB; text writes remain UTF-8 and limited to 10 MiB.
 
 Rules enforced by the backend: paths must be relative, may not contain `..`,
 must resolve inside the workspace, may not be symbolic links, and may not
