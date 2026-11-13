@@ -4,6 +4,7 @@ import hashlib
 import gzip
 import io
 import json
+import os
 from pathlib import Path
 import re
 import shlex
@@ -84,7 +85,25 @@ class Shell:
         raise RemoteError('服务器环境准备超时；可重新连接重试。', code='remote_setup_failed')
 
     def upload(self, path, data):
-        """Idempotent indexed chunks, then a full checksum before use."""
+        """Upload the file in one SFTP request, then verify its checksum."""
+        from .client import RemoteError
+        if len(data) > 64 * 1024 * 1024:
+            raise RemoteError('程序包超过 64 MiB，无法直接上传。', code='remote_upload_too_large')
+        client = getattr(self.connection, 'client', None)
+        if client is not None:
+            try:
+                from io import BytesIO
+                self.progress('直接上传程序 %d 字节' % len(data))
+                sftp = client.open_sftp()
+                try:
+                    sftp.putfo(BytesIO(data), path, confirm=True)
+                finally:
+                    sftp.close()
+                self.run('printf %s ' + shlex.quote(hashlib.sha256(data).hexdigest() + '  ' + path + '\n')
+                         + ' | sha256sum -c -')
+                return
+            except Exception as exc:
+                self.progress('直接上传不可用，改用分块上传：' + str(exc)[:120])
         target = shlex.quote(path)
         encoded = base64.b64encode(data).decode()
         chunk_size = 16384
@@ -389,6 +408,37 @@ def application_root() -> Path:
 def provision(connection, profile, progress, cancel, root=None, expected=None, force=False):
     from .client import RemoteError
     shell = Shell(connection, progress, cancel)
+    base = (profile.get('managed_root') or '').rstrip('/')
+    if not base:
+        probe = shell.run('printf "\\nBP_HOME=%s\\n" "$HOME"')
+        found = re.search(r'BP_HOME=(/[^\r\n]*)', probe)
+        if not found:
+            raise RemoteError('无法确定服务器用户目录。')
+        base = found[1].rstrip('/') + '/.local/share/operon'
+    managed = base + '/managed-v1'
+    q = shlex.quote
+    shell.run('umask 077; mkdir -p -- ' + q(managed))
+    lock = managed + '/deploy.lock'
+    state = shell.run('if mkdir ' + q(lock) + ' 2>/dev/null; then printf LOCKED; '
+                      'else cat ' + q(lock + '/owner') + ' 2>/dev/null; fi').strip()
+    if state != 'LOCKED':
+        if not force:
+            raise RemoteError('另一个部署正在进行，请等待完成后再试。', code='remote_deploy_busy')
+        shell.run('rm -rf -- ' + q(lock) + '; mkdir ' + q(lock))
+    shell.run('printf %s ' + q('%d %.3f' % (os.getpid(), time.time())) + ' > ' + q(lock + '/owner'))
+    try:
+        return _provision_body(connection, profile, progress, cancel, root=root,
+                               expected=expected, force=force)
+    finally:
+        try:
+            shell.run('rm -rf -- ' + q(lock))
+        except Exception:
+            pass
+
+
+def _provision_body(connection, profile, progress, cancel, root=None, expected=None, force=False):
+    from .client import RemoteError
+    shell = Shell(connection, progress, cancel)
     progress('检查服务器系统与部署目录')
     probe = shell.run('printf "\\nBP_SYSTEM=%s\\nBP_ARCH=%s\\nBP_HOME=%s\\n" "$(uname -s)" "$(uname -m)" "$HOME"; for bp_tool in bash tar base64 sha256sum flock tee; do command -v "$bp_tool" || exit 1; done')
     if not re.search(r'BP_SYSTEM=Linux\s*(?:\n|$)', probe) or not re.search(r'BP_ARCH=x86_64\s*(?:\n|$)', probe):
@@ -402,13 +452,26 @@ def provision(connection, profile, progress, cancel, root=None, expected=None, f
     # Own only a dedicated namespace, never an existing arbitrary installation.
     managed = base + '/managed-v1'
     shell.run('umask 077; mkdir -p -- ' + q(managed))
-    _retire_old_servers(shell, home[1].rstrip('/'), managed, progress, force=force)
     data = source_archive(root or application_root())
     digest = hashlib.sha256(data).hexdigest()
     from operon.build_identity import build_identity
     identity = build_identity(root or application_root(), source_sha256=digest)
     if expected is not None and expected.get('build_id') != identity['build_id']:
         raise RemoteError('本地程序在准备期间发生变化，请重试。', code='build_changed')
+    if not force:
+        try:
+            current = locate(connection, profile, progress, cancel, expected=None)
+        except RemoteError:
+            current = None
+        if current and (current.get('build') or {}).get('source_sha256') == digest:
+            progress('服务端已是当前版本，无需重复安装')
+            return current
+    _retire_old_servers(shell, home[1].rstrip('/'), managed, progress, force=force)
+    # One root holds one version: stop and remove the previous deployment before
+    # uploading the new one, so a failed upgrade cannot leave two live versions.
+    progress('卸载旧的程序与运行环境')
+    shell.run('set -eu; cd ' + q(managed) + '; for name in code-* env-* source-* install-* setup-*; do '
+              '[ -e "$name" ] || continue; rm -rf -- "$name"; done; rm -f -- server.json')
     code = managed + '/code-' + digest[:20]
     archive = managed + '/source-' + digest[:20] + '.tar.gz'
     log = managed + '/setup-' + digest[:20] + '.log'
