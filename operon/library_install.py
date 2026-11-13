@@ -36,7 +36,7 @@ LABEL = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 SAFE_ID = re.compile(r"^[A-Za-z0-9_.-]+$")
 LEGACY_MESSAGE = (
     "This library bundle uses the legacy 8.x format.\n"
-    "Install an operon-library-v0.0.x bundle built for Operon 5.1.0."
+    "Install a current operon-library bundle built for this Operon Studio release."
 )
 
 

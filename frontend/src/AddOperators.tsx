@@ -13,7 +13,7 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
   onError: (value: string) => void; onMessage: (value: string) => void;
 }) {
   const [routes, setRoutes] = useState<WorkflowSummary[]>([]);
-  const [selected, setSelected] = useState<string[]>([]), [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [libraryName, setLibraryName] = useState('');
   const file = useRef<HTMLInputElement>(null);
@@ -91,15 +91,15 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
       onPending(false);
     }
   }
-  const visible = routes.filter(route => route.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
+  const visible = routes;
   return <div className="add-operators">
     <h2 className="operator-section-heading">{t('普通算子与 Reader')}</h2>
     <section className="operator-install-card">
-      <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('导入算子库')}</h3><code>operon-library-v0.0.x.operon-library.zip</code></div>
+      <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('导入算子库')}</h3><code>.operon-library.zip</code></div>
         <button className="primary-button" disabled={busy} onClick={() => onPackage(libraryName.trim())}><FileArrowUp size={16}/>{t('导入算子库')}</button></div>
       <label className="library-name-field">
         <span>{t('库名称')}</span>
-        <input type="text" value={libraryName} disabled={busy} placeholder={t('库名称（可选，如 fork-v0.0.0）')}
+        <input type="text" value={libraryName} disabled={busy} placeholder={t('库名称（可选）')}
           onChange={event => setLibraryName(event.target.value)}/>
       </label>
     </section>
@@ -117,14 +117,13 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
       <input hidden ref={collection} type="file" accept=".zip" aria-label={t('导入路线库')} onChange={event => {
         const file = event.target.files?.[0]; event.target.value = '';
         if (!file) return;
-        if (!isRouteLibraryFile(file.name)) {onError(t('路线库请选择 operon-routes-v0.0.x.zip（包含 routes/*.operon.zip）。')); return;}
+        if (!isRouteLibraryFile(file.name)) {onError(t('路线库请选择 .zip 集合包（包含 routes/*.operon.zip）。')); return;}
         void importCollection(file);
       }}/>
-      <p className="operator-install-note">{t('路线库包：{file}', {file: 'operon-routes-v0.0.0.zip'})} · {t('包含 routes/*.operon.zip，需与算子库同一版本。')}</p>
+      <p className="operator-install-note">{t('路线库包：.zip 集合包')} · {t('包含 routes/*.operon.zip，需与算子库同一版本。')}</p>
       <div className="saved-operator-routes">
-        <input type="search" className="route-search" aria-label={t('搜索已保存路线')} placeholder={t('搜索已保存路线')} value={search} onChange={e => setSearch(e.target.value)}/>
         <div className="add-route-list">
-          {!visible.length && <div className="modal-empty"><Stack size={24}/><p>{loading ? t('正在读取保存的路线…') : search ? t('没有匹配的路线') : t('暂无已保存路线')}</p></div>}
+          {!visible.length && <div className="modal-empty"><Stack size={24}/><p>{loading ? t('正在读取保存的路线…') : t('暂无已保存路线')}</p></div>}
           {visible.map(route => <label className={`workflow-choice ${selected.includes(route.id) ? 'checked' : ''}`} key={route.id}>
             <input type="checkbox" disabled={busy || loading} checked={selected.includes(route.id)} onChange={e => setSelected(ids => e.target.checked ? [...ids, route.id] : ids.filter(id => id !== route.id))}/>
             <span className="workflow-choice-text"><strong>{route.name}</strong><small>{t('{count} 个节点', {count: route.nodes})} · v{route.version}</small></span>
