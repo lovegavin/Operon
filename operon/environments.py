@@ -77,6 +77,24 @@ def _install_root(prefix: Path) -> Path | None:
     return None
 
 
+def _native_path(value) -> Path:
+    """Strip Windows' extended-length prefix before spawning a child process.
+
+    ``Path.resolve()`` can return an extended-length ``\\\\?\\`` path for an install root that was
+    opened through a junction or a long path.  A child started from that form
+    reports ``sys.prefix`` with the same prefix, and the OpenMM extension then
+    fails to find its dependent DLLs.  Native paths behave correctly.
+    """
+    if os.name != 'nt':
+        return Path(value)
+    text = str(value)
+    if text.startswith('\\\\?\\UNC\\'):
+        return Path('\\\\' + text[8:])
+    if text.startswith('\\\\?\\'):
+        return Path(text[4:])
+    return Path(text)
+
+
 def root() -> Path:
     """Return the stable directory that keeps isolated interpreters.
 
@@ -86,8 +104,8 @@ def root() -> Path:
     """
     value = os.environ.get('OPERON_ENVIRONMENTS_ROOT')
     if value:
-        return Path(value).expanduser()
-    prefix = Path(sys.prefix).resolve()
+        return _native_path(Path(value).expanduser())
+    prefix = _native_path(Path(sys.prefix).resolve())
     parent = prefix.parent
     if parent.name == 'managed-v1' and prefix.name.startswith('env-'):
         return parent / 'environments'
@@ -123,27 +141,42 @@ def resolve(name: str) -> Path | None:
         candidates.append(managed / 'external' / name / layout)
     for path in candidates:
         if path.is_file() and os.access(path, os.X_OK):
-            return path
+            return _native_path(path)
     return None
 
 
 def _probe_cwd(python):
-    """Neutral working directory so the interpreter never shadows its own packages."""
-    base = Path(str(python)).resolve()
-    return str(base.parent.parent if base.parent.name.lower() in {'scripts', 'bin'} else base.parent)
+    """Neutral working directory outside the environment.
+
+    Holding the environment as a probe's current directory blocks the
+    installer from renaming it on Windows (WinError 5).
+    """
+    return tempfile.gettempdir()
 
 
-def probe(name: str, imports=None, root=None) -> tuple[bool, str, str]:
-    entry = describe(name, root)
-    python = resolve(name)
-    if python is None:
-        return False, '', f'isolated environment {name!r} is not installed under {root() / name}'
-    names = imports or entry.get('imports', [])
-    script = ';'.join('import ' + module for module in names) or 'pass'
+def _probe_environment_variables(python: Path) -> dict[str, str]:
+    """Run probes with the same DLL search directories as the real worker."""
+    python = Path(str(python))
     env = os.environ.copy()
     for name in ('PYTHONPATH', 'PYTHONHOME'):
         env.pop(name, None)
     env['PYTHONNOUSERSITE'] = '1'
+    base = python.parent.parent if python.parent.name.lower() in {'scripts', 'bin'} else python.parent
+    folders = [python.parent, base, base / 'Library' / 'bin', base / 'bin']
+    env['PATH'] = os.pathsep.join(
+        [*(str(item) for item in folders if item.is_dir()), env.get('PATH', '')])
+    return env
+
+
+def probe(name: str, imports=None, root=None) -> tuple[bool, str, str]:
+    entry = describe(name, root)
+    resolved = resolve(name)
+    python = Path(str(resolved)) if resolved is not None else None
+    if python is None:
+        return False, '', f'isolated environment {name!r} is not installed under {root() / name}'
+    names = imports or entry.get('imports', [])
+    script = ';'.join('import ' + module for module in names) or 'pass'
+    env = _probe_environment_variables(python)
     result = subprocess.run([str(python), '-X', 'utf8', '-c', script], capture_output=True, text=True,
                             encoding='utf-8', errors='replace', timeout=300, env=env, cwd=_probe_cwd(python))
     if result.returncode:

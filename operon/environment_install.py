@@ -32,7 +32,7 @@ PROGRESS = '.operon-environment-progress'
 
 
 def base(root=None) -> Path:
-    return environments.root() if root is None else Path(root).expanduser()
+    return environments.root() if root is None else environments._native_path(Path(root).expanduser())
 
 
 def target(name: str, root=None) -> Path:
@@ -118,7 +118,11 @@ def state(name: str, root=None, source=None) -> dict:
         result['status'] = 'ready'
         result['error'] = ''
     result['used_by'] = []
-    result['progress'] = read_progress(name, root)
+    progress = read_progress(name, root)
+    result['progress'] = progress
+    if progress.get('phase') in {'creating', 'installing', 'probing', 'committing'}:
+        result['status'] = 'installing'
+        result['error'] = ''
     return result
 
 
@@ -240,6 +244,37 @@ def _mamba_env(directory: Path) -> dict:
     return env
 
 
+def _commit(name: str, staging: Path, final: Path) -> None:
+    """Swap a finished staging tree into place without losing the working copy.
+
+    Windows refuses to rename a directory while any process keeps it as its
+    working directory. Probes run from the system temporary directory, but a
+    task may still hold the old environment. Retry briefly; if the swap still
+    fails, restore the previous environment instead of leaving the name empty.
+    """
+    previous = None
+    if final.exists():
+        previous = final.with_name(f'.previous-{name}-{uuid.uuid4().hex[:8]}')
+        final.rename(previous)
+    try:
+        for attempt in range(12):
+            try:
+                staging.rename(final)
+                break
+            except OSError:
+                if attempt == 11:
+                    raise
+                time.sleep(0.25)
+    except OSError as error:
+        if previous is not None and not final.exists():
+            previous.rename(final)
+        raise RuntimeError(
+            f'could not commit environment {name}: its directory is still in use '
+            f'by a running probe or task; stop the task and retry ({error})') from error
+    if previous is not None:
+        shutil.rmtree(previous, ignore_errors=True)
+
+
 def _create(entry: dict, staging: Path, log, root=None, progress=None):
     if entry.get('venv_shared'):
         _run([sys.executable, '-m', 'venv', '--system-site-packages', staging], log=log, timeout=900,
@@ -294,12 +329,23 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None):
              timeout=3600, progress=progress)
 
 
+def _probe_environment(python: Path) -> dict[str, str]:
+    env = os.environ.copy()
+    base = python.parent.parent if python.parent.name.lower() in {'scripts', 'bin'} else python.parent
+    folders = [python.parent, base, base / 'Library' / 'bin', base / 'bin']
+    env['PATH'] = os.pathsep.join(
+        [*(str(item) for item in folders if item.is_dir()), env.get('PATH', '')])
+    return env
+
+
 def _probe(python: Path, entry: dict, log, progress=None):
+    python = environments._native_path(python)
     modules = entry.get('imports') or []
     if not modules:
         return ''
     script = ';'.join('import ' + module for module in modules)
-    _run([python, '-c', script], log=log, timeout=600, progress=progress)
+    _run([python, '-X', 'utf8', '-c', script], log=log, env=_probe_environment(python),
+         timeout=600, progress=progress)
     return script
 
 
@@ -357,13 +403,7 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
             'created_at': now(),
         }, indent=2), encoding='utf-8')
         final = target(name, root)
-        previous = None
-        if final.exists():
-            previous = final.with_name(f'.previous-{name}-{uuid.uuid4().hex[:8]}')
-            final.rename(previous)
-        staging.rename(final)
-        if previous is not None:
-            shutil.rmtree(previous, ignore_errors=True)
+        _commit(name, staging, final)
         _error_path(name, root).unlink(missing_ok=True)
         progress['phase'] = 'ready'
         note(f'environment {name} is ready')

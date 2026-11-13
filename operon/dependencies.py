@@ -13,6 +13,7 @@ from importlib import metadata
 import json
 import os
 import subprocess
+import tempfile
 from pathlib import Path
 import sys
 import threading
@@ -65,15 +66,33 @@ def scope():
 
 
 def _probe_cwd(python):
-    """Neutral working directory so the interpreter never shadows its own packages."""
-    base = Path(str(python)).resolve()
-    return str(base.parent.parent if base.parent.name.lower() in {'scripts', 'bin'} else base.parent)
+    """Neutral working directory outside the environment.
+
+    A probe must never hold the environment directory as its current directory:
+    Windows refuses to rename a directory that is a live process working
+    directory, which made an environment refresh fail with WinError 5 while a
+    readiness probe was running. The temporary directory is empty, so -c cannot
+    import a stray package from it either.
+    """
+    return tempfile.gettempdir()
 
 
 def probe_environment(entry_id, environment, imports):
     """Check an operator that declares a dedicated interpreter environment."""
-    from operon.environments import resolve
-    python = resolve(environment)
+    from operon.environments import resolve, _native_path
+    from operon import environment_install
+    resolved = resolve(environment)
+    python = _native_path(resolved) if resolved is not None else None
+    if python is not None:
+        try:
+            installation = environment_install.state(environment)
+        except Exception:
+            installation = {}
+        if installation.get('status') == 'installing':
+            return {'status': 'failed',
+                    'error': f'isolated environment {environment!r} is still being installed; '
+                             'wait for it to become ready before checking this operator',
+                    'environment': str(python)}
     if python is None:
         return {'status': 'failed',
                 'error': f'isolated environment {environment!r} is not installed; '
@@ -85,6 +104,10 @@ def probe_environment(entry_id, environment, imports):
     for name in ('PYTHONPATH', 'PYTHONHOME'):
         env.pop(name, None)
     env['PYTHONNOUSERSITE'] = '1'
+    base = python.parent.parent if python.parent.name.lower() in {'scripts', 'bin'} else python.parent
+    folders = [python.parent, base, base / 'Library' / 'bin', base / 'bin']
+    env['PATH'] = os.pathsep.join(
+        [*(str(item) for item in folders if item.is_dir()), env.get('PATH', '')])
     result = subprocess.run([str(python), '-X', 'utf8', '-c', script], capture_output=True, text=True,
                             encoding='utf-8', errors='replace', timeout=300, env=env, cwd=_probe_cwd(python))
     if result.returncode:

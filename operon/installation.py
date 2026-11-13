@@ -1,6 +1,7 @@
 """Setup identity shared by desktop, CLI and headless profile resolution."""
 import json
 import os
+import pathlib
 from pathlib import Path
 import re
 import sys
@@ -36,7 +37,11 @@ def library_root(code_root=None):
     for start in candidates:
         for parent in (start, *start.parents):
             if parent.parent.name == 'versions':
-                return parent / 'library'
+                directory = parent / 'library'
+                if os.name == 'nt' and str(directory).startswith('\\\\?\\'):
+                    text = str(directory)
+                    directory = pathlib.Path('\\\\' + text[8:] if text.startswith('\\\\?\\UNC\\') else text[4:])
+                return directory
     return None
 
 
