@@ -1,0 +1,17 @@
+{
+  "application": "4.2.1",
+  "library": "8.0.9",
+  "bundle_sha256": "91f11de9fa333f68381cfd7dc583eb7e70f289446c0265ebb2956c94c1b20b5f",
+  "minimum_application": "4.2.1",
+  "forward_minimum_compatibility": false,
+  "operators": 1063,
+  "readers": 108,
+  "added": [],
+  "application_unchanged": true,
+  "old_pin_and_parameters_preserved": true,
+  "idempotent_install": true,
+  "disabled_provider_preserved": true,
+  "worker_streaming": true,
+  "external_tools": "Synthetic adapters only; real tool/database execution not tested",
+  "passed": true
+}

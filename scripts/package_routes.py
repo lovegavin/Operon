@@ -40,6 +40,7 @@ def main() -> int:
     index = json.loads(args.index.read_text(encoding="utf-8"))
 
     from operon.application import Application
+    from src.web.operator_catalog import catalog_from_descriptors
     from src.web.parameters import export_bundle
     from src.web.profile import make_settings
 
@@ -51,7 +52,9 @@ def main() -> int:
     data_dir.mkdir(parents=True, exist_ok=True)
     if True:
         settings = make_settings(ROOT, ROOT / "frontend/dist", workspace=ROOT, data_dir=data_dir)
-        application = Application(settings)
+        packages = json.loads((ROOT / "library/seed/operon/builtin_packages.json").read_text(encoding="utf-8"))
+        descriptors = [d for pkg in packages["packages"] for d in pkg.get("descriptors", [])]
+        application = Application(settings, catalog=catalog_from_descriptors(descriptors))
         for record in index.get("routes", []):
             key = route_key(record, index.get("sources", {}))
             prepared = application.prepare(record["graph"])
