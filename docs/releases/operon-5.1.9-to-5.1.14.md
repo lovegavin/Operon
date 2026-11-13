@@ -5,6 +5,7 @@ This note covers only the changes after 5.1.9. Per-version details remain in
 
 ## 5.1.10
 
+
 ### Managed-server library layout
 
 The application only recognized `<install>/versions/<version>/library`. Remote
@@ -29,6 +30,7 @@ thread entirely when the list is empty.
 
 ## 5.1.11
 
+
 ### Stale remote build cache
 
 `RemoteManager.status()` could return a cached `<profile>.catalog.json` even
@@ -51,27 +53,8 @@ The poll now keys launcher events under `.studio/jobs/<id>`, run events under
 `results/...`, and any other path under `external/<hash>-<name>`. Local HTTP
 streaming was already keying by absolute path and is unchanged.
 
-## 5.1.14
-
-### Local result download
-
-`Application.artifacts.result()` calls `JobService.result_file()`, but the 5.1.13
-implementation defined only `result_path()`. Every local result download
-returned HTTP 500 while listing worked. `result_file()` now aliases
-`result_path()` with the same containment and existence checks.
-
-Remote and composite listing still requires a 5.1.14 server; older servers do
-not expose the `result_files` RPC.
-
-## 5.1.13
-
-- Added `GET /api/v1/jobs/{key}/results` and `results/file` for complete result
-  inventory and download, including composite `stages/<index>/...` paths.
-- Added MCP tools `operon_result_files`, `operon_download_result`,
-  `operon_download_results`, `operon_download_artifact`, and `operon_download_report`.
-- Downloads are confined to the workspace; absolute paths and `..` are rejected.
-
 ## 5.1.12
+
 
 ### Remote provisioning and optional files
 
@@ -87,13 +70,37 @@ footer kept an old version after upgrades. 5.1.12 packages the corrected
 version literal. A full Vite rebuild and a dist-vs-package.json packaging guard
 are still TODO.
 
+## 5.1.13
+
+
+- Added `GET /api/v1/jobs/{key}/results` and `results/file` for complete result
+  inventory and download, including composite `stages/<index>/...` paths.
+- Added MCP tools `operon_result_files`, `operon_download_result`,
+  `operon_download_results`, `operon_download_artifact`, and `operon_download_report`.
+- Downloads are confined to the workspace; absolute paths and `..` are rejected.
+
+## 5.1.14
+
+
+### Local result download
+
+`Application.artifacts.result()` calls `JobService.result_file()`, but the 5.1.13
+implementation defined only `result_path()`. Every local result download
+returned HTTP 500 while listing worked. `result_file()` now aliases
+`result_path()` with the same containment and existence checks.
+
+Remote and composite listing still requires a 5.1.14 server; older servers do
+not expose the `result_files` RPC.
+
 ## Compatibility
+
 
 - `bundle_format` 1; operator protocol 3 / revision 3.7.
 - Bundled library `main` 0.1.1: 7 packages, 1174 descriptors, 79 routes.
 - Legacy 8.x libraries remain rejected.
 
 ## 5.1.14 artifacts
+
 
 | Asset | Size | SHA-256 |
 | --- | ---: | --- |
