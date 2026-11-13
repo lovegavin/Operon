@@ -17,6 +17,13 @@ Importing a route collection now registers its routes immediately. The
 redundant checkbox list and “添加到算子库” button are removed; the panel shows
 the imported routes as read-only status.
 
+## Remote server upgrade
+
+The cached desktop build identity is invalidated whenever the installed
+operator library changes. Force-upgrading a server after importing or deleting
+a library no longer fails with ???????????????????; the next
+install computes the identity from the current library.
+
 ## Compatibility
 
 `bundle_format=1`, `operator_protocol=3`, multi-library branches and per-run
