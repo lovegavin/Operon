@@ -140,10 +140,27 @@ def _helpers(seed_root: Path) -> list[tuple[str, Path, Path]]:
     helpers: list[tuple[str, Path, Path]] = []
     for tree, relative in TREES:
         tree_root = seed_root / relative
-        for path in sorted(tree_root.rglob("_*.py")):
-            if "__pycache__" in path.parts:
+        seen: set[Path] = set()
+        for path in sorted(tree_root.glob("_*.py")):
+            if path.is_file() and path not in seen:
+                seen.add(path)
+                helpers.append((tree, tree_root, path))
+        for path in sorted(tree_root.glob("*.json")):
+            if not path.is_file() or path.name.endswith(".parameters.json"):
                 continue
-            helpers.append((tree, tree_root, path))
+            if path not in seen:
+                seen.add(path)
+                helpers.append((tree, tree_root, path))
+        for directory in sorted(tree_root.iterdir()):
+            if not directory.is_dir() or not directory.name.startswith("_"):
+                continue
+            if directory.name == "__pycache__":
+                continue
+            for path in sorted(directory.rglob("*")):
+                if not path.is_file() or "__pycache__" in path.parts or path in seen:
+                    continue
+                seen.add(path)
+                helpers.append((tree, tree_root, path))
     return helpers
 
 
@@ -231,7 +248,8 @@ def build_packages(seed_root: Path) -> list[PackageCode]:
 
         for tree, tree_root, path in helpers:
             relative = path.relative_to(tree_root).as_posix()
-            add(f"{module}/{tree}/{relative}", _rewrite(path, module), path)
+            data = _rewrite(path, module) if path.suffix == ".py" else path.read_bytes()
+            add(f"{module}/{tree}/{relative}", data, path)
         for tree, tree_root, path in support:
             add(f"{module}/{tree}/{path.name}", _rewrite(path, module), path)
 
