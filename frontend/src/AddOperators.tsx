@@ -93,8 +93,8 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
   const visible = routes.filter(route => route.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
   return <div className="add-operators">
     <section className="operator-install-card">
-      <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('普通算子与 Reader')}</h3><code>.whl · operon-library-v0.0.x.zip</code></div>
-        <button className="primary-button" disabled={busy} onClick={onPackage}><FileArrowUp size={16}/>{t('导入包')}</button></div>
+      <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('导入算子库')}</h3><code>operon-library-v0.0.x.zip</code></div>
+        <button className="primary-button" disabled={busy} onClick={onPackage}><FileArrowUp size={16}/>{t('导入算子库')}</button></div>
       <div className="plugin-folder-row">
         <button className="subtle-button" title={state.source_directories?.operator} onClick={() => void api.openPluginFolder('operator').catch(e => onError(e.message))}><FolderOpen size={16}/>{t('算子目录')}</button>
         <button className="subtle-button" title={state.source_directories?.reader} onClick={() => void api.openPluginFolder('reader').catch(e => onError(e.message))}><FolderOpen size={16}/>{t('Reader 目录')}</button>
@@ -103,7 +103,7 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
       </div>
     </section>
     <section className="operator-install-card">
-      <div className="operator-install-heading"><span><Stack size={24}/></span><div><h3>{t('路线算子')}</h3><code>.zip（route/*.operon.zip） · .operon.zip · .json</code></div>
+      <div className="operator-install-heading"><span><Stack size={24}/></span><div><h3>{t('导入路线库')}</h3><code>.zip（routes/*.operon.zip）</code></div>
         <div className="operator-install-actions">
           <button className="subtle-button" disabled={busy} onClick={() => file.current?.click()}><FileArrowUp size={16}/>{t('导入路线文件')}</button>
           <button className="subtle-button" disabled={busy} onClick={() => collection.current?.click()}><FileArrowUp size={16}/>{t('导入路线库')}</button>

@@ -26,6 +26,13 @@ from operon.packages import bundled_manifest, bundled_state, owns_builtin_id, pr
 from operon.bytecode import filesystem_path
 
 
+def _legacy_library_state(value):
+    """True when the registry was written by the pre-split 8.x library train."""
+    release = value.get("library_release") or {}
+    version = str(release.get("version") or "")
+    return bool(value.get("source_library")) or version.startswith("8.")
+
+
 def require_current_state(value):
     if value.get("package_protocol_version") != PROTOCOL_VERSION:
         raise ValueError("This library uses an older protocol. Close Studio and run `operon migrate --profile-dir <profile> --apply`; old wheels must be rebuilt for v3.")
@@ -195,6 +202,23 @@ class PluginManager:
                     self._publish({"protocol_version": PROTOCOL_VERSION, "package_protocol_version": PROTOCOL_VERSION,
                                    **deepcopy(bundled), "bundled_seen": sorted(p["name"] for p in bundled["packages"])})
         value = json.loads(registry.read_text(encoding="utf-8"))
+        if _legacy_library_state(value):
+            # 5.0.0 rejects 8.x libraries. A workspace carried over from 4.x
+            # still points at those wheels and at paths inside the deleted
+            # application version, so drop the stale catalog instead of
+            # presenting it as the installed library.
+            with self.lock:
+                value = json.loads(registry.read_text(encoding="utf-8"))
+                if _legacy_library_state(value):
+                    value["packages"] = []
+                    value["descriptors"] = []
+                    value["bundled_seen"] = []
+                    value["library_release"] = None
+                    value["library_detached"] = False
+                    value["legacy_library_reset"] = True
+                    for key in ("source_library", "library_source_pins", "library_pin_updates"):
+                        value.pop(key, None)
+                    self._publish(value)
         require_current_state(value)
         current = {p["name"]: p for p in bundled["packages"]}
         changed = {p["name"] for p in value["packages"] if p.get("origin") == "bundled"

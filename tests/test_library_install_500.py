@@ -517,3 +517,31 @@ def test_control_api_installs_a_library_and_a_route_collection(tmp_path, client)
 
     assert imported.status_code == 200, imported.text
     assert imported.json()["count"] == 1
+
+
+def test_legacy_workspace_registry_is_reset_before_the_first_read(tmp_path, monkeypatch):
+    """A 4.x workspace must not present its dead 8.x library as installed."""
+    monkeypatch.setattr("operon.library_location.source_root", lambda root=None: None)
+    manager = PluginManager(tmp_path / "data")
+    manager.directory.mkdir(parents=True)
+    manager.registry.write_text(json.dumps({
+        "protocol_version": 3,
+        "package_protocol_version": 3,
+        "packages": [{"name": "operon-core", "version": "1.0.0", "origin": "wheel"}],
+        "descriptors": [{"id": "legacy_operator", "distribution": "operon-core"}],
+        "bundled_seen": [],
+        "generation": "legacy",
+        "library_release": {"version": "8.0.10", "sha256": "a" * 64},
+        "source_library": {"root": "library/sources/legacy"},
+        "library_source_pins": {"operon-core": {"version": "1.0.0"}},
+    }), encoding="utf-8")
+
+    state = manager.state()
+
+    assert state["packages"] == []
+    assert state["descriptors"] == []
+    assert state["library_release"] is None
+    assert state["library_detached"] is False
+    assert state["legacy_library_reset"] is True
+    assert "source_library" not in state
+    assert "library_source_pins" not in state

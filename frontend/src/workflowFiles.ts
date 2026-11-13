@@ -1,5 +1,5 @@
 // The suffix selects the decoder; the server still validates archive contents.
-export const ROUTE_FILE_ACCEPT = '.zip,.operon.zip,.operon,.json';
+export const ROUTE_FILE_ACCEPT = '.operon.zip';
 export const WORKFLOW_FILE_ACCEPT = `${ROUTE_FILE_ACCEPT},.yaml,.yml`;
 
 export function isWorkflowBundle(name: string): boolean {

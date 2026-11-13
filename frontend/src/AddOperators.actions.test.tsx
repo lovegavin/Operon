@@ -36,10 +36,9 @@ it.each(['route.operon.zip', 'route.operon', 'route.OPERON'])('imports %s, saves
   expect(api.importWorkflow).toHaveBeenCalledWith(file);expect(vi.mocked(api.saveWorkflow).mock.calls[0][0]).toMatchObject(graph);
   expect(api.registerRoutes).toHaveBeenCalledWith(['saved']);expect(onChanged).toHaveBeenCalledOnce();
 });
-it('allows only Operon route bundles and JSON in the route file picker',()=>{
+it('accepts only single route bundles in the route file picker',()=>{
   const field=elements(render()).find(n=>n.type==='input'&&n.props.type==='file')!;
-  const extensions=String(field.props.accept).split(',');
-  expect(extensions).toEqual(expect.arrayContaining(['.zip','.operon.zip','.operon','.json']));
+  expect(String(field.props.accept)).toBe('.operon.zip');
 });
 it('keeps successfully saved imports selected when a later file fails',async()=>{
   triggerFiles([{name:'one.json',text:async()=>JSON.stringify(graph)},{name:'bad.json',text:async()=>'{broken'}]);
