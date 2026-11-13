@@ -23,6 +23,7 @@ def build_library(
     output: Path,
     version: str = "0.0.0",
     minimum_application: str = "5.0.0",
+    library_name: str = "main",
 ) -> BuildResult:
     source = Path(source).resolve()
     if not (source / "operon" / "builtin_packages.json").is_file():
@@ -68,6 +69,7 @@ def build_library(
     flat.sort(key=lambda descriptor: (descriptor["kind"], descriptor["id"]))
     counts = Counter(descriptor["kind"] for descriptor in flat)
     document = manifest.library_document(
+        library_name=library_name,
         version=version,
         minimum_application=minimum_application,
         packages=records,
@@ -83,5 +85,5 @@ def build_library(
         readme_text=manifest.readme(document, document["packages"]),
         wheels=wheels,
     )
-    path = manifest.write_bundle(entries, Path(output) / f"operon-library-v{version}.operon-library.zip")
+    path = manifest.write_bundle(entries, Path(output) / f"operon-library-{library_name}-v{version}.operon-library.zip")
     return BuildResult(path=path, document=document, packages=len(records), descriptors=len(flat))

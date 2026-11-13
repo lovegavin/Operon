@@ -275,10 +275,11 @@ def library_preflight(path) -> None:
 
 
 def _release(document: dict, digest: str, *, name: str = "operon-library",
-             installed_at: str | None = None) -> dict:
+             library_name: str = "main", installed_at: str | None = None) -> dict:
     return {
         "format": LIBRARY_FORMAT,
         "name": name,
+        "library_name": library_name,
         "bundle_format": BUNDLE_FORMAT,
         "library_version": document["library_version"],
         "packages": {
@@ -294,29 +295,22 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
-def _label_for(requested: str | None, document: dict,
-               version: str | None = None) -> str:
-    name = (requested or "main").strip().lower()
+def _identity_for(document: dict) -> tuple[str, str]:
+    """Return (label, main name) from the bundle; callers cannot rename a library."""
+    name = str(document.get("library_name") or "main").strip().lower()
     if not LABEL.fullmatch(name):
         raise _invalid(
             f"Invalid library name {name!r}: use lower-case letters, digits, dot, dash or underscore."
         )
     actual = str(document["library_version"]).strip().lower()
-    chosen = (version or actual).strip().lower()
-    if chosen.startswith("v"):
-        chosen = chosen[1:]
     try:
-        Version(chosen)
+        Version(actual)
     except InvalidVersion as error:
-        raise _invalid(f"Invalid library version {chosen!r}.") from error
-    if chosen != actual:
-        raise _invalid(
-            f"Library version {chosen!r} does not match the bundle version {actual!r}."
-        )
-    label = f"{name}-v{chosen}"
+        raise _invalid(f"Invalid library version {actual!r}.") from error
+    label = f"{name}-v{actual}"
     if not LABEL.fullmatch(label):
         raise _invalid(f"Invalid library label {label!r}.")
-    return label
+    return label, name
 
 
 def _wheel_modules(wheel: Path) -> list[str]:
@@ -354,6 +348,7 @@ def _libraries(state: dict) -> dict:
             }
         libraries[label] = {
             "name": label,
+            "library_name": "main",
             "format": LIBRARY_FORMAT,
             "bundle_format": BUNDLE_FORMAT,
             "library_version": release["library_version"],
@@ -373,11 +368,12 @@ def _libraries(state: dict) -> dict:
     return libraries
 
 
-def _entry(document: dict, digest: str, label: str, package_names: list[str],
-           modules: list[str], identifiers: list[str], archive: Path | None,
-           installed_at: str | None = None) -> dict:
+def _entry(document: dict, digest: str, label: str, library_name: str,
+           package_names: list[str], modules: list[str], identifiers: list[str],
+           archive: Path | None, installed_at: str | None = None) -> dict:
     return {
         "name": label,
+        "library_name": library_name,
         "format": LIBRARY_FORMAT,
         "bundle_format": BUNDLE_FORMAT,
         "library_version": document["library_version"],
@@ -399,11 +395,15 @@ def _entry(document: dict, digest: str, label: str, package_names: list[str],
     }
 
 
-def _conflicts(libraries: dict, label: str, identifiers: list[str],
-               package_names: list[str], modules: list[str]) -> list[dict]:
+def _conflicts(libraries: dict, label: str, library_name: str,
+               identifiers: list[str], package_names: list[str],
+               modules: list[str]) -> list[dict]:
     conflicts = []
     for other, record in sorted(libraries.items()):
         if other == label:
+            continue
+        if record.get("library_name", "main") == library_name:
+            conflicts.append({"kind": "library", "id": library_name, "library": other})
             continue
         known = set(record.get("identifiers") or [])
         for identifier in identifiers:
@@ -500,6 +500,7 @@ def libraries_view(manager) -> dict:
         descriptors = [d for d in state.get("descriptors", []) if d.get("library") == label]
         rows.append({
             "name": label,
+            "library_name": record.get("library_name", "main"),
             "library_version": record.get("library_version"),
             "sha256": record.get("sha256"),
             "installed_at": record.get("installed_at"),
@@ -607,7 +608,7 @@ def install_library(manager, path, *, name: str | None = None,
         inspected = inspect_library(source)
         try:
             document = inspected["manifest"]
-            label = _label_for(name, document, version)
+            label, library_name = _identity_for(document)
             current = manager.state()
             libraries = _libraries(current)
             identifiers = sorted({
@@ -619,20 +620,23 @@ def install_library(manager, path, *, name: str | None = None,
                 module for package in document["packages"]
                 for module in _wheel_modules(inspected["directory"] / package["wheel"])
             })
-            conflicts = _conflicts(libraries, label, identifiers, package_names, modules)
+            conflicts = _conflicts(
+                libraries, label, library_name, identifiers, package_names, modules
+            )
             if conflicts:
                 raise LibraryConflict(conflicts)
             previous = libraries.get(label) or {}
             archive = _store_library_archive(manager, source, label, digest)
-            entry = _entry(document, digest, label, package_names, modules,
-                           identifiers, archive, previous.get("installed_at"))
+            entry = _entry(document, digest, label, library_name, package_names,
+                           modules, identifiers, archive, previous.get("installed_at"))
             if (previous.get("sha256") == digest
                     and previous.get("library_version") == document["library_version"]
                     and _wheels_present(manager, current, document["packages"])):
                 libraries[label] = entry
                 current["libraries"] = libraries
                 current["library_release"] = _release(
-                    document, digest, name=label, installed_at=entry["installed_at"]
+                    document, digest, name=label, library_name=library_name,
+                    installed_at=entry["installed_at"]
                 )
                 _write_library_manifest(manager, label, document)
                 manager._publish(current)

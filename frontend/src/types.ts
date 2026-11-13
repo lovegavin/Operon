@@ -28,6 +28,7 @@ export type PluginState = {generation: string | null; packages: PluginPackage[];
 /** One installed operator library, as returned by `GET /api/libraries` (5.1.0). */
 export type LibraryRecord = {
   name: string;
+  library_name?: string;
   library_version: string;
   sha256: string;
   installed_at: string;

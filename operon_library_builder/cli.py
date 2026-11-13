@@ -22,6 +22,7 @@ def _parser() -> argparse.ArgumentParser:
     build = subparsers.add_parser("build", help="build operon-library-<version>.operon-library.zip")
     build.add_argument("--source", type=Path, default=Path("library/seed"))
     build.add_argument("--output", type=Path, default=Path("dist"))
+    build.add_argument("--name", default="main")
     build.add_argument("--version", default="0.0.0")
     build.add_argument("--minimum-application", default="5.0.0")
 
@@ -42,6 +43,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.output,
                 version=args.version,
                 minimum_application=args.minimum_application,
+                library_name=args.name,
             )
             size = result.path.stat().st_size
             print(

@@ -30,6 +30,7 @@ LIBRARY_KEYS = {
     "format",
     "bundle_format",
     "library_version",
+    "library_name",
     "operator_protocol",
     "minimum_application",
     "builder",
@@ -48,6 +49,7 @@ PACKAGE_KEYS = {
     "kind_counts",
 }
 VERSION = re.compile(r"^\d+\.\d+\.\d+$")
+NAME = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
 
 
@@ -61,6 +63,7 @@ def json_bytes(value: Any) -> bytes:
 
 def library_document(
     *,
+    library_name: str = "main",
     version: str,
     minimum_application: str,
     packages: list[dict[str, Any]],
@@ -71,6 +74,7 @@ def library_document(
     return {
         "format": LIBRARY_FORMAT,
         "bundle_format": BUNDLE_FORMAT,
+        "library_name": library_name,
         "library_version": version,
         "operator_protocol": {"version": PROTOCOL_VERSION, "revision": PROTOCOL_REVISION},
         "minimum_application": minimum_application,
@@ -113,7 +117,7 @@ def readme(document: dict[str, Any], packages: list[dict[str, Any]]) -> str:
     lines = [
         "# Operon library bundle",
         "",
-        f"Library version `{document['library_version']}` for Operon "
+        f"Library `{document['library_name']}` version `{document['library_version']}` for Operon "
         f"`>={document['minimum_application']}`.",
         "",
         "Every wheel is pure Python and platform independent; this is a single",
@@ -229,8 +233,12 @@ def verify_entries(entries: dict[str, bytes]) -> tuple[dict[str, Any], list[dict
         raise BundleError(f"bundle is missing {', '.join(missing)}")
 
     document = _json_object(entries, "library.json")
+    if isinstance(document, dict):
+        document.setdefault("library_name", "main")
     if not isinstance(document, dict) or set(document) != LIBRARY_KEYS:
         raise BundleError("library.json: unexpected keys")
+    if not isinstance(document["library_name"], str) or not NAME.fullmatch(document["library_name"]):
+        raise BundleError("library.json: invalid library_name")
     if document["format"] != LIBRARY_FORMAT:
         raise BundleError(f"library.json: format must be {LIBRARY_FORMAT!r}")
     if document["bundle_format"] != BUNDLE_FORMAT:

@@ -22,8 +22,6 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
   const [libraries, setLibraries] = useState<LibraryList | null>(null);
   const busy = pending || !!state.dependencies?.running;
   const file = useRef<HTMLInputElement>(null);
-  const libraryLabel = useRef('');
-  const libraryVersion = useRef('');
   const mounted = useRef(true);
   useEffect(() => {
     mounted.current = true;
@@ -114,6 +112,7 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
   // Older backends may not expose /api/libraries yet; the plugin state still describes the installed library.
   const fallback: LibraryRecord[] = state.library_release ? [{
     name: state.library_release.name || 'operon-library',
+    library_name: state.library_release.name || 'main',
     library_version: state.library_release.version,
     sha256: state.library_release.sha256,
     installed_at: state.library_release.installed_at || '',
@@ -134,11 +133,7 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
         // 5.1.0 bundles carry an optional label; wheels still go through the plugin install endpoint.
         if (!selected) return;
         const bundle = isLibraryBundleFile(selected.name);
-        const label = libraryLabel.current.trim();
-        const version = libraryVersion.current.trim();
-        libraryLabel.current = '';
-        libraryVersion.current = '';
-        void operate(bundle ? () => api.installLibrary(selected, label || undefined, version || undefined) : () => api.installPlugin(selected), {library: bundle});
+        void operate(bundle ? () => api.installLibrary(selected) : () => api.installPlugin(selected), {library: bundle});
       }}/>
       <div hidden={tab !== "manage"}>
       <div className="plugin-toolbar">
@@ -150,11 +145,11 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
         <button className="subtle-button" title={t("修复缺失依赖，并按需安装算子库声明的隔离环境")} disabled={pending || state.dependencies?.running} onClick={() => void operate(api.repairDependencies)}><ArrowClockwise size={16}/>{state.dependencies?.running ? t("修复中…") : t("修复依赖")}</button>
       </div>
       <div className="plugin-packages">
-        {!records.length && <LibrarySetupGuide busy={busy} onImport={() => {libraryLabel.current = ''; setTab('add'); file.current?.click();}}/>}
+        {!records.length && <LibrarySetupGuide busy={busy} onImport={() => {setTab('add'); file.current?.click();}}/>}
         {records.map(record =>
           <article className="plugin-package library-record" key={record.name}>
             <div>
-              <strong>{record.name || t("算子库")}</strong><span className="route-version">v{record.library_version}</span>
+              <strong>{record.library_name || record.name || t("算子库")}</strong><span className="route-version">v{record.library_version}</span>
               <p>{recordCounts(record)}</p>
               <p>{t('{packages} 个包', {packages: record.packages})}</p>
               {record.installed_at && <p>{t('导入时间：{time}', {time: record.installed_at})}</p>}
@@ -166,10 +161,10 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
         {records.length > 0 && <p className="operator-install-note">{t('算子库可同时安装多个，内部算子不再单独管理。')}</p>}
       </div>
       </div>
-      <div hidden={tab !== "add"}><AddOperators busy={busy} onPackage={(name, version) => {libraryLabel.current = name ?? ''; libraryVersion.current = version ?? ''; file.current?.click();}}
+      <div hidden={tab !== "add"}><AddOperators busy={busy} onPackage={() => {file.current?.click();}}
         onChanged={onChanged} onPending={setPending} onError={setError} onMessage={setMessage}/></div>
     </div>
-    {legacy && <LegacyLibraryAlert message={legacy} onChoose={() => {libraryLabel.current = ''; setLegacy(''); setTab('add'); file.current?.click();}}/>}
+    {legacy && <LegacyLibraryAlert message={legacy} onChoose={() => {setLegacy(''); setTab('add'); file.current?.click();}}/>}
     {(message || error) && <div className="library-operation-feedback">
       {message && <p role="status" className="plugin-status">{message}</p>}
       {error && <p role="alert" className="modal-error">{error}</p>}
