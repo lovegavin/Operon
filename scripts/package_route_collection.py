@@ -121,6 +121,7 @@ def main() -> int:
 
     document = load_library(args.library)
     version = args.version or document["library_version"]
+    library_name = document.get("library_name") or "main"
     pins = pins_from_library(document)
     index = json.loads(args.index.read_text(encoding="utf-8"))
 
@@ -163,13 +164,14 @@ def main() -> int:
     ]
     routes_document = {
         "schema_version": 1,
+        "library_name": library_name,
         "library_version": version,
         "routes": routes,
     }
     readme = [
-        f"# Operon route library v{version}",
+        f"# Operon route library {library_name} v{version}",
         "",
-        f"{len(routes)} workflow bundles compiled against operator library v{version}.",
+        f"{len(routes)} workflow bundles compiled against operator library {library_name} v{version}.",
         "Import this collection in Studio (Route Operators -> Import route library) or",
         "import a single bundle with `operon graph open <key>.operon.zip`.",
         "",
@@ -183,7 +185,7 @@ def main() -> int:
     ]
     checksums = [f"{hashlib.sha256(payload).hexdigest()}  {relpath}" for relpath, payload in payloads]
 
-    archive = args.output / f"operon-routes-v{version}.zip"
+    archive = args.output / f"operon-routes-{library_name}-v{version}.zip"
     with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
         for relpath, payload in payloads + [("SHA256SUMS", ("\n".join(sorted(checksums)) + "\n").encode("utf-8"))]:
             info = zipfile.ZipInfo(relpath, date_time=(1980, 1, 1, 0, 0, 0))
