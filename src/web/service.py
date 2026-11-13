@@ -462,6 +462,8 @@ class JobService:
                 self.routes.catalog = catalog
                 self._catalog_version += 1
                 write_json(self.directory / "operators.json", self.catalog)
+                if self.remotes is not None:
+                    self.remotes.invalidate_build()
             self._catalog_stamp = stamp
             return changed
 

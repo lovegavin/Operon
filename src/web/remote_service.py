@@ -72,6 +72,10 @@ class RemoteManager:
         self.lock = threading.RLock()
         self._build = None
 
+    def invalidate_build(self):
+        """Forget the cached identity after the operator library changes."""
+        self._build = None
+
     def local_build(self):
         """Identity of the application and operator library this desktop ships."""
         if self._build is None:
