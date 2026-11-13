@@ -166,12 +166,20 @@ def environment_prepare(service, payload: dict | None = None) -> dict:
     for name in started:
         threading.Thread(target=worker, args=(name,), name=f'environment-{name}', daemon=True).start()
     if dependencies:
+        affected = []
+        for env_name, entry in (snapshot.get('environments') or {}).items():
+            if names is not None and env_name not in names:
+                continue
+            affected.extend((entry or {}).get('used_by') or [])
+        ids = sorted(set(affected))
+
         def repair():
             try:
-                service.dependencies.check(repair=True, repair_r=True)
+                service.dependencies.check(repair=True, repair_r=True, ids=ids or None)
             except Exception:
                 pass
-        threading.Thread(target=repair, name='dependency-repair', daemon=True).start()
+        if ids:
+            threading.Thread(target=repair, name='dependency-repair', daemon=True).start()
     jobs = {name: _ENVIRONMENT_JOBS[name].get('id') for name in started if name in _ENVIRONMENT_JOBS}
     return {**environment_snapshot(service), 'started': started, 'jobs': jobs,
             'dependencies': dependencies}
