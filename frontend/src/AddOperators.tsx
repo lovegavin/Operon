@@ -117,8 +117,8 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
         <div className="add-route-list">
           {!visible.length && <div className="modal-empty"><Stack size={24}/><p>{loading ? t('正在读取保存的路线…') : t('暂无已保存路线')}</p></div>}
           {visible.map(route => <div className="workflow-choice" key={route.id}>
-            <span className="workflow-choice-text"><strong>{route.name}</strong><small>{t('{count} ???', {count: route.nodes})} ? v{route.version}</small></span>
-            {route.registered_version && <span className="route-version">{route.registered_version === route.version ? t('???') : t('???')}</span>}
+            <span className="workflow-choice-text"><strong>{route.name}</strong><small>{t('{count} 个节点', {count: route.nodes})} · v{route.version}</small></span>
+            {route.registered_version && <span className="route-version">{t('已注册')}</span>}
           </div>)}
         </div>
       </div>

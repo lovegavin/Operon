@@ -35,9 +35,10 @@ export function isLibraryBundleFile(name: string) {
   return !name.trim().toLowerCase().endsWith('.whl');
 }
 
-/** `operon-routes-v0.0.0.zip` — the 5.0.0 route-library collection. */
+/** `operon-routes-<name>-v<version>.zip`, and the legacy `operon-routes-v<version>.zip`. */
 export function isRouteLibraryFile(name: string) {
-  return /^operon-routes-v.+\.zip$/i.test(name.trim());
+  const lower = name.trim().toLowerCase();
+  return lower.startsWith('operon-routes-') && lower.endsWith('.zip') && !lower.endsWith('.operon.zip');
 }
 
 /** A plain container ZIP (route archive), as opposed to a single `.operon.zip` bundle. */

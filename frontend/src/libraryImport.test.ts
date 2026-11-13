@@ -12,6 +12,8 @@ describe('library bundle classification', () => {
     expect(isLibraryBundleFile('operon-library-v0.0.0.operon-library.zip'.toUpperCase())).toBe(true);
     expect(isLibraryBundleFile('some_operator-1.2.0-py3-none-any.whl')).toBe(false);
     expect(isRouteLibraryFile('operon-routes-v0.0.0.zip')).toBe(true);
+    expect(isRouteLibraryFile('operon-routes-main-v0.1.0.zip')).toBe(true);
+    expect(isRouteLibraryFile('operon-routes-fork1-v0.0.0.zip')).toBe(true);
     expect(isRouteLibraryFile('routes.zip')).toBe(false);
     expect(isRouteLibraryFile('route.operon.zip')).toBe(false);
     expect(isRouteArchiveFile('routes.zip')).toBe(true);

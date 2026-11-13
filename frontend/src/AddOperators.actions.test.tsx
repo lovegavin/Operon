@@ -40,31 +40,18 @@ it('accepts only single route bundles in the route file picker',()=>{
   const field=elements(render()).find(n=>n.type==='input'&&n.props.type==='file')!;
   expect(String(field.props.accept)).toBe('.operon.zip');
 });
-it('keeps successfully saved imports selected when a later file fails',async()=>{
+it('registers imports only after every file saves, and reports a later parse failure',async()=>{
   triggerFiles([{name:'one.json',text:async()=>JSON.stringify(graph)},{name:'bad.json',text:async()=>'{broken'}]);
   await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
-  expect(hooks.values[1]).toEqual(['saved']);expect(api.registerRoutes).not.toHaveBeenCalled();
+  expect(api.saveWorkflow).toHaveBeenCalledOnce();
+  expect(api.registerRoutes).not.toHaveBeenCalled();
   expect(onError).toHaveBeenCalled();expect(onChanged).toHaveBeenCalledOnce();
 });
-it('registers all selected saved workflows in a single request',async()=>{
-  hooks.values=[[],['one','two'],'',false];
-  const button=elements(render()).find(n=>n.type==='button'&&Array.isArray(n.props.children)&&n.props.children.includes('添加到算子库'))!;
-  expect(button.props.disabled).toBe(false);(button.props.onClick as Function)();
-  await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
-  expect(api.registerRoutes).toHaveBeenCalledExactlyOnceWith(['one','two']);expect(api.saveWorkflow).not.toHaveBeenCalled();
+it('lists saved routes as read-only entries without a selection step',async()=>{
+  vi.mocked(api.workflows).mockResolvedValue([{id:'one',version:2,name:'Alpha',updated_at:'',nodes:5,interface:{version:1,inputs:[],outputs:[]},registered_version:2}]);
+  const tree=elements(render());
+  expect(tree.some(n=>n.type==='button'&&Array.isArray(n.props.children)&&n.props.children.includes('添加到算子库'))).toBe(false);
 });
-it('reports a rejected workflow without clearing its selection or claiming success',async()=>{
-  hooks.values=[[],['incomplete'],'',false];
-  vi.mocked(api.registerRoutes).mockRejectedValue(new Error('PCA needs 1 input.'));
-  const button=elements(render()).find(n=>n.type==='button'&&Array.isArray(n.props.children)&&n.props.children.includes('添加到算子库'))!;
-  (button.props.onClick as Function)();
-  await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
-  expect(onError).toHaveBeenLastCalledWith('路线未添加：PCA needs 1 input. 请先导入与路线同版本的算子库后重试。');
-  expect(hooks.values[1]).toEqual(['incomplete']);
-  expect(onMessage).not.toHaveBeenCalledWith('路线算子已添加，即刻可用。');
-  expect(onChanged).toHaveBeenCalledOnce();
-});
-
 it('imports one route collection archive through a single request',async()=>{
   vi.mocked(api.importRouteArchive).mockResolvedValue({routes: [], failed: []});
   const file=new File([new Uint8Array([80,75,3,4])],'routes.zip');
@@ -82,9 +69,9 @@ it('rejects a collection mixed with individual route files',async()=>{
   expect(api.importRouteArchive).not.toHaveBeenCalled();
 });
 
-it('imports a route library collection through the 5.0.0 endpoint',async()=>{
+it('imports a route library collection through the collection endpoint',async()=>{
   vi.mocked(api.importRouteCollection).mockResolvedValue({count:2,names:['Alpha','Beta'],failed:[]});
-  const file=new File([new Uint8Array([80,75,3,4])],'operon-routes-v0.0.0.zip');
+  const file=new File([new Uint8Array([80,75,3,4])],'operon-routes-main-v0.1.0.zip');
   triggerCollection([file]);
   await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
   expect(api.importRouteCollection).toHaveBeenCalledWith(file);
@@ -95,33 +82,22 @@ it('imports a route library collection through the 5.0.0 endpoint',async()=>{
 it('keeps a pin-mismatch detail verbatim when the collection is rejected',async()=>{
   const detail='Route "Alpha" pins operon.scale at code_sha 11111111, installed code_sha 22222222.';
   vi.mocked(api.importRouteCollection).mockRejectedValue(new Error(detail));
-  triggerCollection([new File([new Uint8Array([80,75,3,4])],'operon-routes-v0.0.0.zip')]);
+  triggerCollection([new File([new Uint8Array([80,75,3,4])],'operon-routes-main-v0.1.0.zip')]);
   await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
   expect(onError).toHaveBeenLastCalledWith(detail);
   expect(onMessage).not.toHaveBeenCalledWith(expect.stringContaining('已导入'));
 });
-it('asks for an operon-routes-v0.0.x collection when another ZIP is chosen',async()=>{
+it('asks for a route collection when another ZIP is chosen',async()=>{
   triggerCollection([new File([new Uint8Array([80,75,3,4])],'routes.zip')]);
   expect(api.importRouteCollection).not.toHaveBeenCalled();
-  expect(onError).toHaveBeenLastCalledWith('路线库请选择 operon-routes-v0.0.x.zip（包含 routes/*.operon.zip）。');
+  expect(onError).toHaveBeenLastCalledWith('路线库请选择 .zip 集合包（包含 routes/*.operon.zip）。');
 });
 
-it('passes the optional library name to the bundle picker', () => {
+it('opens the operator package picker without an inline name field', () => {
   const onPackage = vi.fn();
-  const render = () => {
-    hooks.cursor = 0;
-    return AddOperators({busy: false, onChanged, onPending, onError, onMessage, onPackage});
-  };
-  let tree = elements(render());
-  const field = tree.find(n => n.type === 'input' && n.props.type === 'text')!;
-  expect(field.props.placeholder).toBe('库名称（可选，如 fork-v0.0.0）');
-  const button = tree.find(n => n.type === 'button' && Array.isArray(n.props.children) && n.props.children.includes('导入算子库'))!;
+  const tree = elements(AddOperators({busy: false, onChanged, onPending, onError, onMessage, onPackage}));
+  expect(tree.some(n => n.type === 'input' && n.props.type === 'text')).toBe(false);
+  const button = tree.filter(n => n.type === 'button' && Array.isArray(n.props.children) && n.props.children.includes('导入算子库'))[0]!;
   (button.props.onClick as Function)();
-  expect(onPackage).toHaveBeenLastCalledWith('');
-  (field.props.onChange as Function)({target: {value: 'fork-v0.0.0'}});
-  tree = elements(render());
-  const named = tree.find(n => n.type === 'button' && Array.isArray(n.props.children) && n.props.children.includes('导入算子库'))!;
-  (named.props.onClick as Function)();
-  expect(onPackage).toHaveBeenLastCalledWith('fork-v0.0.0');
+  expect(onPackage).toHaveBeenCalledOnce();
 });
-
