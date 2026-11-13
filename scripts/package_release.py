@@ -74,6 +74,8 @@ def main():
     parser.add_argument('--runtime', type=Path, help='Portable Python directory produced by build_runtime.py')
     parser.add_argument('--webview-bootstrapper', type=Path, help='Optional cached official Microsoft WebView2 bootstrapper; signature is verified')
     parser.add_argument('--lite', action='store_true', help='Smaller package requiring an existing Python environment')
+    parser.add_argument('--base-library', type=Path,
+                        help='Operator library ZIP installed on first start of a packaged app')
     parser.add_argument('--with-library-seed', action='store_true',
                         help='Legacy layout: also copy library/seed, its routes and library release metadata')
     args = parser.parse_args()
@@ -114,6 +116,10 @@ def main():
         (destination / 'runtime/webview2.json').write_text(json.dumps({'source': url,
             'sha256': hashlib.sha256(bootstrapper.read_bytes()).hexdigest()}), encoding='utf-8')
     shutil.copytree(root / 'frontend/dist', destination / 'frontend')
+    if args.base_library:
+        target = destination / 'library/base'
+        target.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(args.base_library, target / args.base_library.name)
     payload_directories = ['src', 'operon', 'operon_sdk', 'operon']
     if args.with_library_seed:
         payload_directories.append('library/seed')
@@ -172,7 +178,10 @@ def main():
     if regenerate:
         (destination / 'THIRD_PARTY_NOTICES/frontend-licenses.txt').write_text('\n'.join(notices), encoding='utf-8')
     library_note = ''
-    if not args.with_library_seed:
+    if args.base_library:
+        library_note = ('This package includes a base operator library that is installed on first\n'
+                        'start. Import additional library ZIPs and the routes ZIP for this version.\n\n')
+    elif not args.with_library_seed:
         library_note = ('This package does not include the operator library. Import the library ZIP and the\n'
                         'routes ZIP released for this version before running workflows.\n\n')
     (destination / 'operon-desktop.json').write_text(json.dumps({

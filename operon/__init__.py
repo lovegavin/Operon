@@ -1,2 +1,2 @@
 """Operon application interfaces. Public extension API: operon_sdk."""
-__version__ = "5.1.3"
+__version__ = "5.1.4"

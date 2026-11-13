@@ -661,7 +661,13 @@ def install_library(manager, path, *, name: str | None = None,
                 other: record for other, record in libraries.items() if other != label
             }
             wheels = [inspected["directory"] / package["wheel"] for package in document["packages"]]
-            state = manager._install_many(wheels, base, publish=False, library=True)
+            try:
+                state = manager._install_many(wheels, base, publish=False, library=True)
+            except BaseException:
+                if not previous.get("sha256"):
+                    shutil.rmtree(Path(manager.directory) / "libraries" / label,
+                                  ignore_errors=True)
+                raise
             wanted = set(identifiers)
             for descriptor in state.get("descriptors", []):
                 if (descriptor["id"] in wanted

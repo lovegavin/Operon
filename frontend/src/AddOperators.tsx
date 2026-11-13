@@ -1,5 +1,5 @@
 import {useEffect, useRef, useState} from 'react';
-import {FileArrowUp, Package, Plus, Stack} from '@phosphor-icons/react';
+import {FileArrowUp, Package, Stack} from '@phosphor-icons/react';
 import {api} from './api';
 import {normalizeGraph} from './graph';
 import {isRouteArchiveFile, isRouteLibraryFile} from './libraryImport';
@@ -13,7 +13,6 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
   onError: (value: string) => void; onMessage: (value: string) => void;
 }) {
   const [routes, setRoutes] = useState<WorkflowSummary[]>([]);
-  const [selected, setSelected] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const file = useRef<HTMLInputElement>(null);
   const collection = useRef<HTMLInputElement>(null);
@@ -41,8 +40,8 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
       onPending(false);
     }
   }
-  async function register(files?: File[]) {
-    const chosen = files ?? [];
+  async function register(files: File[]) {
+    const chosen = files;
     // A 5.0.0 route-library collection dropped on the single-route picker still uses its own endpoint.
     if (chosen.length === 1 && isRouteLibraryFile(chosen[0].name)) {await importCollection(chosen[0]); return;}
     onPending(true); onError(''); onMessage('');
@@ -75,15 +74,14 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
     // Save each imported graph once; failures leave it available for retry.
     const saved: string[] = [];
     try {
-      if (files) for (const item of chosen) {
+      for (const item of chosen) {
         const graph = normalizeGraph(isWorkflowBundle(item.name)
           ? await api.importWorkflow(item) : JSON.parse(await item.text()));
         saved.push((await api.saveWorkflow(graph)).id);
       }
-      await api.registerRoutes(files ? saved : selected);
-      setSelected([]);
+      await api.registerRoutes(saved);
       onMessage(t('路线算子已添加，即刻可用。'));
-    } catch (error) {onError(t('路线未添加：{reason} 请先导入与路线同版本的算子库后重试。', {reason: (error as Error).message})); if (saved.length) setSelected(saved);}
+    } catch (error) {onError(t('路线未添加：{reason} 请先导入与路线同版本的算子库后重试。', {reason: (error as Error).message})); }
     finally {
       try {setRoutes(await api.workflows()); await onChanged();}
       catch (error) {onError((error as Error).message);}
@@ -118,13 +116,11 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
       <div className="saved-operator-routes">
         <div className="add-route-list">
           {!visible.length && <div className="modal-empty"><Stack size={24}/><p>{loading ? t('正在读取保存的路线…') : t('暂无已保存路线')}</p></div>}
-          {visible.map(route => <label className={`workflow-choice ${selected.includes(route.id) ? 'checked' : ''}`} key={route.id}>
-            <input type="checkbox" disabled={busy || loading} checked={selected.includes(route.id)} onChange={e => setSelected(ids => e.target.checked ? [...ids, route.id] : ids.filter(id => id !== route.id))}/>
-            <span className="workflow-choice-text"><strong>{route.name}</strong><small>{t('{count} 个节点', {count: route.nodes})} · v{route.version}</small></span>
-            {route.registered_version && <span className="route-version">{route.registered_version === route.version ? t('已注册') : t('可更新')}</span>}
-          </label>)}
+          {visible.map(route => <div className="workflow-choice" key={route.id}>
+            <span className="workflow-choice-text"><strong>{route.name}</strong><small>{t('{count} ???', {count: route.nodes})} ? v{route.version}</small></span>
+            {route.registered_version && <span className="route-version">{route.registered_version === route.version ? t('???') : t('???')}</span>}
+          </div>)}
         </div>
-        <div className="add-route-actions"><span>{selected.length > 0 && t('已选 {count} 条', {count: selected.length})}</span><button className="primary-button" disabled={busy || loading || !selected.length} onClick={() => void register()}><Plus size={16}/>{t('添加到算子库')}</button></div>
       </div>
     </section>
   </div>;

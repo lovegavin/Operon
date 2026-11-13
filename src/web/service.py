@@ -143,6 +143,7 @@ class JobService:
         self.plugins = PluginManager(self.directory, manifest_only=settings.manifest_only_registry,
                                      python=settings.worker_python,
                                      library_root=settings.library_root)
+        self._bootstrap_base_library()
         from operon.dependencies import DependencySession
         self.dependencies = DependencySession(self.plugins)
         self.dependencies.sync(self.plugins.state())
@@ -950,6 +951,36 @@ class JobService:
             return Path(explicit).resolve().parent
         path = Path(base or ".")
         return path if path.is_absolute() else Path(self.root) / path
+
+    def _bootstrap_base_library(self):
+        """Install the operator library shipped with a fresh installation.
+
+        A packaged Studio includes one base library under ``library/base``.  It
+        is imported once, on first start, so a new install can run workflows
+        without a separate library ZIP.  Later imports remain independent
+        branches; deleting every branch keeps the marker and does not silently
+        resurrect the base library.
+        """
+        root = Path(self.settings.code_root or self.root)
+        directory = root / 'library' / 'base'
+        bundles = sorted(directory.glob('*.operon-library.zip')) if directory.is_dir() else []
+        if not bundles:
+            return
+        marker = Path(self.plugins.directory) / 'base-library.json'
+        state = self.plugins.state()
+        if state.get('libraries') or io_path(marker).exists():
+            return
+        from operon.library_install import install_library
+        try:
+            result = install_library(self.plugins, bundles[-1])
+        except Exception as error:  # a base library must never block startup
+            print(f'warning: could not install the bundled base library: {error}',
+                  file=sys.stderr)
+            return
+        base = io_path(marker)
+        base.parent.mkdir(parents=True, exist_ok=True)
+        base.write_text(json.dumps({'bundle': bundles[-1].name,
+                                    'library': result.get('library')}), encoding='utf-8')
 
     def _job_output_dir(self, graph, key):
         """Results live with the task folder, never inside ``.studio``."""
