@@ -353,23 +353,9 @@ def main():
     expected = json.loads(args.build) if args.build else None
     # A source archive always carries the library. A bare application tree
     # (tests, legacy repair) still installs code and reports readiness.
-    has_library = (code / 'library/pyproject.toml').is_file()
     bundles = sorted((code / 'library').glob('operon-library-*.zip'))
-    computed = build_identity(code, source_sha256=args.digest) if has_library else None
-    identity = computed
-    if expected and expected.get('library') and computed:
-        expected_library = expected['library']
-        actual_library = computed['library']
-        if (expected_library.get('bundle_sha256')
-                and expected_library['bundle_sha256'] != actual_library.get('bundle_sha256')):
-            raise ValueError('The extracted operator library does not match the desktop build')
-        # The desktop owns the application source identity. Recomputing it from
-        # an extracted archive makes every managed server look like another
-        # build even when the library is byte-identical.
-        identity = dict(expected)
-    if identity is not None:
-        identity['environment'] = {'python': f'{sys.version_info.major}.{sys.version_info.minor}',
-                                     'platform': sys.platform}
+    has_library = bool(bundles) or (code / 'library/pyproject.toml').is_file()
+    identity = None
     specs, entries = requirements(code)
     environment_failures = ensure_requirements(specs, prefix / 'operon-requirements.txt', code / 'operon' / 'bundled') or {}
     # Install the SDK distribution metadata (without altering the dependency plan).
@@ -383,20 +369,33 @@ def main():
     workspace = (args.workspace or (prefix.parent.parent / 'workspace')).resolve()
     # A managed build owns the complete operator/Reader library. Replace any
     # wheel-installed providers from an older deployment in one transaction.
+    install_root = code
+    library_root = code / 'library'
     if bundles:
         from operon.library_install import install_library
         from operon.plugins import PluginManager
-        manager = PluginManager(workspace / '.studio', manifest_only=True,
-                                python=sys.executable)
-        result = install_library(manager, bundles[-1])
-        print('Operator library installed from the delivered bundle: ' + json.dumps(result), flush=True)
-    elif identity is not None and has_library:
+        manager = PluginManager(workspace / '.studio', manifest_only=False,
+                                python=sys.executable, library_root=library_root)
+        for bundle in bundles:
+            result = install_library(manager, bundle)
+            print('Operator library installed from the delivered bundle: ' + json.dumps(result), flush=True)
+    elif has_library:
         from operon.library_bundle import install_source
         from operon.plugins import PluginManager
         manager = PluginManager(workspace / '.studio', manifest_only=True,
                                 python=sys.executable)
-        install_source(manager, code, version=identity['library']['library_version'], replace=True)
+        seed_version = (expected or {}).get('library', {}).get('library_version') or '0.0.0'
+        install_source(manager, code, version=seed_version, replace=True)
         print('Operator library replaced from the application build', flush=True)
+    if has_library:
+        from operon.build_identity import compose_identity, library_identity, build_identity
+        server_library = library_identity(code)
+        base = dict(expected) if expected else build_identity(code, source_sha256=args.digest)
+        expected_library = (expected or {}).get('library') or {}
+        if (expected_library.get('bundle_sha256')
+                and expected_library['bundle_sha256'] != server_library.get('bundle_sha256')):
+            raise ValueError('The installed operator library does not match the desktop build')
+        identity = compose_identity(base.get('application') or {}, server_library)
     # Dependency probing is deliberately deferred. The server is an execution
     # host, not an eager installation of every optional model/tool; probing here
     # also collides with a shared pool owned by another Operon generation.

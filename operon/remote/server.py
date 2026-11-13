@@ -200,6 +200,12 @@ class RemoteService:
         self.workspace = workspace
         workspace.mkdir(parents=True, exist_ok=True)
         code = Path(__file__).resolve().parents[2]
+        library_root = None
+        candidate = code / 'library'
+        if (candidate / 'registry.json').is_file() or (candidate / 'libraries').is_dir():
+            library_root = candidate
+        elif (code.parent.parent / 'library').is_dir():
+            library_root = code.parent.parent / 'library'
         # Explicit interpreter selection must also select its command-line tools.
         binary_directory = str(Path(sys.executable).parent)
         current_path = os.environ.get('PATH', '')
@@ -207,7 +213,8 @@ class RemoteService:
             os.environ['PATH'] = binary_directory + os.pathsep + current_path
         self.service = JobService(Settings(workspace, workspace/'.studio', code/'frontend/dist',
                                           code_root=code, input_roots=input_roots or [Path('/')],
-                                          manifest_only_registry=True),
+                                          manifest_only_registry=library_root is None,
+                                          library_root=library_root),
                                   catalog_from_descriptors())
         self.memory = {'automatic_memory_budget_bytes': self.service.resources()['capacity_bytes'],
                        'automatic_memory_fraction': AUTO_BUDGET_FRACTION}

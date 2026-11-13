@@ -29,7 +29,12 @@ def source_archive(root):
     root = Path(root)
     files = [root / name for name in ('pyproject.toml', 'README.md', 'requirements-hic-linux.txt',
                                      'scripts/run.py', 'scripts/desktop_server.py')]
-    files += sorted((root / 'library').glob('operon-library-*.zip'))
+    named = {}
+    for bundle in sorted((root / 'library').glob('operon-library-*.zip')):
+        named[bundle] = 'library/' + bundle.name
+    for bundle in sorted((root / 'library/libraries').glob('*/archive.zip')):
+        named[bundle] = 'library/operon-library-' + bundle.parent.name + '.operon-library.zip'
+    files += sorted(named)
     for directory in ('operon', 'operon_sdk', 'operon', 'src'):
         files += [p for p in (root / directory).rglob('*') if p.is_file()
                   and p.suffix in ('.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif', '.yaml', '.yml')
@@ -40,7 +45,7 @@ def source_archive(root):
             if path.is_symlink() or not path.resolve().is_relative_to(root.resolve()):
                 raise ValueError('Deployment source cannot contain symlinks outside its code root')
             data = path.read_bytes()
-            member = tarfile.TarInfo(path.relative_to(root).as_posix())
+            member = tarfile.TarInfo(named.get(path, path.relative_to(root).as_posix()))
             member.size = len(data); member.mode = 0o644; member.mtime = SOURCE_EPOCH
             archive.addfile(member, io.BytesIO(data))
     return gzip.compress(stream.getvalue(), mtime=0)

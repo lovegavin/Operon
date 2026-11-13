@@ -673,7 +673,8 @@ def install_library(manager, path, *, name: str | None = None,
             libraries[label] = entry
             state["libraries"] = libraries
             state["library_release"] = _release(
-                document, digest, name=label, installed_at=entry["installed_at"]
+                document, digest, name=label, library_name=library_name,
+                installed_at=entry["installed_at"]
             )
             state["library_detached"] = True
             for legacy in ("source_library", "library_source_pins", "library_pin_updates"):
