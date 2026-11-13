@@ -597,6 +597,9 @@ class RemoteManager:
         ref = self.reference(key)
         return self.call(ref['profile_id'], 'result_files', {'job_id': ref['job_id']})
 
+    def result_files_for(self, profile_id, job_id):
+        return self.call(profile_id, 'result_files', {'job_id': job_id})
+
     def result_file(self, key, path):
         return self._output(key, 'result', path=path)
 

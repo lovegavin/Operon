@@ -1155,7 +1155,7 @@ class ExecutionService:
             if child['target']['kind'] == 'local':
                 listing = self.service.result_files(child['id'])
             else:
-                listing = self.service.remotes.result_files(target_key(child['target']), child['id'])
+                listing = self.service.remotes.result_files_for(target_key(child['target']), child['id'])
             for item in listing.get('files') or []:
                 files.append({**item, 'path': f"stages/{index}/{item['path']}",
                               'stage': index, 'unit_id': child.get('unit_id')})

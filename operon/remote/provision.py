@@ -87,7 +87,8 @@ class Shell:
         """Idempotent indexed chunks, then a full checksum before use."""
         target = shlex.quote(path)
         encoded = base64.b64encode(data).decode()
-        chunks = [encoded[i:i+768] for i in range(0, len(encoded), 768)]
+        chunk_size = 16384
+        chunks = [encoded[i:i+chunk_size] for i in range(0, len(encoded), chunk_size)]
         staging = path + '.parts-' + uuid.uuid4().hex
         self.run('mkdir -m 700 -- ' + shlex.quote(staging))
         for index, chunk in enumerate(chunks):
