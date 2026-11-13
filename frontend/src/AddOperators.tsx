@@ -2,6 +2,7 @@ import {useEffect, useRef, useState} from 'react';
 import {ArrowClockwise, FileArrowUp, FolderOpen, Package, Plus, Stack} from '@phosphor-icons/react';
 import {api} from './api';
 import {normalizeGraph} from './graph';
+import {isRouteArchiveFile, isRouteLibraryFile} from './libraryImport';
 import {isWorkflowBundle, ROUTE_FILE_ACCEPT} from './workflowFiles';
 import type {PluginState, WorkflowSummary} from './types';
 import {t} from './i18n';
@@ -15,17 +16,37 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
   const [selected, setSelected] = useState<string[]>([]), [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const file = useRef<HTMLInputElement>(null);
+  const collection = useRef<HTMLInputElement>(null);
   useEffect(() => {
     let active = true;
     api.workflows().then(items => {if (active) setRoutes(items);}).catch(error => {if (active) onError(error.message);})
       .finally(() => {if (active) setLoading(false);});
     return () => {active = false;};
   }, []);
-  async function register(files?: File[]) {
+  async function importCollection(file: File) {
     onPending(true); onError(''); onMessage('');
+    try {
+      const imported = await api.importRouteCollection(file);
+      const names = imported.names.join(', ');
+      onMessage(names
+        ? t('已导入 {count} 条路线：{names}', {count: imported.count, names})
+        : t('已导入 {count} 条路线。', {count: imported.count}));
+      if (imported.failed.length) onError(t('{count} 条路线未导入：{reason}', {count: imported.failed.length, reason: imported.failed[0].error}));
+    } catch (error) {
+      // Pin mismatches name the operator id and expected/actual code_sha: keep the server text verbatim.
+      onError((error as Error).message);
+    } finally {
+      try {setRoutes(await api.workflows()); await onChanged();}
+      catch (error) {onError((error as Error).message);}
+      onPending(false);
+    }
+  }
+  async function register(files?: File[]) {
     const chosen = files ?? [];
-    const containers = chosen.filter(item => item.name.toLowerCase().endsWith('.zip')
-      && !item.name.toLowerCase().endsWith('.operon.zip'));
+    // A 5.0.0 route-library collection dropped on the single-route picker still uses its own endpoint.
+    if (chosen.length === 1 && isRouteLibraryFile(chosen[0].name)) {await importCollection(chosen[0]); return;}
+    onPending(true); onError(''); onMessage('');
+    const containers = chosen.filter(item => isRouteArchiveFile(item.name));
     if (containers.length) {
       if (chosen.length !== 1) {
         onError(t('路线压缩包请单独上传。'));
@@ -72,7 +93,7 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
   const visible = routes.filter(route => route.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
   return <div className="add-operators">
     <section className="operator-install-card">
-      <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('普通算子与 Reader')}</h3><code>.whl · .operon-library.zip</code></div>
+      <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('普通算子与 Reader')}</h3><code>.whl · operon-library-v0.0.x.zip</code></div>
         <button className="primary-button" disabled={busy} onClick={onPackage}><FileArrowUp size={16}/>{t('导入包')}</button></div>
       <div className="plugin-folder-row">
         <button className="subtle-button" title={state.source_directories?.operator} onClick={() => void api.openPluginFolder('operator').catch(e => onError(e.message))}><FolderOpen size={16}/>{t('算子目录')}</button>
@@ -83,11 +104,21 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
     </section>
     <section className="operator-install-card">
       <div className="operator-install-heading"><span><Stack size={24}/></span><div><h3>{t('路线算子')}</h3><code>.zip（route/*.operon.zip） · .operon.zip · .json</code></div>
-        <button className="subtle-button" disabled={busy} onClick={() => file.current?.click()}><FileArrowUp size={16}/>{t('导入路线文件')}</button></div>
+        <div className="operator-install-actions">
+          <button className="subtle-button" disabled={busy} onClick={() => file.current?.click()}><FileArrowUp size={16}/>{t('导入路线文件')}</button>
+          <button className="subtle-button" disabled={busy} onClick={() => collection.current?.click()}><FileArrowUp size={16}/>{t('导入路线库')}</button>
+        </div></div>
       <input hidden ref={file} type="file" multiple accept={ROUTE_FILE_ACCEPT} onChange={event => {
         const files = Array.from(event.target.files || []); event.target.value = '';
         if (files.length) void register(files);
       }}/>
+      <input hidden ref={collection} type="file" accept=".zip" aria-label={t('导入路线库')} onChange={event => {
+        const file = event.target.files?.[0]; event.target.value = '';
+        if (!file) return;
+        if (!isRouteLibraryFile(file.name)) {onError(t('路线库请选择 operon-routes-v0.0.x.zip（包含 routes/*.operon.zip）。')); return;}
+        void importCollection(file);
+      }}/>
+      <p className="operator-install-note">{t('路线库包：{file}', {file: 'operon-routes-v0.0.0.zip'})} · {t('包含 routes/*.operon.zip，需与算子库同一版本。')}</p>
       <div className="saved-operator-routes">
         <input type="search" className="route-search" aria-label={t('搜索已保存路线')} placeholder={t('搜索已保存路线')} value={search} onChange={e => setSearch(e.target.value)}/>
         <div className="add-route-list">

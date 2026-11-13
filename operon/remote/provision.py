@@ -31,6 +31,7 @@ def source_archive(root):
                                      'scripts/run.py', 'scripts/desktop_server.py')]
     if (root / 'library/pyproject.toml').is_file():
         files += [root / 'library/pyproject.toml', root / 'library/release.json']
+    files += sorted((root / 'library').glob('operon-library-*.zip'))
     for directory in ('operon', 'operon_sdk', 'operon', 'src', 'library/seed'):
         files += [p for p in (root / directory).rglob('*') if p.is_file()
                   and p.suffix in ('.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif', '.yaml', '.yml')

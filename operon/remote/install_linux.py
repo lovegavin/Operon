@@ -354,6 +354,7 @@ def main():
     # A source archive always carries the library. A bare application tree
     # (tests, legacy repair) still installs code and reports readiness.
     has_library = (code / 'library/pyproject.toml').is_file()
+    bundles = sorted((code / 'library').glob('operon-library-*.zip'))
     computed = build_identity(code, source_sha256=args.digest) if has_library else None
     identity = computed
     if expected and expected.get('library') and computed:
@@ -379,12 +380,19 @@ def main():
         if (code / 'library/pyproject.toml').is_file():
             subprocess.run([sys.executable, '-I', '-m', 'pip', '--isolated', 'install', '--no-deps', str(code / 'library')], check=True)
     subprocess.run([sys.executable, '-I', '-m', 'pip', 'check'], check=True)
+    workspace = (args.workspace or (prefix.parent.parent / 'workspace')).resolve()
     # A managed build owns the complete operator/Reader library. Replace any
     # wheel-installed providers from an older deployment in one transaction.
-    if identity is not None:
+    if bundles:
+        from operon.library_install import install_library
+        from operon.plugins import PluginManager
+        manager = PluginManager(workspace / '.studio', manifest_only=True,
+                                python=sys.executable)
+        result = install_library(manager, bundles[-1])
+        print('Operator library installed from the delivered bundle: ' + json.dumps(result), flush=True)
+    elif identity is not None and has_library:
         from operon.library_bundle import install_source
         from operon.plugins import PluginManager
-        workspace = (args.workspace or (prefix.parent.parent / 'workspace')).resolve()
         manager = PluginManager(workspace / '.studio', manifest_only=True,
                                 python=sys.executable)
         install_source(manager, code, version=identity['library']['library_version'], replace=True)

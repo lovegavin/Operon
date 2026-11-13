@@ -340,6 +340,16 @@ def create_server(client):
         """Install an explicitly selected trusted local plugin wheel. Requires --allow-plugins."""
         return client.request("/plugins/install", {"wheel": wheel})
 
+    @server.tool()
+    def operon_library_install(path: str) -> dict:
+        """Install an Operon 5.0.0 operator library bundle. Requires --allow-plugins."""
+        return client.request('/v1/libraries/install', {'path': path})
+
+    @server.tool()
+    def operon_routes_import(path: str) -> dict:
+        """Import a route collection whose exact pins match the installed library."""
+        return client.request('/v1/routes/import-collection', {'path': path})
+
     @server.resource("operon://selection")
     def current_selection() -> str:
         return json.dumps(client.context(), ensure_ascii=False)

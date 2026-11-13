@@ -1187,8 +1187,10 @@ class JobService:
                             pass
                 except psutil.Error:
                     continue
-                limit = self.jobs[key]['allocation']['process_limit_bytes']
-                if rss > limit:
+                limit = int(self.jobs[key]['allocation'].get('process_limit_bytes') or 0)
+                # A zero reservation means the manifest disabled managed memory;
+                # it is not a zero-byte budget, so there is nothing to enforce.
+                if limit > 0 and rss > limit:
                     over_since = over_since or time.monotonic()
                     if time.monotonic() - over_since >= 2:
                         pressure_error = f'Worker tree RSS {rss} exceeds its host reservation {limit}; emergency spill could not recover enough memory'

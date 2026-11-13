@@ -60,11 +60,7 @@ def test_windows_runtime_keeps_portable_dependencies_and_excludes_unix_only_tool
     assert [d["id"] for d in windows_descriptors(manifest)] == ["table", "conditional"]
 
 
-def test_lite_archive_preserves_operator_docs_and_frozen_task_parameters(tmp_path, monkeypatch):
-    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / "scripts"))
-    from scripts import package_release
-
-    root = tmp_path / "source"
+def _release_source_tree(root, extra=None):
     files = {
         "pyproject.toml": '[project]\nversion="0.0.1"\n',
         "README.md": "Example release",
@@ -97,10 +93,21 @@ def test_lite_archive_preserves_operator_docs_and_frozen_task_parameters(tmp_pat
         "THIRD_PARTY_NOTICES/example.txt": "Example license",
         "host/Operon Studio.exe": "EXE placeholder for packaging-only regression",
     }
+    files.update(extra or {})
     for relative, content in files.items():
         target = root / relative
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content, encoding="utf-8")
+    return files
+
+
+def test_lite_archive_preserves_operator_docs_and_frozen_task_parameters(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / "scripts"))
+    from scripts import package_release
+
+    root = tmp_path / "source"
+    files = _release_source_tree(root)
+
     monkeypatch.setattr(package_release, "__file__", str(root / "scripts/package_release.py"))
     monkeypatch.setattr(package_release.subprocess, "check_output", lambda *a, **k: "a" * 40)
     monkeypatch.setattr(sys, "argv", ["package_release.py", "--lite", "--desktop", str(root / "host"),
@@ -120,3 +127,44 @@ def test_lite_archive_preserves_operator_docs_and_frozen_task_parameters(tmp_pat
         assert "operon.cmd" in {row["path"] for row in manifest["files"]}
         assert "scripts/install_server.sh" in {row["path"] for row in manifest["files"]}
         assert "Registration and startup read metadata" in archive.read(prefix + "START_HERE.txt").decode()
+
+
+def test_release_payload_excludes_bundled_library_seed_by_default(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / "scripts"))
+    from scripts import package_release
+
+    root = tmp_path / "source"
+    library_files = {
+        "library/seed/operon/builtin_packages.json": '{"packages": []}',
+        "library/seed/operon/example_descriptors.json": "[]",
+        "library/seed/src/example.py": "# Example operator",
+        "library/seed/routes/example/task.yaml": "name: example",
+        "library/release.json": '{"library_version": "0.0.0"}',
+        "library/pyproject.toml": '[project]\nname="operon-builtin-library"\n',
+        "library/README.md": "Library readme",
+    }
+    _release_source_tree(root, library_files)
+    monkeypatch.setattr(package_release, "__file__", str(root / "scripts/package_release.py"))
+    monkeypatch.setattr(package_release.subprocess, "check_output", lambda *a, **k: "a" * 40)
+
+    def build(arguments, output):
+        monkeypatch.setattr(sys, "argv", ["package_release.py", "--lite", "--desktop", str(root / "host"),
+                                         "--output", str(output), *arguments])
+        package_release.main()
+        return zipfile.ZipFile(next(output.glob("*.zip")))
+
+    with build([], tmp_path / "default") as archive:
+        prefix = "Operon Studio/"
+        names = archive.namelist()
+        assert not [name for name in names if name.startswith(prefix + "library/")]
+        assert prefix + "operon/builtin_packages.json" not in names
+        manifest = json.loads(archive.read(prefix + "package-manifest.json"))
+        assert not [row for row in manifest["files"] if row["path"].startswith("library/")]
+        assert "does not include the operator library" in archive.read(prefix + "START_HERE.txt").decode()
+
+    with build(["--with-library-seed"], tmp_path / "legacy") as archive:
+        prefix = "Operon Studio/"
+        names = archive.namelist()
+        assert prefix + "library/seed/operon/builtin_packages.json" in names
+        assert prefix + "library/seed/routes/example/task.yaml" in names
+        assert prefix + "library/release.json" in names

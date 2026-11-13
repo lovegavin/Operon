@@ -40,12 +40,13 @@ def mount_plugins(app, service):
             elif action:
                 await asyncio.to_thread(service.plugins.manage, name, action)
             else:
-                await asyncio.to_thread(service.plugins.install, wheel, remove=remove)
+                from operon.library_install import is_library_archive
+                result = await asyncio.to_thread(service.plugins.install, wheel, remove=remove)
+                if wheel is not None and is_library_archive(wheel):
+                    operations[key]["result"] = result
                 hook = getattr(service, 'environments_after_install', None)
-                if hook is not None and wheel is not None:
-                    from operon.library_bundle import is_library_bundle
-                    if is_library_bundle(wheel):
-                        operations[key]['environments'] = await asyncio.to_thread(hook)
+                if hook is not None and wheel is not None and is_library_archive(wheel):
+                    operations[key]['environments'] = await asyncio.to_thread(hook)
             # Registration is metadata-only. Installation/refresh must not
             # prepare a scientific environment before an execution target exists.
             service.dependencies.sync(service.plugins.state())
@@ -131,10 +132,10 @@ def mount_plugins(app, service):
 
     @app.post("/api/plugins/install")
     async def install(request: Request, filename: str):
-        from operon.library_bundle import is_library_bundle
+        from operon.library_install import LegacyLibrary, is_library_archive, library_preflight
         check_idle()
         if (Path(filename).name != filename or any(c in filename for c in '\\/:*?"<>|')
-                or not (filename.lower().endswith('.whl') or is_library_bundle(filename))):
+                or not (filename.lower().endswith('.whl') or is_library_archive(filename))):
             raise HTTPException(422, "请选择 .whl 或 .operon-library.zip 算子库包。")
         key = uuid.uuid4().hex
         active.add(key)
@@ -151,6 +152,11 @@ def mount_plugins(app, service):
                     output.write(chunk)
             if not size:
                 raise HTTPException(422, "插件包为空。")
+            if is_library_archive(filename):
+                try:
+                    await asyncio.to_thread(library_preflight, target)
+                except LegacyLibrary as exc:
+                    raise HTTPException(400, str(exc)) from exc
             return start(key, wheel=target, temporary=temporary)
         except BaseException:
             active.discard(key)

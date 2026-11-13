@@ -9,6 +9,7 @@ export type Readiness = {
   scope?: 'dependencies' | 'preflight'; dependencies_cached?: boolean; unresolved_sources?: string[];
 };
 export type CheckFeedback = {signature: string; readiness?: Readiness; error?: string};
+export type RouteCollectionImport = {count: number; names: string[]; failed: {name: string; error: string}[]};
 
 export type EnvironmentProgress = {phase?: string; bytes?: number; files?: number; updated_at?: number};
 export type EnvironmentStatus = {
@@ -67,6 +68,17 @@ const base =
 let token = "";
 let workspaceWrite: Promise<unknown> = Promise.resolve();
 let preferencesWrite: Promise<unknown> = Promise.resolve();
+/** FastAPI error payloads use either `detail` or `message`; validation details may be a list. */
+function responseText(value: unknown) {
+  if (!value || typeof value !== "object") return "";
+  const record = value as {message?: unknown; detail?: unknown};
+  if (typeof record.message === "string" && record.message.trim()) return record.message;
+  if (typeof record.detail === "string") return record.detail;
+  if (Array.isArray(record.detail)) return record.detail
+    .map(item => typeof item === "string" ? item : (item as {msg?: string} | null)?.msg || "")
+    .filter(Boolean).join("；");
+  return "";
+}
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -171,9 +183,13 @@ export const api = {
     const response = await fetch(base + '/api/plugins/install?filename=' + encodeURIComponent(file.name), {
       method: 'POST', headers: {'X-Studio-Token': token, 'Content-Type': 'application/octet-stream'}, body: file,
     });
-    const result = await response.json();
-    if (!response.ok) throw Error(result.message || result.detail || t("插件安装未完成"));
-    return result;
+    let result: unknown = null;
+    try { result = await response.json(); } catch { result = null; }
+    // Keep `detail` verbatim (e.g. the legacy 8.x message) and retain the status so the
+    // library panel can tell a rejected bundle from a failed operation.
+    if (!response.ok) throw new ApiError(responseText(result) || t("插件安装未完成"), undefined, response.status);
+    if (!result || typeof result !== 'object') throw new ApiError(t("插件安装未完成"), undefined, response.status);
+    return result as import('./types').PluginOperation;
   },
   agent: <T,>(path: string, body?: unknown) => request<T>("/api/agent" + path, body),
   catalog: () => request<Bootstrap["catalog"]>("/api/operators"),
@@ -211,6 +227,31 @@ export const api = {
     const value = await response.json();
     if (!response.ok) throw new ApiError(value.message || value.detail || t("路线包导入失败"));
     return value;
+  },
+  /** 5.0.0 route-library collection: multipart field `file`. */
+  importRouteCollection: async (file: File): Promise<RouteCollectionImport> => {
+    const body = new FormData();
+    body.append('file', file, file.name);
+    const response = await fetch(base + '/api/routes/import-collection', {
+      method: 'POST', headers: {'X-Studio-Token': token}, body,
+    });
+    let value: unknown = null;
+    try { value = await response.json(); } catch { value = null; }
+    if (!response.ok) {
+      const code = (value as {code?: string} | null)?.code;
+      // Pin mismatches name the operator and the expected/actual code_sha: surface verbatim.
+      throw new ApiError(responseText(value) || t("路线库导入失败"), undefined, response.status, code);
+    }
+    const record = (value || {}) as {count?: unknown; routes?: unknown; failed?: unknown};
+    const rawRoutes = Array.isArray(record.routes) ? record.routes : [];
+    const names = rawRoutes
+      .map(item => typeof item === 'string' ? item : String((item as {name?: unknown} | null)?.name ?? ''))
+      .filter(Boolean);
+    const failed = (Array.isArray(record.failed) ? record.failed : []).map(item => ({
+      name: String((item as {name?: unknown} | null)?.name ?? ''),
+      error: String((item as {error?: unknown} | null)?.error ?? ''),
+    }));
+    return {count: typeof record.count === 'number' ? record.count : names.length, names, failed};
   },
   routes: () => request<RouteDefinition[]>("/api/routes"),
   libraryState: () => request<LibraryState>("/api/library/state"),

@@ -74,6 +74,8 @@ def main():
     parser.add_argument('--runtime', type=Path, help='Portable Python directory produced by build_runtime.py')
     parser.add_argument('--webview-bootstrapper', type=Path, help='Optional cached official Microsoft WebView2 bootstrapper; signature is verified')
     parser.add_argument('--lite', action='store_true', help='Smaller package requiring an existing Python environment')
+    parser.add_argument('--with-library-seed', action='store_true',
+                        help='Legacy layout: also copy library/seed, its routes and library release metadata')
     args = parser.parse_args()
     if not args.lite and (not args.runtime or not (args.runtime / 'operon-runtime.json').is_file()):
         parser.error('Full releases require --runtime from build_runtime.py; use --lite only for an environment-free package')
@@ -112,25 +114,30 @@ def main():
         (destination / 'runtime/webview2.json').write_text(json.dumps({'source': url,
             'sha256': hashlib.sha256(bootstrapper.read_bytes()).hexdigest()}), encoding='utf-8')
     shutil.copytree(root / 'frontend/dist', destination / 'frontend')
-    for directory in ('src', 'operon', 'operon_sdk', 'operon', 'library/seed'):
+    payload_directories = ['src', 'operon', 'operon_sdk', 'operon']
+    if args.with_library_seed:
+        payload_directories.append('library/seed')
+    for directory in payload_directories:
         for source in (root / directory).rglob('*'):
             if source.is_file() and source.suffix.lower() in {'.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'}:
                 copy(source, source.relative_to(root))
     for source in (root / 'tasks').rglob('*'):
         if source.is_file() and source.suffix in {'.py', '.yaml', '.yml', '.json'} and 'output' not in source.relative_to(root).parts:
             copy(source, source.relative_to(root))
-    for source in (root / 'library/seed/routes').rglob('*'):
-        if source.is_file() and source.suffix in {'.json', '.yaml', '.yml'}:
-            copy(source, source.relative_to(root))
+    if args.with_library_seed:
+        for source in (root / 'library/seed/routes').rglob('*'):
+            if source.is_file() and source.suffix in {'.json', '.yaml', '.yml'}:
+                copy(source, source.relative_to(root))
     for source in root.glob('requirements*.txt'):
         copy(source, source.name)
     for source in root.glob('constraints*.txt'):
         copy(source, source.name)
     for name_ in ('README.md', 'pyproject.toml', 'LICENSE', 'NOTICE'):
         copy(root / name_, name_)
-    for name_ in ('release.json', 'pyproject.toml', 'README.md'):
-        if (root / 'library' / name_).is_file():
-            copy(root / 'library' / name_, Path('library') / name_)
+    if args.with_library_seed:
+        for name_ in ('release.json', 'pyproject.toml', 'README.md'):
+            if (root / 'library' / name_).is_file():
+                copy(root / 'library' / name_, Path('library') / name_)
     for name_ in ('desktop_server.py', 'install_maintenance.py', 'install_server.py', 'install_server.sh', 'run.py', 'diagnose_pins.py',
                   'accept_igv_handoff.py', 'open_igv_handoff.ps1',
                   'verify_release_agent.py', 'verify_release_agent.md', 'verify_operon_candidate.py', 'verify_server_cli.py',
@@ -138,11 +145,13 @@ def main():
         copy(root / 'scripts' / name_, Path('scripts') / name_)
     if not args.lite:
         python = destination / 'runtime/python/python.exe'
+        sources = ['src', 'operon', 'operon_sdk', 'operon', 'scripts']
+        if args.with_library_seed:
+            sources.append('library/seed')
         # Use the shipped interpreter, never the packaging host's Python tag.
         subprocess.run([python, '-I', '-m', 'compileall', '-q', '-f',
                         '--invalidation-mode', 'unchecked-hash', '-s', str(destination),
-                        *[str(destination / p) for p in ('src', 'operon', 'operon_sdk', 'operon', 'scripts', 'library/seed',
-                                                       'runtime/python/Lib/operon_import_paths.py')]], check=True)
+                        *[str(destination / p) for p in (*sources, 'runtime/python/Lib/operon_import_paths.py')]], check=True)
     shutil.copytree(root / 'docs', destination / 'docs', ignore=shutil.ignore_patterns('verification'))
     # Ship the small SDK examples referenced by the extension guides.
     shutil.copytree(root / 'examples', destination / 'examples',
@@ -150,7 +159,8 @@ def main():
     shutil.copytree(root / 'THIRD_PARTY_NOTICES', destination / 'THIRD_PARTY_NOTICES')
     # Regenerate frontend notices from the lockfile actually used for this build.
     notices = ['Licenses for bundled frontend dependencies.\n']
-    for directory, meta in sorted(lock['packages'].items()):
+    regenerate = (root / 'frontend/node_modules').is_dir()
+    for directory, meta in (sorted(lock['packages'].items()) if regenerate else []):
         if not directory or (meta.get('dev') and directory not in ('node_modules/tailwindcss', 'node_modules/vite')):
             continue
         module = root / 'frontend' / directory
@@ -159,7 +169,12 @@ def main():
             raise RuntimeError(f'Missing license text for {directory}')
         notices.append(f'\n{"=" * 72}\n{directory} {meta["version"]}\n')
         notices.extend(p.read_text(encoding='utf-8-sig') for p in sorted(licenses))
-    (destination / 'THIRD_PARTY_NOTICES/frontend-licenses.txt').write_text('\n'.join(notices), encoding='utf-8')
+    if regenerate:
+        (destination / 'THIRD_PARTY_NOTICES/frontend-licenses.txt').write_text('\n'.join(notices), encoding='utf-8')
+    library_note = ''
+    if not args.with_library_seed:
+        library_note = ('This package does not include the operator library. Import the library ZIP and the\n'
+                        'routes ZIP released for this version before running workflows.\n\n')
     (destination / 'operon-desktop.json').write_text(json.dumps({
         'backendRoot': '.', 'python': 'auto', 'entryPoint': 'scripts/desktop_server.py', 'frontend': 'frontend',
         'bundledRuntime': not args.lite,
@@ -176,7 +191,7 @@ may need an internet connection. Do not move individual installed files.
 Start with docs/quickstart.md for your first Windows or Linux workflow.
 Operon is open source under Apache-2.0; see LICENSE and NOTICE.
 
-The operator library remains independently versioned. Existing v3/v3.5 packages,
+{library_note}The operator library remains independently versioned. Existing v3/v3.5 packages,
 .operon workflow bundles, Python imports and MCP identifiers stay compatible.
 Use operon.cmd for the bundled CLI or runtime/python/python.exe -I -m operon.
 Registration and startup read metadata; scientific dependencies are checked for
@@ -210,10 +225,15 @@ The release page records the validation completed for this exact build.
                         and not {'THIRD_PARTY_NOTICES', 'runtime'}.intersection(p.relative_to(destination).parts)), destination)
     if audit['findings']:
         raise RuntimeError('Developer paths in release: ' + json.dumps(audit['findings']))
-    commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+    try:
+        commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True, stderr=subprocess.DEVNULL).strip()
+        dirty = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=root, text=True, stderr=subprocess.DEVNULL).strip())
+    except (OSError, subprocess.CalledProcessError):
+        commit = os.environ.get('OPERON_SOURCE_COMMIT', 'unknown')
+        dirty = True
     runtime_mode = 'external' if args.lite else json.loads((args.runtime / 'operon-runtime.json').read_text(encoding='utf-8')).get('mode', 'bundled')
     manifest = {'product': 'operon', 'version': version, 'runtime_mode': runtime_mode, 'source_commit': commit,
-                'source_dirty': bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=root, text=True).strip()), 'python_bundled': not args.lite, 'files': []}
+                'source_dirty': dirty, 'python_bundled': not args.lite, 'files': []}
     for file in sorted(destination.rglob('*')):
         if file.is_file():
             manifest['files'].append({'path': file.relative_to(destination).as_posix(), 'bytes': file.stat().st_size,

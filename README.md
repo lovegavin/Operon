@@ -12,12 +12,12 @@ parameter, log and artifact. The same engine is available through the desktop,
 CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
-The current source integrates **Operon Studio 4.2.2** with the independently
-versioned **8.0.9 operator library**: **1,063 operators, 108 Readers (1,171
+The current source integrates **Operon Studio 5.0.0** with the independently
+versioned **0.0.0 operator library**: **1,063 operators, 108 Readers (1,171
 descriptors), seven provider packages and 79 route templates**. Operators and
 Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
-Markdown documentation. Studio 4.2.2 requires library **8.0.9 or newer** and ships
-it as the built-in library.
+Markdown documentation. Studio 5.0.0 no longer ships the library in its payload:
+import `operon-library-v0.0.0.zip` and `operon-routes-v0.0.0.zip`.
 
 Operon does not bundle or require an AI model. Agent access is optional.
 
@@ -40,7 +40,7 @@ Operon does not bundle or require an AI model. Agent access is optional.
 | I want to… | Start here |
 | --- | --- |
 | Use the Windows desktop | Download **Operon_Setup.exe** from [Releases](https://github.com/lovegavin/Operon/releases/latest) |
-| Run a Linux server without a desktop | Download **Operon-4.2.2-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
+| Run a Linux server without a desktop | Download **Operon-5.0.0-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
 | Develop from source | `python -m pip install . ./library` with Python 3.11+ |
 | Connect an AI agent | Use the desktop **Agent** panel or `operon mcp`; see [agent operations](docs/agent_operations.md) |
 
@@ -49,7 +49,7 @@ profile. Scientific packages are installed only for the workflow and execution
 host you choose; they are not all bundled. If WebView2 is missing, Setup asks
 Microsoft's installer for it, which needs internet access.
 
-A new 4.2.2 installation puts the working workspace under the installation root
+A new 5.0.0 installation puts the working workspace under the installation root
 (for example, `workspace` under the installation root). Profile metadata, logs and browser
 state remain under `%USERPROFILE%\.operon`. Earlier installations keep their
 existing workspace. Uninstall removes the program but preserves the workspace
@@ -66,6 +66,23 @@ In short: install, open **Operon Studio**, add a CSV, connect it to **PCA**, che
 the local environment, and press **Run**. Results appear under **Run history →
 View results**. The first dependency check may need internet access; Operon never
 installs scientific packages silently during a run.
+
+## What is new in 5.0.0
+
+- **The operator library is a separate download.** The application payload no
+  longer contains `library/seed`, its routes or the library release metadata.
+  Import `operon-library-v0.0.0.zip` from the **Library** page and
+  `operon-routes-v0.0.0.zip` from the **Routes** page; the application installs
+  the wheels, registers operators and prepares environments.
+- **Bundle format 1.** The library ZIP declares `format: operon.library`,
+  `bundle_format: 1`, `library_version`, `operator_protocol` and
+  `minimum_application`.
+- **Exact route pins are mandatory.** Every `plugin_lock` entry (`package`,
+  `version`, `code_sha`) must equal an installed library package. A missing or
+  different pin is an error; there is no fallback.
+- **Legacy bundles are rejected.** An 8.x library bundle is refused with a
+  message that points at an `operon-library-v0.0.x` bundle built for Operon
+  5.0.0.
 
 ## What is new in 4.2.2
 

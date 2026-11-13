@@ -250,6 +250,12 @@ def parser():
     plugin.add_argument("path", nargs="?")
     plugin.add_argument("--library-version", default="1.0.0")
     plugin.add_argument("--template", choices=["operator", "reader"], default="operator")
+    library = commands.add_parser("library", help="Install an Operon 5.0.0 operator library bundle")
+    library.add_argument("action", choices=["install"])
+    library.add_argument("path")
+    routes = commands.add_parser("routes", help="Import a route collection built for the installed library")
+    routes.add_argument("action", choices=["import"])
+    routes.add_argument("path")
     schema = commands.add_parser("schema")
     schema.add_argument("name", choices=["operator", "package", "graph", "workspace", "workflow"])
     mcp = commands.add_parser("mcp")
@@ -353,9 +359,10 @@ def execute(args):
             return developer.build(args.path)
         manager = PluginManager(data_directory(args.profile_dir, args.workspace, args.data_dir))
         if args.action == 'export-library':
-            from .library_bundle import build_bundle
-            manager.ensure_source_root()
-            return build_bundle(manager.source_root, args.path or '.', args.library_version)
+            raise ValueError(
+                'plugin export-library was removed in Operon 5.0.0; build libraries with '
+                'python -m operon_library_builder build --source <seed> --output <dir>'
+            )
         if args.action == "list":
             from .source_library import directories
             return {**manager.state(), "inbox": str(manager.inbox),
@@ -377,6 +384,8 @@ def execute(args):
     if args.command == 'environment' and args.action != 'status' and graph_value is None:
         raise ValueError('environment check/prepare requires a workflow file')
     scopes = ["context", "edit"]
+    if args.command == 'library':
+        scopes.append('plugins')
     if (args.command == 'workflow' and args.action == 'prepare-environment'
             or args.command == 'environment' and args.action == 'prepare'):
         if graph_value is None:
@@ -395,8 +404,14 @@ def execute(args):
         return {'instances': [{k: v for k, v in instance.items() if k != 'secret'} for instance in instances(directory)]}
     client = Client(directory, instance=args.instance, name="Operon CLI", scopes=scopes,
                     auto_start=not (args.command == 'service' and args.action == 'stop'), workspace=profile.workspace,
-                    require_api=1 if args.command in ('operators', 'workflow', 'environment', 'engine', 'jobs', 'artifacts', 'servers', 'service', 'viewers') or args.command == 'run' and (args.file or args.workflow) else 0)
+                    require_api=1 if args.command in ('operators', 'workflow', 'environment', 'engine', 'jobs', 'artifacts', 'servers', 'service', 'viewers', 'routes', 'library') or args.command == 'run' and (args.file or args.workflow) else 0)
     try:
+        if args.command == 'library':
+            path = Path(args.path).expanduser().resolve()
+            return client.request('/v1/libraries/install', {'path': str(path)})
+        if args.command == 'routes':
+            path = Path(args.path).expanduser().resolve()
+            return client.request('/v1/routes/import-collection', {'path': str(path)})
         if args.command == 'environment':
             if args.action == 'status':
                 return client.request('/v1/environment')

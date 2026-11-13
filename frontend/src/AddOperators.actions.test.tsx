@@ -9,7 +9,7 @@ vi.mock('react',async original=>({...await original<typeof import('react')>(),us
   const i=hooks.cursor++; if(!(i in hooks.values))hooks.values[i]=initial;
   return [hooks.values[i],(next:unknown)=>{hooks.values[i]=typeof next==='function'?next(hooks.values[i]):next;}];
 }}));
-vi.mock('./api',()=>({api:{workflows:vi.fn(),importWorkflow:vi.fn(),importRouteArchive:vi.fn(),saveWorkflow:vi.fn(),registerRoutes:vi.fn()}}));
+vi.mock('./api',()=>({api:{workflows:vi.fn(),importWorkflow:vi.fn(),importRouteArchive:vi.fn(),importRouteCollection:vi.fn(),saveWorkflow:vi.fn(),registerRoutes:vi.fn()}}));
 const onChanged=vi.fn(async()=>{}),onPending=vi.fn(),onError=vi.fn(),onMessage=vi.fn();
 type Element={type:unknown;props:Record<string,unknown>};
 function elements(node:ReactNode):Element[] {
@@ -20,6 +20,10 @@ function elements(node:ReactNode):Element[] {
 function render(){hooks.cursor=0;return AddOperators({state:{generation:null,packages:[],descriptors:[]},busy:false,onChanged,onPending,onError,onMessage,onPackage:()=>{},onRefresh:()=>{}});}
 function triggerFiles(files: unknown[]) {
   const field=elements(render()).find(n=>n.type==='input'&&n.props.type==='file')!;
+  (field.props.onChange as Function)({target:{files,value:'fake'}});
+}
+function triggerCollection(files: unknown[]) {
+  const field=elements(render()).filter(n=>n.type==='input'&&n.props.type==='file')[1]!;
   (field.props.onChange as Function)({target:{files,value:'fake'}});
 }
 const graph:Graph={schema_version:2,name:'Imported',base_dir:'.',nodes:[],edges:[],memory:{enabled:true}};
@@ -77,4 +81,28 @@ it('rejects a collection mixed with individual route files',async()=>{
   await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
   expect(onError).toHaveBeenCalledWith('路线压缩包请单独上传。');
   expect(api.importRouteArchive).not.toHaveBeenCalled();
+});
+
+it('imports a route library collection through the 5.0.0 endpoint',async()=>{
+  vi.mocked(api.importRouteCollection).mockResolvedValue({count:2,names:['Alpha','Beta'],failed:[]});
+  const file=new File([new Uint8Array([80,75,3,4])],'operon-routes-v0.0.0.zip');
+  triggerCollection([file]);
+  await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
+  expect(api.importRouteCollection).toHaveBeenCalledWith(file);
+  expect(api.importRouteArchive).not.toHaveBeenCalled();
+  expect(onMessage).toHaveBeenLastCalledWith('已导入 2 条路线：Alpha, Beta');
+  expect(onChanged).toHaveBeenCalledOnce();
+});
+it('keeps a pin-mismatch detail verbatim when the collection is rejected',async()=>{
+  const detail='Route "Alpha" pins operon.scale at code_sha 11111111, installed code_sha 22222222.';
+  vi.mocked(api.importRouteCollection).mockRejectedValue(new Error(detail));
+  triggerCollection([new File([new Uint8Array([80,75,3,4])],'operon-routes-v0.0.0.zip')]);
+  await vi.waitFor(()=>expect(onPending).toHaveBeenLastCalledWith(false));
+  expect(onError).toHaveBeenLastCalledWith(detail);
+  expect(onMessage).not.toHaveBeenCalledWith(expect.stringContaining('已导入'));
+});
+it('asks for an operon-routes-v0.0.x collection when another ZIP is chosen',async()=>{
+  triggerCollection([new File([new Uint8Array([80,75,3,4])],'routes.zip')]);
+  expect(api.importRouteCollection).not.toHaveBeenCalled();
+  expect(onError).toHaveBeenLastCalledWith('路线库请选择 operon-routes-v0.0.x.zip（包含 routes/*.operon.zip）。');
 });

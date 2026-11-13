@@ -2,7 +2,7 @@
 from copy import deepcopy
 from io import BytesIO
 import json
-from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile
+from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile, ZipInfo
 
 from operon.file_formats import primary_ext
 from .models import Graph
@@ -112,7 +112,10 @@ def export_bundle(graph):
     stream = BytesIO()
     with ZipFile(stream, "w", compression=ZIP_DEFLATED) as archive:
         for name, value in (("graph.json", topology), ("parameters.json", values), ("execution.json", execution)):
-            archive.writestr(name, json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False))
+            info = ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = ZIP_DEFLATED
+            info.external_attr = 0o644 << 16
+            archive.writestr(info, json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False))
     return stream.getvalue()
 
 

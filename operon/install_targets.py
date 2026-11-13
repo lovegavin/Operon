@@ -143,7 +143,7 @@ def _validate_host_requirements(records):
                 raise ValueError(f'Operator requires an incompatible Operon SDK: {text}')
 
 
-def install(manager, current, packages, generation, *, dependencies=()):
+def install(manager, current, packages, generation, *, dependencies=(), library=False):
     # One discovery-policy-aware factory snapshot per transaction. Repeating a
     # filesystem-backed bundled_state() for every entry made large library
     # refreshes scan the same source tree hundreds of times.
@@ -195,7 +195,7 @@ def install(manager, current, packages, generation, *, dependencies=()):
             descriptor['declaration_sha'] = declaration_hash(descriptor)
             if descriptor['id'] in bundled_owners and bundled_owners[descriptor['id']] != provider_identity(package['name']):
                 raise ValueError(f'Plugin shadows a built-in: {descriptor["id"]}')
-            if '.' not in descriptor['id'] and provider_identity(package['name']) not in bundled_names:
+            if not library and '.' not in descriptor['id'] and provider_identity(package['name']) not in bundled_names:
                 raise ValueError('Plugin IDs must be namespaced')
             descriptor.update(distribution=package['name'], package_version=package['version'], origin='wheel', execution=execution,
                               implementation={k: package[k] for k in ('version', 'sha256')})

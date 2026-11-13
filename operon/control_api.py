@@ -65,6 +65,15 @@ class DescribeRequest(BaseModel):
     view: Literal['schema', 'docs', 'full'] = 'full'
 
 
+class LibraryRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    path: str = Field(min_length=1, max_length=1000)
+
+
+class RouteCollectionRequest(LibraryRequest):
+    pass
+
+
 def mount_control(app, application, bridge):
     from .viewer_api import mount_viewers
     mount_viewers(app, application, bridge)
@@ -85,7 +94,8 @@ def mount_control(app, application, bridge):
         authorize(request)
         return {'api_version': 1, 'operator_protocol': 3, 'headless': bool(getattr(app.state, 'headless', False)),
                 'capabilities': ['workflows', 'tasks', 'artifacts', 'operator-docs', 'canvas-sessions', 'agent-guides', 'brief-views', 'result-viewers', 'workflow-readiness', 'explicit-environment-preparation', 'transaction-diffs',
-                                'task-scaffolding', 'workspace-files'],
+                                'task-scaffolding', 'workspace-files',
+                                'library-install', 'route-collection-import'],
                 'guides_href': '/api/v1/guides', 'openapi_href': '/api/v1/openapi.json',
                 'permission_scopes': ['context', 'edit', 'run', 'plugins']}
 
@@ -114,6 +124,26 @@ def mount_control(app, application, bridge):
         authorize(request, 'plugins')
         return {**application.isolated_environments(),
                 'prepared': application.start_isolated_environments(payload.names)}
+
+    @app.post('/api/v1/libraries/install')
+    def install_library(request: Request, payload: LibraryRequest):
+        authorize(request, 'plugins')
+        from .library_install import install_library as install
+        try:
+            result = install(application.service.plugins, payload.path)
+        except ValueError as error:
+            raise CommandError('library_install_failed', str(error)) from error
+        application.service.refresh_catalog()
+        return result
+
+    @app.post('/api/v1/routes/import-collection')
+    def import_route_collection(request: Request, payload: RouteCollectionRequest):
+        authorize(request, 'edit')
+        from .library_install import install_routes_collection
+        try:
+            return install_routes_collection(application.service, payload.path)
+        except ValueError as error:
+            raise CommandError('route_collection_import_failed', str(error)) from error
 
     @app.post('/api/v1/tasks')
     def task_scaffold(request: Request, payload: TaskRequest):

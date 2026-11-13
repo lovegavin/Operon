@@ -22,7 +22,8 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 - [Detailed quick start: Windows, Linux and your first workflow](quickstart.md)
 - [What changed since 3.1.6](updates-since-3.1.6.md)
 
-Current guides describe **Operon Studio 4.1.9** with the **8.0.7** operator library.
+Current guides describe **Operon Studio 5.0.0** with the **0.0.0** operator library
+imported from `operon-library-v0.0.0.zip`.
 Release notes, verification reports and dated design records preserve the versions
 they tested; they are historical evidence, not current installation instructions.
 
@@ -99,6 +100,7 @@ they tested; they are historical evidence, not current installation instructions
 - [Five-layer library test standard](verification/five-layer-test-standard.md)
 - [Per-operator trust sheets](operators/README.md)
 - [Library 3.x full verification](verification/library-3.0.0-full.md)
+- [Operon Studio 5.0.0 release](releases/operon-5.0.0.md)
 - [Operon Studio 4.1.9 release](releases/v4.1.9.md)
 - [Operon Studio 4.1.8 release](releases/v4.1.8.md)
 - [Operon 4.0.0 release](releases/v4.0.0.md)

@@ -41,7 +41,7 @@ def runtime_requirements(project, manifest, mode='management'):
     return sorted(specs), descriptors
 
 
-def build_runtime(source, destination, root, *, wheelhouse=None, offline=False, bundle_wheels=None, mode='management'):
+def build_runtime(source, destination, root, *, wheelhouse=None, offline=False, bundle_wheels=None, mode='management', with_library_seed=False):
     source, destination, root = map(Path, (source, destination, root))
     if destination.exists():
         raise ValueError(f'Runtime output already exists: {destination}')
@@ -78,7 +78,10 @@ def build_runtime(source, destination, root, *, wheelhouse=None, offline=False, 
     python = destination / 'python.exe'
     subprocess.run([python, '-I', '-m', 'ensurepip', '--upgrade'], check=True)
     project = tomllib.loads((root / 'pyproject.toml').read_text(encoding='utf-8'))['project']
-    manifest = json.loads((root / 'library/seed/operon/builtin_packages.json').read_text(encoding='utf-8'))
+    if with_library_seed or mode == 'analysis':
+        manifest = json.loads((root / 'library/seed/operon/builtin_packages.json').read_text(encoding='utf-8'))
+    else:
+        manifest = {'packages': []}
     specs, descriptors = runtime_requirements(project, manifest, mode)
     requested = destination / 'operon-requirements.txt'
     requested.write_text('\n'.join(specs) + '\n', encoding='utf-8')
@@ -102,20 +105,21 @@ def build_runtime(source, destination, root, *, wheelhouse=None, offline=False, 
                 if name.startswith('/') or '..' in Path(name).parts:
                     raise ValueError('Invalid wheel path')
             archive.extractall(destination / 'Lib/site-packages')
-        # The Full distribution explicitly includes a separately versioned seed.
-        # Keep it out of the application wheel and remove only this build cache
-        # so deleted operators cannot survive a subsequent wheel rebuild.
-        library = (root / 'library').resolve()
-        cache = (library / 'build').resolve()
-        if cache.parent != library or not cache.is_relative_to(root.resolve()):
-            raise ValueError('Library build cache escaped the checkout')
-        if cache.exists():
-            shutil.rmtree(cache)
-        subprocess.run([python, '-I', '-m', 'build', '--wheel', '--no-isolation',
-                        '--outdir', temporary, library], check=True)
-        seed = next(Path(temporary).glob('operon_builtin_library-*.whl'))
-        with zipfile.ZipFile(seed) as archive:
-            archive.extractall(destination / 'Lib/site-packages')
+        if with_library_seed:
+            # Explicit legacy layout: a separately versioned seed inside the
+            # runtime. Operon 5.0.0 ships no bundled library by default; users
+            # import operon-library-v0.0.0.zip instead.
+            library = (root / 'library').resolve()
+            cache = (library / 'build').resolve()
+            if cache.parent != library or not cache.is_relative_to(root.resolve()):
+                raise ValueError('Library build cache escaped the checkout')
+            if cache.exists():
+                shutil.rmtree(cache)
+            subprocess.run([python, '-I', '-m', 'build', '--wheel', '--no-isolation',
+                            '--outdir', temporary, library], check=True)
+            seed = next(Path(temporary).glob('operon_builtin_library-*.whl'))
+            with zipfile.ZipFile(seed) as archive:
+                archive.extractall(destination / 'Lib/site-packages')
     subprocess.run([python, '-I', '-m', 'pip', 'check'], check=True)
     versions = json.loads(subprocess.check_output([python, '-I', '-c',
         'import importlib.metadata as m,json; print(json.dumps({d.metadata["Name"]:d.version for d in m.distributions()}))'], text=True))
@@ -167,6 +171,9 @@ if __name__ == '__main__':
     parser.add_argument('--bundle-wheels', type=Path, help='Retain these locally built wheels for later dependency repair/isolation')
     parser.add_argument('--mode', choices=['management', 'analysis'], default='management',
                         help='Management-only application runtime by default; analysis is an explicit offline distribution')
+    parser.add_argument('--with-library-seed', action='store_true',
+                        help='Embed the legacy bundled operator-library seed in the runtime (not shipped by 5.0.0)')
     args = parser.parse_args()
     print(json.dumps(build_runtime(args.python_home.resolve(), args.output.resolve(), Path(__file__).resolve().parents[1],
-        wheelhouse=args.wheelhouse, offline=args.offline, bundle_wheels=args.bundle_wheels, mode=args.mode)))
+        wheelhouse=args.wheelhouse, offline=args.offline, bundle_wheels=args.bundle_wheels, mode=args.mode,
+        with_library_seed=args.with_library_seed)))

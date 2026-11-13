@@ -15,7 +15,9 @@ export type Parameter = {
   options?: unknown[];
 };
 export type PluginRefresh = {generation: string; updated: string[]; unchanged: string[]; directory: string; operators: number; readers: number};
-export type PluginOperation = {id: string; status: 'running' | 'complete' | 'failed'; error: string | null; result?: PluginRefresh};
+/** Synchronous summary returned for a 5.0.0 operator-library bundle. */
+export type LibraryInstallResult = {library_version: string; packages: number; descriptors: number; installed: boolean; idempotent?: boolean};
+export type PluginOperation = {id: string; status: 'running' | 'complete' | 'failed'; error: string | null; result?: PluginRefresh | LibraryInstallResult};
 export type PluginPackage = {name: string; title?: string; version: string; sha256: string; origin?: 'bundled' | 'wheel'; enabled?: boolean; source_managed?: boolean};
 export type DependencyState = {running: boolean; deferred?: boolean; entries: {id: string; title: string; status: 'unchecked' | 'checking' | 'installing' | 'passed' | 'failed'; error: string; execution?: {mode: 'shared' | 'isolated'; reason?: string}}[]};
 export type PluginState = {generation: string | null; packages: PluginPackage[]; bundled_packages?: PluginPackage[]; inbox?: string;

@@ -515,7 +515,7 @@ function Studio() {
       const expected = catalogUpdates.current.checkpoint();
       const latest = await api.catalog();
       acceptCatalog(latest, undefined, expected);
-      const count = operation.result?.updated.length || 0;
+      const count = operation.result && 'updated' in operation.result ? operation.result.updated.length : 0;
       notify(count ? t("算子库已更新，即刻可用。") : t("算子库已是最新。"), "success");
     } catch (error) {failure(error);}
     finally {setRefreshingPlugins(false);}

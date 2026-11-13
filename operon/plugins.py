@@ -282,6 +282,9 @@ class PluginManager:
 
     def snapshot(self, graph):
         state = self.state()
+        from operon.library_install import library_pins_match
+        if library_pins_match(state, graph):
+            return state
         from operon.pins import graphs, matches, requirements, resolve
         # Avoid opening the archive for an unpinned/current graph. Nested graphs
         # can contain different old builtin pins, so normalize before conflict checks.
@@ -344,13 +347,12 @@ class PluginManager:
         return self._catalog(self.snapshot(graph), base)
 
     def install(self, wheel, *, remove=None):
-        """Install a wheel transactionally; a failed probe never changes registry."""
+        """Install a wheel or a 5.0.0 library archive transactionally."""
         if remove:
             return self.manage(canonicalize_name(remove), "remove")
-        from operon.library_bundle import is_library_bundle
-        if is_library_bundle(wheel):
-            from operon.library_bundle import install_bundle
-            return install_bundle(self, io_path(wheel))
+        from operon.library_install import install_library, is_library_archive
+        if is_library_archive(wheel):
+            return install_library(self, wheel)
         return self.install_many([wheel])
 
     @property
@@ -372,7 +374,7 @@ class PluginManager:
         with self.lock:
             return self._install_many(wheels, self.state())
 
-    def _install_many(self, wheels, current, *, receipts=None, source_library=None, dependencies=(), publish=True):
+    def _install_many(self, wheels, current, *, receipts=None, source_library=None, dependencies=(), publish=True, library=False):
         # Caller owns the cross-process lock, including source snapshotting.
         packages = deepcopy(current["packages"])
         replacements = set()
@@ -392,6 +394,9 @@ class PluginManager:
             name = canonicalize_name(info["Name"])
             if not re.fullmatch(r"[a-z0-9][a-z0-9.-]*", name):
                 raise ValueError("Invalid package name")
+            if name == "operon-builtin-library":
+                from operon.library_install import LEGACY_MESSAGE, LegacyLibrary
+                raise LegacyLibrary(LEGACY_MESSAGE)
             if provider_identity(name) in replacement_owners:
                 raise ValueError(f"More than one input supplies package {name}; keep one version in the plugin folder")
             replacements.add(name)
@@ -416,10 +421,11 @@ class PluginManager:
         generation = uuid.uuid4().hex
         from operon.install_targets import install
         old_packages = {p['name']: p for p in current['packages']}
-        metadata_only = bool(replacements) and not dependencies and current.get('runtime_protocol') == 1 and all(
+        metadata_only = (bool(replacements) and not dependencies and not library
+                         and current.get('runtime_protocol') == 1 and all(
             old_packages.get(p['name'], {}).get('version') == p['version'] and
             old_packages.get(p['name'], {}).get('execution_sha') == p.get('execution_sha') and p.get('execution_sha')
-            for p in packages if p['name'] in replacements)
+            for p in packages if p['name'] in replacements))
         if metadata_only:
             from operon.install_targets import wheel_entries
             from operon.metadata_updates import replace_declarations
@@ -442,7 +448,7 @@ class PluginManager:
                 if package:
                     descriptor['implementation'].update(sha256=package['sha256'], execution_sha=package['execution_sha'])
         else:
-            state = install(self, current, packages, generation, dependencies=dependencies)
+            state = install(self, current, packages, generation, dependencies=dependencies, library=library)
         environment = self.directory / "environments" / generation
         source_receipt = deepcopy(source_library if source_library is not None else current.get("source_library", {}))
         if source_library is None:
