@@ -82,3 +82,36 @@ def test_long_artifact_path_preview_preserves_project_boundary(tmp_path):
     assert service.preview('key','pca')['points']==[[0,1],[2,3],[4,5]]
     service.root=tmp_path/'another-workspace'
     with pytest.raises(KeyError): service.artifact('key','pca')
+
+def test_file_artifact_default_role_streams_the_export_not_its_manifest(tmp_path):
+    from pathlib import Path
+
+    from operon.application import ArtifactService
+
+    data = tmp_path / "core_A.csv"
+    data.write_text("residue,delta_sasa\nA,0.5\n", encoding="utf-8")
+    manifest = tmp_path / "files.json"
+    manifest.write_text(json.dumps({"format": "exported_files",
+                                    "files": {"data": str(data), "extra": str(data)}}), encoding="utf-8")
+
+    class Backend:
+        def artifact(self, job_id, artifact_id):
+            return manifest, {"kind": "file"}
+
+        def artifact_file(self, job_id, artifact_id, role):
+            return Path(json.loads(manifest.read_text(encoding="utf-8"))["files"][role])
+
+    class Jobs:
+        def backend(self, job_id):
+            return Backend()
+
+    class Application:
+        jobs = Jobs()
+
+    service = ArtifactService(Application())
+    # A bare /file link must stream the export itself, not the manifest JSON.
+    assert service.file("job", "artifact") == data
+    assert service.file("job", "artifact", "extra") == data
+    with pytest.raises(KeyError):
+        service.file("job", "artifact", "missing")
+

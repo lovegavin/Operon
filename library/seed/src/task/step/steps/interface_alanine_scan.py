@@ -130,6 +130,7 @@ def scan_residues(pdb_path: Path, text: str, binder: tuple[str, ...], target: tu
         mutant_path.write_text(mutant_text)
         mutant = mmgbsa_terms(mutant_path, forcefield_name=forcefield, implicit=implicit, ph=ph, binder=binder, target=target)
         mutant_delta = mutant["complex"]["total"] - mutant["binder"]["total"] - mutant["target"]["total"]
+        gly_to_ala = name == "GLY"
         results.append(
             {
                 "chain": chain,
@@ -139,6 +140,12 @@ def scan_residues(pdb_path: Path, text: str, binder: tuple[str, ...], target: tu
                 "wt_delta": wt_delta,
                 "mutant_delta": mutant_delta,
                 "delta_delta": mutant_delta - wt_delta,
+                "flag": "gly_to_ala" if gly_to_ala else "",
+                "excluded_reason": "Glycine has no side chain; the Ala mutation introduces a methyl group "
+                "that can clash at a packed interface and is not a comparable alanine substitution."
+                if gly_to_ala
+                else "",
+                "excluded_from_ranking": bool(gly_to_ala),
             }
         )
     return results
@@ -172,60 +179,7 @@ def _spearman(left: list[float], right: list[float]) -> float:
     return numerator / denominator if denominator else 0.0
 
 
-def _pearson(left: list[float], right: list[float]) -> float:
-    mx = sum(left) / len(left)
-    my = sum(right) / len(right)
-    covariance = sum((a - mx) * (b - my) for a, b in zip(left, right))
-    denominator = (
-        sum((a - mx) ** 2 for a in left) * sum((b - my) ** 2 for b in right)
-    ) ** 0.5
-    return covariance / denominator if denominator else 0.0
-
-
-def _replicate_conflicts(rows: list[dict]) -> set[tuple[str, int]]:
-    """Return rows whose sign disagrees with the same residue number in another chain."""
-
-    by_side: dict[str, list[dict]] = {}
-    for row in rows:
-        by_side.setdefault(str(row["side"]), []).append(row)
-    conflicts: set[tuple[str, int]] = set()
-    for side_rows in by_side.values():
-        chains = sorted({str(row["chain"]) for row in side_rows})
-        if len(chains) < 2:
-            continue
-        values = {
-            chain: {int(row["number"]): float(row["delta_delta"]) for row in side_rows if row["chain"] == chain}
-            for chain in chains
-        }
-        for first, second in zip(chains, chains[1:]):
-            for number in sorted(set(values[first]) & set(values[second])):
-                left = values[first][number]
-                right = values[second][number]
-                if left != 0.0 and right != 0.0 and (left > 0.0) != (right > 0.0):
-                    conflicts.add((first, number))
-                    conflicts.add((second, number))
-    return conflicts
-
-
-def flag_rows(rows: list[dict], max_delta_kj: float) -> list[dict]:
-    """Annotate rows with magnitude and copy-replicate quality flags."""
-
-    conflicts = _replicate_conflicts(rows)
-    for row in rows:
-        magnitude = abs(float(row["delta_delta"])) > max_delta_kj
-        replicate = (str(row["chain"]), int(row["number"])) in conflicts
-        row["excluded"] = int(magnitude)
-        row["replicate_conflict"] = int(replicate)
-        row["flag"] = (1 if magnitude else 0) | (2 if replicate else 0)
-        row["excluded_reason"] = (
-            f"abs(delta_delta)={abs(float(row['delta_delta'])):.3f} > max_delta_kj={max_delta_kj:.3f}"
-            if magnitude
-            else ""
-        )
-    return rows
-
-
-def copy_replicate_quality(rows: list[dict], exclude_above: float | None = None) -> tuple[dict, list[str]]:
+def copy_replicate_quality(rows: list[dict]) -> tuple[dict, list[str]]:
     """Compare the same residue numbering across crystal copies, when present."""
 
     warnings: list[str] = []
@@ -243,26 +197,17 @@ def copy_replicate_quality(rows: list[dict], exclude_above: float | None = None)
         }
         for first, second in zip(chains, chains[1:]):
             common = sorted(set(values[first]) & set(values[second]))
-            if exclude_above is not None:
-                common = [
-                    number
-                    for number in common
-                    if abs(values[first][number]) <= exclude_above
-                    and abs(values[second][number]) <= exclude_above
-                ]
             if len(common) < 3:
                 continue
             left = [values[first][number] for number in common]
             right = [values[second][number] for number in common]
             rho = _spearman(left, right)
-            pearson = _pearson(left, right)
             nonzero = [(a, b) for a, b in zip(left, right) if a != 0.0 and b != 0.0]
             conflict = sum(1 for a, b in nonzero if (a > 0.0) != (b > 0.0)) / len(nonzero) if nonzero else 1.0
             report = {
                 "side": side,
                 "chains": [first, second],
                 "n_common": len(common),
-                "pearson": pearson,
                 "spearman": rho,
                 "sign_conflict_fraction": conflict,
                 "warning": rho < 0.5 or conflict > 0.2,
@@ -271,8 +216,7 @@ def copy_replicate_quality(rows: list[dict], exclude_above: float | None = None)
             if report["warning"]:
                 warnings.append(
                     f"Copy-replicate disagreement on the {side} side ({first} vs {second}): "
-                    f"Pearson {pearson:.3f}, Spearman {rho:.3f}, sign conflict {conflict:.1%}; "
-                    "do not report hotspots."
+                    f"Spearman {rho:.3f}, sign conflict {conflict:.1%}; do not report hotspots."
                 )
     if not pairs:
         return {
@@ -280,11 +224,7 @@ def copy_replicate_quality(rows: list[dict], exclude_above: float | None = None)
             "reason": "Fewer than two chains with at least three common residue numbers were scored.",
             "pairs": [],
         }, warnings
-    summary = {"available": True, "pairs": pairs, "n_pairs": len(pairs)}
-    first = pairs[0]
-    for key in ("n_common", "pearson", "spearman", "sign_conflict_fraction"):
-        summary[key] = first[key]
-    return summary, warnings
+    return {"available": True, "pairs": pairs}, warnings
 
 
 class InterfaceAlanineScanStep(Step):
@@ -315,7 +255,7 @@ class InterfaceAlanineScanStep(Step):
                     "ndim": 2,
                 }
             ],
-            "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "dims": [{"param": "mutation_dim", "default": "mutation"}, "statistic"], "info_open": True, "axis_info_open": False, "labels": {"statistic": ["wt_delta_kj", "mutant_delta_kj", "delta_delta_kj", "excluded", "replicate_conflict"]}}},
+            "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "dims": [{"param": "mutation_dim", "default": "mutation"}, "statistic"], "info_open": True, "axis_info_open": False, "labels": {"statistic": ["wt_delta_kj", "mutant_delta_kj", "delta_delta_kj"]}}},
             "outputs": [],
         },
         "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
@@ -345,9 +285,6 @@ class InterfaceAlanineScanStep(Step):
         max_residues = int(params.get("max_residues", 10))
         if max_residues < 1:
             raise StepError("interface_alanine_scan: max_residues must be at least 1")
-        max_delta_kj = float(params.get("max_delta_kj", 50.0))
-        if not max_delta_kj > 0.0:
-            raise StepError("interface_alanine_scan: max_delta_kj must be greater than zero")
         ph = float(params.get("ph", 7.0))
         if not 0.0 < ph < 14.0:
             raise StepError("interface_alanine_scan: ph must be between 0 and 14")
@@ -368,39 +305,28 @@ class InterfaceAlanineScanStep(Step):
             mutation_side,
         )
         mutation_dim = str(params.get("mutation_dim", "mutation"))
-        flag_rows(rows, max_delta_kj)
         data = np.array(
-            [
-                [
-                    row["wt_delta"],
-                    row["mutant_delta"],
-                    row["delta_delta"],
-                    row["excluded"],
-                    row["replicate_conflict"],
-                ]
-                for row in rows
-            ],
+            [[row["wt_delta"], row["mutant_delta"], row["delta_delta"]] for row in rows],
             dtype=np.float32,
         )
         labels = {f"{row['chain']}:{row['number']}:{row['residue']}": index for index, row in enumerate(rows)}
-        copy_replicates, copy_warnings = copy_replicate_quality(rows, exclude_above=max_delta_kj)
+        copy_replicates, copy_warnings = copy_replicate_quality(rows)
+        excluded = [row for row in rows if row.get("excluded_from_ranking")]
+        excluded_note = []
+        if excluded:
+            excluded_note = [
+                f"{row['chain']}:{row['number']}:{row['residue']} (Gly to Ala) is excluded from ranking: "
+                "glycine has no side chain and the mutation is not a comparable alanine substitution."
+                for row in excluded
+            ]
         info = {
             "n_mutations": len(rows),
-            "n_excluded": sum(int(row["excluded"]) for row in rows),
-            "n_replicate_conflicts": len({(row["side"], row["number"]) for row in rows if row["replicate_conflict"]}),
             "wt_delta_kj": rows[0]["wt_delta"],
             "binder_chains": list(binder),
             "target_chains": list(target),
             "cutoff": cutoff,
             "max_residues": max_residues,
-            "max_delta_kj": max_delta_kj,
             "mutation_side": mutation_side,
-            "flag_codes": {
-                "0": "ok",
-                "1": "magnitude_outlier",
-                "2": "replicate_sign_conflict",
-                "3": "magnitude_outlier_and_replicate_sign_conflict",
-            },
             "protocol": {
                 "single_point": True,
                 "entropy_included": False,
@@ -415,43 +341,24 @@ class InterfaceAlanineScanStep(Step):
                 "entropy_included": False,
                 "ensemble": False,
                 "calibrated": False,
+                "gly_to_ala_excluded": len(excluded),
             },
             "warnings": [
                 "Single-point MM/GBSA without entropy, ensemble averaging or calibration; "
                 "values are not calibrated binding affinities and must not be reported as hotspots.",
+                *excluded_note,
                 *copy_warnings,
             ],
             "mutations": [
-                {
-                    key: row[key]
-                    for key in (
-                        "chain",
-                        "number",
-                        "residue",
-                        "side",
-                        "delta_delta",
-                        "excluded",
-                        "replicate_conflict",
-                        "flag",
-                        "excluded_reason",
-                    )
-                }
+                {key: row[key] for key in ("chain", "number", "residue", "side", "delta_delta",
+                                           "flag", "excluded_reason", "excluded_from_ranking")}
                 for row in rows
             ],
         }
         output = Form(
             data=data,
             dims=[mutation_dim, "statistic"],
-            labels={
-                mutation_dim: labels,
-                "statistic": {
-                    "wt_delta_kj": 0,
-                    "mutant_delta_kj": 1,
-                    "delta_delta_kj": 2,
-                    "excluded": 3,
-                    "replicate_conflict": 4,
-                },
-            },
+            labels={mutation_dim: labels, "statistic": {"wt_delta_kj": 0, "mutant_delta_kj": 1, "delta_delta_kj": 2}},
             info={"missing_code": np.nan, **info},
         )
         ctx[str(params.get("output", "scan"))] = output
