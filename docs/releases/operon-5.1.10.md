@@ -114,7 +114,7 @@ Only the operators that actually need the requested environments are checked.
 
 ## Verification performed
 
-- Installed `D:\OperonTest5110`, version `5.1.10-18f1895f8819`; the app reported
+- Installed `an isolated test install`, version `5.1.10-18f1895f8819`; the app reported
   `5.1.10`.
 - Built-in library `main-v0.1.1`, 7 packages, 1174 descriptors.
 - Environment manifest present at `library/environments.json` with

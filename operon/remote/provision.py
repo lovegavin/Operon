@@ -28,7 +28,7 @@ def source_archive(root):
     """Explicit code allowlist. Never includes profiles, datasets, SSH or git files."""
     root = Path(root)
     files = [root / name for name in ('pyproject.toml', 'README.md', 'requirements-hic-linux.txt',
-                                     'scripts/run.py', 'scripts/desktop_server.py')]
+                                     'scripts/run.py', 'scripts/desktop_server.py') if (root / name).is_file()]
     named = {}
     for bundle in sorted((root / 'library').glob('operon-library-*.zip')):
         named[bundle] = 'library/' + bundle.name
