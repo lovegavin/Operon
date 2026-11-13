@@ -8,19 +8,51 @@ import sys
 from pathlib import Path
 
 
+def _manifest_root(root=None) -> Path | None:
+    value = root if root is not None else os.environ.get("OPERON_LIBRARY_SOURCE")
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() == "none":
+        return None
+    return Path(text).expanduser()
+
+
+def _installed_library_manifest() -> Path | None:
+    """The manifest persisted beside the installed, version-scoped library."""
+    try:
+        from .installation import library_root
+        base = library_root()
+    except Exception:
+        base = None
+    if base is None:
+        return None
+    candidate = Path(base) / "environments.json"
+    return candidate if candidate.is_file() else None
+
+
 def manifest_path(root=None) -> Path:
     """Return the active imported library manifest, else the application seed.
 
     An imported root wins even when the file is absent, so an old library tree
     never silently reports environments it did not declare. A root that does not
-    exist yet means no library has been imported, so the bundled seed applies.
+    exist yet means no library has been imported, so the installed library or the
+    bundled seed applies. An empty or literal "None" root is treated as absent;
+    installed applications have no source tree and used to fail on that string.
     """
-    explicit = root if root is not None else os.environ.get("OPERON_LIBRARY_SOURCE")
-    if explicit:
-        base = Path(explicit).expanduser()
-        candidate = base / "operon/environments.json"
-        if candidate.is_file() or base.exists():
-            return candidate
+    base = _manifest_root(root)
+    if base is not None:
+        seed = base / "operon/environments.json"
+        installed = base / "environments.json"
+        if seed.is_file():
+            return seed
+        if installed.is_file():
+            return installed
+        if base.exists():
+            return seed
+    installed = _installed_library_manifest()
+    if installed is not None:
+        return installed
     from .library_location import asset_path
     return asset_path('operon/environments.json')
 

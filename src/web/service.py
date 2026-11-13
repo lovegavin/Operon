@@ -144,6 +144,11 @@ class JobService:
                                      python=settings.worker_python,
                                      library_root=settings.library_root)
         self._bootstrap_base_library()
+        try:
+            from operon.library_install import ensure_environments
+            ensure_environments(self.plugins)
+        except Exception as error:
+            print(f"warning: could not restore library environments: {error}", file=sys.stderr)
         from operon.dependencies import DependencySession
         self.dependencies = DependencySession(self.plugins)
         self.dependencies.sync(self.plugins.state())

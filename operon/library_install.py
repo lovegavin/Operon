@@ -245,6 +245,17 @@ def inspect_library(path) -> dict:
         document = _library_document(archive)
         _validate_library(document, names)
         _verify_archive_checksums(archive, names, source.name)
+        try:
+            environment_document = json.loads(archive.read("environments.json").decode("utf-8"))
+        except KeyError:
+            environment_document = {}
+        except (UnicodeDecodeError, json.JSONDecodeError) as error:
+            raise _invalid(f"environments.json is not valid JSON: {error}") from error
+        if not isinstance(environment_document, dict):
+            raise _invalid("environments.json must be an object")
+        environment_values = environment_document.get("environments") or {}
+        if not isinstance(environment_values, dict):
+            raise _invalid("environments.json: environments must be an object")
         directory = Path(tempfile.mkdtemp(prefix="operon-library-"))
         try:
             for package in document["packages"]:
@@ -259,7 +270,8 @@ def inspect_library(path) -> dict:
         except BaseException:
             shutil.rmtree(directory, ignore_errors=True)
             raise
-    return {"manifest": document, "directory": directory, "path": source, "sha256": digest}
+    return {"manifest": document, "directory": directory, "path": source,
+            "sha256": digest, "environments": environment_values}
 
 
 def library_preflight(path) -> None:
@@ -437,6 +449,91 @@ def _write_library_manifest(manager, label: str, document: dict) -> None:
     )
 
 
+def _environment_values(document) -> dict:
+    values = document.get("environments") if isinstance(document, dict) else None
+    return values if isinstance(values, dict) else {}
+
+
+def _write_branch_environments(manager, label: str, values: dict) -> None:
+    directory = Path(manager.directory) / "libraries" / label
+    directory.mkdir(parents=True, exist_ok=True)
+    document = {"schema_version": 1, "environments": dict(values or {})}
+    (directory / "environments.json").write_text(
+        json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+
+
+def _merged_environments(manager, label: str, values: dict) -> dict:
+    merged = {}
+    base = Path(manager.directory) / "libraries"
+    for path in sorted(base.glob("*/environments.json")):
+        if path.parent.name == label:
+            continue
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as error:
+            raise _invalid(f"Invalid library environment manifest: {path}: {error}") from error
+        for name, spec in _environment_values(document).items():
+            if name in merged and merged[name] != spec:
+                raise _invalid(
+                    f"Isolated environment {name!r} is declared differently by "
+                    f"{path.parent.name} and another library."
+                )
+            merged[name] = spec
+    for name, spec in (values or {}).items():
+        if name in merged and merged[name] != spec:
+            raise _invalid(
+                f"Isolated environment {name!r} is already declared differently by another library."
+            )
+        merged[name] = spec
+    return merged
+
+
+def _compose_environments(manager) -> dict:
+    merged = {}
+    base = Path(manager.directory) / "libraries"
+    for path in sorted(base.glob("*/environments.json")):
+        try:
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as error:
+            raise _invalid(f"Invalid library environment manifest: {path}: {error}") from error
+        for name, spec in _environment_values(document).items():
+            if name in merged and merged[name] != spec:
+                raise _invalid(
+                    f"Isolated environment {name!r} is declared differently by two libraries."
+                )
+            merged[name] = spec
+    payload = {"schema_version": 1, "environments": merged}
+    (Path(manager.directory) / "environments.json").write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return merged
+
+
+def ensure_environments(manager) -> dict:
+    """Backfill per-branch manifests and rebuild the installed library manifest."""
+    with manager.lock:
+        base = Path(manager.directory) / "libraries"
+        if not base.is_dir():
+            return {}
+        for directory in sorted(path for path in base.iterdir() if path.is_dir()):
+            if (directory / "environments.json").is_file():
+                continue
+            archive = directory / "archive.zip"
+            if not archive.is_file():
+                continue
+            values = {}
+            try:
+                with ZipFile(archive) as bundle:
+                    if "environments.json" in bundle.namelist():
+                        document = json.loads(bundle.read("environments.json").decode("utf-8"))
+                        values = _environment_values(document)
+            except (OSError, ValueError):
+                values = {}
+            _write_branch_environments(manager, directory.name, values)
+        return _compose_environments(manager)
+
+
 def _write_operator_metadata(manager, state: dict) -> None:
     directory = Path(manager.directory) / "operators"
     directory.mkdir(parents=True, exist_ok=True)
@@ -608,6 +705,7 @@ def install_library(manager, path, *, name: str | None = None,
         inspected = inspect_library(source)
         try:
             document = inspected["manifest"]
+            environment_values = inspected["environments"]
             label, library_name = _identity_for(document)
             current = manager.state()
             libraries = _libraries(current)
@@ -625,6 +723,7 @@ def install_library(manager, path, *, name: str | None = None,
             )
             if conflicts:
                 raise LibraryConflict(conflicts)
+            _merged_environments(manager, label, environment_values)
             previous = libraries.get(label) or {}
             archive = _store_library_archive(manager, source, label, digest)
             entry = _entry(document, digest, label, library_name, package_names,
@@ -639,6 +738,8 @@ def install_library(manager, path, *, name: str | None = None,
                     installed_at=entry["installed_at"]
                 )
                 _write_library_manifest(manager, label, document)
+                _write_branch_environments(manager, label, environment_values)
+                _compose_environments(manager)
                 manager._publish(current)
                 _write_operator_metadata(manager, current)
                 return _result(document, label=label, libraries=sorted(libraries),
@@ -686,6 +787,8 @@ def install_library(manager, path, *, name: str | None = None,
             for legacy in ("source_library", "library_source_pins", "library_pin_updates"):
                 state.pop(legacy, None)
             _write_library_manifest(manager, label, document)
+            _write_branch_environments(manager, label, environment_values)
+            _compose_environments(manager)
             manager._publish(state)
             _write_operator_metadata(manager, state)
             return _result(document, label=label, libraries=sorted(libraries),
@@ -733,9 +836,10 @@ def uninstall_library(manager, name: str) -> dict:
                 "sha256": latest.get("sha256"),
                 "installed_at": latest.get("installed_at"),
             }
+        shutil.rmtree(Path(manager.directory) / "libraries" / label, ignore_errors=True)
+        _compose_environments(manager)
         manager._publish(state)
         _write_operator_metadata(manager, state)
-        shutil.rmtree(Path(manager.directory) / "libraries" / label, ignore_errors=True)
         return {"removed": label, "libraries": sorted(remaining)}
 
 

@@ -22,9 +22,10 @@ def mount_environments(app, service):
 
     def source_root():
         try:
-            return str(service.plugins.source_root)
+            source = service.plugins.source_root
         except Exception:
             return None
+        return None if source is None else str(source)
 
     def descriptors():
         try:
@@ -40,7 +41,17 @@ def mount_environments(app, service):
         return {'path': str(path), 'present': path.is_file()}
 
     def snapshot():
+        application = getattr(service, 'application', None)
+        data = None
+        if application is not None:
+            try:
+                data = application.isolated_environments()
+            except Exception:
+                data = None
         operations = []
+        if data is not None:
+            operations.extend(data.get('operations') or [])
+        known = {item.get('id') for item in operations}
         for job in list(jobs.values())[-20:]:
             value = dict(job)
             if value.get('status') == 'running':
@@ -48,9 +59,12 @@ def mount_environments(app, service):
                 value.update({'phase': info.get('phase'), 'bytes': info.get('bytes', 0),
                               'files': info.get('files', 0), 'detail': info.get('detail', ''),
                               'updated_at': info.get('updated_at')})
-            operations.append(value)
-        return {'root': str(environments.root()), 'manifest': manifest(),
-                'environments': plan(), 'operations': operations}
+            if value.get('id') not in known:
+                operations.append(value)
+        if data is None:
+            data = {'root': str(environments.root()), 'manifest': manifest(),
+                    'environments': plan()}
+        return {**data, 'operations': operations}
 
     def log_path(name):
         logs.mkdir(parents=True, exist_ok=True)

@@ -83,27 +83,45 @@ class Application:
                 response['environments'] = []
         return response
 
+    def _library_source(self):
+        """The imported library root, or None for an installed library."""
+        try:
+            source = self.service.plugins.source_root
+        except Exception:
+            return None
+        return None if source is None else str(source)
+
+    def environment_operations(self):
+        """Preparation jobs with live progress, for polling clients."""
+        from . import environment_install
+        operations = []
+        for job in list((getattr(self, '_environment_jobs', None) or {}).values())[-20:]:
+            value = {key: job.get(key) for key in
+                     ('id', 'name', 'status', 'error', 'started_at', 'finished_at')}
+            if value.get('status') == 'running':
+                info = environment_install.read_progress(value['name'])
+                value.update({'phase': info.get('phase'), 'bytes': info.get('bytes', 0),
+                              'files': info.get('files', 0), 'detail': info.get('detail', ''),
+                              'updated_at': info.get('updated_at')})
+            operations.append(value)
+        return operations
+
     def isolated_environments(self):
         """Declared isolated environments for the active library, without installing."""
         from . import environment_install
         from .environments import manifest_path, root
-        try:
-            source = str(self.service.plugins.source_root)
-        except Exception:
-            source = None
+        source = self._library_source()
         descriptors = self.service.plugins.state().get('descriptors') or []
         path = manifest_path(source)
         return {'root': str(root()), 'manifest': {'path': str(path), 'present': path.is_file()},
-                'environments': environment_install.plan(root(), descriptors, source=source)}
+                'environments': environment_install.plan(root(), descriptors, source=source),
+                'operations': self.environment_operations()}
 
     def prepare_isolated_environments(self, names=None, *, graph=None):
         """Install isolated environments, optionally limited to those a graph uses."""
         from . import environment_install
         from .environments import root
-        try:
-            source = str(self.service.plugins.source_root)
-        except Exception:
-            source = None
+        source = self._library_source()
         descriptors = self.service.plugins.state().get('descriptors') or []
         plan = environment_install.plan(root(), descriptors, source=source)
         wanted = list(names) if names else [name for name, item in plan.items()
@@ -127,10 +145,7 @@ class Application:
         import uuid
         from . import environment_install
         from .environments import root
-        try:
-            source = str(self.service.plugins.source_root)
-        except Exception:
-            source = None
+        source = self._library_source()
         descriptors = self.service.plugins.state().get('descriptors') or []
         plan = environment_install.plan(root(), descriptors, source=source)
         wanted = list(names) if names else [name for name, item in plan.items()
