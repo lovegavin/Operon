@@ -31,6 +31,15 @@ def target(value=None):
     return {"kind": "ssh", "profile_id": key}
 
 
+def unavailable_input(key):
+    if key == 'local':
+        return 'Input environment is unavailable: local'
+    return (
+        f'Input environment is unavailable: {key}. The server profile may be missing or disconnected; '
+        'check the profile in the server panel, or run operon remote-status / operon remote-ensure before retrying.'
+    )
+
+
 def target_key(value):
     value = target(value)
     return value.get("profile_id", "local")
@@ -233,7 +242,7 @@ def _metadata(graph, infos, stat_file, warnings, *, dependencies_only=False, req
                     continue
                 location = source_location(node, original_config)
                 if target_key(location) not in infos and not dependencies_only:
-                    raise GraphError(f'Input environment is unavailable: {target_key(location)}', node.id)
+                    raise GraphError(unavailable_input(target_key(location)), node.id)
                 source_sizes[node.id] = size(location, node.source.path, part.base_dir, label=node.title or node.id) if node.source.path else None
                 origin_readers = {spec['id'] for spec in infos.get(target_key(location), {}).get('catalog', {}).get('readers', [])
                                   if primary_ext(node.source.path) in spec.get('extensions', [])}
@@ -330,7 +339,7 @@ def make_plan(graph, infos, *, stat_file=None, validation_only=False, dependenci
         if node.kind == "source":
             location = source_location(node, config)
             if target_key(location) not in info_by_key and not dependencies_only:
-                raise GraphError(f"Input environment is unavailable: {target_key(location)}", key)
+                raise GraphError(unavailable_input(target_key(location)), key)
             assigned[key] = target_key(location)
             sizes[key] = source_sizes.get(key)
             continue

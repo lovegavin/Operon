@@ -38,6 +38,19 @@ inputs and emergency spill behavior; full-mode operators still require their
 declared working set. This generated reference has not been independently
 scientifically reviewed.
 
+## Scientific limitations
+
+This operator is a single-point MM/GBSA estimate without entropy, ensemble
+averaging or calibration. Absolute values are not binding affinities, and the
+difference between two copies or two versions of the same structure can be
+large (tens of kJ/mol) because the gas-phase and solvation terms are sensitive to
+protonation, minimisation and force-field details.
+
+Compare entries only when they were produced by the same Operon version, the
+same mutation side, the same force field and implicit solvent, and the same
+protocol. Use the result as a relative screen inside one run, not as a
+cross-version or cross-structure ranking.
+
 ## Examples
 
 Use the registry to discover compatible Readers and validate a complete workflow
