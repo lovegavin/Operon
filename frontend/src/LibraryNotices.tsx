@@ -5,7 +5,7 @@ import {t} from './i18n';
 export function LibrarySetupGuide({busy, onImport}: {busy?: boolean; onImport: () => void}) {
   return <div className="library-empty-guide">
     <div className="modal-empty"><Package size={30}/><p>{t('尚未安装算子库')}</p></div>
-    <p>{t('全新安装的 Operon Studio 5.0.0 不包含算子。请先导入算子库包，再导入路线库包。')}</p>
+    <p>{t('全新安装的 Operon Studio 5.1.0 不包含算子。请先导入算子库包，再导入路线库包。')}</p>
     <ol>
       <li><strong>{t('算子库：{file}', {file: 'operon-library-v0.0.0.operon-library.zip'})}</strong>
         <span>{t('安装算子、Reader 及其声明环境。')}</span></li>
@@ -24,7 +24,7 @@ export function LegacyLibraryAlert({message, onChoose}: {message: string; onChoo
   return <div className="library-legacy-alert" role="alert">
     <strong>{t('无法导入旧版 8.x 算子库')}</strong>
     <pre className="library-legacy-message">{message}</pre>
-    <p>{t('Operon Studio 5.0.1 仅接受新版 operon-library-v0.0.x 算子库包。')}</p>
+    <p>{t('Operon Studio 5.1.0 仅接受新版 operon-library-v0.0.x 算子库包。')}</p>
     <p>{t('请先导入新版算子库 ZIP，再导入 operon-routes-v0.0.x.zip 路线库。')}</p>
     <button className="primary-button" onClick={onChoose}>{t('选择算子库包')}</button>
   </div>;

@@ -764,7 +764,7 @@
   "{count} 条路线未导入：{reason}": "{count} 条路线未导入：{reason}",
   "{packages} 个包 · {descriptors} 个算子 / Reader": "{packages} 个包 · {descriptors} 个算子 / Reader",
   "不会自动下载任何文件。": "不会自动下载任何文件。",
-  "全新安装的 Operon Studio 5.0.0 不包含算子。请先导入算子库包，再导入路线库包。": "全新安装的 Operon Studio 5.0.0 不包含算子。请先导入算子库包，再导入路线库包。",
+  "全新安装的 Operon Studio 5.1.0 不包含算子。请先导入算子库包，再导入路线库包。": "全新安装的 Operon Studio 5.1.0 不包含算子。请先导入算子库包，再导入路线库包。",
   "包含 routes/*.operon.zip，需与算子库同一版本。": "包含 routes/*.operon.zip，需与算子库同一版本。",
   "安装算子、Reader 及其声明环境。": "安装算子、Reader 及其声明环境。",
   "导入算子库": "导入算子库",
@@ -780,5 +780,19 @@
   "路线库请选择 operon-routes-v0.0.x.zip（包含 routes/*.operon.zip）。": "路线库请选择 operon-routes-v0.0.x.zip（包含 routes/*.operon.zip）。",
   "路线库：{file}": "路线库：{file}",
   "选择算子库包": "选择算子库包",
-  "Operon Studio 5.0.1 仅接受新版 operon-library-v0.0.x 算子库包。": "Operon Studio 5.0.1 仅接受新版 operon-library-v0.0.x 算子库包。"
+  "Operon Studio 5.1.0 仅接受新版 operon-library-v0.0.x 算子库包。": "Operon Studio 5.1.0 仅接受新版 operon-library-v0.0.x 算子库包。",
+  "库名称": "库名称",
+  "库名称（可选，如 fork-v0.0.0）": "库名称（可选，如 fork-v0.0.0）",
+  "删除算子库": "删除算子库",
+  "确定删除算子库 {name}？此操作不可撤销。": "确定删除算子库 {name}？此操作不可撤销。",
+  "已删除算子库 {name}。": "已删除算子库 {name}。",
+  "算子库安装未完成": "算子库安装未完成",
+  "删除算子库未完成": "删除算子库未完成",
+  "{operators} 个算子 · {readers} 个 Reader": "{operators} 个算子 · {readers} 个 Reader",
+  "导入时间：{time}": "导入时间：{time}",
+  "{packages} 个包": "{packages} 个包",
+  "算子库包含冲突：{details}": "算子库包含冲突：{details}",
+  "算子库仍被路线或任务引用，无法删除。": "算子库仍被路线或任务引用，无法删除。",
+  "算子库可同时安装多个，内部算子不再单独管理。": "算子库可同时安装多个，内部算子不再单独管理。"
 }
+

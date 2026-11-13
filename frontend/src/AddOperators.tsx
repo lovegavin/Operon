@@ -8,13 +8,14 @@ import type {WorkflowSummary} from './types';
 import {t} from './i18n';
 
 export function AddOperators({busy, onPackage, onChanged, onPending, onError, onMessage}: {
-  busy: boolean; onPackage: () => void;
+  busy: boolean; onPackage: (name?: string) => void;
   onChanged: () => Promise<void>; onPending: (value: boolean) => void;
   onError: (value: string) => void; onMessage: (value: string) => void;
 }) {
   const [routes, setRoutes] = useState<WorkflowSummary[]>([]);
   const [selected, setSelected] = useState<string[]>([]), [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [libraryName, setLibraryName] = useState('');
   const file = useRef<HTMLInputElement>(null);
   const collection = useRef<HTMLInputElement>(null);
   useEffect(() => {
@@ -95,7 +96,12 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
     <h2 className="operator-section-heading">{t('普通算子与 Reader')}</h2>
     <section className="operator-install-card">
       <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('导入算子库')}</h3><code>operon-library-v0.0.x.operon-library.zip</code></div>
-        <button className="primary-button" disabled={busy} onClick={onPackage}><FileArrowUp size={16}/>{t('导入算子库')}</button></div>
+        <button className="primary-button" disabled={busy} onClick={() => onPackage(libraryName.trim())}><FileArrowUp size={16}/>{t('导入算子库')}</button></div>
+      <label className="library-name-field">
+        <span>{t('库名称')}</span>
+        <input type="text" value={libraryName} disabled={busy} placeholder={t('库名称（可选，如 fork-v0.0.0）')}
+          onChange={event => setLibraryName(event.target.value)}/>
+      </label>
     </section>
     <h2 className="operator-section-heading">{t('路线算子')}</h2>
     <section className="operator-install-card">

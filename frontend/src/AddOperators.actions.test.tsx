@@ -105,3 +105,23 @@ it('asks for an operon-routes-v0.0.x collection when another ZIP is chosen',asyn
   expect(api.importRouteCollection).not.toHaveBeenCalled();
   expect(onError).toHaveBeenLastCalledWith('路线库请选择 operon-routes-v0.0.x.zip（包含 routes/*.operon.zip）。');
 });
+
+it('passes the optional library name to the bundle picker', () => {
+  const onPackage = vi.fn();
+  const render = () => {
+    hooks.cursor = 0;
+    return AddOperators({busy: false, onChanged, onPending, onError, onMessage, onPackage});
+  };
+  let tree = elements(render());
+  const field = tree.find(n => n.type === 'input' && n.props.type === 'text')!;
+  expect(field.props.placeholder).toBe('库名称（可选，如 fork-v0.0.0）');
+  const button = tree.find(n => n.type === 'button' && Array.isArray(n.props.children) && n.props.children.includes('导入算子库'))!;
+  (button.props.onClick as Function)();
+  expect(onPackage).toHaveBeenLastCalledWith('');
+  (field.props.onChange as Function)({target: {value: 'fork-v0.0.0'}});
+  tree = elements(render());
+  const named = tree.find(n => n.type === 'button' && Array.isArray(n.props.children) && n.props.children.includes('导入算子库'))!;
+  (named.props.onClick as Function)();
+  expect(onPackage).toHaveBeenLastCalledWith('fork-v0.0.0');
+});
+

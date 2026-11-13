@@ -25,6 +25,19 @@ export type PluginState = {generation: string | null; packages: PluginPackage[];
   dependencies?: DependencyState;
   source_directories?: {operator: string; reader: string};
   descriptors: {id: string; kind: 'reader' | 'operator'; title: string; distribution: string; localization?: import('./operatorLocalization').OperatorLanguagePack; resources?: {memory_modes: string[]}}[]};
+/** One installed operator library, as returned by `GET /api/libraries` (5.1.0). */
+export type LibraryRecord = {
+  name: string;
+  library_version: string;
+  sha256: string;
+  installed_at: string;
+  packages: number;
+  descriptors: number;
+  operators: number;
+  readers: number;
+  current?: boolean;
+};
+export type LibraryList = {libraries: LibraryRecord[]; count: number};
 export type Operator = {
   localization?: import('./operatorLocalization').OperatorLanguagePack;
   supported_systems?: string[];

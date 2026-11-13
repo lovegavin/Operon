@@ -1,0 +1,13 @@
+{
+  "protocol_version": 3,
+  "packages": [
+    {
+      "protocol_version": 3,
+      "name": "operon-fork1",
+      "title": "operon-fork1",
+      "version": "0.0.0",
+      "origin": "bundled",
+      "descriptors": []
+    }
+  ]
+}

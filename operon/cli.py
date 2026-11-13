@@ -250,9 +250,10 @@ def parser():
     plugin.add_argument("path", nargs="?")
     plugin.add_argument("--library-version", default="1.0.0")
     plugin.add_argument("--template", choices=["operator", "reader"], default="operator")
-    library = commands.add_parser("library", help="Install an Operon 5.0.0 operator library bundle")
-    library.add_argument("action", choices=["install"])
-    library.add_argument("path")
+    library = commands.add_parser("library", help="Manage named Operon 5.0.0 operator-library branches")
+    library.add_argument("action", choices=["install", "list", "remove"])
+    library.add_argument("path", nargs="?")
+    library.add_argument("--name")
     routes = commands.add_parser("routes", help="Import a route collection built for the installed library")
     routes.add_argument("action", choices=["import"])
     routes.add_argument("path")
@@ -407,8 +408,20 @@ def execute(args):
                     require_api=1 if args.command in ('operators', 'workflow', 'environment', 'engine', 'jobs', 'artifacts', 'servers', 'service', 'viewers', 'routes', 'library') or args.command == 'run' and (args.file or args.workflow) else 0)
     try:
         if args.command == 'library':
+            if args.action == 'list':
+                return client.request('/v1/libraries')
+            if args.action == 'remove':
+                target = args.name or args.path
+                if not target:
+                    raise ValueError('library remove requires a library branch name')
+                return client.request('/v1/libraries/' + quote(str(target), safe=''), method='DELETE')
+            if not args.path:
+                raise ValueError('library install requires a bundle path')
             path = Path(args.path).expanduser().resolve()
-            return client.request('/v1/libraries/install', {'path': str(path)})
+            payload = {'path': str(path)}
+            if args.name:
+                payload['name'] = args.name
+            return client.request('/v1/libraries/install', payload)
         if args.command == 'routes':
             path = Path(args.path).expanduser().resolve()
             return client.request('/v1/routes/import-collection', {'path': str(path)})

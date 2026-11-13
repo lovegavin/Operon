@@ -165,6 +165,8 @@ def test_new_library_install_records_manifest_identity(tmp_path):
     result = install_library(manager, library)
 
     assert result == {
+        "library": "v0.0.0",
+        "libraries": ["v0.0.0"],
         "library_version": "0.0.0",
         "packages": 1,
         "descriptors": 1,
@@ -423,6 +425,8 @@ def test_plugin_install_endpoint_installs_a_new_library(tmp_path, client):
     assert operation["status"] == "complete", operation
     result = operation["result"]
     assert result == {
+        "library": "v0.0.0",
+        "libraries": ["v0.0.0"],
         "library_version": "0.0.0",
         "packages": 1,
         "descriptors": 1,
@@ -496,6 +500,24 @@ def test_routes_import_collection_endpoint_uploads_a_collection(tmp_path, client
     assert [route for route in app.state.service.routes.routes() if route["name"] == "Synthetic route"]
 
 
+def test_control_api_lists_and_removes_named_libraries(tmp_path, client):
+    web, app = client
+    library = _library_zip(tmp_path)
+    installed = web.post("/api/v1/libraries/install", json={"path": str(library), "name": "fork-v0.0.0"})
+    assert installed.status_code == 200, installed.text
+    listed = web.get("/api/v1/libraries")
+    assert listed.status_code == 200, listed.text
+    payload = listed.json()
+    assert payload["count"] == 1
+    assert payload["libraries"][0]["name"] == "fork-v0.0.0"
+    assert payload["libraries"][0]["operators"] == 1
+    removed = web.delete("/api/v1/libraries/fork-v0.0.0")
+    assert removed.status_code == 200, removed.text
+    assert removed.json()["removed"] == "fork-v0.0.0"
+    assert web.get("/api/v1/libraries").json()["count"] == 0
+
+
+
 def test_control_api_installs_a_library_and_a_route_collection(tmp_path, client):
     web, app = client
     library = _library_zip(tmp_path)
@@ -504,6 +526,8 @@ def test_control_api_installs_a_library_and_a_route_collection(tmp_path, client)
 
     assert installed.status_code == 200, installed.text
     assert installed.json() == {
+        "library": "v0.0.0",
+        "libraries": ["v0.0.0"],
         "library_version": "0.0.0",
         "packages": 1,
         "descriptors": 1,

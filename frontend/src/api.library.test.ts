@@ -74,3 +74,73 @@ describe('POST /api/routes/import-collection', () => {
       .resolves.toEqual({count: 3, names: [], failed: []});
   });
 });
+
+describe('operator libraries 5.1.0', () => {
+  it('reads the installed library list', async () => {
+    const list = {count: 1, libraries: [
+      {name: 'operon-main', library_version: '0.0.0', sha256: 'a', installed_at: '2026-11-13T12:00:00Z', packages: 1, descriptors: 2, operators: 1, readers: 1},
+    ]};
+    const fetchMock = vi.fn().mockResolvedValue(response(200, list));
+    vi.stubGlobal('fetch', fetchMock);
+    await expect(api.libraries()).resolves.toEqual(list);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('/api/libraries');
+    expect(init.method).toBe('GET');
+  });
+
+  it('posts multipart fields `file` and `name` for a labelled install', async () => {
+    const result = {library_version: '0.0.0', packages: 2, descriptors: 34, installed: true};
+    const fetchMock = vi.fn().mockResolvedValue(response(200, result));
+    vi.stubGlobal('fetch', fetchMock);
+    const file = new File(['zip'], 'operon-library-v0.0.0.operon-library.zip');
+    await expect(api.installLibrary(file, 'fork-v0.0.0')).resolves.toEqual(result);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('/api/libraries/install');
+    expect(init.method).toBe('POST');
+    const body = init.body as FormData;
+    expect((body.get('file') as File).name).toBe('operon-library-v0.0.0.operon-library.zip');
+    expect(body.get('name')).toBe('fork-v0.0.0');
+  });
+
+  it('omits a blank library name so the backend default applies', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response(200, {library_version: '0.0.0', packages: 1, descriptors: 1, installed: true}));
+    vi.stubGlobal('fetch', fetchMock);
+    await api.installLibrary(new File(['zip'], 'operon-library-v0.0.0.operon-library.zip'), '   ');
+    expect((fetchMock.mock.calls[0][1].body as FormData).get('name')).toBeNull();
+  });
+
+  it('keeps the server detail and status when an install is rejected', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response(400, {detail: 'bad bundle'})));
+    const failure = await catchRejection(() => api.installLibrary(new File(['zip'], 'bad.zip')));
+    expect(failure).toBeInstanceOf(ApiError);
+    expect(failure.message).toBe('bad bundle');
+    expect(failure.status).toBe(400);
+  });
+
+  it('deletes a library by encoded name', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response(200, {removed: 'fork v0'}));
+    vi.stubGlobal('fetch', fetchMock);
+    await expect(api.deleteLibrary('fork v0')).resolves.toEqual({removed: 'fork v0'});
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('/api/libraries/fork%20v0');
+    expect(init.method).toBe('DELETE');
+  });
+
+  it('turns a conflict response into a readable detail list', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response(409, {error: {
+      code: 'library_conflict', message: 'conflicts',
+      conflicts: [{kind: 'operator', id: 'pca', library: 'fork-v0.0.0'}, {kind: 'reader', id: 'table', library: 'fork-v0.0.0'}],
+    }})));
+    const failure = await catchRejection(() => api.installLibrary(new File(['zip'], 'fork.zip'), 'fork-v0.0.0'));
+    expect(failure.message).toBe('算子库包含冲突：operator pca（fork-v0.0.0）、reader table（fork-v0.0.0）');
+    expect(failure.status).toBe(409);
+  });
+
+  it('explains a delete blocked by route or task references', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response(409, {error: {code: 'library_in_use', message: 'in use'}})));
+    const failure = await catchRejection(() => api.deleteLibrary('operon-main'));
+    expect(failure.message).toBe('算子库仍被路线或任务引用，无法删除。');
+    expect(failure.status).toBe(409);
+  });
+});
+

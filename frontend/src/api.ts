@@ -119,6 +119,20 @@ async function request<T>(path: string, body?: unknown): Promise<T> {
   }
   return value as T;
 }
+/** 5.1.0 install/delete rejections carry a structured `error` payload; surface its details. */
+function libraryFailure(value: unknown, fallback: string) {
+  const error = value && typeof value === 'object'
+    ? (value as {error?: {code?: string; message?: string; conflicts?: {kind: string; id: string; library: string}[]}}).error
+    : undefined;
+  if (error?.code === 'library_conflict' && error.conflicts?.length) {
+    return t('算子库包含冲突：{details}', {
+      details: error.conflicts.map(item => `${item.kind} ${item.id}（${item.library}）`).join('、'),
+    });
+  }
+  if (error?.code === 'library_in_use') return t('算子库仍被路线或任务引用，无法删除。');
+  return error?.message || responseText(value) || fallback;
+}
+
 export const api = {
   catalogIfChanged: (generation?: string) => request<Bootstrap['catalog'] | null>(`/api/operators${generation ? '?generation=' + encodeURIComponent(generation) : ''}`),
   inspectScript: (payload: {filename: string; code: string; script?: import('./types').ScriptSnapshot}) => request<{script: import('./types').ScriptSnapshot; candidates: {name: string; line: number; schema: Record<string, unknown>}[]}>('/api/scripts/inspect', payload),
@@ -190,6 +204,31 @@ export const api = {
     if (!response.ok) throw new ApiError(responseText(result) || t("插件安装未完成"), undefined, response.status);
     if (!result || typeof result !== 'object') throw new ApiError(t("插件安装未完成"), undefined, response.status);
     return result as import('./types').PluginOperation;
+  },
+  libraries: () => request<import('./types').LibraryList>('/api/libraries'),
+  /** 5.1.0: install one bundled library and optionally label it (e.g. fork-v0.0.0). */
+  installLibrary: async (file: File, name?: string): Promise<import('./types').LibraryInstallResult> => {
+    const body = new FormData();
+    body.append('file', file, file.name);
+    if (name?.trim()) body.append('name', name.trim());
+    const response = await fetch(base + '/api/libraries/install', {
+      method: 'POST', headers: {'X-Studio-Token': token}, body,
+    });
+    let result: unknown = null;
+    try { result = await response.json(); } catch { result = null; }
+    if (!response.ok) throw new ApiError(libraryFailure(result, t("算子库安装未完成")), undefined, response.status);
+    if (!result || typeof result !== 'object') throw new ApiError(t("算子库安装未完成"), undefined, response.status);
+    return result as import('./types').LibraryInstallResult;
+  },
+  /** `request()` only issues GET/POST, so delete gets its own fetch. */
+  deleteLibrary: async (name: string): Promise<{removed: string}> => {
+    const response = await fetch(base + '/api/libraries/' + encodeURIComponent(name), {
+      method: 'DELETE', headers: {'X-Studio-Token': token},
+    });
+    let result: unknown = null;
+    try { result = await response.json(); } catch { result = null; }
+    if (!response.ok) throw new ApiError(libraryFailure(result, t("删除算子库未完成")), undefined, response.status);
+    return (result || {removed: name}) as {removed: string};
   },
   agent: <T,>(path: string, body?: unknown) => request<T>("/api/agent" + path, body),
   catalog: () => request<Bootstrap["catalog"]>("/api/operators"),

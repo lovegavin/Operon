@@ -1,4 +1,4 @@
-"""Install the immutable library and route bundles built for Operon 5.0.0.
+"""Install the immutable library and route bundles built for Operon 5.1.0.
 
 The application consumes two ZIP archives produced by the library builders and
 never rebuilds library identity: every ``code_sha`` comes from the bundle
@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import hashlib
 import io
+import os
+from copy import deepcopy
 import json
 import re
 import shutil
@@ -30,14 +32,33 @@ ROUTE_MEMBERS = {"graph.json", "parameters.json", "execution.json"}
 PIN_KEYS = ("package", "version", "code_sha")
 LIBRARY_SUFFIXES = (".operon-library.zip", ".biopipe-library.zip")
 SHA256 = re.compile(r"^[a-f0-9]{64}$")
+LABEL = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
+SAFE_ID = re.compile(r"^[A-Za-z0-9_.-]+$")
 LEGACY_MESSAGE = (
     "This library bundle uses the legacy 8.x format.\n"
-    "Install an operon-library-v0.0.x bundle built for Operon 5.0.0."
+    "Install an operon-library-v0.0.x bundle built for Operon 5.1.0."
 )
 
 
 class LegacyLibrary(ValueError):
     """Raised when an archive cannot be installed with the 5.0.0 contract."""
+
+
+class LibraryConflict(ValueError):
+    """Raised when a new library overlaps an installed one.
+
+    Libraries are equal-status branches: operator/Reader ids, distribution
+    names and top-level modules must be globally unique, otherwise one library
+    would silently shadow another.
+    """
+
+    def __init__(self, conflicts):
+        self.conflicts = list(conflicts)
+        detail = ", ".join(
+            f"{item['kind']} {item['id']}{(' in ' + item['library']) if item.get('library') else ''}"
+            for item in self.conflicts[:12]
+        )
+        super().__init__(f"Library overlaps an installed library: {detail}")
 
 
 class RoutePinMismatch(ValueError):
@@ -253,10 +274,11 @@ def library_preflight(path) -> None:
         raise LegacyLibrary(LEGACY_MESSAGE) from error
 
 
-def _release(document: dict, digest: str, *, installed_at: str | None = None) -> dict:
+def _release(document: dict, digest: str, *, name: str = "operon-library",
+             installed_at: str | None = None) -> dict:
     return {
         "format": LIBRARY_FORMAT,
-        "name": "operon-library",
+        "name": name,
         "bundle_format": BUNDLE_FORMAT,
         "library_version": document["library_version"],
         "packages": {
@@ -266,6 +288,211 @@ def _release(document: dict, digest: str, *, installed_at: str | None = None) ->
         "sha256": digest,
         "installed_at": installed_at or datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def _label_for(requested: str | None, document: dict) -> str:
+    label = (requested or f"v{document['library_version']}").strip().lower()
+    if not LABEL.fullmatch(label):
+        raise _invalid(
+            f"Invalid library name {label!r}: use lower-case letters, digits, dot, dash or underscore."
+        )
+    return label
+
+
+def _wheel_modules(wheel: Path) -> list[str]:
+    """Top-level importable modules provided by a wheel (packages and modules)."""
+    modules = set()
+    with ZipFile(wheel) as archive:
+        for name in archive.namelist():
+            head, _, rest = name.partition("/")
+            if not head or head.endswith((".dist-info", ".data")):
+                continue
+            if rest:
+                modules.add(head)
+            elif head.endswith(".py"):
+                modules.add(head[:-3])
+    return sorted(modules)
+
+
+def _libraries(state: dict) -> dict:
+    """Return the named-library map, migrating a single 5.0.x install in place."""
+    libraries = state.get("libraries")
+    if isinstance(libraries, dict):
+        return libraries
+    release = state.get("library_release")
+    libraries = {}
+    if isinstance(release, dict) and release.get("library_version"):
+        label = release.get("name") or f"v{release['library_version']}"
+        if not isinstance(label, str) or not LABEL.fullmatch(label):
+            label = "operon-library"
+        packages = {}
+        for name, value in (release.get("packages") or {}).items():
+            packages[canonicalize_name(name)] = {
+                "name": name,
+                "version": value.get("version"),
+                "code_sha": value.get("code_sha"),
+            }
+        libraries[label] = {
+            "name": label,
+            "format": LIBRARY_FORMAT,
+            "bundle_format": BUNDLE_FORMAT,
+            "library_version": release["library_version"],
+            "sha256": release.get("sha256"),
+            "installed_at": release.get("installed_at"),
+            "packages": packages,
+            "package_names": sorted(packages),
+            "modules": [],
+            "identifiers": sorted(
+                descriptor["id"] for descriptor in state.get("descriptors", [])
+                if descriptor.get("kind") in {"operator", "reader"}
+            ),
+        }
+        for descriptor in state.get("descriptors", []):
+            descriptor.setdefault("library", label)
+    state["libraries"] = libraries
+    return libraries
+
+
+def _entry(document: dict, digest: str, label: str, package_names: list[str],
+           modules: list[str], identifiers: list[str], archive: Path | None,
+           installed_at: str | None = None) -> dict:
+    return {
+        "name": label,
+        "format": LIBRARY_FORMAT,
+        "bundle_format": BUNDLE_FORMAT,
+        "library_version": document["library_version"],
+        "sha256": digest,
+        "installed_at": installed_at or _now(),
+        "packages": {
+            canonicalize_name(package["name"]): {
+                "name": package["name"],
+                "version": package["version"],
+                "code_sha": package["code_sha"],
+                "wheel_sha256": package["wheel_sha256"],
+            }
+            for package in document["packages"]
+        },
+        "package_names": sorted(package_names),
+        "modules": sorted(modules),
+        "identifiers": sorted(identifiers),
+        "archive": str(archive) if archive is not None else None,
+    }
+
+
+def _conflicts(libraries: dict, label: str, identifiers: list[str],
+               package_names: list[str], modules: list[str]) -> list[dict]:
+    conflicts = []
+    for other, record in sorted(libraries.items()):
+        if other == label:
+            continue
+        known = set(record.get("identifiers") or [])
+        for identifier in identifiers:
+            if identifier in known:
+                conflicts.append({"kind": "identifier", "id": identifier, "library": other})
+        names = {canonicalize_name(name) for name in record.get("package_names") or []}
+        for name in package_names:
+            if name in names:
+                conflicts.append({"kind": "package", "id": name, "library": other})
+        known_modules = set(record.get("modules") or [])
+        for module in modules:
+            if module in known_modules:
+                conflicts.append({"kind": "module", "id": module, "library": other})
+    return conflicts[:24]
+
+
+def _write_library_manifest(manager, label: str, document: dict) -> None:
+    directory = Path(manager.directory) / "libraries" / label
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "library.json").write_text(
+        json.dumps(document, indent=2, sort_keys=True), encoding="utf-8"
+    )
+    (directory / "version.json").write_text(
+        json.dumps({
+            "name": label,
+            "library_version": document["library_version"],
+            "bundle_format": document.get("bundle_format"),
+            "packages": len(document.get("packages") or []),
+        }, indent=2, sort_keys=True),
+        encoding="utf-8",
+    )
+
+
+def _write_operator_metadata(manager, state: dict) -> None:
+    directory = Path(manager.directory) / "operators"
+    directory.mkdir(parents=True, exist_ok=True)
+    libraries = _libraries(state)
+    index = {}
+    for descriptor in state.get("descriptors", []):
+        identifier = descriptor.get("id")
+        if not isinstance(identifier, str) or not identifier:
+            continue
+        label = descriptor.get("library")
+        record = libraries.get(label) or {}
+        value = {
+            "id": identifier,
+            "kind": descriptor.get("kind"),
+            "library": label,
+            "library_version": record.get("library_version"),
+            "package": descriptor.get("distribution"),
+            "package_version": descriptor.get("package_version"),
+            "code_sha": descriptor.get("code_sha"),
+            "declaration_sha": descriptor.get("declaration_sha"),
+            "execution_sha": (descriptor.get("execution_sha")
+                              or (descriptor.get("implementation") or {}).get("execution_sha")),
+            "sha256": (descriptor.get("implementation") or {}).get("sha256"),
+            "entry_point": (descriptor.get("entry_point")
+                            or (descriptor.get("implementation") or {}).get("entry_point")),
+        }
+        filename = f"{identifier}.json" if SAFE_ID.fullmatch(identifier) else (
+            hashlib.sha256(identifier.encode("utf-8")).hexdigest()[:16] + ".json"
+        )
+        target = directory / filename
+        temporary = target.with_suffix(".tmp")
+        temporary.write_text(json.dumps(value, indent=2, sort_keys=True), encoding="utf-8")
+        os.replace(temporary, target)
+        index[identifier] = filename
+    target = directory / "index.json"
+    temporary = target.with_suffix(".tmp")
+    temporary.write_text(json.dumps(index, indent=2, sort_keys=True), encoding="utf-8")
+    os.replace(temporary, target)
+
+
+def _annotate_libraries(state: dict) -> None:
+    """Label every installed descriptor with the branch that owns its package."""
+    libraries = _libraries(state)
+    owners = {
+        canonicalize_name(package): label
+        for label, record in libraries.items()
+        for package in (record.get("packages") or {})
+    }
+    for descriptor in state.get("descriptors", []):
+        distribution = canonicalize_name(descriptor.get("distribution") or "")
+        label = owners.get(distribution)
+        if label:
+            descriptor["library"] = label
+
+
+def libraries_view(manager) -> dict:
+    state = manager.state()
+    libraries = _libraries(state)
+    rows = []
+    for label, record in sorted(libraries.items()):
+        descriptors = [d for d in state.get("descriptors", []) if d.get("library") == label]
+        rows.append({
+            "name": label,
+            "library_version": record.get("library_version"),
+            "sha256": record.get("sha256"),
+            "installed_at": record.get("installed_at"),
+            "packages": len(record.get("packages") or {}),
+            "descriptors": len(descriptors),
+            "operators": sum(1 for d in descriptors if d.get("kind") == "operator"),
+            "readers": sum(1 for d in descriptors if d.get("kind") == "reader"),
+        })
+    return {"libraries": rows, "count": len(rows)}
 
 
 def library_pins_match(state, graph) -> bool:
@@ -322,93 +549,167 @@ def _wheels_present(manager, state: dict, packages: list[dict]) -> bool:
     return True
 
 
-def _store_library_archive(manager, source: Path, version: str) -> Path | None:
-    """Keep the last imported archive beside the application for remote delivery."""
-    import operon
-    module_root = Path(operon.__file__).resolve().parents[1]
-    looks_like_application = ((module_root / "runtime").is_dir()
-                              or (module_root / "pyproject.toml").is_file())
-    candidates = ([module_root / "library"] if looks_like_application else []) + [
-        manager.directory / "library",
-    ]
-    digest = _file_sha256(source)
-    for directory in candidates:
-        try:
-            directory.mkdir(parents=True, exist_ok=True)
-            target = directory / f"operon-library-{version}.zip"
-            if not target.is_file() or _file_sha256(target) != digest:
-                shutil.copyfile(source, target)
-            return target
-        except OSError:
-            continue
-    return None
+def _store_library_archive(manager, source: Path, label: str, digest: str) -> Path | None:
+    """Keep each imported archive with its named library for remote delivery."""
+    directory = Path(manager.directory) / "libraries" / label
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+        target = directory / "archive.zip"
+        if not target.is_file() or _file_sha256(target) != digest:
+            shutil.copyfile(source, target)
+        return target
+    except OSError:
+        return None
 
 
-def _result(document: dict, *, installed: bool, idempotent: bool) -> dict:
+def _result(document: dict, *, label: str, libraries: list[str],
+            installed: bool, idempotent: bool) -> dict:
+    descriptors = sum(len(package["entry_points"]) for package in document["packages"])
     return {
+        "library": label,
+        "libraries": libraries,
         "library_version": document["library_version"],
         "packages": len(document["packages"]),
-        "descriptors": sum(len(package["entry_points"]) for package in document["packages"]),
+        "descriptors": descriptors,
         "installed": installed,
         "idempotent": idempotent,
     }
 
 
-def install_library(manager, path, *, replace: bool = True) -> dict:
-    """Install a 5.0.0 library archive through the existing plugin installer."""
+def install_library(manager, path, *, name: str | None = None,
+                    replace: bool = True) -> dict:
+    """Install a 5.0.0 archive as an equal-status named library.
+
+    Libraries are branches, not replacements: every imported bundle keeps its
+    own identity, archives and operator metadata, and all installed branches
+    are available at the same time.  Operator/Reader ids, distribution names
+    and top-level modules must be globally unique.
+    """
     source = Path(filesystem_path(path))
     digest = _file_sha256(source)
     with manager.lock:
         inspected = inspect_library(source)
         try:
             document = inspected["manifest"]
-            archive = _store_library_archive(manager, source, document["library_version"])
+            label = _label_for(name, document)
             current = manager.state()
-            wanted = {
-                canonicalize_name(package["name"]): (package["version"], package["code_sha"])
-                for package in document["packages"]
-            }
-            installed = {
-                canonicalize_name(descriptor["distribution"]): (
-                    descriptor["package_version"],
-                    descriptor["code_sha"],
+            libraries = _libraries(current)
+            identifiers = sorted({
+                identifier for package in document["packages"]
+                for identifier in package["entry_points"]
+            })
+            package_names = [canonicalize_name(package["name"]) for package in document["packages"]]
+            modules = sorted({
+                module for package in document["packages"]
+                for module in _wheel_modules(inspected["directory"] / package["wheel"])
+            })
+            conflicts = _conflicts(libraries, label, identifiers, package_names, modules)
+            if conflicts:
+                raise LibraryConflict(conflicts)
+            previous = libraries.get(label) or {}
+            archive = _store_library_archive(manager, source, label, digest)
+            entry = _entry(document, digest, label, package_names, modules,
+                           identifiers, archive, previous.get("installed_at"))
+            if (previous.get("sha256") == digest
+                    and previous.get("library_version") == document["library_version"]
+                    and _wheels_present(manager, current, document["packages"])):
+                libraries[label] = entry
+                current["libraries"] = libraries
+                current["library_release"] = _release(
+                    document, digest, name=label, installed_at=entry["installed_at"]
                 )
-                for descriptor in current.get("descriptors", [])
+                _write_library_manifest(manager, label, document)
+                manager._publish(current)
+                _write_operator_metadata(manager, current)
+                return _result(document, label=label, libraries=sorted(libraries),
+                               installed=False, idempotent=True)
+
+            base = deepcopy(current)
+            base["descriptors"] = [
+                descriptor for descriptor in current.get("descriptors", [])
+                if descriptor.get("library") != label
+            ]
+            keep = {
+                package for other, record in libraries.items() if other != label
+                for package in (record.get("packages") or {})
             }
-            same_identity = all(installed.get(name) == identity for name, identity in wanted.items())
-            if same_identity and _wheels_present(manager, current, document["packages"]):
-                previous = current.get("library_release") or {}
-                release = _release(document, digest, installed_at=previous.get("installed_at"))
-                if archive is not None:
-                    release["archive"] = str(archive)
-                if (current.get("library_release") != release
-                        or not current.get("library_detached")
-                        or current.get("source_library")
-                        or current.get("library_source_pins")):
-                    current["library_release"] = release
-                    current["library_detached"] = True
-                    for legacy in ("source_library", "library_source_pins", "library_pin_updates"):
-                        current.pop(legacy, None)
-                    manager._publish(current)
-                return _result(document, installed=False, idempotent=True)
-            if not replace and any(
-                installed.get(name) not in (None, identity) for name, identity in wanted.items()
-            ):
-                raise _invalid("A different library is already installed; refusing to replace it.")
+            base["packages"] = [
+                package for package in current.get("packages", [])
+                if canonicalize_name(package["name"]) in keep
+            ]
+            base["libraries"] = {
+                other: record for other, record in libraries.items() if other != label
+            }
             wheels = [inspected["directory"] / package["wheel"] for package in document["packages"]]
-            state = manager._install_many(wheels, current, publish=False, library=True)
-            release = _release(document, digest)
-            if archive is not None:
-                release["archive"] = str(archive)
-            state["library_release"] = release
+            state = manager._install_many(wheels, base, publish=False, library=True)
+            wanted = set(identifiers)
+            for descriptor in state.get("descriptors", []):
+                if (descriptor["id"] in wanted
+                        and canonicalize_name(descriptor["distribution"]) in package_names):
+                    descriptor["library"] = label
+                elif not descriptor.get("library"):
+                    descriptor["library"] = label
+            libraries = _libraries(state)
+            libraries[label] = entry
+            state["libraries"] = libraries
+            state["library_release"] = _release(
+                document, digest, name=label, installed_at=entry["installed_at"]
+            )
             state["library_detached"] = True
             for legacy in ("source_library", "library_source_pins", "library_pin_updates"):
                 state.pop(legacy, None)
-            state.setdefault("_runtime_root", str(manager.directory.resolve()))
+            _write_library_manifest(manager, label, document)
             manager._publish(state)
-            return _result(document, installed=True, idempotent=False)
+            _write_operator_metadata(manager, state)
+            return _result(document, label=label, libraries=sorted(libraries),
+                           installed=True, idempotent=False)
         finally:
             shutil.rmtree(inspected["directory"], ignore_errors=True)
+
+
+def uninstall_library(manager, name: str) -> dict:
+    """Remove one named library; other branches stay installed and usable."""
+    label = str(name)
+    with manager.lock:
+        current = manager.state()
+        libraries = _libraries(current)
+        if label not in libraries:
+            raise _invalid(f"Unknown library: {label}")
+        remaining = {other: record for other, record in libraries.items() if other != label}
+        keep = {
+            package for record in remaining.values()
+            for package in (record.get("packages") or {})
+        }
+        state = deepcopy(current)
+        state["descriptors"] = [
+            descriptor for descriptor in current.get("descriptors", [])
+            if descriptor.get("library") != label
+        ]
+        state["packages"] = [
+            package for package in current.get("packages", [])
+            if canonicalize_name(package["name"]) in keep
+        ]
+        state["libraries"] = remaining
+        _annotate_libraries(state)
+        state.pop("library_release", None)
+        if remaining:
+            latest = sorted(remaining.values(), key=lambda item: item.get("installed_at") or "")[-1]
+            state["library_release"] = {
+                "format": LIBRARY_FORMAT,
+                "name": latest.get("name"),
+                "bundle_format": BUNDLE_FORMAT,
+                "library_version": latest.get("library_version"),
+                "packages": {
+                    name: {"version": value.get("version"), "code_sha": value.get("code_sha")}
+                    for name, value in (latest.get("packages") or {}).items()
+                },
+                "sha256": latest.get("sha256"),
+                "installed_at": latest.get("installed_at"),
+            }
+        manager._publish(state)
+        _write_operator_metadata(manager, state)
+        shutil.rmtree(Path(manager.directory) / "libraries" / label, ignore_errors=True)
+        return {"removed": label, "libraries": sorted(remaining)}
 
 
 def _collection_entries(path: Path) -> dict[str, bytes]:

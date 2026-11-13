@@ -6,6 +6,7 @@ import hashlib
 import json
 import math
 import os
+import shutil
 from pathlib import Path, PurePosixPath, PureWindowsPath
 import subprocess
 import sys
@@ -161,6 +162,8 @@ class JobService:
         self._wake = threading.Event()
         self._dispatch_lock = threading.RLock()
         self._starting = set()
+        self._skeleton_threads = set()
+        self.run_skeleton_error = None
         self.engine_error = None
         self.pool = pool
         self._pool_principal = principal
@@ -720,7 +723,10 @@ class JobService:
                        'scheduling': 'coordinator' if (self.coordinator is not None or
                                                        getattr(self, 'pool', None) is not None) else 'local',
                        'progress': {'phase': 'queued', 'completed': 0, 'total': len(order), 'percent': 0}}
-                job["plugins"] = {"generation": plugin_snapshot["generation"], "packages": plugin_snapshot["packages"]}
+                libraries, operators = self._operator_provenance(graph, plugin_snapshot)
+                job["plugins"] = {"generation": plugin_snapshot["generation"],
+                                  "packages": plugin_snapshot["packages"],
+                                  "libraries": libraries, "operators": operators}
                 if plugin_snapshot.get('bundled_updates'):
                     job['plugins']['bundled_updates'] = plugin_snapshot['bundled_updates']
                 if plugin_snapshot.get('library_pin_updates'):
@@ -729,6 +735,7 @@ class JobService:
                     _, job["node_owners"] = expand_routes(graph, self.catalog)
                 self.jobs[key] = job
                 write_json(directory / "job.json", job)
+                self._schedule_run_skeleton(job)
                 self._launcher_event(job, 'job_queued', allocation=allocation)
         if existing is not None:
             return {**self.details(existing_key), 'reused': True, 'request_id': request_id}
@@ -746,6 +753,7 @@ class JobService:
                     current['error'] = f'pool submission failed: {type(exc).__name__}: {exc}'
                     current['progress']['phase'] = 'failed'
                     write_json(self.jobs_dir / key / 'job.json', current)
+                    self._sync_run_skeleton(current)
                 raise PoolSubmissionError(current['error']) from exc
         else:
             self._shadow_decision(job)
@@ -786,6 +794,7 @@ class JobService:
                 current['error'] = f'coordinator submission failed: {type(exc).__name__}: {exc}'
                 current['progress']['phase'] = 'failed'
                 write_json(self.jobs_dir / key / 'job.json', current)
+                self._sync_run_skeleton(current)
             raise GraphError(current['error']) from exc
 
     def _commit_job_artifacts(self, payload, result):
@@ -900,6 +909,7 @@ class JobService:
                         job['progress']['phase'] = 'failed'
                         self._launcher_event(job, 'admission_failed', error=job['error'])
                         write_json(self.jobs_dir / job['id'] / 'job.json', job)
+                        self._sync_run_skeleton(job)
                     return
                 for job in sorted(pending, key=lambda value: value['created_at']):
                     if (job['allocation']['reserved_bytes'] > self.admission.capacity or
@@ -912,6 +922,7 @@ class JobService:
                         job['progress']['phase'] = 'failed'
                         self._launcher_event(job, 'admission_failed', error=job['error'])
                         write_json(self.jobs_dir / job['id'] / 'job.json', job)
+                        self._sync_run_skeleton(job)
                         continue
                     if not self.admission.reserve(job['reservation_key'], job['allocation']):
                         # FIFO within a launcher avoids starvation of a larger job.
@@ -924,26 +935,223 @@ class JobService:
                 # released; the reservation is already committed.
                 self._start(job)
 
-    def _job_output_dir(self, graph, key):
-        """Results live with the task folder, never inside ``.studio``."""
+    def _task_base_root(self, graph):
+        """The task folder that owns ``results/`` and ``runs/``."""
         if isinstance(graph, dict):
             base = graph.get("base_dir")
             runtime = graph.get("runtime") or {}
         else:
             base = getattr(graph, "base_dir", None)
             runtime = getattr(graph, "runtime", None) or {}
+        explicit = runtime.get("results_root") if isinstance(runtime, dict) else None
+        if explicit:
+            # ``results_root`` already names the results directory; the task
+            # folder that owns ``runs/`` is its parent.
+            return Path(explicit).resolve().parent
+        path = Path(base or ".")
+        return path if path.is_absolute() else Path(self.root) / path
+
+    def _job_output_dir(self, graph, key):
+        """Results live with the task folder, never inside ``.studio``."""
         code_root = self.settings.code_root or self.root
         if not io_path(Path(code_root) / "operon/worker.py").is_file():
             # Legacy/custom worker roots write task/output/run_summary.json and
             # do not understand --output; keep their original contract.
             return str(self.jobs_dir / key / "output")
+        runtime = (graph.get("runtime") if isinstance(graph, dict)
+                   else getattr(graph, "runtime", None)) or {}
         explicit = runtime.get("results_root") if isinstance(runtime, dict) else None
         if explicit:
             return str((Path(explicit) / key).resolve())
-        base = base or "."
-        path = Path(base)
-        base_root = path if path.is_absolute() else Path(self.root) / path
-        return str((base_root / "results" / key).resolve())
+        return str((self._task_base_root(graph) / "results" / key).resolve())
+
+    def _run_skeleton_dir(self, graph, key):
+        return (self._task_base_root(graph) / "runs" / key).resolve()
+
+    def _operator_provenance(self, graph, state):
+        """Only the operators and Readers this submitted graph actually uses."""
+        from operon.pins import graphs
+        descriptors = {item["id"]: item for item in state.get("descriptors", ())
+                       if isinstance(item, dict) and item.get("id")}
+        used = set()
+        for part in graphs(graph):
+            for node in part.nodes:
+                if node.kind == "operator" and node.operator:
+                    used.add(node.operator)
+                elif node.source and node.source.reader:
+                    used.add(node.source.reader)
+        operators = {}
+        for name in sorted(used):
+            descriptor = descriptors.get(name)
+            if descriptor is None:
+                continue
+            implementation = descriptor.get("implementation") or {}
+            raw_packages = state.get("packages") if isinstance(state, dict) else None
+            if isinstance(raw_packages, dict):
+                packages = raw_packages
+            elif isinstance(raw_packages, list):
+                packages = {item.get("name"): item for item in raw_packages
+                            if isinstance(item, dict) and item.get("name")}
+            else:
+                packages = {}
+            package = packages.get(descriptor.get("distribution") or "") or {}
+            operators[name] = {
+                "library": descriptor.get("library"),
+                "package": descriptor.get("distribution"),
+                "version": descriptor.get("package_version"),
+                "code_sha": descriptor.get("code_sha"),
+                "declaration_sha": descriptor.get("declaration_sha"),
+                "execution_sha": (descriptor.get("execution_sha")
+                                  or (implementation.get("execution_sha")
+                                      if isinstance(implementation, dict) else None)
+                                  or package.get("execution_sha")),
+                "sha256": implementation.get("sha256") if isinstance(implementation, dict) else None,
+            }
+        libraries = sorted({entry["library"] for entry in operators.values() if entry.get("library")})
+        return libraries, operators
+
+    @staticmethod
+    def _relative_path(path, root):
+        try:
+            value = os.path.relpath(Path(path).resolve(), Path(root).resolve())
+        except ValueError:
+            return str(path)
+        return value.replace("\\", "/")
+
+    @staticmethod
+    def _atomic_text(path, text):
+        path = io_path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = path.with_name(path.name + "." + uuid.uuid4().hex + ".tmp")
+        try:
+            with open(temporary, "w", encoding="utf-8", newline="\n") as stream:
+                stream.write(text)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, path)
+        finally:
+            Path(temporary).unlink(missing_ok=True)
+
+    @staticmethod
+    def _atomic_copy(source, destination):
+        """Copy a sidecar file atomically; big lock files stay cheap to mirror."""
+        source = io_path(source)
+        destination = io_path(destination)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        temporary = destination.with_name(destination.name + "." + uuid.uuid4().hex + ".tmp")
+        try:
+            shutil.copyfile(source, temporary)
+            os.replace(temporary, destination)
+        finally:
+            Path(temporary).unlink(missing_ok=True)
+
+    def _run_payload(self, job):
+        key = job["id"]
+        graph = job.get("graph") or {}
+        directory = self.jobs_dir / key
+        output = Path(job.get("output_dir") or (directory / "output"))
+        run_dir = self._run_skeleton_dir(graph, key)
+        plugins = job.get("plugins") or {}
+        return {
+            "job_id": key,
+            "task": job.get("name"),
+            "status": job.get("status"),
+            "created_at": job.get("created_at"),
+            "started_at": job.get("started_at"),
+            "finished_at": job.get("finished_at"),
+            "library": list(plugins.get("libraries") or []),
+            "operators": dict(plugins.get("operators") or {}),
+            "results": self._relative_path(output, run_dir),
+            "metadata": self._relative_path(directory, run_dir),
+        }
+
+    def _write_logs_readme(self, run_dir, key):
+        directory = self.jobs_dir / key
+        log_dir = directory / "logs"
+        listed = [self._relative_path(directory / "console.log", run_dir),
+                  self._relative_path(directory / "launcher.events.jsonl", run_dir)]
+        if io_path(log_dir).is_dir():
+            for path in sorted(_glob_paths(log_dir, "**/*")):
+                if io_path(path).is_file():
+                    listed.append(self._relative_path(path, run_dir))
+        lines = [
+            "Full logs remain under the job metadata directory; they are not duplicated here.",
+            "",
+            "Logs directory: " + self._relative_path(log_dir, run_dir),
+            "",
+            "Known log files (paths relative to this run directory):",
+            *(f"- {path}" for path in dict.fromkeys(listed)),
+            "",
+        ]
+        self._atomic_text(run_dir / "logs" / "README.txt", "\n".join(lines))
+
+    def _schedule_run_skeleton(self, job):
+        """Build the run folder off the launch path; workers can be very short."""
+        thread = threading.Thread(target=self._run_skeleton_thread, args=(job,),
+                                  name="run-skeleton-" + str(job.get("id")), daemon=True)
+        self._skeleton_threads.add(thread)
+        thread.start()
+
+    def _run_skeleton_thread(self, job):
+        try:
+            self._write_run_skeleton(job)
+        finally:
+            self._skeleton_threads.discard(threading.current_thread())
+
+    def _write_run_skeleton(self, job):
+        """Write a portable run folder; a failure must never fail the job."""
+        key = job.get("id")
+        if not key:
+            return
+        try:
+            run_dir = self._run_skeleton_dir(job.get("graph") or {}, key)
+            missing = []
+            io_path(run_dir).mkdir(parents=True, exist_ok=True)
+            for name in ("job.json", "parameters.json", "plugins.lock.json"):
+                try:
+                    source = self.jobs_dir / key / name
+                    if io_path(source).is_file():
+                        self._atomic_copy(source, run_dir / name)
+                    else:
+                        missing.append(name)
+                except (OSError, ValueError, TypeError):
+                    missing.append(name)
+            graph = job.get("graph")
+            if graph:
+                write_json(run_dir / "graph.json", graph)
+            else:
+                missing.append("graph.json")
+            self._write_logs_readme(run_dir, key)
+            payload = self._run_payload(job)
+            if missing:
+                payload["missing"] = missing
+            write_json(run_dir / "run.json", payload)
+            self.run_skeleton_error = None
+        except Exception as exc:  # noqa: BLE001 - read-only task folders are allowed
+            self.run_skeleton_error = f"{type(exc).__name__}: {exc}"
+            print(f"Operon: run skeleton for {key} was not written: {self.run_skeleton_error}",
+                  file=sys.stderr)
+
+    def _sync_run_skeleton(self, job):
+        """Refresh the small run index after a status change; best effort."""
+        key = job.get("id")
+        if not key:
+            return
+        try:
+            run_dir = self._run_skeleton_dir(job.get("graph") or {}, key)
+            if not io_path(run_dir / "run.json").is_file():
+                return
+            for name in ("parameters.json", "plugins.lock.json"):
+                source = self.jobs_dir / key / name
+                if io_path(source).is_file() and not io_path(run_dir / name).is_file():
+                    self._atomic_copy(source, run_dir / name)
+            write_json(run_dir / "job.json", job)
+            write_json(run_dir / "run.json", self._run_payload(job))
+            self.run_skeleton_error = None
+        except Exception as exc:  # noqa: BLE001 - never fail a status update
+            self.run_skeleton_error = f"{type(exc).__name__}: {exc}"
+            print(f"Operon: run skeleton for {key} was not refreshed: {self.run_skeleton_error}",
+                  file=sys.stderr)
 
     def _start(self, job, *, allocation=None, coordinated=False):
         key = job['id']; directory = self.jobs_dir / key
@@ -963,6 +1171,7 @@ class JobService:
                 job['progress']['phase'] = 'preparing'
                 self._starting.add(key)
                 write_json(directory / 'job.json', job)
+                self._sync_run_skeleton(job)
             # Preserve failures during interpreter/gate validation too, before
             # a scientific process exists or a maintenance lease is acquired.
             console = open(io_path(directory / 'console.log'), 'a', encoding='utf-8')
@@ -1060,6 +1269,7 @@ class JobService:
                 job['progress']['phase'] = 'failed'
                 self._release(job)
                 write_json(directory / 'job.json', job)
+                self._sync_run_skeleton(job)
 
     def _start_coordinated(self, job_id, attempt_id, committed):
         """Start a JobService worker under a coordinator lease.
@@ -1277,6 +1487,7 @@ class JobService:
                     self.environment_error = f'{type(exc).__name__}: {exc}'
             job['progress'] = self._progress(job)
             write_json(self.jobs_dir / key / "job.json", job)
+            self._sync_run_skeleton(job)
             self.processes.pop(key, None)
             self.threads.pop(key, None)
             self._wake.set()
@@ -1555,6 +1766,7 @@ class JobService:
                 job['progress']['phase'] = 'cancelled'
                 self._launcher_event(job, 'job_cancelled', message='Cancelled before worker launch')
                 write_json(self.jobs_dir / key / 'job.json', job)
+                self._sync_run_skeleton(job)
                 self._wake.set()
                 return self.details(key)
             if job["status"] in ("running", "preparing") or job.get('cancel_state') == 'stopping':
@@ -1570,6 +1782,7 @@ class JobService:
                         job['progress']['phase'] = 'cancelled'
                         (self.jobs_dir / key / 'cancel.requested').touch()
                         write_json(self.jobs_dir / key / 'job.json', job)
+                        self._sync_run_skeleton(job)
                         starting = True
                     else:
                         raise GraphError("任务由另一个 Operon 窗口运行，请在启动它的窗口停止。")
@@ -1583,6 +1796,7 @@ class JobService:
                     (self.jobs_dir / key / 'cancel.requested').touch()
                     process = self.processes[key]
                     write_json(self.jobs_dir / key / "job.json", job)
+                    self._sync_run_skeleton(job)
         # Process-tree termination is deliberately outside the state lock: a
         # slow native child must not block another client's status query.
         if process is not None:

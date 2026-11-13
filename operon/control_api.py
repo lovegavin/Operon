@@ -78,6 +78,7 @@ class DescribeRequest(BaseModel):
 class LibraryRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     path: str = Field(min_length=1, max_length=1000)
+    name: str | None = Field(default=None, max_length=64)
 
 
 class RouteCollectionRequest(LibraryRequest):
@@ -135,14 +136,31 @@ def mount_control(app, application, bridge):
         return {**application.isolated_environments(),
                 'prepared': application.start_isolated_environments(payload.names)}
 
+    @app.get('/api/v1/libraries')
+    def libraries(request: Request):
+        authorize(request)
+        from .library_install import libraries_view
+        return libraries_view(application.service.plugins)
+
     @app.post('/api/v1/libraries/install')
     def install_library(request: Request, payload: LibraryRequest):
         authorize(request, 'plugins')
         from .library_install import install_library as install
         try:
-            result = install(application.service.plugins, payload.path)
+            result = install(application.service.plugins, payload.path, name=payload.name)
         except ValueError as error:
             raise CommandError('library_install_failed', str(error)) from error
+        application.service.refresh_catalog()
+        return result
+
+    @app.delete('/api/v1/libraries/{name}')
+    def remove_library(request: Request, name: str):
+        authorize(request, 'plugins')
+        from .library_install import uninstall_library
+        try:
+            result = uninstall_library(application.service.plugins, name)
+        except ValueError as error:
+            raise CommandError('library_remove_failed', str(error)) from error
         application.service.refresh_catalog()
         return result
 

@@ -351,9 +351,29 @@ def create_server(client):
         return client.request("/plugins/install", {"wheel": wheel})
 
     @server.tool()
-    def operon_library_install(path: str) -> dict:
-        """Install an Operon 5.0.0 operator library bundle. Requires --allow-plugins."""
-        return client.request('/v1/libraries/install', {'path': path})
+    def operon_library_install(path: str, name: str | None = None) -> dict:
+        """Install an Operon 5.0.0 operator library bundle as a named branch.
+
+        Libraries are equal-status branches (main, fork1, ...); operator and
+        Reader ids must not overlap. Requires --allow-plugins.
+        """
+        payload = {'path': path}
+        if name:
+            payload['name'] = name
+        return client.request('/v1/libraries/install', payload)
+
+    @server.tool()
+    def operon_library_list() -> dict:
+        """List installed operator-library branches."""
+        return client.request('/v1/libraries')
+
+    @server.tool()
+    def operon_library_remove(name: str) -> dict:
+        """Remove one operator-library branch. Other branches stay usable.
+
+        Requires --allow-plugins.
+        """
+        return client.request('/v1/libraries/' + quote(name, safe=''), method='DELETE')
 
     @server.tool()
     def operon_routes_import(path: str) -> dict:

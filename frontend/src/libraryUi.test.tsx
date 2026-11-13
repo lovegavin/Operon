@@ -37,6 +37,8 @@ describe('route library entry', () => {
     expect(html).toContain('Import route library');
     expect(html).toContain('Route library bundle: operon-routes-v0.0.0.zip');
     expect(html).toContain('accept=".zip"');
+    expect(html).toContain('Library name');
+    expect(html).toContain('Library name (optional, e.g. fork-v0.0.0)');
   });
 });
 
@@ -47,7 +49,7 @@ describe('legacy 8.x rejection', () => {
     expect(html).toContain('Legacy 8.x operator library cannot be imported');
     expect(html).toContain('This library bundle uses the legacy 8.x format.');
     expect(html).toContain('Install an operon-library-v0.0.x bundle built for Operon 5.0.0.');
-    expect(html).toContain('Operon Studio 5.0.1 only accepts the new operon-library-v0.0.x bundle.');
+    expect(html).toContain('Operon Studio 5.1.0 only accepts the new operon-library-v0.0.x bundle.');
     expect(html).toContain('Choose operator library bundle');
   });
 
@@ -55,6 +57,6 @@ describe('legacy 8.x rejection', () => {
     setLanguage('zh-CN');
     const html = renderToStaticMarkup(<LegacyLibraryAlert message={LEGACY} onChoose={() => {}}/>);
     expect(html).toContain('无法导入旧版 8.x 算子库');
-    expect(html).toContain('Operon Studio 5.0.1 仅接受新版 operon-library-v0.0.x 算子库包。');
+    expect(html).toContain('Operon Studio 5.1.0 仅接受新版 operon-library-v0.0.x 算子库包。');
   });
 });

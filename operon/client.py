@@ -109,12 +109,12 @@ class Client:
         self.http = httpx.Client(base_url=self.instance["url"], timeout=30, trust_env=False)
         return self.connect()
 
-    def request(self, path, payload=None):
+    def request(self, path, payload=None, *, method=None):
         route = '/api' + path if path.startswith('/v1/') else '/api/agent' + path
         preparation = path in ('/v1/workflows/prepare-environment', '/v1/environments/prepare')
         timeout = None if preparation else 660 if path == '/plugins/install' else 120
-        response = self.http.get(route) if payload is None else self.http.post(
-            route, json=payload, timeout=timeout)
+        verb = method or ('GET' if payload is None else 'POST')
+        response = self.http.request(verb, route, json=payload, timeout=timeout)
         # Preparation is an explicit mutation. Do not transparently replay it;
         # in particular, denied install scope must not become an auto-upgrade.
         if response.status_code == 403 and not preparation:
@@ -122,8 +122,7 @@ class Client:
                 self.restart()
             except (ClientError, httpx.HTTPError):
                 return self.decode(response)
-            response = self.http.get(route) if payload is None else self.http.post(
-                route, json=payload, timeout=timeout)
+            response = self.http.request(verb, route, json=payload, timeout=timeout)
         return self.decode(response)
 
     def download(self, path, destination, payload=None):
