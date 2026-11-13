@@ -23,6 +23,21 @@ from operon.engine.control import ControlLoop, limits_from_environment
 from operon.documents import CommandError
 
 
+def _event_name(path, key, jobs_dir, job):
+    """Stable offset key for an event file, including task-result runs."""
+    try:
+        return path.relative_to(jobs_dir/key).as_posix()
+    except ValueError:
+        output = job.get('output_dir')
+        if output:
+            try:
+                return 'results/' + path.relative_to(Path(output)).as_posix()
+            except ValueError:
+                pass
+        digest = hashlib.sha1(path.as_posix().encode('utf-8')).hexdigest()[:12]
+        return 'external/' + digest + '-' + path.name
+
+
 def receive(sock, size):
     chunks = bytearray()
     while len(chunks) < size:
@@ -692,7 +707,7 @@ class RemoteService:
             key = params['job_id']; job = service.details(key)
             offsets = params.get('offsets', {}); result = {}; events = []; eof = True
             for path in service.event_paths(key):
-                name = path.relative_to(service.jobs_dir/key).as_posix()
+                name = _event_name(path, key, service.jobs_dir, job)
                 start = max(0, int(offsets.get(name, 0)))
                 with path.open('rb') as handle:
                     handle.seek(min(start, path.stat().st_size))

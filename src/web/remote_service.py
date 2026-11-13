@@ -71,6 +71,29 @@ class RemoteManager:
         self.pools = {}
         self.lock = threading.RLock()
         self._build = None
+        self._drop_stale_catalogs()
+
+    def _drop_stale_catalogs(self):
+        """A cache written by another application build must never be shown."""
+        try:
+            from operon import __version__ as application_version
+        except Exception:  # noqa: BLE001 - isolated tests
+            return
+        for path in self.directory.glob('*.catalog.json'):
+            try:
+                info = read_json(path) or {}
+                version = ((info.get('build') or {}).get('application') or {}).get('version')
+                if version and version != application_version:
+                    path.unlink(missing_ok=True)
+            except OSError:
+                continue
+
+    def forget_cache(self, key):
+        """Drop every cached server fact for one profile."""
+        with self.lock:
+            (self.directory/(key+'.catalog.json')).unlink(missing_ok=True)
+            self.pools.pop(key, None)
+            self._build = None
 
     def invalidate_build(self):
         """Forget the cached identity after the operator library changes."""
@@ -185,6 +208,10 @@ class RemoteManager:
             profile = deepcopy(self.profile(key))
             build = self.local_build()
             profile['build'] = build
+            if install:
+                # The old catalogue describes the server we are replacing.
+                (self.directory/(key+'.catalog.json')).unlink(missing_ok=True)
+                self.pools.pop(key, None)
             if install and profile.get('environment') != 'managed':
                 raise RemoteError('已有环境请由服务端管理员维护；自动安装仅用于托管安装目录。')
             secret = credentials or self.credentials.get(key, {})
