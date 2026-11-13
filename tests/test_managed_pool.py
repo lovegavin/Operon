@@ -214,7 +214,8 @@ def test_default_scientific_workflow_reaches_committed_results(managed):
                           and v.get('lifecycle', {}).get('resources_released') else None), timeout=90)
     assert value['status'] == 'complete', value.get('error')
     assert value['lifecycle']['artifact_committed']
-    assert list((app.service.jobs_dir / job_id / 'output').iterdir())
+    output = Path(value['output_dir'])
+    assert output.is_dir() and any(output.iterdir())
 
 
 def test_dead_client_does_not_stop_pool_worker(managed, tmp_path):

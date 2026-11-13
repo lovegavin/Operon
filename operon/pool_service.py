@@ -49,13 +49,15 @@ class WorkspaceSpec:
     input_roots: list[Path] | None = None
     worker_python: str | None = None
     manifest_only_registry: bool = False
+    library_root: Path | None = None
 
     def to_json(self):
         return {'root': str(self.root), 'principal': self.principal,
                 'data_dir': str(self.data_dir) if self.data_dir else None,
                 'code_root': str(self.code_root) if self.code_root else None,
                 'input_roots': [str(p) for p in self.input_roots] if self.input_roots else None,
-                'worker_python': self.worker_python, 'manifest_only_registry': self.manifest_only_registry}
+                'worker_python': self.worker_python, 'manifest_only_registry': self.manifest_only_registry,
+                'library_root': str(self.library_root) if self.library_root else None}
 
 
 def bundled_catalog():
@@ -238,13 +240,16 @@ class PoolService:
                 if isinstance(item, WorkspaceSpec):
                     self.add_workspace(item.root, principal=item.principal,
                                        data_dir=item.data_dir, code_root=item.code_root, input_roots=item.input_roots,
-                                       worker_python=item.worker_python, manifest_only_registry=item.manifest_only_registry)
+                                       worker_python=item.worker_python,
+                                       manifest_only_registry=item.manifest_only_registry,
+                                       library_root=item.library_root)
                 else:
                     self.add_workspace(item['root'], principal=item.get('principal'),
                                        data_dir=item.get('data_dir'),
                                        code_root=item.get('code_root'), input_roots=item.get('input_roots'),
                                        worker_python=item.get('worker_python'),
-                                       manifest_only_registry=item.get('manifest_only_registry', False))
+                                       manifest_only_registry=item.get('manifest_only_registry', False),
+                                       library_root=item.get('library_root'))
             self.executor = MultiWorkspaceExecutor(self)
             self.coordinator = self.engine.coordinator(
                 self.executor, project='default', artifact_committer=self._commit_artifacts).coordinator
@@ -294,16 +299,23 @@ class PoolService:
                     self.sessions.pop(session_id, None)
 
     def add_workspace(self, root, *, principal=None, data_dir=None, code_root=None, input_roots=None,
-                      worker_python=None, manifest_only_registry=False, force=False):
+                      worker_python=None, manifest_only_registry=False, library_root=None, force=False):
         with self._registration_lock:
             return self._add_workspace(root, principal=principal, data_dir=data_dir, code_root=code_root,
                                        input_roots=input_roots, worker_python=worker_python,
-                                       manifest_only_registry=manifest_only_registry, force=force)
+                                       manifest_only_registry=manifest_only_registry,
+                                       library_root=library_root, force=force)
 
     def _add_workspace(self, root, *, principal=None, data_dir=None, code_root=None, input_roots=None,
-                       worker_python=None, manifest_only_registry=False, force=False):
+                       worker_python=None, manifest_only_registry=False, library_root=None, force=False):
         from src.web.service import JobService, Settings
         root = _resolve(root)
+        if library_root is None:
+            from operon.installation import library_root as _infer_library_root
+            library_root = _infer_library_root(code_root or self.code_root)
+        # The version-scoped library decides resolution; a manifest-only
+        # registry cannot see its packages even when the client asked for it.
+        manifest_only_registry = bool(manifest_only_registry and not library_root)
         if str(root) in self.workspaces:
             service = self.workspaces[str(root)]
             if data_dir is not None and service.directory != _resolve(data_dir):
@@ -316,9 +328,12 @@ class PoolService:
                 service.settings.input_roots = list(dict.fromkeys([
                     *service.settings.input_roots, *map(_resolve, input_roots)]))
             changed_code = code_root is not None and _resolve(code_root) != _resolve(service.settings.code_root)
+            previous_library = (_resolve(service.settings.library_root)
+                                if getattr(service.settings, 'library_root', None) else None)
+            changed_library = library_root is not None and _resolve(library_root) != previous_library
             selected_python = str(Path(worker_python).absolute()) if worker_python else service.plugins.python
             changed_policy = manifest_only_registry != service.settings.manifest_only_registry
-            if changed_code or selected_python != service.plugins.python or changed_policy:
+            if changed_code or changed_library or selected_python != service.plugins.python or changed_policy:
                 active = any(job.get('status') in ('queued', 'preparing', 'running', 'recovery_required')
                              or job.get('logs_complete') is False for job in service.jobs.values())
                 if active:
@@ -333,6 +348,17 @@ class PoolService:
                     raise PoolError('Finish tasks and close workspace clients before changing its application, interpreter or catalog policy')
                 if changed_code:
                     service.settings.code_root = _resolve(code_root)
+                if changed_policy:
+                    service.settings.manifest_only_registry = manifest_only_registry
+                if changed_library:
+                    service.settings.library_root = _resolve(library_root)
+                    from operon.plugins import PluginManager
+                    service.plugins = PluginManager(
+                        service.directory,
+                        manifest_only=service.settings.manifest_only_registry,
+                        python=service.settings.worker_python,
+                        library_root=service.settings.library_root)
+                    service.dependencies.sync(service.plugins.state())
                 service.settings.worker_python = service.plugins.python = selected_python
                 service.settings.manifest_only_registry = service.plugins.manifest_only = manifest_only_registry
             return service
@@ -347,7 +373,8 @@ class PoolService:
                             admission_dir=self.admission.directory, engine_mode='legacy',
                             manifest_only_registry=manifest_only_registry,
                             input_roots=list(map(_resolve, input_roots)) if input_roots else None,
-                            worker_python=worker_python)
+                            worker_python=worker_python,
+                            library_root=_resolve(library_root) if library_root else None)
         service = JobService(settings, self.catalog, pool=self, principal=principal)
         wid = service.engine.workspace_id
         with self._state_lock:

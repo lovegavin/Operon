@@ -8,7 +8,8 @@ import pytest
 
 from operon.engine.environment import EnvironmentBusy
 from operon.engine.facade import owner_identity
-from operon.pool_service import PoolClient, PoolControlServer, PoolError, PoolService
+from operon.pool_service import (PoolClient, PoolControlServer, PoolError, PoolService,
+                                 WorkspaceSpec)
 from src.web.models import Graph
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -375,3 +376,57 @@ def test_force_reregistration_closes_live_client(pool, tmp_path):
     service.add_workspace(wsa, principal='alice', code_root=code2, force=True)
     assert service.sessions == {}
     assert service.workspaces[str(wsa.resolve())].settings.code_root == code2.resolve()
+
+
+
+def test_workspace_spec_round_trips_library_root(tmp_path):
+    library = tmp_path / 'library'
+    spec = WorkspaceSpec(root=tmp_path / 'workspace', principal='alice',
+                         library_root=library)
+    data = spec.to_json()
+    assert data['library_root'] == str(library)
+    assert WorkspaceSpec(**data).library_root == str(library)
+
+
+def test_workspace_restore_infers_version_scoped_library(tmp_path):
+    version = tmp_path / 'versions' / '5.0.1'
+    code = version / 'runtime/python/Lib/site-packages'
+    code.mkdir(parents=True)
+    (version / 'library').mkdir()
+    workspace = make_workspace(tmp_path / 'restored')
+    service = PoolService(
+        root=tmp_path / 'pool-state', admission_dir=tmp_path / 'admission',
+        workspaces=[{'root': str(workspace), 'code_root': str(code)}],
+        code_root=code, capacity_bytes=64 * MIB, cpu_threads=1)
+    try:
+        restored = service.workspaces[str(workspace.resolve())]
+        assert restored.settings.library_root == version / 'library'
+        assert restored.settings.manifest_only_registry is False
+        assert restored.plugins.manifest_only is False
+    finally:
+        service.shutdown()
+
+
+def test_reregistration_with_library_normalizes_manifest_only(tmp_path):
+    version = tmp_path / 'versions' / '5.0.1'
+    code = version / 'runtime/python/Lib/site-packages'
+    code.mkdir(parents=True)
+    library = version / 'library'
+    library.mkdir()
+    workspace = make_workspace(tmp_path / 'normalized')
+    service = PoolService(
+        root=tmp_path / 'pool-state', admission_dir=tmp_path / 'admission',
+        workspaces=[{'root': str(workspace), 'code_root': str(code),
+                     'library_root': str(library),
+                     'manifest_only_registry': True}],
+        code_root=code, capacity_bytes=64 * MIB, cpu_threads=1)
+    try:
+        service.add_workspace(workspace, code_root=code,
+                              manifest_only_registry=True,
+                              library_root=library)
+        updated = service.workspaces[str(workspace.resolve())]
+        assert updated.settings.library_root == library
+        assert updated.settings.manifest_only_registry is False
+        assert updated.plugins.manifest_only is False
+    finally:
+        service.shutdown()

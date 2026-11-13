@@ -179,6 +179,8 @@ class ManagedPoolClient(PoolClient):
                 'principal': self.principal,
                 'worker_python': self.settings.worker_python or sys.executable,
                 'manifest_only_registry': self.settings.manifest_only_registry,
+                'library_root': (str(self.settings.library_root.resolve())
+                                 if getattr(self.settings, 'library_root', None) else None),
                 'input_roots': [str(p.resolve()) for p in self.settings.input_roots or []],
                 'implementation': implementation(str(Path(__file__).resolve().parents[1])),
                 'force': os.environ.get('OPERON_FORCE_POOL_REBIND') == '1',
@@ -258,7 +260,7 @@ class ManagedControlServer(PoolControlServer):
                 force = params.get('force') is True
                 if params.get('implementation') != self.identity:
                     raise PoolError('Client and pool application versions differ', code='pool_upgrade_required')
-                spec = {key: params.get(key) for key in ('root', 'data_dir', 'code_root', 'principal', 'input_roots', 'worker_python')}
+                spec = {key: params.get(key) for key in ('root', 'data_dir', 'code_root', 'principal', 'input_roots', 'worker_python', 'library_root')}
                 spec['manifest_only_registry'] = params.get('manifest_only_registry', True)
                 if not isinstance(spec['manifest_only_registry'], bool):
                     raise PoolError('Catalog policy must be a boolean')
@@ -267,6 +269,9 @@ class ManagedControlServer(PoolControlServer):
                     raise PoolError('Workspace registration needs absolute local paths')
                 if not Path(spec['root']).is_dir() or not Path(spec['code_root']).is_dir():
                     raise PoolError('Workspace and application directories must exist')
+                if spec['library_root'] is not None and (not isinstance(spec['library_root'], str)
+                        or not Path(spec['library_root']).is_absolute()):
+                    raise PoolError('Workspace library root must be an absolute local path or null')
                 if spec['worker_python'] is not None and (not isinstance(spec['worker_python'], str)
                         or not Path(spec['worker_python']).is_absolute() or not Path(spec['worker_python']).is_file()):
                     raise PoolError('Workspace interpreter must be an existing absolute executable path')
@@ -276,6 +281,11 @@ class ManagedControlServer(PoolControlServer):
                     service = self.pool.add_workspace(**spec, force=force)
                     records = _read(self.root / 'workspaces.json', {})
                     spec['input_roots'] = [str(p) for p in service.settings.input_roots]
+                    # Persist the effective binding, not the request: a client
+                    # that omits library_root still gets the version-scoped one.
+                    spec['library_root'] = (str(service.settings.library_root)
+                                            if getattr(service.settings, 'library_root', None) else None)
+                    spec['manifest_only_registry'] = bool(service.settings.manifest_only_registry)
                     records[str(service.root)] = spec
                     atomic_json(self.root / 'workspaces.json', records)
                 return {'workspace_id': service.engine.workspace_id, 'registered': True}

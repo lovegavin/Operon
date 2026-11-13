@@ -16,6 +16,15 @@ contract change.
   `library 8.0.10` even though those wheels live in a deleted application
   version. On the first read, 5.0.1 clears that catalog and asks the user to
   import an `operon-library-v0.0.x` bundle.
+- **The library panel shows one imported library.** The panel records the
+  library version, operator and Reader counts and import time; the seven
+  internal packages are an implementation detail and are no longer rendered
+  as separate modules with their own enable/disable/remove actions.
+- **Pool workers keep the version-scoped library.** Restoring a managed-pool
+  workspace now carries its `library_root` (and derives it from the
+  application code root when a legacy record omits it), so operators imported
+  after an application upgrade resolve in pool workers instead of failing with
+  `Missing operators or Readers in the installed library`.
 - Version identifiers are 5.0.1 across the application, wheel and frontend.
 
 ## Compatibility
