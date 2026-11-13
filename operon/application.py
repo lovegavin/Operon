@@ -667,7 +667,23 @@ class ArtifactService:
 
     def file(self, job_id, artifact_id, role=None):
         backend = self.app.jobs.backend(job_id)
-        return backend.artifact_file(job_id, artifact_id, role) if role else backend.artifact(job_id, artifact_id)[0]
+        if role:
+            return backend.artifact_file(job_id, artifact_id, role)
+        path, descriptor = backend.artifact(job_id, artifact_id)
+        if descriptor.get('kind') != 'file':
+            return path
+        # A file artifact's cached payload is the export manifest (files.json), not
+        # the file a user asked to download. Resolve a concrete role so /file always
+        # streams data and an explicit ?role= still selects another export.
+        try:
+            payload = read_json(path)
+        except (OSError, ValueError):
+            return path
+        files = payload.get('files') if isinstance(payload, dict) else None
+        if not isinstance(files, dict) or not files:
+            return path
+        preferred = 'data' if 'data' in files else sorted(files)[0]
+        return backend.artifact_file(job_id, artifact_id, preferred)
 
     def preview(self, job_id, artifact_id, offset=0, limit=20):
         return self.app.jobs.backend(job_id).preview(job_id, artifact_id, offset=offset, limit=limit)

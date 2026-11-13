@@ -64,11 +64,11 @@ def test_interface_statistics_are_static_labels(step_cls, expected):
     "step_cls,imports",
     [
         (InterfaceAlanineScanStep, ["openmm"]),
-        (InterfaceMmgbsaDeltaStep, ["openmm", "pdbfixer"]),
-        (StructureInterfaceResidueEnergyStep, ["openmm", "pdbfixer"]),
-        (StructureOpenmmEnergyStep, ["openmm", "pdbfixer"]),
-        (StructureOpenmmMdRmsfStep, ["openmm", "pdbfixer"]),
-        (StructureOpenmmMdStabilityStep, ["openmm", "pdbfixer"]),
+        (InterfaceMmgbsaDeltaStep, ["openmm"]),
+        (StructureInterfaceResidueEnergyStep, ["openmm"]),
+        (StructureOpenmmEnergyStep, ["openmm"]),
+        (StructureOpenmmMdRmsfStep, ["openmm"]),
+        (StructureOpenmmMdStabilityStep, ["openmm"]),
     ],
 )
 def test_interface_operators_use_openmm81_environment(step_cls, imports):

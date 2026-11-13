@@ -130,6 +130,7 @@ def scan_residues(pdb_path: Path, text: str, binder: tuple[str, ...], target: tu
         mutant_path.write_text(mutant_text)
         mutant = mmgbsa_terms(mutant_path, forcefield_name=forcefield, implicit=implicit, ph=ph, binder=binder, target=target)
         mutant_delta = mutant["complex"]["total"] - mutant["binder"]["total"] - mutant["target"]["total"]
+        gly_to_ala = name == "GLY"
         results.append(
             {
                 "chain": chain,
@@ -139,6 +140,12 @@ def scan_residues(pdb_path: Path, text: str, binder: tuple[str, ...], target: tu
                 "wt_delta": wt_delta,
                 "mutant_delta": mutant_delta,
                 "delta_delta": mutant_delta - wt_delta,
+                "flag": "gly_to_ala" if gly_to_ala else "",
+                "excluded_reason": "Glycine has no side chain; the Ala mutation introduces a methyl group "
+                "that can clash at a packed interface and is not a comparable alanine substitution."
+                if gly_to_ala
+                else "",
+                "excluded_from_ranking": bool(gly_to_ala),
             }
         )
     return results
@@ -304,6 +311,14 @@ class InterfaceAlanineScanStep(Step):
         )
         labels = {f"{row['chain']}:{row['number']}:{row['residue']}": index for index, row in enumerate(rows)}
         copy_replicates, copy_warnings = copy_replicate_quality(rows)
+        excluded = [row for row in rows if row.get("excluded_from_ranking")]
+        excluded_note = []
+        if excluded:
+            excluded_note = [
+                f"{row['chain']}:{row['number']}:{row['residue']} (Gly to Ala) is excluded from ranking: "
+                "glycine has no side chain and the mutation is not a comparable alanine substitution."
+                for row in excluded
+            ]
         info = {
             "n_mutations": len(rows),
             "wt_delta_kj": rows[0]["wt_delta"],
@@ -326,14 +341,17 @@ class InterfaceAlanineScanStep(Step):
                 "entropy_included": False,
                 "ensemble": False,
                 "calibrated": False,
+                "gly_to_ala_excluded": len(excluded),
             },
             "warnings": [
                 "Single-point MM/GBSA without entropy, ensemble averaging or calibration; "
                 "values are not calibrated binding affinities and must not be reported as hotspots.",
+                *excluded_note,
                 *copy_warnings,
             ],
             "mutations": [
-                {key: row[key] for key in ("chain", "number", "residue", "side", "delta_delta")}
+                {key: row[key] for key in ("chain", "number", "residue", "side", "delta_delta",
+                                           "flag", "excluded_reason", "excluded_from_ranking")}
                 for row in rows
             ],
         }

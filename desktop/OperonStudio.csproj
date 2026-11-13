@@ -8,7 +8,7 @@
     <AssemblyName>Operon Studio</AssemblyName>
     <Product>Operon Studio</Product>
     <Title>Operon Studio</Title>
-    <Version>4.2.0</Version>
+    <Version>4.2.1</Version>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
