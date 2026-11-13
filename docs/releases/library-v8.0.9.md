@@ -6,9 +6,9 @@ Release date: 2026-11-13
 
 - **Minimum application: Studio 4.2.1**
 - Built and compatibility-tested with Studio 4.2.1.
-- Target-runtime acceptance: the final Linux bundle was installed into an isolated Studio 4.2.1 profile and the standard operator probe passed. Evidence is recorded in `verification/operator-audit-8.0.9/application-4.2.1-compat.json`. The `openmm81` environment was validated from the source manifest; re-preparing it from the frozen bundle was not repeated for this release.
-- Linux bundle SHA256: `202154197303941eb95d382e2ee1418e93fecbe4e8451b94b7c86af2f97b371f`.
-- Windows bundle SHA256: `PENDING`.
+- Target-runtime acceptance: the final Linux bundle was installed into an isolated Studio 4.2.1 profile, the standard operator probe passed, and the install was idempotent. Evidence is recorded in `verification/operator-audit-8.0.9/application-4.2.1-compat.json`. The `openmm81` environment was validated from the source manifest on Studio 4.1.9; re-preparing it from the frozen bundle was not repeated for this release.
+- Linux bundle SHA256: `91f11de9fa333f68381cfd7dc583eb7e70f289446c0265ebb2956c94c1b20b5f`.
+- Windows bundle SHA256: `1ac24f24dc2b00185df1de9f844684806df947f0fa5fe781bfed1a0d003f8f22`.
 
 ## Fixes
 

@@ -1,7 +1,7 @@
 {
   "application": "4.2.1",
   "library": "8.0.9",
-  "bundle_sha256": "202154197303941eb95d382e2ee1418e93fecbe4e8451b94b7c86af2f97b371f",
+  "bundle_sha256": "91f11de9fa333f68381cfd7dc583eb7e70f289446c0265ebb2956c94c1b20b5f",
   "minimum_application": "4.2.1",
   "forward_minimum_compatibility": false,
   "operators": 1063,

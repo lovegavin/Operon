@@ -11,17 +11,21 @@ Library 8.0.9 fixes the 4.2.0 operator-library reports:
 ## Bundle
 
 Linux bundle SHA256:
-`202154197303941eb95d382e2ee1418e93fecbe4e8451b94b7c86af2f97b371f`.
+`91f11de9fa333f68381cfd7dc583eb7e70f289446c0265ebb2956c94c1b20b5f`.
 
 Built with Studio 4.2.1 (`minimum_application` 4.2.1, `build_application`
-4.2.1). The bundle is 28,394,745 bytes and contains 1,171 descriptors in
+4.2.1). The Windows bundle SHA256 is
+`1ac24f24dc2b00185df1de9f844684806df947f0fa5fe781bfed1a0d003f8f22`.
+
+The Linux bundle is 28,394,745 bytes and contains 1,171 descriptors in
 7 packages.
 
 ## Target-runtime installation
 
-The final Linux bundle was installed into an isolated Studio 4.2.1 profile by
-`scripts/verify_library_release.py`. The standard operator probe completed and
-`passed: true`; evidence:
+The final Linux bundle (`91f11de9…`) was installed into an isolated Studio
+4.2.1 profile by `scripts/verify_library_release.py`. The standard operator
+probe completed with `passed: true`, `application_unchanged: true` and
+`idempotent_install: true`; evidence:
 `verification/operator-audit-8.0.9/application-4.2.1-compat.json`.
 
 This is an install/probe acceptance. The `openmm81` environment was validated
