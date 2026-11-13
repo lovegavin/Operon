@@ -77,7 +77,8 @@ def test_launch_records_rebinding_and_preserves_history(tmp_path, monkeypatch):
         assert final['plugins']['bundled_updates'] == selected['bundled_updates']
         console = (service.jobs_dir / job['id'] / 'console.log').read_text(encoding='utf-8')
         assert 'Updated bundled source pins' in console
-        events = [json.loads(line) for p in (service.jobs_dir / job['id'] / 'output/runs').glob('*/events.jsonl')
+        output = Path(final.get('output_dir') or (service.jobs_dir / job['id'] / 'output'))
+        events = [json.loads(line) for p in output.glob('runs/*/events.jsonl')
                   for line in p.read_text(encoding='utf-8').splitlines()]
         assert any(e['event'] == 'bundled_pins_updated' for e in events)
         assert old_lock.read_bytes() == before
