@@ -109,7 +109,8 @@ def _runtime(directory, requirements):
         raise PortableError('An arbitrary venv is not relocatable; provide a prepared runtime')
     # Probe the actual interpreter, rather than trusting a manifest claim.
     probe = 'import json,sys,platform; from importlib.metadata import distributions; print(json.dumps({"platform":sys.platform,"machine":platform.machine(),"packages":{d.metadata["Name"].lower().replace("_","-"):d.version for d in distributions()}}))'
-    completed = subprocess.run([str(executable), '-I', '-c', probe], capture_output=True, text=True, timeout=45, check=True)
+    completed = subprocess.run([str(executable), '-I', '-X', 'utf8', '-c', probe], capture_output=True, text=True,
+                               encoding='utf-8', errors='replace', timeout=45, check=True)
     actual = json.loads(completed.stdout)
     if actual['platform'] != record['platform'] or actual['machine'].lower() != record['machine'].lower():
         raise PortableError('Runtime metadata does not match its interpreter')

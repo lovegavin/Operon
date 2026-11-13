@@ -144,7 +144,8 @@ def probe(name: str, imports=None, root=None) -> tuple[bool, str, str]:
     for name in ('PYTHONPATH', 'PYTHONHOME'):
         env.pop(name, None)
     env['PYTHONNOUSERSITE'] = '1'
-    result = subprocess.run([str(python), '-c', script], capture_output=True, text=True, timeout=300, env=env, cwd=_probe_cwd(python))
+    result = subprocess.run([str(python), '-X', 'utf8', '-c', script], capture_output=True, text=True,
+                            encoding='utf-8', errors='replace', timeout=300, env=env, cwd=_probe_cwd(python))
     if result.returncode:
         tail = (result.stderr or result.stdout).strip().splitlines()[-1:] or ['import failed']
         return False, str(python), tail[0]

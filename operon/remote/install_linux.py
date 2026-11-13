@@ -103,7 +103,8 @@ def compiler_environment():
 
 def _install(request, wheel_only, environment, constraints=None, bundle=None):
     command = pip_command(request, wheel_only, constraints, bundle)
-    result = subprocess.run(command, capture_output=True, text=True, env=environment)
+    result = subprocess.run(command, capture_output=True, text=True,
+                            encoding='utf-8', errors='replace', env=environment)
     if result.returncode:
         tail = (getattr(result, 'stdout', '') or '') + (getattr(result, 'stderr', '') or '')
         return result.returncode, tail.strip()[-4000:]
@@ -296,7 +297,8 @@ def ensure_requirements(specs, request, bundle=None, *, prepare_library=False):
     request.write_text('\n'.join(specs) + '\n', encoding='utf-8')
     constraints = request.with_name('pip-constraints.txt')
     constraints.write_text('\n'.join(PIP_CONSTRAINTS) + '\n', encoding='utf-8')
-    health = subprocess.run([sys.executable, '-I', '-m', 'pip', 'check'], capture_output=True, text=True)
+    health = subprocess.run([sys.executable, '-I', '-m', 'pip', 'check'], capture_output=True, text=True,
+                            encoding='utf-8', errors='replace')
     if missing or health.returncode:
         print(f'Repairing dependencies ({len(missing)} direct requirements missing or incompatible)', flush=True)
         # One pip solve for all Python libraries: do not preinstall conda's

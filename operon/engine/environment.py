@@ -50,8 +50,8 @@ def _interpreter_identity(executable, file_stamp, config_stamp):
             '"version":list(sys.version_info[:3]),"prefix":sys.prefix,'
             '"base_prefix":sys.base_prefix,"implementation":sys.implementation.name}))')
     try:
-        result = subprocess.run([executable, '-I', '-c', code], check=True,
-                                capture_output=True, text=True, timeout=30,
+        result = subprocess.run([executable, '-I', '-X', 'utf8', '-c', code], check=True,
+                                capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=30,
                                 creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
         value = json.loads(result.stdout)
         for key in ('executable', 'prefix', 'base_prefix'):

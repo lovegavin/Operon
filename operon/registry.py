@@ -215,8 +215,8 @@ def inventory(root=ROOT, source_ref=None, route_roots=None):
     result = {"source_ref": source_ref, "extensions": [], "routes": [], "errors": []}
     route_keys = {}
     if source_ref:
-        commit = subprocess.check_output(["git", "rev-parse", "--verify", "--end-of-options", source_ref + "^{commit}"], cwd=root, text=True).strip()
-        paths = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit], cwd=root, text=True).splitlines()
+        commit = subprocess.check_output(["git", "rev-parse", "--verify", "--end-of-options", source_ref + "^{commit}"], cwd=root, text=True, encoding='utf-8', errors='replace').strip()
+        paths = subprocess.check_output(["git", "ls-tree", "-r", "--name-only", commit], cwd=root, text=True, encoding='utf-8', errors='replace').splitlines()
         result["source_ref"] = commit
         def local_path(path):
             return path.removeprefix('library/seed/')

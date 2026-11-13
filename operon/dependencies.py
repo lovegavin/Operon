@@ -85,12 +85,14 @@ def probe_environment(entry_id, environment, imports):
     for name in ('PYTHONPATH', 'PYTHONHOME'):
         env.pop(name, None)
     env['PYTHONNOUSERSITE'] = '1'
-    result = subprocess.run([str(python), '-c', script], capture_output=True, text=True, timeout=300, env=env, cwd=_probe_cwd(python))
+    result = subprocess.run([str(python), '-X', 'utf8', '-c', script], capture_output=True, text=True,
+                            encoding='utf-8', errors='replace', timeout=300, env=env, cwd=_probe_cwd(python))
     if result.returncode:
-        tail = (result.stderr or result.stdout).strip().splitlines()[-3:] or ['import failed']
+        detail = result.stderr or result.stdout or ''
+        tail = detail.strip().splitlines()[-3:] or ['import failed']
         return {'status': 'failed', 'error': f'{environment}: ' + ' | '.join(tail),
                 'environment_python': str(python), 'command': f'{python} -c {script!r}',
-                'stderr': result.stderr[-2000:]}
+                'stderr': (result.stderr or '')[-2000:]}
     return {'status': 'passed', 'error': '', 'environment': str(python)}
 
 
