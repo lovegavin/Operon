@@ -1586,6 +1586,10 @@ class JobService:
         from operon.bytecode import filesystem_path
         return Path(filesystem_path(path))
 
+    def result_file(self, key, relative):
+        """Adapter alias for result_path with the same containment checks."""
+        return self.result_path(key, relative)
+
     def require(self, key):
         # Jobs created by the other launcher become visible without restarting.
         with self.lock:

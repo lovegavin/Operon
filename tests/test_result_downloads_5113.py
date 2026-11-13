@@ -36,6 +36,12 @@ def test_result_path_returns_file_bytes(tmp_path):
     assert Path(path).read_bytes() == (output / "a.csv").read_bytes()
 
 
+def test_result_file_alias_matches_result_path(tmp_path):
+    service, output = _service(tmp_path)
+    path = service.result_file("job1", "a.csv")
+    assert Path(path).read_bytes() == (output / "a.csv").read_bytes()
+
+
 def test_result_path_rejects_traversal_and_absolute(tmp_path):
     service, _ = _service(tmp_path)
     with pytest.raises(ValueError):
