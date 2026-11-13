@@ -377,9 +377,14 @@ def install_library(manager, path, *, replace: bool = True) -> dict:
                 release = _release(document, digest)
                 if archive is not None:
                     release["archive"] = str(archive)
-                if current.get("library_release") != release or not current.get("library_detached"):
+                if (current.get("library_release") != release
+                        or not current.get("library_detached")
+                        or current.get("source_library")
+                        or current.get("library_source_pins")):
                     current["library_release"] = release
                     current["library_detached"] = True
+                    for legacy in ("source_library", "library_source_pins", "library_pin_updates"):
+                        current.pop(legacy, None)
                     manager._publish(current)
                 return _result(document, installed=False, idempotent=True)
             if not replace and any(
@@ -393,6 +398,8 @@ def install_library(manager, path, *, replace: bool = True) -> dict:
                 release["archive"] = str(archive)
             state["library_release"] = release
             state["library_detached"] = True
+            for legacy in ("source_library", "library_source_pins", "library_pin_updates"):
+                state.pop(legacy, None)
             state.setdefault("_runtime_root", str(manager.directory.resolve()))
             manager._publish(state)
             return _result(document, installed=True, idempotent=False)

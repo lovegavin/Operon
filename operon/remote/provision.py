@@ -29,10 +29,8 @@ def source_archive(root):
     root = Path(root)
     files = [root / name for name in ('pyproject.toml', 'README.md', 'requirements-hic-linux.txt',
                                      'scripts/run.py', 'scripts/desktop_server.py')]
-    if (root / 'library/pyproject.toml').is_file():
-        files += [root / 'library/pyproject.toml', root / 'library/release.json']
     files += sorted((root / 'library').glob('operon-library-*.zip'))
-    for directory in ('operon', 'operon_sdk', 'operon', 'src', 'library/seed'):
+    for directory in ('operon', 'operon_sdk', 'operon', 'src'):
         files += [p for p in (root / directory).rglob('*') if p.is_file()
                   and p.suffix in ('.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif', '.yaml', '.yml')
                   and '__pycache__' not in p.parts]
