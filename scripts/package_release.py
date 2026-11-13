@@ -115,6 +115,11 @@ def main():
                         _windows_path(bootstrapper)], check=True)
         (destination / 'runtime/webview2.json').write_text(json.dumps({'source': url,
             'sha256': hashlib.sha256(bootstrapper.read_bytes()).hexdigest()}), encoding='utf-8')
+    assets = sorted((root / 'frontend/dist/assets').glob('*.js'))
+    if not assets:
+        raise SystemExit('frontend/dist is missing; run npm run build before packaging')
+    if not any(f'"{version}"' in asset.read_text(encoding='utf-8', errors='replace') for asset in assets):
+        raise SystemExit(f'frontend/dist does not contain version {version}; run npm run build before packaging')
     shutil.copytree(root / 'frontend/dist', destination / 'frontend')
     if args.base_library:
         target = destination / 'library/base'
@@ -249,7 +254,7 @@ The release page records the validation completed for this exact build.
                                       'sha256': hashlib.sha256(file.read_bytes()).hexdigest()})
     (destination / 'package-manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
     archive = destination.parent / (name + '.zip')
-    with zipfile.ZipFile(archive, 'x', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as output:
+    with zipfile.ZipFile(archive, 'x', compression=zipfile.ZIP_DEFLATED, compresslevel=1) as output:
         for file in sorted(destination.rglob('*')):
             if file.is_file():
                 output.write(file, (Path('Operon Studio') / file.relative_to(destination)).as_posix())
