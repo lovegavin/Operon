@@ -12,12 +12,12 @@ parameter, log and artifact. The same engine is available through the desktop,
 CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
-The current source integrates **Operon Studio 4.2.3** with the independently
+The current source integrates **Operon Studio 4.2.4** with the independently
 versioned **8.0.10 operator library**: **1,063 operators, 108 Readers (1,171
 descriptors), seven provider packages and 79 route templates**. Operators and
 Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
-Markdown documentation. Studio 4.2.3 requires library **8.0.9 or newer** and the
-current tree ships **8.0.10** as the built-in library.
+Markdown documentation. Studio 4.2.4 requires library **8.0.10 or newer** and
+ships it as the built-in library.
 
 Operon does not bundle or require an AI model. Agent access is optional.
 
@@ -40,7 +40,7 @@ Operon does not bundle or require an AI model. Agent access is optional.
 | I want to… | Start here |
 | --- | --- |
 | Use the Windows desktop | Download **Operon_Setup.exe** from [Releases](https://github.com/lovegavin/Operon/releases/latest) |
-| Run a Linux server without a desktop | Download **Operon-4.2.3-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
+| Run a Linux server without a desktop | Download **Operon-4.2.4-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
 | Develop from source | `python -m pip install . ./library` with Python 3.11+ |
 | Connect an AI agent | Use the desktop **Agent** panel or `operon mcp`; see [agent operations](docs/agent_operations.md) |
 
@@ -49,7 +49,7 @@ profile. Scientific packages are installed only for the workflow and execution
 host you choose; they are not all bundled. If WebView2 is missing, Setup asks
 Microsoft's installer for it, which needs internet access.
 
-A new 4.2.3 installation puts the working workspace under the installation root
+A new 4.2.4 installation puts the working workspace under the installation root
 (for example, `workspace` under the installation root). Profile metadata, logs and browser
 state remain under `%USERPROFILE%\.operon`. Earlier installations keep their
 existing workspace. Uninstall removes the program but preserves the workspace
@@ -66,6 +66,19 @@ In short: install, open **Operon Studio**, add a CSV, connect it to **PCA**, che
 the local environment, and press **Run**. Results appear under **Run history →
 View results**. The first dependency check may need internet access; Operon never
 installs scientific packages silently during a run.
+
+## What is new in 4.2.4
+
+- **Binary workspace writes.** `operon_write_binary(path=..., content_base64=...)`
+  and `POST /api/v1/workspace/files/binary` write PNG, PDF, ZIP or any other
+  binary payload through the backend. Path rules match text writes; the decoded
+  payload is limited to 50 MiB, while UTF-8 text writes stay at 10 MiB.
+- **Remote library diagnostics.** A pinned-implementation failure against an SSH
+  target now names the host and points at `operon_remote_install(force=true)`,
+  and a missing input on an SSH target explains that only local source files are
+  uploaded.
+- **Operator library 8.0.10.** All 1,171 descriptors carry consistent `code_sha`
+  values in this release; Studio 4.2.4 requires library **8.0.10 or newer**.
 
 ## What is new in 4.2.3
 

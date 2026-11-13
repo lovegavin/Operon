@@ -188,6 +188,16 @@ def create_server(client):
         return client.request('/v1/workspace/files', {'path': path, 'content': content, 'overwrite': overwrite})
 
     @server.tool()
+    def operon_write_binary(path: str, content_base64: str, overwrite: bool = True) -> dict:
+        """Write base64-encoded binary data (PNG, PDF, ZIP, ...) into the Operon workspace through the backend.
+
+        path is workspace-relative; absolute paths, "..", symbolic links and Operon internal state are rejected.
+        content_base64 is standard base64 without a data-URL prefix; decoded content is limited to 50 MiB.
+        """
+        return client.request('/v1/workspace/files/binary',
+                              {'path': path, 'content': content_base64, 'overwrite': overwrite})
+
+    @server.tool()
     def operon_remote_status() -> dict:
         """List SSH execution profiles with their connected state."""
         return client.request('/remote/summary')

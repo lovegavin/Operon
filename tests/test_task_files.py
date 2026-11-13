@@ -1,11 +1,12 @@
-"""Task scaffold and backend-mediated text writes inside the workspace."""
+"""Task scaffold and backend-mediated text/binary writes inside the workspace."""
+import base64
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
 from operon.documents import CommandError
-from operon.task_files import DEFAULT_FOLDERS, MAX_TEXT_BYTES, scaffold, write_text
+from operon.task_files import DEFAULT_FOLDERS, MAX_BINARY_BYTES, MAX_TEXT_BYTES, scaffold, write_binary, write_text
 from src.web.api import create_app
 from src.web.service import Settings
 
@@ -124,5 +125,54 @@ def test_control_api_scaffold_write_and_capabilities(tmp_path):
         assert written.json()['bytes'] == 5
         assert (tmp_path / 'demo/task1/reports/summary.md').read_text(encoding='utf-8') == '# hi\n'
         denied = client.post('/api/v1/workspace/files', json={'path': '../escape.txt', 'content': 'x'})
+        assert denied.status_code == 422
+        assert denied.json()['code'] == 'invalid_path'
+
+
+def test_write_binary_writes_exact_bytes(tmp_path):
+    root = tmp_path / 'workspace'
+    root.mkdir()
+    payload = b'\x89PNG\r\n\x1a\n' + bytes(range(64))
+    result = write_binary(root, 'task1/figures/plot.png', payload)
+    assert result['path'] == 'task1/figures/plot.png'
+    assert result['bytes'] == len(payload)
+    assert result['created'] is True
+    assert (root / 'task1/figures/plot.png').read_bytes() == payload
+
+
+def test_write_binary_rejects_oversized_content(tmp_path):
+    root = tmp_path / 'workspace'
+    root.mkdir()
+    with pytest.raises(CommandError) as error:
+        write_binary(root, 'task1/big.bin', b'x' * (MAX_BINARY_BYTES + 1))
+    assert error.value.code == 'content_too_large'
+
+
+def test_write_binary_rejects_unsafe_paths(tmp_path):
+    root = tmp_path / 'workspace'
+    root.mkdir()
+    with pytest.raises(CommandError):
+        write_binary(root, '../escape.bin', b'x')
+
+
+def test_control_api_binary_write_and_capabilities(tmp_path):
+    payload = b'\x89PNG\r\n\x1a\n' + bytes(range(32))
+    with TestClient(studio(tmp_path)) as client:
+        client.headers['X-Studio-Token'] = client.get('/api/bootstrap').json()['token']
+        capabilities = client.get('/api/v1/capabilities').json()['capabilities']
+        assert 'workspace-binary-files' in capabilities
+        written = client.post('/api/v1/workspace/files/binary', json={
+            'path': 'demo/task1/figures/chart.png',
+            'content': base64.b64encode(payload).decode('ascii'),
+        })
+        assert written.status_code == 200, written.text
+        assert written.json()['bytes'] == len(payload)
+        assert (tmp_path / 'demo/task1/figures/chart.png').read_bytes() == payload
+        invalid = client.post('/api/v1/workspace/files/binary', json={
+            'path': 'demo/task1/figures/bad.png', 'content': '***not-base64***'})
+        assert invalid.status_code == 422
+        assert invalid.json()['code'] == 'invalid_content'
+        denied = client.post('/api/v1/workspace/files/binary', json={
+            'path': '../escape.png', 'content': base64.b64encode(b'x').decode('ascii')})
         assert denied.status_code == 422
         assert denied.json()['code'] == 'invalid_path'

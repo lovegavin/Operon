@@ -1,4 +1,7 @@
 """Versioned application API, mounted by both desktop and headless hosts."""
+import base64
+import binascii
+
 from fastapi import Request
 from fastapi.responses import FileResponse, Response, JSONResponse
 from fastapi.exceptions import RequestValidationError
@@ -57,6 +60,13 @@ class WorkspaceFileRequest(BaseModel):
     overwrite: bool = True
 
 
+class WorkspaceBinaryRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    path: str = Field(min_length=1, max_length=500)
+    content: str
+    overwrite: bool = True
+
+
 class DescribeRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     ids: list[str] = Field(min_length=1, max_length=20)
@@ -85,7 +95,7 @@ def mount_control(app, application, bridge):
         authorize(request)
         return {'api_version': 1, 'operator_protocol': 3, 'headless': bool(getattr(app.state, 'headless', False)),
                 'capabilities': ['workflows', 'tasks', 'artifacts', 'operator-docs', 'canvas-sessions', 'agent-guides', 'brief-views', 'result-viewers', 'workflow-readiness', 'explicit-environment-preparation', 'transaction-diffs',
-                                'task-scaffolding', 'workspace-files'],
+                                'task-scaffolding', 'workspace-files', 'workspace-binary-files'],
                 'guides_href': '/api/v1/guides', 'openapi_href': '/api/v1/openapi.json',
                 'permission_scopes': ['context', 'edit', 'run', 'plugins']}
 
@@ -124,6 +134,15 @@ def mount_control(app, application, bridge):
     def write_workspace_file(request: Request, payload: WorkspaceFileRequest):
         authorize(request, 'edit')
         return application.task_files.write_text(payload.path, payload.content, payload.overwrite)
+
+    @app.post('/api/v1/workspace/files/binary')
+    def write_workspace_binary(request: Request, payload: WorkspaceBinaryRequest):
+        authorize(request, 'edit')
+        try:
+            data = base64.b64decode(payload.content, validate=True)
+        except (binascii.Error, ValueError) as exc:
+            raise CommandError('invalid_content', f'content must be base64-encoded bytes: {exc}', 422) from exc
+        return application.task_files.write_binary(payload.path, data, payload.overwrite)
 
     @app.get('/api/v1/guides')
     def guides(request: Request):

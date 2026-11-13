@@ -760,5 +760,5 @@
   "算子库需要更新": "library needs update",
   "排队中": "queued",
   "需要恢复": "recovery required",
-  "当前算子库未声明隔离环境，请导入 8.0.9 或更新的算子库。": "This operator library declares no isolated environments. Import library 8.0.9 or newer."
+  "当前算子库未声明隔离环境，请导入 8.0.10 或更新的算子库。": "This operator library declares no isolated environments. Import library 8.0.10 or newer."
 }
