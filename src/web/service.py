@@ -108,6 +108,7 @@ class Settings:
     pool_token: str | None = None
     pool_principal: str | None = None
     worker_python: str | None = None
+    library_root: Path | None = None
 
 
 class JobService:
@@ -139,7 +140,8 @@ class JobService:
         self.directory = settings.data_dir.resolve()
         from operon.plugins import PluginManager
         self.plugins = PluginManager(self.directory, manifest_only=settings.manifest_only_registry,
-                                     python=settings.worker_python)
+                                     python=settings.worker_python,
+                                     library_root=settings.library_root)
         from operon.dependencies import DependencySession
         self.dependencies = DependencySession(self.plugins)
         self.dependencies.sync(self.plugins.state())

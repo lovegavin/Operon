@@ -18,6 +18,28 @@ def isolated_root(code_root):
     return None
 
 
+def library_root(code_root=None):
+    """Return ``<install>/versions/<version>/library`` for an installed app.
+
+    The library, its wheels and isolated environments belong to the application
+    version; the user workspace holds only data.  Returns None for a source
+    checkout so development keeps its isolated state under the data directory.
+    """
+    candidates = []
+    if code_root is not None:
+        candidates.append(Path(code_root).resolve())
+    try:
+        import operon
+        candidates.append(Path(operon.__file__).resolve())
+    except Exception:  # pragma: no cover - import always succeeds in the app
+        pass
+    for start in candidates:
+        for parent in (start, *start.parents):
+            if parent.parent.name == 'versions':
+                return parent / 'library'
+    return None
+
+
 def profile_id(root):
     value = json.loads((Path(root) / 'operon-install.json').read_text(encoding='utf-8'))
     if (value.get('schema_version') != 1 or value.get('isolated') is not True or

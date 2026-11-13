@@ -59,6 +59,10 @@ def root() -> Path:
     parent = prefix.parent
     if parent.name == 'managed-v1' and prefix.name.startswith('env-'):
         return parent / 'environments'
+    from operon.installation import library_root as _version_library
+    version_library = _version_library()
+    if version_library is not None:
+        return version_library / 'environments'
     install = _install_root(prefix)
     if install is not None:
         return install / 'environments'

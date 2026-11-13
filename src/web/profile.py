@@ -83,7 +83,9 @@ def make_settings(code_root, frontend, *, desktop=False, profile_dir=None,
     profile = resolve_profile(code_root, profile_dir=profile_dir, workspace=workspace, data_dir=data_dir)
     profile.data_dir.mkdir(parents=True, exist_ok=True)
     os.environ["MPLCONFIGDIR"] = str(profile.data_dir / "matplotlib")
+    from operon.installation import library_root as _library_root
     return Settings(profile.workspace, profile.data_dir, Path(frontend).resolve(),
+                    library_root=_library_root(code_root),
                     max_upload=upload_limit_from_env(),
                     code_root=Path(code_root).resolve(), desktop=desktop, profile=profile.as_dict(),
                     builtin_routes=True, manifest_only_registry=True)

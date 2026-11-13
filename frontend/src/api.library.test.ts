@@ -30,12 +30,12 @@ describe('POST /api/plugins/install', () => {
   it('returns the async operation that carries library counts', async () => {
     const operation = {id: 'op-1', status: 'running', error: null, result: {library_version: '0.0.0', packages: 12, descriptors: 30, installed: true}};
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response(200, operation)));
-    await expect(api.installPlugin(new File(['zip'], 'operon-library-v0.0.0.zip'))).resolves.toEqual(operation);
+    await expect(api.installPlugin(new File(['zip'], 'operon-library-v0.0.0.operon-library.zip'))).resolves.toEqual(operation);
   });
 
   it('surfaces the collection-style detail list', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response(400, {detail: [{msg: 'bad header'}, {msg: 'bad member'}]})));
-    const failure = await catchRejection(() => api.installPlugin(new File(['zip'], 'operon-library-v0.0.0.zip')));
+    const failure = await catchRejection(() => api.installPlugin(new File(['zip'], 'operon-library-v0.0.0.operon-library.zip')));
     expect(failure.message).toBe('bad header；bad member');
   });
 });

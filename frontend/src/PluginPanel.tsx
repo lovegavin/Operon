@@ -74,7 +74,7 @@ export function PluginPanel({onClose, onChanged, initialTab = 'manage'}: {onClos
     <div className="plugin-panel-body">
       <input ref={file} hidden type="file" accept=".operon-library.zip" onChange={event => {
         const selected = event.target.files?.[0]; event.target.value = '';
-        // 5.0.0 library bundles are named operon-library-v0.0.x.zip; wheels are the only non-bundle input.
+        // 5.0.0 library bundles are named operon-library-v0.0.x.operon-library.zip; wheels are the only non-bundle input.
         if (selected) void operate(() => api.installPlugin(selected), {library: isLibraryBundleFile(selected.name)});
       }}/>
       <div hidden={tab !== "manage"}>

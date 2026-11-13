@@ -342,25 +342,24 @@ def test_route_collection_imports_and_reimports_once(tmp_path, studio):
     assert len(registered) == 1
 
 
-def test_route_pin_mismatch_names_the_operator(tmp_path, studio):
-    collection = _collection(tmp_path, studio, tamper=OPERATOR)
+def test_route_pin_mismatch_is_ignored_by_canvas_import(tmp_path, studio):
+    pins = _pins(studio)
+    pins[OPERATOR] = {**pins[OPERATOR], "version": "9.9.9", "code_sha": "0" * 64}
+    collection = _collection(tmp_path, studio, pins=pins)
 
-    with pytest.raises(RoutePinMismatch) as error:
-        install_routes_collection(studio, collection)
-    message = str(error.value)
-    assert f"'{OPERATOR}'" in message
-    assert "expected" in message and "installed" in message
+    result = install_routes_collection(studio, collection)
+
+    assert result["count"] == 1
 
 
-def test_route_pin_for_unknown_operator_is_rejected(tmp_path, studio):
+def test_route_pin_for_unknown_operator_is_ignored_by_canvas_import(tmp_path, studio):
     pins = _pins(studio)
     pins["ghost"] = dict(pins[OPERATOR])
     collection = _collection(tmp_path, studio, pins=pins)
 
-    with pytest.raises(RoutePinMismatch) as error:
-        install_routes_collection(studio, collection)
+    result = install_routes_collection(studio, collection)
 
-    assert "'ghost'" in str(error.value)
+    assert result["count"] == 1
 
 
 def test_route_pin_extra_identity_keys_are_ignored(tmp_path, studio):

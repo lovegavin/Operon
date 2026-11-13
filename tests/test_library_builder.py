@@ -278,7 +278,7 @@ def test_real_seed_build_and_gate(tmp_path: Path) -> None:
     assert (SEED / "operon" / "builtin_packages.json").is_file()
     dist = tmp_path / "dist"
     assert cli_main(["build", "--source", str(SEED), "--output", str(dist), "--version", "0.0.0"]) == 0
-    bundle = dist / "operon-library-v0.0.0.zip"
+    bundle = dist / "operon-library-v0.0.0.operon-library.zip"
     assert bundle.is_file()
     assert cli_main(["verify", "--dist", str(dist)]) == 0
 

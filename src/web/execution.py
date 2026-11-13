@@ -210,6 +210,8 @@ class ExecutionService:
             for node in part.nodes:
                 if node.kind == 'operator' and available.get(node.operator):
                     part.plugin_lock.setdefault(node.operator, deepcopy(available[node.operator]))
+            # Canvas execution resolves ids in the installed library, not pins.
+            part.plugin_lock.clear()
         return prepare_interface(graph, catalog, self.service.root, input_roots=self.service.settings.input_roots)
 
     def _stat(self, location, paths, base='.'):

@@ -8,8 +8,8 @@ const LEGACY = 'This library bundle uses the legacy 8.x format.\nInstall an oper
 
 describe('library bundle classification', () => {
   it('recognises the 5.0.0 library and route collection names', () => {
-    expect(isLibraryBundleFile('operon-library-v0.0.0.zip')).toBe(true);
-    expect(isLibraryBundleFile('operon-library-v0.0.0.zip'.toUpperCase())).toBe(true);
+    expect(isLibraryBundleFile('operon-library-v0.0.0.operon-library.zip')).toBe(true);
+    expect(isLibraryBundleFile('operon-library-v0.0.0.operon-library.zip'.toUpperCase())).toBe(true);
     expect(isLibraryBundleFile('some_operator-1.2.0-py3-none-any.whl')).toBe(false);
     expect(isRouteLibraryFile('operon-routes-v0.0.0.zip')).toBe(true);
     expect(isRouteLibraryFile('routes.zip')).toBe(false);

@@ -138,9 +138,11 @@ _DEFAULT_SOURCES = object()
 
 
 class PluginManager:
-    def __init__(self, data_dir, *, source_root=_DEFAULT_SOURCES, manifest_only=None, python=None):
+    def __init__(self, data_dir, *, source_root=_DEFAULT_SOURCES, manifest_only=None, python=None,
+                 library_root=None):
         self.python = str(Path(python).expanduser().absolute()) if python else sys.executable
-        self.directory = Path(data_dir) / "plugins"
+        self.directory = (Path(library_root) if library_root is not None
+                          else Path(data_dir) / "plugins")
         self.managed_sources = source_root is _DEFAULT_SOURCES
         self._source_root = (None if self.managed_sources or source_root is None else Path(source_root).resolve())
         self.manifest_only = self.managed_sources if manifest_only is None else manifest_only
@@ -305,46 +307,42 @@ class PluginManager:
         return value
 
     def snapshot(self, graph):
+        """Resolve the generation that contains the operators the graph names.
+
+        Canvas graphs are not bound to pins: the unique operator/Reader id in the
+        currently installed library decides what runs.  Pins written by older
+        versions are provenance only and never block execution.
+        """
         state = self.state()
-        from operon.library_install import library_pins_match
-        if library_pins_match(state, graph):
+        from operon.pins import graphs
+        required = set()
+        for part in graphs(graph):
+            for node in part.nodes:
+                if node.kind == "operator" and node.operator:
+                    required.add(node.operator)
+                elif node.source and node.source.reader:
+                    required.add(node.source.reader)
+        if not required:
             return state
-        from operon.pins import graphs, matches, requirements, resolve
-        # Avoid opening the archive for an unpinned/current graph. Nested graphs
-        # can contain different old builtin pins, so normalize before conflict checks.
-        pins = [part.plugin_lock for part in graphs(graph)]
-        if not any(pins):
+
+        def available(candidate):
+            return {d["id"] for d in active_descriptors(candidate)}
+
+        if required <= available(state):
             return state
-        try:
-            if matches(state, requirements(graph, state=state)):
-                return state
-        except ValueError:
-            pass
-        candidates = [state]
         for pattern in ("snapshots/*.json", "environments/*/lock.json"):
             for path in sorted(io_path(self.directory).glob(pattern)):
                 try:
                     candidate = json.loads(path.read_text(encoding="utf-8"))
-                except OSError:
-                    # A generation can disappear between glob and read.  It is
-                    # unavailable, not silently replaced by a different one.
+                except (OSError, ValueError):
                     continue
-                except ValueError:
+                if not isinstance(candidate, dict) or candidate.get("package_protocol_version") != PROTOCOL_VERSION:
                     continue
-                if not isinstance(candidate, dict):
-                    continue
-                if candidate.get("package_protocol_version") == PROTOCOL_VERSION:
+                if required <= available(candidate):
                     candidate["_runtime_root"] = str(self.directory.resolve())
-                    candidates.append(candidate)
-        selected = resolve(graph, candidates, self.bundled_state())
-        # A retained wheel can be combined with updated bundled metadata. Keep
-        # that synthetic generation addressable for job provenance and exact
-        # documentation retrieval without changing the active registry.
-        snapshot = self.directory / 'snapshots' / (selected['generation'] + '.json')
-        with self.lock:
-            if not io_path(snapshot).exists():
-                atomic_json(snapshot, selected)
-        return selected
+                    return candidate
+        missing = sorted(required - available(state))
+        raise ValueError("Missing operators or Readers in the installed library: " + ", ".join(missing))
 
     def pin(self, graph, *, snapshot=None):
         state = self.snapshot(graph) if snapshot is None else snapshot
@@ -365,6 +363,7 @@ class PluginManager:
                 from operon.reader_selection import candidates
                 for descriptor in candidates([d for d in descriptors if d['kind'] == 'reader'], node.source.path, node.source.reader):
                     graph.plugin_lock[descriptor['id']] = descriptor['implementation']
+        graph.plugin_lock = {}
         return graph
 
     def catalog_for(self, graph, base):

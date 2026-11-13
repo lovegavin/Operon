@@ -83,5 +83,5 @@ def build_library(
         readme_text=manifest.readme(document, document["packages"]),
         wheels=wheels,
     )
-    path = manifest.write_bundle(entries, Path(output) / f"operon-library-v{version}.zip")
+    path = manifest.write_bundle(entries, Path(output) / f"operon-library-v{version}.operon-library.zip")
     return BuildResult(path=path, document=document, packages=len(records), descriptors=len(flat))

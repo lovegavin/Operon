@@ -14,7 +14,7 @@ describe('empty operator library', () => {
     const html = renderToStaticMarkup(<LibrarySetupGuide onImport={() => {}}/>);
     expect(html).toContain('No operator library installed');
     expect(html).toContain('Import the operator library bundle first, then the route library bundle.');
-    expect(html).toContain('operon-library-v0.0.0.zip');
+    expect(html).toContain('operon-library-v0.0.0.operon-library.zip');
     expect(html).toContain('operon-routes-v0.0.0.zip');
     expect(html).toContain('Import operator library');
     expect(html).toContain('Nothing is downloaded automatically.');
@@ -24,7 +24,7 @@ describe('empty operator library', () => {
     setLanguage('en');
     const html = renderToStaticMarkup(<PluginPanel initialTab="manage" onClose={() => {}} onChanged={async () => {}}/>);
     expect(html).toContain('No operator library installed');
-    expect(html).toContain('operon-library-v0.0.0.zip');
+    expect(html).toContain('operon-library-v0.0.0.operon-library.zip');
     expect(html).toContain('operon-routes-v0.0.0.zip');
   });
 });

@@ -93,7 +93,7 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
   const visible = routes.filter(route => route.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
   return <div className="add-operators">
     <section className="operator-install-card">
-      <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('导入算子库')}</h3><code>operon-library-v0.0.x.zip</code></div>
+      <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('导入算子库')}</h3><code>operon-library-v0.0.x.operon-library.zip</code></div>
         <button className="primary-button" disabled={busy} onClick={onPackage}><FileArrowUp size={16}/>{t('导入算子库')}</button></div>
       <div className="plugin-folder-row">
         <button className="subtle-button" title={state.source_directories?.operator} onClick={() => void api.openPluginFolder('operator').catch(e => onError(e.message))}><FolderOpen size={16}/>{t('算子目录')}</button>

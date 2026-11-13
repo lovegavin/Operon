@@ -19,7 +19,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    build = subparsers.add_parser("build", help="build operon-library-<version>.zip")
+    build = subparsers.add_parser("build", help="build operon-library-<version>.operon-library.zip")
     build.add_argument("--source", type=Path, default=Path("library/seed"))
     build.add_argument("--output", type=Path, default=Path("dist"))
     build.add_argument("--version", default="0.0.0")

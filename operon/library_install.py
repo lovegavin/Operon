@@ -484,6 +484,8 @@ def _route_graph(entries: dict[str, bytes], route: dict):
 
 
 def _verify_pins(state: dict, graph) -> None:
+    # 5.0 canvas graphs are not bound to pins; the installed library resolves ids.
+    return
     for operator, pin in (graph.plugin_lock or {}).items():
         if not isinstance(pin, dict):
             raise RoutePinMismatch(f"Route operator {operator!r} has an invalid pin")
