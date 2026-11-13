@@ -24,6 +24,7 @@ import logging
 import os
 import secrets
 import signal
+import socket
 import sys
 import time
 from logging.handlers import RotatingFileHandler
@@ -34,6 +35,7 @@ MAX_HEADER = 64 * 1024
 LOG = logging.getLogger("github-proxy")
 
 DEFAULT_ALLOW_HOSTS = [
+    # GitHub: API, releases, raw files and LFS.
     "github.com",
     "api.github.com",
     "uploads.github.com",
@@ -42,6 +44,23 @@ DEFAULT_ALLOW_HOSTS = [
     "raw.githubusercontent.com",
     "github-releases.githubusercontent.com",
     "githubusercontent.com",
+    "github-cloud.s3.amazonaws.com",
+    # Python packages: upstream PyPI and the configured Tsinghua mirror.
+    "pypi.org",
+    "pythonhosted.org",
+    "tuna.tsinghua.edu.cn",
+    # Models and datasets.
+    "huggingface.co",
+    "hf.co",
+    "hf-mirror.com",
+    # Conda and micromamba.
+    "anaconda.org",
+    "anaconda.com",
+    "mamba.pm",
+    # Node packages and Node binaries.
+    "npmjs.org",
+    "npmmirror.com",
+    "nodejs.org",
 ]
 
 
@@ -65,6 +84,7 @@ class Config:
         self.max_connections = int(data.get("max_connections", 32))
         self.idle_timeout = float(data.get("idle_timeout", 900))
         self.connect_timeout = float(data.get("connect_timeout", 30))
+        self.prefer_ipv4 = bool(data.get("prefer_ipv4", True))
         log_file = Path(str(data.get("log_file", "proxy.log")))
         self.log_file = log_file if log_file.is_absolute() else base / log_file
 
@@ -94,6 +114,7 @@ def init_config(path: Path, port: int) -> None:
         "max_connections": 32,
         "idle_timeout": 900,
         "connect_timeout": 30,
+        "prefer_ipv4": True,
         "log_file": "proxy.log",
     }
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -177,6 +198,24 @@ async def pump(source: asyncio.StreamReader, sink: asyncio.StreamWriter, idle_ti
     return total
 
 
+async def open_upstream(host: str, port: int, config: Config):
+    if not config.prefer_ipv4:
+        return await asyncio.open_connection(host, port)
+    loop = asyncio.get_running_loop()
+    infos = await loop.getaddrinfo(host, port, type=socket.SOCK_STREAM, family=socket.AF_INET)
+    if not infos:
+        raise OSError(f"no IPv4 address for {host}")
+    last: OSError | None = None
+    for _family, _type, _proto, _canon, sockaddr in infos:
+        try:
+            return await asyncio.open_connection(sockaddr[0], port)
+        except OSError as exc:
+            last = exc
+    if last is not None:
+        raise last
+    raise OSError(f"cannot connect to {host}:{port}")
+
+
 async def handle(reader: asyncio.StreamReader, writer: asyncio.StreamWriter, config: Config, slots: asyncio.Semaphore) -> None:
     peer = writer.get_extra_info("peername") or ("?", 0)
     client = str(peer[0])
@@ -252,7 +291,7 @@ async def handle(reader: asyncio.StreamReader, writer: asyncio.StreamWriter, con
 
             try:
                 upstream_reader, upstream = await asyncio.wait_for(
-                    asyncio.open_connection(host, port), config.connect_timeout
+                    open_upstream(host, port, config), config.connect_timeout
                 )
             except (asyncio.TimeoutError, OSError) as exc:
                 outcome = "upstream-failed"

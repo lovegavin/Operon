@@ -262,6 +262,8 @@ with open(path, "w", encoding="utf-8") as handle:
         Write-Warning "could not restrict ACL on ${configPath}"
     }
 
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'proxy-env.ps1') -Destination (Join-Path $configDirectory 'proxy-env.ps1') -Force
+
     if (-not $SkipTunnel) {
         Write-Step 'starting the workstation SSH tunnel'
         Invoke-TunnelScript -TunnelAction 'ensure'
@@ -342,12 +344,24 @@ function Show-Config {
 
 function Show-Environment {
     $config = Get-LocalConfig
-    Write-Host 'Run these lines in the shell that uploads to GitHub:' -ForegroundColor Cyan
-    Write-Host ('$env:HTTPS_PROXY = "{0}"' -f $config.url)
-    Write-Host ('$env:HTTP_PROXY  = "{0}"' -f $config.url)
-    Write-Host '$env:NO_PROXY    = "localhost,127.0.0.1"'
+    $localScript = Join-Path $env:USERPROFILE '.operon\proxy-env.ps1'
+    $sourceScript = Join-Path $PSScriptRoot 'proxy-env.ps1'
+    $envScript = if (Test-Path -LiteralPath $localScript) { $localScript } else { $sourceScript }
+    Write-Host 'Load the proxy into the current shell (dot-source keeps the variables):' -ForegroundColor Cyan
+    if ($envScript -ne $localScript) {
+        Write-Host ('  Copy-Item "{0}" "{1}"' -f $sourceScript, $localScript)
+    }
+    Write-Host ('  . "{0}"' -f $envScript)
+    Write-Host 'A UNC path counts as a remote script; the local copy avoids the RemoteSigned error.' 
     Write-Host ''
-    Write-Host 'The release publisher already uses this proxy directly and needs no environment.'
+    Write-Host 'Equivalent manual settings:'
+    Write-Host ('  $env:HTTPS_PROXY = "{0}"' -f $config.url)
+    Write-Host ('  $env:HTTP_PROXY  = "{0}"' -f $config.url)
+    Write-Host ('  $env:PIP_PROXY   = "{0}"' -f $config.url)
+    Write-Host '  $env:NO_PROXY    = "localhost,127.0.0.1,::1"'
+    Write-Host ''
+    Write-Host 'pip, hf/huggingface-cli, npm, conda and HTTPS git honour these variables.'
+    Write-Host 'The release publisher uses the proxy directly and needs no environment.'
 }
 
 function Invoke-Tests {

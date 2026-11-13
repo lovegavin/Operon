@@ -11,7 +11,20 @@
     "objects.githubusercontent.com",
     "raw.githubusercontent.com",
     "github-releases.githubusercontent.com",
-    "githubusercontent.com"
+    "githubusercontent.com",
+    "github-cloud.s3.amazonaws.com",
+    "pypi.org",
+    "pythonhosted.org",
+    "tuna.tsinghua.edu.cn",
+    "huggingface.co",
+    "hf.co",
+    "hf-mirror.com",
+    "anaconda.org",
+    "anaconda.com",
+    "mamba.pm",
+    "npmjs.org",
+    "npmmirror.com",
+    "nodejs.org"
   ],
   "allow_ports": [
     443
@@ -19,5 +32,6 @@
   "max_connections": 32,
   "idle_timeout": 900,
   "connect_timeout": 30,
+  "prefer_ipv4": true,
   "log_file": "proxy.log"
 }
