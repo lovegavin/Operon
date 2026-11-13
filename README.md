@@ -13,11 +13,11 @@ CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
 The current source integrates **Operon Studio 4.2.3** with the independently
-versioned **8.0.9 operator library**: **1,063 operators, 108 Readers (1,171
+versioned **8.0.10 operator library**: **1,063 operators, 108 Readers (1,171
 descriptors), seven provider packages and 79 route templates**. Operators and
 Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
-Markdown documentation. Studio 4.2.3 requires library **8.0.9 or newer** and ships
-it as the built-in library.
+Markdown documentation. Studio 4.2.3 requires library **8.0.9 or newer** and the
+current tree ships **8.0.10** as the built-in library.
 
 Operon does not bundle or require an AI model. Agent access is optional.
 
