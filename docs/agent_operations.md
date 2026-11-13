@@ -51,6 +51,32 @@ revisions, run permissions, streaming/spill and SSH scheduling are unchanged.
 After upgrading, restart an idle old service/desktop so adapters reach the updated
 API; do not stop a service while it has active jobs.
 
+## Task folders and backend writes
+
+Agents often need to create a task directory or drop a report next to results,
+but the host shell may not have write permission inside the workspace (Windows
+sandboxed shells can run at a lower integrity level than the workspace). Two
+backend operations remove that dependency: the service performs the write with
+its own permissions, and every path is workspace-relative.
+
+```text
+operon_task(base_dir="task1")                     # input, results, reports, figures
+operon_task(base_dir="project/task2", folders=["input", "reports"])
+operon_write_text(path="task1/reports/summary.md", content="# Summary\n")
+```
+
+HTTP equivalents (edit scope): `POST /api/v1/tasks` with
+`{"base_dir": "...", "folders": [...]}` and `POST /api/v1/workspace/files`
+with `{"path": "...", "content": "...", "overwrite": true}`. Capabilities
+`task-scaffolding` and `workspace-files` advertise them.
+
+Rules enforced by the backend: paths must be relative, may not contain `..`,
+must resolve inside the workspace, may not be symbolic links, and may not
+target internal state such as `.studio`, `.operon` or `.admission`. Existing
+files require `overwrite=true`; text writes are UTF-8 and limited to 10 MiB.
+Empty parent folders are created automatically. These tools never grant shell
+access and never change job execution authority.
+
 ## Backend engine diagnostics
 
 The durable backend state is readable without changing execution authority:

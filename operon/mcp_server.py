@@ -172,6 +172,22 @@ def create_server(client):
         return client.request(path + '/viewers?' + urlencode({'role': role}))
 
     @server.tool()
+    def operon_task(base_dir: str, folders: list[str] | None = None) -> dict:
+        """Create a task scaffold (input/results/reports/figures) below base_dir, which is relative to the workspace.
+
+        Use this before writing inputs or asking an agent to place reports. Operon's internal .studio state is never writable.
+        """
+        return client.request('/v1/tasks', {'base_dir': base_dir, 'folders': folders})
+
+    @server.tool()
+    def operon_write_text(path: str, content: str, overwrite: bool = True) -> dict:
+        """Write UTF-8 text into the Operon workspace through the backend, creating parent folders.
+
+        path is workspace-relative; absolute paths, "..", symbolic links and Operon internal state are rejected.
+        """
+        return client.request('/v1/workspace/files', {'path': path, 'content': content, 'overwrite': overwrite})
+
+    @server.tool()
     def operon_remote_status() -> dict:
         """List SSH execution profiles with their connected state."""
         return client.request('/remote/summary')

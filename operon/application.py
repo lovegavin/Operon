@@ -13,6 +13,7 @@ import uuid
 from urllib.parse import urlencode
 
 from .documents import CommandError, layout
+from .task_files import TaskFiles
 from .bytecode import io_path
 from .engine.contracts import CommitOutcomeUnknown
 from src.web.models import Graph, SaveWorkflow
@@ -40,6 +41,7 @@ class Application:
         self.engine = getattr(self.service, 'engine', None)
         self.workflows = WorkflowService(self)
         self.jobs = TaskService(self)
+        self.task_files = TaskFiles(self)
         self.artifacts = ArtifactService(self)
         from .viewers import ViewerService
         self.viewers = ViewerService(self)

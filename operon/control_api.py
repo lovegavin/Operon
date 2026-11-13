@@ -44,6 +44,19 @@ class EnvironmentRequest(BaseModel):
     names: list[str] | None = Field(default=None, max_length=20)
 
 
+class TaskRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    base_dir: str = Field(min_length=1, max_length=200)
+    folders: list[str] | None = Field(default=None, max_length=20)
+
+
+class WorkspaceFileRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    path: str = Field(min_length=1, max_length=500)
+    content: str
+    overwrite: bool = True
+
+
 class DescribeRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     ids: list[str] = Field(min_length=1, max_length=20)
@@ -71,7 +84,8 @@ def mount_control(app, application, bridge):
     def capabilities(request: Request):
         authorize(request)
         return {'api_version': 1, 'operator_protocol': 3, 'headless': bool(getattr(app.state, 'headless', False)),
-                'capabilities': ['workflows', 'tasks', 'artifacts', 'operator-docs', 'canvas-sessions', 'agent-guides', 'brief-views', 'result-viewers', 'workflow-readiness', 'explicit-environment-preparation', 'transaction-diffs'],
+                'capabilities': ['workflows', 'tasks', 'artifacts', 'operator-docs', 'canvas-sessions', 'agent-guides', 'brief-views', 'result-viewers', 'workflow-readiness', 'explicit-environment-preparation', 'transaction-diffs',
+                                'task-scaffolding', 'workspace-files'],
                 'guides_href': '/api/v1/guides', 'openapi_href': '/api/v1/openapi.json',
                 'permission_scopes': ['context', 'edit', 'run', 'plugins']}
 
@@ -100,6 +114,16 @@ def mount_control(app, application, bridge):
         authorize(request, 'plugins')
         return {**application.isolated_environments(),
                 'prepared': application.start_isolated_environments(payload.names)}
+
+    @app.post('/api/v1/tasks')
+    def task_scaffold(request: Request, payload: TaskRequest):
+        authorize(request, 'edit')
+        return application.task_files.scaffold(payload.base_dir, payload.folders)
+
+    @app.post('/api/v1/workspace/files')
+    def write_workspace_file(request: Request, payload: WorkspaceFileRequest):
+        authorize(request, 'edit')
+        return application.task_files.write_text(payload.path, payload.content, payload.overwrite)
 
     @app.get('/api/v1/guides')
     def guides(request: Request):

@@ -12,12 +12,12 @@ parameter, log and artifact. The same engine is available through the desktop,
 CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
-The current source integrates **Operon Studio 4.1.9** with the independently
-versioned **8.0.7 operator library**: **1,063 operators, 108 Readers (1,171
+The current source integrates **Operon Studio 4.2.2** with the independently
+versioned **8.0.9 operator library**: **1,063 operators, 108 Readers (1,171
 descriptors), seven provider packages and 79 route templates**. Operators and
 Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
-Markdown documentation. Library 8.0.7 requires application 4.1.0 or newer and is
-the built-in library shipped with 4.1.9.
+Markdown documentation. Studio 4.2.2 requires library **8.0.9 or newer** and ships
+it as the built-in library.
 
 Operon does not bundle or require an AI model. Agent access is optional.
 
@@ -40,7 +40,7 @@ Operon does not bundle or require an AI model. Agent access is optional.
 | I want to… | Start here |
 | --- | --- |
 | Use the Windows desktop | Download **Operon_Setup.exe** from [Releases](https://github.com/lovegavin/Operon/releases/latest) |
-| Run a Linux server without a desktop | Download **Operon-4.1.9-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
+| Run a Linux server without a desktop | Download **Operon-4.2.2-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
 | Develop from source | `python -m pip install . ./library` with Python 3.11+ |
 | Connect an AI agent | Use the desktop **Agent** panel or `operon mcp`; see [agent operations](docs/agent_operations.md) |
 
@@ -49,7 +49,7 @@ profile. Scientific packages are installed only for the workflow and execution
 host you choose; they are not all bundled. If WebView2 is missing, Setup asks
 Microsoft's installer for it, which needs internet access.
 
-A new 4.1.9 installation puts the working workspace under the installation root
+A new 4.2.2 installation puts the working workspace under the installation root
 (for example, `workspace` under the installation root). Profile metadata, logs and browser
 state remain under `%USERPROFILE%\.operon`. Earlier installations keep their
 existing workspace. Uninstall removes the program but preserves the workspace
@@ -67,6 +67,28 @@ the local environment, and press **Run**. Results appear under **Run history →
 View results**. The first dependency check may need internet access; Operon never
 installs scientific packages silently during a run.
 
+## What is new in 4.2.2
+
+- **Task folders, including scaffolds written by the backend.**
+  `operon_task(base_dir="task1")` creates `input`, `results`, `reports` and
+  `figures`, and `operon_write_text(path=..., content=...)` writes a file inside
+  the workspace even when the host shell cannot. Paths are workspace-relative;
+  `..`, absolute paths, symbolic links and internal state (`.studio`, `.operon`,
+  `.admission`) are rejected. Writes are UTF-8 and limited to 10 MiB.
+- **Exported files download as files.** `GET /api/v1/jobs/<job>/artifacts/<id>/file`
+  now returns the exported CSV/TSV when no `role` is given; the explicit
+  `?role=<name>` form is unchanged.
+- **Longer job waits.** `operon_job(wait_seconds=...)` accepts up to 120 seconds
+  and returns `wait_timed_out: true` instead of an error when the window closes.
+- **Clearer remote errors.** A missing SSH input environment now says the server
+  profile may be missing or disconnected, and points at `operon remote-status`
+  and `operon remote-ensure`.
+- **Operator library 8.0.9.** `interface_alanine_scan` flags Gly→Ala mutations
+  with `flag: "gly_to_ala"`, `excluded_reason` and `excluded_from_ranking`, and
+  reports `quality.gly_to_ala_excluded`. Both alanine-scan and MM/GBSA documents
+  gained a scientific-limitations section (single-point estimates, no entropy or
+  ensemble, manual Gly→Ala review, copy-reproducibility warnings).
+
 ## What is new in 4.1.9
 
 - **Exported tables are readable over MCP.** `operon_artifacts(preview=true)` and
@@ -76,8 +98,8 @@ installs scientific packages silently during a run.
   older bundled library refreshes pins whose implementation is no longer
   installed, records `runtime.pin_migrations`, and no longer fails with
   `pinned implementation is unavailable`.
-- **`operon_job(wait_seconds=...)` is capped at 30 seconds.** A closed wait window
-  returns `status: running` with `wait_timed_out` instead of an MCP timeout.
+- **`operon_job(wait_seconds=...)` is capped at 120 seconds.** A closed wait
+  window returns `status: running` with `wait_timed_out` instead of an MCP timeout.
 - **Isolated environments always bootstrap `setuptools>=68,<81`**, even when they
   share the host interpreter, so `pkg_resources` is present for PDBFixer. The
   environment repair guide and paths now use `<install root>/environments`.
@@ -86,9 +108,9 @@ installs scientific packages silently during a run.
 
 ## What is new in 4.1.0
 
-- Ships **Operon Operator Library 8.0.6**. Studio 4.1.0 supports library 8.0.6
-  and later only; earlier libraries use an environment model this application
-  does not load.
+- Shipped **Operon Operator Library 8.0.6** at release time. Current builds
+  require 8.0.9 or newer; earlier libraries use an environment model this
+  application does not load.
 - The library bundle now carries `operon/environments.json`. Imported libraries
   can materialize their declared environments instead of reading only the
   application seed.

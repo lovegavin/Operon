@@ -19,7 +19,7 @@ from operon.bytecode import filesystem_path
 
 
 LIBRARY_SUFFIXES = ('.operon-library.zip',)
-MINIMUM_LIBRARY_VERSION = '8.0.6'
+MINIMUM_LIBRARY_VERSION = '8.0.9'
 
 
 def is_library_bundle(path):
