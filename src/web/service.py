@@ -1553,6 +1553,39 @@ class JobService:
         value = job.get("output_dir")
         return Path(value) if value else (self.jobs_dir / key / "output")
 
+    def result_files(self, key):
+        """List every file below this job's result directory."""
+        self.require(key)
+        root = Path(self._output_dir(key)).resolve()
+        files = []
+        if io_path(root).is_dir():
+            for path in sorted(root.rglob('*')):
+                try:
+                    if path.is_symlink() or not io_path(path).is_file():
+                        continue
+                    stat = io_path(path).stat()
+                except OSError:
+                    continue
+                files.append({'path': path.relative_to(root).as_posix(), 'bytes': stat.st_size,
+                              'modified': stat.st_mtime})
+        return {'job_id': key, 'root': str(root), 'files': files,
+                'total_bytes': sum(item['bytes'] for item in files)}
+
+    def result_path(self, key, relative):
+        """Resolve one file below the result directory, rejecting traversal."""
+        self.require(key)
+        value = Path(str(relative).replace('\\', '/'))
+        if value.is_absolute() or any(part in ('..', '') for part in value.parts):
+            raise ValueError('Invalid result path')
+        root = Path(self._output_dir(key)).resolve()
+        path = (root / value).resolve()
+        if path != root and root not in path.parents:
+            raise ValueError('Invalid result path')
+        if not io_path(path).is_file():
+            raise KeyError('Result file does not exist')
+        from operon.bytecode import filesystem_path
+        return Path(filesystem_path(path))
+
     def require(self, key):
         # Jobs created by the other launcher become visible without restarting.
         with self.lock:

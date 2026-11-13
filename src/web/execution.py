@@ -1148,6 +1148,35 @@ class ExecutionService:
         fields = {'index': index, **({'format': format} if format else {}), **({'figure_id': figure_id} if figure_id is not None else {})}
         return self.service.figure_file(child['id'], index, format=format, **({'figure_id': figure_id} if figure_id is not None else {})) if child['target']['kind'] == 'local' else self._fetch_output(key, child, 'figure', **fields)
 
+    def result_files(self, key):
+        job = self.details(key)
+        files = []
+        for index, child in enumerate(job['children']):
+            if child['target']['kind'] == 'local':
+                listing = self.service.result_files(child['id'])
+            else:
+                listing = self.service.remotes.result_files(target_key(child['target']), child['id'])
+            for item in listing.get('files') or []:
+                files.append({**item, 'path': f"stages/{index}/{item['path']}",
+                              'stage': index, 'unit_id': child.get('unit_id')})
+        files.sort(key=lambda item: item['path'])
+        return {'job_id': key, 'files': files, 'total_bytes': sum(item['bytes'] for item in files)}
+
+    def result_file(self, key, path):
+        parts = Path(str(path)).parts
+        if len(parts) < 3 or parts[0] != 'stages':
+            raise ValueError('Invalid composite result path')
+        try:
+            index = int(parts[1])
+        except ValueError as exc:
+            raise ValueError('Invalid composite result path') from exc
+        job = self.details(key)
+        if not 0 <= index < len(job['children']):
+            raise KeyError('Unknown stage result')
+        rest = Path(*parts[2:]).as_posix()
+        child = job['children'][index]
+        return self.service.result_path(child['id'], rest) if child['target']['kind'] == 'local' else self._fetch_output(key, child, 'result', path=rest)
+
     def history(self):
         return sorted([self.details(path.parent.name) for path in self.directory.glob('exec-*/job.json')],
                       key=lambda job: job['created_at'], reverse=True)

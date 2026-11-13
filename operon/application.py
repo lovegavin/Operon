@@ -710,3 +710,9 @@ class ArtifactService:
 
     def figure(self, job_id, index, format=None, figure_id=None):
         return self.app.jobs.backend(job_id).figure_file(job_id, index, format=format, figure_id=figure_id)
+
+    def results(self, job_id):
+        return self.app.jobs.backend(job_id).result_files(job_id)
+
+    def result(self, job_id, path):
+        return self.app.jobs.backend(job_id).result_file(job_id, path)

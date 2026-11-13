@@ -554,6 +554,9 @@ class RemoteService:
         if method == 'preview':
             return service.preview(params['job_id'], params['artifact_id'],
                                    offset=params.get('offset', 0), limit=params.get('limit', 20))
+        if method == 'result_files':
+            key = params['job_id']; service.require(key)
+            return service.result_files(key)
         if method == 'output_file':
             key = params['job_id']; kind = params['kind']
             if kind == 'artifact':
@@ -564,6 +567,8 @@ class RemoteService:
                 path = service.figure_file(key, params['index'], format=params.get('format'), **({'figure_id': params['figure_id']} if 'figure_id' in params else {}))
             elif kind == 'export':
                 path = service.export_file(key, params['index'])
+            elif kind == 'result':
+                path = service.result_path(key, params['path'])
             else:
                 raise ValueError('Unknown output kind')
             return {'path': str(path), 'bytes': path.stat().st_size, 'name': path.name}

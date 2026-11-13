@@ -51,6 +51,14 @@ The poll now keys launcher events under `.studio/jobs/<id>`, run events under
 `results/...`, and any other path under `external/<hash>-<name>`. Local HTTP
 streaming was already keying by absolute path and is unchanged.
 
+## 5.1.13
+
+- Added `GET /api/v1/jobs/{key}/results` and `results/file` for complete result
+  inventory and download, including composite `stages/<index>/...` paths.
+- Added MCP tools `operon_result_files`, `operon_download_result`,
+  `operon_download_results`, `operon_download_artifact`, and `operon_download_report`.
+- Downloads are confined to the workspace; absolute paths and `..` are rejected.
+
 ## 5.1.12
 
 ### Remote provisioning and optional files

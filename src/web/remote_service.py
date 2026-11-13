@@ -593,6 +593,13 @@ class RemoteManager:
         downloaded = client.download(result['path'], client.cache_dir / 'results' / identity / name)
         return Path(downloaded['path'])
 
+    def result_files(self, key):
+        ref = self.reference(key)
+        return self.call(ref['profile_id'], 'result_files', {'job_id': ref['job_id']})
+
+    def result_file(self, key, path):
+        return self._output(key, 'result', path=path)
+
     def preview(self, key, artifact_id, offset=0, limit=20):
         ref = self.reference(key)
         # Sampling happens on the server; opening a preview never downloads the array.

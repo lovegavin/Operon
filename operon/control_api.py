@@ -315,6 +315,17 @@ def mount_control(app, application, bridge):
         path = application.artifacts.file(key, artifact_id, role)
         return FileResponse(io_path(path), filename=path.name)
 
+    @app.get('/api/v1/jobs/{key}/results')
+    def results(key: str, request: Request):
+        authorize(request)
+        return application.artifacts.results(key)
+
+    @app.get('/api/v1/jobs/{key}/results/file')
+    def result_file(key: str, path: str, request: Request):
+        authorize(request)
+        resolved = application.artifacts.result(key, path)
+        return FileResponse(io_path(resolved), filename=resolved.name)
+
     @app.get('/api/v1/jobs/{key}/reports/{index}')
     def report(key: str, index: int, request: Request):
         authorize(request)

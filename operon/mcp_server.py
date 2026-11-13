@@ -10,6 +10,22 @@ def create_server(client):
     from .guidance import guide, instructions
     server = FastMCP("Operon", instructions=instructions())
 
+    def _download_root():
+        value = client.workspace or client.status().get('workspace')
+        if not value:
+            raise ValueError('MCP client has no workspace; pass --workspace to the MCP server')
+        return Path(value).resolve()
+
+    def _download_target(destination):
+        value = Path(str(destination))
+        if value.is_absolute() or '..' in value.parts:
+            raise ValueError('destination must be a relative path inside the workspace')
+        root = _download_root()
+        target = (root / value).resolve()
+        if target != root and root not in target.parents:
+            raise ValueError('destination escapes the workspace')
+        return target
+
     @server.tool()
     def operon_guide(topic: str = 'start', if_sha256: str | None = None) -> dict:
         """Read one installed operating guide: index, start, operators, canvas, workflow, jobs, results or api.
@@ -158,6 +174,57 @@ def create_server(client):
         """Paginated artifact table with column and row labels; works for local and ssh jobs."""
         return client.request('/v1/jobs/' + quote(job_id, safe='') + '/artifacts/' + quote(artifact_id, safe='') + '/table?'
                               + urlencode({'offset': offset, 'limit': limit}))
+
+    @server.tool()
+    def operon_result_files(job_id: str) -> dict:
+        """List every file below a job's result directory, local or ssh, with sizes."""
+        return client.request('/v1/jobs/' + quote(job_id, safe='') + '/results')
+
+    @server.tool()
+    def operon_download_result(job_id: str, path: str, destination: str | None = None) -> dict:
+        """Download one result file into the workspace; path comes from operon_result_files."""
+        name = Path(str(path).replace('\\', '/')).name or 'result'
+        target = _download_target(destination or f'results/{job_id}/{name}')
+        route = '/v1/jobs/' + quote(job_id, safe='') + '/results/file?' + urlencode({'path': path})
+        return client.download(route, target)
+
+    @server.tool()
+    def operon_download_results(job_id: str, destination: str | None = None,
+                                 paths: list[str] | None = None) -> dict:
+        """Download all or selected result files, preserving their relative paths."""
+        listing = client.request('/v1/jobs/' + quote(job_id, safe='') + '/results')
+        available = [item for item in listing.get('files') or []]
+        wanted = set(paths or [])
+        selected = [item for item in available if not wanted or item['path'] in wanted]
+        missing = sorted(wanted - {item['path'] for item in selected})
+        base = destination or f'results/{job_id}'
+        downloaded, failed = [], []
+        for item in selected:
+            try:
+                target = _download_target(str(Path(base) / item['path']))
+                result = client.download('/v1/jobs/' + quote(job_id, safe='') + '/results/file?'
+                                         + urlencode({'path': item['path']}), target)
+                downloaded.append({'path': item['path'], 'target': result.get('path'), 'bytes': result.get('bytes')})
+            except Exception as exc:
+                failed.append({'path': item['path'], 'error': f'{type(exc).__name__}: {exc}'})
+        return {'job_id': job_id, 'root': listing.get('root'), 'downloaded': downloaded,
+                'failed': failed, 'missing': missing}
+
+    @server.tool()
+    def operon_download_artifact(job_id: str, artifact_id: str, role: str | None = None,
+                                  destination: str | None = None) -> dict:
+        """Download an artifact's retained file (optionally one role) into the workspace."""
+        route = '/v1/jobs/' + quote(job_id, safe='') + '/artifacts/' + quote(artifact_id, safe='') + '/file'
+        if role:
+            route += '?' + urlencode({'role': role})
+        target = _download_target(destination or f'results/{job_id}/artifacts/{artifact_id}/{role or "data"}')
+        return client.download(route, target)
+
+    @server.tool()
+    def operon_download_report(job_id: str, index: int, destination: str | None = None) -> dict:
+        """Download a stored job report JSON into the workspace."""
+        target = _download_target(destination or f'reports/{job_id}-{index}.json')
+        return client.download('/v1/jobs/' + quote(job_id, safe='') + f'/reports/{int(index)}', target)
 
     @server.tool()
     def operon_viewer(job_id: str, artifact_id: str, role: str, viewer: str | None = None) -> dict:
