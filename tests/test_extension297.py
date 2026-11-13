@@ -119,7 +119,7 @@ def test_real_alanine_scan(tmp_path, monkeypatch):
     )
     result = ctx["scan"]
     assert result.data.shape[0] == 2
-    assert result.data.shape[1] == 3
+    assert result.data.shape[1] == 5
     deltas = result.data[:, 2].astype(float)
     assert any(abs(value) > 1e-6 for value in deltas)
     assert result.info["wt_delta_kj"] == pytest.approx(float(result.data[0, 0]), rel=1e-5)
@@ -128,3 +128,7 @@ def test_real_alanine_scan(tmp_path, monkeypatch):
     assert result.info["protocol"]["calibrated"] is False
     assert result.info["copy_replicates"]["available"] is False
     assert "not calibrated" in result.info["warnings"][0]
+    assert result.info["max_delta_kj"] == pytest.approx(50.0)
+    assert result.info["flag_codes"]["1"] == "magnitude_outlier"
+    assert result.info["mutations"][0]["excluded"] in (0, 1)
+    assert result.info["mutations"][0]["replicate_conflict"] in (0, 1)

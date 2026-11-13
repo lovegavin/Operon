@@ -64,6 +64,15 @@
       "x-ui-group": "模型",
       "x-ui-order": 2
     },
+    "max_delta_kj": {
+      "title": "排除阈值 kJ/mol",
+      "description": "绝对 ΔΔG 超过该值的突变标记为 excluded；仅用于质量标记，不改变原始数值。",
+      "type": "number",
+      "default": 50.0,
+      "exclusiveMinimum": 0.0,
+      "x-ui-group": "模型",
+      "x-ui-order": 3
+    },
     "ph": {
       "title": "质子化 pH",
       "type": "number",
@@ -71,21 +80,21 @@
       "minimum": 0.1,
       "maximum": 13.9,
       "x-ui-group": "模型",
-      "x-ui-order": 3
+      "x-ui-order": 4
     },
     "forcefield": {
       "title": "力场文件",
       "type": "string",
       "default": "amber14-all.xml",
       "x-ui-group": "模型",
-      "x-ui-order": 4
+      "x-ui-order": 5
     },
     "implicit_model": {
       "title": "隐式溶剂",
       "type": "string",
       "default": "implicit/gbn2.xml",
       "x-ui-group": "模型",
-      "x-ui-order": 5
+      "x-ui-order": 6
     },
     "mutation_dim": {
       "title": "突变维度",

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import tempfile
 from pathlib import Path
 
@@ -98,6 +100,18 @@ def mmgbsa_terms(pdb_path: Path, *, forcefield_name: str, implicit: str, ph: flo
     }
 
 
+def _warnings(nonbonded: float, gb: float, cancellation_ratio: float | None) -> list[str]:
+    warnings = [
+        "Single-point MM/GBSA without entropy, ensemble averaging or calibration; "
+        "the value is a force-field estimate, not a measured binding affinity."
+    ]
+    if cancellation_ratio is not None and cancellation_ratio >= 5.0 and nonbonded * gb < 0:
+        warnings.append(
+            "Large nonbonded and GB terms oppose each other; small net deltas are numerically fragile."
+        )
+    return warnings
+
+
 class InterfaceMmgbsaDeltaStep(Step):
     provider = "operon-core"
     parameters_file = "interface_mmgbsa_delta.InterfaceMmgbsaDeltaStep.parameters.json"
@@ -161,6 +175,21 @@ class InterfaceMmgbsaDeltaStep(Step):
             binder=binder,
             target=target,
         )
+        protocol_payload = {
+            "forcefield": str(params.get("forcefield", "amber14-all.xml")),
+            "implicit_model": str(params.get("implicit_model", "implicit/gbn2.xml")),
+            "ph": ph,
+            "single_point": True,
+        }
+        protocol_id = hashlib.sha256(
+            json.dumps(protocol_payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        ).hexdigest()[:12]
+        nonbonded = result["complex"]["nonbonded"] - result["binder"]["nonbonded"] - result["target"]["nonbonded"]
+        gb = result["complex"]["gb"] - result["binder"]["gb"] - result["target"]["gb"]
+        delta_total = result["complex"]["total"] - result["binder"]["total"] - result["target"]["total"]
+        cancellation_ratio = (
+            (abs(nonbonded) + abs(gb)) / abs(delta_total) if delta_total else None
+        )
         rows = []
         for term in (*_TERMS, "total"):
             complex_e = result["complex"][term]
@@ -177,9 +206,9 @@ class InterfaceMmgbsaDeltaStep(Step):
             "n_target": result["n_target"],
             "binder_chains": list(binder),
             "target_chains": list(target),
-            "delta_total_kj": result["complex"]["total"] - result["binder"]["total"] - result["target"]["total"],
-            "delta_vdw_electrostatics_kj": result["complex"]["nonbonded"] - result["binder"]["nonbonded"] - result["target"]["nonbonded"],
-            "delta_gb_kj": result["complex"]["gb"] - result["binder"]["gb"] - result["target"]["gb"],
+            "delta_total_kj": delta_total,
+            "delta_vdw_electrostatics_kj": nonbonded,
+            "delta_gb_kj": gb,
             "forcefield": str(params.get("forcefield", "amber14-all.xml")),
             "implicit_model": str(params.get("implicit_model", "implicit/gbn2.xml")),
             "ph": ph,
@@ -190,6 +219,18 @@ class InterfaceMmgbsaDeltaStep(Step):
                 "calibrated": False,
                 "energy_units": "kJ/mol",
                 "delta_sign": "complex - binder - target",
+                "comparison_requires_identical_protocol": True,
+                "protocol_id": protocol_id,
+            },
+            "delta_terms": {
+                term: result["complex"][term] - result["binder"][term] - result["target"][term]
+                for term in (*_TERMS, "total")
+            },
+            "cancellation_ratio": cancellation_ratio,
+            "comparison_requires_identical_protocol": True,
+            "side_definition": {
+                "binder_chains": list(binder),
+                "target_chains": list(target),
             },
             "quality": {
                 "single_point": True,
@@ -197,10 +238,7 @@ class InterfaceMmgbsaDeltaStep(Step):
                 "ensemble": False,
                 "calibrated": False,
             },
-            "warnings": [
-                "Single-point MM/GBSA without entropy, ensemble averaging or calibration; "
-                "the value is a force-field estimate, not a measured binding affinity."
-            ],
+            "warnings": _warnings(nonbonded, gb, cancellation_ratio),
         }
         output = Form(
             data=data,

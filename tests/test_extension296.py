@@ -68,17 +68,22 @@ def test_real_mmgbsa(tmp_path):
     form = read_source(str(path), ["atom", "field"], {"atom": "auto", "field": "builtin"})
     ctx = Context(tempfile.mkdtemp(), {"params": {}})
     ctx["pdb"] = form
-    run(
-        ctx,
-        [
-            {
-                "name": "interface_mmgbsa_delta",
-                "inputs": ["pdb"],
-                "params": {"output": "energy", "binder_chains": "A,B", "target_chains": "L,M"},
-            }
-        ],
-    )
-    result = ctx["energy"]
+    try:
+        run(
+            ctx,
+            [
+                {
+                    "name": "interface_mmgbsa_delta",
+                    "inputs": ["pdb"],
+                    "params": {"output": "energy", "binder_chains": "A,B", "target_chains": "L,M"},
+                }
+            ],
+        )
+        result = ctx["energy"]
+    except StepError as exc:
+        if "isolated environment 'openmm81' is not installed" in str(exc):
+            pytest.skip("openmm81 is not installed in this Python environment")
+        raise
     assert result.data.shape == (5, 4)
     total = float(result.data[4, 3])
     assert abs(total - result.info["delta_total_kj"]) < 1e-2 * max(abs(total), 1)
