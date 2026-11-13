@@ -1,12 +1,12 @@
-import manifest from "../../library/seed/operon/builtin_packages.json";
+import manifest from "./operatorCatalog.fixture.json";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { OperatorArtwork, OperatorPreview } from "./OperatorArtwork";
 import { CANONICAL_CATEGORIES, categoryId, categoryLabel, compareCategories, presentCatalog, presentOperator } from "./operatorPresentation";
 import type { Catalog, Operator } from "./types";
 
-// Exercise the shipped registry, including descriptors already present in saved
-// provider generations, instead of duplicating synthetic operator metadata.
+// 5.0.0 ships no operator catalogue in the application repo; exercise representative
+// descriptors (data/analysis/visualization) copied from the released library manifest.
 const operators = manifest.packages.flatMap(p =>
   p.descriptors.filter(d => d.kind === "operator").map(d => ({...d, parameters: []}))) as Operator[];
 const catalog: Catalog = {schema_version: 1, operators};

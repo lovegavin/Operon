@@ -14,6 +14,7 @@ import json
 import re
 import shutil
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 from zipfile import BadZipFile, ZipFile
 
@@ -252,9 +253,10 @@ def library_preflight(path) -> None:
         raise LegacyLibrary(LEGACY_MESSAGE) from error
 
 
-def _release(document: dict, digest: str) -> dict:
+def _release(document: dict, digest: str, *, installed_at: str | None = None) -> dict:
     return {
         "format": LIBRARY_FORMAT,
+        "name": "operon-library",
         "bundle_format": BUNDLE_FORMAT,
         "library_version": document["library_version"],
         "packages": {
@@ -262,6 +264,7 @@ def _release(document: dict, digest: str) -> dict:
             for package in document["packages"]
         },
         "sha256": digest,
+        "installed_at": installed_at or datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }
 
 
@@ -374,7 +377,8 @@ def install_library(manager, path, *, replace: bool = True) -> dict:
             }
             same_identity = all(installed.get(name) == identity for name, identity in wanted.items())
             if same_identity and _wheels_present(manager, current, document["packages"]):
-                release = _release(document, digest)
+                previous = current.get("library_release") or {}
+                release = _release(document, digest, installed_at=previous.get("installed_at"))
                 if archive is not None:
                     release["archive"] = str(archive)
                 if (current.get("library_release") != release

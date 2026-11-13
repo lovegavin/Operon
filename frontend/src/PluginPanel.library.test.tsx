@@ -81,7 +81,7 @@ it('reports the library version and counts returned by the install operation', a
     result: {library_version: '0.0.0', packages: 12, descriptors: 34, installed: true, idempotent: false},
   });
   choose('operon-library-v0.0.0.operon-library.zip');
-  const message = '已导入算子库 v0.0.0：12 个包，34 个算子 / Reader。';
+  const message = '已导入算子库 v0.0.0：34 个算子 / Reader。';
   await vi.waitFor(() => expect(hooks.values).toContain(message));
   expect(api.installPlugin).toHaveBeenCalledWith({name: 'operon-library-v0.0.0.operon-library.zip'});
 });

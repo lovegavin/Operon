@@ -17,7 +17,7 @@ function elements(node:ReactNode):Element[] {
   if(!isValidElement<Record<string,unknown>>(node))return [];
   return [node,...elements(node.props.children as ReactNode)];
 }
-function render(){hooks.cursor=0;return AddOperators({state:{generation:null,packages:[],descriptors:[]},busy:false,onChanged,onPending,onError,onMessage,onPackage:()=>{},onRefresh:()=>{}});}
+function render(){hooks.cursor=0;return AddOperators({busy:false,onChanged,onPending,onError,onMessage,onPackage:()=>{}});}
 function triggerFiles(files: unknown[]) {
   const field=elements(render()).find(n=>n.type==='input'&&n.props.type==='file')!;
   (field.props.onChange as Function)({target:{files,value:'fake'}});

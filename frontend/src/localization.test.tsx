@@ -60,8 +60,8 @@ describe('language projections', () => {
     const html=renderToStaticMarkup(<PluginPanel initialTab="add" onClose={()=>{}} onChanged={async()=>{}}/>);
     expect(html).toContain('Manage library'); expect(html).toContain('Add operators');
     expect(html).toContain('Operators and Readers'); expect(html).toContain('Workflow operators');
-    expect(html).toContain('Import package'); expect(html).toContain('Import workflow file');
-    expect(html).toContain('.whl,.operon-library.zip'); expect(html).toContain('aria-pressed="true">Add operators');
+    expect(html).toContain('Import operator library'); expect(html).toContain('Import workflow file');
+    expect(html).toContain('accept=".operon-library.zip"'); expect(html).toContain('aria-pressed="true">Add operators');
   });
   it('puts language beside existing settings without remounting server drafts', () => {
     setLanguage('en'); expect(t('设置')).toBe('Settings');

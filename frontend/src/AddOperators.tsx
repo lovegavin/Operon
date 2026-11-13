@@ -1,14 +1,14 @@
 import {useEffect, useRef, useState} from 'react';
-import {ArrowClockwise, FileArrowUp, FolderOpen, Package, Plus, Stack} from '@phosphor-icons/react';
+import {FileArrowUp, Package, Plus, Stack} from '@phosphor-icons/react';
 import {api} from './api';
 import {normalizeGraph} from './graph';
 import {isRouteArchiveFile, isRouteLibraryFile} from './libraryImport';
 import {isWorkflowBundle, ROUTE_FILE_ACCEPT} from './workflowFiles';
-import type {PluginState, WorkflowSummary} from './types';
+import type {WorkflowSummary} from './types';
 import {t} from './i18n';
 
-export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPending, onError, onMessage}: {
-  state: PluginState; busy: boolean; onPackage: () => void; onRefresh: () => void;
+export function AddOperators({busy, onPackage, onChanged, onPending, onError, onMessage}: {
+  busy: boolean; onPackage: () => void;
   onChanged: () => Promise<void>; onPending: (value: boolean) => void;
   onError: (value: string) => void; onMessage: (value: string) => void;
 }) {
@@ -92,16 +92,12 @@ export function AddOperators({state, busy, onPackage, onRefresh, onChanged, onPe
   }
   const visible = routes.filter(route => route.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()));
   return <div className="add-operators">
+    <h2 className="operator-section-heading">{t('普通算子与 Reader')}</h2>
     <section className="operator-install-card">
       <div className="operator-install-heading"><span><Package size={24}/></span><div><h3>{t('导入算子库')}</h3><code>operon-library-v0.0.x.operon-library.zip</code></div>
         <button className="primary-button" disabled={busy} onClick={onPackage}><FileArrowUp size={16}/>{t('导入算子库')}</button></div>
-      <div className="plugin-folder-row">
-        <button className="subtle-button" title={state.source_directories?.operator} onClick={() => void api.openPluginFolder('operator').catch(e => onError(e.message))}><FolderOpen size={16}/>{t('算子目录')}</button>
-        <button className="subtle-button" title={state.source_directories?.reader} onClick={() => void api.openPluginFolder('reader').catch(e => onError(e.message))}><FolderOpen size={16}/>{t('Reader 目录')}</button>
-        <button className="subtle-button" title={state.inbox} onClick={() => void api.openPluginFolder('extra').catch(e => onError(e.message))}><FolderOpen size={16}/>{t('附加目录')}</button>
-        <button className="subtle-button" disabled={busy} onClick={onRefresh}><ArrowClockwise size={16}/>{t('扫描新增算子')}</button>
-      </div>
     </section>
+    <h2 className="operator-section-heading">{t('路线算子')}</h2>
     <section className="operator-install-card">
       <div className="operator-install-heading"><span><Stack size={24}/></span><div><h3>{t('导入路线库')}</h3><code>.zip（routes/*.operon.zip）</code></div>
         <div className="operator-install-actions">

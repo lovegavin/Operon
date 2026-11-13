@@ -1,0 +1,1050 @@
+{
+ "packages": [
+  {
+   "name": "fixture",
+   "descriptors": [
+    {
+     "id": "bin",
+     "kind": "operator",
+     "title": "Bin",
+     "description": "Discretize a continuous axis into bins.",
+     "category": "数据整理",
+     "icon": "Columns",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": []
+       }
+      ],
+      "output": {
+       "mode": "project",
+       "derived": true,
+       "info": {
+        "missing_code": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "representation": {
+         "type": "string",
+         "const": "bins"
+        }
+       },
+       "keep_dims": [
+        {
+         "param": "dim",
+         "default": null
+        }
+       ],
+       "append_dims": [
+        {
+         "name": "bin",
+         "labels": [
+          "bin"
+         ]
+        }
+       ]
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 1,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "filter_by",
+     "kind": "operator",
+     "title": "Filter by metrics",
+     "description": "Keep positions along a dim that satisfy thresholds from another form.",
+     "category": "数据整理",
+     "icon": "Funnel",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": []
+       },
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         },
+         "statistic"
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2
+       }
+      ],
+      "output": {
+       "mode": "subset"
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 2,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "rank_axis",
+     "kind": "operator",
+     "title": "Rank features",
+     "description": "Rank positions along one axis by a statistic.",
+     "category": "数据整理",
+     "icon": "SortAscending",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": []
+       }
+      ],
+      "output": {
+       "mode": "subset"
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 1,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "join",
+     "kind": "operator",
+     "title": "Join",
+     "description": "Join two forms along a shared dim by label.",
+     "category": "数据整理",
+     "icon": "Unite",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2
+       },
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2
+       }
+      ],
+      "output": {
+       "mode": "project",
+       "derived": true,
+       "info": {
+        "missing_code": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "representation": {
+         "type": "string",
+         "const": "joined"
+        }
+       },
+       "labels_unknown": true,
+       "axis_info_unknown": true
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 2,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "aggregate",
+     "kind": "operator",
+     "title": "Aggregate",
+     "description": "Aggregate positions along one axis by group.",
+     "category": "数据整理",
+     "icon": "Stack",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2
+       },
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2,
+        "labels_axis": [
+         {
+          "axis": 1,
+          "values": [
+           {
+            "param": "group_col",
+            "default": null
+           }
+          ]
+         }
+        ]
+       }
+      ],
+      "output": {
+       "mode": "declare",
+       "schema": {
+        "ndim": 2,
+        "numeric": true,
+        "info": {
+         "missing_code": {
+          "type": [
+           "number",
+           "null"
+          ]
+         },
+         "representation": {
+          "type": "string",
+          "const": "aggregate"
+         }
+        },
+        "labels": {}
+       }
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 2,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "cluster_axis",
+     "kind": "operator",
+     "title": "Clustering",
+     "description": "Cluster positions along one axis.",
+     "category": "统计分析",
+     "icon": "TreeStructure",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": []
+       }
+      ],
+      "output": {
+       "mode": "project",
+       "derived": true,
+       "info": {
+        "missing_code": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "representation": {
+         "type": "string",
+         "const": "clusters"
+        }
+       },
+       "keep_dims": [
+        {
+         "param": "dim",
+         "default": null
+        }
+       ],
+       "append_dims": [
+        {
+         "name": "cluster",
+         "labels": [
+          "cluster"
+         ]
+        }
+       ]
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 1,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "reduce_axis",
+     "kind": "operator",
+     "title": "Axis statistics",
+     "description": "Reduce one axis of a form to summary statistics.",
+     "category": "统计分析",
+     "icon": "Sigma",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": []
+       }
+      ],
+      "output": {
+       "mode": "project",
+       "derived": true,
+       "info": {
+        "missing_code": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "representation": {
+         "type": "string",
+         "const": "summary"
+        }
+       },
+       "drop_dims": [
+        {
+         "param": "dim",
+         "default": null
+        }
+       ],
+       "append_dims": [
+        {
+         "name": "statistic",
+         "labels": {
+          "param": "stats",
+          "default": null
+         }
+        }
+       ]
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 1,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "reduce",
+     "kind": "operator",
+     "title": "PCA / PCoA / UMAP / t-SNE",
+     "description": "Reduce one axis of a 2D form to a small number of components.",
+     "category": "统计分析",
+     "icon": "ArrowsIn",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2
+       }
+      ],
+      "output": {
+       "mode": "choose",
+       "param": "method",
+       "default": "pca",
+       "cases": {
+        "pcoa": {
+         "mode": "project",
+         "derived": true,
+         "info": {
+          "missing_code": {
+           "type": [
+            "number",
+            "null"
+           ]
+          },
+          "representation": {
+           "type": "string",
+           "const": "scores"
+          }
+         },
+         "keep_dims": [
+          {
+           "param": "dim",
+           "default": null
+          }
+         ],
+         "append_dims": [
+          {
+           "name": "component"
+          }
+         ]
+        }
+       },
+       "otherwise": {
+        "mode": "project",
+        "derived": true,
+        "info": {
+         "missing_code": {
+          "type": [
+           "number",
+           "null"
+          ]
+         },
+         "representation": {
+          "type": "string",
+          "const": "scores"
+         }
+        },
+        "drop_dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "append_dims": [
+         {
+          "name": "component"
+         }
+        ]
+       }
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 1,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "diversity",
+     "kind": "operator",
+     "title": "Alpha diversity",
+     "description": "Compute diversity metrics along one axis.",
+     "category": "统计分析",
+     "icon": "CirclesThree",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": []
+       }
+      ],
+      "output": {
+       "mode": "project",
+       "derived": true,
+       "info": {
+        "missing_code": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "representation": {
+         "type": "string",
+         "const": "diversity"
+        }
+       },
+       "drop_dims": [
+        {
+         "param": "dim",
+         "default": null
+        }
+       ],
+       "append_dims": [
+        {
+         "name": "metric",
+         "labels": {
+          "param": "metrics",
+          "default": null
+         }
+        }
+       ]
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 1,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "distance_matrix",
+     "kind": "operator",
+     "title": "Distance matrix",
+     "description": "Pairwise distance matrix along one axis.",
+     "category": "统计分析",
+     "icon": "Ruler",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": []
+       }
+      ],
+      "output": {
+       "mode": "project",
+       "derived": true,
+       "info": {
+        "missing_code": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "representation": {
+         "type": "string",
+         "const": "distance"
+        }
+       },
+       "keep_dims": [
+        {
+         "param": "dim",
+         "default": null
+        }
+       ],
+       "append_dims": [
+        {
+         "name": {
+          "param": "dim",
+          "suffix": "_b"
+         },
+         "labels_from": {
+          "param": "dim",
+          "default": null
+         }
+        }
+       ]
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 1,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "correlation",
+     "kind": "operator",
+     "title": "Correlation",
+     "description": "Pairwise correlation matrix along one axis.",
+     "category": "统计分析",
+     "icon": "Intersect",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": []
+       }
+      ],
+      "output": {
+       "mode": "project",
+       "derived": true,
+       "info": {
+        "missing_code": {
+         "type": [
+          "number",
+          "null"
+         ]
+        },
+        "representation": {
+         "type": "string",
+         "const": "correlation"
+        }
+       },
+       "keep_dims": [
+        {
+         "param": "dim",
+         "default": null
+        }
+       ],
+       "append_dims": [
+        {
+         "name": {
+          "param": "dim",
+          "suffix": "_b"
+         },
+         "labels_from": {
+          "param": "dim",
+          "default": null
+         }
+        }
+       ]
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 1,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "permanova",
+     "kind": "operator",
+     "title": "PERMANOVA",
+     "description": "PERMANOVA on a distance matrix with a grouping column.",
+     "category": "统计分析",
+     "icon": "Shuffle",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dist_dim",
+          "default": "sample"
+         },
+         {
+          "param": "dist_dim",
+          "default": "sample",
+          "suffix": "_b"
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2
+       },
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "group_dim",
+          "default": {
+           "param": "dist_dim",
+           "default": "sample"
+          }
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2,
+        "labels_axis": [
+         {
+          "axis": 1,
+          "values": [
+           {
+            "param": "group_label",
+            "default": null
+           }
+          ]
+         }
+        ]
+       }
+      ],
+      "output": {
+       "mode": "declare",
+       "schema": {
+        "ndim": 2,
+        "numeric": true,
+        "dims": [
+         "comparison",
+         "statistic"
+        ],
+        "labels": {
+         "comparison": null,
+         "statistic": [
+          "F",
+          "R2",
+          "P",
+          "n_perm"
+         ]
+        },
+        "axis_info": {},
+        "info": {
+         "missing_code": {
+          "type": [
+           "number",
+           "null"
+          ]
+         },
+         "representation": {
+          "type": "string",
+          "const": "permanova"
+         }
+        }
+       }
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 2,
+     "outputs": [],
+     "output_parameter": "output"
+    },
+    {
+     "id": "dotplot",
+     "kind": "operator",
+     "title": "Dot plot",
+     "description": "Dot plot of features grouped by a label column.",
+     "category": "可视化",
+     "icon": "ChartScatter",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "feature_dim",
+          "default": null
+         },
+         {
+          "param": "group_dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2
+       },
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "group_dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2,
+        "labels_any": [
+         {
+          "param": "group_label",
+          "default": null
+         }
+        ]
+       }
+      ],
+      "output": {
+       "mode": "report"
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 2,
+     "outputs": [],
+     "output_parameter": null,
+     "preview": {
+      "kind": "dotplot",
+      "caption": "点大小与强度"
+     }
+    },
+    {
+     "id": "violin",
+     "kind": "operator",
+     "title": "Violin plot",
+     "description": "Draw violin plots of a value column grouped by a label.",
+     "category": "可视化",
+     "icon": "ChartLine",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": "feature"
+         },
+         {
+          "param": "group_dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2,
+        "labels_any": [
+         {
+          "param": "value_label",
+          "default": null
+         }
+        ]
+       },
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "group_dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2,
+        "labels_any": [
+         {
+          "param": "group_label",
+          "default": null
+         }
+        ]
+       }
+      ],
+      "output": {
+       "mode": "report"
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 2,
+     "outputs": [],
+     "output_parameter": null,
+     "preview": {
+      "kind": "violin",
+      "caption": "分组密度与分布"
+     }
+    },
+    {
+     "id": "barplot",
+     "kind": "operator",
+     "title": "Composition barplot",
+     "description": "Stacked bar plot of a matrix along one axis.",
+     "category": "可视化",
+     "icon": "ChartBar",
+     "contracts": {
+      "version": 1,
+      "inputs": [
+       {
+        "version": 1,
+        "numeric": true,
+        "info": {},
+        "dims": [
+         {
+          "param": "dim",
+          "default": null
+         },
+         {
+          "param": "sample_dim",
+          "default": null
+         }
+        ],
+        "labels": [],
+        "parallel": [],
+        "ndim": 2
+       }
+      ],
+      "output": {
+       "mode": "report"
+      }
+     },
+     "resources": {
+      "memory_modes": [
+       "full"
+      ],
+      "supports_cuda": false,
+      "estimate": "estimate_memory"
+     },
+     "inputs_arity": 1,
+     "outputs": [],
+     "output_parameter": null,
+     "preview": {
+      "kind": "composition",
+      "caption": "各组组成比例"
+     }
+    }
+   ]
+  }
+ ]
+}
