@@ -1,3 +1,4 @@
+import io
 import time
 from pathlib import Path
 from types import SimpleNamespace
@@ -27,7 +28,20 @@ class FakeCommon:
         return None
 
 
+class _Response(io.BytesIO):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+        return False
+
+
 class FakeFetch:
+    @staticmethod
+    def _open_url(url, token_env=""):
+        return _Response(b"hello")
+
     @staticmethod
     def _download_one(entry, root, overwrite=False):
         target = Path(root) / entry["path"]
@@ -53,6 +67,7 @@ def test_snapshot_download_and_log(tmp_path, monkeypatch):
     )
     root = _root(tmp_path)
     monkeypatch.setattr(resource_api, "_modules", lambda svc: (root, FakeCommon, FakeFetch))
+    monkeypatch.setattr(resource_api, "_target_root", lambda fetch, resource, root: tmp_path / "downloads")
 
     app = FastAPI()
     resource_api.mount_resources(app, service)
@@ -87,3 +102,14 @@ def test_unknown_resource_is_404(tmp_path, monkeypatch):
     resource_api.mount_resources(app, service)
     client = TestClient(app, raise_server_exceptions=False)
     assert client.post("/api/resources/nope/download", json={}).status_code == 404
+
+
+def test_target_root_delegates_to_resource_fetch(tmp_path):
+    class Fetch:
+        @staticmethod
+        def _target_root(resource, root):
+            return Path(root) if root else tmp_path / "from-fetch"
+
+    assert resource_api._target_root(Fetch, FakeResource(), None) == tmp_path / "from-fetch"
+    explicit = tmp_path / "explicit"
+    assert resource_api._target_root(Fetch, FakeResource(), str(explicit)) == explicit

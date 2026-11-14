@@ -82,13 +82,8 @@ def snapshot(service) -> dict:
     }
 
 
-def _target_root(common, resource, root):
-    if root:
-        return Path(str(root)).expanduser()
-    resolved = common.resolve_root(resource)
-    if resolved is not None:
-        return resolved
-    return Path.home() / '.local' / 'share' / 'operon' / 'resources' / resource.id
+def _target_root(fetch, resource, root):
+    return fetch._target_root(resource, root)
 
 
 def _part_bytes(target: Path, resource) -> int:
@@ -137,7 +132,6 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
             raise ValueError(f"{target} exists with {actual} bytes, expected {expected_bytes}")
         if expected_sha and _sha256(target) != expected_sha:
             raise ValueError(f"{target} exists with a different sha256")
-        job["completed_bytes"] = int(job.get("completed_bytes") or 0) + actual
         return {"path": relative, "status": "existing", "bytes": actual}
     target.parent.mkdir(parents=True, exist_ok=True)
     partial = target.with_name(target.name + ".part")
@@ -164,7 +158,6 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
         partial.unlink(missing_ok=True)
         raise ValueError(f"download sha256 mismatch for {relative}: got {digest}, expected {expected_sha}")
     os.replace(partial, target)
-    job["completed_bytes"] = int(job.get("completed_bytes") or 0) + written
     return {"path": relative, "status": "downloaded", "bytes": written, "sha256": digest}
 
 
@@ -193,7 +186,7 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False) 
             stream.write(str(line) + '\n')
             stream.flush()
 
-    target = _target_root(common, resource, root)
+    target = _target_root(fetch, resource, root)
 
     def watch() -> None:
         while job['status'] == 'running':
