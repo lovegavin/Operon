@@ -64,6 +64,8 @@ def create_app(settings=None):
     mount_pool(app, service)
     from .environment_api import mount_environments
     mount_environments(app, service)
+    from .resource_api import mount_resources
+    mount_resources(app, service)
     from .script_api import mount_scripts
     mount_scripts(app, service)
     from .preferences import mount_preferences

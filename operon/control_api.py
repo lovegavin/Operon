@@ -137,6 +137,35 @@ def mount_control(app, application, bridge):
         return {**application.isolated_environments(),
                 'prepared': application.start_isolated_environments(payload.names)}
 
+    @app.get('/api/v1/resources')
+    def resources(request: Request):
+        authorize(request)
+        from src.web.resource_api import snapshot
+        return snapshot(application.service)
+
+    @app.post('/api/v1/resources/{name}/download')
+    def download_resource(request: Request, name: str, payload: dict | None = None):
+        authorize(request, 'plugins')
+        from src.web.resource_api import start
+        body = payload or {}
+        try:
+            return start(application.service, name, body.get('root'), bool(body.get('overwrite', False)))
+        except KeyError:
+            raise HTTPException(status_code=404, detail=f'unknown resource: {name}')
+        except ValueError as exc:
+            raise HTTPException(status_code=409, detail=str(exc))
+
+    @app.get('/api/v1/resources/{name}/log')
+    def resource_log(request: Request, name: str, limit: int = 200):
+        authorize(request)
+        from src.web.resource_api import read_log
+        try:
+            return read_log(application.service, name, limit)
+        except KeyError:
+            raise HTTPException(status_code=404, detail=f'unknown resource: {name}')
+        except ValueError as exc:
+            raise HTTPException(status_code=409, detail=str(exc))
+
     @app.get('/api/v1/libraries')
     def libraries(request: Request):
         authorize(request)

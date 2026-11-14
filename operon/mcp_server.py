@@ -135,6 +135,33 @@ def create_server(client):
         return client.request('/v1/environments/prepare', {'names': names})
 
     @server.tool()
+    def operon_resources() -> dict:
+        """List large external resources declared by the installed operator library.
+
+        Read-only. Each item reports present/missing files, size, download URLs and
+        requirements. Use operon_resource_download to fetch the declared files.
+        """
+        return client.request('/v1/resources')
+
+    @server.tool()
+    def operon_resource_download(name: str, root: str | None = None, overwrite: bool = False) -> dict:
+        """Download one declared large resource; requires --allow-plugins.
+
+        The library streams to a .part file, verifies declared size/sha256, and
+        renames atomically. Returns a job id immediately; poll operon_resources or
+        operon_resource_log for status.
+        """
+        payload = {'overwrite': overwrite}
+        if root:
+            payload['root'] = root
+        return client.request('/v1/resources/' + quote(name, safe='') + '/download', payload)
+
+    @server.tool()
+    def operon_resource_log(name: str, limit: int = 200) -> dict:
+        """Read the install/download log for one declared resource."""
+        return client.request('/v1/resources/' + quote(name, safe='') + '/log?limit=' + str(max(1, min(int(limit), 2000))))
+
+    @server.tool()
     def operon_submit(request_id: str, graph: dict | None = None, workflow_id: str | None = None,
                        expected_version: int | None = None, view: str = 'brief') -> dict:
         """Submit a workflow without a canvas; requires --allow-run. Exactly one graph or workflow_id.
