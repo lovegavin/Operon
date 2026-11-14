@@ -141,7 +141,7 @@ def create_server(client):
         Read-only. Each item reports present/missing files, size, download URLs and
         requirements. Use operon_resource_download to fetch the declared files.
         """
-        return client.request('/v1/resources')
+        return client.request('/v1/large-resources')
 
     @server.tool()
     def operon_resource_download(name: str, root: str | None = None, overwrite: bool = False) -> dict:
@@ -154,12 +154,17 @@ def create_server(client):
         payload = {'overwrite': overwrite}
         if root:
             payload['root'] = root
-        return client.request('/v1/resources/' + quote(name, safe='') + '/download', payload)
+        return client.request('/v1/large-resources/' + quote(name, safe='') + '/download', payload)
+
+    @server.tool()
+    def operon_resource_cancel(name: str) -> dict:
+        """Cancel the active download for one declared resource."""
+        return client.request('/v1/large-resources/' + quote(name, safe='') + '/cancel', {})
 
     @server.tool()
     def operon_resource_log(name: str, limit: int = 200) -> dict:
         """Read the install/download log for one declared resource."""
-        return client.request('/v1/resources/' + quote(name, safe='') + '/log?limit=' + str(max(1, min(int(limit), 2000))))
+        return client.request('/v1/large-resources/' + quote(name, safe='') + '/log?limit=' + str(max(1, min(int(limit), 2000))))
 
     @server.tool()
     def operon_submit(request_id: str, graph: dict | None = None, workflow_id: str | None = None,
@@ -431,6 +436,11 @@ def create_server(client):
         if not math.isfinite(wait_seconds) or not 0 <= wait_seconds <= 120:
             raise ValueError('wait_seconds must be between 0 and 120')
         job_view({}, view)
+        if quote(job_id, safe='').startswith(''):
+            try:
+                return client.request('/v1/large-resources/operations/' + quote(job_id, safe=''))
+            except Exception:
+                pass
         job = client.request('/v1/jobs/' + quote(job_id, safe='') + '?view=' + view)
         return wait_job(client, job, wait_seconds, view=view) if wait_seconds else job
 

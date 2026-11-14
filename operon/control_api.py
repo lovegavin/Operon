@@ -137,14 +137,14 @@ def mount_control(app, application, bridge):
         return {**application.isolated_environments(),
                 'prepared': application.start_isolated_environments(payload.names)}
 
-    @app.get('/api/v1/resources')
-    def resources(request: Request):
+    @app.get('/api/v1/large-resources')
+    def large_resources(request: Request):
         authorize(request)
         from src.web.resource_api import snapshot
         return snapshot(application.service)
 
-    @app.post('/api/v1/resources/{name}/download')
-    def download_resource(request: Request, name: str, payload: dict | None = None):
+    @app.post('/api/v1/large-resources/{name}/download')
+    def download_large_resource(request: Request, name: str, payload: dict | None = None):
         authorize(request, 'plugins')
         from src.web.resource_api import start
         body = payload or {}
@@ -155,8 +155,26 @@ def mount_control(app, application, bridge):
         except ValueError as exc:
             raise HTTPException(status_code=409, detail=str(exc))
 
-    @app.get('/api/v1/resources/{name}/log')
-    def resource_log(request: Request, name: str, limit: int = 200):
+    @app.post('/api/v1/large-resources/{name}/cancel')
+    def cancel_large_resource(request: Request, name: str):
+        authorize(request, 'plugins')
+        from src.web.resource_api import cancel
+        try:
+            return cancel(application.service, name)
+        except KeyError:
+            raise HTTPException(status_code=404, detail=f'no running download: {name}')
+
+    @app.get('/api/v1/large-resources/operations/{job_id}')
+    def large_resource_operation(request: Request, job_id: str):
+        authorize(request)
+        from src.web.resource_api import operation
+        job = operation(job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail=f'unknown resource operation: {job_id}')
+        return job
+
+    @app.get('/api/v1/large-resources/{name}/log')
+    def large_resource_log(request: Request, name: str, limit: int = 200):
         authorize(request)
         from src.web.resource_api import read_log
         try:

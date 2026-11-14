@@ -121,8 +121,20 @@ def state(name: str, root=None, source=None) -> dict:
     progress = read_progress(name, root)
     result['progress'] = progress
     if progress.get('phase') in {'creating', 'installing', 'probing', 'committing'}:
-        result['status'] = 'installing'
-        result['error'] = ''
+        updated = progress.get('updated_at') or ''
+        stale = False
+        if updated:
+            try:
+                stamp = time.mktime(time.strptime(updated, '%Y-%m-%dT%H:%M:%SZ')) - time.timezone
+                stale = (time.time() - stamp) > 900
+            except ValueError:
+                stale = False
+        if stale:
+            result['status'] = 'failed'
+            result['error'] = '环境安装超过 15 分钟没有进度，进程可能已退出；可点击重试'
+        else:
+            result['status'] = 'installing'
+            result['error'] = ''
     return result
 
 
