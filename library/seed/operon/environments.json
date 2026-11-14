@@ -35,6 +35,68 @@
         "biopython==1.83"
       ]
     },
+    "boltz": {
+      "title": "Boltz structure and affinity prediction",
+      "python": "3.11",
+      "imports": [
+        "boltz"
+      ],
+      "conda_packages": [
+        "rdkit",
+        "pillow",
+        "tqdm",
+        "numba",
+        "scipy",
+        "scikit-learn",
+        "gemmi",
+        "dm-tree",
+        "libstdcxx-ng"
+      ],
+      "torch_cpu": true,
+      "pip_wheels": [
+        "wandb==0.18.7",
+        "lightning-utilities",
+        "torchmetrics",
+        "pytorch-lightning",
+        "hydra-core",
+        "omegaconf",
+        "mashumaro",
+        "einx",
+        "chembl_structure_pipeline",
+        "einops",
+        "biopython",
+        "frozendict"
+      ],
+      "pip_pypi": [
+        "ihm",
+        "modelcif==1.6",
+        "fairscale==0.4.13"
+      ],
+      "requirements": [],
+      "no_deps": [
+        "boltz==2.2.1"
+      ],
+      "wired": true,
+      "notes": "Standalone micromamba env: conda supplies rdkit/gemmi/dm-tree (no wheels on this host) and the CPU torch wheel comes from download.pytorch.org; Boltz itself is installed with --no-deps because its strict scipy/wandb pins would otherwise downgrade the shared stack. Verified on glibc 2.17: `import boltz.main` succeeds. The environment also installs conda-forge libstdcxx-ng so Boltz does not inherit the host libstdc++ (CXXABI_1.3.9)."
+    },
+    "colabfold": {
+      "title": "ColabFold (local runner)",
+      "python": "3.11",
+      "imports": [
+        "colabfold"
+      ],
+      "requirements": [
+        "colabfold[alphafold]==1.5.5"
+      ],
+      "conda_packages": [
+        "mmseqs2",
+        "kalign2",
+        "hmmer"
+      ],
+      "torch_cpu": true,
+      "wired": true,
+      "notes": "Provides colabfold_batch in the environment bin directory. The MMseqs2/UniRef databases remain external and are checked by resources.json colabfold."
+    },
     "esm3": {
       "title": "ESM-3 sequence and structure generation",
       "python": "3.11",
@@ -82,70 +144,6 @@
         "esm @ git+https://github.com/evolutionaryscale/esm.git@v3.2.2"
       ]
     },
-    "boltz": {
-      "title": "Boltz structure and affinity prediction",
-      "python": "3.11",
-      "imports": [
-        "boltz"
-      ],
-      "conda_packages": [
-        "rdkit",
-        "pillow",
-        "tqdm",
-        "numba",
-        "scipy",
-        "scikit-learn",
-        "gemmi",
-        "dm-tree",
-        "libstdcxx-ng"
-      ],
-      "torch_cpu": true,
-      "pip_wheels": [
-        "wandb==0.18.7",
-        "lightning-utilities",
-        "torchmetrics",
-        "pytorch-lightning",
-        "hydra-core",
-        "omegaconf",
-        "mashumaro",
-        "einx",
-        "chembl_structure_pipeline",
-        "einops",
-        "biopython",
-        "frozendict"
-      ],
-      "pip_pypi": [
-        "ihm",
-        "modelcif==1.6",
-        "fairscale==0.4.13"
-      ],
-      "requirements": [],
-      "no_deps": [
-        "boltz==2.2.1"
-      ],
-      "wired": true,
-      "notes": "Standalone micromamba env: conda supplies rdkit/gemmi/dm-tree (no wheels on this host) and the CPU torch wheel comes from download.pytorch.org; Boltz itself is installed with --no-deps because its strict scipy/wandb pins would otherwise downgrade the shared stack. Verified on glibc 2.17: `import boltz.main` succeeds. The environment also installs conda-forge libstdcxx-ng so Boltz does not inherit the host libstdc++ (CXXABI_1.3.9)."
-    },
-    "openmm81": {
-      "title": "OpenMM 8.1.1 structure preparation (PDBFixer bundled)",
-      "python": "3.11",
-      "imports": [
-        "openmm",
-        "numpy"
-      ],
-      "requirements": [
-        "openmm==8.1.1",
-        "numpy==1.26.4",
-        "setuptools>=68,<81",
-        "wheel"
-      ],
-      "notes": "OpenMM 8.1.1 wheels use the NumPy 1 ABI. This isolated venv shares the host Python (3.11 on Studio 4.1.9; venv_shared ignores the declared version) and pins OpenMM 8.1.1 plus NumPy 1.26 without downgrading the shared NumPy 2 runtime. PDBFixer 1.9 is bundled inside the operator library, so environment creation needs no GitHub download and no external pdbfixer package.",
-      "pip_wheels": [
-        "setuptools>=68,<81",
-        "wheel"
-      ],
-      "venv_shared": true
-    },
     "esmfold": {
       "title": "ESMFold (fair-esm)",
       "python": "3.11",
@@ -169,6 +167,26 @@
       ],
       "wired": true,
       "notes": "Separate env because fair-esm and ESM3 both provide the top-level `esm` package. The 2.5 GB ESMFold checkpoint is still an external resource (resources.json esmfold); prepare installs the code only."
+    },
+    "openmm81": {
+      "title": "OpenMM 8.1.1 structure preparation (PDBFixer bundled)",
+      "python": "3.11",
+      "imports": [
+        "openmm",
+        "numpy"
+      ],
+      "requirements": [
+        "openmm==8.1.1",
+        "numpy==1.26.4",
+        "setuptools>=68,<81",
+        "wheel"
+      ],
+      "notes": "OpenMM 8.1.1 wheels use the NumPy 1 ABI. This isolated venv shares the host Python (3.11 on Studio 4.1.9; venv_shared ignores the declared version) and pins OpenMM 8.1.1 plus NumPy 1.26 without downgrading the shared NumPy 2 runtime. PDBFixer 1.9 is bundled inside the operator library, so environment creation needs no GitHub download and no external pdbfixer package.",
+      "pip_wheels": [
+        "setuptools>=68,<81",
+        "wheel"
+      ],
+      "venv_shared": true
     }
   }
 }
