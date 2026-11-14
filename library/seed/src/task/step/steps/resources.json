@@ -82,8 +82,8 @@
       "install": "python -c \"import esm; esm.pretrained.esmfold_v1()\" (downloads about 2.5 GB on first use)",
       "env": "OPERON_ESMFOLD_WEIGHTS",
       "roots": [
-        "~/.cache/torch/hub/checkpoints",
-        "~/.local/share/operon/resources/esmfold"
+        "~/.local/share/operon/resources/esmfold",
+        "~/.cache/torch/hub/checkpoints"
       ],
       "files": [
         "esmfold_3B_v1.pt"
@@ -104,8 +104,8 @@
       "install": "pip install \"colabfold[alphafold]\" && download the MMseqs2/UniRef databases as described in docs/large_resources.md",
       "env": "OPERON_COLABFOLD_PATH",
       "roots": [
-        "/usr/local/bin",
-        "~/.local/share/operon/resources/colabfold"
+        "~/.local/share/operon/resources/colabfold",
+        "/usr/local/bin"
       ],
       "files": [
         "colabfold_batch"
@@ -160,9 +160,9 @@
       "install": "conda install -c bioconda prodigal  (or build from the official source)",
       "env": "OPERON_PRODIGAL_PATH",
       "roots": [
+        "~/.local/share/operon/resources/prodigal",
         "/usr/local/bin",
-        "/usr/bin",
-        "~/.local/share/operon/resources/prodigal"
+        "/usr/bin"
       ],
       "files": [
         "prodigal"

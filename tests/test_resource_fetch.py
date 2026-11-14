@@ -7,8 +7,8 @@ from pathlib import Path
 import pytest
 
 from src.core.errors import StepError
-from src.task.step.steps._resources_common import Resource
-from src.task.step.steps.resource_fetch import _download_one, _safe_destination
+from src.task.step.steps._resources_common import Resource, load_resources
+from src.task.step.steps.resource_fetch import _download_one, _safe_destination, _target_root
 
 
 class _Response(io.BytesIO):
@@ -109,6 +109,24 @@ def test_existing_file_is_skipped_when_metadata_matches(tmp_path: Path):
         opener=opener,
     )
     assert result["status"] == "existing"
+
+
+def test_every_resource_prefers_its_canonical_download_root():
+    canonical = Path('~/.local/share/operon/resources').expanduser()
+    for resource in load_resources().values():
+        assert Path(resource.roots[0]).expanduser() == canonical / resource.id, resource.id
+
+
+def test_target_root_uses_first_declared_root_even_when_missing(tmp_path, monkeypatch):
+    monkeypatch.delenv('OPERON_DEMO_ROOT', raising=False)
+    resource = Resource.from_entry({
+        'id': 'demo',
+        'files': ['x.pt'],
+        'env': 'OPERON_DEMO_ROOT',
+        'roots': [str(tmp_path / 'canonical'), str(tmp_path / 'fallback')],
+    })
+    assert _target_root(resource, None) == tmp_path / 'canonical'
+    assert _target_root(resource, str(tmp_path / 'explicit')) == tmp_path / 'explicit'
 
 
 def test_manifest_accepts_mapping_downloads():
