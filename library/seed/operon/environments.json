@@ -96,7 +96,8 @@
         "scipy",
         "scikit-learn",
         "gemmi",
-        "dm-tree"
+        "dm-tree",
+        "libstdcxx-ng"
       ],
       "torch_cpu": true,
       "pip_wheels": [
@@ -123,7 +124,7 @@
         "boltz==2.2.1"
       ],
       "wired": true,
-      "notes": "Standalone micromamba env: conda supplies rdkit/gemmi/dm-tree (no wheels on this host) and the CPU torch wheel comes from download.pytorch.org; Boltz itself is installed with --no-deps because its strict scipy/wandb pins would otherwise downgrade the shared stack. Verified on glibc 2.17: `import boltz.main` succeeds."
+      "notes": "Standalone micromamba env: conda supplies rdkit/gemmi/dm-tree (no wheels on this host) and the CPU torch wheel comes from download.pytorch.org; Boltz itself is installed with --no-deps because its strict scipy/wandb pins would otherwise downgrade the shared stack. Verified on glibc 2.17: `import boltz.main` succeeds. The environment also installs conda-forge libstdcxx-ng so Boltz does not inherit the host libstdc++ (CXXABI_1.3.9)."
     },
     "openmm81": {
       "title": "OpenMM 8.1.1 structure preparation (PDBFixer bundled)",
@@ -144,6 +145,30 @@
         "wheel"
       ],
       "venv_shared": true
+    },
+    "esmfold": {
+      "title": "ESMFold (fair-esm)",
+      "python": "3.11",
+      "imports": [
+        "esm",
+        "torch"
+      ],
+      "requirements": [
+        "torch==2.3.1",
+        "numpy==1.26.4",
+        "biopython==1.83",
+        "scipy==1.13.1",
+        "ml-collections",
+        "einops",
+        "omegaconf",
+        "pytorch-lightning",
+        "dm-tree"
+      ],
+      "pip_pypi": [
+        "fair-esm==2.0.0"
+      ],
+      "wired": true,
+      "notes": "Separate env because fair-esm and ESM3 both provide the top-level `esm` package. The 2.5 GB ESMFold checkpoint is still an external resource (resources.json esmfold); prepare installs the code only."
     }
   }
 }

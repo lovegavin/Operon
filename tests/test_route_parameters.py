@@ -288,7 +288,8 @@ def test_bundle_prepares_and_runs_after_default_rebuild_in_a_fresh_profile(tmp_p
         old_job_lock = old_service.jobs_dir / old_job['id'] / 'plugins.lock.json'
         old_lock_bytes = old_job_lock.read_bytes()
     old = import_bundle(bundle)
-    old_pin = deepcopy(old.plugin_lock['pca'])
+    assert old.plugin_lock == {}
+    old_pin = next(d for d in json.loads(old_lock_bytes)['descriptors'] if d['id'] == 'pca')['implementation']
     assert node(old, 'pca').params['n_components'] == 10
 
     parameter = checkout / 'src/task/step/steps/pca.parameters.json'
@@ -332,7 +333,7 @@ def test_bundle_prepares_and_runs_after_default_rebuild_in_a_fresh_profile(tmp_p
         lock = json.loads((service.jobs_dir / key / 'plugins.lock.json').read_text(encoding='utf-8'))
         selected = next(d for d in lock['descriptors'] if d['id'] == 'pca')
         assert selected['parameters_schema']['properties']['n_components']['default'] == 20
-    assert old.plugin_lock['pca'] == old_pin
+    assert old.plugin_lock == {}
     assert old_job_lock.read_bytes() == old_lock_bytes
     archived = next(d for d in json.loads(old_lock_bytes)['descriptors'] if d['id'] == 'pca')
     from operon_sdk.declarations import load_class
