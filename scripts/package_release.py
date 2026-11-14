@@ -49,13 +49,17 @@ def verify_runtime_package(python_root, version):
         raise SystemExit(f'Bundled runtime is missing operon: {init}')
     match = re.search(r'__version__\s*=\s*[\'\"]([^\'\"]+)', init.read_text(encoding='utf-8'))
     found = match.group(1) if match else 'unknown'
-    if found != version:
+    def canon(value):
+        return re.sub(r'[-_.]', '', value).lower()
+    if canon(found) != canon(version):
         raise SystemExit(f'Bundled runtime carries operon {found}, expected {version}. '
                          'Rebuild it with scripts/build_runtime.py for this release.')
     metadata = sorted(packages.glob('operon_studio-*.dist-info'))
     names = {item.name for item in metadata}
-    expected = f'operon_studio-{version}.dist-info'
-    if names != {expected}:
+    expected_name = 'operon_studio-' + version.replace('-', '') + '.dist-info'
+    actual = names
+    expected = {expected_name}
+    if actual != expected:
         raise SystemExit(f'Bundled runtime distribution metadata is {sorted(names)}, expected {expected}.')
     probe = subprocess.run([str(Path(python_root) / 'python.exe'), '-I', '-c',
                             'import scipy, pandas, matplotlib, statsmodels; print(scipy.__version__)'],
@@ -82,6 +86,7 @@ def main():
     if not args.lite and (not args.runtime or not (args.runtime / 'operon-runtime.json').is_file()):
         parser.error('Full releases require --runtime from build_runtime.py; use --lite only for an environment-free package')
     version = tomllib.loads((root / 'pyproject.toml').read_text(encoding='utf-8'))['project']['version']
+    release_version = version.split('-', 1)[0]
     name = f'Operon-Studio-v{version}-Windows-x64' + ('-Lite' if args.lite else '')
     destination = io_path(args.output.resolve() / name)
     if destination.exists():
@@ -246,7 +251,7 @@ The release page records the validation completed for this exact build.
         commit = os.environ.get('OPERON_SOURCE_COMMIT', 'unknown')
         dirty = True
     runtime_mode = 'external' if args.lite else json.loads((args.runtime / 'operon-runtime.json').read_text(encoding='utf-8')).get('mode', 'bundled')
-    manifest = {'product': 'operon', 'version': version, 'runtime_mode': runtime_mode, 'source_commit': commit,
+    manifest = {'product': 'operon', 'version': release_version, 'display_version': version, 'runtime_mode': runtime_mode, 'source_commit': commit,
                 'source_dirty': dirty, 'python_bundled': not args.lite, 'files': []}
     for file in sorted(destination.rglob('*')):
         if file.is_file():

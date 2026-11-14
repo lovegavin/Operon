@@ -7,7 +7,11 @@ using System.Text.Json;
 
 namespace Operon.Setup;
 
-internal sealed record PayloadSpec(string Version, string Sha256, long Bytes, long UnpackedBytes, int Files);
+internal sealed record PayloadSpec(string Version, string Sha256, long Bytes, long UnpackedBytes, int Files,
+    [property: System.Text.Json.Serialization.JsonPropertyName("display_version")] string? DisplayVersion = null)
+{
+    internal string Display => string.IsNullOrWhiteSpace(DisplayVersion) ? Version : DisplayVersion;
+}
 internal sealed record ManifestFile(string Path, long Bytes, string Sha256);
 internal sealed record PackageManifest(string Version, bool PythonBundled, List<ManifestFile> Files);
 internal sealed record InstallProgress(string Message, int Percent);
@@ -162,6 +166,9 @@ internal static class InstallFiles
         var root = document.RootElement;
         if (root.GetProperty("version").GetString() != spec.Version || !root.GetProperty("python_bundled").GetBoolean())
             throw new InvalidDataException("安装包不是指定版本的完整运行环境。");
+        if (root.TryGetProperty("display_version", out var display) && display.ValueKind == JsonValueKind.String &&
+            display.GetString() != spec.DisplayVersion)
+            throw new InvalidDataException("安装包显示版本与安装器不一致。");
         var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var item in root.GetProperty("files").EnumerateArray())
         {

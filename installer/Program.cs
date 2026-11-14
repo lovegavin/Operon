@@ -198,7 +198,7 @@ internal sealed class SetupWindow : Form
         var title = new Label { Text = uninstall ? "卸载 Operon Studio" : "安装 Operon Studio", AutoSize = true,
             Location = new Point(32, 28), Font = new Font("Microsoft YaHei UI", 22, FontStyle.Bold) };
         var subtitle = new Label { Text = uninstall ? "软件将被移除，用户档案和分析数据会保留。" :
-            $"{spec.Version}  ·  内置运行环境，无需预先安装 Python", Location = new Point(34, 88), Size = new Size(560, 30), ForeColor = Color.DimGray };
+            $"{spec.Display}  ·  内置运行环境，无需预先安装 Python", Location = new Point(34, 88), Size = new Size(560, 30), ForeColor = Color.DimGray };
         var label = new Label { Text = uninstall ? "安装位置（安装记录）" : "安装位置", AutoSize = true, Location = new Point(34, 145) };
         destination.SetBounds(34, 175, 462, 32); destination.Text = options.InstallDir; destination.ReadOnly = uninstall;
         browse.SetBounds(506, 173, 90, 34); browse.Text = "选择"; browse.Enabled = !uninstall;

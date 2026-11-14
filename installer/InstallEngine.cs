@@ -10,7 +10,7 @@ internal sealed record InstallOptions(string InstallDir, string? Payload = null,
     bool Register = true, bool ForceReinstall = false);
 internal sealed record InstallReceipt(string Owner, string Version, string Current, string Profile,
     List<string> Versions, Dictionary<string, string> Shortcuts, string? UninstallKey,
-    string? InstallRoot = null);
+    string? InstallRoot = null, string? DisplayVersion = null);
 internal sealed record InstallResult(string Status, string InstallDir, string? Executable, string? Profile,
     string Log, string? Message = null);
 
@@ -342,7 +342,7 @@ internal sealed class InstallEngine
                 throw new IOException($"安装盘空间不足，需要约 {required / 1073741824.0:F1} GiB 可用空间。");
             if (!reuseCache && !sameDrive && cacheDrive.AvailableFreeSpace < spec.Bytes + 128L * 1024 * 1024)
                 throw new IOException("安装缓存所在磁盘空间不足，请释放空间后重试。");
-            Report("准备安装 Operon " + spec.Version, 0);
+            Report("准备安装 Operon " + spec.Display, 0);
             var payload = await InstallFiles.MaterializePayload(spec, cache, options.Payload, progress, token);
             Directory.CreateDirectory(root);
             InstallFiles.AtomicJson(Path.Combine(root, ".operon-setup.json"), new { owner = InstallFiles.Owner });
@@ -394,7 +394,7 @@ internal sealed class InstallEngine
                     if (previous is not null) priorRegistration = previous.GetValueNames().ToDictionary(k => k,
                         k => (previous.GetValue(k, null, RegistryValueOptions.DoNotExpandEnvironmentNames)!, previous.GetValueKind(k)));
                 using var key = Registry.CurrentUser.CreateSubKey(registrationKey);
-                key.SetValue("DisplayName", "Operon Studio"); key.SetValue("DisplayVersion", spec.Version);
+                key.SetValue("DisplayName", "Operon Studio"); key.SetValue("DisplayVersion", spec.Display);
                 key.SetValue("Publisher", "Operon contributors"); key.SetValue("InstallLocation", root);
                 key.SetValue("DisplayIcon", Path.Combine(installed, "Operon Studio.exe"));
                 key.SetValue("UninstallString", $"\"{uninstall}\" --uninstall --install-dir \"{root}\"");
@@ -402,7 +402,7 @@ internal sealed class InstallEngine
             }
             var allVersions = old?.Versions.ToList() ?? [];
             allVersions.Add(relative);
-            var receipt = new InstallReceipt(InstallFiles.Owner, spec.Version, relative, resolvedProfile, allVersions, shortcuts, registrationKey, root);
+            var receipt = new InstallReceipt(InstallFiles.Owner, spec.Version, relative, resolvedProfile, allVersions, shortcuts, registrationKey, root, spec.Display);
             InstallFiles.AtomicJson(ReceiptPath(root), receipt); committed = true;
             // Previous versions were already deleted before extraction; only
             // the fresh version remains under versions/.

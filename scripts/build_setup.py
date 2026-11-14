@@ -36,7 +36,9 @@ def payload_spec(path):
         total = sum(e.file_size for e in entries)
     with path.open('rb') as stream:
         digest = hashlib.file_digest(stream, 'sha256').hexdigest()
-    return {'version': manifest['version'], 'sha256': digest, 'bytes': path.stat().st_size,
+    return {'version': manifest['version'],
+            'display_version': manifest.get('display_version') or manifest['version'],
+            'sha256': digest, 'bytes': path.stat().st_size,
             'unpackedBytes': total, 'files': len(entries)}
 
 
@@ -73,6 +75,7 @@ def main():
     manifest.write_text(json.dumps(spec, indent=2) + '\n', encoding='utf-8')
     publish = ['dotnet', 'publish', str(root / 'installer/OperonSetup.csproj'), '-c', 'Release',
                '-p:PayloadManifest=' + str(manifest), '-p:Version=' + spec['version'],
+               '-p:InformationalVersion=' + spec['display_version'],
                '-o', str(build / 'host')]
     if os.name != 'nt':
         publish.append('-p:EnableWindowsTargeting=true')
