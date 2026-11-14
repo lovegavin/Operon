@@ -46,7 +46,30 @@ class Resource:
             raise StepError(f"resource '{identifier}' lists no expected files")
         roots = tuple(str(root) for root in entry.get("roots") or [] if str(root).strip())
         downloads: list[dict[str, Any]] = []
-        for item in entry.get("downloads") or []:
+        raw_downloads = entry.get("downloads") or []
+        items: list[dict[str, Any]] = []
+        if isinstance(raw_downloads, dict):
+            hashes = entry.get("sha256") or {}
+            sizes = entry.get("sizes") or {}
+            for relative, value in raw_downloads.items():
+                if isinstance(value, dict):
+                    item = dict(value)
+                    item.setdefault("path", relative)
+                else:
+                    item = {
+                        "url": value,
+                        "path": relative,
+                        "sha256": hashes.get(relative, "") if isinstance(hashes, dict) else "",
+                        "bytes": sizes.get(relative, 0) if isinstance(sizes, dict) else 0,
+                    }
+                items.append(item)
+        elif isinstance(raw_downloads, list):
+            items = list(raw_downloads)
+        else:
+            raise StepError(
+                f"resource '{identifier}' downloads must be a list or an object"
+            )
+        for item in items:
             if not isinstance(item, dict):
                 raise StepError(f"resource '{identifier}' has a non-object download entry")
             url = str(item.get("url") or "").strip()

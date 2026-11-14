@@ -109,3 +109,21 @@ def test_existing_file_is_skipped_when_metadata_matches(tmp_path: Path):
         opener=opener,
     )
     assert result["status"] == "existing"
+
+
+def test_manifest_accepts_mapping_downloads():
+    resource = Resource.from_entry({
+        "id": "demo",
+        "files": ["a.pt"],
+        "downloads": {"a.pt": "https://example.com/a.pt"},
+        "sha256": {"a.pt": "a" * 64},
+        "sizes": {"a.pt": 3},
+    })
+    assert resource.downloads == ({
+        "url": "https://example.com/a.pt",
+        "path": "a.pt",
+        "sha256": "a" * 64,
+        "bytes": 3,
+        "license": "",
+        "requires_token": False,
+    },)
