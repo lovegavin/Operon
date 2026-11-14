@@ -26,7 +26,7 @@ it('keeps a saved operator visible when an older catalog response finishes late'
 it('force applies the explicit refresh even after a poll advanced the revision', () => {
   const updates = new CatalogUpdates();
   const empty: Catalog = {schema_version: 1, operators: []};
-  const fresh: Catalog = {schema_version: 1, operators: [{id: 'lab.new', category: 'data'}]};
+  const fresh: Catalog = {schema_version: 1, operators: [{id: 'lab.new', category: 'data'}] as Catalog['operators']};
   let visible = empty;
   const render = (catalog: Catalog) => {visible = catalog;};
   const stale = updates.checkpoint();
