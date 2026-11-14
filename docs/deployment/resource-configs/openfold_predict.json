@@ -1,0 +1,16 @@
+{
+  "operator": "openfold_predict",
+  "resource": "openfold",
+  "environment": null,
+  "root": "/public/home/lihj/operon-resources/openfold",
+  "params": {
+    "openfold_path": "/public/home/lihj/operon-resources/openfold_code",
+    "params_path": "/public/home/lihj/operon-resources/openfold/params/finetuning_2.pt"
+  },
+  "required_files": [
+    "params/finetuning_2.pt"
+  ],
+  "notes": [
+    "OpenFold source checkout is separate from the parameter file."
+  ]
+}

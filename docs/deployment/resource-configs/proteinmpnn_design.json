@@ -1,0 +1,19 @@
+{
+  "operator": "proteinmpnn_design",
+  "resource": "proteinmpnn",
+  "environment": null,
+  "root": "/public/home/lihj/operon-resources/proteinmpnn_code",
+  "env": {
+    "OPERON_PROTEINMPNN_PATH": "/public/home/lihj/operon-resources/proteinmpnn_code"
+  },
+  "params": {
+    "proteinmpnn_path": "/public/home/lihj/operon-resources/proteinmpnn_code"
+  },
+  "required_files": [
+    "protein_mpnn_run.py",
+    "vanilla_model_weights/v_48_020.pt"
+  ],
+  "notes": [
+    "Weights are downloaded separately into vanilla_model_weights/."
+  ]
+}

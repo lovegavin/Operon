@@ -1,0 +1,14 @@
+{
+  "operator": "antifold_score",
+  "resource": "antifold",
+  "environment": "antifold",
+  "params": {
+    "weights_path": "/public/home/lihj/operon-resources/antifold/trained_models/model.pt"
+  },
+  "required_files": [
+    "trained_models/model.pt"
+  ],
+  "notes": [
+    "Pass weights_path explicitly; no shared global config is used."
+  ]
+}

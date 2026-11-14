@@ -1,0 +1,15 @@
+{
+  "operator": "esmfold_predict",
+  "resource": "esmfold",
+  "environment": "esmfold",
+  "env": {
+    "OPERON_ESMFOLD_PATH": "/public/home/lihj/operon-resources/esmfold"
+  },
+  "params": {},
+  "required_files": [
+    "esmfold_3B_v1.pt"
+  ],
+  "notes": [
+    "The environment provides fair-esm; the checkpoint is not installed by pip."
+  ]
+}
