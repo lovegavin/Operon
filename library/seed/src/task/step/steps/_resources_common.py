@@ -34,6 +34,7 @@ class Resource:
     env: str
     roots: tuple[str, ...]
     files: tuple[str, ...]
+    downloads: tuple[dict[str, Any], ...] = ()
 
     @classmethod
     def from_entry(cls, entry: dict[str, Any]) -> "Resource":
@@ -44,6 +45,31 @@ class Resource:
         if not files:
             raise StepError(f"resource '{identifier}' lists no expected files")
         roots = tuple(str(root) for root in entry.get("roots") or [] if str(root).strip())
+        downloads: list[dict[str, Any]] = []
+        for item in entry.get("downloads") or []:
+            if not isinstance(item, dict):
+                raise StepError(f"resource '{identifier}' has a non-object download entry")
+            url = str(item.get("url") or "").strip()
+            relative = str(item.get("path") or "").strip()
+            if not url.startswith("https://"):
+                raise StepError(
+                    f"resource '{identifier}' download URL must use https://: {url!r}"
+                )
+            candidate = Path(relative)
+            if not relative or candidate.is_absolute() or ".." in candidate.parts:
+                raise StepError(
+                    f"resource '{identifier}' download path is not a safe relative path: {relative!r}"
+                )
+            downloads.append(
+                {
+                    "url": url,
+                    "path": relative,
+                    "sha256": str(item.get("sha256") or "").strip().lower(),
+                    "bytes": int(item.get("bytes") or 0),
+                    "license": str(item.get("license") or ""),
+                    "requires_token": bool(item.get("requires_token") or False),
+                }
+            )
         return cls(
             id=identifier,
             title=str(entry.get("title") or identifier),
@@ -53,6 +79,7 @@ class Resource:
             env=str(entry.get("env") or ""),
             roots=roots,
             files=files,
+            downloads=tuple(downloads),
         )
 
 

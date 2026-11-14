@@ -7840,6 +7840,16 @@
     "status": "generated"
   },
   {
+    "id": "resource_fetch",
+    "kind": "operator",
+    "title": "Fetch large-resource files",
+    "category": "Data",
+    "version": "1.0.0",
+    "description": "Download the files declared by src/task/step/steps/resources.json for one resource. Files are streamed to a .part file, checked when size or sha256 are declared, and then moved into place atomically.",
+    "doc": "src/task/step/steps/resource_fetch.ResourceFetchStep.md",
+    "status": "authored"
+  },
+  {
     "id": "resource_preflight",
     "kind": "operator",
     "title": "Large-resource preflight",
@@ -9058,6 +9068,16 @@
     "description": "Convert a heavy-atom PDB form into a residue contact graph: for every residue report how many partner residues lie within the cutoff (cross-chain by default) and the distance to the nearest partner.",
     "doc": "src/task/step/steps/structure_contacts.StructureContactsStep.md",
     "status": "generated"
+  },
+  {
+    "id": "structure_convert_format",
+    "kind": "operator",
+    "title": "Structure Format Conversion",
+    "category": "Structure",
+    "version": "1.0.0",
+    "description": "Convert a structure Form to a complete PDB file and back to a PDB-style Form.",
+    "doc": "src/task/step/steps/structure_convert_format.StructureConvertFormatStep.md",
+    "status": "authored"
   },
   {
     "id": "structure_disorder_profile",

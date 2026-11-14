@@ -44,6 +44,13 @@
       ],
       "files": [
         "esm2_t6_8M_UR50D.pt"
+      ],
+      "downloads": [
+        {
+          "url": "https://dl.fbaipublicfiles.com/fair-esm/models/esm2_t6_8M_UR50D.pt",
+          "path": "esm2_t6_8M_UR50D.pt",
+          "bytes": 30099493
+        }
       ]
     },
     {
@@ -58,6 +65,13 @@
       ],
       "files": [
         "esm_if1_gvp4_t16_142M_UR50.pt"
+      ],
+      "downloads": [
+        {
+          "url": "https://dl.fbaipublicfiles.com/fair-esm/models/esm_if1_gvp4_t16_142M_UR50.pt",
+          "path": "esm_if1_gvp4_t16_142M_UR50.pt",
+          "bytes": 1700450121
+        }
       ]
     },
     {
@@ -73,6 +87,13 @@
       ],
       "files": [
         "esmfold_3B_v1.pt"
+      ],
+      "downloads": [
+        {
+          "url": "https://dl.fbaipublicfiles.com/fair-esm/models/esmfold_3B_v1.pt",
+          "path": "esmfold_3B_v1.pt",
+          "bytes": 2771653574
+        }
       ]
     },
     {
