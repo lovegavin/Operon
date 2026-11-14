@@ -1,0 +1,16 @@
+{
+  "operator": "colabfold_predict",
+  "resource": "colabfold",
+  "environment": "colabfold",
+  "env": {
+    "OPERON_COLABFOLD_PATH": "/public/home/lihj/operon-resources/colabfold_code"
+  },
+  "params": {},
+  "required_files": [
+    "colabfold_batch"
+  ],
+  "notes": [
+    "The ColabFold databases are optional and large (~220 GB); point COLABFOLD_DB at the extracted data directory.",
+    "Do not expose the 110 GB/96 GB archives as default resource downloads."
+  ]
+}

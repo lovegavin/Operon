@@ -1,0 +1,15 @@
+{
+  "operator": "antifold_design",
+  "resource": "antifold",
+  "environment": "antifold",
+  "env": {
+    "OPERON_ANTIFOLD_WEIGHTS": "/public/home/lihj/operon-resources/antifold/trained_models/model.pt"
+  },
+  "params": {},
+  "required_files": [
+    "trained_models/model.pt"
+  ],
+  "notes": [
+    "The antifold environment supplies code and torch; the model file is external."
+  ]
+}

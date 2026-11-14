@@ -1,0 +1,17 @@
+{
+  "operator": "rfdiffusion_design",
+  "resource": "rfdiffusion",
+  "environment": null,
+  "root": "/public/home/lihj/operon-resources/rfdiffusion_code",
+  "params": {
+    "rfdiffusion_path": "/public/home/lihj/operon-resources/rfdiffusion_code"
+  },
+  "required_files": [
+    "scripts/run_inference.py",
+    "models/Complex_beta_ckpt.pt"
+  ],
+  "notes": [
+    "Root must contain a checkout of RosettaCommons/RFdiffusion.",
+    "The two checkpoints are downloaded by resource_fetch into models/."
+  ]
+}
