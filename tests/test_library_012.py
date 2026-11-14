@@ -24,8 +24,14 @@ class Ctx(dict):
 def test_environment_manifest_012():
     data = json.loads((ROOT / "library/seed/operon/environments.json").read_text())
     boltz = data["environments"]["boltz"]
+    assert boltz["conda_packages"] == []
     assert "libstdcxx-ng" not in boltz["conda_packages"]
     assert boltz["torch_cpu"] is True
+    assert "numpy==1.26.4" in boltz["pip_wheels"]
+    assert "scipy==1.13.1" in boltz["pip_wheels"]
+    assert "boltz==2.2.1" in boltz["no_deps"]
+    assert "ihm" in boltz["pip_pypi"]
+    assert "hydra-core==1.3.2" in boltz["pip_pypi"]
     esmfold = data["environments"]["esmfold"]
     assert esmfold["python"] == "3.11"
     assert "fair-esm==2.0.0" in esmfold["pip_pypi"]
