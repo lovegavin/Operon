@@ -343,8 +343,9 @@ export function Results({
                         day: "2-digit",
                         hour: "2-digit",
                         minute: "2-digit",
+                        timeZone: "Asia/Shanghai",
                       })}{" "}
-                      · {item.id.slice(-8)}
+                      UTC+8 · {item.id.slice(-8)}
                     </small>
                   </button>
                   <span className={`status-label ${item.status}`}>
@@ -388,6 +389,7 @@ export function Results({
                     <time>
                       {new Date(event.time).toLocaleTimeString(getLocale(), {
                         hour12: false,
+                        timeZone: "Asia/Shanghai",
                       })}
                     </time>
                     <strong>{t(eventNames[event.event] || event.event)}</strong>

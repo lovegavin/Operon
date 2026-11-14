@@ -92,7 +92,7 @@ it('reports the library version and counts returned by the install operation', a
   const message = '已导入算子库 v0.0.0：34 个算子 / Reader。';
   await vi.waitFor(() => expect(hooks.values).toContain(message));
   expect(api.installLibrary).toHaveBeenCalledWith(
-    expect.objectContaining({name: 'operon-library-v0.0.0.operon-library.zip'}), undefined);
+    expect.objectContaining({name: 'operon-library-v0.0.0.operon-library.zip'}));
 });
 
 it('offers the two bundle files when no operator library is installed', () => {
@@ -117,22 +117,6 @@ it('lists every installed library with counts, package count and a delete button
   expect(text).not.toContain('当前使用');
   expect(tree.filter(item => item.type === 'button' && item.props.children === '使用此库')).toHaveLength(0);
   expect(tree.filter(item => item.type === 'button' && item.props.children === '删除算子库')).toHaveLength(2);
-});
-
-it('install dialog forwards an optional library label to the install request', async () => {
-  vi.mocked(api.installLibrary).mockResolvedValue({library_version: '0.0.0', packages: 2, descriptors: 34, installed: true});
-  hooks.values[1] = libraryState;
-  let tree = elements(render());
-  const add = tree.find(item => item.type === AddOperators)!;
-  (add.props.onPackage as (name?: string) => void)('fork-v0.0.0');
-  tree = elements(render());
-  const field = tree.find(item => item.type === 'input' && item.props.type === 'file')!;
-  (field.props.onChange as (event: unknown) => void)({
-    target: {files: [{name: 'operon-library-v0.0.0.operon-library.zip'}], value: ''},
-  });
-  await vi.waitFor(() => expect(api.installLibrary).toHaveBeenCalled());
-  expect(api.installLibrary).toHaveBeenCalledWith(
-    expect.objectContaining({name: 'operon-library-v0.0.0.operon-library.zip'}), 'fork-v0.0.0');
 });
 
 it('shows structured conflicts from a rejected install instead of a bare status', async () => {

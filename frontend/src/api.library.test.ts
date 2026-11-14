@@ -88,18 +88,18 @@ describe('operator libraries 5.1.0', () => {
     expect(init.method).toBe('GET');
   });
 
-  it('posts multipart fields `file` and `name` for a labelled install', async () => {
+  it('posts the library file without a client-side name', async () => {
     const result = {library_version: '0.0.0', packages: 2, descriptors: 34, installed: true};
     const fetchMock = vi.fn().mockResolvedValue(response(200, result));
     vi.stubGlobal('fetch', fetchMock);
     const file = new File(['zip'], 'operon-library-v0.0.0.operon-library.zip');
-    await expect(api.installLibrary(file, 'fork-v0.0.0')).resolves.toEqual(result);
+    await expect(api.installLibrary(file)).resolves.toEqual(result);
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe('/api/libraries/install');
     expect(init.method).toBe('POST');
     const body = init.body as FormData;
     expect((body.get('file') as File).name).toBe('operon-library-v0.0.0.operon-library.zip');
-    expect(body.get('name')).toBe('fork-v0.0.0');
+    expect(body.get('name')).toBeNull();
   });
 
   it('omits a blank library name so the backend default applies', async () => {

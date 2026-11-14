@@ -13,9 +13,9 @@ describe('empty operator library', () => {
     setLanguage('en');
     const html = renderToStaticMarkup(<LibrarySetupGuide onImport={() => {}}/>);
     expect(html).toContain('No operator library installed');
-    expect(html).toContain('Import the operator library bundle first, then the route library bundle.');
-    expect(html).toContain('operon-library-v0.0.0.operon-library.zip');
-    expect(html).toContain('operon-routes-v0.0.0.zip');
+    expect(html).toContain('A new Operon Studio installation contains no operators. Import the operator library bundle first, then the route library.');
+    expect(html).toContain('Operator library: .operon-library.zip');
+    expect(html).toContain('Route library: .zip');
     expect(html).toContain('Import operator library');
     expect(html).toContain('Nothing is downloaded automatically.');
   });
@@ -24,8 +24,8 @@ describe('empty operator library', () => {
     setLanguage('en');
     const html = renderToStaticMarkup(<PluginPanel initialTab="manage" onClose={() => {}} onChanged={async () => {}}/>);
     expect(html).toContain('No operator library installed');
-    expect(html).toContain('operon-library-v0.0.0.operon-library.zip');
-    expect(html).toContain('operon-routes-v0.0.0.zip');
+    expect(html).toContain('Operator library: .operon-library.zip');
+    expect(html).toContain('Route library: .zip');
   });
 });
 
@@ -35,10 +35,8 @@ describe('route library entry', () => {
     const html = renderToStaticMarkup(<PluginPanel initialTab="add" onClose={() => {}} onChanged={async () => {}}/>);
     expect(html).toContain('Import workflow file');
     expect(html).toContain('Import route library');
-    expect(html).toContain('Route library bundle: operon-routes-v0.0.0.zip');
+    expect(html).toContain('Route library: .zip collection');
     expect(html).toContain('accept=".zip"');
-    expect(html).toContain('Library name');
-    expect(html).toContain('Library name (optional, e.g. fork-v0.0.0)');
   });
 });
 
@@ -49,7 +47,7 @@ describe('legacy 8.x rejection', () => {
     expect(html).toContain('Legacy 8.x operator library cannot be imported');
     expect(html).toContain('This library bundle uses the legacy 8.x format.');
     expect(html).toContain('Install an operon-library-v0.0.x bundle built for Operon 5.0.0.');
-    expect(html).toContain('Operon Studio 5.1.0 only accepts the new operon-library-v0.0.x bundle.');
+    expect(html).toContain('This application only accepts the current operator library bundle (.operon-library.zip).');
     expect(html).toContain('Choose operator library bundle');
   });
 
@@ -57,6 +55,6 @@ describe('legacy 8.x rejection', () => {
     setLanguage('zh-CN');
     const html = renderToStaticMarkup(<LegacyLibraryAlert message={LEGACY} onChoose={() => {}}/>);
     expect(html).toContain('无法导入旧版 8.x 算子库');
-    expect(html).toContain('Operon Studio 5.1.0 仅接受新版 operon-library-v0.0.x 算子库包。');
+    expect(html).toContain('当前应用仅接受新版算子库包（.operon-library.zip）。');
   });
 });

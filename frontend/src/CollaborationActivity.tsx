@@ -47,7 +47,7 @@ export function CollaborationActivity({events, sessionId, onLocate, onUndo}: {
         const rows = details[id] || event.changes || [];
         return <article key={event.seq}>
           <div className="collaboration-entry"><strong>{event.actor === 'user' ? t('你') : event.actor.replace(/^agent:/, '')}</strong>
-            <time dateTime={event.time}>{new Date(event.time).toLocaleTimeString()}</time></div>
+            <time dateTime={event.time}>{new Date(event.time).toLocaleTimeString(undefined, {timeZone: "Asia/Shanghai"})}</time></div>
           <button className="collaboration-summary" onClick={() => {if (target) onLocate(target.document_id, target.nodes[0]);}}>
             {event.label === 'Undo' ? t('撤销') : event.label === 'Redo' ? t('重做') : t('已修改 {count} 项', {count: event.change_count || 0})}
           </button>

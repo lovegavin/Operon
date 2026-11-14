@@ -166,7 +166,10 @@ class PluginManager:
         """Seed editable sources only on an explicit folder/refresh operation."""
         from operon.source_library import seed_sources
         with self.lock:
-            if self.managed_sources:
+            # 5.x installs immutable library branches; the application root has
+            # no legacy builtin_packages.json seed. Never recreate an authoring
+            # tree from a file that is not shipped.
+            if self.managed_sources and (ROOT / "operon/builtin_packages.json").is_file():
                 seed_sources(ROOT, self.source_root)
             return self.source_root
 
@@ -387,10 +390,22 @@ class PluginManager:
     def refresh(self):
         """Explicit, incremental scan; publish the entire batch or nothing."""
         from operon.dropins import refresh
-        self.state()
+        state = self.state()
         with self.lock:
+            root = self.source_root
+            if self.managed_sources and not (root / "operon/builtin_packages.json").is_file():
+                # Detached 5.x libraries are immutable archives, not an editable
+                # source tree. A deleted branch must not resurrect a legacy seed.
+                return {
+                    "generation": state["generation"],
+                    "updated": [],
+                    "unchanged": ["No editable operator library is installed"],
+                    "directory": str(self.inbox),
+                    "operators": sum(d["kind"] == "operator" for d in state["descriptors"]),
+                    "readers": sum(d["kind"] == "reader" for d in state["descriptors"]),
+                }
             self.ensure_source_root()
-            return refresh(self, self.state())
+            return refresh(self, state)
 
     def install_many(self, wheels):
         self.state()
