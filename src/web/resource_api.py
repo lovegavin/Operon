@@ -7,7 +7,9 @@ it can be ported onto the collaborator's application tree.
 """
 from __future__ import annotations
 
+import hashlib
 import importlib
+import os
 import sys
 import threading
 import time
@@ -102,6 +104,70 @@ def _part_bytes(target: Path, resource) -> int:
     return total
 
 
+class _Cancelled(Exception):
+    """Raised when the user cancels a download."""
+
+
+def _sha256(path: Path) -> str:
+    hasher = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, opener) -> dict:
+    """Stream one file with cancellation, progress and integrity checks."""
+
+    url = str(entry["url"])
+    if not url.startswith("https://"):
+        raise ValueError(f"only https:// downloads are allowed: {url!r}")
+    relative = str(entry["path"])
+    candidate = Path(relative)
+    if not relative or candidate.is_absolute() or ".." in candidate.parts:
+        raise ValueError(f"unsafe download path: {relative!r}")
+    target = (root.resolve() / candidate).resolve()
+    if target != root.resolve() and root.resolve() not in target.parents:
+        raise ValueError(f"download path escapes the resource root: {relative!r}")
+    expected_bytes = int(entry.get("bytes") or 0)
+    expected_sha = str(entry.get("sha256") or "").lower()
+    if target.is_file() and not overwrite:
+        actual = target.stat().st_size
+        if expected_bytes and actual != expected_bytes:
+            raise ValueError(f"{target} exists with {actual} bytes, expected {expected_bytes}")
+        if expected_sha and _sha256(target) != expected_sha:
+            raise ValueError(f"{target} exists with a different sha256")
+        job["completed_bytes"] = int(job.get("completed_bytes") or 0) + actual
+        return {"path": relative, "status": "existing", "bytes": actual}
+    target.parent.mkdir(parents=True, exist_ok=True)
+    partial = target.with_name(target.name + ".part")
+    hasher = hashlib.sha256()
+    written = 0
+    with opener(url, str(entry.get("token_env") or "")) as response, partial.open("wb") as handle:
+        while True:
+            if event.is_set():
+                handle.close()
+                partial.unlink(missing_ok=True)
+                raise _Cancelled("cancelled")
+            chunk = response.read(1024 * 1024)
+            if not chunk:
+                break
+            hasher.update(chunk)
+            handle.write(chunk)
+            written += len(chunk)
+            job["bytes"] = int(job.get("completed_bytes") or 0) + written
+    if expected_bytes and written != expected_bytes:
+        partial.unlink(missing_ok=True)
+        raise ValueError(f"download size mismatch for {relative}: got {written}, expected {expected_bytes}")
+    digest = hasher.hexdigest()
+    if expected_sha and digest != expected_sha:
+        partial.unlink(missing_ok=True)
+        raise ValueError(f"download sha256 mismatch for {relative}: got {digest}, expected {expected_sha}")
+    os.replace(partial, target)
+    job["completed_bytes"] = int(job.get("completed_bytes") or 0) + written
+    return {"path": relative, "status": "downloaded", "bytes": written, "sha256": digest}
+
+
 def start(service, name: str, root: str | None = None, overwrite: bool = False) -> dict:
     _code_root_path, common, fetch, resource = _resource(service, name)
     if not resource.downloads:
@@ -147,7 +213,7 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False) 
                     raise RuntimeError('cancelled')
                 job['current'] = str(entry.get('path') or '')
                 emit(f'GET {entry.get("url")} -> {entry.get("path")}')
-                result = fetch._download_one(entry, target, overwrite=overwrite)
+                result = _download(entry, target, overwrite=overwrite, event=event, job=job, opener=fetch._open_url)
                 job['files'] += 1
                 job['completed_bytes'] = int(job.get('completed_bytes') or 0) + int(result.get('bytes') or 0)
                 job['bytes'] = int(job.get('completed_bytes') or 0)
