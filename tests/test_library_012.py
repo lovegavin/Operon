@@ -24,7 +24,8 @@ class Ctx(dict):
 def test_environment_manifest_012():
     data = json.loads((ROOT / "library/seed/operon/environments.json").read_text())
     boltz = data["environments"]["boltz"]
-    assert "libstdcxx-ng" in boltz["conda_packages"]
+    assert "libstdcxx-ng" not in boltz["conda_packages"]
+    assert boltz["torch_cpu"] is True
     esmfold = data["environments"]["esmfold"]
     assert esmfold["python"] == "3.11"
     assert "fair-esm==2.0.0" in esmfold["pip_pypi"]

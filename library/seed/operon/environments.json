@@ -49,8 +49,7 @@
         "scipy",
         "scikit-learn",
         "gemmi",
-        "dm-tree",
-        "libstdcxx-ng"
+        "dm-tree"
       ],
       "torch_cpu": true,
       "pip_wheels": [
@@ -77,7 +76,7 @@
         "boltz==2.2.1"
       ],
       "wired": true,
-      "notes": "Standalone micromamba env: conda supplies rdkit/gemmi/dm-tree (no wheels on this host) and the CPU torch wheel comes from download.pytorch.org; Boltz itself is installed with --no-deps because its strict scipy/wandb pins would otherwise downgrade the shared stack. Verified on glibc 2.17: `import boltz.main` succeeds. The environment also installs conda-forge libstdcxx-ng so Boltz does not inherit the host libstdc++ (CXXABI_1.3.9)."
+      "notes": "Standalone micromamba env: conda supplies rdkit/gemmi/dm-tree (no wheels on this host) and the CPU torch wheel comes from download.pytorch.org; Boltz itself is installed with --no-deps because its strict scipy/wandb pins would otherwise downgrade the shared stack. Verified on glibc 2.17: `import boltz.main` succeeds. No explicit libstdcxx-ng is declared because it has no win-64 build; Operon 5.1.17-rc4+ injects LD_LIBRARY_PATH=<env>/lib on Linux so Boltz uses the environment's libstdc++ without that conda package."
     },
     "colabfold": {
       "title": "ColabFold (local runner)",

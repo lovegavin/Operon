@@ -2,15 +2,15 @@
   "operator": "boltz_predict",
   "resource": "boltz",
   "environment": "boltz",
-  "env": {
-    "OPERON_BOLTZ_CACHE": "/public/home/lihj/operon-resources/boltz"
+  "env": {},
+  "params": {
+    "cache_dir": "/public/home/lihj/operon-resources/boltz"
   },
-  "params": {},
   "required_files": [
     "ccd.pkl",
     "boltz1_conf.ckpt"
   ],
   "notes": [
-    "The environment provides boltz; the cache directory is external."
+    "The operator passes params.cache_dir to `boltz --cache`; the server already holds ccd.pkl and boltz1_conf.ckpt there."
   ]
 }

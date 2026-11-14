@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import os
+
 import numpy as np
 
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
+from src.task.step.steps._resources_common import load_resources, resolve_root
 
 
 import json
@@ -189,7 +192,12 @@ class BoltzPredictStep(Step):
             no_kernels=bool(params.get("no_kernels", False)),
             extra=str(params.get("extra_args", "")),
         )
-        cache_dir = str(params.get("cache_dir", "") or "")
+        cache_dir = str(params.get("cache_dir", "") or os.environ.get("OPERON_BOLTZ_CACHE", ""))
+        if not cache_dir:
+            resource = load_resources().get("boltz")
+            resolved_root = resolve_root(resource) if resource is not None else None
+            if resolved_root is not None:
+                cache_dir = str(resolved_root)
         if cache_dir:
             command.extend(["--cache", cache_dir])
         if str(resolved).lower().endswith(".py"):
