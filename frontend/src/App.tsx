@@ -287,8 +287,10 @@ function Studio() {
     busy = action === 'run';
   const activeJobs = history.filter(isActiveJob);
   const catalog = useMemo(() => {
-    const preferred = selectedServerId ? selectedServer?.info?.catalog : bootstrap?.catalog;
-    const available = [preferred, bootstrap?.catalog, ...servers.filter(server => server.connected).map(server => server.info?.catalog)].filter(Boolean);
+    // The local catalog is authoritative for the local library; a selected
+    // server only contributes operators the local library does not have.
+    const available = [bootstrap?.catalog, selectedServerId ? selectedServer?.info?.catalog : undefined,
+      ...servers.filter(server => server.connected).map(server => server.info?.catalog)].filter(Boolean);
     const operators = new Map(), readers = new Map();
     for (const source of available) {
       for (const operator of source!.operators) if (!operators.has(operator.id)) operators.set(operator.id, operator);
@@ -1877,7 +1879,7 @@ function Studio() {
         </div>
       </>}
       {statusOpen && <RuntimeStatusPanel onClose={() => setStatusOpen(false)}/>}
-      {pluginsOpen && <PluginPanel initialTab={pluginsOpen} onClose={() => setPluginsOpen(null)} onChanged={async () => {const expected = catalogUpdates.current.checkpoint(); const latest = await api.catalog(); acceptCatalog(latest, undefined, expected); await refreshRoutes();}}/>}
+      {pluginsOpen && <PluginPanel initialTab={pluginsOpen} onClose={() => setPluginsOpen(null)} onChanged={async () => {const latest = await api.catalog(); catalogUpdates.current.force(latest, value => setBootstrap(current => current ? {...current, catalog: value} : current)); await refreshRoutes();}}/>}
       {picker && <WorkflowPicker mode={picker} onClose={() => setPicker(null)} onOpen={openSaved} onRegister={refreshRoutes} onImport={() => routeImport.current?.click()}/>}
       {saveDialog && <SaveWorkflowDialog graph={saveDialog} catalog={catalog} workflowId={documents.find(doc=>doc.id===activeId)?.workflow_id} version={documents.find(doc=>doc.id===activeId)?.workflow_version} onClose={() => setSaveDialog(null)} onSaved={savedWorkflow}/>}
       {agentPanel && <AgentPanel sessionId={agentBridge.current?.state?.id} command={bootstrap.agent_config} onClose={() => setAgentPanel(false)} onCopySelection={() => void copyAgentContext()}/>}

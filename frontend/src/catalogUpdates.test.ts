@@ -21,3 +21,18 @@ it('keeps a saved operator visible when an older catalog response finishes late'
   expect(updates.apply({...oldCatalog}, render, next)).toBe(true);
   expect(visible.operators).toEqual([]);
 });
+
+
+it('force applies the explicit refresh even after a poll advanced the revision', () => {
+  const updates = new CatalogUpdates();
+  const empty: Catalog = {schema_version: 1, operators: []};
+  const fresh: Catalog = {schema_version: 1, operators: [{id: 'lab.new', category: 'data'}]};
+  let visible = empty;
+  const render = (catalog: Catalog) => {visible = catalog;};
+  const stale = updates.checkpoint();
+  updates.apply(empty, render);
+  updates.force(fresh, render);
+  expect(stale).toBe(0);
+  expect(visible.operators.map(operator => operator.id)).toEqual(['lab.new']);
+  expect(updates.apply(empty, render, stale)).toBe(false);
+});
