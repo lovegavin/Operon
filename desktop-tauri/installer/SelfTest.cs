@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.IO.Pipes;
 
 namespace Operon.Setup.Experimental;
 
@@ -18,6 +19,31 @@ internal static class SelfTest
                 try { _ = InstallFiles.Inside(root, "../escape.txt"); }
                 catch (InvalidDataException) { return; }
                 throw new Exception("traversal was accepted");
+            });
+
+            Check(failures, "pending-async-pipe-frame", () =>
+            {
+                var name = "OperonInstallerFrameTest-" + Guid.NewGuid().ToString("N");
+                using var server = new NamedPipeServerStream(name, PipeDirection.InOut, 1,
+                    PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
+                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                var peer = Task.Run(async () =>
+                {
+                    await server.WaitForConnectionAsync(timeout.Token);
+                    // Force the client's memory-based ReadAsync to be pending.
+                    await Task.Delay(150, timeout.Token);
+                    await server.WriteAsync(Encoding.UTF8.GetBytes("accepted\n"), timeout.Token);
+                    await server.FlushAsync(timeout.Token);
+                    var ack = new byte[4];
+                    await server.ReadExactlyAsync(ack, timeout.Token);
+                    if (Encoding.UTF8.GetString(ack) != "ack\n") throw new Exception("ack mismatch");
+                });
+                using var client = new NamedPipeClientStream(".", name, PipeDirection.InOut, PipeOptions.Asynchronous);
+                client.Connect(3000);
+                if (Encoding.UTF8.GetString(MaintenanceClient.ReadFrame(client)) != "accepted")
+                    throw new Exception("pending read failed");
+                MaintenanceClient.WriteFrame(client, Encoding.UTF8.GetBytes("ack\n"));
+                peer.WaitAsync(timeout.Token).GetAwaiter().GetResult();
             });
 
             Check(failures, "foreign-root-append", () =>

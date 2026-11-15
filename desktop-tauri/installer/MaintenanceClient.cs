@@ -435,14 +435,14 @@ internal sealed class MaintenanceClient
         WriteFrame(client, framed);
     }
 
-    private static void WriteFrame(NamedPipeClientStream client, byte[] frame)
+    internal static void WriteFrame(NamedPipeClientStream client, byte[] frame)
     {
         // One fixed deadline covers the whole write and flush, not each chunk.
         using var deadline = new CancellationTokenSource(FrameTimeout);
         using var abort = deadline.Token.Register(() => CloseQuietly(client));
         try
         {
-            client.WriteAsync(frame.AsMemory(), deadline.Token).GetAwaiter().GetResult();
+            client.WriteAsync(frame.AsMemory(), deadline.Token).AsTask().GetAwaiter().GetResult();
             client.FlushAsync(deadline.Token).GetAwaiter().GetResult();
         }
         catch (Exception error) when (deadline.IsCancellationRequested && error is not MaintenanceException)
@@ -452,7 +452,7 @@ internal sealed class MaintenanceClient
         }
     }
 
-    private static byte[] ReadFrame(NamedPipeClientStream client)
+    internal static byte[] ReadFrame(NamedPipeClientStream client)
     {
         // One fixed deadline covers the entire newline-terminated frame.
         using var deadline = new CancellationTokenSource(FrameTimeout);
@@ -463,7 +463,9 @@ internal sealed class MaintenanceClient
         {
             while (output.Count < FrameLimit)
             {
-                var read = client.ReadAsync(one.AsMemory(0, 1), deadline.Token).GetAwaiter().GetResult();
+                // PipeStream returns an IValueTaskSource-backed ValueTask. Its
+                // GetResult does not block while pending; bridge through Task.
+                var read = client.ReadAsync(one.AsMemory(0, 1), deadline.Token).AsTask().GetAwaiter().GetResult();
                 if (read == 0) throw new IOException("The maintenance pipe closed unexpectedly.");
                 if (one[0] == (byte)'\n') return output.ToArray();
                 output.Add(one[0]);
