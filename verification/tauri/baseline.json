@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "kind": "tauri_t00_source_observations",
+  "generated_by": "Session A shared T01 contract pass",
+  "evidence_scope": "Source observations only. No build, UI, installed-window, timing or process-lifecycle test was run.",
+  "baseline": {
+    "commit": "0600b2bba146240495882b0a5275297b942c5b80",
+    "branch": "experimental/tauri-integration",
+    "product_version": "5.3.0",
+    "product_version_source": "README.md introduction"
+  },
+  "toolchain": {
+    "node": {
+      "status": "present_on_path",
+      "version": null,
+      "note": "Node and npm were found during source observation; versions were not read because the shell tool could not start in this sandbox."
+    },
+    "npm": {
+      "status": "present_on_path",
+      "version": null,
+      "note": "Version not read."
+    },
+    "dotnet": {
+      "status": "present_on_path",
+      "version": null,
+      "note": "dotnet.exe was found during source observation; version not read."
+    },
+    "rust": {
+      "status": "unavailable",
+      "version": null,
+      "note": "cargo and rustc were not found on PATH."
+    },
+    "msvc": {
+      "status": "unavailable_or_unverified",
+      "version": null,
+      "note": "cl.exe was not found on PATH; no MSVC build environment was verified."
+    },
+    "tauri_cli": {
+      "status": "not_checked",
+      "version": null
+    },
+    "frontend_dependencies": {
+      "status": "absent",
+      "note": "frontend/node_modules is absent, so Vitest and the Vite build were not run."
+    }
+  },
+  "timings_ms": {
+    "startup_cold": null,
+    "startup_warm": null,
+    "draft_flush": null,
+    "shutdown": null,
+    "status": "not_measured",
+    "note": "No historical timing was copied into this record."
+  },
+  "observed_contracts": {
+    "host_entry_arguments": [
+      "--profile-dir <path>",
+      "--smoke-test",
+      "--check-profile",
+      "--select-runtime"
+    ],
+    "backend_arguments": [
+      "-I",
+      "-X utf8",
+      "-B",
+      "-u",
+      "scripts/desktop_server.py",
+      "--profile-dir <path>",
+      "--frontend <path>",
+      "--port <preferred-or-zero>",
+      "--wait-for-host"
+    ],
+    "instance_ownership": "Per-profile named mutex derived from the resolved profile directory, plus an activation event. The Windows Job Object uses KILL_ON_JOB_CLOSE with BREAKAWAY_OK.",
+    "profile_and_configuration": "desktop/operon-desktop.json supplies backendRoot, python, entryPoint and frontend. operon-install.json marks an isolated installation. Python owns profile resolution: --profile-dir / OPERON_STUDIO_HOME, isolated-install profile, default .operon/studio under the user profile. port.txt retains the previous preferred loopback port.",
+    "backend_bootstrap": "The host attaches the child to its Job Object, writes 'start' to stdin, waits for OPERON_READY {url,pid}, verifies http://127.0.0.1 and GET /ready, then navigates WebView2 to the loopback origin. The session token is issued in the /api/bootstrap response.",
+    "wire_messages": {
+      "renderer_to_host": [
+        "{\"type\":\"studio-ready\"}",
+        "{\"type\":\"draft-saved\"}",
+        "{\"type\":\"draft-save-failed\"}"
+      ],
+      "host_to_renderer": [
+        "{\"type\":\"prepare-close\"}"
+      ],
+      "correlation": "None. The C# host has a single draftSaved waiter and a five-second timeout. Legacy replies carry no request ID.",
+      "unsupported_host_ipc": "The current C# host has no diagnostics, full-exit, artifact-opening or authenticated installer-maintenance IPC."
+    },
+    "close_behavior": "Window close hides to the tray unless exit was explicitly requested. The tray action requests full exit. The host optionally confirms running jobs, posts prepare-close, waits up to five seconds for draft-saved, then drains the backend via stdin shutdown. The installer currently has no old-host shutdown endpoint and cannot treat WM_CLOSE as proof of exit."
+  },
+  "known_gaps": [
+    "T00 timings are not measured.",
+    "No real UI or installed-window interaction was observed.",
+    "No Rust toolchain or MSVC build environment is verified.",
+    "Frontend dependencies are absent; automated tests and the production frontend build were not run.",
+    "No Tauri crate, Cargo.lock, capability file or native adapter exists in this checkout.",
+    "The module inventory declares a 5.2.0 baseline while this checkout reports 5.3.0; this receipt records the actual checked-out commit."
+  ]
+}
