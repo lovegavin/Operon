@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -173,6 +174,44 @@ internal static class InstallFiles
         }
         foreach (var required in new[] { "Operon Studio.exe", "runtime/python/python.exe", "scripts/install_maintenance.py", "frontend/index.html" })
             if (!seen.Contains(Inside(directory, required))) throw new InvalidDataException("安装包缺少组件：" + required);
+    }
+
+    internal static async Task PromoteStage(string source, string destination, CancellationToken token,
+        Action<string> log, TimeSpan? retryWindow = null)
+    {
+        source = Path.GetFullPath(source); destination = Path.GetFullPath(destination);
+        if (!string.Equals(Path.GetDirectoryName(source), Path.GetDirectoryName(destination),
+                StringComparison.OrdinalIgnoreCase) || !Path.GetFileName(source).StartsWith(".install-", StringComparison.Ordinal))
+            throw new InvalidDataException("安装暂存目录与目标目录不匹配。");
+        NoLinks(source); NoLinks(destination);
+        using (var marker = JsonDocument.Parse(File.ReadAllText(Path.Combine(source, ".operon-install.json"))))
+            if (marker.RootElement.GetProperty("owner").GetString() != Owner)
+                throw new InvalidDataException("暂存目录不属于此安装程序。");
+        var elapsed = Stopwatch.StartNew();
+        var limit = retryWindow ?? TimeSpan.FromSeconds(15);
+        var attempt = 0;
+        while (true)
+        {
+            token.ThrowIfCancellationRequested();
+            NoLinks(source); NoLinks(destination);
+            if (Directory.Exists(destination) || File.Exists(destination))
+                throw new IOException("安装目标已存在，未覆盖：" + destination);
+            try
+            {
+                Directory.Move(source, destination);
+                if (attempt > 0) log($"Stage promotion succeeded after {attempt} retries ({elapsed.Elapsed.TotalSeconds:F2}s).");
+                return;
+            }
+            catch (IOException error) when ((error.HResult & 0xffff) is 5 or 32 or 33)
+            {
+                // A terminated runtime or antivirus scanner may briefly retain a
+                // directory handle. Never change ACLs or kill unrelated processes.
+                log($"Stage promotion blocked: win32={error.HResult & 0xffff}, attempt={++attempt}, elapsed={elapsed.Elapsed.TotalSeconds:F2}s, source={source}, destination={destination}");
+                if (elapsed.Elapsed >= limit)
+                    throw new IOException("安装文件仍被占用或目录权限不足，未启用新版本。请关闭占用安装目录的程序后重试。详情见安装日志。", error);
+                await Task.Delay(TimeSpan.FromMilliseconds(250), token);
+            }
+        }
     }
 
     internal static void DeleteOwnedStage(string parent, string path)

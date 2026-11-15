@@ -373,7 +373,7 @@ internal sealed class InstallEngine
             Report("正在启用独立安装…", 90);
             var relative = "versions/" + spec.Version + "-" + Guid.NewGuid().ToString("N")[..12];
             installed = InstallFiles.Inside(root, relative);
-            Directory.Move(stage, installed); stage = null;
+            await InstallFiles.PromoteStage(stage, installed, token, Log); stage = null;
             PointCurrent(root, relative);
             WriteLaunchers(root, relative);
             var shortcuts = new Dictionary<string, string>();

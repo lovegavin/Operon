@@ -154,4 +154,5 @@ using (await InstallUpgrade.Prepare([new UpgradeTarget(gated, Path.Combine(profi
 using (var mutex = new Mutex(false, "Local\\OperonMaintenance-" + gateId))
 { Check(mutex.WaitOne(0), "completed maintenance blocked future starts"); mutex.ReleaseMutex(); }
 await UpgradeTests.Run(root, Check);
+await PromotionTests.Run(root, Check);
 Console.WriteLine($"PASS: {checks} native installer checks");
