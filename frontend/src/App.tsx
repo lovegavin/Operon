@@ -57,6 +57,8 @@ import {
   Trash,
 } from "@phosphor-icons/react";
 import { api, ApiError, downloadText, downloadBlob } from "./api";
+import { connectCloseHandshake, createDesktopHost } from "./host";
+import { toHostError } from "./host/types";
 import type {CheckFeedback} from './api';
 import {isWorkflowBundle, ROUTE_FILE_ACCEPT, WORKFLOW_FILE_ACCEPT} from './workflowFiles';
 import { CanvasBridge } from "./agentBridge";
@@ -658,35 +660,20 @@ function Studio() {
     return () => clearTimeout(timer);
   }, [graph, documents, activeId, bootstrap, panelWidths, notify]);
   useEffect(() => {
-    const bridge = (
-      window as Window & {
-        chrome?: {
-          webview?: {
-            addEventListener: (
-              event: string,
-              callback: (event: MessageEvent) => void,
-            ) => void;
-            removeEventListener: (
-              event: string,
-              callback: (event: MessageEvent) => void,
-            ) => void;
-            postMessage: (value: unknown) => void;
-          };
-        };
-      }
-    ).chrome?.webview;
-    if (!bootstrap?.desktop || !bridge) return;
-    const closing = (event: MessageEvent) => {
-      if (event.data?.type !== "prepare-close") return;
-      void (agentBridge.current?.state ? agentBridge.current.flush() : api.saveWorkspace(captureRef.current())).then(
-        () => bridge.postMessage({ type: "draft-saved" }),
-        () => bridge.postMessage({ type: "draft-save-failed" }),
-      );
-    };
-    bridge.addEventListener("message", closing);
-    bridge.postMessage({ type: "studio-ready" });
-    return () => bridge.removeEventListener("message", closing);
-  }, [bootstrap]);
+    if (!bootstrap?.desktop) return;
+    const host = createDesktopHost();
+    // Listener registration happens before readiness is announced.
+    const close = connectCloseHandshake(
+      host,
+      () =>
+        agentBridge.current?.state
+          ? agentBridge.current.flush()
+          : api.saveWorkspace(captureRef.current()),
+      (error) => notify(error.message),
+    );
+    void host.ready().catch((error) => notify(toHostError(error).message));
+    return close;
+  }, [bootstrap, notify]);
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(
