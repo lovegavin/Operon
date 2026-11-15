@@ -61,12 +61,10 @@ internal static class SelfTest
                 ManifestVerifier.Validate(manifest);
                 var wrongProduct = Clone(manifest);
                 wrongProduct.Product = "operon";
-                try { ManifestVerifier.Validate(wrongProduct); }
-                catch (InstallerException) { }
+                MustReject(wrongProduct, "foreign product");
                 var wrongChannel = Clone(manifest);
                 wrongChannel.Channel = "production";
-                try { ManifestVerifier.Validate(wrongChannel); }
-                catch (InstallerException) { }
+                MustReject(wrongChannel, "foreign channel");
                 var unsafePath = Clone(manifest);
                 unsafePath.Files = new List<ManifestFile> { new("../app.txt", 1, new string('c', 64)) };
                 try { ManifestVerifier.Validate(unsafePath); }
@@ -144,6 +142,13 @@ internal static class SelfTest
     {
         try { action(); }
         catch (Exception error) { failures.Add(name + ": " + error.Message); }
+    }
+
+    private static void MustReject(ExperimentalManifest manifest, string description)
+    {
+        try { ManifestVerifier.Validate(manifest); }
+        catch (InstallerException) { return; }
+        throw new Exception(description + " was accepted");
     }
 
     private static ExperimentalManifest Clone(ExperimentalManifest source) => new()
