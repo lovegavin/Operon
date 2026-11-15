@@ -1,0 +1,35 @@
+name: Exact Linux delivery acceptance
+on:
+  push:
+    branches: ['release/**']
+    paths: ['.github/release-transfer.json']
+permissions:
+  contents: read
+jobs:
+  linux-delivery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Download exact candidate and pinned test runtime
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mkdir delivery-input
+          gh release download v5.2.0 --pattern Operon-5.2.0-Server.zip --pattern cpython-3.11.14-linux.tar.gz --dir delivery-input
+      - name: Install and verify delivered CLI and portable package
+        run: |
+          SHA=$(python -c "import json;print(json.load(open('.github/release-transfer.json'))['server_sha256'])")
+          python scripts/acceptance/verify_server_delivery.py --archive delivery-input/Operon-5.2.0-Server.zip --sha256 "$SHA" --runtime delivery-input/cpython-3.11.14-linux.tar.gz --runtime-sha256 e84da4b01a4017222ed3d172f4ba261c930cca40b7db5d6ad97149a41b98a14c --work "$RUNNER_TEMP/delivery-acceptance"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-delivery-evidence
+          path: |
+            ${{ runner.temp }}/delivery-acceptance/report.json
+            ${{ runner.temp }}/delivery-acceptance/*.stdout
+            ${{ runner.temp }}/delivery-acceptance/*.stderr
