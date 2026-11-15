@@ -89,8 +89,8 @@ counts both, and the re-run panels (`req-3c121a41e225827ddfbe3f0e`,
 
 | Path | Content |
 | --- | --- |
-| `paper/operon_bioinformatics.md` | 237 lines, Tables 1–7, no placeholders |
-| `paper/operon_bioinformatics_zh.md` | 245 lines, same data and structure |
+| `paper/operon_bioinformatics.md` | 239 lines, Tables 1–7, no placeholders |
+| `paper/operon_bioinformatics_zh.md` | 247 lines, same data and structure |
 | `docs/releases/design-loop.md` | 278 lines, 64 job ids, all five scoring sets, replicate scoring, fold retention, both candidates, reproduction table |
 | `docs/releases/library-0.1.22.md` | release note for the `DG` fix, with the re-run job ids |
 | `scripts/design_loop/` | `collect_round.py`, `make_complexes.py`, `submit_boltz.py`, `ca_rmsd.py`, `rmsd_stats.py`, `README.md` |
