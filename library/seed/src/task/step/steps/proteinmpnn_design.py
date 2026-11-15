@@ -305,7 +305,9 @@ class ProteinMpnnDesignStep(Step):
             if fixed_positions:
                 fixed_jsonl = out_dir / "fixed_positions.jsonl"
                 payload = {
-                    structure_path.as_posix(): {
+                    # ProteinMPNN indexes fixed positions by the PDB basename
+                    # stem (``b['name']``), not by the full path.
+                    structure_path.stem: {
                         str(chain): positions
                         for chain, positions in fixed_positions.items()
                     }

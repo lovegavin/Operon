@@ -59,5 +59,5 @@ Build application: 5.1.17 · Minimum application: 5.1.6 · Bundle format 1
 | `operon-library-main-v0.1.20.operon-library.zip` | 6,870,166 | `8bddfc5cd18ad4e038b57c5acdf36a185cda4c3e249f6c907d361b91a60e58ba` |
 | `operon-routes-main-v0.1.20.zip` | 201,294 | `584316857e06f57ee02530c8ec0ec3f5c476e9f769e0b07acb79eed9e269d631` |
 
-The application `latest` release is unchanged (`v5.1.17`); this library release
-does not move it.
+This library release does not hold the repository `latest` pointer; the newest
+application release keeps it.
