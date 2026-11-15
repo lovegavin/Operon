@@ -1,4 +1,13 @@
-# Independent script packages
+# Portable export paths
+
+For the current RunPlan export interface, start with the
+[headless export quick start](design/backend_cli_quickstart.md#export-a-runplan-asynchronously).
+RunPlan exports carry their own controller and verified environment packages;
+they run without an installed Studio service. The legacy script-only interface
+below has a narrower scope. Its standard-library-only runner and exclusions do
+not describe the current RunPlan controller.
+
+## Legacy independent script packages
 
 The first verified portable target is a file-based Python script workflow with a
 prepared, relocatable Python runtime. Export includes the actual runtime files,
@@ -48,7 +57,7 @@ interpreter and confirming Operon is not importable. This test does not establis
 compatibility for every scientific dependency or Linux binary distribution.
 
 
-### Relocation verification time budget
+## RunPlan relocation verification time budget
 
 Export always hashes the delivered payload and checks it again after relocation.
 The build receipt records `verification.inventory_seconds`, `entries`, and both
@@ -61,7 +70,7 @@ turning timeouts into success, or making probes unbounded. Cancellation still
 stops an active probe. A timeout retains its failure receipt and recent progress.
 
 
-### Reusable environment packages
+## RunPlan reusable environment packages
 
 Managed generations now seal into content-addressed TAR layers in
 `packages/sha256/<digest>.tar`. `packages.json` binds the layers to the original
