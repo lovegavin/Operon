@@ -835,8 +835,8 @@ class ExecutionService:
             _, owners = expand_routes(stage, self.catalog(graph))
             atomic_json(folder / 'owners.json', owners)
             cached, cache_decision = self._cache_lookup(key, unit, stage)
-            atomic_json(folder / 'cache-decision.json', safe_json(cache_decision))
             with self.lock, FileLock(self.path(key) / 'job.lock'):
+                atomic_json(folder / 'cache-decision.json', safe_json(cache_decision))
                 record = self._read(key)
                 record.setdefault('cache_decisions', {})[unit['id']] = cache_decision
                 atomic_json(self.path(key) / 'job.json', safe_json(record))
@@ -915,8 +915,10 @@ class ExecutionService:
                     atomic_json(self.path(key) / 'job.json', safe_json(record))
                 cache_decision = self._cache_store(key, unit, child, stage)
                 if cache_decision is not None:
-                    atomic_json(folder / 'cache-decision.json', safe_json(cache_decision))
                     with self.lock, FileLock(self.path(key) / 'job.lock'):
+                        # details() reads this sidecar under the same lock. On
+                        # Windows an open reader can prevent atomic replacement.
+                        atomic_json(folder / 'cache-decision.json', safe_json(cache_decision))
                         record = self._read(key)
                         record.setdefault('cache_decisions', {})[unit['id']] = cache_decision
                         atomic_json(self.path(key) / 'job.json', safe_json(record))

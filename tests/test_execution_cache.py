@@ -209,3 +209,23 @@ def test_undeclared_operators_are_not_cached(executions):
     assert any('missing-cache-contract' in reason for reason in decision['reasons'])
     second = wait(executor, executor.launch(graph(executor.service.root))['id'])
     assert second.get('cache_hits', 0) == 0
+
+
+def test_cache_decision_writes_share_the_report_reader_lock(executions, monkeypatch):
+    """Windows cannot replace a sidecar while a report reader holds it open."""
+    from src.web import execution
+    executor, service, _ = executions
+    original = execution.atomic_json
+    writes = []
+
+    def guarded_write(path, value):
+        if Path(path).name == 'cache-decision.json':
+            lock = execution.FileLock(Path(path).parent.parent / 'job.lock')
+            assert lock.state['depth'] > 0, 'cache writer raced the report reader'
+            writes.append(value)
+        return original(path, value)
+
+    monkeypatch.setattr(execution, 'atomic_json', guarded_write)
+    result = wait(executor, executor.launch(graph(service.root))['id'])
+    assert result['status'] == 'complete', result.get('error')
+    assert len(writes) == 2
