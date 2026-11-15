@@ -34,3 +34,4 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install -c constraints-py311-windows.txt -e ".[analysis,agent,dev]" "h5py>=3.10" "scikit-learn>=1.4" "biopython>=1.81" "hictkpy>=1.4,<2"
       - run: ${{ matrix.command }}
+
