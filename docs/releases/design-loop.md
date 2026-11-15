@@ -142,6 +142,40 @@ including every interface residue; pinning 17 interface positions while
 rewriting the 71 positions beneath them is what destroyed the interface in
 round 3.
 
+## Fold retention (rounds 3 and 4)
+
+Each child prediction was superposed on the parent complex
+(`design_loop/round3/complex_free_d1.pdb`) through its target chain (193 Cα, identical
+sequence) with a Kabsch fit, and the binder was transformed by the same rotation. Scripts:
+`ca_rmsd.py` (per design) and `rmsd_stats.py` (correlation); raw output in
+`design_loop/round(3, 4)/complexes/complexes_rmsd.json` and `design_loop/rmsd_summary.json`.
+
+| Round | Design | Job | iPTM | Cα RMSD, target (Å) | Cα RMSD, binder (Å) |
+| --- | ---: | --- | ---: | ---: | ---: |
+| 3 | 1 | `req-f1692f642fb99427b37411b1` | 0.113 | 11.51 | 17.71 |
+| 3 | 2 | `req-ce728273e1de036cc335b751` | 0.064 | 9.15 | 19.18 |
+| 3 | 3 | `req-140369776c4ab577cbcaa53a` | 0.103 | 12.50 | 21.95 |
+| 3 | 4 | `req-3d5ca43bda102a583f65108c` | 0.076 | 14.05 | 17.58 |
+| 3 | 5 | `req-9277c07cb5da99925e5a1c08` | 0.127 | 9.64 | 6.64 |
+| 3 | 6 | `req-bbb15a53cab273b37d2d54a2` | 0.059 | 9.57 | 19.19 |
+| 3 | 7 | `req-83aeb72a62a30ec82022a11d` | 0.070 | 10.82 | 21.10 |
+| 3 | 8 | `req-59f8cabf6fa8621c8fa4aeae` | 0.056 | 12.35 | 19.97 |
+| 4 | 1 | `req-c577c7bd58587ccae4cef9a3` | 0.102 | 9.55 | 17.92 |
+| 4 | 2 | `req-c5b3b1b86e202066bbaead6c` | 0.057 | 10.20 | 21.52 |
+| 4 | 3 | `req-df3e9ff05896ad2589f13345` | 0.904 | 2.03 | 2.14 |
+| 4 | 4 | `req-c5acbf6aab15b640f68f2dcd` | 0.887 | 2.67 | 1.13 |
+| 4 | 5 | `req-c28a51891d9590c4b571e509` | 0.117 | 11.34 | 15.49 |
+| 4 | 6 | `req-f2d1c4f2d4314eeed1f29c01` | 0.085 | 12.43 | 18.30 |
+| 4 | 7 | `req-73ffb8be6ff61d6600bf7e02` | 0.103 | 10.12 | 14.54 |
+| 4 | 8 | `req-232c9eb50eb53a01f4b74b8d` | 0.064 | 9.85 | 21.71 |
+
+Two of sixteen children stay within 3 Å of the parent, both from round 4 (0.904 at 2.03 Å
+and 0.887 at 2.67 Å). Round 3 spans 9.15–14.05 Å, the remaining round-4 children
+9.55–12.43 Å. Across the sixteen, Pearson r = −0.902 for iPTM against target-chain RMSD
+and −0.863 against binder RMSD; the 3 Å cutoff separates the high-iPTM pair from the rest
+with no exceptions. Spearman on the target chain is not reported: the low-iPTM group is
+compressed into 9.15–14.05 Å, and tied ranks make ρ unstable there.
+
 ## Platform defects found by the loop
 
 | Defect | Symptom | Fix | Version |
