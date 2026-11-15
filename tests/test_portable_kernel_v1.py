@@ -138,6 +138,21 @@ def test_relocation_budget_remains_bounded_and_rejects_invalid_measurements():
             _relocation_probe_timeout(invalid)
 
 
+def test_legacy_launch_upgrades_working_copy_without_mutating_bundle(tmp_path, monkeypatch):
+    import operon.export.kernel as kernel
+    source = tmp_path / 'data.fixture'; source.write_bytes(b'synthetic')
+    root = tmp_path / 'legacy'; bundle_at(root, source)
+    before = inventory(root / 'payload')
+    class ReachedCoordinator(Exception): pass
+    def stop_before_scientific_launch(*args, **kwargs): raise ReachedCoordinator()
+    monkeypatch.setattr(kernel, 'Coordinator', stop_before_scientific_launch)
+    with pytest.raises(ReachedCoordinator):
+        run_bundle(root, memory=64*1024**2, threads=1)
+    assert inventory(root / 'payload') == before
+    assert list((root / 'work/environments/generations').glob('*/packages.json'))
+    assert not list((root / 'payload/environments/generations').glob('*/packages.json'))
+
+
 def test_bindable_plan_preserves_values_and_lifts_only_explicit_source_paths(tmp_path):
     path = tmp_path / 'data.fixture'
     original = plan_for(path)

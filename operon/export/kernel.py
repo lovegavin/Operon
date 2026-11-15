@@ -177,8 +177,15 @@ def run_bundle(root, *, inputs=None, parameters=None, resume=False, work_dir=Non
             target = environments.root / 'generations' / generation
             if not target.exists():
                 progress('copy_destination_environment')
-                from operon.environment_store.packages import copy_generation
-                copy_generation(source_environments, environments, generation)
+                from operon.environment_store.packages import copy_generation, descriptor
+                if descriptor(source_environments, generation) is not None:
+                    copy_generation(source_environments, environments, generation)
+                else:
+                    # Old portable bundles are immutable input artifacts. Upgrade
+                    # their working copy, never seal the original payload in place.
+                    temporary = environments.root / 'staging' / uuid.uuid4().hex
+                    shutil.copytree(io_path(original), io_path(temporary), symlinks=True)
+                    os.replace(temporary, target)
             progress('verify_destination_environment')
             environments.binding(generation)
             deployed_generations[generation] = generation
