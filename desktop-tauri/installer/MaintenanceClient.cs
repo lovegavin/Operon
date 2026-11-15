@@ -205,6 +205,9 @@ internal sealed class MaintenanceClient
         string installationId,
         CancellationToken cancellation)
     {
+        // Stable across retries: a retry replays the same authenticated request
+        // and receipt acknowledgement instead of creating a different quit.
+        var requestId = Guid.NewGuid().ToString("D");
         NamedPipeClientStream? client = null;
         for (var attempt = 0; attempt < 2 && client is null; attempt++)
         {
@@ -214,7 +217,6 @@ internal sealed class MaintenanceClient
             {
                 candidate.Connect(3000);
                 VerifyServerProcess(candidate, host);
-                var requestId = Guid.NewGuid().ToString("D");
                 Send(candidate, new
                 {
                     schema = 1,
@@ -230,12 +232,24 @@ internal sealed class MaintenanceClient
                     root.GetProperty("request_id").GetString() != requestId ||
                     root.GetProperty("status").GetString() != "accepted")
                     throw new MaintenanceException(4, "The application rejected the maintenance request.");
+                // The server holds the accepted frame until it reads this
+                // receipt acknowledgement on the same authenticated connection,
+                // so the pipe cannot close before a bytewise reader consumes it.
+                Send(candidate, new
+                {
+                    schema = 1,
+                    request_id = requestId,
+                    action = "ack"
+                });
                 client = candidate;
             }
             catch (Exception error) when (error is IOException or TimeoutException or JsonException or KeyNotFoundException or InvalidOperationException)
             {
                 candidate.Dispose();
-                if (attempt == 1) throw new MaintenanceException(4, "The application maintenance channel did not accept the request: " + error.Message);
+                if (attempt == 1)
+                    throw new MaintenanceException(4,
+                        "The application maintenance channel did not accept the request: " +
+                        error.GetType().Name + ": " + error.Message);
             }
             catch
             {
@@ -244,6 +258,9 @@ internal sealed class MaintenanceClient
             }
         }
         if (client is null) throw new MaintenanceException(4, "The application maintenance channel is unavailable.");
+        // Reached only after this connection authenticated, returned `accepted`
+        // and carried the matching receipt ack. A process that dies without that
+        // handshake fails closed instead of counting as a graceful exit.
         using (client)
         {
             WaitForExit(host, cancellation);

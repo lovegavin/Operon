@@ -1,10 +1,12 @@
 //! Installation-scoped maintenance channel for the experimental Windows host.
 //!
-//! The only accepted action is a bearer-authenticated graceful `quit` request.
-//! The channel never exposes a renderer command, caller paths, process control,
-//! or arbitrary IPC. A local named pipe is published together with a private
-//! profile receipt before the startup gate is released; the receipt is removed
-//! only by the session that still owns it.
+//! The only accepted request is a bearer-authenticated graceful `quit`.
+//! The host replies `accepted` and then requires a matching receipt `ack` on
+//! the same authenticated connection within the frame deadline before it
+//! records the request or requests exit. The channel never exposes a renderer
+//! command, caller paths, process control, or arbitrary IPC. A local named pipe
+//! is published together with a private profile receipt before the startup gate
+//! is released; the receipt is removed only by the session that still owns it.
 //!
 //! The startup gate is a named mutex plus a manual-reset active event. The host
 //! takes the mutex before the profile instance lock or backend spawn and checks
@@ -281,6 +283,17 @@ mod windows_impl {
         request_id: String,
     }
 
+    /// The peer's proof that it consumed the `accepted` frame. This is only
+    /// valid on the same already-authenticated connection as the request, so
+    /// it intentionally carries no installation id or token.
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct Ack {
+        schema: u32,
+        request_id: String,
+        action: String,
+    }
+
     #[derive(Serialize)]
     struct Response<'a> {
         schema: u32,
@@ -416,7 +429,25 @@ mod windows_impl {
         token: &str,
         recent: Arc<Mutex<VecDeque<String>>>,
     ) {
-        let frame = match read_frame(&mut server).await {
+        let app = app.clone();
+        serve_connection(&mut server, installation_id, token, recent, move || {
+            crate::bridge::request_exit(app)
+        })
+        .await;
+    }
+
+    /// Complete one authenticated request on the connection that carried it.
+    /// The quit callback runs only after the peer returns the exact request id
+    /// as an `ack`; a dropped connection or any other frame leaves the request
+    /// unrecorded so a retry with the same id can still deliver the quit.
+    async fn serve_connection(
+        server: &mut NamedPipeServer,
+        installation_id: &str,
+        token: &str,
+        recent: Arc<Mutex<VecDeque<String>>>,
+        on_accepted: impl FnOnce(),
+    ) {
+        let frame = match read_frame(server).await {
             Ok(frame) => frame,
             Err(_) => return,
         };
@@ -425,37 +456,60 @@ mod windows_impl {
             Err(_) => return,
         };
 
-        let duplicate = {
-            let ids = recent
-                .lock()
-                .unwrap_or_else(|poisoned| poisoned.into_inner());
-            ids.iter().any(|value| value == &request.request_id)
-        };
-
         let reply = Response {
             schema: 1,
             request_id: &request.request_id,
             status: "accepted",
         };
-        if write_frame(&mut server, &reply).await.is_err() {
+        if write_frame(server, &reply).await.is_err() {
             // Do not record a request that was never accepted: a retry with the
             // same request_id must still be able to deliver the quit.
             return;
         }
-        if !duplicate {
+
+        // A flush only drains this server's async buffer; it does not prove the
+        // peer consumed the reply. Hold the accepted frame behind this bounded
+        // receipt acknowledgement so the connection cannot close first.
+        let ack = match read_frame(server).await {
+            Ok(ack) => ack,
+            Err(_) => return,
+        };
+        if !validate_ack(&ack, &request.request_id) {
+            return;
+        }
+
+        let newly_recorded = {
             let mut ids = recent
                 .lock()
                 .unwrap_or_else(|poisoned| poisoned.into_inner());
-            if !ids.iter().any(|value| value == &request.request_id) {
+            if ids.iter().any(|value| value == &request.request_id) {
+                false
+            } else {
                 if ids.len() == MAX_RECENT_REQUESTS {
                     ids.pop_front();
                 }
                 ids.push_back(request.request_id.clone());
+                true
             }
+        };
+        if newly_recorded {
             // The existing close flow owns draft save, pending-job confirmation,
             // drain and exit status. This channel never invokes process control.
-            crate::bridge::request_exit(app.clone());
+            on_accepted();
         }
+    }
+
+    fn validate_ack(frame: &[u8], request_id: &str) -> bool {
+        if frame.is_empty() || frame.len() > MAX_FRAME_BYTES {
+            return false;
+        }
+        let Ok(ack) = serde_json::from_slice::<Ack>(frame) else {
+            return false;
+        };
+        ack.schema == 1
+            && ack.action == "ack"
+            && ack.request_id == request_id
+            && Uuid::parse_str(&ack.request_id).is_ok()
     }
 
     fn validate_request(frame: &[u8], installation_id: &str, token: &str) -> Result<Request, ()> {
@@ -590,6 +644,8 @@ mod windows_impl {
     #[cfg(test)]
     mod tests {
         use super::*;
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        use tokio::net::windows::named_pipe::ClientOptions;
 
         fn request(action: &str, token: &str) -> Vec<u8> {
             serde_json::to_vec(&serde_json::json!({
@@ -600,6 +656,150 @@ mod windows_impl {
                 "request_id": Uuid::new_v4().to_string(),
             }))
             .unwrap()
+        }
+
+        fn frame(value: serde_json::Value) -> Vec<u8> {
+            let mut body = serde_json::to_vec(&value).unwrap();
+            body.push(b'\n');
+            body
+        }
+
+        fn request_frame(
+            installation_id: &str,
+            token: &str,
+            request_id: &str,
+            action: &str,
+        ) -> Vec<u8> {
+            frame(serde_json::json!({
+                "schema": 1,
+                "installation_id": installation_id,
+                "token": token,
+                "action": action,
+                "request_id": request_id,
+            }))
+        }
+
+        fn ack_frame(request_id: &str, action: &str) -> Vec<u8> {
+            frame(serde_json::json!({
+                "schema": 1,
+                "request_id": request_id,
+                "action": action,
+            }))
+        }
+
+        async fn read_delayed_bytewise(
+            client: &mut tokio::net::windows::named_pipe::NamedPipeClient,
+        ) -> Vec<u8> {
+            let mut output = Vec::new();
+            let mut one = [0u8; 1];
+            loop {
+                let read = tokio::time::timeout(READ_DEADLINE, client.read(&mut one))
+                    .await
+                    .expect("accepted frame read deadline")
+                    .expect("read accepted frame");
+                if read == 0 {
+                    panic!("maintenance pipe closed before the accepted frame ended");
+                }
+                if one[0] == b'\n' {
+                    return output;
+                }
+                output.push(one[0]);
+                // Deliberately slower than the server's reply write so a
+                // server that closes immediately after `accepted` is caught.
+                tokio::time::sleep(Duration::from_millis(2)).await;
+            }
+        }
+
+        #[derive(Clone, Copy)]
+        enum AckReply {
+            Matching,
+            Wrong,
+            Missing,
+        }
+
+        async fn maintenance_round_trip(reply: AckReply) -> (usize, bool) {
+            let pipe_name = format!(r"\\.\pipe\OperonMaintenanceTest-{}", Uuid::new_v4());
+            let mut server = ServerOptions::new()
+                .pipe_mode(PipeMode::Byte)
+                .first_pipe_instance(true)
+                .create(&pipe_name)
+                .expect("create maintenance test server");
+            let installation_id = "installation-a".to_owned();
+            let token = format!("{}{}", Uuid::new_v4(), Uuid::new_v4());
+            let request_id = Uuid::new_v4().to_string();
+            let recent = Arc::new(Mutex::new(VecDeque::new()));
+            let quit_calls = Arc::new(AtomicUsize::new(0));
+            let raw_request = request_frame(&installation_id, &token, &request_id, "quit");
+
+            let server_recent = Arc::clone(&recent);
+            let server_calls = Arc::clone(&quit_calls);
+            let server_id = installation_id.clone();
+            let server_token = token.clone();
+            let server_task = tokio::spawn(async move {
+                server
+                    .connect()
+                    .await
+                    .expect("connect maintenance test client");
+                serve_connection(
+                    &mut server,
+                    &server_id,
+                    &server_token,
+                    server_recent,
+                    move || {
+                        server_calls.fetch_add(1, Ordering::SeqCst);
+                    },
+                )
+                .await;
+            });
+
+            let mut client = ClientOptions::new()
+                .open(&pipe_name)
+                .expect("open maintenance test client");
+            client
+                .write_all(&raw_request)
+                .await
+                .expect("write quit request");
+            client.flush().await.expect("flush quit request");
+
+            let accepted = read_delayed_bytewise(&mut client).await;
+            let accepted: serde_json::Value =
+                serde_json::from_slice(&accepted).expect("accepted frame json");
+            assert_eq!(accepted["schema"].as_u64(), Some(1));
+            assert_eq!(accepted["request_id"].as_str(), Some(request_id.as_str()));
+            assert_eq!(accepted["status"].as_str(), Some("accepted"));
+
+            match reply {
+                AckReply::Matching => {
+                    client
+                        .write_all(&ack_frame(&request_id, "ack"))
+                        .await
+                        .expect("write matching ack");
+                    client.flush().await.expect("flush matching ack");
+                }
+                AckReply::Wrong => {
+                    client
+                        .write_all(&ack_frame(&Uuid::new_v4().to_string(), "ack"))
+                        .await
+                        .expect("write wrong ack");
+                    client.flush().await.expect("flush wrong ack");
+                }
+                AckReply::Missing => {
+                    // Consume accepted, then vanish without acknowledging it.
+                    drop(client);
+                }
+            }
+
+            tokio::time::timeout(READ_DEADLINE + Duration::from_secs(1), server_task)
+                .await
+                .expect("maintenance test server timed out")
+                .expect("maintenance test server panicked");
+
+            let recorded = recent
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner())
+                .iter()
+                .any(|value| value == &request_id);
+            (quit_calls.load(Ordering::SeqCst), recorded)
         }
 
         #[test]
@@ -643,6 +843,35 @@ mod windows_impl {
         }
 
         #[test]
+        fn accepts_only_the_strict_matching_ack() {
+            let id = Uuid::new_v4().to_string();
+            assert!(validate_ack(&ack_frame(&id, "ack"), &id));
+            assert!(!validate_ack(&ack_frame(&id, "quit"), &id));
+            assert!(!validate_ack(
+                &ack_frame(&Uuid::new_v4().to_string(), "ack"),
+                &id
+            ));
+            assert!(!validate_ack(&ack_frame("not-a-uuid", "ack"), "not-a-uuid"));
+
+            let mut wrong_schema: serde_json::Value =
+                serde_json::from_slice(&ack_frame(&id, "ack")).unwrap();
+            wrong_schema["schema"] = serde_json::json!(2);
+            assert!(!validate_ack(&frame(wrong_schema), &id));
+        }
+
+        #[test]
+        fn rejects_ack_frames_with_extra_fields_or_oversized_bodies() {
+            let id = Uuid::new_v4().to_string();
+            let mut extra: serde_json::Value =
+                serde_json::from_slice(&ack_frame(&id, "ack")).unwrap();
+            extra["token"] = serde_json::json!("must-not-be-accepted");
+            assert!(!validate_ack(&frame(extra), &id));
+            assert!(!validate_ack(b"not-json", &id));
+            assert!(!validate_ack(&vec![b'{'; MAX_FRAME_BYTES + 1], &id));
+            assert!(!validate_ack(&[], &id));
+        }
+
+        #[test]
         fn gate_is_exclusive_and_released_from_another_thread() {
             let id = format!("gate-test-{}", Uuid::new_v4());
             let guard = StartupGuard::acquire(&id).unwrap();
@@ -658,6 +887,21 @@ mod windows_impl {
             assert!(StartupGuard::acquire(&id).is_err());
             std::thread::spawn(move || drop(lease)).join().unwrap();
             drop(StartupGuard::acquire(&id).unwrap());
+        }
+
+        #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+        async fn named_pipe_round_trip_requires_matching_ack_before_exit() {
+            let (calls, recorded) = maintenance_round_trip(AckReply::Matching).await;
+            assert_eq!(calls, 1, "matching ack did not become quit-eligible");
+            assert!(recorded, "matching ack did not record the request");
+
+            let (calls, recorded) = maintenance_round_trip(AckReply::Wrong).await;
+            assert_eq!(calls, 0, "wrong ack became quit-eligible");
+            assert!(!recorded, "wrong ack recorded the request");
+
+            let (calls, recorded) = maintenance_round_trip(AckReply::Missing).await;
+            assert_eq!(calls, 0, "missing ack became quit-eligible");
+            assert!(!recorded, "missing ack recorded the request");
         }
     }
 }
