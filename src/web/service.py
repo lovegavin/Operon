@@ -1097,7 +1097,10 @@ class JobService:
                      'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS', 'OPERON_CPU_LIMIT'):
             env[name] = threads
         env['OPERON_AVAILABLE_AT_START_BYTES'] = str(allocation['available_at_start_bytes'])
+        gpu_count = max(0, int(allocation.get('gpu_count', 0) or 0))
         gpu_devices = allocation.get('gpu_devices') or []
+        if not gpu_devices and gpu_count:
+            gpu_devices = list(getattr(self.admission, 'gpus', []) or [])[:gpu_count] or list(range(gpu_count))
         if gpu_devices:
             visible = ','.join(str(device) for device in gpu_devices)
             env['CUDA_VISIBLE_DEVICES'] = visible

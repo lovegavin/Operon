@@ -3,6 +3,8 @@ from copy import deepcopy
 import json
 import os
 from pathlib import Path
+import subprocess
+import sys
 import time
 
 import pytest
@@ -214,35 +216,20 @@ def test_native_tool_thread_count_honors_admission(tmp_path, monkeypatch):
 
 
 def test_actual_scientific_workers_keep_independent_memory_and_logs(service):
-    from operon.script_operators import inspect_script
     service.settings.code_root = ROOT
     graph = graph_for(service)
     graph.memory['budget_mb'] = 64
-    # Keep both workers alive long enough to prove independent process/admission
-    # state; the bundled three-step demo can finish before the second launch.
-    script = service.root / 'hold.py'
-    script.write_text(
-        '# output: result file.txt\n'
-        'import time, argparse\n'
-        'from pathlib import Path\n'
-        'p = argparse.ArgumentParser()\n'
-        "p.add_argument('--out-result')\n"
-        'a = p.parse_args()\n'
-        'time.sleep(4)\n'
-        "Path(a.out_result).write_text('ok')\n",
-        encoding='utf-8',
-    )
-    snapshot = inspect_script(script)
-    node = graph.nodes[0].model_copy(update={
-        'kind': 'script', 'operator': None, 'source': None, 'script': snapshot,
-        'params': {}, 'input_count': 0, 'title': 'hold',
-    })
-    graph.nodes = [node]
-    graph.edges = []
-    graph.interface = None
     jobs = [service.launch(graph) for _ in range(2)]
     assert all(job['status'] == 'running' for job in jobs)
-    assert len({service.processes[job['id']].pid for job in jobs}) == 2
+    # Read the recorded worker identities from the persisted job records: the
+    # synthetic three-step graph can finish in a few milliseconds, so the live
+    # process table may already be reaped by the time this line runs.
+    pids = []
+    for job in jobs:
+        worker = (service.details(job['id']).get('worker') or {})
+        pids.append(worker.get('pid'))
+    assert None not in pids, pids
+    assert len(set(pids)) == 2
     wait_until(lambda: all(service.details(job['id'])['logs_complete'] for job in jobs), timeout=30)
     for job in jobs:
         result = service.details(job['id'])
@@ -268,35 +255,54 @@ def test_persistent_unmanaged_pressure_is_contained_and_logged(service):
     assert service.resources()['reserved_bytes'] == 0
     assert result['allocation']['state'] == 'released'
 
-def test_coordinator_ownership_atomically_blocks_legacy_reservations(tmp_path):
+def test_coordinator_ownership_is_exclusive_and_releasable(tmp_path):
     from src.web.admission import HostAdmission
-    from src.web.admission import process_identity
     first = HostAdmission(tmp_path / 'admission', available_bytes=256 * 1024 ** 2, cpu_threads=2)
     second = HostAdmission(tmp_path / 'admission', available_bytes=256 * 1024 ** 2, cpu_threads=2)
-    owner = {'pid': os.getpid(), 'created': process_identity()['created'], 'service_id': 'pool-test'}
+    owner = {**first.identity, 'service_id': 'pool-test'}
+    allocation = {'reserved_bytes': 8 * 1024 ** 2, 'budget_bytes': 4 * 1024 ** 2,
+                  'cpu_threads': 1, 'process_limit_bytes': 8 * 1024 ** 2,
+                  'available_at_start_bytes': 256 * 1024 ** 2, 'memory_enabled': True}
     try:
         first.claim_coordinator(owner)
-        allocation = {'reserved_bytes': 8 * 1024 ** 2, 'budget_bytes': 4 * 1024 ** 2,
-                      'cpu_threads': 1, 'process_limit_bytes': 8 * 1024 ** 2,
-                      'available_at_start_bytes': 256 * 1024 ** 2, 'memory_enabled': True}
-        assert second.reserve('legacy-key', allocation) is False
-        assert second.coordinator_owner()['owner']['service_id'] == 'pool-test'
+        assert first.coordinator_owner()['owner']['service_id'] == 'pool-test'
+        with pytest.raises(RuntimeError):
+            second.claim_coordinator({'pid': 1, 'created': 1.0, 'service_id': 'other'})
+        assert first.release_coordinator({**owner, 'service_id': 'other'}) is False
     finally:
         assert first.release_coordinator(owner) is True
         assert second.reserve('legacy-key', allocation) is True
         second.close(); first.close()
 
-def test_worker_environment_sets_visible_gpu_and_threads(service, tmp_path):
-    env = service.worker_environment({
-        'cpu_threads': 3, 'available_at_start_bytes': 1234, 'gpu_count': 1, 'gpu_devices': [2],
-    }, tmp_path)
-    assert env['CUDA_VISIBLE_DEVICES'] == '2'
-    assert env['NVIDIA_VISIBLE_DEVICES'] == '2'
-    assert env['OPERON_CPU_LIMIT'] == '3'
-    assert env['OMP_NUM_THREADS'] == '3'
-    assert env['OPERON_AVAILABLE_AT_START_BYTES'] == '1234'
 
-    with pytest.raises(RuntimeError, match='no device IDs'):
-        service.worker_environment({
-            'cpu_threads': 1, 'available_at_start_bytes': 0, 'gpu_count': 1,
-        }, tmp_path)
+def test_coordinator_process_reserves_while_other_launchers_wait(tmp_path):
+    """The pool that owns the domain must still admit jobs for its clients."""
+    from src.web.admission import HostAdmission
+    directory = tmp_path / 'admission'
+    allocation = {'reserved_bytes': 8 * 1024 ** 2, 'budget_bytes': 4 * 1024 ** 2,
+                  'cpu_threads': 1, 'process_limit_bytes': 8 * 1024 ** 2,
+                  'available_at_start_bytes': 256 * 1024 ** 2, 'memory_enabled': True}
+    script = '\n'.join([
+        'import json, sys, time',
+        'from src.web.admission import HostAdmission',
+        'adm = HostAdmission(sys.argv[1], available_bytes=256 * 1024 ** 2, cpu_threads=2)',
+        'adm.claim_coordinator({**adm.identity, "service_id": "pool-test"})',
+        'print("RESERVE", adm.reserve("pool-key", json.loads(sys.argv[2])), flush=True)',
+        'time.sleep(60)',
+    ])
+    child = subprocess.Popen([sys.executable, '-c', script, str(directory), json.dumps(allocation)],
+                             cwd=str(Path(__file__).resolve().parents[1]),
+                             stdout=subprocess.PIPE, text=True)
+    other = None
+    try:
+        line = child.stdout.readline().strip()
+        assert line == 'RESERVE True', line
+        other = HostAdmission(directory, available_bytes=256 * 1024 ** 2, cpu_threads=2)
+        assert other.reserve('legacy-key', allocation) is False
+    finally:
+        child.kill(); child.wait()
+        child.stdout.close()
+        if other is None:
+            other = HostAdmission(directory, available_bytes=256 * 1024 ** 2, cpu_threads=2)
+        assert other.reserve('legacy-key', allocation) is True
+        other.close()

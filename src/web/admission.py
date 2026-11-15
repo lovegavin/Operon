@@ -289,8 +289,12 @@ class HostAdmission:
     def reserve(self, key, allocation):
         with self.lock:
             state = self._read(); self._reconcile(state)
-            if state.get('coordinator'):
-                return False
+            coordinator = state.get('coordinator')
+            if coordinator:
+                owner = coordinator.get('owner') or {}
+                if ((owner.get('pid'), owner.get('created')) !=
+                        (self.identity.get('pid'), self.identity.get('created'))):
+                    return False
             if key in state['reservations']:
                 return state['reservations'][key]['client'] == self.client
             used = sum(v['reserved_bytes'] for v in state['reservations'].values())
