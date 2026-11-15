@@ -235,79 +235,24 @@ def test_refresh_api_is_async_token_protected_and_reports_errors(tmp_path, monke
         assert manager.state() == initial
 
 
-def test_source_library_discovers_plain_author_modules_without_manifest_edits(tmp_path, monkeypatch):
-    import ast
-    from operon.source_library import SOURCE_DIRS
-    source_root = tmp_path / 'code'
-    for relative in [*SOURCE_DIRS.values(), 'operon/builtin_packages.json']:
-        source, target = ROOT / "library/seed" / relative, source_root / relative
-        if source.is_dir():
-            target.mkdir(parents=True)
-            for parameter in source.glob('*.parameters.json'):
-                shutil.copy2(parameter, target / parameter.name)
-            for file in source.glob('*.py'):
-                # This lifecycle fixture exercises source registration and disk
-                # hooks without downloading every optional native reader. Real
-                # dependency declarations/repairs have their own tests.
-                code = file.read_text(encoding='utf-8')
-                tree = ast.parse(code)
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'definition' for t in node.targets):
-                        definition = ast.literal_eval(node.value)
-                        definition['dependencies'], definition['dependency_imports'] = [], []
-                        node.value = ast.parse(repr(definition), mode='eval').body
-                code = ast.unparse(tree) + '\n'
-                (target / file.name).write_text(code, encoding='utf-8')
-        else:
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source, target)
-    manifest_before = (source_root / 'operon/builtin_packages.json').read_bytes()
-    new_operator = source_root / SOURCE_DIRS['operator'] / 'hello.py'
-    # Existing author style: original, unqualified IDs are accepted in their provider.
-    write_extension(new_operator, REPORT.replace('lab.hello', 'hello_hot').replace('CheckCircle', 'assets/hello.svg'))
-    (new_operator.parent / 'assets').mkdir()
-    (new_operator.parent / 'assets/hello.txt').write_text('retained resource')
-    icon = new_operator.parent / 'assets/hello.svg'
-    icon.write_text('<svg xmlns="http://www.w3.org/2000/svg"><circle r="8" fill="red"/></svg>')
-    new_reader = source_root / SOURCE_DIRS['reader'] / 'hot_reader.py'
-    new_reader.write_text((ROOT / 'examples/resource_plugin/resource_example/__init__.py').read_text().replace(
-        'NpyReader', 'HotArrayReader').replace('example.disk_npy', 'HotArrayReader'))
-    for parameter in (ROOT / 'examples/resource_plugin/resource_example').glob('*.parameters.json'):
-        shutil.copy2(parameter, new_reader.parent / parameter.name.replace('NpyReader', 'HotArrayReader'))
-    manager = PluginManager(tmp_path / 's', source_root=source_root)
-    initial = manager.refresh()
-    state = manager.state()
-    assert len(initial['updated']) == 7
-    descriptor = next(d for d in state['descriptors'] if d['id'] == 'hello_hot')
-    assert descriptor['distribution'] == 'operon-core'
-    assert descriptor['category'] == 'Quality control'
-    assert descriptor['icon_image'].startswith('data:image/svg+xml;base64,')
-    core = next(p for p in state['packages'] if p['name'] == 'operon-core')
-    with zipfile.ZipFile(manager.directory / core['wheel']) as archive:
-        resource_file = next(n for n in archive.namelist() if n.endswith('/steps/assets/hello.txt'))
-        assert archive.read(resource_file) == b'retained resource'
-    reader = next(d for d in state['descriptors'] if d['id'] == 'HotArrayReader')
-    assert reader['resources']['disk_protocol'] == 'dense-writer-v1'
-    path = tmp_path / 'array.npy'
-    np.save(path, np.arange(12).reshape(3, 4))
-    report, _ = run_worker(manager, state, tmp_path / 'reader',
-        {'X': {'path': str(path), 'dims': ['sample', 'feature']}}, [{'name': 'describe', 'inputs': ['X']}])
-    assert report['plans'][0]['mode'] == 'stream' and report['event_counts']['source_prepare_complete'] == 1
-    assert (source_root / 'operon/builtin_packages.json').read_bytes() == manifest_before
-    with monkeypatch.context() as scoped:
-        scoped.setattr(manager, '_install_many', lambda *a, **kw: pytest.fail('unchanged library was rebuilt'))
-        assert manager.refresh()['updated'] == []
-    new_operator.write_text(new_operator.read_text().replace('"value": 1', '"value": 2'))
-    icon.write_text(icon.read_text().replace('red', 'blue'))
-    manager.refresh()
-    newer = manager.state()
-    assert next(d for d in newer['descriptors'] if d['id'] == 'hello_hot')['icon_image'] != descriptor['icon_image']
-    # A failed source edit retains the successfully frozen code and catalog.
-    new_operator.write_text('class Broken(')
-    with pytest.raises(ValueError, match='hello.py'):
-        manager.refresh()
-    assert manager.state() == newer
-    for lock, expected, directory in [(state, 1, 'old'), (newer, 2, 'new')]:
-        _, summary = run_worker(manager, lock, tmp_path / directory, {}, [{'name': 'hello_hot', 'inputs': []}])
-        result = json.loads((tmp_path / directory / 'output' / summary['steps'][0]['export_path']).read_text())
-        assert result['value'] == expected
+def test_refresh_preserves_installed_independent_library_without_reseeding(tmp_path, monkeypatch):
+    """5.x refresh must preserve an imported library, not rebuild the retired seed."""
+    from test_library_install_500 import _library_zip, OPERATOR
+
+    manager = PluginManager(tmp_path / 'data')
+    manager.install(_library_zip(tmp_path))
+    before = manager.state()
+    assert any(d['id'] == OPERATOR for d in before['descriptors'])
+    assert before['library_detached'] is True
+    assert not manager.source_root.exists()
+    monkeypatch.setattr('operon.source_library.seed_sources',
+                        lambda *a, **k: pytest.fail('refresh reseeded a retired source library'))
+    monkeypatch.setattr(manager, '_install_many',
+                        lambda *a, **k: pytest.fail('refresh rebuilt the installed library'))
+
+    result = manager.refresh()
+
+    assert result['updated'] == []
+    assert result['generation'] == before['generation']
+    assert manager.state() == before
+    assert not manager.source_root.exists()

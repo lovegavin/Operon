@@ -521,9 +521,76 @@
             }
           ],
           "default": null
+        },
+        "storage_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/StorageInputRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "title": "Source",
+      "type": "object"
+    },
+    "StorageInputRef": {
+      "additionalProperties": false,
+      "description": "Versioned saved source selection; it grants no filesystem permission.",
+      "properties": {
+        "storage_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Storage Id",
+          "type": "string"
+        },
+        "relative_path": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Relative Path",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 256,
+          "minLength": 1,
+          "title": "Version",
+          "type": "string"
+        },
+        "digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Digest"
+        },
+        "format": {
+          "const": "operon.storage-input",
+          "default": "operon.storage-input",
+          "title": "Format",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "storage_id",
+        "relative_path",
+        "version"
+      ],
+      "title": "StorageInputRef",
       "type": "object"
     },
     "Viewport": {

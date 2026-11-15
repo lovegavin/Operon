@@ -220,27 +220,24 @@ def test_metadata_refresh_still_rejects_incompatible_host_sdk():
     assert old['dependencies'] == []
 
 
-def test_source_parameter_refresh_and_unrelated_install_preserve_metadata(tmp_path, monkeypatch):
-    import shutil
+def test_parameter_update_and_unrelated_install_preserve_metadata(tmp_path, monkeypatch):
     from operon.plugins import PluginManager
     from operon.developer import scaffold, build
-    source = tmp_path / 'checkout'
-    for folder in ('src/task/step/steps', 'src/reader/readers'):
-        shutil.copytree(ROOT / 'library/seed' / folder, source / folder, ignore=shutil.ignore_patterns('__pycache__'))
-    (source / 'operon').mkdir()
-    shutil.copy2(ROOT / 'library/seed/operon/builtin_packages.json', source / 'operon/builtin_packages.json')
-    manager = PluginManager(tmp_path / 'profile', source_root=source)
+
+    # 5.x libraries are independent archives. Supported declaration updates must
+    # survive an unrelated provider install without reviving pre-split sources.
+    manager = PluginManager(tmp_path / 'profile', source_root=None)
     before = manager.state()
-    parameter = source / 'src/task/step/steps/pca.parameters.json'
-    data = json.loads(parameter.read_text(encoding='utf-8'))
-    data['properties']['n_components']['x-ui-default'] = 6
-    parameter.write_text(json.dumps(data), encoding='utf-8')
+    original = next(d for d in before['descriptors'] if d['id'] == 'pca')
+    declaration = deepcopy(original)
+    declaration['parameters_schema']['properties']['n_components']['x-ui-default'] = 6
     with monkeypatch.context() as guard:
         guard.setattr(manager, '_install_many', lambda *a, **kw: pytest.fail('parameter edit must not install'))
-        manager.refresh()
+        manager.update_declarations({'protocol_version': 3, 'descriptors': [declaration]})
     assert not (manager.directory / 'environments').exists()
     changed = next(d for d in manager.state()['descriptors'] if d['id'] == 'pca')
-    assert changed['code_sha'] == next(d for d in before['descriptors'] if d['id'] == 'pca')['code_sha']
+    assert changed['code_sha'] == original['code_sha']
+    assert changed['parameters_schema']['properties']['n_components']['x-ui-default'] == 6
     project = tmp_path / 'another'
     scaffold(project)
     manager.install(build(project)['wheels'][0])
