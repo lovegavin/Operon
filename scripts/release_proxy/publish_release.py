@@ -312,13 +312,20 @@ class Client:
         draft: bool = False,
         prerelease: bool = False,
         target: str | None = None,
+        make_latest: bool | None = None,
     ) -> dict:
+        if make_latest is None:
+            # Operator-library releases are assets for a given application
+            # release; letting the newest library take `latest` would hide the
+            # application build from anybody following the repository.
+            make_latest = not tag.startswith("operon-library-")
         payload: dict = {
             "tag_name": tag,
             "name": name,
             "body": body,
             "draft": draft,
             "prerelease": prerelease,
+            "make_latest": "true" if make_latest else "false",
         }
         if target:
             payload["target_commitish"] = target
@@ -485,6 +492,14 @@ def command_verify(client: Client, arguments) -> int:
     return 0
 
 
+def _make_latest_argument(arguments) -> bool | None:
+    """Return an explicit `make_latest` choice, or None to use the tag default."""
+    value = getattr(arguments, 'make_latest', None)
+    if value is None:
+        return None
+    return str(value).lower() in ('1', 'true', 'yes', 'on')
+
+
 def command_list(client: Client, arguments) -> int:
     for release in client.list_releases(20):
         print(f"{release.get('tag_name'):<24} id={release.get('id'):<10} draft={release.get('draft')} assets={len(release.get('assets', []))}")
@@ -500,6 +515,7 @@ def command_create(client: Client, arguments) -> int:
         draft=arguments.draft,
         prerelease=arguments.prerelease,
         target=arguments.target,
+        make_latest=_make_latest_argument(arguments),
     )
     print(json.dumps({"id": release["id"], "tag": release["tag_name"], "url": release.get("html_url")}, indent=2))
     return 0
@@ -525,6 +541,7 @@ def command_publish(client: Client, arguments) -> int:
         draft=arguments.draft,
         prerelease=arguments.prerelease,
         target=arguments.target,
+        make_latest=_make_latest_argument(arguments),
     )
     assets = collect_assets(arguments.assets)
     if not assets:
@@ -649,6 +666,8 @@ def build_parser() -> argparse.ArgumentParser:
     create.add_argument("--target")
     create.add_argument("--draft", action="store_true")
     create.add_argument("--prerelease", action="store_true")
+    create.add_argument("--make-latest", choices=("true", "false"), default=None,
+                        help="Override whether this release takes the repository latest pointer")
 
     upload = sub.add_parser("upload", help="upload assets to an existing release")
     upload.add_argument("--release-id", type=int, required=True)
@@ -661,6 +680,8 @@ def build_parser() -> argparse.ArgumentParser:
     publish.add_argument("--target")
     publish.add_argument("--draft", action="store_true")
     publish.add_argument("--prerelease", action="store_true")
+    publish.add_argument("--make-latest", choices=("true", "false"), default=None,
+                        help="Override whether this release takes the repository latest pointer")
     publish.add_argument("--assets", nargs="+", required=True)
 
     check = sub.add_parser("check", help="compare local assets with an existing release")
