@@ -783,8 +783,8 @@ class ExecutionService:
     def _cache_store(self, key, unit, child, stage):
         if unit['target']['kind'] != 'local' or not self._cache_enabled(stage):
             return None
-        output = self.service.jobs_dir / child['id'] / 'output'
-        if not output.is_dir():
+        output = self.service._output_dir(child['id'])
+        if not io_path(output).is_dir():
             return None
         files = []
         for base, directories, names in os.walk(io_path(output)):

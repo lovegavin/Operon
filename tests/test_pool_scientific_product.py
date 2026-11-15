@@ -43,8 +43,8 @@ def finish(app, key, timeout=90):
     pytest.fail(f'Workflow did not finish: {key}')
 
 
-@pytest.mark.parametrize('publication_failure', [False, True])
-def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, publication_failure):
+@pytest.mark.parametrize('publication_failure,custom_output', [(False, False), (False, True), (True, False)])
+def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, publication_failure, custom_output):
     monkeypatch.setenv('OPERON_ENVIRONMENT_GATE', str(tmp_path / 'gate.json'))
     workspace = tmp_path / 'workspace'; workspace.mkdir()
     data = np.array([[1., 2.], [3., 4.]])
@@ -85,6 +85,8 @@ def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, 
                 {'id': 'scale', 'kind': 'operator', 'operator': 'example.cache_scale',
                  'position': {'x': 1, 'y': 1}, 'params': {'factor': 3, 'output': 'scaled'}}],
             'edges': [{'id': 'e', 'source': 'input', 'target': 'scale'}]})
+        if custom_output:
+            graph.runtime['results_root'] = str(workspace / 'selected results')
         first = app.jobs.submit({'graph': graph.model_dump(mode='json'), 'request_id': 'science-1'})
         assert first['id'].startswith('exec-')  # orchestration was not bypassed
         if publication_failure:
@@ -107,8 +109,11 @@ def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, 
         assert report['summary']['steps']
         # Exported exchange is a safe array packet produced by the actual worker.
         from operon.bytecode import io_path
-        arrays = list(io_path(service.jobs_dir / child / 'output').rglob('*.npy'))
-        assert arrays, list((service.jobs_dir / child / 'output').rglob('*'))
+        output = io_path(Path(report['output_dir']))
+        if custom_output:
+            assert Path(report['output_dir']).parent == workspace / 'selected results'
+        arrays = list(output.rglob('*.npy'))
+        assert arrays, list(output.rglob('*'))
         assert any(np.array_equal(np.load(p, allow_pickle=False), data * 3) for p in arrays)
         reused = finish(app, app.jobs.submit({'graph': graph.model_dump(mode='json'), 'request_id': 'science-2'})['id'])
         assert reused.get('cache_hits') == 1, reused.get('cache_decisions')
