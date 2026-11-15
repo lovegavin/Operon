@@ -10,6 +10,7 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        args = SetupInvocation.Normalize(args, Environment.ProcessPath!, AppContext.BaseDirectory);
         bool unattended = args.Contains("--quiet") || args.Contains("--cli");
         if (unattended || args.Contains("--help") || args.Contains("-h")) SetupConsole.Attach();
         if (args.Contains("--help") || args.Contains("-h"))

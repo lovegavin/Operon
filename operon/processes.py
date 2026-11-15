@@ -62,6 +62,20 @@ class _WindowsJob:
             self.api.CloseHandle(self.handle)
             self.handle = None
 
+    def active_processes(self):
+        """Query containment, including children whose original parent exited."""
+        import ctypes
+        from ctypes import wintypes
+        class Accounting(ctypes.Structure):
+            _fields_ = [('times', ctypes.c_int64 * 4), ('page_faults', wintypes.DWORD),
+                        ('total', wintypes.DWORD), ('active', wintypes.DWORD),
+                        ('terminated', wintypes.DWORD)]
+        value = Accounting()
+        if not self.handle or not self.api.QueryInformationJobObject(
+                self.handle, 1, ctypes.byref(value), ctypes.sizeof(value), None):
+            raise ctypes.WinError(ctypes.get_last_error())
+        return int(value.active)
+
     def stop(self):
         import ctypes
         from ctypes import wintypes
@@ -97,6 +111,12 @@ def owned_process(args, **options):
     owner = _WindowsJob() if os.name == 'nt' else None
     if owner:
         options['creationflags'] = options.get('creationflags', 0) | 0x00000004
+        # Explicit lpApplicationName avoids Windows' MAX_PATH limit when it
+        # would otherwise parse an absolute executable out of the command line.
+        if (not options.get('executable') and not options.get('shell')
+                and isinstance(args, (list, tuple)) and args and os.path.isabs(args[0])):
+            from operon.bytecode import executable_path
+            options['executable'] = executable_path(args[0])
     else:
         options['start_new_session'] = True
     process = None

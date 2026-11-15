@@ -283,7 +283,11 @@ class ArtifactCommitter:
         normalized = {'schema_version': 1, 'kind': kind, 'files': entries,
                       'metadata': metadata or {}, 'total_bytes': sum(item['size'] for item in entries)}
         identity = digest(normalized)
-        artifact_id = 'art-' + identity[:32]
+        # Content equality does not transfer attempt ownership. Separate the
+        # manifest digest from publication identity so two identical outputs
+        # never overwrite each other's source location or fenced receipt.
+        publication = digest({'attempt_id': attempt['id'], 'fence': int(fence), 'digest': identity})
+        artifact_id = 'art-' + publication[:32]
         final = self.artifacts / artifact_id
         final.mkdir(parents=True, exist_ok=True)
         (final / 'manifest.json').write_text(

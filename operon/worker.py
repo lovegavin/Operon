@@ -11,7 +11,7 @@ from operon.run_log import RunLog  # stdlib only, before engine imports
 from operon.bytecode import io_path
 
 
-def main() -> None:
+def main(argv=None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("task_dir", type=Path)
     parser.add_argument("--check", action="store_true", help="Validate metadata, parameters and paths without reading data or executing operators")
@@ -21,7 +21,7 @@ def main() -> None:
     parser.add_argument("--output", type=Path, help="Result directory (defaults to the task directory)")
     parser.add_argument("--cache-dir", help="Spill parent directory")
     parser.add_argument("--no-auto-spill", action="store_true")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     task_dir = args.task_dir.resolve()
     out_dir = args.output.resolve() if args.output else task_dir / "output"
     if args.check:
@@ -32,6 +32,15 @@ def main() -> None:
         print(json.dumps(report, ensure_ascii=False, indent=2))
         print('CHECK OK' if report['ok'] else 'CHECK FAILED')
         raise SystemExit(0 if report['ok'] else 2)
+    overrides = {key: value for key, value in (("budget_mb", args.memory_mb),
+                 ("process_limit_mb", args.process_memory_mb), ("disk_limit_mb", args.disk_mb),
+                 ("cache_dir", args.cache_dir)) if value is not None}
+    execute_task(task_dir, out_dir, overrides=overrides, no_auto_spill=args.no_auto_spill)
+
+
+def execute_task(task_dir, out_dir, *, overrides=None, no_auto_spill=False, use_bridge=False, native_runtime=None):
+    """Common worker bootstrap, including frozen plugins and failure logs."""
+    task_dir, out_dir = Path(task_dir).resolve(), Path(out_dir).resolve()
     run_log = RunLog(out_dir)
     run_log.event("worker_started", message="Loading the analysis engine")
     ctx = None
@@ -39,14 +48,21 @@ def main() -> None:
         plugin_lock = task_dir / "plugins.lock.json"
         # A frozen generation must not eagerly import a source file currently
         # being edited (or containing a failed hot-update candidate).
-        if io_path(plugin_lock).is_file():
+        if native_runtime is not None:
+            os.environ['OPERON_REGISTRY_MAINTENANCE'] = '1'
+        elif io_path(plugin_lock).is_file():
             os.environ["OPERON_REGISTRY_MAINTENANCE"] = "1"
             import json
             from operon.targets import activate
             activate(json.loads(io_path(plugin_lock).read_text(encoding='utf-8')))
         from src.task import Context, load_manifest, run
         manifest = load_manifest(task_dir / "task.yaml")
-        if io_path(plugin_lock).is_file():
+        from operon.storage.inputs import verify_execution_inputs
+        verify_execution_inputs(manifest, root=task_dir)
+        if native_runtime is not None:
+            from operon.execution.native_bootstrap import register_native_runtime
+            register_native_runtime(native_runtime, manifest)
+        elif io_path(plugin_lock).is_file():
             import json
             from operon.plugins import load_runtime
             lock = json.loads(io_path(plugin_lock).read_text(encoding="utf-8"))
@@ -59,19 +75,23 @@ def main() -> None:
                 print('[Operon] ' + message, flush=True)
                 run_log.event('library_pins_resolved', message=message, updates=lock['library_pin_updates'])
             load_runtime(lock, manifest)
-        overrides = {key: value for key, value in (("budget_mb", args.memory_mb),
-                      ("process_limit_mb", args.process_memory_mb), ("disk_limit_mb", args.disk_mb),
-                      ("cache_dir", args.cache_dir)) if value is not None}
-        if overrides or args.no_auto_spill:
+        if overrides or no_auto_spill:
             memory = manifest.setdefault("runtime", {}).setdefault("memory", {})
-            memory.update(overrides)
+            memory.update(overrides or {})
             memory["enabled"] = True
-            if args.no_auto_spill:
+            if no_auto_spill:
                 memory["auto_spill"] = False
-        ctx = Context(task_dir, manifest, run_log=run_log, out_dir=out_dir)
-        for name, spec in manifest["sources"].items():
-            ctx.register_source(name, spec)
-        run(ctx, manifest["steps"])
+        if use_bridge:
+            from operon.execution.context_bridge import ContextBridge
+            bridge = ContextBridge(task_dir, manifest, out_dir=out_dir, run_log=run_log)
+            ctx = bridge.context
+            bridge.register_sources()
+            bridge.run()
+        else:
+            ctx = Context(task_dir, manifest, run_log=run_log, out_dir=out_dir)
+            for name, spec in manifest["sources"].items():
+                ctx.register_source(name, spec)
+            run(ctx, manifest["steps"])
         if manifest.get("runtime", {}).get("exchange_outputs"):
             from operon.exchange import export_outputs
             export_outputs(ctx)

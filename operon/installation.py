@@ -19,12 +19,20 @@ def isolated_root(code_root):
     return None
 
 
-def library_root(code_root=None):
-    """Return ``<install>/versions/<version>/library`` for an installed app.
+def _native_library_directory(directory):
+    if os.name == 'nt' and str(directory).startswith('\\\\?\\'):
+        text = str(directory)
+        directory = pathlib.Path('\\\\' + text[8:] if text.startswith('\\\\?\\UNC\\') else text[4:])
+    return directory
 
-    The library, its wheels and isolated environments belong to the application
-    version; the user workspace holds only data.  Returns None for a source
-    checkout so development keeps its isolated state under the data directory.
+
+def library_root(code_root=None):
+    """Return the library directory that belongs to the running application.
+
+    Installed desktop versions use ``<install>/versions/<version>/library`` and
+    managed remote installs use ``<install>/code-<id>/library``.  A source
+    checkout has no registry beside ``library/`` and keeps its isolated state
+    under the data directory.
     """
     candidates = []
     if code_root is not None:
@@ -37,13 +45,11 @@ def library_root(code_root=None):
     for start in candidates:
         for parent in (start, *start.parents):
             if parent.parent.name == 'versions':
-                directory = parent / 'library'
-                if os.name == 'nt' and str(directory).startswith('\\\\?\\'):
-                    text = str(directory)
-                    directory = pathlib.Path('\\\\' + text[8:] if text.startswith('\\\\?\\UNC\\') else text[4:])
-                return directory
+                return _native_library_directory(parent / 'library')
+            candidate = parent / 'library'
+            if (candidate / 'registry.json').is_file() or (candidate / 'libraries').is_dir():
+                return _native_library_directory(candidate)
     return None
-
 
 def profile_id(root):
     value = json.loads((Path(root) / 'operon-install.json').read_text(encoding='utf-8'))

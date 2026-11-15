@@ -1,0 +1,97 @@
+{
+  "$defs": {
+    "TargetSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "arch": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Arch",
+          "type": "string"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "os": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Os",
+          "type": "string"
+        },
+        "python_abi": {
+          "anyOf": [
+            {
+              "maxLength": 20,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Python Abi"
+        }
+      },
+      "required": [
+        "os",
+        "arch"
+      ],
+      "title": "TargetSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "dependency_lock": {
+      "additionalProperties": true,
+      "title": "Dependency Lock",
+      "type": "object"
+    },
+    "recipe_digest": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Recipe Digest"
+    },
+    "required_capabilities": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Required Capabilities",
+      "type": "array"
+    },
+    "resources_manifest": {
+      "additionalProperties": true,
+      "title": "Resources Manifest",
+      "type": "object"
+    },
+    "runtime": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Runtime",
+      "type": "string"
+    },
+    "target": {
+      "$ref": "#/$defs/TargetSpec"
+    }
+  },
+  "required": [
+    "target",
+    "runtime"
+  ],
+  "title": "EnvironmentRequirement",
+  "type": "object"
+}

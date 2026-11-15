@@ -1,0 +1,41 @@
+{
+  "additionalProperties": false,
+  "description": "An independent saved-value snapshot.\n\nValues are keyed by stable node IDs.  A missing key means \"not supplied\";\nthe compiler must not substitute a current library default.  The legacy\ntask-parameter shape is accepted only through ``from_values``.",
+  "properties": {
+    "format": {
+      "const": "operon.frozen-parameters",
+      "default": "operon.frozen-parameters",
+      "title": "Format",
+      "type": "string"
+    },
+    "params": {
+      "additionalProperties": true,
+      "title": "Params",
+      "type": "object"
+    },
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "sources": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Sources",
+      "type": "object"
+    },
+    "steps": {
+      "additionalProperties": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Steps",
+      "type": "object"
+    }
+  },
+  "title": "FrozenParameters",
+  "type": "object"
+}

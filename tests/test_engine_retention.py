@@ -92,3 +92,21 @@ def test_quota_evicts_unpinned_cache_and_fails_when_pinned(tmp_path):
     report = manager.enforce_quota()
     assert report['usage']['artifacts_bytes'] <= 64 or report['over_quota']
     assert not Path(first['location']).exists()
+
+
+def test_quota_rechecks_references_added_after_plan(tmp_path, monkeypatch):
+    store, unit, attempt = setup(tmp_path)
+    receipt = make_artifact(tmp_path, store, unit, attempt, content=b'x' * 4096)
+    store.transition_attempt(attempt['id'], 'succeeded',
+                             expected_revision=store.attempt(attempt['id'])['revision'])
+    manager = RetentionManager(store, tmp_path, result_days=0, quota_bytes=64)
+    original = manager.plan
+    def consumer_arrives(**options):
+        snapshot = original(**options)
+        store.add_reference(receipt['artifact_id'], owner='late-consumer', reason='resume')
+        return snapshot
+    monkeypatch.setattr(manager, 'plan', consumer_arrives)
+    with pytest.raises(QuotaExceeded):
+        manager.enforce_quota()
+    assert Path(receipt['location']).exists()
+    assert store.artifact(receipt['artifact_id'])['state'] != 'deleted'

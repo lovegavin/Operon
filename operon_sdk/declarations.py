@@ -258,10 +258,35 @@ def bind_class(cls, descriptor):
     return bound
 
 
-def load_class(descriptor):
-    verify_code(descriptor)
+def load_class(descriptor, *, root=None):
+    verify_code(descriptor, root=root)
     module, name = descriptor['entry_point'].split(':', 1)
-    return bind_class(getattr(importlib.import_module(module), name), descriptor)
+    if root is not None:
+        import sys
+        base = Path(root).resolve()
+        relative = Path(*module.split('.'))
+        expected = {(base / relative.with_suffix('.py')).resolve(), (base / relative / '__init__.py').resolve()}
+        shared = {'src', 'src.task', 'src.task.step', 'src.reader'}
+        for size in range(1, len(module.split('.')) + 1):
+            prefix = '.'.join(module.split('.')[:size])
+            cached = sys.modules.get(prefix)
+            if cached is None or prefix in shared:
+                continue
+            origin = getattr(cached, '__file__', None)
+            if origin and not Path(origin).resolve().is_relative_to(base):
+                raise ValueError(f'Implementation namespace was loaded outside its frozen code root: {prefix}')
+        previous = list(sys.path)
+        try:
+            sys.path.insert(0, str(base))
+            loaded = importlib.import_module(module)
+        finally:
+            sys.path[:] = previous
+        origin = getattr(loaded, '__file__', None)
+        if origin is None or Path(origin).resolve() not in expected:
+            raise ValueError(f'Implementation imported outside its frozen code root: {module}')
+    else:
+        loaded = importlib.import_module(module)
+    return bind_class(getattr(loaded, name), descriptor)
 
 
 def for_class(cls):

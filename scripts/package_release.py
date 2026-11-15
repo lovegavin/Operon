@@ -115,17 +115,22 @@ def main():
                         _windows_path(bootstrapper)], check=True)
         (destination / 'runtime/webview2.json').write_text(json.dumps({'source': url,
             'sha256': hashlib.sha256(bootstrapper.read_bytes()).hexdigest()}), encoding='utf-8')
+    assets = sorted((root / 'frontend/dist/assets').glob('*.js'))
+    if not assets:
+        raise SystemExit('frontend/dist is missing; run npm run build before packaging')
+    if not any(f'"{version}"' in asset.read_text(encoding='utf-8', errors='replace') for asset in assets):
+        raise SystemExit(f'frontend/dist does not contain version {version}; run npm run build before packaging')
     shutil.copytree(root / 'frontend/dist', destination / 'frontend')
     if args.base_library:
         target = destination / 'library/base'
         target.mkdir(parents=True, exist_ok=True)
         shutil.copy2(args.base_library, target / args.base_library.name)
-    payload_directories = ['src', 'operon', 'operon_sdk', 'operon']
+    payload_directories = ['src', 'operon', 'operon_sdk']
     if args.with_library_seed:
         payload_directories.append('library/seed')
     for directory in payload_directories:
         for source in (root / directory).rglob('*'):
-            if source.is_file() and source.suffix.lower() in {'.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'}:
+            if source.is_file() and source.suffix.lower() in {'.py', '.json', '.md', '.sql', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'}:
                 copy(source, source.relative_to(root))
     for source in (root / 'tasks').rglob('*'):
         if source.is_file() and source.suffix in {'.py', '.yaml', '.yml', '.json'} and 'output' not in source.relative_to(root).parts:
@@ -140,6 +145,8 @@ def main():
         copy(source, source.name)
     for name_ in ('README.md', 'pyproject.toml', 'LICENSE', 'NOTICE'):
         copy(root / name_, name_)
+    for quickstart in root.glob('QUICKSTART.*.md'):
+        copy(quickstart, quickstart.name)
     if args.with_library_seed:
         for name_ in ('release.json', 'pyproject.toml', 'README.md'):
             if (root / 'library' / name_).is_file():
@@ -149,9 +156,12 @@ def main():
                   'verify_release_agent.py', 'verify_release_agent.md', 'verify_operon_candidate.py', 'verify_server_cli.py',
                   'check_resources.py', 'provision_resources.py'):
         copy(root / 'scripts' / name_, Path('scripts') / name_)
+    acceptance_helper = root / 'scripts/acceptance/prepare_desktop_plan.py'
+    if acceptance_helper.is_file():
+        copy(acceptance_helper, Path('scripts/acceptance/prepare_desktop_plan.py'))
     if not args.lite:
         python = destination / 'runtime/python/python.exe'
-        sources = ['src', 'operon', 'operon_sdk', 'operon', 'scripts']
+        sources = ['src', 'operon', 'operon_sdk', 'scripts']
         if args.with_library_seed:
             sources.append('library/seed')
         # Use the shipped interpreter, never the packaging host's Python tag.
@@ -183,7 +193,7 @@ def main():
                         'start. Import additional library ZIPs and the routes ZIP for this version.\n\n')
     elif not args.with_library_seed:
         library_note = ('This package does not include the operator library. Import the library ZIP and the\n'
-                        'routes ZIP released for this version before running workflows.\n\n')
+                        'routes ZIP from a compatible independent library release before running workflows.\n\n')
     (destination / 'operon-desktop.json').write_text(json.dumps({
         'backendRoot': '.', 'python': 'auto', 'entryPoint': 'scripts/desktop_server.py', 'frontend': 'frontend',
         'bundledRuntime': not args.lite,
@@ -249,7 +259,7 @@ The release page records the validation completed for this exact build.
                                       'sha256': hashlib.sha256(file.read_bytes()).hexdigest()})
     (destination / 'package-manifest.json').write_text(json.dumps(manifest, indent=2)+'\n', encoding='utf-8')
     archive = destination.parent / (name + '.zip')
-    with zipfile.ZipFile(archive, 'x', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as output:
+    with zipfile.ZipFile(archive, 'x', compression=zipfile.ZIP_DEFLATED, compresslevel=1) as output:
         for file in sorted(destination.rglob('*')):
             if file.is_file():
                 output.write(file, (Path('Operon Studio') / file.relative_to(destination)).as_posix())

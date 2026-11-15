@@ -138,6 +138,63 @@ def test_aggregate_body_budget_rejects_before_reading_the_body():
         loop.close()
 
 
+def test_decoded_request_is_reserved_until_dispatch_finishes():
+    entered, release = threading.Event(), threading.Event()
+    def dispatch(method, params):
+        entered.set()
+        assert release.wait(3)
+        return {}
+    loop, address, _ = start_loop(dispatch)
+    try:
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(request, address, 'hold', {'rows': list(range(1000))})
+            assert entered.wait(2)
+            assert loop.budget.used > 10000
+            release.set()
+            assert future.result()['ok']
+        deadline = time.monotonic() + 2
+        while loop.budget.used and time.monotonic() < deadline:
+            time.sleep(.01)
+        assert loop.budget.used == 0
+    finally:
+        release.set(); loop.close()
+
+
+def test_nested_control_json_is_rejected_before_dispatch():
+    value = {}
+    for _ in range(70): value = {'x': value}
+    loop, address, _ = start_loop(lambda *args: (_ for _ in ()).throw(AssertionError('dispatch')))
+    try:
+        result = request(address, 'too-deep', value)
+        assert result['code'] == 'payload_too_large'
+    finally:
+        loop.close()
+
+
+def test_bulk_dispatch_cannot_occupy_reserved_lifecycle_threads():
+    release = threading.Event()
+    entered = []
+    def dispatch(method, params):
+        if method == 'bulk':
+            entered.append(1)
+            assert release.wait(5)
+        return {'method': method}
+    loop, address, _ = start_loop(dispatch, max_handlers=8)
+    try:
+        with ThreadPoolExecutor(max_workers=6) as workers:
+            futures = [workers.submit(request, address, 'bulk') for _ in range(6)]
+            deadline = time.monotonic() + 3
+            while len(entered) < 6 and time.monotonic() < deadline: time.sleep(.01)
+            assert len(entered) == 6
+            assert request(address, 'bulk')['code'] == 'busy'
+            assert request(address, 'status')['ok']
+            assert request(address, 'run.cancel')['ok']
+            release.set()
+            assert all(f.result()['ok'] for f in futures)
+    finally:
+        release.set(); loop.close()
+
+
 def test_client_disconnect_detaches_observation_but_does_not_cancel_dispatch():
     entered = threading.Event()
     release = threading.Event()
@@ -206,3 +263,72 @@ def test_dispatch_exception_is_reported_to_diagnostics_without_breaking_response
         assert seen[0][1]['method'] == 'status'
     finally:
         loop.close()
+
+
+def test_rejected_silent_connections_do_not_block_the_accept_thread():
+    loop = ControlLoop(lambda method, params: None, limits=ControlLimits(max_handlers=1))
+    peers = []
+    assert loop.slots.acquire(blocking=False)
+    try:
+        started = time.monotonic()
+        for _ in range(8):
+            server, client = socket.socketpair()
+            peers.append(client)
+            assert not loop.submit(server)
+        # Rejection must never perform a network read/drain in the accept loop.
+        assert time.monotonic() - started < 0.5
+    finally:
+        for peer in peers:
+            peer.close()
+        loop.slots.release()
+        loop.close()
+
+
+def test_planning_concurrency_is_bounded_and_status_bypasses_it():
+    guard, release = threading.Lock(), threading.Event()
+    active, peak = 0, 0
+    def dispatch(method, params):
+        nonlocal active, peak
+        if method != 'compile': return {'alive': True}
+        with guard:
+            active += 1
+            peak = max(peak, active)
+        try:
+            assert release.wait(4)
+            return {'compiled': True}
+        finally:
+            with guard: active -= 1
+    loop, address, _ = start_loop(dispatch, max_handlers=12, max_planning_handlers=2)
+    try:
+        with ThreadPoolExecutor(max_workers=6) as clients:
+            pending = [clients.submit(request, address, 'compile') for _ in range(6)]
+            deadline = time.monotonic() + 2
+            while peak < 2 and time.monotonic() < deadline: time.sleep(.01)
+            assert peak == 2
+            assert request(address, 'status', timeout=1)['ok']
+            release.set()
+            assert all(future.result()['ok'] for future in pending)
+            assert peak == 2
+    finally:
+        release.set()
+        loop.close()
+
+
+def test_rejection_drain_has_an_absolute_deadline_even_if_peer_keeps_sending():
+    loop = ControlLoop(lambda method, params: None)
+    server, client = socket.socketpair()
+    stop = threading.Event()
+    def drip():
+        while not stop.wait(.05):
+            try:
+                client.sendall(b'x')
+            except OSError:
+                return
+    thread = threading.Thread(target=drip, daemon=True)
+    thread.start()
+    try:
+        started = time.monotonic()
+        loop._send_busy(server)
+        assert time.monotonic() - started < .8
+    finally:
+        stop.set(); client.close(); thread.join(timeout=1); loop.close()

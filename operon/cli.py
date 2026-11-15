@@ -25,6 +25,65 @@ def read_graph_file(path):
     return value.get('graph', value)
 
 
+def _plan_payload(args, workspace):
+    """Read only explicitly selected plan/workflow files before connecting."""
+    from .contracts.plan_operations import PlanCompileRequest, PlanSubmitRequest
+    from .contracts.workflow import FrozenParameters
+    from .planning.authoring_v2 import parse
+    from .workflow_spec import resolve_resource
+
+    def document(path):
+        with Path(path).open('rb') as stream:
+            data = stream.read(10 * 1024 * 1024 + 1)
+        if len(data) > 10 * 1024 * 1024:
+            raise ValueError('Plan/workflow document exceeds 10 MiB')
+        return parse(data.decode('utf-8-sig'))
+
+    if args.action in ('details', 'cancel', 'events', 'attempts', 'artifacts', 'logs',
+                       'export-status', 'export-lookup', 'export-cancel'):
+        return None
+    path = Path(args.value).expanduser().resolve()
+    value = document(path)
+    if args.action == 'export':
+        from .contracts.plan_export import PlanExportRequest
+        if args.export_request is None:
+            raise ValueError('plan export requires --request with explicit export bindings/manifests')
+        request = document(args.export_request)
+        if 'plan' in request:
+            raise ValueError('Export request file must not duplicate the separately selected plan')
+        if args.request_id:
+            if request.get('request_id', args.request_id) != args.request_id:
+                raise ValueError('Export request IDs disagree')
+            request['request_id'] = args.request_id
+        return PlanExportRequest(plan=value, **request).model_dump(mode='json')
+    if args.action == 'submit':
+        if args.binding is None or not args.request_id:
+            raise ValueError('plan submit requires --binding and a stable --request-id')
+        return PlanSubmitRequest(plan=value, binding=document(args.binding),
+                                 request_id=args.request_id).model_dump(mode='json')
+    authoring = value.get('format') == 'operon.workflow' and value.get('schema_version') == 2
+    payload = {'kind': 'authoring-v2' if authoring else 'graph', 'require_files': args.require_files,
+               'workflow': value if authoring else read_graph_file(path)}
+    if authoring:
+        try:
+            payload['directory'] = path.parent.relative_to(Path(workspace).resolve()).as_posix() or '.'
+        except ValueError as exc:
+            raise ValueError('Authoring-v2 project must be inside the selected application workspace') from exc
+        payload.update(profile=args.plan_profile, initial=args.initial)
+        for field, option, fallback in (('parameters', args.parameters, value.get('params_file', 'parameters.json')),
+                                         ('inputs', args.inputs, value.get('inputs_file')),
+                                         ('environments', args.environments, value.get('environments_file'))):
+            sidecar = option or (resolve_resource(path.parent, fallback) if fallback else None)
+            payload[field] = document(sidecar) if sidecar and Path(sidecar).exists() else {}
+            if sidecar and not Path(sidecar).exists() and not (field == 'parameters' and args.initial):
+                raise ValueError('Required authoring sidecar is missing: ' + str(sidecar))
+    elif any((args.parameters, args.inputs, args.environments, args.plan_profile, args.initial)):
+        raise ValueError('Authoring sidecar/profile/initial options require an authoring-v2 workflow')
+    if args.values is not None:
+        payload['values'] = FrozenParameters.from_values(document(args.values)).model_dump(mode='json')
+    return PlanCompileRequest.model_validate(payload).model_dump(mode='json')
+
+
 def execute_pool(args):
     import secrets
     from .pool_service import PoolClient, PoolControlServer, PoolService
@@ -245,6 +304,37 @@ def parser():
     servers.add_argument('value', nargs='?')
     servers.add_argument('--credentials-stdin', action='store_true', help='Read password/passphrase JSON from stdin; never command arguments')
     servers.add_argument('--fingerprint')
+    storage = commands.add_parser('storage', help='Inspect explicitly configured storage without starting remote compute')
+    storage.add_argument('action', choices=['browse', 'stat', 'preview', 'status'])
+    storage.add_argument('storage_id', nargs='?')
+    storage.add_argument('path', nargs='?', default='.')
+    storage.add_argument('--page-size', type=int)
+    storage.add_argument('--pages', type=int, default=1, help='Browse up to 1–20 pages in this connection; handles close on exit')
+    storage.add_argument('--hidden', action='store_true')
+    storage.add_argument('--bytes', dest='byte_limit', type=int)
+    storage.add_argument('--rows', dest='row_limit', type=int)
+    plan = commands.add_parser('plan', help='Compile or explicitly submit a frozen RunPlan through the shared host pool')
+    plan.add_argument('action', choices=['compile', 'submit', 'details', 'cancel', 'export',
+                                         'export-status', 'export-lookup', 'export-cancel',
+                                         'events', 'attempts', 'artifacts', 'logs'])
+    plan.add_argument('value', help='Workflow/RunPlan file, run ID, export receipt ID, or original export request ID')
+    plan.add_argument('--binding', type=Path, help='Explicit workspace-relative execution binding JSON')
+    plan.add_argument('--request', dest='export_request', type=Path, help='Strict RunPlan export request JSON without the plan field')
+    plan.add_argument('--request-id', help='Stable key for the same plan submission or export request')
+    plan.add_argument('--output', type=Path, help='Write the compiled plan JSON to this file')
+    plan.add_argument('--values', type=Path, help='Independent frozen graph parameters JSON')
+    plan.add_argument('--parameters', type=Path, help='Authoring-v2 frozen parameters sidecar')
+    plan.add_argument('--inputs', type=Path, help='Authoring-v2 inputs sidecar')
+    plan.add_argument('--environments', type=Path, help='Authoring-v2 environments sidecar')
+    plan.add_argument('--profile', dest='plan_profile')
+    plan.add_argument('--initial', action='store_true', help='Explicitly permit first-import default extraction for authoring-v2')
+    plan.add_argument('--require-files', action='store_true')
+    plan.add_argument('--after', help='Returned event cursor or attempt/artifact page cursor')
+    plan.add_argument('--limit', type=int, default=100, help='Result records per page (1–200)')
+    plan.add_argument('--max-bytes', type=int, help='Maximum page JSON bytes or raw log bytes (at most 65536)')
+    plan.add_argument('--attempt-id', help='Owned attempt ID from plan attempts/events; required for logs')
+    plan.add_argument('--offset', type=int, default=0, help='Log byte offset; continue with next_offset')
+    plan.add_argument('--encoding', choices=['text', 'base64'], default='text')
     plugin = commands.add_parser("plugin")
     plugin.add_argument("action", choices=["init", "check", "test", "build", "export-library", "install", "list", "refresh", "declarations", "remove", "enable", "disable", "restore"])
     plugin.add_argument("path", nargs="?")
@@ -379,13 +469,30 @@ def execute(args):
     if args.command == "mcp":
         from .mcp_server import serve
         return serve(args)
+    storage_payload = None
+    if args.command == 'storage':
+        from .storage import BrowseRequest, PreviewRequest, reference
+        if not 1 <= args.pages <= 20:
+            raise ValueError('storage --pages must be between 1 and 20')
+        if args.action != 'status':
+            if not args.storage_id:
+                raise ValueError('storage browse/stat/preview requires a configured storage ID')
+            base = {'storage_id': args.storage_id, 'relative_path': args.path}
+            if args.action == 'browse':
+                storage_payload = BrowseRequest(**base, page_size=args.page_size, hidden=args.hidden).model_dump(mode='json')
+            elif args.action == 'preview':
+                storage_payload = PreviewRequest(**base, byte_limit=args.byte_limit, row_limit=args.row_limit).model_dump(mode='json')
+            else:
+                storage_payload = reference(args.storage_id, args.path).model_dump(mode='json')
     graph_file = (args.value if args.command == 'workflow' and args.action not in ('list', 'get')
                   else args.file if args.command in ('run', 'environment') else None)
     # Reject malformed/missing projects before creating a persistent service.
     graph_value = read_graph_file(graph_file) if graph_file is not None else None
     if args.command == 'environment' and args.action != 'status' and graph_value is None:
         raise ValueError('environment check/prepare requires a workflow file')
-    scopes = ["context", "edit"]
+    scopes = ['context'] if args.command in ('storage', 'plan') else ["context", "edit"]
+    if args.command == 'plan' and args.action in ('submit', 'cancel', 'export', 'export-cancel'):
+        scopes.append('run')
     if args.command == 'library':
         scopes.append('plugins')
     if (args.command == 'workflow' and args.action == 'prepare-environment'
@@ -401,13 +508,66 @@ def execute(args):
     directory = data_directory(args.profile_dir, args.workspace, args.data_dir)
     from src.web.profile import resolve_profile
     profile = resolve_profile(Path(__file__).resolve().parents[1], profile_dir=args.profile_dir, workspace=args.workspace, data_dir=args.data_dir)
+    plan_payload = _plan_payload(args, profile.workspace) if args.command == 'plan' else None
     if args.command == 'service' and args.action == 'status':
         from .client import instances
         return {'instances': [{k: v for k, v in instance.items() if k != 'secret'} for instance in instances(directory)]}
     client = Client(directory, instance=args.instance, name="Operon CLI", scopes=scopes,
                     auto_start=not (args.command == 'service' and args.action == 'stop'), workspace=profile.workspace,
-                    require_api=1 if args.command in ('operators', 'workflow', 'environment', 'engine', 'jobs', 'artifacts', 'servers', 'service', 'viewers', 'routes', 'library') or args.command == 'run' and (args.file or args.workflow) else 0)
+                    require_api=1 if args.command in ('operators', 'workflow', 'environment', 'engine', 'jobs', 'artifacts', 'servers', 'service', 'viewers', 'routes', 'library', 'storage', 'plan') or args.command == 'run' and (args.file or args.workflow) else 0)
     try:
+        if args.command == 'plan':
+            if args.action == 'export':
+                return client.request('/v1/plan-exports', plan_payload)
+            if args.action == 'export-lookup':
+                return client.request('/v1/plan-exports/lookup?' + urlencode({'request_id': args.value}))
+            if args.action in ('export-status', 'export-cancel'):
+                path = '/v1/plan-exports/' + quote(args.value, safe='')
+                return client.request(path + '/cancel', {}) if args.action == 'export-cancel' else client.request(path)
+            if args.action == 'compile':
+                result = client.request('/v1/plans/compile', plan_payload)
+                if args.output:
+                    from src.web.storage import atomic_json
+                    atomic_json(args.output.expanduser().resolve(), result)
+                return result
+            if args.action == 'submit':
+                return client.request('/v1/plans', plan_payload)
+            path = '/v1/plans/' + quote(args.value, safe='')
+            if args.action in ('events', 'attempts', 'artifacts', 'logs'):
+                from .contracts.plan_operations import PlanEventsQuery, PlanPageQuery, PlanLogsQuery
+                if args.action == 'logs':
+                    query = PlanLogsQuery(attempt_id=args.attempt_id, offset=args.offset,
+                        max_bytes=args.max_bytes if args.max_bytes is not None else 16384, encoding=args.encoding)
+                else:
+                    model = PlanEventsQuery if args.action == 'events' else PlanPageQuery
+                    after = int(args.after or 0) if args.action == 'events' else (args.after or '')
+                    query = model(after=after, limit=args.limit,
+                                  max_bytes=args.max_bytes if args.max_bytes is not None else 32768)
+                return client.request(path + '/' + args.action + '?' + urlencode(query.model_dump()))
+            return client.request(path + '/cancel', {}) if args.action == 'cancel' else client.request(path)
+        if args.command == 'storage':
+            if args.action == 'status':
+                return client.request('/v1/storage/status')
+            if args.action != 'browse':
+                return client.request('/v1/storage/' + args.action, storage_payload)
+            pages = []
+            for _ in range(args.pages):
+                page = client.request('/v1/storage/browse', storage_payload)
+                pages.append(page)
+                if page['complete']:
+                    break
+                storage_payload = {**storage_payload, 'cursor': page['next_cursor']}
+            # Each CLI invocation has its own authenticated connection. Do not
+            # return a cursor which will immediately expire on client.close().
+            cursor = pages[-1]['next_cursor']
+            if cursor:
+                client.request('/v1/storage/browse/cancel', {'cursor': cursor})
+            for page in pages:
+                page['next_cursor'] = None
+            complete = pages[-1]['complete']
+            return {'pages': pages, 'complete': complete, 'cursor_closed': True,
+                    'next_actions': [] if complete else [{'action': 'restart_browse',
+                        'message': 'The requested page bound was reached; increase --pages (maximum 20) or use the paginated API for a longer session'}]}
         if args.command == 'library':
             if args.action == 'list':
                 return client.request('/v1/libraries')

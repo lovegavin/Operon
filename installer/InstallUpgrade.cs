@@ -11,6 +11,32 @@ internal sealed record UpgradeTarget(string Directory, string Profile, string Wo
 internal sealed class InstallUpgrade : IDisposable
 {
     private readonly List<InstallLease> leases = [];
+    private readonly List<EventWaitHandle> maintenanceEvents = [];
+
+    internal static InstallUpgrade FreezeStarts(IReadOnlyList<UpgradeTarget> targets)
+    {
+        var session = new InstallUpgrade();
+        try
+        {
+            var identities = new HashSet<string>();
+            foreach (var target in targets)
+            {
+                var marker = Path.Combine(target.Directory, "operon-install.json");
+                if (!File.Exists(marker)) continue;
+                InstallFiles.NoLinks(marker);
+                using var identity = JsonDocument.Parse(File.ReadAllText(marker));
+                var id = identity.RootElement.GetProperty("profile_id").GetString();
+                if (!Guid.TryParseExact(id, "N", out _)) throw new InvalidDataException("安装标识无效，原文件已保留。");
+                if (!identities.Add(id!)) continue;
+                session.leases.Add(new InstallLease("Local\\OperonMaintenance-" + id));
+                var signal = new EventWaitHandle(false, EventResetMode.ManualReset, "Local\\OperonMaintenance-" + id + "-active");
+                session.maintenanceEvents.Add(signal);
+                signal.Set();
+            }
+            return session;
+        }
+        catch { session.Dispose(); throw; }
+    }
     internal static IReadOnlyList<UpgradeTarget> Targets(string root, InstallReceipt receipt)
     {
         var targets = new List<UpgradeTarget>();
@@ -235,10 +261,11 @@ internal sealed class InstallUpgrade : IDisposable
     internal static async Task<InstallUpgrade> Prepare(IReadOnlyList<UpgradeTarget> targets,
         Action<string> report, CancellationToken token, TimeSpan? timeout = null)
     {
-        var session = new InstallUpgrade();
+        var session = FreezeStarts(targets);
         try
         {
             var processes = Processes(targets);
+            CheckPoolWorkspaces(targets, processes);
             var hosts = processes.Where(IsHost).ToList();
             // Check every affected workspace before closing any window.
             foreach (var target in targets)
@@ -284,5 +311,10 @@ internal sealed class InstallUpgrade : IDisposable
         catch { session.Dispose(); throw; }
     }
 
-    public void Dispose() { foreach (var lease in leases) lease.Dispose(); leases.Clear(); }
+    public void Dispose()
+    {
+        foreach (var signal in maintenanceEvents) { signal.Reset(); signal.Dispose(); }
+        maintenanceEvents.Clear();
+        foreach (var lease in leases) lease.Dispose(); leases.Clear();
+    }
 }

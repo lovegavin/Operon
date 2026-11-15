@@ -2,6 +2,7 @@ import {t, useLocale} from './i18n';
 import {getPreferences, setPreferences} from './preferences';
 import { PluginPanel } from "./PluginPanel";
 import { RuntimeStatusPanel } from "./RuntimeStatusPanel";
+import { PlanPanel } from './PlanPanel';
 import { version as studioVersion } from "../package.json";
 import {
   Component,
@@ -65,6 +66,8 @@ import {CatalogUpdates} from './catalogUpdates';
 import {PortTemplateMenu} from './PortTemplateMenu';
 import { AgentPanel } from "./AgentPanel";
 import { RemoteFilePicker, remoteId } from './RemotePanel';
+import {StorageFilePicker} from './StorageFilePicker';
+import type {StorageRef} from './storageTypes';
 import { SettingsPage, type SettingsSection } from './SettingsPage';
 import type {RemoteStatus, BrowseRemote, DataSource} from './types';
 import {HardDrives as Server} from '@phosphor-icons/react';
@@ -193,6 +196,7 @@ function Studio() {
   const documentHistory = useRef<Record<string, {past: Graph[]; future: Graph[]; selection: string[]}>>({});
   const agentBridge = useRef<CanvasBridge | null>(null);
   const [agentReady, setAgentReady] = useState(false), [agentPanel, setAgentPanel] = useState(false);
+  const [planPanel, setPlanPanel] = useState(false);
   const [collaborationEvents, setCollaborationEvents] = useState<CanvasEvent[]>([]);
   const [agentHighlights, setAgentHighlights] = useState<string[]>([]);
   const [routes, setRoutes] = useState<RouteDefinition[]>([]);
@@ -200,6 +204,7 @@ function Studio() {
   const [appSettings, setAppSettings] = useState<SettingsSection | null>(null);
   const appearance = useAppearance();
   const [remotePicker, setRemotePicker] = useState<{profileId: string; initial: string; source?: boolean; reader?: string; onSelect: (path: string, source?: DataSource) => void} | null>(null);
+  const [storagePicker, setStoragePicker] = useState<{onSelect: (reference: StorageRef) => void} | null>(null);
   const selectedServerId = remoteId(graph);
   const selectedServer = servers.find(s => s.profile.id === selectedServerId);
   const refreshServers = async () => {setServers(await api.remoteStatus()); setHistory(await api.history());};
@@ -1357,6 +1362,7 @@ function Studio() {
           <button className="subtle-button task-control" onClick={() => {setTab('tasks'); setResultsCollapsed(false); setResultsExpanded(true);}}>
             <Rows size={16}/>{t("任务")}{activeJobs.length > 0 && <span className="count-badge">{activeJobs.length}</span>}
           </button>
+          <button className="subtle-button" onClick={() => setPlanPanel(true)} title={t('编译与运行固定计划')}><Stack size={16}/>{t('执行计划')}</button>
             <button
               className="primary-button"
               disabled={!!action}
@@ -1823,6 +1829,7 @@ function Studio() {
             automaticMemoryFraction={selectedServerId ? selectedServer?.info?.automatic_memory_fraction : bootstrap.automatic_memory_fraction}
             automaticMemoryBudget={selectedServerId ? selectedServer?.info?.automatic_memory_budget_bytes : bootstrap.automatic_memory_budget_bytes}
             onBrowseRemote={servers.length ? browseRemote : undefined}
+            onBrowseStorage={onSelect => setStoragePicker({onSelect})}
             onNode={(id, patch) => updateNode(id, patch, activeId)}
             onCatalog={(latest, createdId) => acceptCatalog(latest, createdId)}
             servers={servers}
@@ -1877,12 +1884,14 @@ function Studio() {
         </div>
       </>}
       {statusOpen && <RuntimeStatusPanel onClose={() => setStatusOpen(false)}/>}
+      {planPanel && <PlanPanel graph={graph} onClose={() => setPlanPanel(false)}/>}
       {pluginsOpen && <PluginPanel initialTab={pluginsOpen} onClose={() => setPluginsOpen(null)} onChanged={async () => {const expected = catalogUpdates.current.checkpoint(); const latest = await api.catalog(); acceptCatalog(latest, undefined, expected); await refreshRoutes();}}/>}
       {picker && <WorkflowPicker mode={picker} onClose={() => setPicker(null)} onOpen={openSaved} onRegister={refreshRoutes} onImport={() => routeImport.current?.click()}/>}
       {saveDialog && <SaveWorkflowDialog graph={saveDialog} catalog={catalog} workflowId={documents.find(doc=>doc.id===activeId)?.workflow_id} version={documents.find(doc=>doc.id===activeId)?.workflow_version} onClose={() => setSaveDialog(null)} onSaved={savedWorkflow}/>}
       {agentPanel && <AgentPanel sessionId={agentBridge.current?.state?.id} command={bootstrap.agent_config} onClose={() => setAgentPanel(false)} onCopySelection={() => void copyAgentContext()}/>}
       {appSettings && <SettingsPage initial={appSettings} appearance={appearance} servers={servers} active={selectedServerId} onUpdate={refreshServers} onSelect={chooseServer} onClose={() => setAppSettings(null)}/>}
       {remotePicker && <RemoteFilePicker {...remotePicker} onClose={() => setRemotePicker(null)}/>}
+      {storagePicker && <StorageFilePicker onSelect={storagePicker.onSelect} onClose={() => setStoragePicker(null)}/>}
       {toast && (
         <div
           className={`toast ${toast.type}`}

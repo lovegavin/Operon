@@ -89,6 +89,10 @@ class RouteCollectionRequest(LibraryRequest):
 def mount_control(app, application, bridge):
     from .viewer_api import mount_viewers
     mount_viewers(app, application, bridge)
+    from .storage_api import mount_storage
+    mount_storage(app, application, bridge)
+    from .plan_api import mount_plans
+    mount_plans(app, application, bridge)
     def authorize(request, scope='context'):
         return bridge.actor(request, scope)
 
@@ -107,7 +111,8 @@ def mount_control(app, application, bridge):
         return {'api_version': 1, 'operator_protocol': 3, 'headless': bool(getattr(app.state, 'headless', False)),
                 'capabilities': ['workflows', 'tasks', 'artifacts', 'operator-docs', 'canvas-sessions', 'agent-guides', 'brief-views', 'result-viewers', 'workflow-readiness', 'explicit-environment-preparation', 'transaction-diffs',
                                 'task-scaffolding', 'workspace-files', 'workspace-binary-files',
-                                'library-install', 'route-collection-import'],
+                                'library-install', 'route-collection-import', 'storage-browse', 'storage-preview',
+                                'plan-compile', 'plan-submit', 'run-plan-export'],
                 'guides_href': '/api/v1/guides', 'openapi_href': '/api/v1/openapi.json',
                 'permission_scopes': ['context', 'edit', 'run', 'plugins']}
 
@@ -314,6 +319,17 @@ def mount_control(app, application, bridge):
         authorize(request)
         path = application.artifacts.file(key, artifact_id, role)
         return FileResponse(io_path(path), filename=path.name)
+
+    @app.get('/api/v1/jobs/{key}/results')
+    def results(key: str, request: Request):
+        authorize(request)
+        return application.artifacts.results(key)
+
+    @app.get('/api/v1/jobs/{key}/results/file')
+    def result_file(key: str, path: str, request: Request):
+        authorize(request)
+        resolved = application.artifacts.result(key, path)
+        return FileResponse(io_path(resolved), filename=resolved.name)
 
     @app.get('/api/v1/jobs/{key}/reports/{index}')
     def report(key: str, index: int, request: Request):

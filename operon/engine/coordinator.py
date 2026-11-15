@@ -127,10 +127,15 @@ class Coordinator:
 
     def stop(self, *, cancel_attempts=False, timeout=10.0):
         """Detach this coordinator.  Queued work stays durable for the next owner."""
+        self.stopping = True
         self.stop_event.set()
         self.wake.set()
         if self.thread is not None:
             self.thread.join(timeout=timeout)
+            if self.thread.is_alive():
+                # A bounded join is not proof that launch/reconciliation stopped.
+                # Keep both the thread handle and exclusive ownership for retry.
+                raise BusyError('Coordinator is still stopping; pool ownership was retained')
             self.thread = None
         if cancel_attempts:
             self.cancel_all(reason='coordinator shutdown')
@@ -233,8 +238,8 @@ class Coordinator:
             result['polled'] = self._poll_attempts()
             result['resized'] = self._poll_resizes()
             result['cancelled'] = self._handle_cancellations()
-            self._settle_runs()
             self._refresh_ready()
+            self._settle_runs()
             result['dispatched'] = self._dispatch()
             self._prune()
         return result
@@ -502,9 +507,16 @@ class Coordinator:
         if target == AttemptState.SUCCEEDED and self.artifact_committer is not None:
             try:
                 receipt = self.artifact_committer({**attempt, 'unit': unit, 'run': run}, result)
-                self.store.transition_attempt(attempt['id'], AttemptState.COMMITTING,
-                                              expected_revision=fresh['revision'], receipt=receipt or {})
-                fresh = self.store.attempt(attempt['id'])
+                if AttemptState(fresh['state']) != AttemptState.RECOVERY_REQUIRED:
+                    self.store.transition_attempt(attempt['id'], AttemptState.COMMITTING,
+                                                  expected_revision=fresh['revision'], receipt=receipt or {})
+                    fresh = self.store.attempt(attempt['id'])
+                else:
+                    # Verified terminal recovery may publish artifacts directly;
+                    # recovery_required -> committing is intentionally not a
+                    # lifecycle transition. Preserve the publication proof for
+                    # the allowed recovery_required -> succeeded transition.
+                    fresh = {**fresh, 'receipt': {**fresh.get('receipt', {}), **(receipt or {})}}
             except Exception as exc:  # noqa: BLE001 - publication failure is explicit
                 target = AttemptState.FAILED
                 result = ExecutionResult(state='failed', exit_code=result.exit_code,
@@ -518,7 +530,7 @@ class Coordinator:
                 self.store.transition_attempt(attempt['id'], target, expected_revision=fresh['revision'],
                                               exit_code=result.exit_code, error=result.error,
                                               error_code=None if target == AttemptState.SUCCEEDED else 'execution_failed',
-                                              receipt={'detail': result.detail})
+                                              receipt={**fresh.get('receipt', {}), 'detail': result.detail})
         except (StaleAttemptError, StaleRevisionError):
             # A concurrent cancellation or a newer attempt already decided the
             # terminal state; the durable decision is authoritative.
@@ -680,7 +692,7 @@ class Coordinator:
     # -- recovery ------------------------------------------------------
     def recover(self):
         """Reconcile every active attempt and outbox entry after a takeover."""
-        recovered = {'adopted': 0, 'failed': 0, 'quarantined': 0, 'relaunched': 0}
+        recovered = {'adopted': 0, 'failed': 0, 'quarantined': 0, 'relaunched': 0, 'completed': 0}
         states = [AttemptState.ADMITTED.value, AttemptState.STARTING.value, AttemptState.RUNNING.value,
                   AttemptState.COMMITTING.value, AttemptState.RECOVERY_REQUIRED.value]
         for attempt in self.store.attempts_for_pool(self.pool_id, states=states):
@@ -695,6 +707,17 @@ class Coordinator:
                 self._diagnose('recovery_error', attempt_id=attempt['id'], error=str(exc))
                 result = ExecutionResult(state='unknown', detail='reconcile failed')
             state = AttemptState(attempt['state'])
+            if (result.state in ('succeeded', 'failed', 'cancelled') and result.identity is not None
+                    and not result.tree_alive and (result.state != 'succeeded' or result.exit_code == 0)):
+                # Executor reconciliation supplies durable process identity,
+                # verified exit/tree evidence and (for success) collected output.
+                # Reuse the normal artifact/lease finalizer; never launch again.
+                if result.state == 'succeeded' and state in (AttemptState.ADMITTED, AttemptState.STARTING):
+                    self._transition(attempt['id'], AttemptState.RECOVERY_REQUIRED,
+                                     reason='verified terminal receipt after coordinator restart')
+                self._finalize(attempt, unit, run, result)
+                recovered['completed'] += 1
+                continue
             if result.state == 'running' and result.identity is not None:
                 if state in (AttemptState.ADMITTED, AttemptState.STARTING, AttemptState.RECOVERY_REQUIRED):
                     self.store.transition_attempt(attempt['id'], AttemptState.RUNNING,

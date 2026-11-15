@@ -1,0 +1,48 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "digest": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Digest"
+    },
+    "relative_path": {
+      "maxLength": 2048,
+      "minLength": 1,
+      "title": "Relative Path",
+      "type": "string"
+    },
+    "storage_id": {
+      "maxLength": 160,
+      "minLength": 1,
+      "title": "Storage Id",
+      "type": "string"
+    },
+    "version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Version"
+    }
+  },
+  "required": [
+    "storage_id",
+    "relative_path"
+  ],
+  "title": "StorageRef",
+  "type": "object"
+}

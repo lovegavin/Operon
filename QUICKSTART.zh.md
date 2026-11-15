@@ -4,23 +4,25 @@
 
 你不需要会 Python，不需要装 Conda，也不需要 AI 账号。示例数据是编造的，只用于检查流程，不代表任何生物学结论。
 
-本说明对应 **Operon Studio 4.1.9** 与内置 **8.0.7** 算子库。
+本说明对应 **Operon Studio 5.2.0** 与单独安装的兼容算子库；本体安装包不再捆绑或更新算子。
 
 ## 你需要准备
 
 - Windows 10 或 11，最好有 8 GB 内存。
 - 能上网。第一次检查运行环境时，可能需要下载几个科学计算包。
-- 一个可写的安装位置，例如 `D:\Operon Studio`。不要选 `C:\Program Files`，也不要选需要管理员权限的目录。
+- 一个可写的安装位置，例如 `<your writable install folder>`。不要选 系统保护目录，也不要选需要管理员权限的目录。
 
 ## 第 1 步：安装
 
 1. 打开 [Releases](https://github.com/lovegavin/Operon/releases/latest)。
 2. 下载 **Operon_Setup.exe**。不要下载名字里带 `Server` 或 `Library` 的文件。
 3. 双击安装包。如果 Windows 弹出蓝色提示，点“更多信息” → “仍要运行”。
-4. 安装目录填 `D:\Operon Studio`，点“安装”。
+4. 安装目录填 `<your writable install folder>`，点“安装”。
 5. 安装完成后，勾选“打开 Operon”，点完成。
 
 第一次启动会慢一点，等窗口完全出来再操作。后端和前端都准备好后，窗口底部会显示已连接。
+
+先从独立算子库发行页下载包含 CsvReader 和 PCA 的算子库 ZIP，通过“添加算子”导入，并记录库版本。
 
 ## 第 2 步：准备一张小表
 
@@ -73,12 +75,12 @@ gene_a,gene_b,gene_c
 
 只有当你确实有一台 Linux 服务器时才做这一步。Windows 本机用户可以直接跳过。
 
-1. 在 Releases 下载 **Operon-4.1.9-Server.zip**，上传到服务器。
+1. 在 Releases 下载 **Operon-5.2.0-Server.zip**，上传到服务器。
 2. 在服务器上执行：
 
 ```sh
-unzip Operon-4.1.9-Server.zip
-cd Operon-4.1.9-Server
+unzip Operon-5.2.0-Server.zip
+cd Operon-5.2.0-Server
 bash install.sh --prefix "$HOME/operon" --result "$PWD/server-install.json"
 ```
 
@@ -96,8 +98,8 @@ bash install.sh --prefix "$HOME/operon" --result "$PWD/server-install.json"
 
 - **窗口一直白屏**：等 1–2 分钟；仍然不行就完全退出再开。不要同时开很多个 Operon。
 - **检查环境失败**：先确认能上网，再点“准备环境”。公司网络需要代理时，先在系统代理里配好。
-- **安装时提示目录不可写**：换到 `D:\Operon Studio` 这类普通目录，不要用 `C:\Program Files`。
-- **想卸载**：在 Windows“应用”里卸载，或运行安装目录里的 `Operon_Uninstall.exe`。4.1.9 会保留 `<安装目录>\workspace` 里的工作区和分析结果，确认不需要后再手动删除。
+- **安装时提示目录不可写**：换到 `<your writable install folder>` 这类普通目录，不要用 系统保护目录。
+- **想卸载**：在 Windows“应用”里卸载，或运行安装目录里的 `Operon_Uninstall.exe`。5.2.0 会保留 `<安装目录>\workspace` 里的工作区和分析结果，确认不需要后再手动删除。
 - **日志在哪**：`%USERPROFILE%\.operon\profiles\<profile-id>\logs\desktop-YYYYMMDD.log`。
 
 ## 接下来

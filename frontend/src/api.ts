@@ -2,6 +2,7 @@ import {t} from './i18n';
 import {importErrorMessage} from './importError';
 import type { Bootstrap, Graph, Job, Preview, ContractAnalysis, Workspace, SavedWorkflow, WorkflowSummary, RouteDefinition, DataSource } from "./types";
 import type { LibraryState, LibraryAction } from "./types";
+import type {StorageBrowseRequest, StorageEntry, StoragePage, StoragePreview, StorageRef} from './storageTypes';
 
 export type Readiness = {
   status: 'ready' | 'blocked'; fingerprint: string; checked_at: string;
@@ -90,14 +91,17 @@ export class ApiError extends Error {
     super(message);
   }
 }
-async function request<T>(path: string, body?: unknown): Promise<T> {
+export async function request<T>(path: string, body?: unknown,
+  options: {signal?: AbortSignal; storageSession?: string} = {}): Promise<T> {
   const response = await fetch(base + path, {
     method: body === undefined ? "GET" : "POST",
     headers: {
       ...(token ? { "X-Studio-Token": token } : {}),
       ...(body === undefined ? {} : { "Content-Type": "application/json" }),
+      ...(options.storageSession ? {'X-Operon-Storage-Session': options.storageSession} : {}),
     },
     body: body === undefined ? undefined : JSON.stringify(body),
+    signal: options.signal,
   });
   let value;
   try {
@@ -120,6 +124,15 @@ async function request<T>(path: string, body?: unknown): Promise<T> {
   return value as T;
 }
 /** 5.1.0 install/delete rejections carry a structured `error` payload; surface its details. */
+export async function requestFile(path: string, signal?: AbortSignal): Promise<Blob> {
+  const response = await fetch(base + path, {headers: token ? {'X-Studio-Token': token} : {}, signal});
+  if (!response.ok) {
+    const value = await response.json().catch(() => ({}));
+    throw new ApiError(responseText(value) || t('操作未完成，请重试。'), undefined, response.status, value.code, value);
+  }
+  return response.blob();
+}
+
 function libraryFailure(value: unknown, fallback: string) {
   const error = value && typeof value === 'object'
     ? (value as {error?: {code?: string; message?: string; conflicts?: {kind: string; id: string; library: string}[]}}).error
@@ -185,6 +198,16 @@ export const api = {
   disconnectRemote: (id: string) => request(`/api/remote/${id}/disconnect`, {}),
   removeRemote: (id: string) => request(`/api/remote/${id}/remove`, {}),
   browseRemote: (id: string, path: string, offset = 0, hidden = false) => request<import('./types').RemoteListing>(`/api/remote/${id}/browse`, {path, offset, hidden}),
+  storageRoots: (signal?: AbortSignal) => request<{roots: StorageRef[]}>('/api/v1/storage/roots', undefined, {signal}),
+  browseStorage: (value: StorageBrowseRequest, session: string, signal?: AbortSignal) =>
+    request<StoragePage>('/api/v1/storage/browse', value, {storageSession: session, signal}),
+  statStorage: (value: StorageRef, session: string, signal?: AbortSignal) =>
+    request<StorageEntry>('/api/v1/storage/stat', value, {storageSession: session, signal}),
+  previewStorage: (value: StorageRef, session: string, signal?: AbortSignal) =>
+    request<StoragePreview>('/api/v1/storage/preview',
+      {storage_id: value.storage_id, relative_path: value.relative_path}, {storageSession: session, signal}),
+  closeStorageBrowse: (session: string) =>
+    request<{closed: number}>('/api/v1/storage/browse/close', {}, {storageSession: session}),
   sourceRemote: (id: string, path: string, reader?: string) => request<{source: DataSource; filename: string; reader: string}>(`/api/remote/${id}/source`, {path, ...(reader ? {reader} : {})}),
   plugins: () => request<import('./types').PluginState>('/api/plugins'),
   refreshPlugins: () => request<import('./types').PluginOperation>('/api/plugins/refresh', {}),

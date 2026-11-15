@@ -658,6 +658,8 @@ class JobService:
                     raise
                 if getattr(exc, 'code', None) == 'idempotency_conflict':
                     raise SubmissionConflictError(str(exc)) from exc
+                if getattr(exc, 'code', None) in ('queue_full', 'rate_limited', 'installation_maintenance'):
+                    raise
                 raise PoolSubmissionError(
                     f'The shared pool rejected this submission: {type(exc).__name__}: {exc}') from exc
         if getattr(self, 'pool', None) is None and self.coordinator is None:
@@ -674,10 +676,17 @@ class JobService:
         plugin_snapshot = self.plugins.snapshot(graph)
         graph = self.plugins.pin(graph, snapshot=plugin_snapshot)
         catalog = self.plugins._catalog(plugin_snapshot, self.base_catalog)
+        invocation_marker = graph.runtime.get('native_invocation')
+        if invocation_marker:
+            from operon.execution.invocation import verify_implementations
+            if not isinstance(invocation_marker, dict) or invocation_marker.get('abi') != 1:
+                raise GraphError('Unsupported native invocation ABI')
         from .parameters import freeze_graph
         from operon.parameter_values import split_task
         graph = freeze_graph(graph, catalog, self.root, input_roots=self.settings.input_roots)
         manifest, order = compile_graph(graph, catalog, self.root, require_files=True, input_roots=self.settings.input_roots)
+        if invocation_marker:
+            verify_implementations(invocation_marker['implementations'], catalog, manifest=manifest)
         try:
             allocation = self.admission.request(manifest)
         except ValueError as exc:
@@ -1239,16 +1248,23 @@ class JobService:
                 # dependency resolution chooses a different Python runtime.
                 env['PYTHONPATH'] = os.pathsep.join(part for part in (str(code_root), env.get('PYTHONPATH')) if part)
                 command = [python, '-P', '-m', 'operon.worker', str(directory), '--output', job['output_dir']]
+                if job['graph'].get('runtime', {}).get('native_invocation'):
+                    from operon.execution.invocation import write_managed_invocation
+                    invocation_path = write_managed_invocation(directory, job, allocation)
+                    command = [python, '-P', '-m', 'operon.execution.worker_main',
+                               '--invocation', str(invocation_path)]
             else:
                 # Older server distributions and explicit custom worker roots.
                 command = [python, str(code_root / 'scripts/run.py'), str(directory)]
             console.write(f'[Operon launcher] Job {key}\nPython: {python}\nTask: {directory}\n')
             console.flush()
             self._launcher_event(job, 'worker_launching', python=python, allocation=allocation, message='Starting analysis worker')
-            process = subprocess.Popen(command,
-                                       cwd=self.root, env=env, stdin=subprocess.DEVNULL,
-                                       stdout=console, stderr=subprocess.STDOUT,
-                                       creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+            from operon.installation_maintenance import start_guard
+            with start_guard(code_root):
+                process = subprocess.Popen(command,
+                                           cwd=self.root, env=env, stdin=subprocess.DEVNULL,
+                                           stdout=console, stderr=subprocess.STDOUT,
+                                           creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
             with self.lock:
                 self.processes[key] = process
                 self._starting.discard(key)
@@ -1316,6 +1332,7 @@ class JobService:
         outbox.  No legacy admission reservation is taken; the lease is the
         only resource authority.
         """
+        attempt_fence = int(self.engine.store.attempt(attempt_id)['fence'])
         with self.lock:
             job = self.require(job_id)
             if job.get('status') in ('complete', 'failed', 'cancelled'):
@@ -1332,6 +1349,7 @@ class JobService:
             })
             job['scheduling'] = 'coordinator'
             job['coordinator_attempt'] = attempt_id
+            job['coordinator_fence'] = attempt_fence
             write_json(self.jobs_dir / job_id / 'job.json', job)
         self._start(job, allocation=allocation, coordinated=True)
 
@@ -1553,6 +1571,43 @@ class JobService:
         value = job.get("output_dir")
         return Path(value) if value else (self.jobs_dir / key / "output")
 
+    def result_files(self, key):
+        """List every file below this job's result directory."""
+        self.require(key)
+        root = Path(self._output_dir(key)).resolve()
+        files = []
+        if io_path(root).is_dir():
+            for path in sorted(root.rglob('*')):
+                try:
+                    if path.is_symlink() or not io_path(path).is_file():
+                        continue
+                    stat = io_path(path).stat()
+                except OSError:
+                    continue
+                files.append({'path': path.relative_to(root).as_posix(), 'bytes': stat.st_size,
+                              'modified': stat.st_mtime})
+        return {'job_id': key, 'root': str(root), 'files': files,
+                'total_bytes': sum(item['bytes'] for item in files)}
+
+    def result_path(self, key, relative):
+        """Resolve one file below the result directory, rejecting traversal."""
+        self.require(key)
+        value = Path(str(relative).replace('\\', '/'))
+        if value.is_absolute() or any(part in ('..', '') for part in value.parts):
+            raise ValueError('Invalid result path')
+        root = Path(self._output_dir(key)).resolve()
+        path = (root / value).resolve()
+        if path != root and root not in path.parents:
+            raise ValueError('Invalid result path')
+        if not io_path(path).is_file():
+            raise KeyError('Result file does not exist')
+        from operon.bytecode import filesystem_path
+        return Path(filesystem_path(path))
+
+    def result_file(self, key, relative):
+        """Adapter alias for result_path with the same containment checks."""
+        return self.result_path(key, relative)
+
     def require(self, key):
         # Jobs created by the other launcher become visible without restarting.
         with self.lock:
@@ -1625,7 +1680,15 @@ class JobService:
             # Reports retain original audit locations on disk. API paths follow a moved workspace.
             for artifact in report.get("artifacts", []):
                 if artifact.get("disk_uri"):
-                    artifact["disk_uri"] = str(self._record_path(key, artifact["disk_uri"], summary))
+                    try:
+                        path = self._record_path(key, artifact["disk_uri"], summary)
+                    except KeyError:
+                        # Released spill files are audit entries, not durable results.
+                        # Preserve their recorded location without exposing it as a link.
+                        artifact["disk_available"] = False
+                    else:
+                        artifact["disk_uri"] = str(path)
+                        artifact["disk_available"] = path.exists()
             job["spill_counts"] = self.spill_counts(key)
         job["report"] = report
         return safe_json(job)

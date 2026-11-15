@@ -23,6 +23,21 @@ from operon.engine.control import ControlLoop, limits_from_environment
 from operon.documents import CommandError
 
 
+def _event_name(path, key, jobs_dir, job):
+    """Stable offset key for an event file, including task-result runs."""
+    try:
+        return path.relative_to(jobs_dir/key).as_posix()
+    except ValueError:
+        output = job.get('output_dir')
+        if output:
+            try:
+                return 'results/' + path.relative_to(Path(output)).as_posix()
+            except ValueError:
+                pass
+        digest = hashlib.sha1(path.as_posix().encode('utf-8')).hexdigest()[:12]
+        return 'external/' + digest + '-' + path.name
+
+
 def receive(sock, size):
     chunks = bytearray()
     while len(chunks) < size:
@@ -166,12 +181,20 @@ def environment_prepare(service, payload: dict | None = None) -> dict:
     for name in started:
         threading.Thread(target=worker, args=(name,), name=f'environment-{name}', daemon=True).start()
     if dependencies:
+        affected = []
+        for env_name, entry in (snapshot.get('environments') or {}).items():
+            if names is not None and env_name not in names:
+                continue
+            affected.extend((entry or {}).get('used_by') or [])
+        ids = sorted(set(affected))
+
         def repair():
             try:
-                service.dependencies.check(repair=True, repair_r=True)
+                service.dependencies.check(repair=True, repair_r=True, ids=ids or None)
             except Exception:
                 pass
-        threading.Thread(target=repair, name='dependency-repair', daemon=True).start()
+        if ids:
+            threading.Thread(target=repair, name='dependency-repair', daemon=True).start()
     jobs = {name: _ENVIRONMENT_JOBS[name].get('id') for name in started if name in _ENVIRONMENT_JOBS}
     return {**environment_snapshot(service), 'started': started, 'jobs': jobs,
             'dependencies': dependencies}
@@ -407,7 +430,35 @@ class RemoteService:
         if method != 'transport_release':
             self._purge_transport_leases()
         if method in ('handshake', 'bootstrap'):
-            return self.handshake.response(params, legacy=method == 'bootstrap')
+            value = self.handshake.response(params, legacy=method == 'bootstrap')
+            if getattr(self.service, 'pool_remote', False):
+                try:
+                    self.service._ensure_pool_session()
+                    capabilities = self.service.pool_client.status().get('capabilities', {})
+                    if 'cluster.controller_fence.v1' in capabilities:
+                        value['handshake']['engine_capabilities'].append('cluster.controller_fence.v1')
+                        value['cluster_controller'] = capabilities['cluster.controller_fence.v1']
+                    if 'cluster.invocation.v1' in capabilities:
+                        value['handshake']['engine_capabilities'].append('cluster.invocation.v1')
+                    if 'cluster.same_host_artifacts.v1' in capabilities:
+                        value['handshake']['engine_capabilities'].append('cluster.same_host_artifacts.v1')
+                except Exception:
+                    # Optional cluster capability never turns unavailable pool
+                    # discovery into an assertion that fenced control is ready.
+                    pass
+            return value
+        if method in ('cluster.submit', 'cluster.lookup', 'cluster.status', 'cluster.cancel',
+                      'cluster.plan.submit', 'cluster.plan.lookup', 'cluster.plan.status', 'cluster.plan.cancel'):
+            # This daemon is reached through the SSH-authenticated OS account and
+            # its 0600 local socket. Forward only to its existing registered pool.
+            if not getattr(self.service, 'pool_remote', False):
+                raise CommandError('capability_unavailable', 'Cluster control requires the shared host pool')
+            self.service._ensure_pool_session()
+            if Path(params.get('workspace', '')).expanduser().resolve() != self.service.root:
+                raise CommandError('unauthorized', 'Cluster request targets another SSH workspace')
+            if params.get('principal') != self.service.pool_principal:
+                raise CommandError('unauthorized', 'Cluster principal is not this authenticated SSH account')
+            return self.service.pool_client.request(method, params)
         if method == 'library_manifest':
             from copy import deepcopy
             from .library import inventory
@@ -531,6 +582,9 @@ class RemoteService:
         if method == 'preview':
             return service.preview(params['job_id'], params['artifact_id'],
                                    offset=params.get('offset', 0), limit=params.get('limit', 20))
+        if method == 'result_files':
+            key = params['job_id']; service.require(key)
+            return service.result_files(key)
         if method == 'output_file':
             key = params['job_id']; kind = params['kind']
             if kind == 'artifact':
@@ -541,6 +595,8 @@ class RemoteService:
                 path = service.figure_file(key, params['index'], format=params.get('format'), **({'figure_id': params['figure_id']} if 'figure_id' in params else {}))
             elif kind == 'export':
                 path = service.export_file(key, params['index'])
+            elif kind == 'result':
+                path = service.result_path(key, params['path'])
             else:
                 raise ValueError('Unknown output kind')
             return {'path': str(path), 'bytes': path.stat().st_size, 'name': path.name}
@@ -684,7 +740,7 @@ class RemoteService:
             key = params['job_id']; job = service.details(key)
             offsets = params.get('offsets', {}); result = {}; events = []; eof = True
             for path in service.event_paths(key):
-                name = path.relative_to(service.jobs_dir/key).as_posix()
+                name = _event_name(path, key, service.jobs_dir, job)
                 start = max(0, int(offsets.get(name, 0)))
                 with path.open('rb') as handle:
                     handle.seek(min(start, path.stat().st_size))

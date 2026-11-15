@@ -1,0 +1,169 @@
+"""Freeze defaults once; store actual values separately from graph topology."""
+from copy import deepcopy
+from io import BytesIO
+import json
+from zipfile import BadZipFile, ZIP_DEFLATED, ZipFile, ZipInfo
+
+from operon.file_formats import primary_ext
+from .graph_models import Graph
+
+
+def _defaults(spec, values):
+    schema = spec.get("parameters_schema", {})
+    return {**{key: deepcopy(field["default"]) for key, field in schema.get("properties", {}).items()
+               if "default" in field}, **deepcopy(values)}
+
+
+def freeze_graph(graph, catalog, root, *, bound=False, depth=0, input_roots=None):
+    """Materialize declared runtime defaults without executing implementations.
+
+    Incomplete canvases may be saved; required-value validation belongs to run.
+    Nested route sources are interface placeholders and are never read.
+    """
+    if depth > 6:
+        raise ValueError("Route nesting exceeds six levels")
+    result = graph.model_copy(deep=True)
+    operators = {item["id"]: item for item in catalog["operators"]}
+    for node in result.nodes:
+        if node.kind == 'script':
+            from operon.script_operators import validate_script
+            node.script = validate_script(node.script)
+            node.params = _defaults(node.script, node.params)
+        elif node.kind == "operator":
+            if node.operator not in operators:
+                from .graph_compiler import GraphError
+                raise GraphError(f"Missing operator definition: {node.operator}", node.id)
+            node.params = _defaults(operators[node.operator], node.params)
+        elif node.kind == "source" and node.source and (node.source.path or node.source.reader) and not bound and node.id not in graph.runtime.get('exchange_inputs', []):
+            from .source_paths import source_candidates
+            candidates = source_candidates(graph, catalog, root, node.source.path, node.source.location, node.source.reader,
+                                           input_roots=input_roots, storage_ref=node.source.storage_ref)
+            if len(candidates) == 1:
+                reader = candidates[0]
+                node.source.args = _defaults(reader, node.source.args)
+                if reader["id"] == "TxtReader":
+                    delegate = node.source.args.get("reader", "csv")
+                    choices = [item for item in catalog["readers"] if item["id"] != "TxtReader"
+                               and isinstance(delegate, str) and delegate.lower() in
+                               (item["id"].lower(), item["id"].removesuffix("Reader").lower())]
+                    if len(choices) == 1:
+                        node.source.args = _defaults(choices[0], node.source.args)
+        elif node.kind == "route" and node.route:
+            node.route.graph = freeze_graph(node.route.graph, catalog, root, bound=True, depth=depth + 1, input_roots=input_roots)
+    return result
+
+
+def split_graph(graph):
+    """The sidecar owns values; graph.json owns structure and execution pins."""
+    topology = graph.model_dump(mode="json") if isinstance(graph, Graph) else deepcopy(graph)
+    values = {"format": "operon.graph-parameters", "schema_version": 1,
+              "params": topology.pop("params", {}), "nodes": {}}
+    for node in topology["nodes"]:
+        if node["id"] in values["nodes"]:
+            raise ValueError("Duplicate node ID in graph parameter snapshot")
+        entry = {"kind": node["kind"], "operator": node.get("operator"),
+                 "params": node.pop("params", {}), "context_params": node.pop("context_params", {})}
+        if node.get("source") is not None:
+            entry["args"] = node["source"].pop("args", {})
+        if node.get("route") is not None:
+            entry["route_id"] = node["route"]["id"]
+            entry["route_version"] = node["route"]["version"]
+            node["route"]["graph"], entry["route"] = split_graph(node["route"]["graph"])
+        values["nodes"][node["id"]] = entry
+    return topology, values
+
+
+def restore_graph(topology, values):
+    """Hydrate a strict pair, without consulting the current operator catalog."""
+    graph = Graph.model_validate(topology)
+    if (not isinstance(values, dict) or set(values) != {"format", "schema_version", "params", "nodes"}
+            or values["format"] not in ("operon.graph-parameters", "operon.graph-parameters") or values["schema_version"] != 1
+            or not isinstance(values["params"], dict) or not isinstance(values["nodes"], dict)
+            or set(values["nodes"]) != {node.id for node in graph.nodes}
+            or len(graph.nodes) != len(values["nodes"]) or graph.params):
+        raise ValueError("Graph parameter values do not match the saved graph")
+    graph.params = deepcopy(values["params"])
+    for node in graph.nodes:
+        entry = values["nodes"][node.id]
+        expected = {"kind", "operator", "params", "context_params"}
+        if node.source is not None:
+            expected.add("args")
+        if node.route is not None:
+            expected.update({"route_id", "route_version", "route"})
+        if (not isinstance(entry, dict) or set(entry) != expected
+                or entry["kind"] != node.kind or entry["operator"] != node.operator
+                or not isinstance(entry["params"], dict) or not isinstance(entry["context_params"], dict)
+                or node.params or node.context_params):
+            raise ValueError(f"Parameter values do not match node {node.id}")
+        node.params, node.context_params = deepcopy(entry["params"]), deepcopy(entry["context_params"])
+        if node.source is not None:
+            if not isinstance(entry["args"], dict) or node.source.args:
+                raise ValueError(f"Reader parameter values do not match node {node.id}")
+            node.source.args = deepcopy(entry["args"])
+        if node.route is not None:
+            if entry["route_id"] != node.route.id or entry["route_version"] != node.route.version:
+                raise ValueError(f"Parameter values do not match nested route {node.id}")
+            node.route.graph = restore_graph(node.route.graph.model_dump(mode="json"), entry["route"])
+    return graph
+
+
+def export_bundle(graph):
+    topology, values = split_graph(graph)
+    topology, execution = split_execution(topology)
+    stream = BytesIO()
+    with ZipFile(stream, "w", compression=ZIP_DEFLATED) as archive:
+        for name, value in (("graph.json", topology), ("parameters.json", values), ("execution.json", execution)):
+            info = ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = ZIP_DEFLATED
+            info.external_attr = 0o644 << 16
+            archive.writestr(info, json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False))
+    return stream.getvalue()
+
+
+def import_bundle(content):
+    try:
+        with ZipFile(BytesIO(content)) as archive:
+            names = sorted(archive.namelist())
+            if 'library.json' in names:
+                raise ValueError('This is an operator library, not a workflow. Use Operator Library > Add operators > Import package.')
+            if any(name.lower().endswith('.operon.zip') for name in names):
+                raise ValueError('This is a collection of workflows. Upload the whole zip in Route Operators instead of importing its members.')
+            if names not in (["graph.json", "parameters.json"], ["execution.json", "graph.json", "parameters.json"]):
+                raise ValueError("Workflow bundle must contain graph.json, parameters.json and optional execution.json only")
+            # Only JSON is read in memory. No archive path is extracted or executed.
+            topology = json.loads(archive.read("graph.json"))
+            values = json.loads(archive.read("parameters.json"))
+            json.dumps([topology, values], allow_nan=False)
+            if "execution.json" in names:
+                topology = restore_execution(topology, json.loads(archive.read("execution.json")))
+            return restore_graph(topology, values)
+    except (BadZipFile, KeyError, UnicodeError, TypeError) as exc:
+        raise ValueError(f"Invalid workflow bundle: {exc}") from exc
+
+
+def split_execution(topology):
+    """Keep immutable execution settings alongside each saved parameter snapshot."""
+    topology = deepcopy(topology)
+    config = {"format": "operon.graph-execution", "schema_version": 1,
+              "memory": topology.pop("memory", {}), "execution": topology.get("runtime", {}).pop("execution", {}),
+              "routes": {}}
+    for node in topology["nodes"]:
+        if node.get("route"):
+            node["route"]["graph"], config["routes"][node["id"]] = split_execution(node["route"]["graph"])
+    return topology, config
+
+
+def restore_execution(topology, config):
+    topology = deepcopy(topology)
+    routes = {node["id"]: node for node in topology["nodes"] if node.get("route")}
+    if (not isinstance(config, dict) or set(config) != {"format", "schema_version", "memory", "execution", "routes"}
+            or config["format"] not in ("operon.graph-execution", "operon.graph-execution") or config["schema_version"] != 1
+            or not all(isinstance(config[k], dict) for k in ("memory", "execution", "routes"))
+            or set(routes) != set(config["routes"])):
+        raise ValueError("Execution settings do not match the saved graph")
+    topology["memory"] = deepcopy(config["memory"])
+    if config["execution"]:
+        topology.setdefault("runtime", {})["execution"] = deepcopy(config["execution"])
+    for key, node in routes.items():
+        node["route"]["graph"] = restore_execution(node["route"]["graph"], config["routes"][key])
+    return topology

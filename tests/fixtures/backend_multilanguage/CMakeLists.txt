@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.20)
+project(operon_multilanguage_fixture LANGUAGES C)
+
+add_executable(numeric_transform numeric_transform.c)
+target_compile_features(numeric_transform PRIVATE c_std_11)
+if(MSVC)
+  set_property(TARGET numeric_transform PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+elseif(MINGW)
+  target_link_options(numeric_transform PRIVATE -static -municode)
+endif()

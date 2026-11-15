@@ -14,14 +14,15 @@ def digest(path):
         return hashlib.file_digest(source, 'sha256').hexdigest()
 
 
-def package_candidate(root, setup, output, *, label, evidence=()):
+def package_candidate(root, setup, output, *, label, evidence=(), instructions=None):
     root, setup, output = (Path(path).resolve() for path in (root, setup, output))
     if not re.fullmatch(r'[A-Za-z0-9._-]+', label):
         raise ValueError('Candidate label must be a simple filename component')
     if output.exists():
         raise ValueError('Candidate archive already exists; use a new filename')
-    required = ('docs/OPERON_3_TEST_ACCEPTANCE.md', 'docs/OPERON_3_TEST_INSTRUCTIONS_ZH.md',
-                'scripts/verify_release_agent.md', 'examples/workflows/script_pipeline/workflow.yaml')
+    required = ('scripts/verify_release_agent.md', 'examples/workflows/script_pipeline/workflow.yaml')
+    if not instructions:
+        required += ('docs/OPERON_3_TEST_ACCEPTANCE.md', 'docs/OPERON_3_TEST_INSTRUCTIONS_ZH.md')
     for relative in required:
         if not (root / relative).is_file():
             raise ValueError('Missing acceptance material: ' + relative)
@@ -42,9 +43,16 @@ def package_candidate(root, setup, output, *, label, evidence=()):
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
         (bundle / 'scripts').mkdir()
         shutil.copy2(root / 'scripts/verify_release_agent.md', bundle / 'scripts/verify_release_agent.md')
-        instructions = (root / required[1]).read_text(encoding='utf-8')
-        instructions = instructions.replace('同包 `OPERON_3_TEST_ACCEPTANCE.md`', '同包 `docs/OPERON_3_TEST_ACCEPTANCE.md`')
-        (bundle / 'FORWARD_TO_TESTER.txt').write_text(instructions, encoding='utf-8')
+        helper = root / 'scripts/acceptance/prepare_desktop_plan.py'
+        if helper.is_file():
+            (bundle / 'scripts/acceptance').mkdir()
+            shutil.copy2(helper, bundle / 'scripts/acceptance' / helper.name)
+        instruction_path = Path(instructions).resolve() if instructions else root / 'docs/OPERON_3_TEST_INSTRUCTIONS_ZH.md'
+        instruction_text = instruction_path.read_text(encoding='utf-8')
+        if instructions and version not in instruction_text:
+            raise ValueError('Candidate instructions must identify the actual application version')
+        instruction_text = instruction_text.replace('同包 `OPERON_3_TEST_ACCEPTANCE.md`', '同包 `docs/OPERON_3_TEST_ACCEPTANCE.md`')
+        (bundle / 'FORWARD_TO_TESTER.txt').write_text(instruction_text, encoding='utf-8')
         (bundle / 'START_HERE.txt').write_text(
             f'Operon {version} {label} test candidate\n\n'
             'Extract this entire archive. Check SHA256SUMS.txt before double-clicking Operon_Setup.exe.\n'
@@ -82,6 +90,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--label', required=True)
     parser.add_argument('--evidence', type=Path, action='append', default=[])
+    parser.add_argument('--instructions', type=Path, help='Version-specific tester instructions')
     args = parser.parse_args()
     print(json.dumps(package_candidate(Path(__file__).resolve().parents[1], args.setup, args.output,
-                                      label=args.label, evidence=args.evidence)))
+                                      label=args.label, evidence=args.evidence, instructions=args.instructions)))

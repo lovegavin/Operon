@@ -1,0 +1,754 @@
+{
+  "$defs": {
+    "Binding": {
+      "additionalProperties": false,
+      "properties": {
+        "adaptation": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adaptation"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        },
+        "input": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input"
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ref"
+        }
+      },
+      "title": "Binding",
+      "type": "object"
+    },
+    "Command": {
+      "additionalProperties": false,
+      "properties": {
+        "argv": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/LiteralToken"
+              },
+              {
+                "$ref": "#/$defs/Input"
+              },
+              {
+                "$ref": "#/$defs/Param"
+              },
+              {
+                "$ref": "#/$defs/Output"
+              },
+              {
+                "$ref": "#/$defs/ResourceToken"
+              }
+            ]
+          },
+          "maxItems": 1000,
+          "title": "Argv",
+          "type": "array"
+        }
+      },
+      "required": [
+        "argv"
+      ],
+      "title": "Command",
+      "type": "object"
+    },
+    "Input": {
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_.-]{0,79}$",
+          "title": "Input",
+          "type": "string"
+        }
+      },
+      "required": [
+        "input"
+      ],
+      "title": "Input",
+      "type": "object"
+    },
+    "LiteralToken": {
+      "additionalProperties": false,
+      "properties": {
+        "literal": {
+          "title": "Literal",
+          "type": "string"
+        }
+      },
+      "required": [
+        "literal"
+      ],
+      "title": "LiteralToken",
+      "type": "object"
+    },
+    "Output": {
+      "additionalProperties": false,
+      "properties": {
+        "output": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_.-]{0,79}$",
+          "title": "Output",
+          "type": "string"
+        }
+      },
+      "required": [
+        "output"
+      ],
+      "title": "Output",
+      "type": "object"
+    },
+    "Param": {
+      "additionalProperties": false,
+      "properties": {
+        "param": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_.-]{0,79}$",
+          "title": "Param",
+          "type": "string"
+        }
+      },
+      "required": [
+        "param"
+      ],
+      "title": "Param",
+      "type": "object"
+    },
+    "Port": {
+      "additionalProperties": false,
+      "properties": {
+        "contract": {
+          "additionalProperties": true,
+          "title": "Contract",
+          "type": "object"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Format"
+        },
+        "handle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Handle"
+        },
+        "type": {
+          "enum": [
+            "form",
+            "path",
+            "val",
+            "tuple"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Port",
+      "type": "object"
+    },
+    "Process": {
+      "additionalProperties": false,
+      "properties": {
+        "command": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Command"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "environment": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z_][A-Za-z0-9_.-]{0,79}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Environment"
+        },
+        "input": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Port"
+          },
+          "title": "Input",
+          "type": "object"
+        },
+        "operator": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operator"
+        },
+        "output": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Port"
+          },
+          "title": "Output",
+          "type": "object"
+        },
+        "parameters": {
+          "additionalProperties": true,
+          "title": "Parameters",
+          "type": "object"
+        },
+        "resources": {
+          "$ref": "#/$defs/Resources"
+        },
+        "route": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Route"
+        },
+        "runner": {
+          "default": "native",
+          "enum": [
+            "native",
+            "python_script",
+            "r_script",
+            "command"
+          ],
+          "title": "Runner",
+          "type": "string"
+        },
+        "script": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Script"
+        }
+      },
+      "title": "Process",
+      "type": "object"
+    },
+    "Profile": {
+      "additionalProperties": false,
+      "properties": {
+        "executor": {
+          "anyOf": [
+            {
+              "enum": [
+                "local",
+                "ssh",
+                "slurm",
+                "standalone"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Executor"
+        },
+        "resources": {
+          "$ref": "#/$defs/Resources"
+        },
+        "storage": {
+          "additionalProperties": true,
+          "title": "Storage",
+          "type": "object"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        }
+      },
+      "title": "Profile",
+      "type": "object"
+    },
+    "Ref": {
+      "additionalProperties": false,
+      "properties": {
+        "ref": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ref"
+      ],
+      "title": "Ref",
+      "type": "object"
+    },
+    "ResourceToken": {
+      "additionalProperties": false,
+      "properties": {
+        "resource": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Resource",
+          "type": "string"
+        }
+      },
+      "required": [
+        "resource"
+      ],
+      "title": "ResourceToken",
+      "type": "object"
+    },
+    "Resources": {
+      "additionalProperties": false,
+      "properties": {
+        "cpus": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cpus"
+        },
+        "memory": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Memory"
+        },
+        "time": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time"
+        }
+      },
+      "title": "Resources",
+      "type": "object"
+    },
+    "Source": {
+      "additionalProperties": false,
+      "properties": {
+        "args": {
+          "additionalProperties": true,
+          "title": "Args",
+          "type": "object"
+        },
+        "dims": {
+          "default": [
+            "sample",
+            "feature"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Dims",
+          "type": "array"
+        },
+        "labels": {
+          "additionalProperties": true,
+          "title": "Labels",
+          "type": "object"
+        },
+        "location": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Location"
+        },
+        "path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/Input"
+            },
+            {
+              "$ref": "#/$defs/Param"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Path"
+        },
+        "reader": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reader"
+        }
+      },
+      "title": "Source",
+      "type": "object"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "context_params": {
+          "additionalProperties": true,
+          "title": "Context Params",
+          "type": "object"
+        },
+        "in": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Binding"
+          },
+          "title": "In",
+          "type": "object"
+        },
+        "input_count": {
+          "anyOf": [
+            {
+              "maximum": 20,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input Count"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "process": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_.-]{0,79}$",
+          "title": "Process",
+          "type": "string"
+        },
+        "title": {
+          "default": "",
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "process"
+      ],
+      "title": "Step",
+      "type": "object"
+    },
+    "Take": {
+      "additionalProperties": false,
+      "properties": {
+        "contract": {
+          "additionalProperties": true,
+          "title": "Contract",
+          "type": "object"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Format"
+        },
+        "handle": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Handle"
+        },
+        "source": {
+          "$ref": "#/$defs/Source"
+        },
+        "title": {
+          "default": "",
+          "title": "Title",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "form",
+            "path",
+            "val",
+            "tuple"
+          ],
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Take",
+      "type": "object"
+    },
+    "Workflow": {
+      "additionalProperties": false,
+      "properties": {
+        "defaults": {
+          "$ref": "#/$defs/Profile"
+        },
+        "emit": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Ref"
+          },
+          "title": "Emit",
+          "type": "object"
+        },
+        "interface": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interface"
+        },
+        "manifest_extra": {
+          "additionalProperties": true,
+          "title": "Manifest Extra",
+          "type": "object"
+        },
+        "memory": {
+          "additionalProperties": true,
+          "title": "Memory",
+          "type": "object"
+        },
+        "name": {
+          "default": "workflow",
+          "title": "Name",
+          "type": "string"
+        },
+        "plugin_lock": {
+          "additionalProperties": true,
+          "title": "Plugin Lock",
+          "type": "object"
+        },
+        "runtime": {
+          "additionalProperties": true,
+          "title": "Runtime",
+          "type": "object"
+        },
+        "steps": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Step"
+          },
+          "maxProperties": 1000,
+          "minProperties": 1,
+          "title": "Steps",
+          "type": "object"
+        },
+        "take": {
+          "additionalProperties": {
+            "$ref": "#/$defs/Take"
+          },
+          "title": "Take",
+          "type": "object"
+        }
+      },
+      "required": [
+        "steps"
+      ],
+      "title": "Workflow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "environments_file": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Environments File"
+    },
+    "format": {
+      "const": "operon.workflow",
+      "title": "Format",
+      "type": "string"
+    },
+    "inputs_file": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Inputs File"
+    },
+    "params_file": {
+      "default": "parameters.json",
+      "title": "Params File",
+      "type": "string"
+    },
+    "processes": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Process"
+      },
+      "maxProperties": 1000,
+      "minProperties": 1,
+      "title": "Processes",
+      "type": "object"
+    },
+    "profiles": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Profile"
+      },
+      "title": "Profiles",
+      "type": "object"
+    },
+    "schema_version": {
+      "const": 2,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "workflow": {
+      "$ref": "#/$defs/Workflow"
+    }
+  },
+  "required": [
+    "format",
+    "schema_version",
+    "processes",
+    "workflow"
+  ],
+  "title": "AuthoringDocument",
+  "type": "object"
+}

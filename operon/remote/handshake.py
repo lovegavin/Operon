@@ -36,6 +36,9 @@ CAPABILITIES = (
 ENGINE_CAPABILITIES = (
     'concurrent_control', 'durable_events', 'resumable_events', 'resource_leases',
     'engine_state', 'engine_request_ids', 'bounded_channels',
+    'cluster.controller_fence.v1',
+    'cluster.invocation.v1',
+    'cluster.same_host_artifacts.v1',
 )
 
 
@@ -332,7 +335,11 @@ class ManifestHandshake:
                           'dependency_revision': digest({'dependencies': dependencies, 'runtime_keys': self.runtime_keys}),
                           'capabilities': list(CAPABILITIES),
                           'base_capabilities': list(CAPABILITIES),
-                          'engine_capabilities': list(ENGINE_CAPABILITIES),
+                          # Cluster support is advertised only after the remote
+                          # adapter confirms the configured host endpoint.
+                          'engine_capabilities': [item for item in ENGINE_CAPABILITIES
+                                                  if item not in ('cluster.controller_fence.v1', 'cluster.invocation.v1',
+                                                                  'cluster.same_host_artifacts.v1')],
                           'library_capabilities': ['library_sync_v1'],
                           'operator_protocol': OPERATOR_PROTOCOL},
             'build': deepcopy(self.build),

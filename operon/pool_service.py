@@ -12,8 +12,9 @@ memory planner remain exactly the existing implementation.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 import hmac
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -24,7 +25,8 @@ import time
 import uuid
 
 from .engine.contracts import EngineError, UnauthorizedError, StaleRevisionError
-from .engine.control import ControlLoop, ControlLimits, ControlError
+from .engine.control import ControlLoop, ControlLimits, ControlError, limits_from_environment
+from .engine.admission_limits import PrincipalLimiter
 from .engine.environment import EnvironmentBusy, EnvironmentGuard
 from .engine.executor import ExecutionContext, ExecutionResult
 from .engine.facade import EngineRuntime, owner_identity, pool_owner
@@ -93,6 +95,9 @@ class MultiWorkspaceExecutor:
         return service
 
     def launch(self, context: ExecutionContext) -> ExecutionResult:
+        invocation = self.pool.invocation_executor(context.run)
+        if invocation is not None:
+            return invocation.launch(context)
         service = self._service(context)
         job_id = str(context.run['id'])
         committed = (context.lease or {}).get('committed')
@@ -109,6 +114,9 @@ class MultiWorkspaceExecutor:
         return ExecutionResult(state='running', identity=identity, tree_alive=True)
 
     def poll(self, context: ExecutionContext) -> ExecutionResult:
+        invocation = self.pool.invocation_executor(context.run)
+        if invocation is not None:
+            return invocation.poll(context)
         service = self._service(context)
         from .engine.executor import identity_for_job
         job_id = str(context.run['id'])
@@ -132,6 +140,9 @@ class MultiWorkspaceExecutor:
         return ExecutionResult(state='running', identity=identity, tree_alive=True)
 
     def cancel(self, context: ExecutionContext, *, timeout: float = 10.0) -> ExecutionResult:
+        invocation = self.pool.invocation_executor(context.run)
+        if invocation is not None:
+            return invocation.cancel(context, timeout=timeout)
         service = self._service(context)
         from .engine.executor import identity_for_job
         job_id = str(context.run['id'])
@@ -154,6 +165,9 @@ class MultiWorkspaceExecutor:
                 continue
 
     def reconcile(self, context: ExecutionContext) -> ExecutionResult:
+        invocation = self.pool.invocation_executor(context.run)
+        if invocation is not None:
+            return invocation.reconcile(context)
         service = self._service(context)
         from .engine.executor import identity_for_job
         job_id = str(context.run['id'])
@@ -190,6 +204,9 @@ class PoolService:
         self.root.mkdir(parents=True, exist_ok=True)
         self.code_root = _resolve(code_root) if code_root else None
         self.owner = owner_identity()
+        self._submission_lock = threading.Lock()
+        self._pending_submissions = {}
+        self._plan_executors = {}
         from src.web.admission import HostAdmission
         # A crashed daemon may leave live workers whose leases only exist in
         # the durable engine store. Do not rescan free RAM and redefine their
@@ -464,7 +481,180 @@ class PoolService:
             session = self._session(session_id, workspace=workspace, principal=principal)
             principal = session['principal']
         principal = self._authorize(service, principal)
-        return service.launch(graph, request_id=request_id, principal=principal)
+        store = self.engine.store
+        if request_id is not None and (not isinstance(request_id, str) or not request_id or len(request_id) > 512):
+            raise ControlError('request_id must be a non-empty string of at most 512 characters')
+        key = 'req-' + hashlib.sha256(request_id.encode('utf-8')).hexdigest()[:24] if request_id else None
+        replay = key is not None and store.request(principal, key) is not None
+        with self._submission_lock:
+            if not replay:
+                store.check_submission_capacity(principal, pending=sum(self._pending_submissions.values()),
+                                                principal_pending=self._pending_submissions.get(principal, 0))
+                if len(graph.model_dump_json().encode('utf-8')) > store.queue_limits.submission_bytes:
+                    from .engine.contracts import BusyError
+                    raise BusyError('Workflow exceeds submission size limit', code='queue_full')
+            self._pending_submissions[principal] = self._pending_submissions.get(principal, 0) + 1
+        try:
+            return service.launch(graph, request_id=request_id, principal=principal)
+        finally:
+            with self._submission_lock:
+                remaining = self._pending_submissions[principal] - 1
+                if remaining:
+                    self._pending_submissions[principal] = remaining
+                else:
+                    del self._pending_submissions[principal]
+
+    def invocation_executor(self, run):
+        execution = run.get('plan', {}).get('execution', {})
+        binding = execution.get('invocation_binding')
+        if binding is None:
+            return None
+        key = run['id']
+        with self._state_lock:
+            cached = self._plan_executors.get(key)
+            if cached is not None:
+                return cached
+            from .environment_store import EnvironmentStore
+            from .environment_store.verification import confined
+            from .execution.unit_executor import RunPlanExecutor
+            from .contracts.plan_operations import PlanExecutionBinding
+            service = self.services[run['workspace_id']]
+            binding = PlanExecutionBinding.model_validate(binding).model_dump(mode='json')
+            package = confined(service.root, binding['package_root'])
+            environment = confined(service.root, binding['environment_store'])
+            binding['storage'] = {key: str(confined(service.root, value))
+                                  for key, value in binding['storage'].items()}
+            binding['inputs'] = {key: {**value, 'path': str(confined(service.root, value['path']))}
+                                 for key, value in binding['inputs'].items()}
+            executor = RunPlanExecutor(service.directory / 'invocations',
+                environment_store=EnvironmentStore(environment), package_root=package, bindings=binding)
+            self._plan_executors[key] = executor
+            return executor
+
+    def submit_plan(self, workspace, plan, binding, *, request_id, principal=None, session_id=None, run_id=None):
+        from .contracts.run_plan import RunPlan
+        from .contracts.base import sha256_hex
+        from .planning.validation import validate_run_plan
+        from .execution.unit_executor import unit_dependencies
+        from .environment_store.verification import confined
+        from .environment_store import EnvironmentStore
+        from .contracts.plan_operations import PlanExecutionBinding
+        service = self.resolve(workspace)
+        if session_id is not None:
+            principal = self._session(session_id, workspace=workspace, principal=principal)['principal']
+        principal = self._authorize(service, principal)
+        plan = RunPlan.model_validate(plan)
+        validate_run_plan(plan)
+        binding = PlanExecutionBinding.model_validate(binding).model_dump(mode='json')
+        if not isinstance(request_id, str) or not request_id or len(request_id) > 512:
+            raise ControlError('plan.submit requires a stable request_id')
+        if run_id is not None:
+            # Internal fenced-controller hook only: the public plan RPC never
+            # accepts a caller-chosen run ID. Preserve its durable pre-send ID.
+            from .contracts.plan_operations import PlanLookupControl
+            from .engine.contracts import IdempotencyConflictError
+            PlanLookupControl(workspace=str(service.root), run_id=run_id)
+            claimed = self.engine.store.request(principal, 'plan:' + request_id)
+            if claimed and (claimed['run_id'] != run_id or claimed['operation'] != 'run-plan'
+                            or claimed['digest'] != sha256_hex({'plan': plan.plan_id, 'binding': binding})):
+                raise IdempotencyConflictError('Internal plan ID differs from the original submission receipt')
+            try:
+                existing = self.engine.store.run(run_id)
+            except KeyError:
+                existing = None
+            if existing and (not claimed or existing['principal'] != principal
+                    or existing['workspace_id'] != service.engine.workspace_id
+                    or existing['plan']['graph'].get('plan_id') != plan.plan_id
+                    or existing['plan']['execution'].get('invocation_binding') != binding):
+                raise IdempotencyConflictError('Internal plan ID is already bound to another execution')
+        confined(service.root, binding['package_root'])
+        for relative in binding['storage'].values():
+            confined(service.root, relative)
+        for value in binding['inputs'].values():
+            from .execution.codecs import validate_reference
+            validate_reference({**value, 'path': str(confined(service.root, value['path']))})
+        store = EnvironmentStore(confined(service.root, binding['environment_store']), create=False)
+        for unit in plan.units:
+            if unit.placement.executor != 'local':
+                raise PoolError('A host pool accepts only local units', code='unsupported_target')
+            environment = binding['environments'][unit.invocation.environment_ref]
+            resolved = store.binding(environment['generation_id'])
+            expected = plan.execution_policy.get('environment_refs', {}).get(unit.invocation.environment_ref)
+            if expected is None and len(plan.environment_requirements) == 1:
+                expected = sha256_hex(plan.environment_requirements[0])
+            if resolved.requirement_digest != expected:
+                raise PoolError('Bound environment differs from the unit requirement', code='environment_unverified')
+        parents = unit_dependencies(plan)
+        return self.coordinator.submit(key='plan:' + request_id,
+            digest=sha256_hex({'plan': plan.plan_id, 'binding': binding}),
+            graph=plan.model_dump(mode='json'), parameters={}, execution={'invocation_binding': binding},
+            units=[{'unit_id': unit.unit_id, 'node_ids': list(unit.node_ids), 'depends_on': sorted(parents[unit.unit_id]),
+                    'requirement': unit.resource_request.model_dump(mode='json'), 'capability': 'invocation-v1',
+                    'retry_limit': unit.retry_policy.maximum_attempts} for unit in plan.units],
+            workspace_id=service.engine.workspace_id, principal=principal, operation='run-plan', run_id=run_id)
+
+    def _plan_authorize(self, workspace, run_id, *, principal=None, session_id=None):
+        from .contracts.plan_operations import PlanLookupControl
+        PlanLookupControl(workspace=str(workspace), run_id=run_id, principal=principal, session_id=session_id)
+        service = self.resolve(workspace)
+        if session_id is not None:
+            principal = self._session(session_id, workspace=workspace, principal=principal)['principal']
+        principal = self._authorize(service, principal)
+        try:
+            run = self.engine.store.run(run_id)
+        except KeyError as exc:
+            raise PoolError('Plan was not found', code='plan_not_found', status=404) from exc
+        if run['principal'] != principal or run['workspace_id'] != service.engine.workspace_id:
+            raise PoolAuthError('This plan belongs to another workspace/principal')
+        if not run['plan'].get('execution', {}).get('invocation_binding'):
+            raise PoolError('This run is not an invocation plan')
+        return service, run
+
+    def plan_details(self, workspace, run_id, *, principal=None, session_id=None):
+        service, run = self._plan_authorize(workspace, run_id, principal=principal, session_id=session_id)
+        return {'run_id': run_id, 'state': run['status'], 'revision': run['revision'],
+                'units': self.engine.store.units(run_id), 'attempts': self.engine.store.attempts(run_id),
+                'results': str(service.directory / 'invocations' / 'runs' / run_id / 'published')}
+
+    def _plan_read(self, operation, workspace, run_id, *, principal=None, session_id=None, **query):
+        from .plan_results import PlanResults
+        service, run = self._plan_authorize(workspace, run_id, principal=principal, session_id=session_id)
+        return getattr(PlanResults(self.engine.store, service.directory, run), operation)(**query)
+
+    def plan_events(self, workspace, run_id, **options):
+        return self._plan_read('events', workspace, run_id, **options)
+
+    def plan_attempts(self, workspace, run_id, **options):
+        return self._plan_read('attempts', workspace, run_id, **options)
+
+    def plan_artifacts(self, workspace, run_id, **options):
+        return self._plan_read('artifacts', workspace, run_id, **options)
+
+    def plan_logs(self, workspace, run_id, **options):
+        return self._plan_read('logs', workspace, run_id, **options)
+
+    def plan_artifact_files(self, workspace, run_id, **options):
+        return self._plan_read('artifact_files', workspace, run_id, **options)
+
+    def plan_artifact_preview(self, workspace, run_id, **options):
+        return self._plan_read('artifact_preview', workspace, run_id, **options)
+
+    def plan_artifact_file(self, workspace, run_id, **options):
+        return self._plan_read('artifact_file', workspace, run_id, **options)
+
+    def plan_cancel(self, workspace, run_id, *, principal=None, session_id=None):
+        """Authorize against the existing plan owner before publishing cancel intent."""
+        self.plan_details(workspace, run_id, principal=principal, session_id=session_id)
+        service = self.resolve(workspace)
+        if session_id is not None:
+            principal = self._session(session_id, workspace=workspace, principal=principal)['principal']
+        principal = self._authorize(service, principal)
+        try:
+            self.coordinator.cancel(run_id, principal=principal, reason='invocation plan cancellation')
+        except StaleRevisionError:
+            if self.engine.store.run(run_id)['status'] not in ('complete', 'failed', 'cancelled'):
+                raise
+        return self.plan_details(workspace, run_id, principal=principal, session_id=session_id)
 
     def submit_run(self, service, job, *, principal=None):
         """Register an already-prepared workspace job with the pool coordinator."""
@@ -540,7 +730,7 @@ class PoolService:
         }
         return job
 
-    def cancel(self, workspace, run_id, *, principal=None, session_id=None, reason='client cancel'):
+    def cancel(self, workspace, run_id, *, principal=None, session_id=None, reason='client cancel', compact=False):
         service = self.resolve(workspace)
         if session_id is not None:
             session = self._session(session_id, workspace=workspace, principal=principal)
@@ -558,7 +748,7 @@ class PoolService:
             from .engine.contracts import RunState, TERMINAL_RUN_STATES
             if RunState(self.engine.store.run(run_id)['status']) not in TERMINAL_RUN_STATES:
                 raise
-            return self.details(workspace, run_id, principal=principal)
+            return self.run_status(workspace, run_id, principal=principal) if compact else self.details(workspace, run_id, principal=principal)
         with service.lock:
             current = service.jobs.get(run_id)
             if current is not None and current.get('status') in ('queued', 'running', 'preparing'):
@@ -566,7 +756,20 @@ class PoolService:
                 current['cancel_state'] = 'requesting'
                 from src.web.service import write_json
                 write_json(service.jobs_dir / run_id / 'job.json', current)
-        return self.details(workspace, run_id, principal=principal)
+        return self.run_status(workspace, run_id, principal=principal) if compact else self.details(workspace, run_id, principal=principal)
+
+    def run_status(self, workspace, run_id, *, principal=None, session_id=None):
+        """Bounded lifecycle observation: no graph, file reads or historical logs."""
+        service = self.resolve(workspace)
+        if session_id is not None:
+            principal = self._session(session_id, workspace=workspace, principal=principal)['principal']
+        principal = self._authorize(service, principal)
+        with service.lock:
+            job = service.require(run_id)
+            if job.get('principal') and job['principal'] != principal:
+                raise PoolAuthError('This run belongs to another scheduling principal')
+            return {key: job.get(key) for key in ('id', 'status', 'logs_complete', 'exit_code',
+                'cancel_requested', 'compute_complete', 'tree_exited', 'resources_released', 'artifact_committed')}
 
     def events(self, workspace, *, after=0, limit=200, principal=None, session_id=None):
         service = self.resolve(workspace)
@@ -597,6 +800,7 @@ class PoolService:
                     for wid, service in list(self.services.items())],
             'trusted_principals': sorted(self._principals()),
             'sessions': len(self.sessions),
+            'queue_limits': asdict(self.engine.store.queue_limits),
             'capacity_domain': self.engine.spec.capacity_domain,
             'closed': self._closed,
         }
@@ -621,6 +825,10 @@ class PoolService:
 
     def _commit_artifacts(self, payload, result):
         run = payload.get('run') or {}
+        invocation = self.invocation_executor(run)
+        if invocation is not None:
+            from .engine.artifacts import ArtifactCommitter
+            return invocation.publish(payload, result, ArtifactCommitter(invocation.root, self.engine.store))
         workspace = run.get('workspace_id')
         service = self.services.get(workspace)
         if service is None:
@@ -647,8 +855,12 @@ class PoolService:
         if self.coordinator is not None:
             try:
                 self.coordinator.stop(cancel_attempts=True)
-            finally:
-                self.coordinator = None
+            except Exception:
+                # A live stopping thread still owns state and admission. Preserve
+                # every handle so shutdown can be retried without a second owner.
+                self._closed = False
+                raise
+            self.coordinator = None
         for service in list(self.services.values()):
             try:
                 service.shutdown(cancel_jobs=True)
@@ -669,32 +881,80 @@ class PoolService:
 class PoolControlServer:
     """Loopback framed control channel for pool clients; not a second scheduler."""
 
-    def __init__(self, pool, *, token, host='127.0.0.1', port=0, limits=None):
+    def __init__(self, pool, *, token, host='127.0.0.1', port=0, limits=None, controller_id=None):
         if not token:
             raise ValueError('A non-empty pool token is required')
         self.pool, self.token = pool, token
+        # A configured identity is authorized by this existing authenticated
+        # endpoint; an arbitrary payload controller_id is never authority.
+        configured_controller = controller_id or os.environ.get('OPERON_CLUSTER_CONTROLLER_ID')
+        self.cluster_endpoint = None
+        if configured_controller and pool is not None:
+            from .cluster.host import HostControllerEndpoint
+            self.cluster_endpoint = HostControllerEndpoint(pool, authenticated_controller_id=configured_controller)
         self.host = host
         self.listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.listener.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.listener.bind((host, port))
         self.address = self.listener.getsockname()
         self.listener.listen(64)
-        self.loop = ControlLoop(self.dispatch, limits=limits or ControlLimits())
+        self.listener.settimeout(.25)
+        self.loop = ControlLoop(self.dispatch, limits=limits or limits_from_environment())
+        self.lifecycle_listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.lifecycle_listener.bind((host, 0))
+        self.lifecycle_listener.listen(16)
+        self.lifecycle_listener.settimeout(.25)
+        self.lifecycle_address = self.lifecycle_listener.getsockname()
+        self.lifecycle_loop = ControlLoop(self.dispatch_lifecycle, limits=ControlLimits(
+            max_handlers=4, max_reject_handlers=1, max_frame_bytes=65536,
+            max_response_bytes=65536, max_inflight_bytes=4 * 1024**2,
+            inactivity_seconds=5, absolute_seconds=10, busy_response_seconds=.2))
+        self.principal_limiter = PrincipalLimiter(
+            rate=float(os.environ.get('OPERON_CONTROL_RATE', 20)),
+            burst=int(os.environ.get('OPERON_CONTROL_BURST', 40)),
+            concurrent=int(os.environ.get('OPERON_CONTROL_PRINCIPAL_HANDLERS', 8)))
         self._closed = threading.Event()
         self._thread = None
 
     def start(self):
+        self._lifecycle_thread = threading.Thread(target=self._accept,
+            args=(self.lifecycle_listener, self.lifecycle_loop), name='operon-pool-lifecycle', daemon=True)
+        self._lifecycle_thread.start()
         self._thread = threading.Thread(target=self._accept, name='operon-pool-control', daemon=True)
         self._thread.start()
         return self
 
-    def _accept(self):
+    def _accept(self, listener=None, loop=None):
+        listener, loop = listener or self.listener, loop or self.loop
         while not self._closed.is_set():
             try:
-                connection, peer = self.listener.accept()
+                connection, peer = listener.accept()
+            except socket.timeout:
+                continue
             except OSError:
                 break
-            self.loop.submit(connection, peer=f'{peer[0]}:{peer[1]}')
+            loop.submit(connection, peer=f'{peer[0]}:{peer[1]}')
+
+    def capabilities(self):
+        value = {'control.lifecycle_lane.v1': {'address': list(self.lifecycle_address),
+                                             'max_frame_bytes': 65536, 'handlers': 4}}
+        if self.pool is not None and hasattr(self.pool, 'submit_plan'):
+            value['execution.invocation.v1'] = {'schema_version': 1}
+        if self.cluster_endpoint is not None:
+            value['cluster.controller_fence.v1'] = {'controller_id': self.cluster_endpoint.controller_id}
+            value['cluster.invocation.v1'] = {'controller_id': self.cluster_endpoint.controller_id,
+                                              'schema_version': 1}
+            value['cluster.same_host_artifacts.v1'] = {'schema_version': 1}
+        return value
+
+    def dispatch_lifecycle(self, method, params):
+        self._check(params)
+        if method not in ('pool.ping', 'run.status', 'run.cancel', 'session.close', 'workspace.close_session',
+                          'cluster.lookup', 'cluster.status', 'cluster.cancel',
+                          'cluster.plan.lookup', 'cluster.plan.status', 'cluster.plan.cancel'):
+            if method not in ('plan.details', 'plan.cancel'):
+                raise ControlError('This endpoint only accepts bounded lifecycle operations')
+        return self.dispatch(method, {**params, '_compact': True})
 
     def _check(self, params):
         token = params.get('_token') if isinstance(params, dict) else None
@@ -704,16 +964,78 @@ class PoolControlServer:
     def dispatch(self, method, params):
         params = params or {}
         self._check(params)
+        # A claimed principal is not an identity. Resolve it from an authorized
+        # registered workspace/session, otherwise charge the authenticated pool
+        # owner. Opening extra sessions cannot multiply a principal's allowance.
+        principal = pool_owner()
+        if params.get('session_id'):
+            principal = self.pool._session(params['session_id'], workspace=params.get('workspace'),
+                                           principal=params.get('principal'))['principal']
+        elif params.get('workspace'):
+            principal = self.pool._authorize(self.pool.resolve(params['workspace']), params.get('principal'))
+        lane = 'lifecycle' if method in ('run.cancel', 'run.status', 'run.details', 'pool.ping', 'pool.status', 'session.close', 'workspace.close_session', 'workspace.stop', 'cluster.lookup', 'cluster.status', 'cluster.cancel', 'cluster.plan.lookup', 'cluster.plan.status', 'cluster.plan.cancel', 'plan.details', 'plan.cancel') else 'normal'
+        with self.principal_limiter.admit(principal, lane=lane):
+            return self._dispatch(method, params)
+
+    def _dispatch(self, method, params):
+        if method in ('plan.artifact_files', 'plan.artifact_preview', 'plan.artifact_file'):
+            from .contracts.plan_artifacts import (PlanArtifactFilesControl, PlanArtifactPreviewControl,
+                                                   PlanArtifactFileControl)
+            model = {'plan.artifact_files': PlanArtifactFilesControl,
+                     'plan.artifact_preview': PlanArtifactPreviewControl,
+                     'plan.artifact_file': PlanArtifactFileControl}[method]
+            request = model.model_validate({key: value for key, value in params.items()
+                                            if key not in ('_token', '_compact')})
+            arguments = request.model_dump(mode='json')
+            workspace, run_id = arguments.pop('workspace'), arguments.pop('run_id')
+            return getattr(self.pool, method.replace('.', '_'))(workspace, run_id, **arguments)
+        if method in ('plan.events', 'plan.attempts', 'plan.artifacts', 'plan.logs'):
+            from .contracts.plan_operations import PlanEventsControl, PlanPageControl, PlanLogsControl
+            model = {'plan.events': PlanEventsControl, 'plan.logs': PlanLogsControl}.get(method, PlanPageControl)
+            request = model.model_validate({key: value for key, value in params.items()
+                                            if key not in ('_token', '_compact')})
+            arguments = request.model_dump(mode='json')
+            workspace, run_id = arguments.pop('workspace'), arguments.pop('run_id')
+            return getattr(self.pool, method.replace('.', '_'))(workspace, run_id, **arguments)
+        if method == 'plan.submit':
+            from .contracts.plan_operations import PlanSubmitControl
+            request = PlanSubmitControl.model_validate({key: value for key, value in params.items()
+                                                       if key not in ('_token', '_compact')})
+            return self.pool.submit_plan(request.workspace, request.plan, request.binding.model_dump(mode='json'),
+                request_id=request.request_id, principal=request.principal, session_id=request.session_id)
+        if method in ('plan.details', 'plan.cancel'):
+            from .contracts.plan_operations import PlanLookupControl
+            request = PlanLookupControl.model_validate({key: value for key, value in params.items()
+                                                       if key not in ('_token', '_compact')})
+            action = self.pool.plan_details if method == 'plan.details' else self.pool.plan_cancel
+            value = action(request.workspace, request.run_id, principal=request.principal, session_id=request.session_id)
+            if params.get('_compact'):
+                # Reserved lane never serializes every unit/attempt or full plan.
+                return {**{key: value[key] for key in ('run_id', 'state', 'results')}, 'revision': str(value['revision']),
+                        'unit_count': len(value.get('units', ())), 'attempt_count': len(value.get('attempts', ()))}
+            return value
+        if method.startswith('cluster.'):
+            if self.cluster_endpoint is None:
+                raise PoolError('Controller access is not configured on this host', code='capability_unavailable')
+            from src.web.models import Graph
+            return self.cluster_endpoint.dispatch(method, params, graph_validator=Graph.model_validate)
         if method == 'pool.status':
-            return self.pool.status()
+            return {**self.pool.status(), 'capabilities': self.capabilities()}
+        if method == 'pool.ping':
+            return {'pool_id': self.pool.engine.spec.pool_id, 'closed': self.pool._closed,
+                    'capacity_domain': self.pool.engine.spec.capacity_domain, 'capabilities': self.capabilities()}
+        if method == 'run.status':
+            return self.pool.run_status(params.get('workspace'), params.get('run_id'),
+                principal=params.get('principal'), session_id=params.get('session_id'))
         if method == 'workspace.list':
             return [{'root': str(service.root), 'workspace_id': wid,
                      'principal': service._pool_principal or service.engine.principal}
                     for wid, service in self.pool.services.items()]
         if method == 'session.open':
-            return self.pool.open_session(params.get('workspace'),
+            session = self.pool.open_session(params.get('workspace'),
                                           principal=params.get('principal'),
                                           name=params.get('name'), owner=params.get('owner'))
+            return {**session, 'capabilities': self.capabilities()}
         if method == 'session.close':
             session_id = params.get('session_id')
             if not isinstance(session_id, str) or not session_id:
@@ -760,7 +1082,7 @@ class PoolControlServer:
             return self.pool.cancel(params.get('workspace'), params.get('run_id'),
                                     principal=params.get('principal'),
                                     session_id=params.get('session_id'),
-                                    reason=params.get('reason') or 'client cancel')
+                                    reason=params.get('reason') or 'client cancel', compact=params.get('_compact') is True)
         if method == 'events.page':
             return self.pool.events(params.get('workspace'), after=int(params.get('after', 0)),
                                     limit=int(params.get('limit', 200)),
@@ -782,6 +1104,11 @@ class PoolControlServer:
         except OSError:
             pass
         self.loop.close()
+        self.lifecycle_listener.close()
+        self.lifecycle_loop.close()
+        for thread in (self._thread, getattr(self, '_lifecycle_thread', None)):
+            if thread is not None and thread is not threading.current_thread():
+                thread.join(timeout=1)
 
 
 class PoolClientError(EngineError):
@@ -791,18 +1118,28 @@ class PoolClientError(EngineError):
 class PoolClient:
     """Small reconnecting client; one request per connection."""
 
-    def __init__(self, address, token, *, timeout=30.0, session_id=None):
+    def __init__(self, address, token, *, timeout=30.0, session_id=None, capabilities=None):
         self.address = tuple(address)
         self.token = token
         self.timeout = timeout
         self.session_id = session_id
         self._session_context = None
+        self.lifecycle_address = None
+        self.negotiate(capabilities or {})
+
+    def negotiate(self, capabilities):
+        self.capabilities = dict(capabilities)
+        endpoint = (capabilities.get('control.lifecycle_lane.v1') or {}).get('address')
+        if (isinstance(endpoint, (list, tuple)) and len(endpoint) == 2 and
+                endpoint[0] == self.address[0] and type(endpoint[1]) is int and 0 < endpoint[1] < 65536):
+            self.lifecycle_address = tuple(endpoint)
 
     def open_session(self, workspace, *, principal=None, name=None):
         value = self.request('session.open', {'workspace': str(workspace),
                                               'principal': principal, 'name': name,
                                               'owner': owner_identity()})
         self.session_id = value['session_id']
+        self.negotiate(value.get('capabilities') or {})
         self._session_context = {'workspace': str(workspace), 'principal': principal, 'name': name}
         return value
 
@@ -824,13 +1161,19 @@ class PoolClient:
 
     def request(self, method, params=None, *, _retry_session=True):
         payload = dict(params or {})
-        session_method = method in ('run.submit', 'run.details', 'run.cancel', 'events.page')
+        session_method = method in ('run.submit', 'run.status', 'run.details', 'run.cancel', 'events.page',
+                                    'plan.submit', 'plan.details', 'plan.cancel', 'plan.events', 'plan.attempts',
+                                    'plan.artifacts', 'plan.logs', 'plan.artifact_files', 'plan.artifact_preview',
+                                    'plan.artifact_file')
         if session_method and self._session_context and self.session_id:
             payload['session_id'] = self.session_id
         payload['_token'] = self.token
         body = json.dumps({'id': uuid.uuid4().hex, 'method': method, 'params': payload},
                           ensure_ascii=False, allow_nan=False).encode('utf-8')
-        with socket.create_connection(self.address, timeout=self.timeout) as connection:
+        address = (self.lifecycle_address if self.lifecycle_address and method in
+            ('pool.ping', 'run.status', 'run.cancel', 'session.close', 'workspace.close_session',
+             'cluster.lookup', 'cluster.status', 'cluster.cancel', 'cluster.plan.lookup', 'cluster.plan.status', 'cluster.plan.cancel', 'plan.details', 'plan.cancel') else self.address)
+        with socket.create_connection(address, timeout=self.timeout) as connection:
             connection.settimeout(self.timeout)
             connection.sendall(struct.pack('!Q', len(body)) + body)
             header = self._recv_exact(connection, 8)
@@ -847,8 +1190,11 @@ class PoolClient:
                 return self.request(method, payload, _retry_session=False)
             raise PoolClientError(value.get('error') or 'Pool request failed',
                                   code=value.get('code') or 'pool_error',
-                                  details=value.get('details'))
-        return value.get('value')
+                                  details=value.get('details'), retry_after=value.get('retry_after'))
+        result = value.get('value')
+        if method in ('pool.status', 'pool.ping') and isinstance(result, dict):
+            self.negotiate(result.get('capabilities') or {})
+        return result
 
     @staticmethod
     def _recv_exact(connection, size):
@@ -856,7 +1202,7 @@ class PoolClient:
         while size:
             block = connection.recv(min(size, 65536))
             if not block:
-                raise PoolClientError('Pool connection closed before the response')
+                raise PoolClientError('Pool connection closed before the response', code='response_unavailable')
             chunks.append(block)
             size -= len(block)
         return b''.join(chunks)
@@ -878,3 +1224,15 @@ class PoolClient:
         return self.request('run.cancel', {'workspace': str(workspace), 'run_id': run_id,
                                            'principal': principal,
                                            'session_id': self.session_id})
+
+    def submit_plan(self, workspace, plan, binding, *, request_id, principal=None):
+        return self.request('plan.submit', {'workspace': str(workspace), 'plan': plan, 'binding': binding,
+            'request_id': request_id, 'principal': principal, 'session_id': self.session_id})
+
+    def plan_details(self, workspace, run_id, *, principal=None):
+        return self.request('plan.details', {'workspace': str(workspace), 'run_id': run_id,
+                                            'principal': principal, 'session_id': self.session_id})
+
+    def cancel_plan(self, workspace, run_id, *, principal=None):
+        return self.request('plan.cancel', {'workspace': str(workspace), 'run_id': run_id,
+                                           'principal': principal, 'session_id': self.session_id})

@@ -202,16 +202,11 @@ class ExecutionService:
         # Retain old pins; each selected host resolves them against its immutable
         # installed generations on stage submission. Defaults are already frozen.
         available = {s['id']: s.get('implementation') for s in catalog['operators'] + catalog['readers']}
-        from operon.pins import graphs, refresh_missing
-        migrations = refresh_missing(graph, self.service.plugins.state())
-        if migrations:
-            graph.runtime['pin_migrations'] = migrations
+        from operon.pins import graphs
         for part in graphs(graph):
             for node in part.nodes:
                 if node.kind == 'operator' and available.get(node.operator):
                     part.plugin_lock.setdefault(node.operator, deepcopy(available[node.operator]))
-            # Canvas execution resolves ids in the installed library, not pins.
-            part.plugin_lock.clear()
         return prepare_interface(graph, catalog, self.service.root, input_roots=self.service.settings.input_roots)
 
     def _stat(self, location, paths, base='.'):
@@ -1147,6 +1142,35 @@ class ExecutionService:
         child, index = self._export_ref(key, index)
         fields = {'index': index, **({'format': format} if format else {}), **({'figure_id': figure_id} if figure_id is not None else {})}
         return self.service.figure_file(child['id'], index, format=format, **({'figure_id': figure_id} if figure_id is not None else {})) if child['target']['kind'] == 'local' else self._fetch_output(key, child, 'figure', **fields)
+
+    def result_files(self, key):
+        job = self.details(key)
+        files = []
+        for index, child in enumerate(job['children']):
+            if child['target']['kind'] == 'local':
+                listing = self.service.result_files(child['id'])
+            else:
+                listing = self.service.remotes.result_files_for(target_key(child['target']), child['id'])
+            for item in listing.get('files') or []:
+                files.append({**item, 'path': f"stages/{index}/{item['path']}",
+                              'stage': index, 'unit_id': child.get('unit_id')})
+        files.sort(key=lambda item: item['path'])
+        return {'job_id': key, 'files': files, 'total_bytes': sum(item['bytes'] for item in files)}
+
+    def result_file(self, key, path):
+        parts = Path(str(path)).parts
+        if len(parts) < 3 or parts[0] != 'stages':
+            raise ValueError('Invalid composite result path')
+        try:
+            index = int(parts[1])
+        except ValueError as exc:
+            raise ValueError('Invalid composite result path') from exc
+        job = self.details(key)
+        if not 0 <= index < len(job['children']):
+            raise KeyError('Unknown stage result')
+        rest = Path(*parts[2:]).as_posix()
+        child = job['children'][index]
+        return self.service.result_path(child['id'], rest) if child['target']['kind'] == 'local' else self._fetch_output(key, child, 'result', path=rest)
 
     def history(self):
         return sorted([self.details(path.parent.name) for path in self.directory.glob('exec-*/job.json')],

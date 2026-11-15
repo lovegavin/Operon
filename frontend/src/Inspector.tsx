@@ -17,6 +17,7 @@ import {ExecutionSettings} from './ExecutionSettings';
 import {OperatorSource, ScriptInspector, scriptParameters} from './ScriptInspector';
 import {defaultTarget, executionConfig, groupParameters, nodeTarget, targetFromKey, targetKey, targetLabel} from './execution';
 import { api } from "./api";
+import {clearStorageInput, selectStorageInput} from './storageInputs';
 import { inputAccept, makeReaderNode, renameSourceDimensions, readerForSource, rePointSource } from "./readerInput";
 import { supportedPlatformLabel, targetPlatformWarning } from './platform';
 import { bytes, displayTitle, inputCount, outputCount, specFor, retainedOutputs } from "./graph";
@@ -220,6 +221,7 @@ export function Inspector({
   onClose,
   onOpenRoute,
   onBrowseRemote,
+  onBrowseStorage,
   servers = [],
   localSystem,
   onExecution = () => {},
@@ -244,6 +246,7 @@ export function Inspector({
   onClose: () => void;
   onOpenRoute: (route: RouteDefinition) => void;
   onBrowseRemote?: import('./types').BrowseRemote;
+  onBrowseStorage?: (selected: (reference: import('./storageTypes').StorageRef) => void) => void;
   servers?: RemoteStatus[];
   localSystem?: string;
   onExecution?: (patch: Partial<ExecutionConfig>) => void;
@@ -467,7 +470,8 @@ export function Inspector({
                       const chosen = catalog.readers?.find(item => item.id === event.target.value);
                       if (chosen) {
                         const template = makeReaderNode(graph, chosen, node.position, sourceLocation);
-                        onNode(node.id, {source: {...template.source!, path: node.source!.path}});
+                        onNode(node.id, {source: {...template.source!, path: node.source!.path,
+                          ...(node.source!.storage_ref ? {storage_ref: node.source!.storage_ref, location: undefined} : {})}});
                       } else {
                         const source = {...node.source!}; delete source.reader;
                         onNode(node.id, {source});
@@ -502,13 +506,21 @@ export function Inspector({
                   {uploadLimit != null && <small>{t("每个文件上限")} {uploadLimit} MiB</small>}
                 </button>
                 <p className="helper" role="status">{t("上传后会复制到 Operon 数据目录；远程运行时会自动上传到所选服务器工作区。")}</p>
+                {onBrowseStorage && <button className="subtle-button source-server-button" disabled={busy || uploading}
+                  onClick={() => onBrowseStorage(reference => onNode(node.id,
+                    {source: selectStorageInput(node.source!, reference, catalog)}))}>{t('选择已配置文件')}</button>}
                 {onBrowseRemote && <button className="subtle-button source-server-button" disabled={busy || uploading}
                   onClick={() => onBrowseRemote(node.source!.path, (path, source, location) => onNode(node.id,
-                    {source: {...(source || node.source!), path, location: location || sourceLocation}}), true, sourceLocation, node.source!.reader)}>{t("选择服务器文件")}</button>}
+                    {source: {...clearStorageInput(source || node.source!), path, location: location || sourceLocation}}), true, sourceLocation, node.source!.reader)}>{t("选择服务器文件")}</button>}
                 <details className="advanced input-format-help"><summary>{t("多文件格式")} <CaretDown size={14}/></summary>
                   <p className="helper">{t("PLINK：同时选择同名的 .bed、.bim、.fam。10x MTX：同时选择 matrix、barcodes 和 features / genes。")}</p>
                 </details>
-                <label className="field"><span>{t("文件所在位置")}</span><select aria-label={t("文件所在位置")} value={targetKey(sourceLocation)} disabled={busy || uploading}
+                {node.source.storage_ref ? <div className="field"><span>{t('已配置文件')}</span>
+                  <strong>{node.source.storage_ref.storage_id}</strong><code>{node.source.storage_ref.relative_path}</code>
+                  <p className="helper">{t('运行前检查所选文件版本，并在已授权的执行位置读取；不会自动下载文件。')}</p>
+                  <button className="subtle-button" disabled={busy || uploading} onClick={() => onNode(node.id,
+                    {source: {...clearStorageInput(node.source!), path: '', location: {kind: 'local'}}})}>{t('改用文件路径')}</button>
+                </div> : <><label className="field"><span>{t("文件所在位置")}</span><select aria-label={t("文件所在位置")} value={targetKey(sourceLocation)} disabled={busy || uploading}
                   onChange={e => onNode(node.id, {source: {...node.source!, location: targetFromKey(e.target.value)}})}>
                   <option value="">{t("本机")}</option>
                   {sourceLocation.kind === 'ssh' && !servers.some(server => server.profile.id === sourceLocation.profile_id) && <option value={sourceLocation.profile_id}>{t("未配置的服务器")}</option>}
@@ -527,7 +539,7 @@ export function Inspector({
                       })
                     }
                   />
-                </label>
+                </label></>}
                 {reader?.contracts.output?.kind !== "file" && <label className="field">
                   <span>{t("维度名称")}</span>
                   <CommaSeparatedInput

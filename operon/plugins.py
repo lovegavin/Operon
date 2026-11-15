@@ -30,7 +30,10 @@ def _legacy_library_state(value):
     """True when the registry was written by the pre-split 8.x library train."""
     release = value.get("library_release") or {}
     version = str(release.get("version") or "")
-    return bool(value.get("source_library")) or version.startswith("8.")
+    source = value.get("source_library") or {}
+    # Ordinary wheel installs retain an empty source-ownership receipt. Its
+    # presence is not legacy provenance and must not erase the new generation.
+    return (bool(source) and source != {"packages": []}) or version.startswith("8.")
 
 
 def require_current_state(value):
@@ -166,7 +169,10 @@ class PluginManager:
         """Seed editable sources only on an explicit folder/refresh operation."""
         from operon.source_library import seed_sources
         with self.lock:
-            if self.managed_sources:
+            # 5.x installs immutable library branches; the application root has
+            # no legacy builtin_packages.json seed. Never recreate an authoring
+            # tree from a file that is not shipped.
+            if self.managed_sources and (ROOT / "operon/builtin_packages.json").is_file():
                 seed_sources(ROOT, self.source_root)
             return self.source_root
 
@@ -307,42 +313,43 @@ class PluginManager:
         return value
 
     def snapshot(self, graph):
-        """Resolve the generation that contains the operators the graph names.
-
-        Canvas graphs are not bound to pins: the unique operator/Reader id in the
-        currently installed library decides what runs.  Pins written by older
-        versions are provenance only and never block execution.
-        """
         state = self.state()
-        from operon.pins import graphs
-        required = set()
-        for part in graphs(graph):
-            for node in part.nodes:
-                if node.kind == "operator" and node.operator:
-                    required.add(node.operator)
-                elif node.source and node.source.reader:
-                    required.add(node.source.reader)
-        if not required:
+        from operon.pins import graphs, matches, requirements, resolve
+        # Avoid opening the archive for an unpinned/current graph. Nested graphs
+        # can contain different old builtin pins, so normalize before conflict checks.
+        pins = [part.plugin_lock for part in graphs(graph)]
+        if not any(pins):
             return state
-
-        def available(candidate):
-            return {d["id"] for d in active_descriptors(candidate)}
-
-        if required <= available(state):
-            return state
+        try:
+            if matches(state, requirements(graph, state=state)):
+                return state
+        except ValueError:
+            pass
+        candidates = [state]
         for pattern in ("snapshots/*.json", "environments/*/lock.json"):
             for path in sorted(io_path(self.directory).glob(pattern)):
                 try:
                     candidate = json.loads(path.read_text(encoding="utf-8"))
-                except (OSError, ValueError):
+                except OSError:
+                    # A generation can disappear between glob and read.  It is
+                    # unavailable, not silently replaced by a different one.
                     continue
-                if not isinstance(candidate, dict) or candidate.get("package_protocol_version") != PROTOCOL_VERSION:
+                except ValueError:
                     continue
-                if required <= available(candidate):
+                if not isinstance(candidate, dict):
+                    continue
+                if candidate.get("package_protocol_version") == PROTOCOL_VERSION:
                     candidate["_runtime_root"] = str(self.directory.resolve())
-                    return candidate
-        missing = sorted(required - available(state))
-        raise ValueError("Missing operators or Readers in the installed library: " + ", ".join(missing))
+                    candidates.append(candidate)
+        selected = resolve(graph, candidates, self.bundled_state())
+        # A retained wheel can be combined with updated bundled metadata. Keep
+        # that synthetic generation addressable for job provenance and exact
+        # documentation retrieval without changing the active registry.
+        snapshot = self.directory / 'snapshots' / (selected['generation'] + '.json')
+        with self.lock:
+            if not io_path(snapshot).exists():
+                atomic_json(snapshot, selected)
+        return selected
 
     def pin(self, graph, *, snapshot=None):
         state = self.snapshot(graph) if snapshot is None else snapshot
@@ -363,7 +370,6 @@ class PluginManager:
                 from operon.reader_selection import candidates
                 for descriptor in candidates([d for d in descriptors if d['kind'] == 'reader'], node.source.path, node.source.reader):
                     graph.plugin_lock[descriptor['id']] = descriptor['implementation']
-        graph.plugin_lock = {}
         return graph
 
     def catalog_for(self, graph, base):
@@ -387,10 +393,22 @@ class PluginManager:
     def refresh(self):
         """Explicit, incremental scan; publish the entire batch or nothing."""
         from operon.dropins import refresh
-        self.state()
+        state = self.state()
         with self.lock:
+            root = self.source_root
+            if self.managed_sources and not (root / "operon/builtin_packages.json").is_file():
+                # Detached 5.x libraries are immutable archives, not an editable
+                # source tree. A deleted branch must not resurrect a legacy seed.
+                return {
+                    "generation": state["generation"],
+                    "updated": [],
+                    "unchanged": ["No editable operator library is installed"],
+                    "directory": str(self.inbox),
+                    "operators": sum(d["kind"] == "operator" for d in state["descriptors"]),
+                    "readers": sum(d["kind"] == "reader" for d in state["descriptors"]),
+                }
             self.ensure_source_root()
-            return refresh(self, self.state())
+            return refresh(self, state)
 
     def install_many(self, wheels):
         self.state()

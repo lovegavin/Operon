@@ -1,0 +1,843 @@
+{
+  "$defs": {
+    "BoundEnvironment": {
+      "additionalProperties": false,
+      "properties": {
+        "executable": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Executable",
+          "type": "string"
+        },
+        "generation_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.-]+$",
+          "title": "Generation Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "generation_id",
+        "executable"
+      ],
+      "title": "BoundEnvironment",
+      "type": "object"
+    },
+    "BoundInput": {
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "path": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "representation": {
+          "enum": [
+            "form",
+            "file",
+            "table",
+            "json",
+            "npy",
+            "report",
+            "figure"
+          ],
+          "title": "Representation",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size_bytes": {
+          "minimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "representation",
+        "path",
+        "size_bytes",
+        "sha256"
+      ],
+      "title": "BoundInput",
+      "type": "object"
+    },
+    "CacheContract": {
+      "additionalProperties": false,
+      "properties": {
+        "eligible": {
+          "default": false,
+          "title": "Eligible",
+          "type": "boolean"
+        },
+        "identity": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Identity"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "title": "CacheContract",
+      "type": "object"
+    },
+    "CodeRef": {
+      "additionalProperties": false,
+      "properties": {
+        "digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Digest"
+        },
+        "kind": {
+          "enum": [
+            "package",
+            "file",
+            "inline",
+            "workflow",
+            "script"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "ref": {
+          "default": "",
+          "title": "Ref",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "CodeRef",
+      "type": "object"
+    },
+    "EnvironmentRequirement": {
+      "additionalProperties": false,
+      "properties": {
+        "dependency_lock": {
+          "additionalProperties": true,
+          "title": "Dependency Lock",
+          "type": "object"
+        },
+        "recipe_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Recipe Digest"
+        },
+        "required_capabilities": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Required Capabilities",
+          "type": "array"
+        },
+        "resources_manifest": {
+          "additionalProperties": true,
+          "title": "Resources Manifest",
+          "type": "object"
+        },
+        "runtime": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Runtime",
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/TargetSpec"
+        }
+      },
+      "required": [
+        "target",
+        "runtime"
+      ],
+      "title": "EnvironmentRequirement",
+      "type": "object"
+    },
+    "InvocationSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "argv": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Argv",
+          "type": "array"
+        },
+        "code_ref": {
+          "$ref": "#/$defs/CodeRef"
+        },
+        "cwd_policy": {
+          "default": "attempt-root",
+          "enum": [
+            "attempt-root",
+            "attempt-root/outputs",
+            "package-root"
+          ],
+          "title": "Cwd Policy",
+          "type": "string"
+        },
+        "entrypoint": {
+          "anyOf": [
+            {
+              "maxLength": 1000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entrypoint"
+        },
+        "environment_ref": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Environment Ref"
+        },
+        "event_protocol": {
+          "default": "jsonl-v1",
+          "enum": [
+            "jsonl-v1",
+            "none"
+          ],
+          "title": "Event Protocol",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "native",
+            "python_script",
+            "r_script",
+            "command"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "output_manifest": {
+          "default": "output_manifest.json",
+          "maxLength": 512,
+          "title": "Output Manifest",
+          "type": "string"
+        },
+        "parameters_ref": {
+          "$ref": "#/$defs/ParametersRef"
+        }
+      },
+      "required": [
+        "kind",
+        "code_ref"
+      ],
+      "title": "InvocationSpec",
+      "type": "object"
+    },
+    "OutputContract": {
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "name": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "representation": {
+          "enum": [
+            "form",
+            "file",
+            "directory",
+            "npy",
+            "table",
+            "json",
+            "report",
+            "figure"
+          ],
+          "title": "Representation",
+          "type": "string"
+        },
+        "required": {
+          "default": true,
+          "title": "Required",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "representation"
+      ],
+      "title": "OutputContract",
+      "type": "object"
+    },
+    "ParametersRef": {
+      "additionalProperties": false,
+      "properties": {
+        "digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Digest"
+        },
+        "kind": {
+          "default": "frozen-json",
+          "enum": [
+            "frozen-json",
+            "task-parameters",
+            "none"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "ref": {
+          "default": "",
+          "title": "Ref",
+          "type": "string"
+        }
+      },
+      "title": "ParametersRef",
+      "type": "object"
+    },
+    "PlacementPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "executor": {
+          "default": "local",
+          "enum": [
+            "local",
+            "ssh",
+            "slurm",
+            "standalone"
+          ],
+          "title": "Executor",
+          "type": "string"
+        },
+        "node_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Node Id"
+        },
+        "pool_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pool Id"
+        },
+        "storage_affinity": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Storage Affinity",
+          "type": "array"
+        },
+        "target": {
+          "$ref": "#/$defs/TargetSpec"
+        }
+      },
+      "required": [
+        "target"
+      ],
+      "title": "PlacementPolicy",
+      "type": "object"
+    },
+    "PlanExecutionBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "environment_store": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Environment Store",
+          "type": "string"
+        },
+        "environments": {
+          "additionalProperties": {
+            "$ref": "#/$defs/BoundEnvironment"
+          },
+          "maxProperties": 128,
+          "minProperties": 1,
+          "title": "Environments",
+          "type": "object"
+        },
+        "inputs": {
+          "additionalProperties": {
+            "$ref": "#/$defs/BoundInput"
+          },
+          "maxProperties": 128,
+          "title": "Inputs",
+          "type": "object"
+        },
+        "package_root": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Package Root",
+          "type": "string"
+        },
+        "storage": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "maxProperties": 128,
+          "title": "Storage",
+          "type": "object"
+        }
+      },
+      "required": [
+        "package_root",
+        "environment_store",
+        "environments"
+      ],
+      "title": "PlanExecutionBinding",
+      "type": "object"
+    },
+    "ResourceRequestSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "cpu_threads": {
+          "default": 1,
+          "minimum": 0,
+          "title": "Cpu Threads",
+          "type": "integer"
+        },
+        "devices": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Devices",
+          "type": "array"
+        },
+        "managed_budget_bytes": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Managed Budget Bytes",
+          "type": "integer"
+        },
+        "process_reservation_bytes": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Process Reservation Bytes",
+          "type": "integer"
+        },
+        "scratch_reserved_bytes": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Scratch Reserved Bytes",
+          "type": "integer"
+        },
+        "shared_buffer_bytes": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Shared Buffer Bytes",
+          "type": "integer"
+        },
+        "transport_reserved_bytes": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Transport Reserved Bytes",
+          "type": "integer"
+        }
+      },
+      "title": "ResourceRequestSpec",
+      "type": "object"
+    },
+    "RetryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "maximum_attempts": {
+          "default": 1,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Maximum Attempts",
+          "type": "integer"
+        },
+        "retry_on": {
+          "default": [
+            "transient_infrastructure"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Retry On",
+          "type": "array"
+        }
+      },
+      "title": "RetryPolicy",
+      "type": "object"
+    },
+    "RunPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "compiler_version": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Compiler Version",
+          "type": "string"
+        },
+        "diagnostics": {
+          "additionalProperties": true,
+          "title": "Diagnostics",
+          "type": "object"
+        },
+        "edges": {
+          "default": [],
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "environment_requirements": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/EnvironmentRequirement"
+          },
+          "title": "Environment Requirements",
+          "type": "array"
+        },
+        "execution_policy": {
+          "additionalProperties": true,
+          "title": "Execution Policy",
+          "type": "object"
+        },
+        "format": {
+          "const": "operon.run-plan",
+          "default": "operon.run-plan",
+          "title": "Format",
+          "type": "string"
+        },
+        "implementations": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Implementations",
+          "type": "object"
+        },
+        "parameters_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Parameters Digest",
+          "type": "string"
+        },
+        "plan_id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Plan Id",
+          "type": "string"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "storage_bindings": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/StorageBinding"
+          },
+          "title": "Storage Bindings",
+          "type": "array"
+        },
+        "units": {
+          "items": {
+            "$ref": "#/$defs/UnitSpec"
+          },
+          "minItems": 1,
+          "title": "Units",
+          "type": "array"
+        },
+        "workflow_revision": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Workflow Revision",
+          "type": "string"
+        }
+      },
+      "required": [
+        "plan_id",
+        "workflow_revision",
+        "units",
+        "parameters_digest",
+        "compiler_version"
+      ],
+      "title": "RunPlan",
+      "type": "object"
+    },
+    "StorageBinding": {
+      "additionalProperties": false,
+      "properties": {
+        "access": {
+          "default": "read",
+          "enum": [
+            "read",
+            "write",
+            "read-write"
+          ],
+          "title": "Access",
+          "type": "string"
+        },
+        "digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Digest"
+        },
+        "relative_path": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Relative Path",
+          "type": "string"
+        },
+        "storage_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Storage Id",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        }
+      },
+      "required": [
+        "storage_id",
+        "relative_path"
+      ],
+      "title": "StorageBinding",
+      "type": "object"
+    },
+    "TargetSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "arch": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Arch",
+          "type": "string"
+        },
+        "capabilities": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "os": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Os",
+          "type": "string"
+        },
+        "python_abi": {
+          "anyOf": [
+            {
+              "maxLength": 20,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Python Abi"
+        }
+      },
+      "required": [
+        "os",
+        "arch"
+      ],
+      "title": "TargetSpec",
+      "type": "object"
+    },
+    "UnitSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "cache_contract": {
+          "$ref": "#/$defs/CacheContract"
+        },
+        "input_bindings": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Input Bindings",
+          "type": "object"
+        },
+        "invocation": {
+          "$ref": "#/$defs/InvocationSpec"
+        },
+        "node_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Node Ids",
+          "type": "array"
+        },
+        "output_contracts": {
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/OutputContract"
+          },
+          "title": "Output Contracts",
+          "type": "array"
+        },
+        "payload": {
+          "additionalProperties": true,
+          "title": "Payload",
+          "type": "object"
+        },
+        "placement": {
+          "$ref": "#/$defs/PlacementPolicy"
+        },
+        "resource_request": {
+          "$ref": "#/$defs/ResourceRequestSpec"
+        },
+        "retry_policy": {
+          "$ref": "#/$defs/RetryPolicy"
+        },
+        "unit_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Unit Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "unit_id",
+        "node_ids",
+        "invocation",
+        "resource_request",
+        "placement"
+      ],
+      "title": "UnitSpec",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "binding": {
+      "$ref": "#/$defs/PlanExecutionBinding"
+    },
+    "plan": {
+      "$ref": "#/$defs/RunPlan"
+    },
+    "request_id": {
+      "maxLength": 512,
+      "minLength": 1,
+      "title": "Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "plan",
+    "binding",
+    "request_id"
+  ],
+  "title": "PlanSubmitRequest",
+  "type": "object"
+}

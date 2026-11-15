@@ -133,7 +133,7 @@ def test_shared_services_permissions_frozen_values_and_artifacts(environment):
         # the run index, without reading pixels or fetching whole reports.
         from types import SimpleNamespace
         from operon_sdk.figures import register_figure, figure_collection
-        output = root / '.studio/jobs' / key / 'output'
+        output = app.state.service._output_dir(key)
         figures = []
         originals = {}
         for name in ('first', 'second'):
@@ -412,14 +412,19 @@ def test_real_cli_autostart_and_mcp_no_window(environment):
             assert not instances(directory)
 
 
-def test_remote_submission_clears_stale_plugin_pins():
+def test_remote_submission_preserves_pins_for_target_verification():
     from types import SimpleNamespace
-    from operon.application import TaskService
+    from operon.application import Application as SharedApplication, TaskService
+    from operon.storage.inputs import StorageInputBindings
     captured = {}
     fresh = {'version': '9.9.9', 'sha256': 'f' * 64}
 
     class Application:
         service = SimpleNamespace()
+        _execution_binding = SharedApplication._execution_binding
+
+        def __init__(self):
+            self.storage_inputs = StorageInputBindings(self)
 
         def prepare(self, graph):
             captured['pins'] = dict(graph.plugin_lock)
@@ -435,5 +440,5 @@ def test_remote_submission_clears_stale_plugin_pins():
             'runtime': {'execution': {'kind': 'ssh', 'profile_id': 'offline'}},
             'plugin_lock': {'describe': {'version': '0.0.1', 'sha256': '0' * 64}}}
     prepared = TaskService(Application())._prepare_submission(body)
-    assert captured['pins'] == {}
-    assert prepared.plugin_lock['describe'] == fresh
+    assert captured['pins'] == body['plugin_lock']
+    assert prepared.plugin_lock == body['plugin_lock']

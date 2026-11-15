@@ -293,10 +293,15 @@ def _create(entry: dict, staging: Path, log, root=None, progress=None):
 
 def _install(entry: dict, staging: Path, log, root=None, progress=None):
     python = _python(staging)
+    # Use the extended prefix only for pip filesystem writes. Keep the actual
+    # interpreter and DLL lookup paths native (the retained 5.1.9 loader fix).
+    from .bytecode import filesystem_path
+    prefix = ['--prefix', filesystem_path(staging)] if os.name == 'nt' else []
+    install = [python, '-X', 'utf8', '-m', 'pip', 'install', *prefix]
     direct = entry.get('pip_pypi') or []
     # Base build tooling must exist before any source build or `--no-build-isolation` install.
     # `pkg_resources` ships with setuptools below 81; some packages (pdbfixer) still import it.
-    _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--no-input', *PIP_INDEX,
+    _run([*install, *PIP_TRANSFER, '--no-input', *PIP_INDEX,
           'setuptools>=68,<81', 'wheel'], log=log, timeout=900, progress=progress)
     conda_packages = entry.get('conda_packages') or []
     if conda_packages:
@@ -305,27 +310,27 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None):
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
              timeout=1800, progress=progress)
     if entry.get('torch_cpu'):
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, 'torch',
+        _run([*install, *PIP_TRANSFER, 'torch',
               '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
              progress=progress)
     if direct:
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, *PIP_INDEX, *direct], log=log,
+        _run([*install, *PIP_TRANSFER, *PIP_INDEX, *direct], log=log,
              timeout=1800, progress=progress)
     wheels = entry.get('pip_wheels') or []
     if wheels:
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--only-binary=:all:', *PIP_INDEX, *wheels],
+        _run([*install, *PIP_TRANSFER, '--only-binary=:all:', *PIP_INDEX, *wheels],
              log=log, timeout=1800, progress=progress)
     requirements = entry.get('requirements') or []
     if requirements:
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *requirements],
+        _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *requirements],
              log=log, timeout=2400, progress=progress)
     no_deps = entry.get('no_deps') or []
     if no_deps:
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *no_deps], log=log,
+        _run([*install, *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *no_deps], log=log,
              timeout=2400, progress=progress)
     no_build = entry.get('no_build_isolation') or []
     if no_build:
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, '--no-build-isolation', *no_build], log=log,
+        _run([*install, *PIP_TRANSFER, '--no-build-isolation', *no_build], log=log,
              timeout=3600, progress=progress)
 
 

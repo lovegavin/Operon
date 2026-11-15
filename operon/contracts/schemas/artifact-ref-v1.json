@@ -1,0 +1,86 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "artifact_id": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Artifact Id",
+      "type": "string"
+    },
+    "digest": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Digest"
+    },
+    "lifetime": {
+      "default": "run",
+      "enum": [
+        "attempt",
+        "run",
+        "session",
+        "persistent"
+      ],
+      "title": "Lifetime",
+      "type": "string"
+    },
+    "locations": {
+      "default": [],
+      "items": {
+        "type": "string"
+      },
+      "title": "Locations",
+      "type": "array"
+    },
+    "logical_metadata": {
+      "additionalProperties": true,
+      "title": "Logical Metadata",
+      "type": "object"
+    },
+    "owner": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Owner",
+      "type": "string"
+    },
+    "representation": {
+      "enum": [
+        "form",
+        "file",
+        "directory",
+        "npy",
+        "table",
+        "json",
+        "report",
+        "figure"
+      ],
+      "title": "Representation",
+      "type": "string"
+    },
+    "size_bytes": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Size Bytes",
+      "type": "integer"
+    },
+    "verification": {
+      "additionalProperties": true,
+      "title": "Verification",
+      "type": "object"
+    }
+  },
+  "required": [
+    "artifact_id",
+    "representation",
+    "owner"
+  ],
+  "title": "ArtifactRef",
+  "type": "object"
+}

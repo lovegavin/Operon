@@ -1,6 +1,7 @@
 import {t} from './i18n';
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {RemoteLibraryPanel} from './RemoteLibraryPanel';
+import {StorageFilePicker} from './StorageFilePicker';
 import {ArrowLeft, ArrowRight, CircleNotch, File, Folder, Plus, HardDrives as Server, X} from '@phosphor-icons/react';
 import {api, ApiError} from './api';
 import type {DataSource, RemoteListing, RemoteProfile, RemoteStatus} from './types';
@@ -24,6 +25,7 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
   const [busy, setBusy] = useState<ConnectionAction | 'refresh' | 'library' | null>(null), [error, setError] = useState('');
   const libraryBusy = useCallback((value: boolean) => setBusy(previous => value ? 'library' : previous === 'library' ? null : previous), []);
   const [maintenance, setMaintenance] = useState(false);
+  const [files, setFiles] = useState(false);
   const [forceUpgrade, setForceUpgrade] = useState(false);
   const [setup, setSetup] = useState<string[]>([]);
   useEffect(() => {onBusyChange?.(!!busy);}, [busy, onBusyChange]);
@@ -37,8 +39,8 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
   const [trust, setTrust] = useState<{id: string; fingerprint: string; changed: boolean; action: ConnectionAction; force?: boolean} | null>(null);
   const selected = servers.find(s => s.profile.id === profile.id);
   const info = selected?.info;
-  useEffect(() => {if (embedded) return; const key = (e: KeyboardEvent) => {if(e.key === 'Escape' && !busy) onClose();};
-    window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key);}, [busy, onClose, embedded]);
+  useEffect(() => {if (embedded) return; const key = (e: KeyboardEvent) => {if(e.key === 'Escape' && !busy && !files) onClose();};
+    window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key);}, [busy, onClose, embedded, files]);
   function edit(patch: Partial<RemoteProfile>) {setTrust(null); setError(''); setProfile({...profile, ...patch});}
   function showError(issue: ApiError) {
     const message = issue.message?.trim();
@@ -93,6 +95,7 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
           onClick={() => {setProfile(server.profile); setPassword(''); setPassphrase(''); setTrust(null); setError(''); setSetup([]); setMaintenance(false);}}>
           <Server size={17}/><span><strong>{server.profile.name}</strong><small>{server.connected ? t("已连接") : t("未连接")}</small></span></button>)}
         <button disabled={!!busy} onClick={() => {setProfile({...empty}); setTrust(null); setError(''); setPassword(''); setPassphrase(''); setSetup([]); setMaintenance(false);}}><Plus size={17}/>{t("添加服务器")}</button>
+        <button disabled={!!busy} onClick={() => setFiles(true)}><Folder size={17}/>{t('浏览已配置文件')}</button>
       </nav><form onSubmit={e => {e.preventDefault(); if (!trust) void connect('connect');}}>
         <div className="remote-fields">
           {field(t("名称"), 'name', t("计算服务器"))}{field(t("主机"), 'host', 'server.example.org')}
@@ -147,7 +150,8 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
         </footer>
       </form></div>
     </section>;
-  return embedded ? panel : <div className="agent-overlay" onMouseDown={e => {if(e.target === e.currentTarget && !busy) onClose();}}>{panel}</div>;
+  return <>{embedded ? panel : <div className="agent-overlay" onMouseDown={e => {if(e.target === e.currentTarget && !busy) onClose();}}>{panel}</div>}
+    {files && <StorageFilePicker onClose={() => setFiles(false)}/>}</>;
 }
 
 export function RemoteFilePicker({profileId, initial, source, reader, onSelect, onClose}: {profileId: string; initial: string; source?: boolean; reader?: string;

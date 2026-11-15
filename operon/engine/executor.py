@@ -13,7 +13,8 @@ import time
 from typing import Callable, Protocol
 
 from .contracts import ProcessIdentity, ResourceRequest
-from .supervisor import LaunchSpec, ProcessSupervisor, SupervisorError, identity_alive
+from .supervisor import (LaunchSpec, ProcessSupervisor, SupervisorError, PreparationRejectedError,
+                         identity_alive)
 
 
 @dataclass(frozen=True)
@@ -77,9 +78,10 @@ class ProcessExecutor:
 
     def __init__(self, root, *, command_builder: Callable[[ExecutionContext], LaunchSpec],
                  environment_builder: Callable[[ExecutionContext], dict] | None = None,
-                 adopt_verified=True):
+                 adopt_verified=True, environment_store=None):
         self.root = Path(root)
-        self.supervisor = ProcessSupervisor(self.root / 'supervisor', adopt_verified=adopt_verified)
+        self.supervisor = ProcessSupervisor(self.root / 'supervisor', adopt_verified=adopt_verified,
+                                            environment_store=environment_store)
         self.command_builder = command_builder
         self.environment_builder = environment_builder
 
@@ -87,24 +89,39 @@ class ProcessExecutor:
         return attempt_directory(self.root, context.run['id'], context.unit['local_id'], context.attempt_id)
 
     def launch(self, context: ExecutionContext) -> ExecutionResult:
-        directory = self.directory(context)
-        directory.mkdir(parents=True, exist_ok=True)
-        spec = self.command_builder(context)
-        environment = dict(spec.environment)
-        if self.environment_builder:
-            environment.update(self.environment_builder(context))
-        environment.setdefault('OPERON_ATTEMPT_ID', context.attempt_id)
-        environment.setdefault('OPERON_RUN_ID', context.run['id'])
-        environment.setdefault('OPERON_RESOURCE_FENCE', str(context.fence))
-        adjusted = LaunchSpec(argv=spec.argv, cwd=spec.cwd, environment=environment,
-                              stdout_path=str(directory / 'logs' / 'worker.log'),
-                              executable=spec.executable, stdin_devnull=spec.stdin_devnull)
+        try:
+            directory = self.directory(context)
+            directory.mkdir(parents=True, exist_ok=True)
+            spec = self.command_builder(context)
+            environment = dict(spec.environment)
+            if self.environment_builder:
+                environment.update(self.environment_builder(context))
+            environment.setdefault('OPERON_ATTEMPT_ID', context.attempt_id)
+            environment.setdefault('OPERON_RUN_ID', context.run['id'])
+            environment.setdefault('OPERON_RESOURCE_FENCE', str(context.fence))
+            adjusted = LaunchSpec(argv=spec.argv, cwd=spec.cwd, environment=environment,
+                                  stdout_path=str(directory / 'logs' / 'worker.log'),
+                                  executable=spec.executable, stdin_devnull=spec.stdin_devnull,
+                                  generation_id=spec.generation_id)
+        except Exception as exc:
+            # This catch ends strictly before supervisor.launch. An exception
+            # after that boundary is never evidence that no process was spawned.
+            error = f'{type(exc).__name__}: {exc}'
+            self.supervisor.record_preparation_rejection(context.attempt_id, fence=context.fence, error=error)
+            raise PreparationRejectedError(error) from exc
         receipt = self.supervisor.launch(context.attempt_id, fence=context.fence, spec=adjusted)
         return ExecutionResult(state='running', identity=receipt.identity, tree_alive=True,
                                detail='launch receipt ' + receipt.state)
 
     def _receipt(self, context):
-        return self.supervisor.read_receipt(context.attempt_id)
+        return self.supervisor.reconcile(context.attempt_id, fence=context.fence)
+
+    def _no_identity(self, context, receipt):
+        if self.supervisor.no_spawn_proven(context.attempt_id, fence=context.fence):
+            return ExecutionResult(state='failed', error=receipt.error or 'The worker was never spawned',
+                                   detail='no-identity')
+        return ExecutionResult(state='unknown', error='No durable no-spawn proof for this attempt',
+                               detail='recovery_required')
 
     def poll(self, context: ExecutionContext) -> ExecutionResult:
         receipt = self._receipt(context)
@@ -112,14 +129,16 @@ class ProcessExecutor:
             return ExecutionResult(state='unknown', error='No launch receipt for this attempt',
                                    detail='recovery_required')
         if receipt.identity is None:
-            return ExecutionResult(state='failed', error=receipt.error or 'The worker was never spawned',
-                                   detail='no-identity')
+            return self._no_identity(context, receipt)
         status, code = self.supervisor.poll_status(context.attempt_id)
         if status == 'running':
             return ExecutionResult(state='running', identity=receipt.identity, tree_alive=True)
         if status == 'stopped':
             return ExecutionResult(state='cancelled', identity=receipt.identity, exit_code=code)
         if status == 'exited':
+            if not self.supervisor.generation_tree_exit(context.attempt_id, fence=context.fence):
+                return ExecutionResult(state='committing', identity=receipt.identity, tree_alive=True,
+                                       detail='generation containment not yet empty')
             if self.tree_alive(receipt.identity):
                 return ExecutionResult(state='committing', identity=receipt.identity, tree_alive=True,
                                        detail='root exited but owned descendants are still alive')
@@ -161,11 +180,13 @@ class ProcessExecutor:
         if receipt is None:
             return ExecutionResult(state='missing', detail='no receipt')
         if receipt.identity is None:
-            return ExecutionResult(state='failed', error=receipt.error or 'No verifiable process identity',
-                                   detail='no-identity')
+            return self._no_identity(context, receipt)
         if identity_alive(receipt.identity):
             return ExecutionResult(state='running', identity=receipt.identity, tree_alive=True,
                                    detail='adopted')
+        if not self.supervisor.generation_tree_exit(context.attempt_id, fence=context.fence):
+            return ExecutionResult(state='unknown', identity=receipt.identity, tree_alive=True,
+                                   detail='recovery_required', error='Generation containment exit is not proven')
         return ExecutionResult(state='dead', identity=receipt.identity, detail='identity dead')
 
     def write_resize(self, context: ExecutionContext, command) -> None:

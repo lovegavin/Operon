@@ -24,7 +24,7 @@ for arg in "${args[@]}"; do
   if [[ "$arg" == --help || "$arg" == -h ]]; then
     printf '%s\n' 'Operon server installation' \
       'bash install_server.sh [--prefix DIR] [--workspace DIR] [--version VERSION]' \
-      '  --source CHECKOUT | --app-wheel APP.whl --library-wheel LIBRARY.whl' \
+      '  --source CHECKOUT | --app-wheel APP.whl [--library-wheel LIBRARY.whl]' \
       '  --python PYTHON3.11+  --wheel-dir OFFLINE_WHEELS  --result FILE.json' \
       'Without Python 3.11-3.13, a checksum-pinned Linux x86_64 runtime is bootstrapped.'
     exit 0

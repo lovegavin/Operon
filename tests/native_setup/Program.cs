@@ -71,10 +71,10 @@ File.WriteAllText(Path.Combine(ownedChild, "installation.json"), "not-json");
 try { InstallEngine.ResolveDestination(occupied); throw new Exception("accepted corrupt owned receipt"); }
 catch (System.Text.Json.JsonException) { checks++; }
 var legacyRoot = Path.Combine(root, "legacy-operon"); Directory.CreateDirectory(legacyRoot);
-var legacyReceipt = "{\"owner\":\"Operon.Studio.Install.v1\",\"version\":\"2.6.0\",\"current\":\"versions/old\",\"profile\":\"unused\",\"versions\":[\"versions/old\"],\"shortcuts\":{},\"uninstallKey\":null}";
+var legacyReceipt = "{\"owner\":\"BioPipe.Studio.Install.v1\",\"version\":\"2.6.0\",\"current\":\"versions/old\",\"profile\":\"unused\",\"versions\":[\"versions/old\"],\"shortcuts\":{},\"uninstallKey\":null}";
 File.WriteAllText(Path.Combine(legacyRoot, "installation.json"), legacyReceipt);
 File.WriteAllText(Path.Combine(legacyRoot, "Operon Studio.exe"), "preserve old software");
-Reject(() => engine.Uninstall(legacyRoot), "Operon uninstaller accepted a Operon receipt");
+Reject(() => engine.Uninstall(legacyRoot), "Operon uninstaller accepted a BioPipe receipt");
 Check(File.ReadAllText(Path.Combine(legacyRoot, "installation.json")) == legacyReceipt &&
       File.ReadAllText(Path.Combine(legacyRoot, "Operon Studio.exe")) == "preserve old software", "old Operon installation changed");
 var inspection = Path.Combine(root, "inspection.json");
@@ -110,5 +110,48 @@ using (var busy = new InstallLease("Local\\OperonStudio-" + InstallLease.Identit
 }
 InstallEngine.CleanVersion(managed, "versions/old", profiles);
 Check(!Directory.Exists(version), "stopped installation not cleaned");
+var removalArgs = SetupInvocation.Normalize([], Path.Combine(root, "Operon_Uninstall.exe"), root);
+Check(removalArgs.Contains("--uninstall"), "direct uninstaller did not select removal");
+Check(removalArgs.Contains(root), "direct uninstaller lost its own installation directory");
+Check(!SetupInvocation.Normalize([], Path.Combine(root, "Operon_Setup.exe"), root).Contains("--uninstall"), "setup became uninstaller");
+var lockRoot = Path.Combine(root, "locked-cleanup"); var lockVersion = Path.Combine(lockRoot, "versions", "old");
+Directory.CreateDirectory(lockVersion);
+var lockDll = Path.Combine(lockVersion, "_asyncio.pyd"); File.WriteAllText(lockDll, "synthetic DLL");
+File.WriteAllText(Path.Combine(lockVersion, "package-manifest.json"), "{\"files\":[{\"path\":\"_asyncio.pyd\",\"sha256\":\"" + InstallFiles.Hash(lockDll) + "\"}]}");
+using (var locked = new FileStream(lockDll, FileMode.Open, FileAccess.Read, FileShare.Read))
+{
+    try { InstallEngine.PreflightVersion(lockRoot, "versions/old"); throw new Exception("locked DLL preflight succeeded"); }
+    catch (IOException) { Check(File.Exists(lockDll), "preflight removed a locked DLL"); }
+}
+try
+{
+    InstallEngine.PreflightVersion(lockRoot, "versions/old");
+    File.Copy(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), "version.dll"), lockDll, true);
+    var loadedDll = System.Runtime.InteropServices.NativeLibrary.Load(lockDll);
+    try
+    {
+        try { InstallEngine.PreflightVersion(lockRoot, "versions/old"); throw new Exception("loaded DLL preflight succeeded"); }
+        catch (IOException) { Check(File.Exists(lockDll), "preflight removed a loaded DLL"); }
+    }
+    finally { System.Runtime.InteropServices.NativeLibrary.Free(loadedDll); }
+    InstallEngine.PreflightVersion(lockRoot, "versions/old");
+}
+catch (IOException rmUnavailable) when (rmUnavailable.InnerException is System.ComponentModel.Win32Exception native && native.NativeErrorCode == 29)
+{
+    Console.WriteLine("SKIP: Restart Manager session storage is unavailable in this Windows token; run the native DLL probe outside the restricted token.");
+}
+var gated = Path.Combine(root, "gate-check"); Directory.CreateDirectory(gated);
+var gateId = Guid.NewGuid().ToString("N");
+File.WriteAllText(Path.Combine(gated, "operon-install.json"), "{\"profile_id\":\"" + gateId + "\"}");
+using (await InstallUpgrade.Prepare([new UpgradeTarget(gated, Path.Combine(profiles, gateId), Path.Combine(gated, "workspace"))], _ => {}, CancellationToken.None))
+{
+    using var signal = EventWaitHandle.OpenExisting("Local\\OperonMaintenance-" + gateId + "-active");
+    Check(signal.WaitOne(0), "installer maintenance signal is not visible across processes");
+    // InstallLease owns its mutex on another thread, so reentrancy cannot hide a failure.
+    using var mutex = Mutex.OpenExisting("Local\\OperonMaintenance-" + gateId);
+    Check(!mutex.WaitOne(0), "installer allowed a concurrent restart");
+}
+using (var mutex = new Mutex(false, "Local\\OperonMaintenance-" + gateId))
+{ Check(mutex.WaitOne(0), "completed maintenance blocked future starts"); mutex.ReleaseMutex(); }
 await UpgradeTests.Run(root, Check);
 Console.WriteLine($"PASS: {checks} native installer checks");

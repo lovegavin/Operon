@@ -1,0 +1,148 @@
+{
+  "$defs": {
+    "FrozenParameters": {
+      "additionalProperties": false,
+      "description": "An independent saved-value snapshot.\n\nValues are keyed by stable node IDs.  A missing key means \"not supplied\";\nthe compiler must not substitute a current library default.  The legacy\ntask-parameter shape is accepted only through ``from_values``.",
+      "properties": {
+        "format": {
+          "const": "operon.frozen-parameters",
+          "default": "operon.frozen-parameters",
+          "title": "Format",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "schema_version": {
+          "const": 1,
+          "default": 1,
+          "title": "Schema Version",
+          "type": "integer"
+        },
+        "sources": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Sources",
+          "type": "object"
+        },
+        "steps": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Steps",
+          "type": "object"
+        }
+      },
+      "title": "FrozenParameters",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "directory": {
+      "default": ".",
+      "maxLength": 2048,
+      "minLength": 1,
+      "title": "Directory",
+      "type": "string"
+    },
+    "environments": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Environments"
+    },
+    "initial": {
+      "default": false,
+      "title": "Initial",
+      "type": "boolean"
+    },
+    "inputs": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Inputs"
+    },
+    "kind": {
+      "default": "graph",
+      "enum": [
+        "graph",
+        "authoring-v2"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "parameters": {
+      "anyOf": [
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Parameters"
+    },
+    "profile": {
+      "anyOf": [
+        {
+          "maxLength": 160,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Profile"
+    },
+    "require_files": {
+      "default": false,
+      "title": "Require Files",
+      "type": "boolean"
+    },
+    "values": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FrozenParameters"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "workflow": {
+      "additionalProperties": true,
+      "title": "Workflow",
+      "type": "object"
+    }
+  },
+  "required": [
+    "workflow"
+  ],
+  "title": "PlanCompileRequest",
+  "type": "object"
+}

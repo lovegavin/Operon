@@ -22,12 +22,20 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 - [Detailed quick start: Windows, Linux and your first workflow](quickstart.md)
 - [What changed since 3.1.6](updates-since-3.1.6.md)
 
-Current guides describe **Operon Studio 5.0.0** with the **0.0.0** operator library
-imported from `operon-library-v0.0.0.zip`.
+The application source now targets **Operon Studio 5.2.0**. Operator-library
+packages are independently versioned and are not changed by this application release.
 Release notes, verification reports and dated design records preserve the versions
 they tested; they are historical evidence, not current installation instructions.
 
 - [Shared execution pools](design/pool_service.md)
+- [5.2.0 application release scope](releases/v5.2.0.md)
+- [5.2.0 exact-package acceptance](releases/v5.2.0-acceptance.md)
+- [Desktop RunPlan and export controls](design/backend_k11_desktop.md)
+- [Headless RunPlan, environment and storage quick start](design/backend_cli_quickstart.md)
+- [Backend K00 inventory](design/backend_k00_inventory.md)
+- [Backend K00-K02 gate acceptance](design/backend_k00_k02_acceptance.md)
+- [Backend control performance comparison](design/backend_control_performance.md)
+- [Backend initial corrective review (historical)](design/backend_k02_review.md)
 - [Verified stage reuse and author cache declarations](stage_cache.md)
 
 - [SDK 3.7 mandatory port formats and native Reader bridge](data_formats.md)

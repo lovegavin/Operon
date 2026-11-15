@@ -489,7 +489,7 @@ class RemoteManager:
                 if node.source and node.source.path and node.id not in part.runtime.get('exchange_inputs', []):
                     used.update(r['id'] for r in source_candidates(graph, catalog, self.service.root,
                                 node.source.path, node.source.location, node.source.reader,
-                                input_roots=self.service.settings.input_roots))
+                                input_roots=self.service.settings.input_roots, storage_ref=node.source.storage_ref))
             for descriptor in catalog['operators'] + catalog.get('readers', []):
                 if descriptor['id'] in used and descriptor.get('implementation'):
                     current = deepcopy(descriptor['implementation'])
@@ -565,6 +565,16 @@ class RemoteManager:
         identity = hashlib.sha256(json.dumps([job_id, kind, fields], sort_keys=True).encode()).hexdigest()[:24]
         downloaded = client.download(result['path'], client.cache_dir / 'results' / identity / name)
         return Path(downloaded['path'])
+
+    def result_files(self, key):
+        ref = self.reference(key)
+        return self.call(ref['profile_id'], 'result_files', {'job_id': ref['job_id']})
+
+    def result_file(self, key, path):
+        return self._output(key, 'result', path=path)
+
+    def result_files_for(self, profile_id, job_id):
+        return self.call(profile_id, 'result_files', {'job_id': job_id})
 
     def preview(self, key, artifact_id, offset=0, limit=20):
         ref = self.reference(key)

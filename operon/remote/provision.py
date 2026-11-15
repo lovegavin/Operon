@@ -28,7 +28,7 @@ def source_archive(root):
     """Explicit code allowlist. Never includes profiles, datasets, SSH or git files."""
     root = Path(root)
     files = [root / name for name in ('pyproject.toml', 'README.md', 'requirements-hic-linux.txt',
-                                     'scripts/run.py', 'scripts/desktop_server.py')]
+                                     'scripts/run.py', 'scripts/desktop_server.py') if (root / name).is_file()]
     named = {}
     for bundle in sorted((root / 'library').glob('operon-library-*.zip')):
         named[bundle] = 'library/' + bundle.name
@@ -84,10 +84,27 @@ class Shell:
         raise RemoteError('服务器环境准备超时；可重新连接重试。', code='remote_setup_failed')
 
     def upload(self, path, data):
-        """Idempotent indexed chunks, then a full checksum before use."""
+        """Upload the file in one SFTP request, then verify its checksum."""
+        from .client import RemoteError
+        client = getattr(self.connection, 'client', None)
+        if client is not None:
+            try:
+                from io import BytesIO
+                self.progress('直接上传程序 %d 字节' % len(data))
+                sftp = client.open_sftp()
+                try:
+                    sftp.putfo(BytesIO(data), path, confirm=True)
+                finally:
+                    sftp.close()
+                self.run('printf %s ' + shlex.quote(hashlib.sha256(data).hexdigest() + '  ' + path + '\n')
+                         + ' | sha256sum -c -')
+                return
+            except Exception as exc:
+                self.progress('直接上传不可用，改用分块上传：' + str(exc)[:120])
         target = shlex.quote(path)
         encoded = base64.b64encode(data).decode()
-        chunks = [encoded[i:i+768] for i in range(0, len(encoded), 768)]
+        chunk_size = 16384
+        chunks = [encoded[i:i+chunk_size] for i in range(0, len(encoded), chunk_size)]
         staging = path + '.parts-' + uuid.uuid4().hex
         self.run('mkdir -m 700 -- ' + shlex.quote(staging))
         for index, chunk in enumerate(chunks):

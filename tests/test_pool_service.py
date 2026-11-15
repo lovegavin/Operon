@@ -48,6 +48,112 @@ def graph_for(root, *, budget=8, process_limit=16):
         'edges': [{'id': 'e1', 'source': 'input', 'target': 'summary'}]})
 
 
+def test_pool_uses_configured_planning_limit_without_changing_lifecycle_capacity(monkeypatch):
+    monkeypatch.setenv('OPERON_CONTROL_PLANNING_HANDLERS', '3')
+    server = PoolControlServer(None, token='configuration-test')
+    try:
+        assert server.loop.limits.max_planning_handlers == 3
+        assert server.lifecycle_loop.limits.max_handlers == 4
+        assert server.lifecycle_loop.limits.max_frame_bytes == 65536
+    finally:
+        server.close()
+
+
+def test_queue_rejection_happens_before_job_directory_creation(pool):
+    from dataclasses import replace
+    from operon.engine.contracts import BusyError
+    service, server, wsa, wsb = pool
+    service.engine.store.queue_limits = replace(service.engine.store.queue_limits, principal_active_runs=1)
+    first = service.launch(wsa, graph_for(wsa), request_id='accepted', principal='alice')
+    before = set(service.resolve(wsa).jobs_dir.iterdir())
+    with pytest.raises(BusyError) as error:
+        service.launch(wsa, graph_for(wsa), request_id='excess', principal='alice')
+    assert error.value.code == 'queue_full'
+    assert set(service.resolve(wsa).jobs_dir.iterdir()) == before
+    assert service.launch(wsa, graph_for(wsa), request_id='accepted', principal='alice')['id'] == first['id']
+    # Another principal retains its own allowance.
+    other = service.launch(wsb, graph_for(wsb), request_id='bob-job', principal='bob')
+    service.cancel(wsa, first['id'], principal='alice')
+    service.cancel(wsb, other['id'], principal='bob')
+
+
+def test_authenticated_control_quota_cannot_be_reset_by_claiming_another_principal(pool):
+    from operon.engine.admission_limits import PrincipalLimiter
+    from operon.pool_service import PoolClientError
+    service, server, wsa, wsb = pool
+    server.principal_limiter = PrincipalLimiter(rate=.01, burst=1)
+    client = PoolClient(server.address, 'test-token')
+    session = client.open_session(wsa, principal='alice')
+    with pytest.raises(PoolClientError) as error:
+        client.open_session(wsa, principal='alice')
+    assert error.value.code == 'rate_limited' and error.value.retry_after > 0
+    with pytest.raises(PoolClientError) as error:
+        client.open_session(wsa, principal='invented')
+    assert error.value.code == 'unauthorized'
+    other = PoolClient(server.address, 'test-token')
+    assert other.open_session(wsb, principal='bob')['session_id']
+    assert client.close_session(session['session_id'])['closed']
+
+
+def test_separate_lifecycle_listener_survives_saturated_bulk_handlers(pool):
+    import socket
+    from operon.pool_service import PoolClientError
+    service, server, wsa, _ = pool
+    client = PoolClient(server.address, 'test-token', timeout=4)
+    client.open_session(wsa, principal='alice')
+    job = client.submit(wsa, graph_for(wsa).model_dump(mode='json'),
+                        request_id='lifecycle-cancel', principal='alice')
+    client.status()
+    assert client.lifecycle_address == server.lifecycle_address
+    peers = []
+    try:
+        # Occupy every bulk handler before JSON parsing, not just dispatch slots.
+        for _ in range(server.loop.limits.max_handlers):
+            peers.append(socket.create_connection(server.address))
+        wait_until(lambda: server.loop.stats()['active'] == server.loop.limits.max_handlers)
+        started = time.monotonic()
+        assert client.request('pool.ping')['pool_id']
+        state = client.request('run.status', {'workspace': str(wsa), 'run_id': job['id']})
+        assert state['id'] == job['id'] and 'graph' not in state
+        assert client.cancel(wsa, job['id'])['id'] == job['id']
+        assert client.close_session()['closed']
+        assert time.monotonic() - started < 3
+        direct = PoolClient(server.lifecycle_address, 'test-token')
+        for forbidden in ('run.submit', 'pool.status', 'events.page', 'environment.fingerprint'):
+            with pytest.raises(PoolClientError, match='bounded lifecycle'):
+                direct.request(forbidden)
+        with pytest.raises(PoolClientError, match='token'):
+            PoolClient(server.lifecycle_address, 'wrong-token').request('pool.ping')
+        with pytest.raises(PoolClientError):
+            direct.request('pool.ping', {'oversized': 'x' * 65536})
+    finally:
+        for peer in peers:
+            peer.close()
+    wait_until(lambda: server.loop.stats()['active'] == 0)
+    assert server.lifecycle_loop.stats()['inflight_bytes'] == 0
+
+
+def test_lifecycle_client_does_not_fall_back_to_bulk_endpoint(pool, monkeypatch):
+    import socket
+    _, server, _, _ = pool
+    client = PoolClient(server.address, 'test-token', capabilities=server.capabilities())
+    attempts = []
+    def unavailable(address, **kwargs):
+        attempts.append(address)
+        raise ConnectionRefusedError('injected lifecycle connection loss')
+    monkeypatch.setattr(socket, 'create_connection', unavailable)
+    with pytest.raises(ConnectionRefusedError):
+        client.request('pool.ping')
+    assert attempts == [server.lifecycle_address]
+
+
+def test_both_pool_listener_threads_stop_on_close(pool):
+    _, server, _, _ = pool
+    server.close()
+    assert not server._thread.is_alive()
+    assert not server._lifecycle_thread.is_alive()
+
+
 @pytest.fixture
 def pool(tmp_path):
     code = tmp_path / 'code'

@@ -4,6 +4,8 @@
     <Compile Include="../../installer/InstallFiles.cs" Link="InstallFiles.cs" />
     <Compile Include="../../installer/InstallEngine.cs" Link="InstallEngine.cs" />
     <Compile Include="../../installer/InstallUpgrade.cs" Link="InstallUpgrade.cs" />
+    <Compile Include="../../installer/InstallFileUse.cs" Link="InstallFileUse.cs" />
+    <Compile Include="../../installer/SetupInvocation.cs" Link="SetupInvocation.cs" />
     <Compile Include="../../desktop/ProcessLifetime.cs" Link="ProcessLifetime.cs" />
     <Compile Include="../../desktop/IsolatedEnvironment.cs" Link="IsolatedEnvironment.cs" />
     <Compile Include="../../desktop/DesktopLog.cs" Link="DesktopLog.cs" />

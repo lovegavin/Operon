@@ -21,6 +21,23 @@ def io_path(path):
     return Path(filesystem_path(path, resolve=False))
 
 
+def executable_path(path):
+    """Use normal Win32 spelling when possible; extend only genuinely long paths.
+
+    Some third-party CRT runtimes derive their installation root from argv[0]
+    and cannot open their resources with a gratuitous extended-path prefix.
+    Keep lexical junction aliases intact; they are validated by their owner.
+    """
+    value = os.path.abspath(path)
+    if os.name != 'nt':
+        return value
+    if value.startswith('\\\\?\\UNC\\'):
+        value = '\\\\' + value[8:]
+    elif value.startswith('\\\\?\\'):
+        value = value[4:]
+    return value if len(value.encode('utf-16-le')) // 2 < 260 else filesystem_path(value, resolve=False)
+
+
 def precompile(directory, *, immutable=True):
     # Directory traversal and a single large compilation can both block. Keep
     # all of that work outside the dependency repair thread, under the same

@@ -24,6 +24,7 @@ from .engine.facade import owner_identity
 from .engine.fs import FileLock, atomic_json
 from .pool_service import PoolClient, PoolClientError, PoolControlServer, PoolError, PoolService
 from src.web.admission import process_alive
+from .installation_maintenance import start_guard, maintenance_active, InstallationBusy
 
 
 @lru_cache(maxsize=8)
@@ -63,7 +64,7 @@ def _client(record, root, timeout=30):
     if len(address) != 2 or address[0] != '127.0.0.1':
         raise PoolClientError('Invalid local pool discovery address', code='engine_unavailable')
     token = (root / 'token').read_text(encoding='utf-8')
-    return PoolClient(address, token, timeout=timeout)
+    return PoolClient(address, token, timeout=timeout, capabilities=record.get('capabilities'))
 
 
 def _spawn(root, admission, code_root):
@@ -92,7 +93,7 @@ def ensure_pool(settings):
     code_root = Path(__file__).resolve().parents[1]
     expected = implementation(str(code_root))
     root.mkdir(parents=True, exist_ok=True)
-    with FileLock(root / 'start.lock', timeout=90):
+    with FileLock(root / 'start.lock', timeout=90), start_guard(code_root):
         record = _read(root / 'instance.json')
         if _alive(record):
             if record.get('implementation') != expected:
@@ -167,6 +168,8 @@ class ManagedPoolClient(PoolClient):
                 self._session_context = None
 
     def _bind(self):
+        if maintenance_active(Path(__file__).resolve().parents[1]):
+            raise InstallationBusy('Operon is being updated or uninstalled; reconnect after maintenance')
         with self._binding_lock:
             if _alive(self.record):
                 return
@@ -186,6 +189,7 @@ class ManagedPoolClient(PoolClient):
                 'force': os.environ.get('OPERON_FORCE_POOL_REBIND') == '1',
             })
             self.address, self.token, self.record = plain.address, plain.token, record
+            self.lifecycle_address = plain.lifecycle_address
             if self._session_context:
                 reopened = plain.open_session(**self._session_context)
                 self.session_id = reopened['session_id']
@@ -219,7 +223,7 @@ class ManagedControlServer(PoolControlServer):
     def announcement(self):
         return {'version': __version__, 'implementation': self.identity,
                 'address': list(self.address), 'owner': self.pool.owner,
-                'closing': self.closing, 'managed': True}
+                'closing': self.closing, 'managed': True, 'capabilities': self.capabilities()}
 
     def _work_active(self):
         for service in list(self.pool.services.values()):
@@ -239,10 +243,11 @@ class ManagedControlServer(PoolControlServer):
                     if owner and not process_alive(owner):
                         self.pool.sessions.pop(key, None)
                 observed = bool(self.pool.sessions)
-            if self.inflight or observed or self._work_active():
+            maintenance = maintenance_active(self.code_root)
+            if self.inflight or (observed and not maintenance) or self._work_active():
                 self.last_activity = time.monotonic()
                 return False
-            if time.monotonic() - self.last_activity < grace:
+            if not maintenance and time.monotonic() - self.last_activity < grace:
                 return False
             self.closing = True
             atomic_json(self.root / 'instance.json', self.announcement())
@@ -250,6 +255,15 @@ class ManagedControlServer(PoolControlServer):
 
     def dispatch(self, method, params):
         self._check(params or {})
+        if method in ('workspace.register', 'pool.retire'):
+            from .engine.facade import pool_owner
+            with self.principal_limiter.admit(pool_owner(), lane='lifecycle' if method == 'pool.retire' else 'normal'):
+                return self._managed_dispatch(method, params)
+        return self._managed_dispatch(method, params)
+
+    def _managed_dispatch(self, method, params):
+        if method in ('workspace.register', 'run.submit', 'cluster.submit', 'cluster.plan.submit', 'plan.submit', 'session.open', 'transport.lease') and maintenance_active(self.code_root):
+            raise InstallationBusy('Operon installation maintenance is draining this pool')
         with self.lifecycle:
             if self.closing:
                 raise PoolError('The idle shared pool is stopping; reconnect', code='pool_draining')

@@ -12,17 +12,21 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import os
+import shutil
 from pathlib import Path
 import sqlite3
 import threading
+import time
 import uuid
 from typing import Iterable
+from .admission_limits import QueueLimits
+from .telemetry import METRICS
 
 from .contracts import (
     ACTIVE_ATTEMPT_STATES, ACTIVE_RUN_STATES, AttemptState, BusyError, CommitOutcomeUnknown,
     CorruptArtifactError, CursorExpiredError,
     IdempotencyConflictError, InfeasibleResourcesError, PoolSpec, ResourceRequest, ResizeProposal,
-    RunState, SCHEMA_VERSION, StaleAttemptError, StaleRevisionError, TERMINAL_ATTEMPT_STATES,
+    RunState, SCHEMA_VERSION, StaleAttemptError, StaleRevisionError, TERMINAL_ATTEMPT_STATES, digest,
     TERMINAL_RUN_STATES, UnavailableStateError, transition_allowed,
 )
 
@@ -61,6 +65,24 @@ CREATE TABLE IF NOT EXISTS requests (
     updated_at TEXT NOT NULL,
     UNIQUE(principal, request_key)
 );
+CREATE TABLE IF NOT EXISTS controller_fences (
+    controller_id TEXT PRIMARY KEY,
+    epoch INTEGER NOT NULL CHECK(epoch > 0),
+    updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS cluster_requests (
+    controller_id TEXT NOT NULL,
+    principal TEXT NOT NULL,
+    request_key TEXT NOT NULL,
+    digest TEXT NOT NULL,
+    envelope_json TEXT NOT NULL,
+    host_request_id TEXT NOT NULL UNIQUE,
+    host_run_id TEXT NOT NULL,
+    state TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY(controller_id, principal, request_key)
+);
 CREATE TABLE IF NOT EXISTS runs (
     id TEXT PRIMARY KEY,
     workspace_id TEXT NOT NULL,
@@ -80,6 +102,7 @@ CREATE TABLE IF NOT EXISTS runs (
 );
 CREATE INDEX IF NOT EXISTS runs_status ON runs(status, created_at);
 CREATE INDEX IF NOT EXISTS runs_principal ON runs(principal, project, created_at);
+CREATE INDEX IF NOT EXISTS runs_principal_status ON runs(principal, status);
 CREATE TABLE IF NOT EXISTS units (
     id TEXT PRIMARY KEY,
     run_id TEXT NOT NULL REFERENCES runs(id) ON DELETE CASCADE,
@@ -158,6 +181,14 @@ CREATE TABLE IF NOT EXISTS artifact_refs (
     state TEXT NOT NULL,
     created_at TEXT NOT NULL,
     UNIQUE(artifact_id, owner, reason)
+);
+CREATE TABLE IF NOT EXISTS unit_reuses (
+    unit_id TEXT PRIMARY KEY REFERENCES units(id) ON DELETE CASCADE,
+    source_run_id TEXT NOT NULL REFERENCES runs(id),
+    source_unit_id TEXT NOT NULL REFERENCES units(id),
+    artifact_id TEXT NOT NULL REFERENCES artifacts(id),
+    published_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS events (
     cursor INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -247,8 +278,9 @@ class ClaimResult:
 class StateStore:
     """Transactional repository for runs, attempts, leases, artifacts and events."""
 
-    def __init__(self, path, *, create=True, timeout=30.0, backup=None):
+    def __init__(self, path, *, create=True, timeout=30.0, backup=None, queue_limits=None):
         self.path = Path(path)
+        self.queue_limits = queue_limits or QueueLimits.from_environment()
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.lock = threading.RLock()
         self.local = threading.local()
@@ -322,9 +354,23 @@ class StateStore:
         self.close()
 
     @contextmanager
+    def _writer_lock(self):
+        nested = bool(getattr(self.local, 'depth', 0))
+        started = time.perf_counter()
+        self.lock.acquire()
+        acquired = time.perf_counter()
+        try:
+            yield
+        finally:
+            self.lock.release()
+            if not nested:
+                METRICS.observe('state.writer_wait_ms', (acquired - started) * 1000)
+                METRICS.observe('state.writer_hold_ms', (time.perf_counter() - acquired) * 1000)
+
+    @contextmanager
     def transaction(self):
         """Hold the single writer; nested calls join the outer transaction."""
-        with self.lock:
+        with self._writer_lock():
             depth = getattr(self.local, 'depth', 0)
             events = getattr(self.local, 'events', 0)
             if depth:
@@ -527,11 +573,177 @@ class StateStore:
         return dict(row)
 
     # -- requests and submissions --------------------------------------
+    def _submission_storage_pressure(self):
+        """Sample external storage before taking the SQLite writer lock.
+
+        Disk space is an admission watermark, not a transactional filesystem
+        quota. Defer any error until after replay lookup so an accepted request
+        remains recoverable even when storage can no longer accept new work.
+        """
+        try:
+            size = 0
+            for path in (self.path, Path(str(self.path) + '-wal')):
+                try:
+                    size += path.stat().st_size
+                except FileNotFoundError:
+                    pass  # The WAL can disappear during a checkpoint.
+            limits = self.queue_limits
+            if size >= limits.state_bytes:
+                return BusyError('Durable submission capacity reached', code='queue_full',
+                                 retry_after=1.0, details={'resource': 'state_bytes', 'used': size,
+                                                         'limit': limits.state_bytes})
+            free = shutil.disk_usage(self.path.parent).free
+            if free < limits.free_disk_bytes:
+                return BusyError('Insufficient free disk for new durable work', code='queue_full',
+                                 retry_after=1.0, details={'resource': 'free_disk_bytes', 'available': free,
+                                                         'required': limits.free_disk_bytes})
+        except OSError as exc:
+            return UnavailableStateError(f'Cannot verify submission storage: {exc}')
+        return None
+
+    def check_submission_capacity(self, principal, *, pending=0, principal_pending=0):
+        """Read under the same writer transaction that claims new requests.
+
+        Pool adapters also call this before materializing a job directory.
+        Replays bypass this check; cancellation and recovery never call it.
+        """
+        pressure = self._submission_storage_pressure()
+        with self.transaction():
+            self._check_submission_capacity(principal, pending=pending,
+                                            principal_pending=principal_pending, pressure=pressure)
+
+    @staticmethod
+    def _submission_count_queries():
+        states = tuple(sorted(ACTIVE_RUN_STATES))
+        marks = ','.join('?' for _ in states)
+        return (
+            'SELECT COUNT(*) FROM requests',
+            'SELECT COUNT(*) FROM requests WHERE principal=?',
+            f'SELECT COUNT(*) FROM runs WHERE status IN ({marks})',
+            f'SELECT COUNT(*) FROM runs WHERE status IN ({marks}) AND principal=?',
+        ), states
+
+    def _submission_snapshot(self, principal, key):
+        """Lookup replay and admission counts in one SQLite call under the writer.
+
+        Each CASE skips its count on replay, preserving recovery at capacity.
+        Combining the queries also avoids a second GIL handoff while holding
+        the writer when other handlers are compiling large graphs.
+        """
+        queries, states = self._submission_count_queries()
+        columns = ', '.join(f'CASE WHEN r.id IS NULL THEN ({query}) END AS _quota_{i}'
+                            for i, query in enumerate(queries))
+        row = self.connection.execute(
+            f'SELECT r.*, {columns} FROM (SELECT 1) AS singleton '
+            'LEFT JOIN requests AS r ON r.principal=? AND r.request_key=?',
+            (principal, *states, *states, principal, principal, key)).fetchone()
+        existing = {name: row[name] for name in row.keys() if not name.startswith('_quota_')} if row['id'] else None
+        return existing, tuple(row[f'_quota_{i}'] for i in range(4))
+
+    def _check_submission_capacity(self, principal, *, pending=0, principal_pending=0, pressure=None, counts=None):
+        """Caller holds the writer transaction; counts and claim stay atomic."""
+        if pressure is not None:
+            raise pressure
+        limits = self.queue_limits
+        def require(used, limit, resource):
+            if used >= limit:
+                raise BusyError('Durable submission capacity reached', code='queue_full',
+                                retry_after=1.0, details={'resource': resource, 'used': used, 'limit': limit})
+        if counts is None:
+            queries, states = self._submission_count_queries()
+            counts = self.connection.execute('SELECT ' + ', '.join(f'({query})' for query in queries),
+                (principal, *states, *states, principal)).fetchone()
+        require(counts[0] + pending, limits.retained_requests, 'retained_requests')
+        require(counts[1] + principal_pending, limits.principal_retained_requests, 'principal_retained_requests')
+        require(counts[2] + pending, limits.active_runs, 'active_runs')
+        require(counts[3] + principal_pending, limits.principal_active_runs, 'principal_active_runs')
+
     def request(self, principal: str, key: str) -> dict | None:
         with self.lock:
             row = self.connection.execute('SELECT * FROM requests WHERE principal=? AND request_key=?',
                                           (principal, key)).fetchone()
             return self._request_row(row) if row else None
+
+    def _accept_controller_epoch(self, controller_id: str, epoch: int):
+        """Caller holds the writer transaction; identity was authenticated upstream."""
+        if not isinstance(controller_id, str) or not 1 <= len(controller_id) <= 128 or type(epoch) is not int or epoch <= 0:
+            raise ValueError('Invalid authenticated controller identity/epoch')
+        row = self.connection.execute('SELECT epoch FROM controller_fences WHERE controller_id=?', (controller_id,)).fetchone()
+        if row and epoch < row['epoch']:
+            raise StaleAttemptError('Authenticated controller epoch is stale', code='stale_controller_epoch')
+        self.connection.execute('INSERT INTO controller_fences(controller_id,epoch,updated_at) VALUES(?,?,?) '
+            'ON CONFLICT(controller_id) DO UPDATE SET epoch=excluded.epoch,updated_at=excluded.updated_at',
+            (controller_id, epoch, now_iso()))
+
+    @contextmanager
+    def controller_guard(self, controller_id: str, epoch: int, *, run_id=None, host_fence=None, cancel=False):
+        """Thread-local authority checked AT the existing engine mutation, no held lock."""
+        previous = getattr(self.local, 'controller_guard', None)
+        self.local.controller_guard = (controller_id, epoch, run_id, host_fence, cancel)
+        try:
+            yield
+        finally:
+            self.local.controller_guard = previous
+
+    def _check_controller_guard(self):
+        guard = getattr(self.local, 'controller_guard', None)
+        if guard is None:
+            return
+        controller_id, epoch, run_id, host_fence, cancel = guard
+        self._accept_controller_epoch(controller_id, epoch)
+        if cancel:
+            row = self.connection.execute('SELECT a.fence FROM attempts a JOIN units u ON u.id=a.unit_id '
+                'WHERE u.run_id=? ORDER BY a.created_at DESC,a.ordinal DESC LIMIT 1', (run_id,)).fetchone()
+            actual = row['fence'] if row else None
+            if actual != host_fence:
+                raise StaleAttemptError('Host attempt changed since the owned cancellation receipt')
+
+    def cluster_request(self, *, controller_id, epoch, principal, request_key):
+        with self.transaction():
+            self._accept_controller_epoch(controller_id, epoch)
+            row = self.connection.execute('SELECT * FROM cluster_requests WHERE controller_id=? AND principal=? AND request_key=?',
+                                          (controller_id, principal, request_key)).fetchone()
+            if row is None:
+                return None
+            value = dict(row)
+            value['envelope'] = _load(value.pop('envelope_json'), {})
+            return value
+
+    def claim_cluster_request(self, *, controller_id, epoch, principal, request_key, digest, envelope):
+        """Durable send-once intent around the EXISTING host submit authority."""
+        identity = _json([controller_id, principal, request_key])
+        host_request_id = 'cluster-' + hashlib.sha256(identity.encode()).hexdigest()
+        host_run_id = 'req-' + hashlib.sha256(host_request_id.encode()).hexdigest()[:24]
+        with self.transaction():
+            self._accept_controller_epoch(controller_id, epoch)
+            row = self.connection.execute('SELECT * FROM cluster_requests WHERE controller_id=? AND principal=? AND request_key=?',
+                                          (controller_id, principal, request_key)).fetchone()
+            if row:
+                if row['digest'] != digest or _load(row['envelope_json'], {}) != envelope:
+                    raise IdempotencyConflictError('Cluster request key belongs to another immutable submission')
+                return False, self.cluster_request(controller_id=controller_id, epoch=epoch, principal=principal, request_key=request_key)
+            total = self.connection.execute('SELECT COUNT(*) FROM cluster_requests').fetchone()[0]
+            own = self.connection.execute('SELECT COUNT(*) FROM cluster_requests WHERE principal=?', (principal,)).fetchone()[0]
+            if total >= self.queue_limits.retained_requests or own >= self.queue_limits.principal_retained_requests:
+                raise BusyError('Cluster host receipt retention quota reached', code='queue_full')
+            stamp = now_iso()
+            self.connection.execute('INSERT INTO cluster_requests(controller_id,principal,request_key,digest,envelope_json,'
+                'host_request_id,host_run_id,state,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)',
+                (controller_id, principal, request_key, digest, _json(envelope), host_request_id, host_run_id, 'dispatching', stamp, stamp))
+            return True, self.cluster_request(controller_id=controller_id, epoch=epoch, principal=principal, request_key=request_key)
+
+    def reject_cluster_request(self, *, controller_id, epoch, principal, request_key):
+        """Record a proved pre-admission rejection; uncertain submissions cannot use this."""
+        with self.transaction():
+            self._accept_controller_epoch(controller_id, epoch)
+            row = self.connection.execute('SELECT host_run_id,state FROM cluster_requests WHERE controller_id=? AND principal=? AND request_key=?',
+                                          (controller_id, principal, request_key)).fetchone()
+            if row is None or row['state'] != 'dispatching':
+                raise StaleRevisionError('Cluster host request is not pending initial admission')
+            if self.connection.execute('SELECT 1 FROM runs WHERE id=?', (row['host_run_id'],)).fetchone():
+                raise StaleRevisionError('A host run exists; non-acceptance cannot be proven')
+            self.connection.execute("UPDATE cluster_requests SET state='rejected',updated_at=? "
+                'WHERE controller_id=? AND principal=? AND request_key=?', (now_iso(), controller_id, principal, request_key))
 
     def _request_row(self, row) -> dict:
         value = dict(row)
@@ -548,9 +760,9 @@ class StateStore:
         index.  Reuse with different content is a conflict.
         """
         stamp = now_iso()
+        pressure = self._submission_storage_pressure()
         with self.transaction():
-            row = self.connection.execute('SELECT * FROM requests WHERE principal=? AND request_key=?',
-                                          (principal, key)).fetchone()
+            row, counts = self._submission_snapshot(principal, key)
             if row is not None:
                 existing = self._request_row(row)
                 if existing['digest'] != digest:
@@ -558,6 +770,7 @@ class StateStore:
                         'request_id was already used for a different payload',
                         details={'request_id': key, 'existing_operation': existing['operation']})
                 return ClaimResult(created=False, status='reused', record=existing)
+            self._check_submission_capacity(principal, pressure=pressure, counts=counts)
             request_id = new_id('req-')
             self.connection.execute(
                 'INSERT INTO requests(id, principal, request_key, digest, operation, state, run_id, receipt_json, '
@@ -574,9 +787,16 @@ class StateStore:
                          receipt: dict | None = None) -> ClaimResult:
         """Atomically claim one request identity and create its durable run."""
         stamp = now_iso()
+        pressure = self._submission_storage_pressure()
+        # Encode the potentially large plan once, outside the writer lock.
+        # Replacing the JSON null placeholder preserves the exact byte count.
+        plan_json = _json(run['plan'])
+        size = len(_json({'run': {**run, 'plan': None}, 'units': units,
+                          'receipt': receipt, 'owner': owner}).encode('utf-8'))
+        size += len(plan_json.encode('utf-8')) - len('null')
         with self.transaction():
-            row = self.connection.execute('SELECT * FROM requests WHERE principal=? AND request_key=?',
-                                          (principal, key)).fetchone()
+            self._check_controller_guard()
+            row, counts = self._submission_snapshot(principal, key)
             if row is not None:
                 existing = self._request_row(row)
                 if existing['digest'] != digest:
@@ -584,6 +804,10 @@ class StateStore:
                         'request_id was already used for a different payload',
                         details={'request_id': key, 'existing_operation': existing['operation']})
                 return ClaimResult(created=False, status='reused', record=existing)
+            self._check_submission_capacity(principal, pressure=pressure, counts=counts)
+            if size > self.queue_limits.submission_bytes or len(units) > self.queue_limits.submission_units:
+                raise BusyError('Submission exceeds durable plan limits', code='queue_full',
+                                details={'resource': 'submission', 'bytes': size, 'units': len(units)})
             request_id = new_id('req-')
             self.connection.execute(
                 'INSERT INTO requests(id, principal, request_key, digest, operation, state, run_id, receipt_json, '
@@ -594,7 +818,7 @@ class StateStore:
                 'INSERT INTO runs(id, workspace_id, principal, project, plan_key, plan_digest, plan_json, status, '
                 'revision, cancel_requested, created_at, updated_at) VALUES(?,?,?,?,?,?,?,?,1,0,?,?)',
                 (run['id'], run['workspace_id'], principal, run['project'], run['plan_key'],
-                 run['plan_digest'], _json(run['plan']), RunState.QUEUED.value, stamp, stamp))
+                 run['plan_digest'], plan_json, RunState.QUEUED.value, stamp, stamp))
             for ordinal, unit in enumerate(units):
                 dependencies = list(unit.get('depends_on', ()))
                 initial = AttemptState.READY.value if not dependencies else AttemptState.BLOCKED.value
@@ -718,6 +942,7 @@ class StateStore:
                        actor='client') -> dict:
         stamp = now_iso()
         with self.transaction():
+            self._check_controller_guard()
             row = self.connection.execute('SELECT * FROM runs WHERE id=?', (run_id,)).fetchone()
             if row is None:
                 raise KeyError(f'Unknown run {run_id}')
@@ -775,8 +1000,14 @@ class StateStore:
             return self.unit(unit_id)
 
     def set_unit_state_for_dependencies(self, run_id: str) -> int:
-        """Mark blocked units ready when every dependency has succeeded."""
+        """Resolve dependency readiness or terminal upstream failure.
+
+        No attempt is invented for a unit whose producer cannot complete. A
+        producer with an admitted retry has state ready/running, not failed,
+        and therefore does not invalidate its consumers.
+        """
         with self.transaction():
+            run = self.run(run_id)
             rows = self.connection.execute('SELECT * FROM units WHERE run_id=? ORDER BY ordinal',
                                            (run_id,)).fetchall()
             state = {row['local_id']: row['state'] for row in rows}
@@ -785,7 +1016,17 @@ class StateStore:
                 if row['state'] not in (RunState.QUEUED.value, AttemptState.BLOCKED.value):
                     continue
                 dependencies = _load(row['depends_on_json'], [])
-                if all(state.get(item) == AttemptState.SUCCEEDED.value for item in dependencies):
+                failed = [item for item in dependencies if state.get(item) in
+                          (AttemptState.FAILED.value, AttemptState.CANCELLED.value)]
+                if failed:
+                    self.connection.execute('UPDATE units SET state=?, updated_at=? WHERE id=?',
+                                            (AttemptState.CANCELLED.value, now_iso(), row['id']))
+                    state[row['local_id']] = AttemptState.CANCELLED.value
+                    self._event('unit_dependency_failed', principal=run['principal'],
+                        workspace_id=run['workspace_id'], run_id=run_id, unit_id=row['id'],
+                        revision=run['revision'], payload={'dependencies': failed, 'attempt_created': False})
+                    changed += 1
+                elif all(state.get(item) == AttemptState.SUCCEEDED.value for item in dependencies):
                     self.connection.execute('UPDATE units SET state=?, updated_at=? WHERE id=?',
                                             (AttemptState.READY.value, now_iso(), row['id']))
                     changed += 1
@@ -1363,6 +1604,136 @@ class StateStore:
                 return self.lease_by_id(lease_id)
             return self.lease_by_id(lease_id)
 
+    # -- explicit new-run resume attachments ----------------------------
+    def resume_attachments(self, run_id: str) -> list[dict]:
+        with self.lock:
+            rows = self.connection.execute(
+                'SELECT x.*,u.local_id FROM unit_reuses x JOIN units u ON u.id=x.unit_id '
+                'WHERE u.run_id=? ORDER BY u.ordinal', (run_id,)).fetchall()
+            result = []
+            for row in rows:
+                item = dict(row)
+                item['published'] = _load(item.pop('published_json'), {})
+                result.append(item)
+            return result
+
+    def resume_receipt(self, *, principal: str, request_id: str) -> dict | None:
+        with self.lock:
+            row = self.connection.execute(
+                "SELECT receipt_json FROM requests WHERE principal=? AND request_key=? AND operation='resume-attach'",
+                (principal, 'resume-attach:' + request_id)).fetchone()
+            return _load(row['receipt_json'], {}) if row else None
+
+    def attach_resume(self, *, principal: str, request_id: str, parent_run_id: str,
+                      run_id: str, run_identity: str, source_revision: int,
+                      destination_revision: int, attempt_revisions: dict,
+                      verified: dict) -> dict:
+        """Attach already-verified outputs to a fresh run, without inventing attempts.
+
+        The standalone caller holds its controller lock across verification and
+        this operation. No filesystem IO or hashing occurs in this transaction.
+        Artifact row snapshots and source attempt revisions close state races.
+        """
+        key = 'resume-attach:' + request_id
+        identity = digest({'parent': parent_run_id, 'run': run_id, 'identity': run_identity})
+        with self.transaction():
+            prior = self.connection.execute('SELECT * FROM requests WHERE principal=? AND request_key=?',
+                                            (principal, key)).fetchone()
+            if prior:
+                if prior['digest'] != identity or prior['operation'] != 'resume-attach':
+                    raise IdempotencyConflictError('Resume request key belongs to another lineage')
+                return _load(prior['receipt_json'], {})
+            source, target = self.run(parent_run_id), self.run(run_id)
+            if parent_run_id == run_id or source['principal'] != principal or target['principal'] != principal:
+                raise BusyError('Resume requires a distinct run owned by the caller', code='resume_unsafe')
+            if source['workspace_id'] != target['workspace_id']:
+                raise BusyError('Resume cannot attach outputs across workspaces', code='resume_unsafe')
+            if source['status'] not in ('failed', 'cancelled') or target['status'] != 'queued' or target['cancel_requested']:
+                raise BusyError('Resume requires a terminal parent and an untouched queued child', code='resume_unsafe')
+            if source['revision'] != source_revision or target['revision'] != destination_revision:
+                raise StaleRevisionError('Run changed while resume artifacts were verified')
+            if source['plan_key'] != run_identity or target['plan_key'] != run_identity:
+                raise IdempotencyConflictError('Resume plan, inputs or environments have changed')
+            for field in ('graph', 'parameters', 'units', 'inputs'):
+                if source['plan'].get(field) != target['plan'].get(field):
+                    raise IdempotencyConflictError('Resume requires the exact frozen execution plan')
+            source_attempts = self.attempts(parent_run_id)
+            if {a['id']: a['revision'] for a in source_attempts} != attempt_revisions:
+                raise StaleRevisionError('Parent attempts changed during resume verification')
+            if any(a['state'] not in ('succeeded', 'failed', 'cancelled') for a in source_attempts):
+                raise BusyError('Parent has active or uncertain attempts', code='resume_unsafe')
+            if self.connection.execute(
+                "SELECT 1 FROM leases l JOIN attempts a ON a.id=l.attempt_id JOIN units u ON u.id=a.unit_id "
+                "WHERE u.run_id=? AND l.state!='released' LIMIT 1", (parent_run_id,)).fetchone():
+                raise BusyError('Parent still owns a resource lease', code='resume_unsafe')
+            if self.attempts(run_id) or self.resume_attachments(run_id):
+                raise BusyError('Destination has already started or attached another resume', code='resume_unsafe')
+            if self.connection.execute("SELECT 1 FROM outbox WHERE run_id=? AND command='launch' LIMIT 1", (run_id,)).fetchone():
+                raise BusyError('Destination has a launch intent', code='resume_unsafe')
+            old = {u['local_id']: u for u in self.units(parent_run_id)}
+            new = {u['local_id']: u for u in self.units(run_id)}
+            if any(u['attempts'] or u['state'] not in ('ready', 'blocked') for u in new.values()):
+                raise BusyError('Destination units are no longer fresh', code='resume_unsafe')
+            if not set(verified).issubset(new):
+                raise CorruptArtifactError('Resume names a unit outside the destination plan')
+            for local_id, item in verified.items():
+                unit = old.get(local_id)
+                if not unit or unit['state'] != 'succeeded' or not set(unit['depends_on']).issubset(verified):
+                    raise CorruptArtifactError('Reused units must form a successful ancestor-closed subset')
+                expected, published = item['artifact'], item['published']
+                actual = self.artifact(expected['id'])
+                if actual != expected or actual['state'] != 'committed':
+                    raise StaleRevisionError('Artifact record changed during resume verification')
+                receipt = published['receipt']
+                if any(receipt.get(k) != actual[v] for k, v in (
+                    ('artifact_id', 'id'), ('digest', 'digest'), ('attempt_id', 'attempt_id'),
+                    ('fence', 'fence'), ('location', 'location'))):
+                    raise CorruptArtifactError('Published receipt differs from the durable artifact')
+                attempt = next((a for a in source_attempts if a['id'] == actual['attempt_id']), None)
+                inherited = self.connection.execute('SELECT artifact_id FROM unit_reuses WHERE unit_id=?', (unit['id'],)).fetchone()
+                if not (attempt and attempt['unit_id'] == unit['id'] and attempt['state'] == 'succeeded') and not (
+                    inherited and inherited['artifact_id'] == actual['id']):
+                    raise CorruptArtifactError('Artifact does not belong to this successful parent unit')
+            counts = self.connection.execute('SELECT COUNT(*),SUM(CASE WHEN principal=? THEN 1 ELSE 0 END) FROM requests',
+                                             (principal,)).fetchone()
+            if counts[0] >= self.queue_limits.retained_requests or (counts[1] or 0) >= self.queue_limits.principal_retained_requests:
+                raise BusyError('Resume receipt retention quota reached', code='queue_full')
+            plan = target['plan']
+            execution = dict(plan.get('execution') or {})
+            if execution.get('resume_parent_run_id', parent_run_id) != parent_run_id:
+                raise IdempotencyConflictError('Destination already names another resume parent')
+            execution['resume_parent_run_id'] = parent_run_id
+            plan['execution'] = execution
+            plan_digest = digest({field: plan[field] for field in ('plan_key', 'graph', 'parameters', 'execution', 'units', 'inputs')})
+            stamp, revision = now_iso(), target['revision'] + 1
+            for local_id, unit in new.items():
+                state = 'succeeded' if local_id in verified else ('ready' if set(unit['depends_on']).issubset(verified) else 'blocked')
+                self.connection.execute('UPDATE units SET state=?,updated_at=? WHERE id=?', (state, stamp, unit['id']))
+                if local_id not in verified:
+                    continue
+                item = verified[local_id]
+                self.connection.execute('INSERT INTO unit_reuses(unit_id,source_run_id,source_unit_id,artifact_id,published_json,created_at) VALUES(?,?,?,?,?,?)',
+                    (unit['id'], parent_run_id, old[local_id]['id'], item['artifact']['id'], _json(item['published']), stamp))
+                self.add_reference(item['artifact']['id'], owner='run:' + run_id, reason='explicit-run-resume:' + local_id)
+                self._event('unit_reused', principal=principal, workspace_id=target['workspace_id'], run_id=run_id,
+                            unit_id=unit['id'], revision=revision,
+                            payload={'parent_run_id': parent_run_id, 'source_unit_id': old[local_id]['id'], 'artifact_id': item['artifact']['id']})
+            complete = bool(new) and len(verified) == len(new)
+            self.connection.execute('UPDATE runs SET plan_json=?,plan_digest=?,revision=?,status=?,updated_at=?,finished_at=? WHERE id=?',
+                (_json(plan), plan_digest, revision, 'complete' if complete else 'queued', stamp, stamp if complete else None, run_id))
+            receipt = {'parent_run_id': parent_run_id, 'run_id': run_id, 'run_identity': run_identity,
+                       'reused_units': list(verified), 'request_id': request_id}
+            self.connection.execute('INSERT INTO requests(id,principal,request_key,digest,operation,state,run_id,receipt_json,owner_json,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)',
+                (new_id('req-'), principal, key, identity, 'resume-attach', 'accepted', run_id, _json(receipt), '{}', stamp, stamp))
+            self._event('run_resume_attached', principal=principal, workspace_id=target['workspace_id'], run_id=run_id,
+                        revision=revision, payload=receipt)
+            if complete:
+                self.connection.execute('INSERT INTO transitions(entity,entity_id,before_state,after_state,revision,actor,reason,created_at) VALUES(?,?,?,?,?,?,?,?)',
+                    ('run', run_id, target['status'], 'complete', revision, principal, 'explicit verified resume attachments', stamp))
+                self._event('run_complete', principal=principal, workspace_id=target['workspace_id'], run_id=run_id,
+                            revision=revision, payload={'status': 'complete', 'reused_units': list(verified)})
+            return receipt
+
     # -- artifacts -----------------------------------------------------
     def record_artifact(self, *, artifact_id: str, attempt_id: str, fence: int, manifest: dict,
                         digest: str, size_bytes: int, state: str, location: str) -> dict:
@@ -1448,10 +1819,6 @@ class StateStore:
 
     def events_after(self, cursor: int, *, limit=200, run_id=None, principal=None, workspace_id=None,
                      kinds=None, max_bytes=256 * 1024) -> dict:
-        floor = self._event_floor()
-        if cursor < floor:
-            raise CursorExpiredError('The requested event cursor has expired; request a snapshot first',
-                                     details={'cursor': cursor, 'floor': floor})
         query = 'SELECT * FROM events WHERE cursor>?'
         values: list = [int(cursor)]
         for column, value in (('run_id', run_id), ('principal', principal), ('workspace_id', workspace_id)):
@@ -1464,6 +1831,10 @@ class StateStore:
         query += ' ORDER BY cursor LIMIT ?'
         values.append(max(1, min(int(limit), 1000)))
         with self.lock:
+            floor = self._event_floor()
+            if cursor < floor:
+                raise CursorExpiredError('The requested event cursor has expired; request a snapshot first',
+                                         details={'cursor': cursor, 'floor': floor})
             rows = self.connection.execute(query, values).fetchall()
         events, used = [], 0
         for row in rows:
@@ -1502,8 +1873,8 @@ class StateStore:
             cutoff = maximum - int(keep)
             if cutoff <= 0:
                 return {'deleted': 0, 'floor': self._event_floor()}
-            row = self.connection.execute('SELECT MIN(cursor) FROM events WHERE cursor<=?', (cutoff,)).fetchone()
-            floor = int(row[0] or maximum)
+            row = self.connection.execute('SELECT MAX(cursor) FROM events WHERE cursor<=?', (cutoff,)).fetchone()
+            floor = max(self._event_floor(), int(row[0] or 0))
             deleted = self.connection.execute('DELETE FROM events WHERE cursor<=?', (cutoff,)).rowcount
             self.connection.execute(
                 "INSERT INTO schema_meta(key, value) VALUES('min_event_cursor', ?) "

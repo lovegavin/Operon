@@ -57,6 +57,12 @@
 .remote-file-list small {color:var(--text-muted); font:11px var(--font-mono); white-space:nowrap;}
 .remote-files footer,.remote-files .field-error {margin:0 24px;}
 .remote-files footer label {display:flex; align-items:center; gap:8px; color:var(--text-secondary);}
+.storage-files {max-height:calc(100vh - 48px); overflow:auto;}
+.storage-root,.storage-page {display:flex; align-items:center; gap:12px; margin:14px 24px; color:var(--text-secondary); font-size:12px;}
+.storage-root select {flex:1; min-width:0;}
+.storage-page .subtle-button {margin-left:auto; white-space:nowrap;}
+.storage-preview {margin:14px 24px; font-size:12px; color:var(--text-secondary);}
+.storage-preview pre {max-height:180px; overflow:auto; padding:10px; background:var(--surface); white-space:pre-wrap; overflow-wrap:anywhere;}
 .remote-results {padding:24px; overflow:auto; width:100%;}
 .remote-results h3 {margin-bottom:12px;}
 .remote-result-file {display:grid; grid-template-columns:160px 1fr; gap:12px; padding:10px 0; border-bottom:1px solid var(--separator);}

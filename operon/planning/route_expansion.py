@@ -1,0 +1,258 @@
+"""Pure route interface validation and deterministic DAG expansion."""
+from copy import deepcopy
+from hashlib import sha256
+from .graph_models import Graph, GraphEdge, RouteDefinition, RouteInterface, RouteInput, RouteOutput
+
+def fail(message, node_id=None):
+    from .graph_compiler import GraphError
+    raise GraphError(message, node_id)
+
+
+def port_index(handle):
+    if handle == "out":
+        return 0
+    if handle.startswith("out-") and handle[4:].isdigit():
+        return int(handle[4:])
+    fail("输出端口格式无效。")
+
+
+def output_names(node, registry):
+    if node.kind == "source":
+        return [node.id]
+    if node.kind == "script":
+        from operon.script_operators import validate_script
+        snapshot = validate_script(node.script)
+        if len(snapshot["outputs"]) != 1:
+            fail("Script route nodes require one declared file output", node.id)
+        return [node.id]
+    if node.kind == "route":
+        definition = require_route(node)
+        return [f"{node.id}__out_{i+1}" for i in range(len(definition.graph.interface.outputs))]
+    spec = registry.get(node.operator)
+    if spec is None:
+        fail(f"未找到算子 {node.operator!r}。", node.id)
+    return [str(node.params.get("output", node.id))] if spec["output_parameter"] else spec["outputs"]
+
+
+def require_route(node):
+    if node.route is None or node.route.graph.interface is None:
+        fail("路线算子缺少版本快照或注册接口，请重新添加。", node.id)
+    return node.route
+
+
+def check_interface(graph, catalog):
+    """Validate the boundary without requiring the original input files."""
+    interface = graph.interface
+    if interface is None:
+        fail("保存的路线缺少注册接口。")
+    nodes = {node.id: node for node in graph.nodes}
+    if len(nodes) != len(graph.nodes):
+        fail("路线节点 ID 重复。")
+    inputs = [port.node_id for port in interface.inputs]
+    sources = {node.id for node in graph.nodes if node.kind == "source"}
+    if len(set(inputs)) != len(inputs) or set(inputs) != sources:
+        fail("路线输入必须与内部数据源一一对应。")
+    if not any(node.kind != "source" for node in graph.nodes):
+        fail("路线至少需要一个处理算子。")
+    registry = {item["id"]: item for item in catalog["operators"]}
+    seen = set()
+    for port in interface.outputs:
+        key = (port.node_id, port_index(port.handle))
+        if key in seen or port.node_id not in nodes:
+            fail("路线输出端口重复或引用了不存在的节点。")
+        if key[1] >= len(output_names(nodes[port.node_id], registry)):
+            fail("路线输出引用的节点没有这个数据端口。", port.node_id)
+        seen.add(key)
+
+
+def prepare_interface(graph, catalog, root, *, input_roots=None):
+    """Attach an editable interface even to an incomplete saved canvas."""
+    from .graph_contracts import analyze_graph
+    result = graph.model_copy(deep=True)
+    analysis = analyze_graph(result, catalog, root, input_roots=input_roots)
+    old = result.interface
+    previous_inputs = {p.node_id: p for p in old.inputs} if old else {}
+    def persisted_contract(value):
+        schema = deepcopy(value)
+        # Legacy projections are runtime capabilities, not author declarations.
+        # Persisting them would spuriously version unchanged library routes.
+        if not schema.get('_format_explicit'):
+            schema.pop('data_format', None)
+        return schema
+    inputs = []
+    for node in result.nodes:
+        if node.kind == "source":
+            previous = previous_inputs.get(node.id)
+            schema = persisted_contract(analysis["nodes"][node.id]["outputs"][0])
+            schema.pop("reader", None)
+            schema["labels"] = [{"dim": dim, "values": labels} for dim, labels in schema.get("labels", {}).items() if labels]
+            schema["parallel"] = [{"dim": dim, "fields": fields} for dim, fields in schema.pop("axis_info", {}).items() if fields]
+            inputs.append(RouteInput(node_id=node.id, label=previous.label if previous else node.title or node.id, contract=schema))
+    outputs = []
+    if old:
+        candidates = old.outputs
+    else:
+        # A data port consumed only by a report remains a useful route output.
+        registry = {o["id"]: o for o in catalog["operators"]}
+        nodes = {n.id: n for n in result.nodes}
+        consumed = {(e.source, port_index(e.sourceHandle)) for e in result.edges
+                    if e.target in nodes and output_names(nodes[e.target], registry)}
+        candidates = [RouteOutput(node_id=n.id, handle="out" if len(analysis["nodes"][n.id]["outputs"]) == 1 else f"out-{i}",
+                                  label=n.title or n.operator or n.id)
+                      for n in result.nodes if n.kind != "source"
+                      for i, _ in enumerate(analysis["nodes"][n.id]["outputs"]) if (n.id, i) not in consumed]
+    for port in candidates:
+        node_ports = analysis["nodes"].get(port.node_id, {}).get("outputs", [])
+        index = port_index(port.handle)
+        if index < len(node_ports):
+            outputs.append(port.model_copy(update={"contract": persisted_contract(node_ports[index])}))
+    result.schema_version = 2
+    result.interface = RouteInterface(inputs=inputs, outputs=outputs)
+    return result
+
+
+def expand_routes(graph, catalog):
+    """Inline route bodies with unique IDs/names; return node ownership for UI.
+
+    Input sources in a route are placeholders, never read from disk. Each route
+    body participates in the same memory plan and deterministic ordering as the
+    outer DAG. Snapshots, nesting depth, and expanded size are bounded.
+    """
+    registry = {item["id"]: item for item in catalog["operators"]}
+    flat_nodes, flat_edges, owners, keeps = [], [], {}, []
+    exchange_aliases = {}
+    serial = 0
+
+    def add_node(node, owner):
+        if len(flat_nodes) >= 1000:
+            fail("路线展开后超过 1000 个节点，请拆分工作流。", owner)
+        flat_nodes.append(node)
+        owners[node.id] = owner
+
+    def visit(current, path=(), bindings=None, ancestry=(), owner=None, inherited_params=None):
+        from .references import remap_params
+        scoped_params = {**(inherited_params or {}), **current.params}
+        nonlocal serial
+        if len(path) > 6:
+            fail("路线嵌套最多支持 6 层。", owner)
+        nodes = {n.id: n for n in current.nodes}
+        if len(nodes) != len(current.nodes):
+            fail("路线节点 ID 重复。", owner)
+        bindings = bindings or {}
+        incoming = {n.id: {} for n in current.nodes}
+        seen_edges = set()
+        for edge in current.edges:
+            if edge.id in seen_edges or edge.source not in nodes or edge.target not in nodes:
+                fail("路线包含重复或无效连线。", owner)
+            seen_edges.add(edge.id)
+            port = int(edge.targetHandle[3:])
+            if port in incoming[edge.target] or nodes[edge.target].kind == "source":
+                fail("路线输入重复连接或数据源被作为连线目标。", owner or edge.target)
+            incoming[edge.target][port] = edge
+        endpoints, active, local_names = {}, set(), {}
+        for node in current.nodes:
+            if node.kind == "route":
+                continue
+            if node.id in bindings:
+                endpoints[node.id] = [bindings[node.id]]
+                continue
+            copied = node.model_copy(deep=True)
+            copied.context_params = {**scoped_params, **copied.context_params}
+            if path:
+                digest = sha256("/".join((*path, node.id)).encode()).hexdigest()[:20]
+                copied.id = f"r_{digest}"
+                if registry.get(node.operator, {}).get("output_parameter"):
+                    copied.params["output"] = copied.id
+                filename = copied.params.get("filename")
+                if filename:
+                    # Validate rather than silently sanitize an unsafe filename.
+                    if not isinstance(filename, str) or any(c in filename for c in "/\\:"):
+                        fail("图片文件名不能包含目录或驱动器。", owner)
+                    copied.params["filename"] = f"{copied.id}_{filename}"
+            add_node(copied, owner or node.id)
+            names = output_names(copied, registry)
+            endpoints[node.id] = [(copied.id, "out" if len(names) == 1 else f"out-{i}") for i in range(len(names))]
+            for old, new in zip(output_names(node, registry), names):
+                local_names[old] = new
+
+        def source_endpoint(node_id, handle):
+            values = resolve_node(node_id)
+            index = port_index(handle)
+            if index >= len(values):
+                fail("路线连线引用了不存在的输出端口。", owner or node_id)
+            return values[index]
+
+        def resolve_node(node_id):
+            if node_id in endpoints:
+                return endpoints[node_id]
+            if node_id in active:
+                fail("路线之间存在环路。", owner or node_id)
+            active.add(node_id)
+            node = nodes[node_id]
+            definition = require_route(node)
+            if definition.id in ancestry:
+                fail("路线不能递归调用自身。", owner or node.id)
+            check_interface(definition.graph, catalog)
+            ports = definition.graph.interface.inputs
+            if set(incoming[node_id]) != set(range(len(ports))):
+                fail(f"{node.title or definition.name}需要 {len(ports)} 个输入，请连接全部端口。", owner or node.id)
+            wired = {port.node_id: source_endpoint(incoming[node_id][i].source, incoming[node_id][i].sourceHandle)
+                     for i, port in enumerate(ports)}
+            inner = visit(definition.graph, (*path, node_id), wired, (*ancestry, definition.id), owner or node.id, scoped_params)
+            values = [inner(port.node_id, port.handle) for port in definition.graph.interface.outputs]
+            endpoints[node_id] = values
+            for alias, endpoint in zip(output_names(node, registry), values):
+                produced = next(n for n in flat_nodes if n.id == endpoint[0])
+                local_names[alias] = output_names(produced, registry)[port_index(endpoint[1])]
+            active.remove(node_id)
+            return values
+
+        for node in current.nodes:
+            resolve_node(node.id)
+        for name, endpoint in (bindings or {}).items():
+            produced = next(n for n in flat_nodes if n.id == endpoint[0])
+            local_names[name] = output_names(produced, registry)[port_index(endpoint[1])]
+        for node in current.nodes:
+            if node.kind != "operator":
+                continue
+            target_id = node.id if not path else "r_" + sha256("/".join((*path, node.id)).encode()).hexdigest()[:20]
+            copied = next(n for n in flat_nodes if n.id == target_id)
+            copied.params = remap_params(copied.operator, copied.params, local_names)
+        for edge in current.edges:
+            if nodes[edge.target].kind == "route":
+                continue
+            source_id, handle = source_endpoint(edge.source, edge.sourceHandle)
+            # Report nodes have no outputs; their deterministic ID is independent.
+            target_id = edge.target if not path else "r_" + sha256("/".join((*path, edge.target)).encode()).hexdigest()[:20]
+            serial += 1
+            if serial > 5000:
+                fail("路线展开后超过 5000 条连接。", owner)
+            flat_edges.append(GraphEdge(id=f"expanded_{serial}", source=source_id, target=target_id,
+                                        sourceHandle=handle, targetHandle=edge.targetHandle, adaptation=edge.adaptation))
+        for name in current.memory.get("keep", []):
+            if name not in local_names:
+                # A placeholder source may have been requested as a retained value.
+                source = bindings.get(name)
+                if source:
+                    produced = next(n for n in flat_nodes if n.id == source[0])
+                    local_names[name] = output_names(produced, registry)[port_index(source[1])]
+                else:
+                    fail(f"保留数据 {name!r} 不存在。", owner)
+            keeps.append(local_names[name])
+        if not path:
+            for name in graph.runtime.get('exchange_outputs', []):
+                if name not in local_names:
+                    fail(f"Boundary output {name!r} does not exist")
+                exchange_aliases[name] = local_names[name]
+        return source_endpoint
+
+    visit(graph)
+    result = graph.model_copy(deep=True)
+    result.nodes, result.edges, result.interface = flat_nodes, flat_edges, None
+    result.memory = {**result.memory, "keep": list(dict.fromkeys(keeps))}
+    if exchange_aliases:
+        result.runtime['exchange_outputs'] = list(dict.fromkeys(exchange_aliases.values()))
+        result.runtime['exchange_aliases'] = exchange_aliases
+    return result, owners
+
+

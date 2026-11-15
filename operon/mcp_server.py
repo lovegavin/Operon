@@ -10,6 +10,22 @@ def create_server(client):
     from .guidance import guide, instructions
     server = FastMCP("Operon", instructions=instructions())
 
+    def _download_root():
+        value = client.workspace or client.status().get('workspace')
+        if not value:
+            raise ValueError('MCP client has no workspace; pass --workspace to the MCP server')
+        return Path(value).resolve()
+
+    def _download_target(destination):
+        value = Path(str(destination))
+        if value.is_absolute() or '..' in value.parts:
+            raise ValueError('destination must be a relative path inside the workspace')
+        root = _download_root()
+        target = (root / value).resolve()
+        if target != root and root not in target.parents:
+            raise ValueError('destination escapes the workspace')
+        return target
+
     @server.tool()
     def operon_guide(topic: str = 'start', if_sha256: str | None = None) -> dict:
         """Read one installed operating guide: index, start, operators, canvas, workflow, jobs, results or api.
@@ -60,6 +76,82 @@ def create_server(client):
     def operon_workflow_save(graph: dict, workflow_id: str | None = None, expected_version: int | None = None) -> dict:
         """Create or update a saved workflow. Updates require its current version; saving never runs it."""
         return client.request('/v1/workflows', {'graph': graph, 'workflow_id': workflow_id, 'expected_version': expected_version})
+
+    @server.tool()
+    def operon_plan_compile(request: dict) -> dict:
+        """Compile a graph or authoring-v2 request into a frozen RunPlan; never execute or install.
+
+        request follows the strict /api/v1/plans/compile schema. Authoring-v2
+        supplies independent parameters/inputs/environments objects explicitly.
+        """
+        return client.request('/v1/plans/compile', request)
+
+    @server.tool()
+    def operon_plan_submit(plan: dict, binding: dict, request_id: str) -> dict:
+        """Explicitly submit one frozen RunPlan to the shared host pool; requires --allow-run.
+
+        Binding uses workspace-relative package/environment/storage/input paths.
+        Reuse the same request_id and content after an uncertain response.
+        """
+        return client.request('/v1/plans', {'plan': plan, 'binding': binding, 'request_id': request_id})
+
+    @server.tool()
+    def operon_plan_status(run_id: str) -> dict:
+        """Read authoritative host-pool RunPlan status without starting work."""
+        return client.request('/v1/plans/' + quote(run_id, safe=''))
+
+    @server.tool()
+    def operon_plan_events(run_id: str, after: int = 0, limit: int = 100, max_bytes: int = 32768) -> dict:
+        """Read bounded host transition metadata; continue at next_cursor, or the retained floor after expiry."""
+        return client.request('/v1/plans/' + quote(run_id, safe='') + '/events?' +
+                              urlencode(dict(after=after, limit=limit, max_bytes=max_bytes)))
+
+    @server.tool()
+    def operon_plan_attempts(run_id: str, after: str = '', limit: int = 100, max_bytes: int = 32768) -> dict:
+        """List owned attempts and states without process identities or filesystem paths."""
+        return client.request('/v1/plans/' + quote(run_id, safe='') + '/attempts?' +
+                              urlencode(dict(after=after, limit=limit, max_bytes=max_bytes)))
+
+    @server.tool()
+    def operon_plan_artifacts(run_id: str, after: str = '', limit: int = 100, max_bytes: int = 32768) -> dict:
+        """List committed artifact IDs, hashes and sizes. This does not download or open output files."""
+        return client.request('/v1/plans/' + quote(run_id, safe='') + '/artifacts?' +
+                              urlencode(dict(after=after, limit=limit, max_bytes=max_bytes)))
+
+    @server.tool()
+    def operon_plan_logs(run_id: str, attempt_id: str, offset: int = 0, max_bytes: int = 16384,
+                         encoding: str = 'text') -> dict:
+        """Read at most 64 KiB of one owned attempt log; continue at next_offset. Base64 preserves raw bytes."""
+        return client.request('/v1/plans/' + quote(run_id, safe='') + '/logs?' +
+                              urlencode(dict(attempt_id=attempt_id, offset=offset, max_bytes=max_bytes, encoding=encoding)))
+
+    @server.tool()
+    def operon_plan_cancel(run_id: str) -> dict:
+        """Request cancellation through the existing host coordinator; requires --allow-run."""
+        return client.request('/v1/plans/' + quote(run_id, safe='') + '/cancel', {})
+
+    @server.tool()
+    def operon_plan_export(request: dict) -> dict:
+        """Queue an explicit RunPlan export with frozen manifests/bindings; requires --allow-run.
+
+        Returns a durable receipt, not a claim that the bundle already passed
+        relocation checks. Reuse request_id after a lost response; never invent
+        a new key to retry an unknown/building operation.
+        """
+        return client.request('/v1/plan-exports', request)
+
+    @server.tool()
+    def operon_plan_export_status(export_id: str | None = None, request_id: str | None = None) -> dict:
+        """Read a build receipt by ID, or recover it by the original request_id after a lost reply."""
+        if bool(export_id) == bool(request_id):
+            raise ValueError('Provide exactly one export_id or request_id')
+        return client.request('/v1/plan-exports/' + quote(export_id, safe='') if export_id
+                              else '/v1/plan-exports/lookup?' + urlencode({'request_id': request_id}))
+
+    @server.tool()
+    def operon_plan_export_cancel(export_id: str) -> dict:
+        """Cancel a queued/active package build; requires --allow-run and does not cancel scientific jobs."""
+        return client.request('/v1/plan-exports/' + quote(export_id, safe='') + '/cancel', {})
 
     @server.tool()
     def operon_workflow_prepare(graph: dict, require_files: bool = True) -> dict:
@@ -158,6 +250,76 @@ def create_server(client):
         """Paginated artifact table with column and row labels; works for local and ssh jobs."""
         return client.request('/v1/jobs/' + quote(job_id, safe='') + '/artifacts/' + quote(artifact_id, safe='') + '/table?'
                               + urlencode({'offset': offset, 'limit': limit}))
+
+    @server.tool()
+    def operon_result_files(job_id: str) -> dict:
+        """List every file below a job's result directory, local or ssh, with sizes."""
+        return client.request('/v1/jobs/' + quote(job_id, safe='') + '/results')
+
+    @server.tool()
+    def operon_plan_artifact_files(run_id: str, artifact_id: str, after: str = '', limit: int = 100) -> dict:
+        """List bounded committed plan files; returned file IDs select subsequent reads."""
+        return client.request('/v1/plans/' + quote(run_id, safe='') + '/artifacts/' + quote(artifact_id, safe='')
+            + '/files?' + urlencode({'after': after, 'limit': limit}))
+
+    @server.tool()
+    def operon_plan_artifact_preview(run_id: str, artifact_id: str, file_id: str,
+                                     max_bytes: int = 16384, max_rows: int = 100) -> dict:
+        """Read a bounded text preview; binary files return metadata without full relay."""
+        return client.request('/v1/plans/' + quote(run_id, safe='') + '/artifacts/' + quote(artifact_id, safe='')
+            + '/files/' + quote(file_id, safe='') + '/preview?' + urlencode({'max_bytes': max_bytes, 'max_rows': max_rows}))
+
+    @server.tool()
+    def operon_download_plan_artifact(run_id: str, artifact_id: str, file_id: str, destination: str) -> dict:
+        """Explicitly download one owned local committed file into the workspace."""
+        return client.download('/v1/plans/' + quote(run_id, safe='') + '/artifacts/' + quote(artifact_id, safe='')
+            + '/files/' + quote(file_id, safe='') + '/open', _download_target(destination))
+
+    @server.tool()
+    def operon_download_result(job_id: str, path: str, destination: str | None = None) -> dict:
+        """Download one result file into the workspace; path comes from operon_result_files."""
+        name = Path(str(path).replace('\\', '/')).name or 'result'
+        target = _download_target(destination or f'results/{job_id}/{name}')
+        route = '/v1/jobs/' + quote(job_id, safe='') + '/results/file?' + urlencode({'path': path})
+        return client.download(route, target)
+
+    @server.tool()
+    def operon_download_results(job_id: str, destination: str | None = None,
+                                 paths: list[str] | None = None) -> dict:
+        """Download all or selected result files, preserving their relative paths."""
+        listing = client.request('/v1/jobs/' + quote(job_id, safe='') + '/results')
+        available = [item for item in listing.get('files') or []]
+        wanted = set(paths or [])
+        selected = [item for item in available if not wanted or item['path'] in wanted]
+        missing = sorted(wanted - {item['path'] for item in selected})
+        base = destination or f'results/{job_id}'
+        downloaded, failed = [], []
+        for item in selected:
+            try:
+                target = _download_target(str(Path(base) / item['path']))
+                result = client.download('/v1/jobs/' + quote(job_id, safe='') + '/results/file?'
+                                         + urlencode({'path': item['path']}), target)
+                downloaded.append({'path': item['path'], 'target': result.get('path'), 'bytes': result.get('bytes')})
+            except Exception as exc:
+                failed.append({'path': item['path'], 'error': f'{type(exc).__name__}: {exc}'})
+        return {'job_id': job_id, 'root': listing.get('root'), 'downloaded': downloaded,
+                'failed': failed, 'missing': missing}
+
+    @server.tool()
+    def operon_download_artifact(job_id: str, artifact_id: str, role: str | None = None,
+                                  destination: str | None = None) -> dict:
+        """Download an artifact's retained file (optionally one role) into the workspace."""
+        route = '/v1/jobs/' + quote(job_id, safe='') + '/artifacts/' + quote(artifact_id, safe='') + '/file'
+        if role:
+            route += '?' + urlencode({'role': role})
+        target = _download_target(destination or f'results/{job_id}/artifacts/{artifact_id}/{role or "data"}')
+        return client.download(route, target)
+
+    @server.tool()
+    def operon_download_report(job_id: str, index: int, destination: str | None = None) -> dict:
+        """Download a stored job report JSON into the workspace."""
+        target = _download_target(destination or f'reports/{job_id}-{index}.json')
+        return client.download('/v1/jobs/' + quote(job_id, safe='') + f'/reports/{int(index)}', target)
 
     @server.tool()
     def operon_viewer(job_id: str, artifact_id: str, role: str, viewer: str | None = None) -> dict:

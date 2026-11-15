@@ -52,7 +52,7 @@ export function pasteFragment(graph: Graph, fragment: Fragment, anchor?: {x: num
     while (used.has(id) || used.has(`${id}_out`)) id = `${prefix}_copy${++index}`;
     used.add(id); used.add(`${id}_out`); ids.set(original.id, id);
     node.id = id; node.position = {x: node.position.x + offset.x, y: node.position.y + offset.y};
-    if (node.kind === "source" && node.source && fragment.base_dir !== undefined)
+    if (node.kind === "source" && node.source && !node.source.storage_ref && fragment.base_dir !== undefined)
       node.source.path = rebaseSource(node.source.path, fragment.base_dir, graph.base_dir);
     if (node.kind === "operator" && "output" in node.params) node.params.output = `${id}_out`;
     next.nodes.push(node);

@@ -77,6 +77,38 @@ def test_engine_coordinator_waits_for_a_join(tmp_path):
     coordinator.stop()
 
 
+def test_failed_producer_settles_blocked_descendants_without_spawning_them(tmp_path):
+    class FailingProducer(InstantExecutor):
+        def poll(self, context):
+            return ExecutionResult(state='failed' if context.unit['local_id'] == 'source' else 'succeeded',
+                                   exit_code=9 if context.unit['local_id'] == 'source' else 0)
+
+    with StateStore(tmp_path / 'state.sqlite3') as store:
+        spec = PoolSpec('pool-failure', 'tester', 'host', 64 * 1024**2, 1024**2, 4)
+        store.ensure_pool(spec)
+        store.register_workspace('ws', spec.pool_id, str(tmp_path), 'tester')
+        executor = FailingProducer()
+        coordinator = Coordinator(store, spec, executor, workspace_id='ws', principal='tester', root=tmp_path)
+        coordinator.claim()
+        try:
+            result = coordinator.submit(key='failure', digest='failure', graph={}, parameters={}, execution={},
+                units=[{'unit_id': key, 'node_ids': [key], 'depends_on': parents,
+                        'requirement': {'process_reservation_bytes': 2048, 'cpu_threads': 1}}
+                       for key, parents in [('source', []), ('child', ['source']),
+                                            ('grandchild', ['child']), ('independent', [])]])
+            for _ in range(5):
+                coordinator.run_once()
+            assert store.run(result['run_id'])['status'] == 'failed'
+            assert set(executor.launches) == {'source', 'independent'}
+            units = {u['local_id']: u for u in store.units(result['run_id'])}
+            assert units['independent']['state'] == 'succeeded'
+            for key in ('child', 'grandchild'):
+                assert units[key]['state'] == 'cancelled' and units[key]['attempts'] == 0
+            assert all(lease['state'] == 'released' for lease in store.lease_details(spec.pool_id))
+        finally:
+            coordinator.stop()
+
+
 def test_two_branches_overlap_in_real_processes_and_join_waits(tmp_path):
     store = StateStore(tmp_path / 'state.sqlite3')
     spec = PoolSpec('pool-real-dag', 'tester', 'host', 128 * 1024 * 1024, 1024 * 1024, 4)

@@ -25,10 +25,23 @@ ACTIVE = {'queued', 'preparing', 'uploading', 'running', 'waiting_connection'}
 
 class Application:
     """Profile-scoped composition root; adapters do not own scientific state."""
-    def __init__(self, settings, catalog=None):
+    def __init__(self, settings, catalog=None, *, storage_mounts=None, storage_limits=None,
+                 storage_credentials=None):
         from src.web.operator_catalog import catalog_from_descriptors
         from src.web.remote_service import RemoteManager
         from src.web.execution import ExecutionService
+        from .storage import StorageService
+        from .storage.configuration import configured_mounts
+        from .storage.dispatch import StorageDispatch
+        if storage_mounts is None:
+            storage_mounts, configured_limits = configured_mounts(
+                Path(settings.data_dir) / 'storage-mounts.json', credentials=storage_credentials)
+            if storage_limits is None:
+                storage_limits = configured_limits
+        self.storage = StorageService(storage_mounts, limits=storage_limits)
+        self.storage_dispatch = StorageDispatch(self.storage.limits)
+        from .storage.inputs import StorageInputBindings
+        self.storage_inputs = StorageInputBindings(self)
         self.service = JobService(settings, catalog or catalog_from_descriptors())
         self.service.application = self
         self.service.remotes = RemoteManager(self.service)
@@ -41,6 +54,10 @@ class Application:
         self.engine = getattr(self.service, 'engine', None)
         self.workflows = WorkflowService(self)
         self.jobs = TaskService(self)
+        from .plan_service import PlanService
+        self.plans = PlanService(self)
+        from .plan_export_service import PlanExportService
+        self.plan_exports = PlanExportService(self.service.root, self.service.directory / 'plan-exports')
         self.task_files = TaskFiles(self)
         self.artifacts = ArtifactService(self)
         from .viewers import ViewerService
@@ -53,20 +70,61 @@ class Application:
     def catalog_for(self, graph):
         return self.executions.catalog(graph) if self.executions.applies(graph) else self.service.graph_catalog(graph)
 
+    def compile_plan(self, graph, values=None, *, require_files=False):
+        """Compile a versioned RunPlan through the shared planning service.
+
+        The application supplies the existing graph compiler as an injected
+        compatibility adapter; ``operon.planning`` itself remains free of web and
+        scientific imports.
+        """
+        from .contracts.workflow import WorkflowSpec
+        from .planning import WorkflowCompiler
+        # Resolve reader selection/defaults once at the shared preparation
+        # boundary. The compiled graph now carries the saved values explicitly.
+        prepared = (self.prepare(graph) if values is None else
+                    Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph)
+        spec = WorkflowSpec.from_graph(prepared)
+        return WorkflowCompiler().compile(
+            spec, values, self.catalog_for(prepared), root=self.service.root,
+            require_files=require_files, freeze_defaults=values is None)
+
+    def run_plan(self, plan, *, root=None, run_id=None, **kwargs):
+        """Submit a checked plan through the authoritative task/pool service."""
+        from .execution import InvocationRunner
+        directory = root or (self.service.directory / 'plans')
+        return InvocationRunner(directory, application=self).execute(plan, run_id=run_id, **kwargs)
+
     def prepare(self, graph):
         graph = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
+        self.storage_inputs.authorize(graph)
         return self.executions.prepare(graph) if self.executions.applies(graph) else self.service.prepare_graph(graph)
 
     def validate(self, graph, *, require_files=False, repair=False):
         graph = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
-        from operon.pins import refresh_missing
-        migrations = refresh_missing(graph, self.service.plugins.state())
-        if migrations:
-            graph.runtime['pin_migrations'] = migrations
-        result = (self.executions.validate(graph, require_files=require_files) if self.executions.applies(graph)
-                  else self.service.validate_graph(graph, require_files=require_files))
-        readiness = self.readiness.validate(graph, result, require_files=require_files, repair=repair)
+        bound = self.storage_inputs.bind(graph)
+        result = (self.executions.validate(bound, require_files=require_files) if self.executions.applies(bound)
+                  else self.service.validate_graph(bound, require_files=require_files))
+        readiness = self.readiness.validate(bound, result, require_files=require_files, repair=repair)
+        if bound is not graph:
+            from .readiness import _digest, semantic_graph
+            readiness = {**readiness, 'bound_graph_digest': readiness['graph_digest'],
+                         'graph_digest': _digest(semantic_graph(graph))}
         return {**result, 'graph': graph.model_dump(mode='json'), 'readiness': readiness}
+
+    def _execution_binding(self, graph, checked):
+        """Keep logical preflight identity and its checked execution projection."""
+        self.readiness.require_ready(checked)
+        from .readiness import _digest, semantic_graph
+        logical = checked.get('readiness', {}).get('graph_digest')
+        if logical is not None and logical != _digest(semantic_graph(graph)):
+            raise CommandError('environment_stale', 'The graph changed after preflight. Check the run conditions again.', 409)
+        bound = self.storage_inputs.bind(graph)
+        if bound is not graph:
+            expected = checked.get('readiness', {}).get('bound_graph_digest')
+            if expected != _digest(semantic_graph(bound)):
+                raise CommandError('environment_stale',
+                    'The configured input binding changed after preflight. Check the run conditions again.', 409)
+        return bound
 
     def check_environment(self, graph, *, repair=False):
         graph = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
@@ -181,6 +239,9 @@ class Application:
         return started
 
     def shutdown(self):
+        self.plan_exports.close()
+        self.storage.close()
+        self.storage_dispatch.close()
         self.service.dependencies.cancel.set()
         self.executions.shutdown()
         self.service.shutdown()
@@ -324,7 +385,9 @@ class TaskService:
 
     def _launch(self, graph, *, validated=False):
         if not validated:
-            self.app.readiness.require_ready(self.app.validate(graph, require_files=True))
+            graph = self.app._execution_binding(graph, self.app.validate(graph, require_files=True))
+        else:
+            graph = self.app.storage_inputs.bind(graph)
         if getattr(self.service, 'pool_remote', False) and not self.app.executions.applies(graph):
             try:
                 return self.service.launch(graph)
@@ -348,21 +411,7 @@ class TaskService:
         original = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
         from src.web.source_paths import remote_profile
         remote = remote_profile(original)
-        if remote is not None:
-            # A remote target owns its catalog. Drop pins from an older canvas
-            # before local preparation or readiness rejects them before the
-            # remote service can resolve the target's implementation.
-            from operon.pins import graphs
-            original = original.model_copy(deep=True)
-            for part in graphs(original):
-                part.plugin_lock.clear()
-        if remote is None:
-            from operon.pins import refresh_missing
-            state = self.service.plugins.state()
-            migrations = refresh_missing(original, state)
-            if migrations:
-                original.runtime['pin_migrations'] = migrations
-        prepared = self.app.prepare(original)
+        prepared = self.app.prepare(original.model_copy(deep=True))
         # Freeze values while retaining historical implementation requirements.
         # The worker-launch snapshot must resolve those pins itself so its
         # migration receipt remains attached to this run's immutable evidence.
@@ -372,11 +421,9 @@ class TaskService:
             for node in before.nodes:
                 if node.kind == 'route':
                     retain_pins(node.route.graph, nodes[node.id].route.graph)
-        # Local workers retain historical pins for immutable evidence.
-        if remote is None:
-            retain_pins(original, prepared)
-        self.app.readiness.require_ready(self.app.validate(prepared, require_files=True))
-        return prepared
+        # Placement does not grant permission to replace executable identities.
+        retain_pins(original, prepared)
+        return self.app._execution_binding(prepared, self.app.validate(prepared, require_files=True))
 
     def submit(self, payload):
         # Serialize durable acceptance with shutdown; scientific jobs still run
@@ -408,7 +455,7 @@ class TaskService:
             prepared = self._prepare_submission(graph)
             prepared.runtime['submission_key'] = request_key
             try:
-                result = self.service.launch(prepared, request_id=request_id)
+                result = self.service.launch(self.app.storage_inputs.bind(prepared), request_id=request_id)
             except Exception as exc:  # noqa: BLE001 - pool failure is explicit
                 code = getattr(exc, 'code', None)
                 if code == 'idempotency_conflict':
@@ -710,3 +757,9 @@ class ArtifactService:
 
     def figure(self, job_id, index, format=None, figure_id=None):
         return self.app.jobs.backend(job_id).figure_file(job_id, index, format=format, figure_id=figure_id)
+
+    def results(self, job_id):
+        return self.app.jobs.backend(job_id).result_files(job_id)
+
+    def result(self, job_id, path):
+        return self.app.jobs.backend(job_id).result_file(job_id, path)

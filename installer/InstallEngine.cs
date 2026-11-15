@@ -93,8 +93,13 @@ internal sealed class InstallEngine
         var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(selected.Trim()));
         InstallFiles.NoLinks(root);
         if (File.Exists(root)) throw new IOException("安装位置是文件，请选择文件夹。");
-        if (Directory.Exists(root)) ValidateConflict(root);
-        return root;
+        if (Available(root)) { if (Directory.Exists(root)) ValidateConflict(root); return root; }
+        for (int suffix = 1; ; suffix++)
+        {
+            var child = Path.Combine(root, suffix == 1 ? "Operon" : $"Operon-{suffix}");
+            InstallFiles.NoLinks(child);
+            if (Available(child)) return child;
+        }
     }
 
     internal static string NamedDestination(string selected)
@@ -313,6 +318,7 @@ internal sealed class InstallEngine
         using var installLease = new InstallLease("Local\\OperonSetup-" + InstallLease.Identity(root));
         InstallFiles.NoLinks(root);
         var old = ReadReceipt(root);
+        using var restartGuard = InstallUpgrade.FreezeStarts(old is null ? [] : InstallUpgrade.Targets(root, old));
         string? stage = null, installed = null, resolvedProfile = null;
         InstallLease? profileLease = null;
         var priorLinks = new Dictionary<string, byte[]?>();
@@ -540,11 +546,10 @@ internal sealed class InstallEngine
         // the lease is requested, so a full uninstall can actually finish.
         var receipt = ReadReceipt(root);
         if (receipt is null) return UninstallManagedOnly(root);
-        DisconnectAgents(receipt.Profile);
-        var stopped = TerminateManagedProcesses(root);
-        if (stopped > 0) Log($"Stopped {stopped} process(es) under the installation.");
         using var lease = new InstallLease("Local\\OperonSetup-" + InstallLease.Identity(root));
-        using var profileLease = new InstallLease("Local\\OperonStudio-" + InstallLease.Identity(receipt.Profile));
+        var targets = InstallUpgrade.Targets(root, receipt);
+        using var upgrade = InstallUpgrade.Prepare(targets, message => Report(message, 5),
+            CancellationToken.None).GetAwaiter().GetResult();
         Report("正在卸载软件；用户档案和分析数据会保留…", 0);
         var expectedKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\OperonStudio-" + InstallLease.Identity(root);
         if (receipt.UninstallKey is not null && receipt.UninstallKey != expectedKey) throw new InvalidDataException("卸载注册信息无效。");
@@ -554,7 +559,9 @@ internal sealed class InstallEngine
             if (!allowedLinks.Contains(path, StringComparer.OrdinalIgnoreCase)) throw new InvalidDataException("快捷方式记录无效。");
             InstallFiles.NoLinks(path);
         }
-        foreach (var relative in receipt.Versions) CleanVersion(root, relative, Path.GetDirectoryName(receipt.Profile)!, receipt.Profile);
+        foreach (var relative in receipt.Versions) PreflightVersion(root, relative);
+        foreach (var relative in receipt.Versions) CleanVersion(root, relative, Path.GetDirectoryName(receipt.Profile)!,
+            targets.FirstOrDefault(t => t.Directory == InstallFiles.Inside(root, relative))?.Profile);
         RemoveAutostart();
         foreach (var (path, hash) in receipt.Shortcuts)
             if (File.Exists(path) && (InstallFiles.Hash(path) == hash || ShortcutIsStale(path, root))) File.Delete(path);
@@ -768,6 +775,7 @@ internal sealed class InstallEngine
         DisconnectAgents(receipt.Profile);
         var stopped = TerminateManagedProcesses(root, strict: false);
         if (stopped > 0) Log($"Stopped {stopped} process(es) from the previous installation.");
+        foreach (var relative in receipt.Versions) PreflightVersion(root, relative);
         var allowedLinks = new[] {
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Operon Studio.lnk"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Operon", "Operon Studio.lnk")
@@ -1003,7 +1011,13 @@ internal sealed class InstallEngine
             foreach (var item in manifest.RootElement.GetProperty("files").EnumerateArray())
             {
                 var path = InstallFiles.Inside(version, item.GetProperty("path").GetString()!);
-                if (File.Exists(path) && InstallFiles.Hash(path) == item.GetProperty("sha256").GetString()) File.Delete(path);
+                if (File.Exists(path) && InstallFiles.Hash(path) == item.GetProperty("sha256").GetString())
+                {
+                    var attributes = File.GetAttributes(path);
+                    if ((attributes & FileAttributes.ReadOnly) != 0)
+                        File.SetAttributes(path, attributes & ~FileAttributes.ReadOnly);
+                    File.Delete(path);
+                }
             }
             File.Delete(Path.Combine(version, "package-manifest.json")); File.Delete(Path.Combine(version, ".operon-install.json"));
             File.Delete(Path.Combine(version, "operon-install.json"));
@@ -1021,4 +1035,22 @@ internal sealed class InstallEngine
             }
             EmptyDirectories(version);
         }
+    internal static void PreflightVersion(string root, string relative)
+    {
+        var version = InstallFiles.Inside(root, relative);
+        var manifest = Path.Combine(version, "package-manifest.json");
+        if (!File.Exists(manifest)) return;
+        using var document = JsonDocument.Parse(File.ReadAllText(manifest));
+        var files = new List<string>();
+        foreach (var item in document.RootElement.GetProperty("files").EnumerateArray())
+        {
+            var path = InstallFiles.Inside(version, item.GetProperty("path").GetString()!);
+            if (!File.Exists(path)) continue;
+            files.Add(path);
+            try { using var check = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None); }
+            catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+            { throw new IOException("软件文件仍被占用或无权限，尚未开始删除：\n" + path, error); }
+        }
+        InstallFileUse.AssertUnused(files);
+    }
 }

@@ -87,6 +87,8 @@ def _release_source_tree(root, extra=None):
         "scripts/verify_server_cli.py": "# Real terminal acceptance",
         "scripts/verify_release_agent.md": "# Agent acceptance guide",
         "frontend/dist/index.html": "<title>Studio</title>",
+        "frontend/dist/assets/main.js": 'const version="0.0.1";',
+        "operon/cluster/migrations/001.sql": "-- Experimental cluster schema",
         "frontend/package-lock.json": '{"packages": {}}',
         "docs/example.md": "Example documentation",
         "examples/extension/example.md": "Example extension",
@@ -126,6 +128,7 @@ def test_lite_archive_preserves_operator_docs_and_frozen_task_parameters(tmp_pat
         assert manifest["product"] == "operon"
         assert "operon.cmd" in {row["path"] for row in manifest["files"]}
         assert "scripts/install_server.sh" in {row["path"] for row in manifest["files"]}
+        assert archive.read(prefix + "operon/cluster/migrations/001.sql") == b"-- Experimental cluster schema"
         assert "Registration and startup read metadata" in archive.read(prefix + "START_HERE.txt").decode()
 
 

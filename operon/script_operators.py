@@ -268,7 +268,7 @@ def _script_formats(snapshot):
 
 def prepare_script_graph(graph, catalog):
     """Transient projection only. Never replace the saved script graph."""
-    from src.web.models import Graph
+    from operon.planning.graph_models import Graph
     result = Graph.model_validate(graph) if isinstance(graph, dict) else graph.model_copy(deep=True)
     catalog = deepcopy(catalog)
     for node in result.nodes:
@@ -371,6 +371,8 @@ def export_script_package(snapshot, directory, *, operator_id, title, category='
     """
     import pprint
     from packaging.version import Version
+    from operon import __version__ as host_version
+    host = Version(host_version)
     snapshot = validate_script(snapshot)
     if len(snapshot['outputs']) != 1:
         raise ValueError('A promoted script requires exactly one file output')
@@ -418,7 +420,7 @@ def export_script_package(snapshot, directory, *, operator_id, title, category='
     (directory / 'pyproject.toml').write_text(
         '[build-system]\nrequires = ["setuptools>=69"]\nbuild-backend = "setuptools.build_meta"\n'
         f'[project]\nname = "{package}"\nversion = "{version}"\nrequires-python = ">=3.11"\n'
-        'dependencies = ["operon-studio>=3.0.0,<4"]\n'
+        f'dependencies = ["operon-studio>={host},<{host.major + 1}"]\n'
         f'[project.entry-points."operon.operators"]\n{module} = "{module}:ScriptStep"\n'
         f'[tool.setuptools.packages.find]\ninclude = ["{module}*"]\n'
         f'[tool.setuptools.package-data]\n"{module}" = ["*.json", "*.md"]\n', encoding='utf-8')

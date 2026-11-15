@@ -40,6 +40,13 @@ class Bridge:
     def close(self):
         self.path.unlink(missing_ok=True)
 
+    def _detach_storage(self, connection_id):
+        application = getattr(self.service, 'application', None)
+        storage = getattr(application, 'storage', None)
+        if storage is not None and isinstance(connection_id, str):
+            from .storage.configuration import PROFILE_OWNER
+            storage.cancel_connection(principal=PROFILE_OWNER, connection_id=connection_id)
+
     def actor(self, request, capability):
         if hmac.compare_digest(request.headers.get("x-studio-token", ""), self.studio_token):
             return "user"
@@ -90,14 +97,18 @@ class Bridge:
         def disconnect(request: Request):
             self.actor(request, "context")
             token = request.headers.get("authorization", "").removeprefix("Bearer ")
-            self.connections.pop(hashlib.sha256(token.encode()).hexdigest(), None)
+            key = hashlib.sha256(token.encode()).hexdigest()
+            self.connections.pop(key, None)
+            self._detach_storage(key)
             return {"disconnected": True}
 
         @app.post("/api/agent/connections/revoke")
         def revoke(request: Request, payload: dict):
             if not hmac.compare_digest(request.headers.get("x-studio-token", ""), self.studio_token):
                 raise HTTPException(403, "Only the desktop user can revoke another connection")
-            self.connections.pop(payload.get("id"), None)
+            key = payload.get('id')
+            self.connections.pop(key, None)
+            self._detach_storage(key)
             return {"revoked": True}
 
         @app.post("/api/agent/connections/revoke-all")
@@ -105,6 +116,8 @@ class Bridge:
             if not hmac.compare_digest(request.headers.get("x-studio-token", ""), self.studio_token):
                 raise HTTPException(403, "Only the desktop user can revoke connections")
             revoked = len(self.connections)
+            for key in tuple(self.connections):
+                self._detach_storage(key)
             self.connections.clear()
             return {"revoked": revoked}
 

@@ -85,7 +85,7 @@ def release_wheels(version, directory):
     download(REPOSITORY + endpoint, metadata)
     data = json.loads(metadata.read_text(encoding='utf-8'))
     wheels = []
-    for prefix in ('operon_studio-', 'operon_builtin_library-'):
+    for prefix in ('operon_studio-',):
         assets = [item for item in data['assets'] if item['name'].startswith(prefix) and item['name'].endswith('-py3-none-any.whl')]
         if len(assets) != 1:
             raise ValueError(f'Release must contain exactly one {prefix} wheel')
@@ -177,18 +177,20 @@ def install(args):
             progress(f'Install directory: {root}\nInstallation log: {log_path}')
             if args.source:
                 source = Path(args.source).expanduser().resolve()
-                if not (source / 'pyproject.toml').is_file() or not (source / 'library/pyproject.toml').is_file():
-                    raise ValueError('--source must contain the application and library pyproject.toml files')
-                packages = [str(source) + '[agent]', str(source / 'library')]
+                if not (source / 'pyproject.toml').is_file():
+                    raise ValueError('--source must contain the application pyproject.toml')
+                packages = [str(source) + '[agent]']
             elif args.app_wheel:
-                wheels = [Path(args.app_wheel).expanduser().resolve(), Path(args.library_wheel).expanduser().resolve()]
+                wheels = [Path(args.app_wheel).expanduser().resolve()]
+                if args.library_wheel:
+                    wheels.append(Path(args.library_wheel).expanduser().resolve())
                 if not all(path.is_file() and path.suffix == '.whl' for path in wheels):
-                    raise ValueError('Both local wheel files must exist')
-                packages = [str(wheels[0]) + '[agent]', str(wheels[1])]
+                    raise ValueError('Selected local wheel files must exist')
+                packages = [str(wheels[0]) + '[agent]'] + [str(path) for path in wheels[1:]]
             else:
-                progress(f'Downloading checksum-verified {args.version} application and library wheels')
+                progress(f'Downloading checksum-verified {args.version} application wheel')
                 wheels = release_wheels(args.version, attempt)
-                packages = [str(wheels[0]) + '[agent]', str(wheels[1])]
+                packages = [str(wheels[0]) + '[agent]']
             progress('Preparing an isolated Python runtime')
             if args.manager:
                 environment['MAMBA_ROOT_PREFIX'] = str(attempt / 'mamba-cache')
@@ -198,7 +200,7 @@ def install(args):
                 selected = args.python or sys.executable
                 run([selected, '-I', '-c', 'import sys; assert sys.version_info >= (3,11), "Python 3.11+ required"'])
                 run([selected, '-I', '-m', 'venv', runtime])
-            progress('Installing the application, MCP and reference library; scientific packages are prepared per route')
+            progress('Installing the application, MCP and explicitly selected packages; scientific packages are prepared per route')
             pip = [python, '-I', '-m', 'pip', '--isolated', 'install', '--no-input', '--disable-pip-version-check']
             if args.wheel_dir:
                 pip += ['--no-index', '--find-links', str(Path(args.wheel_dir).resolve())]
@@ -237,16 +239,16 @@ def main(argv=None):
     parser.add_argument('--workspace', help='Data workspace; defaults to INSTALL_DIR/workspace')
     parser.add_argument('--version', default='latest', help='Release version; default latest stable')
     packages = parser.add_mutually_exclusive_group()
-    packages.add_argument('--source', help='Install a source checkout including its library directory')
+    packages.add_argument('--source', help='Install an application source checkout without changing the operator library')
     packages.add_argument('--app-wheel', help='Install a local application wheel instead of downloading')
-    parser.add_argument('--library-wheel', help='Independent library wheel, required with --app-wheel')
+    parser.add_argument('--library-wheel', help='Optional independently versioned library wheel, used with --app-wheel')
     parser.add_argument('--wheel-dir', help='Offline dependency wheel directory; disables package indexes')
     parser.add_argument('--python', help='Python 3.11+ to use as the isolated venv base')
     parser.add_argument('--manager', help=argparse.SUPPRESS)
     parser.add_argument('--result', help='Also save the final JSON result here')
     args = parser.parse_args(argv)
-    if bool(args.app_wheel) != bool(args.library_wheel):
-        parser.error('--app-wheel and --library-wheel must be supplied together')
+    if args.library_wheel and not args.app_wheel:
+        parser.error('--library-wheel requires --app-wheel')
     try:
         result = install(args)
         status = 0

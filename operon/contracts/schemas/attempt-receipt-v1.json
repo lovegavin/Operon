@@ -1,0 +1,84 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "attempt_id": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Attempt Id",
+      "type": "string"
+    },
+    "command_id": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Command Id",
+      "type": "string"
+    },
+    "evidence_revision": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Evidence Revision",
+      "type": "integer"
+    },
+    "executor_kind": {
+      "enum": [
+        "local",
+        "ssh",
+        "slurm",
+        "standalone"
+      ],
+      "title": "Executor Kind",
+      "type": "string"
+    },
+    "external_handle": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "External Handle"
+    },
+    "fence": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Fence",
+      "type": "integer"
+    },
+    "host_identity": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Host Identity"
+    },
+    "run_id": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Run Id",
+      "type": "string"
+    },
+    "unit_id": {
+      "maxLength": 200,
+      "minLength": 1,
+      "title": "Unit Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "run_id",
+    "unit_id",
+    "attempt_id",
+    "command_id",
+    "executor_kind"
+  ],
+  "title": "AttemptReceipt",
+  "type": "object"
+}

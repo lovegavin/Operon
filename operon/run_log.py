@@ -39,6 +39,7 @@ class RunLog:
                    "n_steps": 0, "total_elapsed": 0, "steps": [], "status": "failed", "error": message,
                    "run_id": self.run_id, "event_log": str(self.event_path)}
         for directory in (Path(task_dir) / "output", self.run_dir):
+            io_path(directory).mkdir(parents=True, exist_ok=True)
             io_path(directory / "run_summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
         io_path(Path(task_dir) / "output/run_summary.txt").write_text(f"Run failed during initialization\n{message}\n", encoding="utf-8")
 

@@ -4,23 +4,25 @@ This is a click-by-click guide. You will do one thing: run a tiny PCA on a small
 
 You do not need Python, Conda or an AI account. The data are made up. The result only checks the workflow; it is not a biological finding.
 
-This guide matches **Operon Studio 4.1.9** with the built-in **8.0.7** operator library.
+This guide matches **Operon Studio 5.2.0** with a separately installed compatible operator library. The application package does not bundle or update library operators.
 
 ## Before you start
 
 - Windows 10 or 11, ideally 8 GB of RAM.
 - Internet access. The first environment check may download a few scientific packages.
-- A writable install folder such as `D:\Operon Studio`. Do not use `C:\Program Files` or a folder that needs administrator rights.
+- A writable install folder such as `<your writable install folder>`. Do not use a protected system folder or a folder that needs administrator rights.
 
 ## Step 1: Install
 
 1. Open [Releases](https://github.com/lovegavin/Operon/releases/latest).
 2. Download **Operon_Setup.exe**. Do not download a file whose name contains `Server` or `Library`.
 3. Double-click it. If Windows shows a blue warning, choose **More info** → **Run anyway**.
-4. Set the install folder to `D:\Operon Studio` and click **Install**.
+4. Set the install folder to `<your writable install folder>` and click **Install**.
 5. Leave **Open Operon** checked and click **Finish**.
 
 The first launch can be slow. Wait until the window is fully visible. The status area shows when the backend and frontend are ready.
+
+Before making the table, use **Add operators** to import the independent library ZIP from its release. Record its version; use a package containing CsvReader and PCA.
 
 ## Step 2: Make a tiny table
 
@@ -73,12 +75,12 @@ You should see a completed task with PCA output and two components. This example
 
 Skip this unless you actually have a Linux server.
 
-1. Download **Operon-4.1.9-Server.zip** from Releases and upload it to the server.
+1. Download **Operon-5.2.0-Server.zip** from Releases and upload it to the server.
 2. On the server:
 
 ```sh
-unzip Operon-4.1.9-Server.zip
-cd Operon-4.1.9-Server
+unzip Operon-5.2.0-Server.zip
+cd Operon-5.2.0-Server
 bash install.sh --prefix "$HOME/operon" --result "$PWD/server-install.json"
 ```
 
@@ -96,8 +98,8 @@ See the [server installation guide](docs/command_line_installation.md#linux-serv
 
 - **Blank window**: wait 1–2 minutes, then fully quit and reopen. Do not run several copies at once.
 - **Environment check fails**: confirm internet access, then click **Prepare environment**. Behind a corporate proxy, configure the system proxy first.
-- **Install folder is not writable**: use a normal folder such as `D:\Operon Studio`, not `C:\Program Files`.
-- **Uninstall**: use Windows Apps, or run `Operon_Uninstall.exe` in the install folder. Operon 4.1.9 keeps the workspace and results under `<install folder>\workspace`; delete them manually only when you no longer need them.
+- **Install folder is not writable**: use a normal folder such as `<your writable install folder>`, not a protected system folder.
+- **Uninstall**: use Windows Apps, or run `Operon_Uninstall.exe` in the install folder. Operon 5.2.0 keeps the workspace and results under `<install folder>\workspace`; delete them manually only when you no longer need them.
 - **Logs**: `%USERPROFILE%\.operon\profiles\<profile-id>\logs\desktop-YYYYMMDD.log`.
 
 ## Next

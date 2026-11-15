@@ -58,3 +58,18 @@ def test_delivery_refuses_missing_instructions_and_mismatched_setup(tmp_path):
         packager.package_candidate(root, setup, tmp_path / 'missing.zip', label='RC3')
     assert not (tmp_path / 'bad.zip').exists()
     assert not (tmp_path / 'missing.zip').exists()
+
+
+def test_current_instructions_do_not_require_historical_acceptance_files(tmp_path):
+    root, setup = fixture(tmp_path)
+    for path in (root / 'docs').glob('OPERON_3_*'):
+        path.unlink()
+    instructions = root / 'docs/current.md'
+    instructions.write_text('Accept Operon 3.0.0 from this exact candidate.', encoding='utf-8')
+    result = packager.package_candidate(root, setup, tmp_path / 'current.zip', label='rc1', instructions=instructions)
+    with zipfile.ZipFile(result['archive']) as archive:
+        assert archive.read('Operon-3.0.0-rc1-test/FORWARD_TO_TESTER.txt').decode() == instructions.read_text()
+    instructions.write_text('Stale version 2.0.0', encoding='utf-8')
+    with pytest.raises(ValueError, match='actual application version'):
+        packager.package_candidate(root, setup, tmp_path / 'stale.zip', label='rc2', instructions=instructions)
+    assert not (tmp_path / 'stale.zip').exists()

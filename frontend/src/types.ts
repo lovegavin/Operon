@@ -92,6 +92,7 @@ export type ContractCheck = { id: string; source: string; target: string; status
 export type NodeContracts = { inputs: (PortContract | null)[]; outputs: PortContract[] };
 export type ContractAnalysis = { version: number; nodes: Record<string, NodeContracts>; edges: ContractCheck[] };
 export type DataSource = {
+  storage_ref?: import('./storageTypes').StorageInputRef;
   reader?: string;
   location?: TargetRef;
   path: string;

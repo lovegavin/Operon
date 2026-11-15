@@ -1,5 +1,7 @@
 """JSON-compatible public descriptors and parameter validation."""
 from copy import deepcopy
+from functools import lru_cache
+import json
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -128,7 +130,7 @@ class PackageDescriptor(BaseModel):
     dependencies: list[str] = Field(default_factory=list)
 
 
-def validate_schema(schema):
+def _validate_schema_uncached(schema):
     from jsonschema import Draft202012Validator
     if not isinstance(schema, dict):
         raise ValueError('parameters_schema must be a JSON object')
@@ -147,6 +149,25 @@ def validate_schema(schema):
             for child in value:
                 check(child)
     check(schema)
+
+
+@lru_cache(maxsize=128)
+def _validate_schema_text(encoded):
+    # Cache only successful schema checks, not validators or parameter values.
+    # Keys are bounded ASCII JSON snapshots, so caller mutation cannot change
+    # an already-checked definition and the cache cannot grow with graph size.
+    _validate_schema_uncached(json.loads(encoded))
+
+
+def validate_schema(schema):
+    if not isinstance(schema, dict):
+        raise ValueError('parameters_schema must be a JSON object')
+    encoded = json.dumps(schema, sort_keys=True, separators=(',', ':'),
+                         ensure_ascii=True, allow_nan=False)
+    if len(encoded) <= 65536:
+        _validate_schema_text(encoded)
+    else:
+        _validate_schema_uncached(schema)
 
 
 def validate_parameters(schema, params):

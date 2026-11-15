@@ -1,0 +1,181 @@
+"""Cheap contract analysis of a partial canvas. No source payloads are read."""
+from collections import deque
+
+from src.core.contracts import VERSION, compatible, infer_output, resolve, source_schema, unknown
+from operon.file_formats import primary_ext
+from operon_sdk.formats import effective_formats
+
+
+def analyze_graph(graph, catalog, root, *, source_overrides=None, ancestry=(), input_roots=None):
+    if any(node.kind == "script" for node in graph.nodes):
+        from operon.script_operators import prepare_script_graph
+        graph, catalog = prepare_script_graph(graph, catalog)
+    source_overrides = {**graph.runtime.get("exchange_contracts", {}), **(source_overrides or {})}
+    from .graph_compiler import GraphError, project_path
+    from .route_expansion import check_interface, require_route, port_index
+    if len(ancestry) > 6:
+        raise GraphError("路线嵌套最多支持 6 层。")
+    registry = {item["id"]: item for item in catalog["operators"]}
+    nodes = {node.id: node for node in graph.nodes}
+    if len(nodes) != len(graph.nodes):
+        raise GraphError("节点 ID 重复。")
+    incoming = {key: {} for key in nodes}
+    outgoing = {key: [] for key in nodes}
+    degree = {key: 0 for key in nodes}
+    ports, results = {}, []
+    explicit_format_nodes = set()
+    for node in graph.nodes:
+        if node.kind == "source":
+            source = node.source
+            schema = unknown()
+            if source_overrides and node.id in source_overrides:
+                schema = source_overrides[node.id]
+                if schema.get('_format_explicit'):
+                    explicit_format_nodes.add(node.id)
+            elif source:
+                schema.update(dims=source.dims, ndim=len(source.dims))
+                from .source_paths import source_candidates
+                candidates = source_candidates(graph, catalog, root, source.path, source.location, source.reader,
+                                               input_roots=input_roots, storage_ref=source.storage_ref)
+                if len(candidates) == 1:
+                    reader = candidates[0]
+                    if reader["id"] == "TxtReader":
+                        name = source.args.get("reader", "csv")
+                        delegates = [item for item in catalog["readers"] if isinstance(name, str)
+                                     and item["id"] != "TxtReader" and name.lower() in
+                                     (item["id"].lower(), item["id"].removesuffix("Reader").lower())]
+                        if len(delegates) != 1:
+                            raise GraphError("TxtReader 的 reader 参数无效。", node.id)
+                        reader = delegates[0]
+                    schema = source_schema(reader["contracts"]["output"], source.dims)
+                    schema["reader"] = reader["id"]
+                    formats = effective_formats({**reader, 'kind': 'reader'}, source.args)
+                    if reader.get('data_formats') is not None:
+                        explicit_format_nodes.add(node.id)
+                        schema['_format_explicit'] = True
+                    if formats.get("outputs"):
+                        schema["data_format"] = formats["outputs"][0]
+            ports[node.id] = {"inputs": [], "outputs": [schema]}
+        elif node.kind == "route":
+            route = require_route(node)
+            if route.id in ancestry:
+                raise GraphError("路线不能递归调用自身。", node.id)
+            check_interface(route.graph, catalog)
+            interface = route.graph.interface
+            route_inputs = []
+            for port in interface.inputs:
+                rule = dict(port.contract or {})
+                if 'data_format' not in rule:
+                    projected = effective_formats({'inputs_arity': 1, 'contracts': {'inputs': [rule]}})
+                    rule['data_format'] = projected['inputs'][0]
+                route_inputs.append(rule)
+            ports[node.id] = {"inputs": route_inputs,
+                              "outputs": [unknown() for _ in interface.outputs]}
+        else:
+            spec = registry.get(node.operator)
+            if spec is None:
+                raise GraphError(f"未找到算子 {node.operator!r}。", node.id)
+            count = node.input_count if spec["inputs_arity"] == "*" else spec["inputs_arity"]
+            requirements = spec["contracts"]["inputs"] or []
+            params = {**spec["runtime_defaults"], **node.params}
+            formats = effective_formats(spec, params)
+            if spec.get('data_formats') is not None:
+                explicit_format_nodes.add(node.id)
+            input_rules = [resolve(requirements[min(i, len(requirements)-1)], params) if requirements else None for i in range(count)]
+            for index, rule in enumerate(input_rules):
+                if formats.get("inputs"):
+                    input_rules[index] = {**(rule or {}), "data_format": formats["inputs"][min(index, len(formats["inputs"])-1)]}
+            ports[node.id] = {"inputs": input_rules,
+                              "outputs": [unknown() for _ in range(1 if spec["output_parameter"] else len(spec["outputs"]))]}
+    edge_ids = set()
+    for edge in graph.edges:
+        if edge.id in edge_ids:
+            raise GraphError("连线 ID 重复。")
+        edge_ids.add(edge.id)
+        if edge.source not in nodes or edge.target not in nodes:
+            raise GraphError("连线包含已不存在的节点。")
+        port = int(edge.targetHandle[3:])
+        output = 0 if edge.sourceHandle == "out" else int(edge.sourceHandle[4:]) if edge.sourceHandle.startswith("out-") and edge.sourceHandle[4:].isdigit() else -1
+        if output < 0 or output >= len(ports[edge.source]["outputs"]) or port >= len(ports[edge.target]["inputs"]):
+            raise GraphError("连线端口不存在。", edge.target)
+        if port in incoming[edge.target]:
+            raise GraphError("这个输入端口已有连线。", edge.target)
+        incoming[edge.target][port] = (edge, output)
+        outgoing[edge.source].append(edge.target)
+        degree[edge.target] += 1
+    queue = deque(key for key in nodes if degree[key] == 0)
+    visited = 0
+    while queue:
+        key = queue.popleft()
+        visited += 1
+        node = nodes[key]
+        if node.kind != "source":
+            inputs = [unknown() for _ in ports[key]["inputs"]]
+            invalid = False
+            for index, (edge, output) in incoming[key].items():
+                inputs[index] = ports[edge.source]["outputs"][output]
+                try:
+                    result = compatible(inputs[index], ports[key]["inputs"][index])
+                except (TypeError, ValueError, KeyError):
+                    result = {"status": "unknown", "reasons": ["请完善算子参数后检查契约"]}
+                from operon.conversions import plan_conversion
+                source_format = inputs[index].get("data_format")
+                required_format = (ports[key]["inputs"][index] or {}).get("data_format")
+                rule = ports[key]['inputs'][index] or {}
+                legacy_input = node.kind != 'route' and registry[node.operator].get('data_formats') is None
+                if required_format is None and legacy_input and source_format and isinstance(rule.get('kind'), list):
+                    # A v3 union already declares Form/FileArtifact acceptance.
+                    # Select that branch using the declared logical type; never
+                    # reinterpret a matrix as a list or invent a missing contract.
+                    for kind in rule['kind']:
+                        projected = effective_formats({'inputs_arity': 1, 'contracts': {'inputs': [{**rule, 'kind': kind}]}})['inputs'][0]
+                        if projected and projected['logical_type'] == source_format['logical_type']:
+                            required_format = projected
+                            ports[key]['inputs'][index]['data_format'] = projected
+                            break
+                if (edge.source in explicit_format_nodes or edge.target in explicit_format_nodes
+                        or inputs[index].get('_format_explicit')
+                        or (ports[key]['inputs'][index] or {}).get('_format_explicit')
+                        or edge.adaptation is not None):
+                    adapted = plan_conversion(source_format, required_format, edge.adaptation.model_dump() if edge.adaptation else None)
+                    result["conversion_plan"] = adapted.get("conversion_plan")
+                    if adapted["status"] != "compatible":
+                        result["status"] = "incompatible" if adapted["status"] == "incompatible" else result["status"]
+                        result["format_unresolved"] = adapted["status"] == "unknown"
+                        result["reasons"] += adapted["reasons"]
+                        if result["status"] == "compatible": result["status"] = "unknown"
+                invalid |= result["status"] == "incompatible"
+                results.append({"id": edge.id, "source": edge.source, "target": key, **result})
+            if node.kind == "route":
+                route = require_route(node)
+                overrides = {port.node_id: inputs[i] for i, port in enumerate(route.graph.interface.inputs)}
+                try:
+                    inner = analyze_graph(route.graph, catalog, root, source_overrides=overrides, ancestry=(*ancestry, route.id), input_roots=input_roots)
+                except GraphError as exc:
+                    raise GraphError(f"{node.title or route.name}：{exc}", key) from exc
+                failures = [check for check in inner["edges"] if check["status"] == "incompatible"]
+                if failures:
+                    for check in results:
+                        if check["target"] == key:
+                            check["status"] = "incompatible"
+                            check["reasons"] = list(dict.fromkeys(reason for failure in failures for reason in failure["reasons"]))
+                ports[key]["outputs"] = [inner["nodes"][port.node_id]["outputs"][port_index(port.handle)]
+                                          if not invalid and not failures else unknown() for port in route.graph.interface.outputs]
+            elif ports[key]["outputs"]:
+                spec = registry[node.operator]
+                try:
+                    schema = infer_output(spec["contracts"]["output"], inputs, {**spec["runtime_defaults"], **node.params}) if not invalid else unknown()
+                except (TypeError, ValueError, KeyError):
+                    schema = unknown()
+                formats = effective_formats(spec, {**spec['runtime_defaults'], **node.params}).get("outputs", [])
+                schema.pop('_format_explicit', None)
+                ports[key]["outputs"] = [{**schema, **({'_format_explicit': True} if spec.get('data_formats') is not None else {}),
+                                          **({"data_format": formats[i]} if i < len(formats) else {})}
+                                          for i in range(len(ports[key]["outputs"]))]
+        for target in outgoing[key]:
+            degree[target] -= 1
+            if degree[target] == 0:
+                queue.append(target)
+    if visited != len(nodes):
+        raise GraphError("工作流存在环路，请删除回连的连线。")
+    return {"version": VERSION, "nodes": ports, "edges": results}

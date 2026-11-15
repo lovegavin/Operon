@@ -12,6 +12,7 @@ from pathlib import Path
 import threading
 import time
 import uuid
+from operon.bytecode import io_path
 
 _STATES: dict[str, dict] = {}
 _STATES_LOCK = threading.Lock()
@@ -32,8 +33,8 @@ class FileLock:
         state['mutex'].acquire()
         try:
             if not state['depth']:
-                self.path.parent.mkdir(parents=True, exist_ok=True)
-                handle = open(self.path, 'a+b')
+                io_path(self.path.parent).mkdir(parents=True, exist_ok=True)
+                handle = open(io_path(self.path), 'a+b')
                 handle.seek(0, os.SEEK_END)
                 if not handle.tell():
                     handle.write(b'\0'); handle.flush()
@@ -72,7 +73,7 @@ class FileLock:
 
 
 def atomic_json(path, value):
-    path = Path(path)
+    path = io_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     for _ in range(16):
         temporary = path.with_name(path.name + '.' + uuid.uuid4().hex + '.tmp')

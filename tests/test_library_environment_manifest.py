@@ -17,7 +17,7 @@ def test_bundle_carries_environment_manifest(tmp_path):
         document = json.loads(archive.read("library.json"))
         environment = archive.read("sources/operon/environments.json")
     assert "sources/operon/environments.json" in names
-    assert document["minimum_application"] == "4.1.0"
+    assert document["minimum_application"] == "5.0.0"
     assert "openmm81" in json.loads(environment)["environments"]
 
 

@@ -7,15 +7,21 @@ import zipfile
 
 
 def build(root, application, library, output):
-    root, application, library, output = map(Path, (root, application, library, output))
+    root, application, output = map(Path, (root, application, output))
+    library = Path(library) if library else None
     version = tomllib.loads((root / 'pyproject.toml').read_text(encoding='utf-8'))['project']['version']
     if application.name != f'operon_studio-{version}-py3-none-any.whl':
         raise ValueError('Application wheel must match the source release version')
-    if not library.name.startswith('operon_builtin_library-') or library.suffix != '.whl':
+    if library and (not library.name.startswith('operon_builtin_library-') or library.suffix != '.whl'):
         raise ValueError('Expected the independently versioned factory library wheel')
-    files = {'wheels/' + p.name: p.read_bytes() for p in (application, library)}
+    files = {'wheels/' + p.name: p.read_bytes() for p in (application, library) if p}
     for name in ('LICENSE', 'NOTICE', 'scripts/install_server.py', 'scripts/install_server.sh'):
         files[name] = (root / name).read_bytes()
+    helper = root / 'scripts/acceptance/prepare_desktop_plan.py'
+    if helper.is_file():
+        files['scripts/acceptance/prepare_desktop_plan.py'] = helper.read_bytes()
+    for quickstart in root.glob('QUICKSTART.*.md'):
+        files[quickstart.name] = quickstart.read_bytes()
     for folder in ('docs', 'examples/workflows/script_pipeline'):
         for path in (root / folder).rglob('*'):
             if path.is_file() and path.suffix in {'.md', '.py', '.json', '.yaml', '.yml'} and '__pycache__' not in path.parts:
@@ -27,7 +33,9 @@ bundle_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 exec bash "$bundle_dir/scripts/install_server.sh" \\
   --app-wheel "$bundle_dir/wheels/APP" \\
   --library-wheel "$bundle_dir/wheels/LIBRARY" "$@"
-'''.replace('APP', application.name).replace('LIBRARY', library.name)).encode()
+'''.replace('  --library-wheel "$bundle_dir/wheels/LIBRARY" ',
+             '  --library-wheel "$bundle_dir/wheels/LIBRARY" ' if library else '  ')
+      .replace('APP', application.name).replace('LIBRARY', library.name if library else '')).encode()
     files['README.md'] = f'''# Operon {version} Linux server
 
 From this extracted directory:
@@ -36,8 +44,9 @@ From this extracted directory:
 bash install.sh --prefix "$HOME/apps/operon" --result "$PWD/server-install.json"
 ```
 
-The installer selects the included application and unchanged independent library
-wheels. Python dependencies require networking. If no usable Python 3.11+ exists,
+The installer selects the included application and any explicitly bundled independent
+library wheel. The application-only package does not install or replace operator libraries.
+Python dependencies require networking. If no usable Python 3.11+ exists,
 Linux x86_64 can bootstrap a checksum-verified private Python without sudo. Use
 `--python` and `--wheel-dir` for a supplied Python and offline dependency wheels.
 
@@ -77,7 +86,7 @@ and [release notes](docs/releases/v{version}.md).
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--app-wheel', type=Path, required=True)
-    parser.add_argument('--library-wheel', type=Path, required=True)
+    parser.add_argument('--library-wheel', type=Path, help='Optional unchanged independent library wheel')
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     print(build(Path(__file__).resolve().parents[1], args.app_wheel, args.library_wheel, args.output))

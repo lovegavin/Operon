@@ -50,6 +50,42 @@ def test_external_atomic_library_changes_invalidate_catalog(tmp_path):
         assert restored['operators'] == before['operators']
 
 
+def test_installed_wheel_survives_first_catalog_read_and_then_uses_cached_generation(tmp_path, monkeypatch):
+    from extension_fixtures import write_extension
+    from operon.dropins import single_file_wheel
+
+    source = tmp_path / 'hot_catalog.py'
+    write_extension(source, '''from operon_sdk import Step
+class HotCatalog(Step):
+    name = "lab.hot_catalog"
+    input_contracts = []
+    output_contract = {"mode": "report"}
+    parameters_schema = {"type": "object"}
+    def run(self, ctx, inputs): pass
+    def export(self, ctx): return {"value": 1}
+''')
+    wheel = single_file_wheel(source, tmp_path / 'wheel')
+    app = application(tmp_path)
+    with TestClient(app) as client:
+        before = client.get('/api/operators').json()
+        # A separate installer publishes atomically; the live service must
+        # observe it without an in-process notification or a source scan.
+        installer = PluginManager(app.state.service.directory, source_root=None, manifest_only=True)
+        installed = installer.install(wheel)
+        assert installed['source_library'] == {'packages': []}
+        current = installer.state()
+        assert current['generation'] == installed['generation']
+        assert not current.get('legacy_library_reset')
+        assert any(item['id'] == 'lab.hot_catalog' for item in current['descriptors'])
+        after = client.get('/api/operators', params={'generation': before['plugin_generation']}).json()
+        assert after['plugin_generation'] == installed['generation']
+        assert {item['id'] for item in after['operators']} == {
+            *[item['id'] for item in before['operators']], 'lab.hot_catalog'}
+        monkeypatch.setattr(app.state.service.plugins, 'state',
+                            lambda: pytest.fail('Unchanged installed catalog reread the registry'))
+        assert client.get('/api/operators', params={'generation': installed['generation']}).json() is None
+
+
 def test_catalog_refresh_does_not_run_file_io_on_async_server_loop(tmp_path, monkeypatch):
     app = application(tmp_path)
     original = app.state.service.refresh_catalog

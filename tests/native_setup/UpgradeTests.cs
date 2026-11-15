@@ -9,6 +9,14 @@ internal static class UpgradeTests
 {
     internal static bool RunHost(string[] args)
     {
+        if (args.FirstOrDefault() == "--maintenance-gate")
+        {
+            using var maintenance = InstallUpgrade.Prepare([new UpgradeTarget(args[1], Path.Combine(args[1], "profile"), Path.Combine(args[1], "workspace"))],
+                _ => {}, CancellationToken.None).GetAwaiter().GetResult();
+            File.WriteAllText(args[2], "held");
+            while (!File.Exists(args[3])) Thread.Sleep(30);
+            return true;
+        }
         if (args.FirstOrDefault() == "--upgrade-worker")
         {
             File.WriteAllText(args[1] + ".ready", "ready");
@@ -67,7 +75,7 @@ internal static class UpgradeTests
             for (var attempt = 0; attempt < 100 && !File.Exists(Path.Combine(profile, "ready")); attempt++)
             { if (process.HasExited) throw new Exception("Synthetic update host failed"); await Task.Delay(100); }
             check(File.Exists(Path.Combine(profile, "ready")), "synthetic host not ready");
-            return (new(directory, profile), process);
+            return (new(directory, profile, Path.Combine(profile, "workspace")), process);
         }
         try
         {

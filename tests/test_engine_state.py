@@ -181,3 +181,10 @@ def test_event_retention_expires_a_cursor_explicitly(tmp_path):
     latest = store.event_bounds()[1]
     fresh = EventStream(store).page(latest - 1)
     assert fresh.events and not fresh.snapshot_required
+    # A cursor inside the deleted interval must not silently skip transitions.
+    expired = EventStream(store).page(pruned['floor'] - 1)
+    assert expired.snapshot_required and not expired.events
+    boundary = EventStream(store).page(pruned['floor'])
+    assert len(boundary.events) == 5 and not boundary.snapshot_required
+    again = store.prune_events(keep=20)
+    assert again['deleted'] == 0 and again['floor'] == pruned['floor']

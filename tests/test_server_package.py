@@ -25,3 +25,9 @@ def test_server_wrapper_uses_exact_included_wheels(tmp_path):
             assert z.read(prefix+'wheels/'+wheel.name)==wheel.read_bytes()
     with pytest.raises(ValueError, match='match the source'):
         module.build(tmp_path, tmp_path/'operon_studio-9.0.0-py3-none-any.whl',library,tmp_path/'bad.zip')
+    app_only=module.build(tmp_path,app,None,tmp_path/'app-only.zip')
+    with zipfile.ZipFile(app_only) as z:
+        wrapper=z.read(prefix+'install.sh').decode()
+        assert '--library-wheel' not in wrapper
+        assert '$bundle_dir/wheels/'+app.name in wrapper
+        assert not any('builtin_library' in name for name in z.namelist())

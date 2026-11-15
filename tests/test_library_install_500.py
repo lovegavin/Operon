@@ -15,7 +15,6 @@ import operon
 from operon.library_install import (
     LEGACY_MESSAGE,
     LegacyLibrary,
-    RoutePinMismatch,
     install_library,
     install_routes_collection,
     inspect_library,
@@ -116,7 +115,7 @@ def _wheel_bytes() -> bytes:
     return _zip_bytes(files)
 
 
-def _library_zip(directory: Path, *, minimum_application=None, bundle_format=1) -> Path:
+def _library_zip(directory: Path, *, minimum_application=None, bundle_format=1, library_name=None) -> Path:
     wheel = _wheel_bytes()
     document = {
         "format": "operon.library",
@@ -135,6 +134,8 @@ def _library_zip(directory: Path, *, minimum_application=None, bundle_format=1) 
     }
     if bundle_format is not None:
         document["bundle_format"] = bundle_format
+    if library_name is not None:
+        document["library_name"] = library_name
     entries = {
         "library.json": json.dumps(document, indent=2).encode("utf-8"),
         f"wheels/{WHEEL_NAME}": wheel,
@@ -165,8 +166,8 @@ def test_new_library_install_records_manifest_identity(tmp_path):
     result = install_library(manager, library)
 
     assert result == {
-        "library": "v0.0.0",
-        "libraries": ["v0.0.0"],
+        "library": "main-v0.0.0",
+        "libraries": ["main-v0.0.0"],
         "library_version": "0.0.0",
         "packages": 1,
         "descriptors": 1,
@@ -259,11 +260,7 @@ def studio(tmp_path_factory):
 def _pins(service, operators=(OPERATOR,)) -> dict:
     descriptors = {descriptor["id"]: descriptor for descriptor in service.plugins.state()["descriptors"]}
     return {
-        operator: {
-            "package": descriptors[operator]["distribution"],
-            "version": descriptors[operator]["package_version"],
-            "code_sha": descriptors[operator]["code_sha"],
-        }
+        operator: deepcopy(descriptors[operator]["implementation"])
         for operator in operators
     }
 
@@ -296,12 +293,14 @@ def _route_graph(service, pins: dict) -> Graph:
     return graph
 
 
-def _collection(directory: Path, service, *, pins=None, tamper=None, extra=None, name="Synthetic route") -> Path:
+def _collection(directory: Path, service, *, pins=None, raw_pins=None, tamper=None, extra=None, name="Synthetic route") -> Path:
     graph = _route_graph(service, _pins(service) if pins is None else pins)
     with zipfile.ZipFile(io.BytesIO(export_bundle(graph))) as archive:
         members = {member: archive.read(member) for member in archive.namelist()}
     topology = json.loads(members["graph.json"])
-    topology["plugin_lock"] = dict(graph.plugin_lock)
+    # Invalid-wire fixtures are injected after normal author export, so their
+    # rejection is exercised at the collection import boundary.
+    topology["plugin_lock"] = deepcopy(graph.plugin_lock if raw_pins is None else raw_pins)
     if tamper is not None:
         topology["plugin_lock"][tamper]["code_sha"] = "0" * 64
     members["graph.json"] = json.dumps(topology, ensure_ascii=False, indent=2).encode("utf-8")
@@ -340,36 +339,62 @@ def test_route_collection_imports_and_reimports_once(tmp_path, studio):
     assert second["count"] == 1
     saved = [route for route in studio.application.workflows.list() if route["name"] == "Synthetic route"]
     assert len(saved) == 1
+    stored = studio.application.workflows.get(saved[0]['id'])
+    assert stored['graph']['plugin_lock'][OPERATOR] == _pins(studio)[OPERATOR]
     registered = [route for route in studio.routes.routes() if route["name"] == "Synthetic route"]
     assert len(registered) == 1
 
 
-def test_route_pin_mismatch_is_ignored_by_canvas_import(tmp_path, studio):
+@pytest.mark.parametrize('damage', [
+    'version', 'code', 'unknown', 'missing-artifact-identity',
+    'wheel-without-execution-identity', 'execution', 'malformed',
+])
+def test_invalid_route_pin_rejects_import_without_overwriting_saved_draft(tmp_path, studio, damage):
+    workflows = studio.application.workflows
+    draft = _route_graph(studio, _pins(studio))
+    draft.name = 'Pinned draft ' + damage
+    saved = workflows.save(draft)
+    previous = workflows.get(saved['id'])
+    saved_before = deepcopy(workflows.list())
+    registered_before = deepcopy(studio.routes.routes())
     pins = _pins(studio)
-    pins[OPERATOR] = {**pins[OPERATOR], "version": "9.9.9", "code_sha": "0" * 64}
-    collection = _collection(tmp_path, studio, pins=pins)
+    pin = pins[OPERATOR]
+    if damage == 'version':
+        pin['version'] = '9.9.9'
+    elif damage == 'code':
+        pin['code_sha'] = '0' * 64
+    elif damage == 'unknown':
+        pins['ghost'] = deepcopy(pin)
+    elif damage == 'missing-artifact-identity':
+        pin.pop('sha256', None)
+        pin.pop('execution_sha', None)
+    elif damage == 'wheel-without-execution-identity':
+        # A historical pin without execution_sha must match the exact wheel;
+        # matching code_sha alone cannot authorize its native/assets closure.
+        pin.pop('execution_sha', None)
+        pin['sha256'] = 'f' * 64
+    elif damage == 'execution':
+        pin['execution_sha'] = 'f' * 64
+    else:
+        pins[OPERATOR] = 'not an implementation record'
+    collection = _collection(tmp_path, studio, raw_pins=pins, name=draft.name)
+    uploaded = collection.read_bytes()
 
-    result = install_routes_collection(studio, collection)
+    message = 'plugin_lock' if damage == 'malformed' else 'Required plugin versions are unavailable'
+    with pytest.raises(ValueError, match=message):
+        install_routes_collection(studio, collection)
 
-    assert result["count"] == 1
-
-
-def test_route_pin_for_unknown_operator_is_ignored_by_canvas_import(tmp_path, studio):
-    pins = _pins(studio)
-    pins["ghost"] = dict(pins[OPERATOR])
-    collection = _collection(tmp_path, studio, pins=pins)
-
-    result = install_routes_collection(studio, collection)
-
-    assert result["count"] == 1
+    assert workflows.get(saved['id']) == previous
+    assert workflows.list() == saved_before
+    assert studio.routes.routes() == registered_before
+    assert collection.read_bytes() == uploaded
 
 
-def test_route_pin_extra_identity_keys_are_ignored(tmp_path, studio):
+def test_route_declaration_audit_drift_preserves_exact_executable_pin(tmp_path, studio):
     pins = _pins(studio)
     for pin in pins.values():
-        pin["sha256"] = "f" * 64
         pin["declaration_sha"] = "e" * 64
-    collection = _collection(tmp_path, studio, pins=pins)
+    collection = _collection(tmp_path, studio, pins=pins, name='Declaration audit drift')
 
     result = install_routes_collection(studio, collection)
 
@@ -425,8 +450,8 @@ def test_plugin_install_endpoint_installs_a_new_library(tmp_path, client):
     assert operation["status"] == "complete", operation
     result = operation["result"]
     assert result == {
-        "library": "v0.0.0",
-        "libraries": ["v0.0.0"],
+        "library": "main-v0.0.0",
+        "libraries": ["main-v0.0.0"],
         "library_version": "0.0.0",
         "packages": 1,
         "descriptors": 1,
@@ -500,11 +525,12 @@ def test_routes_import_collection_endpoint_uploads_a_collection(tmp_path, client
     assert [route for route in app.state.service.routes.routes() if route["name"] == "Synthetic route"]
 
 
-def test_control_api_lists_and_removes_named_libraries(tmp_path, client):
+def test_control_api_uses_bundle_namespace_and_removes_named_library(tmp_path, client):
     web, app = client
-    library = _library_zip(tmp_path)
-    installed = web.post("/api/v1/libraries/install", json={"path": str(library), "name": "fork-v0.0.0"})
+    library = _library_zip(tmp_path, library_name='fork')
+    installed = web.post("/api/v1/libraries/install", json={"path": str(library), "name": "caller-override"})
     assert installed.status_code == 200, installed.text
+    assert installed.json()['library'] == 'fork-v0.0.0'
     listed = web.get("/api/v1/libraries")
     assert listed.status_code == 200, listed.text
     payload = listed.json()
@@ -526,8 +552,8 @@ def test_control_api_installs_a_library_and_a_route_collection(tmp_path, client)
 
     assert installed.status_code == 200, installed.text
     assert installed.json() == {
-        "library": "v0.0.0",
-        "libraries": ["v0.0.0"],
+        "library": "main-v0.0.0",
+        "libraries": ["main-v0.0.0"],
         "library_version": "0.0.0",
         "packages": 1,
         "descriptors": 1,
@@ -542,7 +568,12 @@ def test_control_api_installs_a_library_and_a_route_collection(tmp_path, client)
     assert imported.json()["count"] == 1
 
 
-def test_legacy_workspace_registry_is_reset_before_the_first_read(tmp_path, monkeypatch):
+@pytest.mark.parametrize('source_receipt,release', [
+    ({'root': 'library/sources/legacy'}, {'version': '8.0.10', 'sha256': 'a' * 64}),
+    ({'root': 'library/sources/legacy'}, {}),
+    ({'packages': []}, {'version': '8.0.10', 'sha256': 'a' * 64}),
+])
+def test_legacy_workspace_registry_is_reset_before_the_first_read(tmp_path, monkeypatch, source_receipt, release):
     """A 4.x workspace must not present its dead 8.x library as installed."""
     monkeypatch.setattr("operon.library_location.source_root", lambda root=None: None)
     manager = PluginManager(tmp_path / "data")
@@ -554,8 +585,8 @@ def test_legacy_workspace_registry_is_reset_before_the_first_read(tmp_path, monk
         "descriptors": [{"id": "legacy_operator", "distribution": "operon-core"}],
         "bundled_seen": [],
         "generation": "legacy",
-        "library_release": {"version": "8.0.10", "sha256": "a" * 64},
-        "source_library": {"root": "library/sources/legacy"},
+        "library_release": release,
+        "source_library": source_receipt,
         "library_source_pins": {"operon-core": {"version": "1.0.0"}},
     }), encoding="utf-8")
 

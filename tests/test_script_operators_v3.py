@@ -124,6 +124,11 @@ def test_promoted_provider_static_package_and_real_worker(tmp_path, monkeypatch)
     project = tmp_path / 'project'
     exported = export_script_package(snapshot, project, operator_id='lab.repeat_text', title='Repeat text', category='data')
     manifest = check_source(project)
+    from operon import __version__
+    from packaging.requirements import Requirement
+    host = next(Requirement(text) for text in manifest['dependencies']
+                if Requirement(text).name == 'operon-studio')
+    assert host.specifier.contains(__version__, prereleases=True)
     descriptor = manifest['descriptors'][0]
     assert descriptor['id'] == 'lab.repeat_text'
     assert descriptor['protocol_revision'] == '3.7'

@@ -151,9 +151,11 @@ def test_remote_dispatch_validates_scripts_and_never_installs_implicitly(app, mo
 
 def test_application_validation_can_reach_explicit_repair_after_failed_placement(app, monkeypatch):
     from operon.application import Application
+    from operon.storage.inputs import StorageInputBindings
     from src.web import execution
     from src.web.graph import GraphError
     graph = workflow()
+    app.storage_inputs = StorageInputBindings(app)
     graph.runtime['execution'] = {'kind': 'local', 'mode': 'manual'}
     selected = execution.ExecutionService.__new__(execution.ExecutionService)
     selected.service = app.service

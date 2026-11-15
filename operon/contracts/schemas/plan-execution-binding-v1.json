@@ -1,0 +1,122 @@
+{
+  "$defs": {
+    "BoundEnvironment": {
+      "additionalProperties": false,
+      "properties": {
+        "executable": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Executable",
+          "type": "string"
+        },
+        "generation_id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.-]+$",
+          "title": "Generation Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "generation_id",
+        "executable"
+      ],
+      "title": "BoundEnvironment",
+      "type": "object"
+    },
+    "BoundInput": {
+      "additionalProperties": false,
+      "properties": {
+        "metadata": {
+          "additionalProperties": true,
+          "title": "Metadata",
+          "type": "object"
+        },
+        "path": {
+          "maxLength": 2048,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "representation": {
+          "enum": [
+            "form",
+            "file",
+            "table",
+            "json",
+            "npy",
+            "report",
+            "figure"
+          ],
+          "title": "Representation",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "size_bytes": {
+          "minimum": 0,
+          "title": "Size Bytes",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "representation",
+        "path",
+        "size_bytes",
+        "sha256"
+      ],
+      "title": "BoundInput",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "environment_store": {
+      "maxLength": 2048,
+      "minLength": 1,
+      "title": "Environment Store",
+      "type": "string"
+    },
+    "environments": {
+      "additionalProperties": {
+        "$ref": "#/$defs/BoundEnvironment"
+      },
+      "maxProperties": 128,
+      "minProperties": 1,
+      "title": "Environments",
+      "type": "object"
+    },
+    "inputs": {
+      "additionalProperties": {
+        "$ref": "#/$defs/BoundInput"
+      },
+      "maxProperties": 128,
+      "title": "Inputs",
+      "type": "object"
+    },
+    "package_root": {
+      "maxLength": 2048,
+      "minLength": 1,
+      "title": "Package Root",
+      "type": "string"
+    },
+    "storage": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "maxProperties": 128,
+      "title": "Storage",
+      "type": "object"
+    }
+  },
+  "required": [
+    "package_root",
+    "environment_store",
+    "environments"
+  ],
+  "title": "PlanExecutionBinding",
+  "type": "object"
+}

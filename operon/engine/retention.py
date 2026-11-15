@@ -72,9 +72,15 @@ class RetentionManager:
     def _pinned_attempts(self) -> set[str]:
         states = ['admitted', 'starting', 'running', 'committing', 'recovery_required']
         pool_id = self._pool_id()
-        if not pool_id:
-            return set()
-        return {attempt['id'] for attempt in self.store.attempts_for_pool(pool_id, states=states)}
+        active = {attempt['id'] for attempt in self.store.attempts_for_pool(pool_id, states=states)} if pool_id else set()
+        # Invocation artifacts use immutable files in attempt scratch. Pinning
+        # their manifest alone must not allow scratch cleanup to erase payloads
+        # still referenced by a published run or an explicit resume attachment.
+        with self.store.lock:
+            active.update(row['attempt_id'] for row in self.store.connection.execute(
+                "SELECT DISTINCT a.attempt_id FROM artifacts a JOIN artifact_refs r ON r.artifact_id=a.id "
+                "WHERE r.state='pinned' AND a.state!='deleted'").fetchall())
+        return active
 
     def _pool_id(self):
         with self.store.lock:
@@ -175,6 +181,10 @@ class RetentionManager:
         deleted, errors = [], []
         for item in report['candidates'] + report['scratch']:
             path = Path(item['path'])
+            if item['kind'] == 'attempt-scratch' and path.name in self._pinned_attempts():
+                continue
+            if item.get('artifact_id') and self.store.references(item['artifact_id']):
+                continue
             if not self._safe(path, item['kind']):
                 errors.append({**item, 'error': 'path-outside-owned-root'})
                 continue
@@ -227,6 +237,14 @@ class RetentionManager:
             for item in candidates:
                 if usage <= quota:
                     break
+                # apply() may have skipped a candidate because a downstream
+                # consumer pinned it after planning. Quota pressure must never
+                # override that live reference or a newly active owner.
+                record = self.store.artifact(item['artifact_id'])
+                if (record is None or record['state'] == 'deleted'
+                        or self.store.references(item['artifact_id'])
+                        or record['attempt_id'] in self._pinned_attempts()):
+                    continue
                 path = Path(item['path'])
                 if not self._safe(path, 'artifact'):
                     continue

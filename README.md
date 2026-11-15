@@ -12,12 +12,18 @@ parameter, log and artifact. The same engine is available through the desktop,
 CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
-The current source integrates **Operon Studio 5.0.0** with the independently
-versioned **0.0.0 operator library**: **1,063 operators, 108 Readers (1,171
-descriptors), seven provider packages and 79 route templates**. Operators and
-Readers use protocol v3 / SDK 3.7 with separate parameter JSON and adjacent
-Markdown documentation. Studio 5.0.0 no longer ships the library in its payload:
-import `operon-library-v0.0.0.zip` and `operon-routes-v0.0.0.zip`.
+This source targets **Operon Studio 5.2.0**. The application and operator library
+are maintained and released independently; this application update does not
+change library sources or versions. Import a compatible library and route package
+separately. Operators and Readers retain protocol v3 / SDK 3.7 compatibility,
+independent parameter JSON and adjacent Markdown documentation.
+
+The new RunPlan interface shares compilation, execution and portable export
+across desktop and headless clients. Environments are explicitly prepared and
+bound; configured file browsing preserves storage references in saved workflows.
+See the [backend quick start](docs/design/backend_cli_quickstart.md) and
+[5.2.0 release scope](docs/releases/v5.2.0.md). Multi-host placement and Slurm
+remain experimental; they are not required for ordinary local or single-server use.
 
 Operon does not bundle or require an AI model. Agent access is optional.
 
@@ -40,8 +46,8 @@ Operon does not bundle or require an AI model. Agent access is optional.
 | I want to… | Start here |
 | --- | --- |
 | Use the Windows desktop | Download **Operon_Setup.exe** from [Releases](https://github.com/lovegavin/Operon/releases/latest) |
-| Run a Linux server without a desktop | Download **Operon-5.0.0-Server.zip**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
-| Develop from source | `python -m pip install . ./library` with Python 3.11+ |
+| Run a Linux server without a desktop | Download the versioned **Operon Server ZIP**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
+| Develop the application from source | `python -m pip install '.[agent]'` with Python 3.11+; install a compatible operator library separately |
 | Connect an AI agent | Use the desktop **Agent** panel or `operon mcp`; see [agent operations](docs/agent_operations.md) |
 
 Windows Setup includes a private management Python and creates an isolated

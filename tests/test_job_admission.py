@@ -201,6 +201,21 @@ def test_worker_handoff_retains_startup_snapshot_without_scanning(monkeypatch):
     assert config.available_at_start_bytes == 4096 * MIB
 
 
+def test_installer_maintenance_blocks_worker_spawn_and_releases_reservation(service, monkeypatch):
+    from contextlib import contextmanager
+    from operon.installation_maintenance import InstallationBusy
+    @contextmanager
+    def busy(root):
+        raise InstallationBusy('Installation maintenance is active')
+        yield
+    monkeypatch.setattr('operon.installation_maintenance.start_guard', busy)
+    job = service.launch(graph_for(service))
+    wait_until(lambda: service.require(job['id'])['logs_complete'])
+    assert service.require(job['id'])['status'] == 'failed'
+    assert job['id'] not in service.processes
+    assert service.resources()['reserved_bytes'] == 0
+
+
 def test_native_tool_thread_count_honors_admission(tmp_path, monkeypatch):
     from operon.tool_runner import ToolRunner
     from src.task.context import Context
