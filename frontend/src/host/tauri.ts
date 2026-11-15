@@ -179,7 +179,7 @@ export function createTauriHost(bridge: TauriBridge): DesktopHost {
       return;
     }
 
-    lifecycle.unlisten = unlisten;
+    lifecycle.unlisten = () => { unlisten(); };
     lifecycle.resolveReady();
   };
 

@@ -19,14 +19,31 @@ struct Fixture {
     backend_root: PathBuf,
 }
 
+impl Drop for Fixture {
+    fn drop(&mut self) {
+        if std::thread::panicking() {
+            if let Ok(entries) = fs::read_dir(self.config.logs_dir()) {
+                for entry in entries.flatten() {
+                    if let Ok(log) = fs::read_to_string(entry.path()) {
+                        eprintln!("fixture diagnostic: {log}");
+                    }
+                }
+            }
+        }
+    }
+}
+
 impl Fixture {
     fn build(mode: &str, python: &Path) -> Self {
         let root = tempfile::tempdir().expect("temporary test root");
         let backend_root = root.path().join("backend");
         let scripts = backend_root.join("scripts");
         fs::create_dir_all(&scripts).expect("backend scripts directory");
-        fs::copy(fixture_path("fake_studio.py"), scripts.join("desktop_server.py"))
-            .expect("copy management fixture");
+        fs::copy(
+            fixture_path("fake_studio.py"),
+            scripts.join("desktop_server.py"),
+        )
+        .expect("copy management fixture");
         fs::copy(
             fixture_path("unrelated_server.py"),
             scripts.join("unrelated_server.py"),
@@ -220,7 +237,11 @@ fn missing_runtime_fails_without_spawning() {
         return;
     };
     let mut fixture = Fixture::build("normal", &python);
-    fixture.config.python = fixture.root.path().join("missing-runtime").join("python.exe");
+    fixture.config.python = fixture
+        .root
+        .path()
+        .join("missing-runtime")
+        .join("python.exe");
     let runtime = runtime();
     runtime.block_on(async {
         let error = expect_start_failure(&fixture.config).await;
@@ -242,7 +263,10 @@ fn occupied_unrelated_port_is_not_used() {
             .await
             .expect("fixture should start beside an occupied port");
         assert_ne!(backend.origin().port(), Some(occupied_port));
-        backend.shutdown(Duration::from_secs(5)).await.expect("stop");
+        backend
+            .shutdown(Duration::from_secs(5))
+            .await
+            .expect("stop");
     });
     drop(occupied);
 }
@@ -280,7 +304,10 @@ fn unrelated_python_survives_backend_shutdown() {
             "owned backend must not reuse the unrelated port"
         );
         assert!(http_ok(&client, &unrelated_url).await);
-        backend.shutdown(Duration::from_secs(5)).await.expect("stop");
+        backend
+            .shutdown(Duration::from_secs(5))
+            .await
+            .expect("stop");
         assert!(
             http_ok(&client, &unrelated_url).await,
             "unrelated Python process must survive backend shutdown"
@@ -305,13 +332,19 @@ fn breakaway_helper_survives_backend_shutdown() {
         let mut backend = Backend::start(&fixture.config)
             .await
             .expect("breakaway fixture should start");
-        let port_file = fixture.backend_root.join("scripts").join("breakaway_port.txt");
+        let port_file = fixture
+            .backend_root
+            .join("scripts")
+            .join("breakaway_port.txt");
         let port = wait_for_file(&port_file, Duration::from_secs(5)).await;
         let helper_url = format!("http://127.0.0.1:{port}/");
         let client = http_client();
         wait_http(&client, &helper_url, Duration::from_secs(5)).await;
 
-        backend.shutdown(Duration::from_secs(5)).await.expect("stop");
+        backend
+            .shutdown(Duration::from_secs(5))
+            .await
+            .expect("stop");
         assert!(
             http_ok(&client, &helper_url).await,
             "a child that explicitly broke away from the job must survive host shutdown"
@@ -385,6 +418,7 @@ fn nonzero_shutdown_exit_is_a_sticky_failure() {
             .expect_err("a repeated shutdown must preserve the failed outcome");
         assert_eq!(second.code(), first.code());
         assert_eq!(second.message(), first.message());
+        assert!(backend.failed_tree_stopped().unwrap());
     });
 }
 
@@ -410,9 +444,7 @@ fn parent_exit_does_not_count_as_tree_drain() {
         assert_eq!(error.next_actions(), [HostNextAction::Retry].as_slice());
         assert!(backend.try_exited().expect("parent exit probe"));
         assert!(
-            backend
-                .exit_status()
-                .is_some_and(|status| status.success()),
+            backend.exit_status().is_some_and(|status| status.success()),
             "the parent exit itself was normal"
         );
 

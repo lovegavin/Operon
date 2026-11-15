@@ -83,3 +83,19 @@ then have A pin the minimal Tauri 2 crate, Cargo.lock and capabilities. C owns
 process lifecycle, D owns OS integration, E owns packaging, F independently
 accepts the integrated candidate. Preserve the existing scientific backend,
 operator library and production branch throughout.
+
+## Native C/D implementation and review — 2026-11-16
+
+The earlier "Before C/D" toolchain gap is now resolved: Rust 1.100.0, MSVC and
+Windows SDK produced the actual Windows Tauri binary. C and D were delegated
+through DeepSeek Harness in isolated worktrees, reviewed and merged only into
+experimental/tauri-shell. Root fixed the real-process and HTTP integration
+issues recorded in tauri_native_acceptance.md.
+
+Current evidence: 94 Rust tests (including real process/HTTP and opt-in Windows
+keyring checks), 73 frontend tests, locked native build, frontend build, and two
+final real native ready/draft-save/drain smokes all passed. Runtime configuration
+hashes and the production/library boundaries were preserved. Detailed status and
+remaining manual, packaging and cross-machine gates are in
+`tauri_native_acceptance.md`; T05-T08 are not marked complete. This supersedes the
+earlier missing-Rust/MSVC observation, not the earlier T01 compatibility evidence.

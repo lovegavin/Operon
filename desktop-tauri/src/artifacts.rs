@@ -43,14 +43,12 @@ const SAFE_EXTENSIONS: &[&str] = &[
     // Inert images and documents.
     "png", "jpg", "jpeg", "gif", "webp", "bmp", "tif", "tiff", "pdf", "svg",
     // Tabular and plain scientific text.
-    "csv", "tsv", "txt", "tab", "dat",
-    // Structural and chemistry formats.
+    "csv", "tsv", "txt", "tab", "dat", // Structural and chemistry formats.
     "pdb", "ent", "cif", "mmcif", "mcif", "mol", "mol2", "sdf", "xyz",
     // Sequence and annotation formats.
-    "fasta", "fa", "fna", "faa", "fas", "ffn", "frn", "gb", "gbk", "genbank", "embl",
-    "gff", "gff3", "gtf", "bed", "bedgraph", "wig", "bigwig", "bw", "bigbed", "bb",
-    "vcf", "bcf", "sam", "bam", "cram", "fastq", "fq",
-    // Chromatin contact matrices and trees.
+    "fasta", "fa", "fna", "faa", "fas", "ffn", "frn", "gb", "gbk", "genbank", "embl", "gff", "gff3",
+    "gtf", "bed", "bedgraph", "wig", "bigwig", "bw", "bigbed", "bb", "vcf", "bcf", "sam", "bam",
+    "cram", "fastq", "fq", // Chromatin contact matrices and trees.
     "hic", "cool", "mcool", "nwk", "newick", "tree",
 ];
 
@@ -113,19 +111,11 @@ pub trait ArtifactDownload: Send {
 pub trait ArtifactTransport: Send + Sync {
     type Download: ArtifactDownload;
 
-    async fn artifacts_page(
-        &self,
-        url: Url,
-        token: &str,
-    ) -> Result<ArtifactsPage, TransportError>;
+    async fn artifacts_page(&self, url: Url, token: &str) -> Result<ArtifactsPage, TransportError>;
 
     async fn files_page(&self, url: Url, token: &str) -> Result<FilesPage, TransportError>;
 
-    async fn open_download(
-        &self,
-        url: Url,
-        token: &str,
-    ) -> Result<Self::Download, TransportError>;
+    async fn open_download(&self, url: Url, token: &str) -> Result<Self::Download, TransportError>;
 }
 
 /// OS association boundary. Production uses the native Windows shell; tests
@@ -185,8 +175,7 @@ where
         resolve_artifact_digest(transport, origin, token, run_id, artifact_id).await?;
     let file = resolve_file(transport, origin, token, run_id, artifact_id, file_id).await?;
     let extension = validate_file_metadata(&file)?;
-    let (final_path, cache_dir) =
-        cache_path(profile, &artifact_digest, &file.sha256, &extension)?;
+    let (final_path, cache_dir) = cache_path(profile, &artifact_digest, &file.sha256, &extension)?;
 
     match fs::symlink_metadata(&final_path) {
         Ok(_) => {
@@ -219,9 +208,9 @@ impl PathOpener for SystemOpener {
 }
 
 fn open_verified<O: PathOpener>(opener: &O, path: &Path) -> Result<(), HostError> {
-    opener.open(path).map_err(|_| {
-        HostError::capability_unavailable(HostNextAction::UseHttpArtifactLink, None)
-    })
+    opener
+        .open(path)
+        .map_err(|_| HostError::capability_unavailable(HostNextAction::UseHttpArtifactLink, None))
 }
 
 fn validate_origin(origin: &Url) -> Result<(), HostError> {
@@ -303,8 +292,7 @@ fn validate_file_metadata(file: &ArtifactFile) -> Result<String, HostError> {
 }
 
 fn validate_artifact_name(name: &str) -> Result<String, HostError> {
-    if name.is_empty() || name.len() > MAX_FILE_NAME_BYTES || name.chars().any(char::is_control)
-    {
+    if name.is_empty() || name.len() > MAX_FILE_NAME_BYTES || name.chars().any(char::is_control) {
         return Err(bridge());
     }
     if name.starts_with('/') || name.contains('\\') || name.contains(':') {
@@ -316,9 +304,7 @@ fn validate_artifact_name(name: &str) -> Result<String, HostError> {
         }
     }
     let leaf = name.rsplit('/').next().unwrap_or("");
-    let (_, extension) = leaf
-        .rsplit_once('.')
-        .ok_or_else(unsupported_extension)?;
+    let (_, extension) = leaf.rsplit_once('.').ok_or_else(unsupported_extension)?;
     if extension.is_empty() || extension.len() > 16 {
         return Err(unsupported_extension());
     }
@@ -344,12 +330,7 @@ fn artifacts_url(origin: &Url, run_id: &str, after: &str) -> Result<Url, HostErr
     Ok(url)
 }
 
-fn files_url(
-    origin: &Url,
-    run_id: &str,
-    artifact_id: &str,
-    after: &str,
-) -> Result<Url, HostError> {
+fn files_url(origin: &Url, run_id: &str, artifact_id: &str, after: &str) -> Result<Url, HostError> {
     let mut url = origin
         .join(&format!(
             "/api/v1/plans/{run_id}/artifacts/{artifact_id}/files"
@@ -557,9 +538,7 @@ fn verify_cached(path: &Path, expected: &ArtifactFile) -> Result<(), HostError> 
         if read == 0 {
             break;
         }
-        total = total
-            .checked_add(read as u64)
-            .ok_or_else(bridge)?;
+        total = total.checked_add(read as u64).ok_or_else(bridge)?;
         if total > expected.size_bytes {
             return Err(bridge());
         }
@@ -605,10 +584,7 @@ async fn download_verified<T: ArtifactTransport>(
     let mut written = 0u64;
     let mut empty_chunks = 0u32;
     loop {
-        let chunk = download
-            .next_chunk()
-            .await
-            .map_err(map_transport)?;
+        let chunk = download.next_chunk().await.map_err(map_transport)?;
         let Some(chunk) = chunk else {
             break;
         };
@@ -622,9 +598,7 @@ async fn download_verified<T: ArtifactTransport>(
         if chunk.len() > MAX_CHUNK_BYTES {
             return Err(bridge());
         }
-        written = written
-            .checked_add(chunk.len() as u64)
-            .ok_or_else(bridge)?;
+        written = written.checked_add(chunk.len() as u64).ok_or_else(bridge)?;
         if written > expected.size_bytes {
             return Err(bridge());
         }
@@ -643,10 +617,7 @@ fn create_temp(cache_dir: &Path) -> Result<(TempGuard, File), HostError> {
     static COUNTER: AtomicU64 = AtomicU64::new(0);
     for _ in 0..16 {
         let sequence = COUNTER.fetch_add(1, Ordering::Relaxed);
-        let path = cache_dir.join(format!(
-            ".operon-{}-{sequence}.tmp",
-            std::process::id()
-        ));
+        let path = cache_dir.join(format!(".operon-{}-{sequence}.tmp", std::process::id()));
         let mut options = OpenOptions::new();
         options.write(true).create_new(true);
         #[cfg(unix)]
@@ -784,7 +755,7 @@ fn hex_lower(bytes: &[u8]) -> String {
 // ---- HTTP transport -------------------------------------------------------
 
 /// `reqwest` transport with redirects disabled, proxies disabled and finite
-/// timeouts. The bearer token is sent only to the validated service origin.
+/// timeouts. The studio token is sent only to the validated service origin.
 pub struct ReqwestArtifactTransport {
     client: reqwest::Client,
 }
@@ -805,7 +776,7 @@ impl ReqwestArtifactTransport {
         let response = self
             .client
             .get(url)
-            .bearer_auth(token)
+            .header("x-studio-token", token)
             .header(reqwest::header::ACCEPT_ENCODING, "identity")
             .send()
             .await
@@ -853,11 +824,7 @@ impl ReqwestArtifactTransport {
 impl ArtifactTransport for ReqwestArtifactTransport {
     type Download = ReqwestDownload;
 
-    async fn artifacts_page(
-        &self,
-        url: Url,
-        token: &str,
-    ) -> Result<ArtifactsPage, TransportError> {
+    async fn artifacts_page(&self, url: Url, token: &str) -> Result<ArtifactsPage, TransportError> {
         let raw: RawArtifactsPage = self.get_json(url, token).await?;
         Ok(ArtifactsPage {
             artifacts: raw
@@ -893,11 +860,7 @@ impl ArtifactTransport for ReqwestArtifactTransport {
         })
     }
 
-    async fn open_download(
-        &self,
-        url: Url,
-        token: &str,
-    ) -> Result<Self::Download, TransportError> {
+    async fn open_download(&self, url: Url, token: &str) -> Result<Self::Download, TransportError> {
         Ok(ReqwestDownload {
             response: self.send(url, token).await?,
         })
@@ -1471,10 +1434,7 @@ mod tests {
             crate::error::HostErrorCode::HostCapabilityUnavailable
         );
         assert_eq!(error.next_actions().len(), 1);
-        assert_eq!(
-            error.next_actions()[0],
-            HostNextAction::UseHttpArtifactLink
-        );
+        assert_eq!(error.next_actions()[0], HostNextAction::UseHttpArtifactLink);
         assert!(opener.opened.lock().unwrap().is_empty());
         assert_eq!(transport.downloads(), 0);
     }

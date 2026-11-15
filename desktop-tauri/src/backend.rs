@@ -124,7 +124,7 @@ impl Backend {
         #[cfg(windows)]
         {
             const CREATE_NO_WINDOW: u32 = 0x0800_0000;
-            command.creation_flags(CREATE_NO_WINDOW);
+            command.creation_flags(CREATE_NO_WINDOW | 0x0000_0004); // CREATE_SUSPENDED
         }
 
         let mut child = command.spawn().map_err(|error| {
@@ -136,24 +136,21 @@ impl Backend {
             HostError::bridge_unavailable()
         })?;
 
-        if let Err(error) = job.assign(&child) {
+        if let Err(error) = job.assign(&child).and_then(|()| job.resume_child(&child)) {
             diagnostics.host("cannot attach the child to the owned job");
             cleanup_owned(&mut child, &job, None, None, &diagnostics).await;
             return Err(error);
         }
 
-        let (mut stdin, stdout, stderr) = match (
-            child.stdin.take(),
-            child.stdout.take(),
-            child.stderr.take(),
-        ) {
-            (Some(stdin), Some(stdout), Some(stderr)) => (stdin, stdout, stderr),
-            _ => {
-                diagnostics.host("child pipes are unavailable");
-                cleanup_owned(&mut child, &job, None, None, &diagnostics).await;
-                return Err(HostError::bridge_unavailable());
-            }
-        };
+        let (mut stdin, stdout, stderr) =
+            match (child.stdin.take(), child.stdout.take(), child.stderr.take()) {
+                (Some(stdin), Some(stdout), Some(stderr)) => (stdin, stdout, stderr),
+                _ => {
+                    diagnostics.host("child pipes are unavailable");
+                    cleanup_owned(&mut child, &job, None, None, &diagnostics).await;
+                    return Err(HostError::bridge_unavailable());
+                }
+            };
 
         let (startup_tx, mut startup_rx) = mpsc::channel(8);
         let stdout_task = tokio::spawn(read_stdout(stdout, startup_tx, Arc::clone(&diagnostics)));
@@ -181,6 +178,7 @@ impl Backend {
             &client,
             &diagnostics,
             pid,
+            &job,
         )
         .await
         {
@@ -250,6 +248,14 @@ impl Backend {
         self.exit_status
     }
 
+    /// Used only for an explicit failed-exit path. This does not turn a
+    /// nonzero exit into success; it proves that it is safe to release ownership.
+    pub fn failed_tree_stopped(&mut self) -> Result<bool, HostError> {
+        self.try_exited()?;
+        Ok(self.exit_status.is_some_and(|status| !status.success())
+            && self._job.active_processes()? == 0)
+    }
+
     /// Non-blocking check for parent-process exit.
     ///
     /// `true` means the parent has exited; it does not mean the whole owned job
@@ -285,6 +291,7 @@ impl Backend {
         if let Some(error) = &self.exit_failure {
             return Err(error.clone());
         }
+        let deadline = Instant::now() + timeout;
 
         // A parent that already exited must not be sent another handshake.
         if self.exit_status.is_none() {
@@ -304,7 +311,6 @@ impl Backend {
             drop(self.stdin.take());
         }
 
-        let deadline = Instant::now() + timeout;
         loop {
             if self.exit_status.is_none() {
                 match self.child.try_wait() {
@@ -328,7 +334,7 @@ impl Backend {
                 let active = self._job.active_processes()?;
                 if active == 0 {
                     self.shutdown_succeeded = true;
-                    self.finish_logging().await;
+                    self.finish_logging(deadline).await;
                     return Ok(());
                 }
             }
@@ -357,13 +363,14 @@ impl Backend {
         }
     }
 
-    async fn finish_logging(&mut self) {
+    async fn finish_logging(&mut self, deadline: Instant) {
         for task in [self.stdout_task.take(), self.stderr_task.take()]
             .into_iter()
             .flatten()
         {
             let abort = task.abort_handle();
-            if tokio::time::timeout(Duration::from_secs(2), task)
+            let remaining = deadline.saturating_duration_since(Instant::now());
+            if tokio::time::timeout(remaining.min(Duration::from_secs(2)), task)
                 .await
                 .is_err()
             {
@@ -447,6 +454,7 @@ async fn wait_for_startup(
     client: &reqwest::Client,
     diagnostics: &Diagnostics,
     expected_pid: u32,
+    job: &JobObject,
 ) -> Result<StartupProof, HostError> {
     let ready = loop {
         if child
@@ -489,8 +497,8 @@ async fn wait_for_startup(
         diagnostics.host("readiness URL is not the expected loopback origin");
         HostError::bridge_unavailable()
     })?;
-    if ready.pid != expected_pid {
-        diagnostics.host("readiness pid does not match the retained child pid");
+    if ready.pid != expected_pid && !job.contains_pid(ready.pid)? {
+        diagnostics.host("readiness pid is not a member of the owned job");
         return Err(HostError::bridge_unavailable());
     }
 
@@ -509,7 +517,7 @@ async fn wait_for_startup(
             diagnostics.host("owned child exited before publishing its instance receipt");
             return Err(HostError::bridge_unavailable());
         }
-        if let Some(receipt) = match scan_receipts(&receipt_directory, expected_pid, &origin) {
+        if let Some(receipt) = match scan_receipts(&receipt_directory, ready.pid, &origin) {
             Ok(receipt) => receipt,
             Err(error) => {
                 diagnostics.host("cannot read the owned profile instance receipts");
@@ -610,9 +618,8 @@ fn verify_storage(config: &HostConfig, storage: &StorageResponse) -> Result<(), 
         fs::canonicalize(&config.profile).map_err(|_| HostError::bridge_unavailable())?;
     let expected_workspace = fs::canonicalize(config.profile.join("workspace"))
         .map_err(|_| HostError::bridge_unavailable())?;
-    let expected_data =
-        fs::canonicalize(config.profile.join("workspace").join(".studio"))
-            .map_err(|_| HostError::bridge_unavailable())?;
+    let expected_data = fs::canonicalize(config.profile.join("workspace").join(".studio"))
+        .map_err(|_| HostError::bridge_unavailable())?;
 
     let reported_profile = storage
         .profile_dir
@@ -719,7 +726,9 @@ fn valid_receipt_secret(value: &str) -> bool {
     !value.is_empty()
         && value.len() <= MAX_RECEIPT_SECRET_BYTES
         && value.is_ascii()
-        && !value.chars().any(char::is_control)
+        && value
+            .bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(byte, b'-' | b'_'))
 }
 
 fn valid_token(value: &str) -> bool {
@@ -755,7 +764,10 @@ async fn get_limited(
     if let Some(secret) = secret {
         request = request.header("x-operon-bridge", secret);
     }
-    let mut response = request.send().await.map_err(|_| HostError::bridge_unavailable())?;
+    let mut response = request
+        .send()
+        .await
+        .map_err(|_| HostError::bridge_unavailable())?;
     if !response.status().is_success() {
         return Err(HostError::bridge_unavailable());
     }
@@ -818,6 +830,8 @@ fn configure_environment(command: &mut Command, config: &HostConfig) {
             command.env("WINDIR", &system_root);
         }
         for variable in [
+            "USERNAME",
+            "USERDOMAIN",
             "USERPROFILE",
             "APPDATA",
             "LOCALAPPDATA",
@@ -1041,7 +1055,9 @@ mod tests {
         assert!(valid_receipt_secret("abc_DEF-123"));
         assert!(!valid_receipt_secret(""));
         assert!(!valid_receipt_secret("with space"));
-        assert!(!valid_receipt_secret(&"x".repeat(MAX_RECEIPT_SECRET_BYTES + 1)));
+        assert!(!valid_receipt_secret(
+            &"x".repeat(MAX_RECEIPT_SECRET_BYTES + 1)
+        ));
     }
 
     #[test]
@@ -1053,9 +1069,15 @@ mod tests {
             br#"{"protocol_version":1,"instance_id":"abc","url":"http://127.0.0.1:45000","pid":7,"created":1.0,"secret":"s","headless":false,"api_version":1}"#,
         )
         .unwrap();
-        assert!(scan_receipts(directory.path(), 7, &origin).unwrap().is_some());
-        assert!(scan_receipts(directory.path(), 8, &origin).unwrap().is_none());
+        assert!(scan_receipts(directory.path(), 7, &origin)
+            .unwrap()
+            .is_some());
+        assert!(scan_receipts(directory.path(), 8, &origin)
+            .unwrap()
+            .is_none());
         let other = validate_loopback_origin("http://127.0.0.1:45001/").unwrap();
-        assert!(scan_receipts(directory.path(), 7, &other).unwrap().is_none());
+        assert!(scan_receipts(directory.path(), 7, &other)
+            .unwrap()
+            .is_none());
     }
 }

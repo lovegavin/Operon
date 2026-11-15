@@ -305,3 +305,11 @@ Python. No test result is claimed by this handoff.
   `Recovery`, and diagnostics open action.
 - The real `/api/bootstrap` catalog can be large; the 32 MiB cap is deliberate.
   If the product catalog grows past it, only that cap needs review.
+
+## Integrated review supersedes this handoff
+
+The root integration on experimental/tauri-shell corrected Windows venv process
+ownership, exit/tree-drain proof, environment whitelisting and studio HTTP
+credentials, and compiled/tested the combined implementation. This document
+records the original contractor handoff, not final acceptance. Use
+`tauri_native_acceptance.md` and the integrated branch for subsequent work.

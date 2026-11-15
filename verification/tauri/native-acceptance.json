@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-16",
+  "branch": "experimental/tauri-shell",
+  "production_head": "0600b2bba146240495882b0a5275297b942c5b80",
+  "rust": "1.100.0",
+  "tauri": "2.12.5",
+  "tauri_build": "2.7.4",
+  "python": "3.12.14",
+  "rust_tests": {
+    "keyring_opt_in": true,
+    "http": 1,
+    "process": 12,
+    "python_process_opt_in": true,
+    "failed": 0,
+    "unit": 81
+  },
+  "frontend_tests": {
+    "passed": 73,
+    "failed": 0,
+    "files": 11
+  },
+  "native_build": "passed",
+  "frontend_build": "passed",
+  "smokes": [
+    {
+      "pid": 63744,
+      "exit_code": 0,
+      "drain_seconds": 0.321,
+      "stopped": true,
+      "label": "first",
+      "events": [
+        "ready",
+        "draft_saved",
+        "exit"
+      ],
+      "total_seconds": 15.2195108
+    },
+    {
+      "pid": 65424,
+      "exit_code": 0,
+      "drain_seconds": 0.412,
+      "stopped": true,
+      "label": "reopen",
+      "events": [
+        "ready",
+        "draft_saved",
+        "exit"
+      ],
+      "total_seconds": 9.5790246
+    }
+  ],
+  "global_runtime_configurations_unchanged": true,
+  "protected_product_diff": "empty",
+  "native_executable_sha256": "215c91441a0f7c22317fedcb7023ae42749319dc95168757b1367386c111c9e9",
+  "manual_interaction": "blocked: foreground fullscreen application; captured test window could not be activated",
+  "native_workbench_accessibility": "observed",
+  "remaining": [
+    "menu/tray and picker interaction",
+    "OS viewer interaction",
+    "native Agent six-stage and canvas/export parity",
+    "installer and second-machine acceptance"
+  ],
+  "published": false
+}

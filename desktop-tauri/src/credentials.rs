@@ -43,13 +43,8 @@ pub enum CredentialStoreError {
 
 /// Injectable keyring boundary for tests and future platform adapters.
 pub trait CredentialStore: Send + Sync {
-    fn get(
-        &self,
-        service: &str,
-        account: &str,
-    ) -> Result<Option<String>, CredentialStoreError>;
-    fn set(&self, service: &str, account: &str, value: &str)
-        -> Result<(), CredentialStoreError>;
+    fn get(&self, service: &str, account: &str) -> Result<Option<String>, CredentialStoreError>;
+    fn set(&self, service: &str, account: &str, value: &str) -> Result<(), CredentialStoreError>;
     fn delete(&self, service: &str, account: &str) -> Result<(), CredentialStoreError>;
 }
 
@@ -116,10 +111,7 @@ pub fn delete_native_credential_with(
         .map_err(|_| store_unavailable())
 }
 
-fn scope<'a>(
-    installation_id: &str,
-    account: &'a str,
-) -> Result<(String, &'a str), HostError> {
+fn scope<'a>(installation_id: &str, account: &'a str) -> Result<(String, &'a str), HostError> {
     if !valid_installation_id(installation_id) || !valid_account(account) {
         return Err(HostError::request_stale(None));
     }
@@ -154,11 +146,7 @@ fn store_unavailable() -> HostError {
 struct KeyringStore;
 
 impl CredentialStore for KeyringStore {
-    fn get(
-        &self,
-        service: &str,
-        account: &str,
-    ) -> Result<Option<String>, CredentialStoreError> {
+    fn get(&self, service: &str, account: &str) -> Result<Option<String>, CredentialStoreError> {
         match entry(service, account)?.get_password() {
             Ok(value) => Ok(Some(value)),
             Err(KeyringError::NoEntry) => Ok(None),
@@ -166,12 +154,7 @@ impl CredentialStore for KeyringStore {
         }
     }
 
-    fn set(
-        &self,
-        service: &str,
-        account: &str,
-        value: &str,
-    ) -> Result<(), CredentialStoreError> {
+    fn set(&self, service: &str, account: &str, value: &str) -> Result<(), CredentialStoreError> {
         entry(service, account)?
             .set_password(value)
             .map_err(|_| CredentialStoreError::Unavailable)
@@ -221,10 +204,10 @@ mod tests {
             account: &str,
             value: &str,
         ) -> Result<(), CredentialStoreError> {
-            self.values.lock().unwrap().insert(
-                (service.to_owned(), account.to_owned()),
-                value.to_owned(),
-            );
+            self.values
+                .lock()
+                .unwrap()
+                .insert((service.to_owned(), account.to_owned()), value.to_owned());
             Ok(())
         }
 
@@ -306,23 +289,24 @@ mod tests {
     #[test]
     fn rejects_invalid_identifiers() {
         let store = MemoryStore::default();
-        for installation in ["", " leading", "trailing ", "bad/scope", "bad\\scope", "bad\nscope"] {
+        for installation in [
+            "",
+            " leading",
+            "trailing ",
+            "bad/scope",
+            "bad\\scope",
+            "bad\nscope",
+        ] {
             let error = get_native_credential_with(&store, installation, "account")
                 .err()
                 .expect("invalid installation must fail");
-            assert_eq!(
-                error.code(),
-                crate::error::HostErrorCode::HostRequestStale
-            );
+            assert_eq!(error.code(), crate::error::HostErrorCode::HostRequestStale);
         }
         for account in ["", ".", "..", "bad/account", "bad account", "bad\naccount"] {
             let error = get_native_credential_with(&store, "installation", account)
                 .err()
                 .expect("invalid account must fail");
-            assert_eq!(
-                error.code(),
-                crate::error::HostErrorCode::HostRequestStale
-            );
+            assert_eq!(error.code(), crate::error::HostErrorCode::HostRequestStale);
         }
     }
 
@@ -331,9 +315,7 @@ mod tests {
         let store = MemoryStore::default();
         assert!(set_native_credential_with(&store, "installation", "account", "").is_err());
         let oversize = "x".repeat(MAX_SECRET_BYTES + 1);
-        assert!(
-            set_native_credential_with(&store, "installation", "account", &oversize).is_err()
-        );
+        assert!(set_native_credential_with(&store, "installation", "account", &oversize).is_err());
         assert!(store.values.lock().unwrap().is_empty());
     }
 
@@ -403,6 +385,8 @@ mod tests {
             .expect("opt-in keyring entry");
         assert_eq!(value.expose(), "opt-in-test-value");
         delete_native_credential(&installation, &account).unwrap();
-        assert!(get_native_credential(&installation, &account).unwrap().is_none());
+        assert!(get_native_credential(&installation, &account)
+            .unwrap()
+            .is_none());
     }
 }

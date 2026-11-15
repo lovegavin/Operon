@@ -125,3 +125,11 @@ modules, then run the focused tests.
 No shell/`Command` invocation in product code, no ACL changes, no commits, no
 dependency manifests, no library/Python/sharedtypes/frontend changes, and no
 native path returned from the public artifact API.
+
+## Integrated review supersedes this handoff
+
+The root integration on experimental/tauri-shell corrected Windows venv process
+ownership, exit/tree-drain proof, environment whitelisting and studio HTTP
+credentials, and compiled/tested the combined implementation. This document
+records the original contractor handoff, not final acceptance. Use
+`tauri_native_acceptance.md` and the integrated branch for subsequent work.

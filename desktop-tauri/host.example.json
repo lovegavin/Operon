@@ -1,0 +1,7 @@
+{
+  "installation_id": "operon-tauri-development",
+  "backend_root": "..",
+  "python": "../.venv/Scripts/python.exe",
+  "frontend": "../frontend/dist",
+  "profile": ".local-profile"
+}

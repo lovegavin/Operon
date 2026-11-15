@@ -46,8 +46,8 @@ pub fn allow_owned_navigation(target: &Url, origin: &Url) -> bool {
 
 /// True only for HTTPS GitHub URLs in the project repository.
 ///
-/// An explicit port is rejected even when it is the HTTPS default. This avoids
-/// credential/port confusion in the OS-browser handoff. Sub-paths and fragments
+/// Non-default ports are rejected. The URL parser canonicalizes an explicit
+/// HTTPS port 443 to the same origin. Sub-paths and fragments
 /// (document anchors) are allowed; query strings are not.
 pub fn is_documentation_url(url: &Url) -> bool {
     if url.scheme() != "https" || has_userinfo(url) || url.port().is_some() {
@@ -91,6 +91,64 @@ pub fn open_documentation_with<O: DocumentationOpener>(
     opener
         .open(url)
         .map_err(|_| HostError::capability_unavailable(HostNextAction::OpenHostLogs, None))
+}
+
+/// Older figure links remain viewable in the OS browser without giving result
+/// documents the main webview's IPC capabilities. No general URL opener.
+pub fn allow_owned_figure(url: &Url, origin: &Url) -> bool {
+    if !is_http_url(origin)
+        || url.origin() != origin.origin()
+        || has_userinfo(url)
+        || url.fragment().is_some()
+    {
+        return false;
+    }
+    let parts: Vec<_> = url.path().trim_start_matches('/').split('/').collect();
+    if parts.len() != 6
+        || parts[0] != "api"
+        || parts[1] != "jobs"
+        || parts[3] != "exports"
+        || parts[5] != "figure"
+    {
+        return false;
+    }
+    if parts[2].is_empty()
+        || !parts[2]
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_' | b'.'))
+        || parts[4].parse::<u32>().is_err()
+    {
+        return false;
+    }
+    let mut format = false;
+    let mut figure_id = false;
+    for (key, value) in url.query_pairs() {
+        match key.as_ref() {
+            "format"
+                if !format
+                    && ["png", "pdf", "svg", "jpg", "jpeg", "webp", "tif", "tiff"]
+                        .contains(&value.as_ref()) =>
+            {
+                format = true
+            }
+            "figure_id"
+                if !figure_id && value.len() <= 256 && !value.chars().any(char::is_control) =>
+            {
+                figure_id = true
+            }
+            _ => return false,
+        }
+    }
+    format
+}
+
+pub fn open_owned_figure(url: &Url, origin: &Url) -> Result<(), HostError> {
+    if !allow_owned_figure(url, origin) {
+        return Err(HostError::unsupported(None));
+    }
+    SystemDocumentationOpener
+        .open(url)
+        .map_err(|_| HostError::bridge_unavailable())
 }
 
 fn is_http_url(url: &Url) -> bool {
@@ -255,18 +313,23 @@ mod tests {
 
     #[test]
     fn documentation_allowlist_is_exact_repository() {
+        assert!(is_documentation_url(&url(
+            "https://github.com:443/lovegavin/Operon"
+        )));
         for accepted in [
             "https://github.com/lovegavin/Operon",
             "https://github.com/lovegavin/Operon/",
             "https://github.com/lovegavin/Operon/blob/main/docs/README.md",
             "https://github.com/lovegavin/Operon/blob/main/docs/README.md#install",
         ] {
-            assert!(is_documentation_url(&url(accepted)), "must accept {accepted}");
+            assert!(
+                is_documentation_url(&url(accepted)),
+                "must accept {accepted}"
+            );
         }
 
         for rejected in [
             "http://github.com/lovegavin/Operon",
-            "https://github.com:443/lovegavin/Operon",
             "https://github.com:8443/lovegavin/Operon",
             "https://user@github.com/lovegavin/Operon",
             "https://user:pass@github.com/lovegavin/Operon",
@@ -282,6 +345,26 @@ mod tests {
                 !is_documentation_url(&url(rejected)),
                 "must reject {rejected}"
             );
+        }
+    }
+
+    #[test]
+    fn legacy_figures_are_limited_to_owned_read_only_routes() {
+        let origin = url("http://127.0.0.1:43210/");
+        assert!(allow_owned_figure(
+            &url("http://127.0.0.1:43210/api/jobs/job-1/exports/0/figure?format=pdf&figure_id=one"),
+            &origin
+        ));
+        for target in [
+            "http://127.0.0.1:43211/api/jobs/job-1/exports/0/figure?format=pdf",
+            "http://127.0.0.1:43210/api/jobs/job-1/exports/0/figure?format=html",
+            "http://127.0.0.1:43210/api/jobs/job-1/exports/0/figure?format=pdf&token=secret",
+            "http://127.0.0.1:43210/api/jobs/job-1/exports/0/figure?format=pdf&format=svg",
+            "http://127.0.0.1:43210/api/jobs/job-1/exports/0/figure?format=pdf#fragment",
+            "http://127.0.0.1:43210/api/files?path=C:/Windows",
+            "file:///C:/Windows/system32/cmd.exe",
+        ] {
+            assert!(!allow_owned_figure(&url(target), &origin), "{target}");
         }
     }
 

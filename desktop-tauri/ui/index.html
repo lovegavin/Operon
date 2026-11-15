@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Operon Studio Experimental</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --surface: #f6f7f9;
+        --panel: #ffffff;
+        --ink: #17202a;
+        --muted: #4b5b6b;
+        --line: #c9d2dc;
+        --accent: #146c94;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --surface: #111820;
+          --panel: #18222c;
+          --ink: #edf3f8;
+          --muted: #aebdca;
+          --line: #33424f;
+          --accent: #6ec6e8;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: var(--surface);
+        color: var(--ink);
+        font: 15px/1.55 "Segoe UI", system-ui, sans-serif;
+      }
+
+      main {
+        width: min(680px, 100%);
+        padding: 28px 30px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+      }
+
+      h1 {
+        margin: 0 0 4px;
+        font-size: 22px;
+        line-height: 1.25;
+      }
+
+      .eyebrow {
+        margin: 0 0 20px;
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h2 {
+        margin: 24px 0 8px;
+        font-size: 15px;
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      #status {
+        font-weight: 600;
+      }
+
+      #detail,
+      #logs {
+        color: var(--muted);
+      }
+
+      code {
+        padding: 1px 4px;
+        border-radius: 4px;
+        background: color-mix(in srgb, var(--line) 35%, transparent);
+        font: 13px/1.4 "Cascadia Mono", Consolas, monospace;
+      }
+
+      .rule {
+        height: 1px;
+        margin: 24px 0;
+        background: var(--line);
+      }
+
+      ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+        color: var(--muted);
+      }
+
+      li + li {
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">Experimental native host</p>
+      <h1>Operon Studio Experimental</h1>
+      <p id="status">Starting the owned backend and waiting for authenticated readiness.</p>
+      <p id="detail">
+        The main Operon window opens only after the owned backend reports its
+        exact loopback origin. This local diagnostics window has no host
+        capability and cannot invoke desktop commands.
+      </p>
+
+      <div class="rule"></div>
+
+      <h2>What happens next</h2>
+      <ul>
+        <li>The owned backend is started asynchronously; the native shell does not block the UI thread.</li>
+        <li>On readiness, the main window loads the owned root URL and the bridge installs one runtime capability for that exact origin and window.</li>
+        <li>On failure, this window remains visible with the diagnostic message and log location. The backend is not restarted automatically.</li>
+      </ul>
+
+      <h2>Exit</h2>
+      <p>
+        Use <strong>Quit Operon</strong> from the native menu or the tray menu.
+        Closing this window also requests a full exit. The host never silently
+        cancels running scientific jobs; a pending-job confirmation is shown
+        when the main UI is ready.
+      </p>
+
+      <h2>Logs</h2>
+      <p id="logs">
+        Logs are written under the configured experimental profile's
+        <code>logs</code> directory. The native menu's <strong>Open Logs</strong>
+        item and the main UI's diagnostics action open only that fixed directory.
+      </p>
+    </main>
+  </body>
+</html>

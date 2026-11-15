@@ -4,6 +4,8 @@ import {ApiError, downloadBlob} from './api';
 import {t} from './i18n';
 import {planApi} from './planApi';
 import {observePlan, terminalPlan} from './planState';
+import {createDesktopHost} from './host';
+import {openNativeArtifact} from './host/artifacts';
 import type {PlanArtifact, PlanAttempt, PlanEvent, PlanFile, PlanFilePreview, PlanPage, PlanReceipt} from './planTypes';
 
 export function PlanRunResults({runId}: {runId: string}) {
@@ -109,6 +111,14 @@ function ArtifactFiles({runId, artifact}: {runId: string; artifact: PlanArtifact
     {page?.files.map(file => <div className="plan-file" key={file.file_id}><span title={file.name}>{file.name}</span><small>{file.size_bytes.toLocaleString()} B</small>
       <button className="text-button" disabled={busy} onClick={() => void act(async () => setPreview({name: file.name, value: await planApi.preview(runId, artifact.artifact_id, file.file_id, controller.current.signal)}))}>{t('预览')}</button>
       <button className="text-button" disabled={busy} onClick={() => {
+        const host = createDesktopHost();
+        if (host.kind === 'tauri') {
+          void act(() => openNativeArtifact(host, {run: runId, artifact: artifact.artifact_id, file: file.file_id}, async () => {
+            const blob = await planApi.open(runId, artifact.artifact_id, file.file_id, controller.current.signal);
+            if (!controller.current.signal.aborted) downloadBlob(file.name.split('/').pop() || file.name, blob);
+          }));
+          return;
+        }
         const inline = ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'application/pdf'].includes(file.media_type);
         const opened = inline ? window.open('about:blank', '_blank') : null;
         if (opened) opened.opener = null;

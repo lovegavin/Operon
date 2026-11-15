@@ -146,7 +146,10 @@ mod tests {
             Ok(_) => panic!("second instance unexpectedly acquired the profile"),
             Err(error) => error,
         };
-        assert_eq!(error.code(), crate::error::HostErrorCode::HostCapabilityUnavailable);
+        assert_eq!(
+            error.code(),
+            crate::error::HostErrorCode::HostCapabilityUnavailable
+        );
         assert_eq!(
             error.next_actions(),
             [HostNextAction::UseTrayMenuExit].as_slice()
@@ -183,6 +186,10 @@ mod tests {
         let root = tempdir().unwrap();
         let profile = root.path().join("profile");
         let _guard = InstanceGuard::acquire(&profile, "installation-a").unwrap();
+        // Windows mandatory byte-range locks also exclude a second read handle.
+        // Validate the durable record after releasing ownership; other tests
+        // separately prove exclusion while the guard is retained.
+        drop(_guard);
         let record: LockRecord =
             serde_json::from_slice(&fs::read(profile.join(INSTANCE_LOCK_FILE)).unwrap()).unwrap();
         assert_eq!(record.schema_version, LOCK_SCHEMA_VERSION);

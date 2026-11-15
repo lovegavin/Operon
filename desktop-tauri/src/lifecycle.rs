@@ -153,9 +153,9 @@ impl Lifecycle {
                 HostNextAction::Retry,
                 None,
             )),
-            LifecycleState::Starting
-            | LifecycleState::BackendFailed
-            | LifecycleState::Closed => Err(HostError::request_stale(None)),
+            LifecycleState::Starting | LifecycleState::BackendFailed | LifecycleState::Closed => {
+                Err(HostError::request_stale(None))
+            }
         }
     }
 
@@ -166,7 +166,10 @@ impl Lifecycle {
         request_id: &str,
         saved: bool,
     ) -> Result<FlushOutcome, HostError> {
-        let LifecycleState::Flushing { request_id: current } = &self.state else {
+        let LifecycleState::Flushing {
+            request_id: current,
+        } = &self.state
+        else {
             return Err(HostError::request_stale(Some(request_id.to_owned())));
         };
         if current.as_str() != request_id {
@@ -230,9 +233,7 @@ impl Lifecycle {
     /// `Closed` for a drain/recovery flow; a timeout alone cannot reach it.
     pub fn backend_stopped(&mut self) -> Result<(), HostError> {
         match self.state {
-            LifecycleState::Draining
-            | LifecycleState::Recovery
-            | LifecycleState::BackendFailed => {
+            LifecycleState::Draining | LifecycleState::Recovery | LifecycleState::BackendFailed => {
                 self.state = LifecycleState::Closed;
                 self.last_request_id = None;
                 Ok(())
@@ -321,7 +322,9 @@ mod tests {
     fn draft_timeout_restores_visible_with_failure() {
         let mut lifecycle = ready();
         let request = lifecycle.begin_close().unwrap();
-        lifecycle.draft_flush_timed_out(&request.request_id).unwrap();
+        lifecycle
+            .draft_flush_timed_out(&request.request_id)
+            .unwrap();
         assert_eq!(lifecycle.state(), &LifecycleState::ReadyVisible);
         assert_eq!(lifecycle.failure(), Some(CloseFailure::DraftTimeout));
     }

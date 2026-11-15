@@ -57,10 +57,7 @@ mod tests {
     #[test]
     fn real_selection_is_returned_unchanged() {
         let selected = PathBuf::from(r"C:\data\results\plot.png");
-        assert_eq!(
-            normalize_selection(Some(selected.clone())),
-            Some(selected)
-        );
+        assert_eq!(normalize_selection(Some(selected.clone())), Some(selected));
     }
 
     #[test]

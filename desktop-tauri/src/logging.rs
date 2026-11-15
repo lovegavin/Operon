@@ -56,10 +56,7 @@ impl Diagnostics {
     pub fn open(logs_dir: &Path) -> io::Result<Self> {
         fs::create_dir_all(logs_dir)?;
         let path = logs_dir.join(LOG_FILE);
-        let file = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&path)?;
+        let file = OpenOptions::new().create(true).append(true).open(&path)?;
         let size = file.metadata()?.len();
         Ok(Self {
             directory: logs_dir.to_path_buf(),
@@ -238,7 +235,9 @@ mod tests {
             diagnostics.host(&line);
         }
         let current = fs::metadata(directory.path().join(LOG_FILE)).unwrap().len();
-        let rotated = fs::metadata(directory.path().join(ROTATED_FILE)).unwrap().len();
+        let rotated = fs::metadata(directory.path().join(ROTATED_FILE))
+            .unwrap()
+            .len();
         assert!(current <= MAX_LOG_BYTES);
         assert!(rotated <= MAX_LOG_BYTES);
     }
