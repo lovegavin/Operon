@@ -85,7 +85,7 @@
   "依赖检测完成，部分算子需要处理。": "Dependency checks finished. Some operators need attention.",
   "保存": "Save",
   "保存中…": "Saving…",
-  "保存位置": "Save location",
+  "保存位置": "Saved to",
   "保存路线": "Save workflow",
   "保存路线与接口": "Save workflow and interface",
   "保存路线与注册接口 Ctrl+S": "Save workflow and interface Ctrl+S",
@@ -543,7 +543,7 @@
   "运行日志": "Run logs",
   "运行时确认": "Confirmed at runtime",
   "运行环境": "Environment",
-  "运行环境设置": "Environment settings",
+  "运行环境设置": "Execution environment settings",
   "运行环境：": "Environment:",
   "运行目录": "Run directory",
   "运行结果与日志": "Results and logs",
@@ -898,5 +898,14 @@
   "取消构建": "Cancel build",
   "从此列表归档": "Archive from this list",
   "服务拒绝了这次提交。原请求保留，重试仍使用同一标识。": "The service rejected this submission. Its original request is retained and retries use the same ID.",
-  "使用原标识重试导出": "Retry export with original ID"
+  "使用原标识重试导出": "Retry export with original ID",
+  "运行路线": "Run workflow",
+  "导出独立运行包": "Export standalone bundle",
+  "路线运行与导出记录": "Workflow runs and exports",
+  "正在自动准备": "Preparing automatically",
+  "输出目录（留空自动创建）": "Output folder (automatic if empty)",
+  "正在提交": "Submitting",
+  "用原标识确认运行": "Confirm original run request",
+  "取消准备": "Cancel preparation",
+  "用原标识确认提交结果": "Check original submission"
 }

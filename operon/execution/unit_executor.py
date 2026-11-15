@@ -16,7 +16,7 @@ from operon.engine.supervisor import LaunchSpec
 from operon.engine.fs import atomic_json
 from operon.environment_store.verification import confined
 from operon.environment_store.builders import isolated_environment
-from operon.bytecode import io_path
+from operon.bytecode import io_path, executable_path
 from .invocation import InvocationContext, ExitReceipt, PreparedInvocation
 from .adapters.command import CommandInvocationAdapter
 from .adapters.native import NativeInvocationAdapter
@@ -105,7 +105,12 @@ class RunPlanExecutor(ProcessExecutor):
         from operon.contracts.storage import StorageInputRef, storage_input_path
         encoded_refs = {storage_input_path(StorageInputRef.model_validate(item))
                         for item in plan.execution_policy.get('storage_input_refs', ())}
-        payload = bind_paths(unit.model_dump(mode='json')['payload'], self.bindings.get('storage', {}),
+        storage = {**self.bindings.get('storage', {}), '__code__': str(self.package_root)}
+        for relative, expected_hash in plan.execution_policy.get('packaged_resources', {}).items():
+            from operon.environment_store.verification import file_digest
+            if file_digest(confined(self.package_root, relative)) != expected_hash:
+                raise ContractError('Packaged resource changed', code='artifact_mismatch')
+        payload = bind_paths(unit.model_dump(mode='json')['payload'], storage,
                              encoded_refs=encoded_refs)
         if unit.invocation.kind == 'native':
             from operon.storage.inputs import prepare_plan_inputs
@@ -158,21 +163,40 @@ class RunPlanExecutor(ProcessExecutor):
             python = confined(envroot, environment['executable'])
             if not io_path(python).is_file():
                 raise ContractError('Locked executable is unavailable', code='environment_unverified')
+            from operon.environment_store.closures import materialize, execution_environment
+            closures = materialize(envroot, self.environments.root / 'runtime-caches',
+                                   python=python)
+            if closures['python']:
+                python = Path(closures['python'])
             # CPython resolves junctions during getpath initialization; a short
             # junction to a long prefix can fail before importing any module.
             # Its native extended-path spelling supports the verified prefix.
             # Windows R validates its ordinary physical paths separately.
             # Standard Python boot with only bundle-owned code/package directories.
             bootstrap = prepared.context.attempt_root / 'bootstrap.py'
+            native_paths = [str(io_path(self.package_root)), *[str(io_path(confined(envroot, name)))
+                for name in payload.get('native_shared_targets', ())],
+                *[str(io_path(p)) for p in closures['python_packages']], str(io_path(envroot / 'packages'))]
             bootstrap.write_text('import sys\nsys.path[:0] = ' + repr([
-                str(self.package_root), str(envroot / 'packages')]) +
+                *native_paths]) +
+                '\nfrom operon.bytecode import enable_long_import_paths\nenable_long_import_paths()\n' +
                 '\nfrom operon.execution.worker_main import main\nraise SystemExit(main())\n', encoding='utf-8')
-            env = isolated_environment(envroot)
+            env = execution_environment(closures, isolated_environment(envroot))
             scratch = prepared.context.attempt_root / 'scratch'
             scratch.mkdir(exist_ok=True)
-            env.update(TMP=str(scratch), TEMP=str(scratch), TMPDIR=str(scratch),
+            # R's Windows CRT crashes on a gratuitous \\?\ TMP prefix. Native
+            # Python I/O retains extended paths; tool-facing paths use Win32
+            # spelling whenever it fits, without changing the scratch owner.
+            scratch_name = executable_path(scratch)
+            import os
+            if os.name == 'nt' and (closures['r'] or 'Rscript' in closures['tools']):
+                from .foreign_paths import r_scratch
+                scratch_name = str(r_scratch(prepared.context.attempt_root))
+            env.update(TMP=scratch_name, TEMP=scratch_name, TMPDIR=scratch_name,
                        OMP_NUM_THREADS=str(threads), OPENBLAS_NUM_THREADS=str(threads),
-                       OPERON_BASE_PATHS=json.dumps([str(self.package_root), str(envroot / 'packages')]))
+                       OPERON_BASE_PATHS=json.dumps(native_paths), OPERON_ENVIRONMENT_ROOT=str(envroot))
+            for name, relative in payload.get('native_external_interpreters', {}).items():
+                env['OPERON_ENV_' + name.upper()] = str(confined(envroot, relative))
             prepared = replace(prepared, command=(str(io_path(python)), '-I', '-B', str(io_path(bootstrap)),
                 '--invocation', str(prepared.context.attempt_root / 'invocation.json')), environment=env)
             if payload.get('plugins_lock'):
@@ -239,6 +263,7 @@ class RunPlanExecutor(ProcessExecutor):
 
     def poll(self, context):
         result = super().poll(context)
+        self._release_scratch(context, result)
         if result.state != 'succeeded':
             return result
         try:
@@ -248,6 +273,19 @@ class RunPlanExecutor(ProcessExecutor):
         outputs = adapter.collect(prepared, ExitReceipt(result.exit_code, 'succeeded', result.tree_alive))
         if outputs.status != 'complete':
             return replace(result, state='failed', error=outputs.error)
+        return result
+
+    def _release_scratch(self, context, result):
+        if result.state in ('succeeded', 'failed', 'cancelled') and not result.tree_alive:
+            from .foreign_paths import release_r_scratch
+            try:
+                release_r_scratch(self.directory(context))
+            except (OSError, ValueError):
+                pass  # Preserve receipt for cleanup; never mask scientific status.
+
+    def cancel(self, context, *, timeout=10.0):
+        result = super().cancel(context, timeout=timeout)
+        self._release_scratch(context, result)
         return result
 
     def publish(self, attempt, result, committer):

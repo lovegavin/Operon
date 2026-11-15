@@ -109,6 +109,39 @@ def test_daemon_liveness_includes_transfers_leases_and_maintenance():
     service.transport_leases.clear()
     service.handshake.maintenance_running = True
     assert service.alive() is True
+    service.handshake.maintenance_running = False
+    service.application = SimpleNamespace(canvas_plans=SimpleNamespace(active=True),
+                                          plan_exports=SimpleNamespace(_active=None, _pending=[]))
+    assert service.alive() is True
+    service.application.canvas_plans.active = False
+    service.application.plan_exports._pending.append('export')
+    assert service.alive() is True
+
+
+def test_canvas_preparation_and_reads_share_server_application(remote, monkeypatch):
+    service, calls, root = remote
+    canvas = service.application.canvas_plans
+    monkeypatch.setattr(canvas, 'prepare', lambda graph, progress: {'plan': {}, 'binding': {}, 'profile_id': None})
+    monkeypatch.setattr(service.application.plans, 'submit', lambda body: {'run_id': 'native', 'state': 'queued'})
+    monkeypatch.setattr(service.application.plans, 'details', lambda run: {'run_id': run, 'state': 'complete'})
+    try:
+        assert service.dispatch('canvas.capabilities', {})['version'] == 1
+        service.dispatch('canvas.prepare', {'request_id': 'remote-prepare', 'graph': graph_payload()})
+        deadline = time.monotonic() + 3
+        while time.monotonic() < deadline:
+            status = service.dispatch('canvas.status', {'request_id': 'remote-prepare'})
+            if status['status'] != 'preparing': break
+            time.sleep(.01)
+        assert status['status'] == 'ready'
+        body = {'preparation_id': 'remote-prepare', 'request_id': 'remote-run', 'action': 'run'}
+        assert service.dispatch('canvas.execute', body)['run_id'] == 'native'
+        assert service.dispatch('canvas.execute', body)['run_id'] == 'native'
+        assert service.dispatch('plan.read', {'run_id': 'native', 'operation': 'details'})['state'] == 'complete'
+        with pytest.raises(ValueError):
+            service.dispatch('plan.read', {'run_id': 'native', 'operation': '__dict__'})
+        assert calls == []  # No fallback into the legacy launcher.
+    finally:
+        service.close()
 
 
 def test_remote_claim_failure_never_falls_back_to_launch(remote, monkeypatch):

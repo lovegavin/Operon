@@ -60,6 +60,7 @@ class NativeInvocationAdapter:
             snapshot = NativeRuntimeSnapshot(descriptors=context.payload['native_descriptors'],
                 implementations=context.payload.get('native_implementations', {}),
                 audit_descriptors=context.payload.get('native_descriptor_audit', {}),
+                isolation_targets=context.payload.get('native_isolation_targets', {}),
                 environment_requirement_digest=context.payload.get('native_environment_requirement_digest'))
             content = (canonical_json(snapshot) + '\n').encode('utf-8')
             runtime_path = context.attempt_root / 'native-runtime.json'

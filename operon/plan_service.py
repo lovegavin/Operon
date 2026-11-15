@@ -37,6 +37,11 @@ class PlanService:
 
     def _call(self, operation, *, run_id=None, submission=None, query=None):
         service = self.app.service
+        if run_id and run_id.startswith('remote-plan-'):
+            reference = self.app.canvas_plans.remote_reference(run_id)
+            result = service.remotes.call(reference['profile_id'], 'plan.read', {
+                'run_id': reference['run_id'], 'operation': operation, 'query': query or {}})
+            return {**result, 'run_id': run_id} if 'run_id' in result else result
         try:
             if getattr(service, 'pool_remote', False):
                 try:
@@ -140,6 +145,32 @@ class PlanService:
         from .contracts.plan_artifacts import PlanArtifactFileQuery
         from .plan_artifacts import OpenedPlanResult
         service = self.app.service
+        if run_id.startswith('remote-plan-'):
+            from src.web.transfers import TransferClient
+            from .engine.transport import transport_admission
+            import uuid
+            reference = self.app.canvas_plans.remote_reference(run_id)
+            result = self._read('artifact_file', run_id, PlanArtifactFileQuery, query)
+            client = TransferClient(lambda method, params=None: service.remotes.call(
+                reference['profile_id'], method, params or {}), self.app.canvas_plans.directory / 'results')
+            remote = result['transfer']
+            from .environment_store.verification import confined
+            from .contracts.base import ContractError
+            import re
+            if not re.fullmatch('[a-f0-9]{64}', remote['sha256']):
+                raise ContractError('Invalid result content identity', code='invalid_artifact')
+            destination = confined(client.cache_dir / remote['sha256'], result['descriptor']['name'])
+            admission = transport_admission(service)
+            ticket = 'plan-result-' + uuid.uuid4().hex
+            if not admission.reserve(ticket, {'kind': 'transport', 'reserved_bytes': client.buffer_budget_bytes,
+                                              'cpu_threads': 0}):
+                raise PlanOperationError('Result transfer memory is temporarily occupied', code='busy')
+            try:
+                client.download(remote, destination)
+            finally:
+                admission.release(ticket)
+            descriptor = {**result['descriptor'], 'relative_path': destination.relative_to(service.directory).as_posix()}
+            return OpenedPlanResult(service.directory, descriptor)
         if getattr(service, 'pool_remote', False) and not getattr(service, 'pool_managed', False):
             raise PlanOperationError('Opening this file requires an explicit transfer from its host',
                 code='artifact_transfer_required', next_actions=({'action': 'configure_artifact_transfer'},))

@@ -7,6 +7,7 @@ from pathlib import Path
 import shutil
 
 from operon.contracts.base import ContractError
+from operon.bytecode import io_path
 from operon.environment_store.verification import confined, file_digest, inventory
 
 # This is a kernel entry/dependency manifest, not a copy of the application tree.
@@ -16,6 +17,7 @@ KERNEL_MODULES = (
     'operon.export.kernel', 'operon.execution.unit_executor',
     'operon.execution.worker_main', 'operon.execution.containment',
     'operon.runtime_bootstrap', 'operon.worker',
+    'operon.isolated_worker', 'operon.env_worker',
     'operon.engine.coordinator', 'operon.engine.artifacts', 'operon.engine.state',
     'operon.planning.compiler', 'operon.planning.graph_compiler',
     'operon_sdk.declarations', 'operon_sdk.protocol', 'src.task', 'src.reader',
@@ -35,18 +37,18 @@ def module_file(root, module):
     parent = root
     parts = module.split('.')
     for part in parts[:-1]:
-        if not parent.is_dir() or part not in {item.name for item in parent.iterdir()}:
+        if not io_path(parent).is_dir() or part not in {item.name for item in io_path(parent).iterdir()}:
             return None
         parent = parent / part
-    if not parent.is_dir():
+    if not io_path(parent).is_dir():
         return None
-    names = {item.name for item in parent.iterdir()}
+    names = {item.name for item in io_path(parent).iterdir()}
     if parts[-1] not in names and parts[-1] + '.py' not in names:
         return None
     base = root.joinpath(*module.split('.'))
-    if base.with_suffix('.py').is_file():
+    if io_path(base.with_suffix('.py')).is_file():
         return base.with_suffix('.py')
-    if (base / '__init__.py').is_file():
+    if io_path(base / '__init__.py').is_file():
         return base / '__init__.py'
     return None
 
@@ -71,7 +73,7 @@ def kernel_files(root, modules=KERNEL_MODULES):
         package = module if source.name == '__init__.py' else module.rpartition('.')[0]
         for size in range(1, len(module.split('.'))):
             pending.append('.'.join(module.split('.')[:size]))
-        tree = ast.parse(source.read_text(encoding='utf-8-sig'), filename=relative)
+        tree = ast.parse(io_path(source).read_text(encoding='utf-8-sig'), filename=relative)
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
                 pending.extend(item.name for item in node.names if item.name.split('.')[0] in LOCAL_PREFIXES)
@@ -95,11 +97,11 @@ def collect(root, destination, manifest, *, cancel=None):
         if cancel and cancel():
             raise InterruptedError('Payload collection cancelled')
         source, target = confined(root, record['path']), confined(destination, relative)
-        if not source.is_file() or source.is_symlink() or file_digest(source) != record['sha256']:
+        if not io_path(source).is_file() or io_path(source).is_symlink() or file_digest(source) != record['sha256']:
             raise ContractError('Required source/resource differs from its manifest: ' + relative,
                                 code='export_missing_resource')
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, target)
+        io_path(target.parent).mkdir(parents=True, exist_ok=True)
+        shutil.copy2(io_path(source), io_path(target))
         if file_digest(target) != record['sha256']:
             raise ContractError('Copied resource failed verification', code='artifact_mismatch')
     return inventory(destination)

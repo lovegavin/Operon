@@ -232,12 +232,14 @@ def execute_script(snapshot, values, inputs, output_dir, *, cancel=None, timeout
             # do not contaminate it with packages from the Operon host.
             argv = [executable, '-I', str(script)]
     elif language == 'r':
-        executable = rscript or shutil.which('Rscript')
+        from .dependencies import find_tool
+        executable = rscript or find_tool('Rscript')
         if not executable:
             raise ValueError('The selected environment has no Rscript')
         argv = [executable, '--vanilla', str(script)]
     else:
-        executable = compiler or shutil.which('c++' if language == 'cpp' else 'cc')
+        from .dependencies import find_tool
+        executable = compiler or find_tool('c++' if language == 'cpp' else 'cc')
         if not executable:
             raise ValueError('The selected environment has no C/C++ compiler')
         binary = directory / ('program.exe' if os.name == 'nt' else 'program')

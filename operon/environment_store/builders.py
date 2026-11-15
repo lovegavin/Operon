@@ -48,7 +48,7 @@ class LockedArchive:
 
 
 def extract_locked(archive, destination, *, format, maximum, cancel=None):
-    destination.mkdir(parents=True, exist_ok=True)
+    io_path(destination).mkdir(parents=True, exist_ok=True)
     total = 0
     seen = set()
 
@@ -120,9 +120,9 @@ def isolated_environment(root, *, extra=None):
     return environment
 
 
-def probe(root, argv, *, timeout=60, cancel=None, environment=None):
+def probe(root, argv, *, timeout=60, cancel=None, environment=None, executable_override=None):
     root = Path(root).resolve()
-    executable = confined(root, argv[0])
+    executable = Path(executable_override) if executable_override else confined(root, argv[0])
     if not io_path(executable).is_file():
         raise ContractError('Required environment executable is missing: ' + argv[0], code='environment_unverified')
     # File-backed bounded-tail diagnostics avoid stdout pipe deadlocks/whole logs.

@@ -36,7 +36,7 @@ class EnvironmentStore:
         self.allow_package_migration = create
         if create:
             for folder in ('blobs/sha256', 'staging', 'generations', 'references', 'journal', 'leases', 'locks', 'trash'):
-                (self.root / folder).mkdir(parents=True, exist_ok=True)
+                io_path(self.root / folder).mkdir(parents=True, exist_ok=True)
         self.lock = FileLock(self.root / 'locks' / 'store.lock')
 
     def ingest(self, path, digest):
@@ -44,20 +44,20 @@ class EnvironmentStore:
             raise ContractError('An exact artifact SHA256 is required', code='unlocked_artifact')
         target = self.root / 'blobs' / 'sha256' / digest
         with FileLock(self.root / 'locks' / (digest + '.blob.lock')):
-            if target.exists():
+            if io_path(target).exists():
                 if file_digest(target) != digest:
                     raise ContractError('Stored artifact is corrupt', code='environment_corrupt')
                 return target
             temporary = target.with_name(digest + '.' + uuid.uuid4().hex + '.tmp')
             try:
-                shutil.copyfile(path, temporary)
+                shutil.copyfile(io_path(path), io_path(temporary))
                 if file_digest(temporary) != digest:
                     raise ContractError('Downloaded artifact hash differs from lock', code='artifact_mismatch')
-                with temporary.open('r+b') as stream:
+                with io_path(temporary).open('r+b') as stream:
                     os.fsync(stream.fileno())
-                os.replace(temporary, target)
+                os.replace(io_path(temporary), io_path(target))
             finally:
-                temporary.unlink(missing_ok=True)
+                io_path(temporary).unlink(missing_ok=True)
         return target
 
     def _manifest(self, generation):
@@ -107,7 +107,7 @@ class EnvironmentStore:
         key = sha256_hex(requirement)
         with self.lock:
             pointer = self.root / 'references' / (key + '.json')
-            generation = read(pointer)['generation_id'] if pointer.exists() else None
+            generation = read(pointer)['generation_id'] if io_path(pointer).exists() else None
         return self.binding(generation) if generation else None
 
     def prepare(self, requirement, builder, *, cancel=None, checkpoint=None):
@@ -125,7 +125,7 @@ class EnvironmentStore:
                 return existing
             preparation = uuid.uuid4().hex
             staging = self.root / 'staging' / preparation
-            staging.mkdir()
+            io_path(staging).mkdir()
             journal = self.root / 'journal' / (preparation + '.json')
             record = {'preparation_id': preparation, 'requirement_digest': key,
                       'state': 'requested', 'generation_id': None}
@@ -143,7 +143,7 @@ class EnvironmentStore:
                 builder.resolve(requirement)
                 phase('building')
                 payload = staging / 'payload'
-                payload.mkdir()
+                io_path(payload).mkdir()
                 provenance = builder.build(payload, self, cancel=cancel)
                 phase('verifying')
                 verification = builder.verify(payload, cancel=cancel)
@@ -165,10 +165,10 @@ class EnvironmentStore:
                 phase('verified')
                 with self.lock:
                     destination = self.root / 'generations' / generation
-                    if destination.exists():
+                    if io_path(destination).exists():
                         self.binding(generation)
                     else:
-                        os.replace(staging, destination)
+                        os.replace(io_path(staging), io_path(destination))
                     checkpoint('published')
                     atomic_json(self.root / 'references' / (key + '.json'), {'generation_id': generation})
                     record['state'] = 'ready'

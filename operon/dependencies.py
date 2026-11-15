@@ -25,11 +25,14 @@ from operon.bytecode import io_path
 
 def find_tool(name):
     """Resolve an external tool from PATH or any managed environment bin directory."""
+    packed = os.environ.get('OPERON_PACKED_TOOLS')
+    if packed is not None:
+        selected = json.loads(packed).get(name)
+        return selected if selected and Path(selected).is_file() else None
     import shutil
     found = shutil.which(name)
     if found:
         return found
-    from pathlib import Path
     import sys
     roots = [Path(sys.prefix) / 'bin', Path(sys.prefix) / 'Scripts']
     managed = Path(sys.prefix).resolve().parent
@@ -38,7 +41,6 @@ def find_tool(name):
     for root in roots:
         candidate = root / name
         if candidate.is_file():
-            import os
             if os.access(candidate, os.X_OK):
                 return str(candidate)
     return None

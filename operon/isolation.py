@@ -11,7 +11,7 @@ import threading
 
 from operon.targets import command, paths_for
 from operon.wire import Wire
-from operon.bytecode import io_path
+from operon.bytecode import io_path, executable_path
 
 
 def call(state, descriptor, operation, payload, *, ctx=None, chunks=None, writer=None):
@@ -37,7 +37,8 @@ def call(state, descriptor, operation, payload, *, ctx=None, chunks=None, writer
         try:
             wire.write('request.json', {'descriptor': descriptor, 'operation': operation, **payload})
             argv = command(paths_for(state, descriptor), 'operon.isolated_worker', [directory], directory)
-            process = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            process = subprocess.Popen(argv, executable=executable_path(argv[0]),
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                 text=True, encoding='utf-8', errors='replace', bufsize=1,
                 creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
             if ctx:

@@ -429,7 +429,14 @@ class ProcessSupervisor:
                     'proof': str(self.directory / (attempt_id + '.tree-exit.json')),
                     'ready': str(self.directory / (attempt_id + '.ready.json')),
                     'start_gate': str(self.directory / (attempt_id + '.start'))})
-                launch_argv = [sys.executable, '-I', '-B',
+                # A standalone management Python keeps packages beside its
+                # runtime, not in global site-packages. -I intentionally drops
+                # inherited paths, so bind the already loaded management psutil
+                # explicitly; scientific target paths must never enter here.
+                monitor_bootstrap = ('import sys,runpy;sys.path.insert(0,sys.argv[1]);'
+                                     'sys.argv=sys.argv[2:];runpy.run_path(sys.argv[0],run_name="__main__")')
+                launch_argv = [sys.executable, '-I', '-B', '-c', monitor_bootstrap,
+                    str(Path(psutil.__file__).resolve().parent.parent),
                     str(containment_helper), str(request_path)]
                 launch_executable = None
                 # The monitor needs the management environment; the actual child

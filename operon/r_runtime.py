@@ -152,6 +152,16 @@ class RRuntime:
     def ensure(self, declaration, *, repair=True, verify=False):
         spec = validate_r(declaration)
         key = self.key(spec)
+        packed = os.environ.get('OPERON_PACKED_R')
+        if packed is not None:
+            record = json.loads(packed).get(key)
+            if not record or record.get('spec') != spec:
+                raise ValueError('R declaration is not bound in this portable environment')
+            if not Path(record['executable']).is_file() or not Path(record['library']).is_dir():
+                raise ValueError('Packed R runtime or library is missing')
+            if verify:
+                self._probe(record['executable'], record['library'], spec)
+            return record
         self.root.mkdir(parents=True, exist_ok=True)
         with FileLock(self.root / 'install.lock', timeout=3600):
             receipt = self.root / 'receipts' / (key + '.json')

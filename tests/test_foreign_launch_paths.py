@@ -45,3 +45,24 @@ def test_r_generation_checks_all_declared_resources_without_reading_data(tmp_pat
         validate_r_generation(store, 'known-generation')
     assert caught.value.details['role'] == 'environment'
     assert not generation.exists()
+
+
+def test_r_scratch_uses_owned_temporary_area_and_releases_only_matching_owner(tmp_path, monkeypatch):
+    import json
+    import tempfile
+    from operon.execution.foreign_paths import r_scratch, release_r_scratch
+    root = tmp_path / 'workspace with spaces' / 'attempt'
+    root.mkdir(parents=True)
+    base = tmp_path / 'os-temp'; base.mkdir()
+    monkeypatch.setattr(tempfile, 'gettempdir', lambda: str(base))
+    selected = r_scratch(root)
+    assert selected.parent == base and selected != root / 'scratch'
+    assert r_scratch(root) == selected
+    marker = selected / '.operon-owner.json'
+    original = marker.read_text()
+    marker.write_text(json.dumps({'attempt': 'another-owner'}))
+    release_r_scratch(root)
+    assert selected.exists()
+    marker.write_text(original)
+    release_r_scratch(root)
+    assert not selected.exists() and not (root / 'r-scratch.json').exists()

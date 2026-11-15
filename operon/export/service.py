@@ -26,9 +26,11 @@ from pathlib import Path
 root = Path(__file__).resolve().parent
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(root / 'payload' / 'code'))
+from operon.bytecode import io_path, enable_long_import_paths
+enable_long_import_paths()
 import json
 manifest = json.loads((root / 'bundle.json').read_text(encoding='utf-8'))
-sys.path.insert(1, str(root / manifest['management_packages']))
+sys.path.insert(1, str(io_path(root / manifest['management_packages'])))
 sys.argv = ['operon.export.kernel', '--bundle', str(root), *sys.argv[1:]]
 runpy.run_module('operon.export.kernel', run_name='__main__')
 '''

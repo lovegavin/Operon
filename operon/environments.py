@@ -303,8 +303,10 @@ def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(
         request["inputs"].append(_write_form(directory, index, form))
     (directory / "request.json").write_text(json.dumps(request), encoding="utf-8")
     command = [str(python), "-m", "operon.env_worker", str(directory)]
+    from .bytecode import executable_path
     completed = subprocess.run(command, capture_output=True, text=True, encoding='utf-8',
-                               errors='replace', timeout=timeout, env=worker_environment(python, paths), cwd=str(directory))
+                               executable=executable_path(python), errors='replace', timeout=timeout,
+                               env=worker_environment(python, paths), cwd=executable_path(directory))
     if completed.returncode:
         tail = (completed.stderr or completed.stdout).strip().splitlines()[-6:]
         raise StepError("environment bridge failed with exit code " + str(completed.returncode) + ": " + " | ".join(tail))

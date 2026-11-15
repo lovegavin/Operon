@@ -3,6 +3,7 @@ import {getPreferences, setPreferences} from './preferences';
 import { PluginPanel } from "./PluginPanel";
 import { RuntimeStatusPanel } from "./RuntimeStatusPanel";
 import { PlanPanel } from './PlanPanel';
+import { CanvasPlanDialog } from './CanvasPlanDialog';
 import { version as studioVersion } from "../package.json";
 import {
   Component,
@@ -197,6 +198,7 @@ function Studio() {
   const agentBridge = useRef<CanvasBridge | null>(null);
   const [agentReady, setAgentReady] = useState(false), [agentPanel, setAgentPanel] = useState(false);
   const [planPanel, setPlanPanel] = useState(false);
+  const [canvasPlan, setCanvasPlan] = useState<'run' | 'export' | 'history' | null>(null);
   const [collaborationEvents, setCollaborationEvents] = useState<CanvasEvent[]>([]);
   const [agentHighlights, setAgentHighlights] = useState<string[]>([]);
   const [routes, setRoutes] = useState<RouteDefinition[]>([]);
@@ -1079,11 +1081,7 @@ function Studio() {
         inspectNode(first.nodes[0]);
         return;
       }
-      const current = await api.run(graphRef.current);
-      setJob(current);
-      setTab("results");
-      setResultsCollapsed(false);
-      setHistory(await api.history());
+      setCanvasPlan('run');
       setInvalid(undefined);
     } catch (error) {
       failure(error);
@@ -1318,6 +1316,7 @@ function Studio() {
                     void api.exportWorkflow(graph, 'yaml').then(blob => downloadBlob(`${graph.name.replace(/[\\/:*?"<>|]/g, '_')}.workflow.zip`, blob)).catch(failure);
                     setExportOpen(false);
                   }}><ArrowDown size={16}/>{t('导出可编辑 YAML 项目')}</button>
+                  <button onClick={() => {setExportOpen(false); setCanvasPlan('export');}}><ArrowDown size={16}/>{t('导出独立运行包')}</button>
                   <div className="menu-line" />
                   <button
                     disabled={busy}
@@ -1363,6 +1362,7 @@ function Studio() {
             <Rows size={16}/>{t("任务")}{activeJobs.length > 0 && <span className="count-badge">{activeJobs.length}</span>}
           </button>
           <button className="subtle-button" onClick={() => setPlanPanel(true)} title={t('编译与运行固定计划')}><Stack size={16}/>{t('执行计划')}</button>
+          <button className="subtle-button" onClick={() => setCanvasPlan('history')}><Stack size={16}/>{t('路线运行与导出记录')}</button>
             <button
               className="primary-button"
               disabled={!!action}
@@ -1885,6 +1885,7 @@ function Studio() {
       </>}
       {statusOpen && <RuntimeStatusPanel onClose={() => setStatusOpen(false)}/>}
       {planPanel && <PlanPanel graph={graph} onClose={() => setPlanPanel(false)}/>}
+      {canvasPlan && <CanvasPlanDialog graph={graph} intent={canvasPlan} onClose={() => setCanvasPlan(null)} onEnvironment={() => {setCanvasPlan(null); setSettings(true); setInspectorOpen(true);}} onAdvanced={() => {setCanvasPlan(null); setPlanPanel(true);}}/>}
       {pluginsOpen && <PluginPanel initialTab={pluginsOpen} onClose={() => setPluginsOpen(null)} onChanged={async () => {const expected = catalogUpdates.current.checkpoint(); const latest = await api.catalog(); acceptCatalog(latest, undefined, expected); await refreshRoutes();}}/>}
       {picker && <WorkflowPicker mode={picker} onClose={() => setPicker(null)} onOpen={openSaved} onRegister={refreshRoutes} onImport={() => routeImport.current?.click()}/>}
       {saveDialog && <SaveWorkflowDialog graph={saveDialog} catalog={catalog} workflowId={documents.find(doc=>doc.id===activeId)?.workflow_id} version={documents.find(doc=>doc.id===activeId)?.workflow_version} onClose={() => setSaveDialog(null)} onSaved={savedWorkflow}/>}

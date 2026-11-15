@@ -23,6 +23,8 @@ RunId = Annotated[str, Path(min_length=1, max_length=200, pattern=r'^[A-Za-z0-9_
 
 
 def mount_plans(app, application, bridge):
+    from .canvas_api import mount_canvas
+    mount_canvas(app, application, bridge)
     from .plan_binding_options import mount_binding_options
     mount_binding_options(app, application, bridge)
     from .plan_ui_state import mount_plan_ui_state

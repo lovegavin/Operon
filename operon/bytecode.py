@@ -21,6 +21,24 @@ def io_path(path):
     return Path(filesystem_path(path, resolve=False))
 
 
+def enable_long_import_paths():
+    """Normalize Windows search paths, including packages loaded at startup.
+
+    Updating sys.path alone cannot repair importlib's already cached __path__.
+    CPython loads that package before the invocation bootstrap runs.
+    """
+    if os.name != 'nt':
+        return
+    def normalize(paths):
+        return [str(io_path(p)) if p and os.path.isabs(p) else p for p in paths]
+    sys.path[:] = normalize(sys.path)
+    for module in tuple(sys.modules.values()):
+        paths = getattr(module, '__path__', None)
+        if isinstance(paths, list):
+            paths[:] = normalize(paths)
+    importlib.invalidate_caches()
+
+
 def executable_path(path):
     """Use normal Win32 spelling when possible; extend only genuinely long paths.
 

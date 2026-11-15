@@ -1,4 +1,4 @@
-"""Plan-selected native registrations; no live library discovery or proxies."""
+"""Plan-selected native registrations and frozen isolation; no live discovery."""
 from __future__ import annotations
 
 from copy import deepcopy
@@ -11,7 +11,7 @@ import re
 import sys
 from types import ModuleType
 
-from pydantic import Field
+from pydantic import Field, field_validator
 
 from operon.contracts.base import ContractError, ContractModel, sha256_hex
 
@@ -22,7 +22,15 @@ class NativeRuntimeSnapshot(ContractModel):
     descriptors: tuple[dict, ...]
     implementations: dict[str, dict]
     audit_descriptors: dict[str, dict] = Field(default_factory=dict)
+    isolation_targets: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     environment_requirement_digest: str | None = Field(default=None, pattern=r'^[a-f0-9]{64}$')
+
+    @field_validator('isolation_targets', mode='before')
+    @classmethod
+    def normalize_isolation_targets(cls, value):
+        if isinstance(value, dict):
+            return {key: tuple(paths) if isinstance(paths, (list, tuple)) else paths for key, paths in value.items()}
+        return value
 
 
 def validate_native_descriptors(descriptors, implementations, manifest, *, environment_requirement_digest=None):
@@ -156,6 +164,25 @@ def register_native_runtime(snapshot, manifest, *, code_roots=None):
         root = _module_root(descriptor.get('entry_point'), code_roots)
         _bind_legacy_namespace(descriptor['entry_point'], root)
         def factory(d=descriptor, r=root, audit=deepcopy(wire['audit_descriptors'][key])):
+            if d.get('resources', {}).get('environment'):
+                from operon.environments import proxy_step
+                name = d['resources']['environment']
+                if not os.environ.get('OPERON_ENV_' + name.upper()):
+                    raise ContractError('Declared environment binding missing', code='environment_unverified')
+                return proxy_step(audit, paths=code_roots)
+            if (d.get('execution') or {}).get('mode') == 'isolated':
+                from operon.environment_store.verification import confined
+                from operon.isolation import proxy_reader, proxy_step
+                target_paths = snapshot.isolation_targets.get(d['id'])
+                envroot = os.environ.get('OPERON_ENVIRONMENT_ROOT')
+                if not target_paths or not envroot:
+                    raise ContractError('Isolated dependency binding missing', code='environment_unverified')
+                for path in target_paths:
+                    confined(envroot, path)
+                frozen = deepcopy(audit)
+                frozen['execution'] = {'mode': 'isolated', 'paths': list(target_paths)}
+                state = {'_runtime_root': envroot, 'code_paths': []}
+                return (proxy_reader if d['kind'] == 'reader' else proxy_step)(frozen, state)
             # The original declaration verifies the provider's frozen code.
             # Execution binds only the projected schema and IO capabilities.
             loaded = load_class(audit, root=r)

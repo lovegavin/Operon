@@ -136,12 +136,12 @@ def copy_generation(source, destination, generation, *, cancel=None):
     original, manifest, _ = source._manifest(generation)
     with FileLock(destination.root / 'locks' / (generation + '.packages.lock'), timeout=1800):
         target = destination.root / 'generations' / generation
-        if target.exists():
+        if io_path(target).exists():
             if verify(destination, generation):
                 return
             raise ContractError('Existing generation requires explicit repair', code='environment_corrupt')
         staged = destination.root / 'staging' / uuid.uuid4().hex
-        staged.mkdir(parents=True)
+        io_path(staged).mkdir(parents=True)
         try:
             for layer in value['layers']:
                 source_blob = blob_path(source, layer['sha256'])
@@ -169,4 +169,4 @@ def copy_generation(source, destination, generation, *, cancel=None):
             atomic_json(staged / 'materialized.json', {'packages_digest': sha256_hex(value)})
             os.replace(io_path(staged), io_path(target))
         finally:
-            if staged.exists(): shutil.rmtree(io_path(staged))
+            if io_path(staged).exists(): shutil.rmtree(io_path(staged))

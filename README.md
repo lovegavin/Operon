@@ -12,7 +12,7 @@ parameter, log and artifact. The same engine is available through the desktop,
 CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
 analysis code from scratch.
 
-This source targets **Operon Studio 5.2.0**. The application and operator library
+This source targets **Operon Studio 5.3.0**. The application and operator library
 are maintained and released independently; this application update does not
 change library sources or versions. Import a compatible library and route package
 separately. Operators and Readers retain protocol v3 / SDK 3.7 compatibility,

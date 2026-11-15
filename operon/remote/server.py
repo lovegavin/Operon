@@ -234,11 +234,13 @@ class RemoteService:
         current_path = os.environ.get('PATH', '')
         if os.path.normcase(current_path.split(os.pathsep)[0]) != os.path.normcase(binary_directory):
             os.environ['PATH'] = binary_directory + os.pathsep + current_path
-        self.service = JobService(Settings(workspace, workspace/'.studio', code/'frontend/dist',
+        from operon.application import Application
+        self.application = Application(Settings(workspace, workspace/'.studio', code/'frontend/dist',
                                           code_root=code, input_roots=input_roots or [Path('/')],
                                           manifest_only_registry=library_root is None,
                                           library_root=library_root),
                                   catalog_from_descriptors())
+        self.service = self.application.service
         self.memory = {'automatic_memory_budget_bytes': self.service.resources()['capacity_bytes'],
                        'automatic_memory_fraction': AUTO_BUDGET_FRACTION}
         from .handshake import ManifestHandshake
@@ -257,9 +259,14 @@ class RemoteService:
         """Daemon liveness includes every durable responsibility, not just workers."""
         handshake = getattr(self, 'handshake', None)
         transfers = getattr(self, 'transfers', None)
+        application = getattr(self, 'application', None)
+        canvas = getattr(application, 'canvas_plans', None)
+        exports = getattr(application, 'plan_exports', None)
         with self._lease_guard():
             leases = bool(self.transport_leases) or bool(self.transport_active)
         return bool(self.service.processes or self.service.threads or leases or
+                    (canvas is not None and canvas.active) or
+                    (exports is not None and (exports._active or exports._pending)) or
                     (handshake is not None and handshake.maintenance_running) or
                     (transfers is not None and bool(getattr(transfers, 'tokens', {}))))
 
@@ -369,7 +376,10 @@ class RemoteService:
             self.transport_active.clear()
         for lease in leases:
             transport_admission(self.service).release(lease)
-        self.service.shutdown()
+        if hasattr(self, 'application'):
+            self.application.shutdown()
+        else:
+            self.service.shutdown()
 
     def path(self, value):
         path = (self.service.root / value).expanduser().resolve()
@@ -429,6 +439,43 @@ class RemoteService:
     def _dispatch(self, method, params):
         if method != 'transport_release':
             self._purge_transport_leases()
+        if method == 'canvas.capabilities':
+            return {'version': 1, 'prepare': True, 'results': True, 'resumable_transfer': True}
+        if method.startswith('canvas.'):
+            from operon.canvas_api import PrepareCanvas, ExecuteCanvas
+            service = self.application.canvas_plans
+            if method == 'canvas.prepare':
+                value = PrepareCanvas.model_validate(params)
+                return service.start(value.graph, value.request_id)
+            if method == 'canvas.status':
+                return service.status(params['request_id'])
+            if method == 'canvas.cancel':
+                return service.cancel(params['request_id'])
+            if method == 'canvas.outcome':
+                return service.outcome(params['request_id'])
+            if method == 'canvas.execute':
+                value = ExecuteCanvas.model_validate(params)
+                return service.execute(value.preparation_id, action=value.action,
+                                       request_id=value.request_id, output=value.output)
+            raise ValueError('Unknown canvas operation')
+        if method == 'plan.read':
+            operation = params['operation']
+            plans = self.application.plans
+            if operation not in ('details', 'cancel', 'events', 'attempts', 'artifacts', 'logs',
+                                 'artifact_files', 'artifact_preview', 'artifact_file'):
+                raise ValueError('Unknown plan operation')
+            run = params['run_id']
+            if operation == 'artifact_file':
+                # Resolve ownership using opaque IDs before exposing a transport ref.
+                with_result = plans.open_artifact(run, **params.get('query', {}))
+                try:
+                    descriptor = with_result.descriptor
+                    path = self.service.directory / descriptor['relative_path']
+                    return {'descriptor': descriptor, 'transfer': {'path': str(path),
+                        'bytes': descriptor['size_bytes'], 'sha256': descriptor['sha256']}}
+                finally:
+                    with_result.close()
+            return getattr(plans, operation)(run, **params.get('query', {}))
         if method in ('handshake', 'bootstrap'):
             value = self.handshake.response(params, legacy=method == 'bootstrap')
             if getattr(self.service, 'pool_remote', False):

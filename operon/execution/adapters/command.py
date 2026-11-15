@@ -112,7 +112,8 @@ class CommandInvocationAdapter:
             raise ContractError('Foreign adapter cannot execute a native chain', code='unsupported_boundary')
         environment = isolated_environment(launch_generation)
         path = r_path if windows_r else lambda value: value
-        scratch = (r_path(root / 'scratch', role='temporary', reserve=32, allow_spaces=False)
+        from ..foreign_paths import r_scratch
+        scratch = (r_scratch(root)
                    if windows_r else root / 'scratch')
         environment.update(OPERON_PARAMETERS_FILE=str(path(root / 'parameters.json')),
             OPERON_INPUTS_FILE=str(path(root / 'inputs.json')), OPERON_OUTPUTS_FILE=str(path(root / 'outputs.json')),

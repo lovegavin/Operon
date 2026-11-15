@@ -66,6 +66,8 @@ class Application:
         self.operator_docs = OperatorDocs(self.service.plugins)
         from .readiness import ReadinessService
         self.readiness = ReadinessService(self)
+        from .canvas_plans import CanvasPlans
+        self.canvas_plans = CanvasPlans(self)
 
     def catalog_for(self, graph):
         return self.executions.catalog(graph) if self.executions.applies(graph) else self.service.graph_catalog(graph)
@@ -239,6 +241,7 @@ class Application:
         return started
 
     def shutdown(self):
+        self.canvas_plans.close()
         self.plan_exports.close()
         self.storage.close()
         self.storage_dispatch.close()

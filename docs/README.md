@@ -22,7 +22,7 @@ trace it. See [Why Operon](../README.md#why-operon) for the five supports.
 - [Detailed quick start: Windows, Linux and your first workflow](quickstart.md)
 - [What changed since 3.1.6](updates-since-3.1.6.md)
 
-The application source now targets **Operon Studio 5.2.0**. Operator-library
+The application source now targets **Operon Studio 5.3.0**. Operator-library
 packages are independently versioned and are not changed by this application release.
 Release notes, verification reports and dated design records preserve the versions
 they tested; they are historical evidence, not current installation instructions.
@@ -49,6 +49,7 @@ they tested; they are historical evidence, not current installation instructions
 - [Script operators, parameter extraction and promotion](script_operators_v3.md)
 - [Selected-target readiness and explicit preparation](readiness.md)
 - [Standalone packages and export boundaries](portable_packages_v3.md)
+- [Automatic canvas export: Python, Conda, R and external tools](automatic_portable_export.md)
 - [End-to-end quick start](quickstart_full_flow.md)
 - [Installation and dependencies](installation.md)
 - [Windows Setup and isolated installations](windows_setup.md)
@@ -125,3 +126,11 @@ their named historical versions. Current schemas, source declarations and CLI
 help take precedence over historical counts and examples.
 
 - [Application and library ownership, packaging and updates](application_library_boundary.md)
+
+## Development integration and experimental desktop host
+
+- [Automatic canvas RunPlan preparation and current coverage](design/canvas_runplan_integration.md)
+- [Tauri module inventory](design/tauri_module_inventory.md)
+- [Tauri technical contract](design/tauri_implementation_contract.md)
+- [Tauri coding assignment and acceptance gates](design/tauri_coding_instructions.md)
+- [Tauri parallel coding sessions, ownership and integration order](design/tauri_session_assignments.md)
