@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 import shutil
 import tempfile
+import time
+import math
 import uuid
 
 from operon.contracts.base import ContractError, sha256_hex
@@ -30,6 +32,22 @@ sys.path.insert(1, str(root / manifest['management_packages']))
 sys.argv = ['operon.export.kernel', '--bundle', str(root), *sys.argv[1:]]
 runpy.run_module('operon.export.kernel', run_name='__main__')
 '''
+
+
+def _inventory_with_duration(payload):
+    started = time.monotonic()
+    files = inventory(payload)
+    return files, time.monotonic() - started
+
+
+def _relocation_probe_timeout(scan_seconds, *, prepare=False):
+    # Check hashes both bundle and generation content. Measure the same payload
+    # on this host instead of assuming all disks can scan it within three minutes.
+    # Cold-copy overhead gets headroom; child output cannot extend this deadline.
+    floor, overhead, passes = (600, 120, 6) if prepare else (180, 60, 4)
+    if not math.isfinite(scan_seconds) or scan_seconds < 0:
+        raise ValueError('Invalid inventory duration')
+    return min(7200, max(floor, math.ceil(overhead + passes * scan_seconds)))
 
 
 class ExportService:
@@ -155,8 +173,13 @@ class ExportService:
                 executable + '" -I -B "$ROOT/run.py" "$@"\n', encoding='utf-8')
             (temporary / 'run.sh').chmod(0o755)
             phase('structural_verification')
+            files, scan_seconds = _inventory_with_duration(payload)
+            check_timeout = _relocation_probe_timeout(scan_seconds)
+            preparation_timeout = _relocation_probe_timeout(scan_seconds, prepare=True)
+            receipt['verification'] = {'inventory_seconds': scan_seconds, 'entries': len(files),
+                'probe_timeout_seconds': check_timeout, 'preparation_timeout_seconds': preparation_timeout}
             manifest = {'format': 'operon.portable', 'schema_version': 1, 'status': 'complete',
-                        'plan_id': portable.plan_id, 'files': inventory(payload),
+                        'plan_id': portable.plan_id, 'files': files,
                         'management_executable': executable, 'implementation_manifests': implementations,
                         'management_packages': 'payload/environments/generations/' + control['generation_id'] + '/payload/packages',
                         'launchers': {name: file_digest(temporary / name) for name in ('run.py', 'run.cmd', 'run.sh')},
@@ -173,9 +196,9 @@ class ExportService:
                 # a second environment deployment (and antivirus scan) on Windows.
                 # Packed runtimes with prefix fixups still require real preparation.
                 if needs_destination_preparation:
-                    probe(moved, (executable, '-I', '-B', 'run.py', '--prepare-only'), timeout=600,
+                    probe(moved, (executable, '-I', '-B', 'run.py', '--prepare-only'), timeout=preparation_timeout,
                           cancel=cancel, environment={'OPERON_EXPORT_PROBE': '1'})
-                probe(moved, (executable, '-I', '-B', 'run.py', '--check'), timeout=180,
+                probe(moved, (executable, '-I', '-B', 'run.py', '--check'), timeout=check_timeout,
                       cancel=cancel, environment={'OPERON_EXPORT_PROBE': '1'})
             phase('publish')
             if output.exists():

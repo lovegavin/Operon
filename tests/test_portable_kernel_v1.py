@@ -101,6 +101,43 @@ def refresh_inventory(root, plan):
                                 'files': inventory(root / 'payload'), 'network_resolution': False})
 
 
+def test_export_uses_measured_scan_budget_and_retains_failure_receipt(tmp_path, monkeypatch):
+    import operon.export.service as service
+    source = tmp_path / 'data.fixture'; source.write_bytes(b'synthetic')
+    fixture = tmp_path / 'fixture'; plan = bundle_at(fixture, source)
+    binding = json.loads((fixture / 'payload/bindings.json').read_text())['environments']
+    store = EnvironmentStore(fixture / 'payload/environments', create=False)
+    monkeypatch.setattr(service, '_inventory_with_duration', lambda path: (inventory(path), 300.0))
+    observed = []
+    def timeout_probe(root, argv, **kwargs):
+        observed.append(kwargs)
+        raise TimeoutError('Synthetic stalled probe')
+    monkeypatch.setattr(service, 'probe', timeout_probe)
+    cancelled = lambda: False
+    export = service.ExportService(Path(__file__).resolve().parents[1], store, tmp_path / 'receipts')
+    with pytest.raises(TimeoutError, match='stalled'):
+        export.build(plan, tmp_path / 'output', implementations={}, environments=binding, cancel=cancelled)
+    assert len(observed) == 1
+    assert observed[0]['timeout'] == 1260
+    assert observed[0]['cancel'] is cancelled
+    receipt = json.loads(next((tmp_path / 'receipts').glob('*.json')).read_text())
+    assert receipt['status'] == 'failed' and receipt['phase'] == 'relocation_probe'
+    assert receipt['verification']['inventory_seconds'] == 300.0
+    assert receipt['verification']['probe_timeout_seconds'] == 1260
+    assert not (tmp_path / 'output').exists()
+
+
+def test_relocation_budget_remains_bounded_and_rejects_invalid_measurements():
+    from operon.export.service import _relocation_probe_timeout
+    assert _relocation_probe_timeout(0) == 180
+    assert _relocation_probe_timeout(0, prepare=True) == 600
+    assert _relocation_probe_timeout(300, prepare=True) == 1920
+    assert _relocation_probe_timeout(100000) == 7200
+    for invalid in [-1, float('inf'), float('nan')]:
+        with pytest.raises(ValueError):
+            _relocation_probe_timeout(invalid)
+
+
 def test_bindable_plan_preserves_values_and_lifts_only_explicit_source_paths(tmp_path):
     path = tmp_path / 'data.fixture'
     original = plan_for(path)

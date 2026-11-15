@@ -46,3 +46,16 @@ Acceptance includes a real standard-library-only Windows runtime, relocation to
 a different directory, running a frozen file transformation through its bundled
 interpreter and confirming Operon is not importable. This test does not establish
 compatibility for every scientific dependency or Linux binary distribution.
+
+
+### Relocation verification time budget
+
+Export always hashes the delivered payload and checks it again after relocation.
+The build receipt records `verification.inventory_seconds`, `entries`, and both
+probe time budgets. The check budget is `max(180, ceil(60 + 4 * inventory_seconds))`
+seconds; destination preparation uses `max(600, ceil(120 + 6 * inventory_seconds))`.
+Each is capped at 7,200 seconds. The measured duration comes from the parent
+process scanning this exact payload; subprocess output cannot extend the deadline.
+This allows slower storage and cold copied runtimes without disabling hashes,
+turning timeouts into success, or making probes unbounded. Cancellation still
+stops an active probe. A timeout retains its failure receipt and recent progress.
