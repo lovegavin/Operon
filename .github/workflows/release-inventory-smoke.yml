@@ -1,0 +1,62 @@
+name: Final package inventory smoke
+on:
+  workflow_dispatch:
+    inputs:
+      wheel_url:
+        description: Expiring read-only candidate wheel URL
+        required: true
+      wheel_sha256:
+        description: Exact candidate wheel SHA256
+        required: true
+  push:
+    branches: ['release/**']
+    paths: ['.github/workflows/release-inventory-smoke.yml']
+permissions:
+  contents: read
+jobs:
+  linux-package:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify and install exact candidate wheel
+        env:
+          WHEEL_URL: ${{ inputs.wheel_url }}
+          WHEEL_SHA256: ${{ inputs.wheel_sha256 }}
+        run: |
+          echo "::add-mask::$WHEEL_URL"
+          curl --fail --location --silent --show-error "$WHEEL_URL" --output operon_studio-5.2.0-py3-none-any.whl
+          echo "$WHEEL_SHA256  operon_studio-5.2.0-py3-none-any.whl" | sha256sum --check
+          python -m pip install ./operon_studio-5.2.0-py3-none-any.whl
+      - name: Verify changed inventory and delivered schemas only
+        run: |
+          python - <<'PY'
+          import hashlib, json, tempfile
+          from pathlib import Path
+          import operon, operon_sdk
+          from operon.environment_store.verification import inventory, verify_inventory
+          from operon.contracts.base import ContractError
+          assert 'site-packages' in str(operon.__file__)
+          with tempfile.TemporaryDirectory() as tmp:
+              root = Path(tmp) / 'payload'; root.mkdir()
+              file = root / 'sample.bin'; file.write_bytes(b'content')
+              record = inventory(root)
+              assert record['sample.bin']['sha256'] == hashlib.sha256(b'content').hexdigest()
+              verify_inventory(root, record)
+              file.write_bytes(b'changed')
+              try: verify_inventory(root, record)
+              except ContractError: pass
+              else: raise AssertionError('Corruption accepted')
+              outside = Path(tmp) / 'outside'; outside.write_bytes(b'external')
+              (root / 'escape').symlink_to(outside)
+              try: inventory(root)
+              except ContractError: pass
+              else: raise AssertionError('External link accepted')
+          for name in ['graph', 'workspace']:
+              schema = json.loads((Path(operon_sdk.__file__).parent / 'schemas' / (name+'.json')).read_text())
+              assert 'StorageInputRef' in schema['$defs']
+          print('PASS: exact installed wheel inventory, corruption, external-link boundary and StorageInputRef schemas')
+          PY
