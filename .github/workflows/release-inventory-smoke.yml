@@ -8,6 +8,10 @@ on:
       wheel_sha256:
         description: Exact candidate wheel SHA256
         required: true
+      scope:
+        description: Changed surface only (inventory or budget)
+        default: inventory
+        required: true
   push:
     branches: ['release/**']
     paths: ['.github/workflows/release-inventory-smoke.yml']
@@ -32,14 +36,24 @@ jobs:
           echo "$WHEEL_SHA256  operon_studio-5.2.0-py3-none-any.whl" | sha256sum --check
           python -m pip install ./operon_studio-5.2.0-py3-none-any.whl
       - name: Verify changed inventory and delivered schemas only
+        env:
+          SMOKE_SCOPE: ${{ inputs.scope }}
         run: |
           python - <<'PY'
-          import hashlib, json, tempfile
+          import hashlib, json, tempfile, os
           from pathlib import Path
           import operon, operon_sdk
           from operon.environment_store.verification import inventory, verify_inventory
           from operon.contracts.base import ContractError
           assert 'site-packages' in str(operon.__file__)
+          if os.environ['SMOKE_SCOPE'] == 'budget':
+              from operon.export.service import _relocation_probe_timeout
+              assert _relocation_probe_timeout(300) == 1260
+              assert _relocation_probe_timeout(300, prepare=True) == 1920
+              assert _relocation_probe_timeout(100000) == 7200
+              print('PASS: exact installed wheel measured relocation budget and hard upper bound')
+              raise SystemExit(0)
+          assert os.environ['SMOKE_SCOPE'] == 'inventory'
           with tempfile.TemporaryDirectory() as tmp:
               root = Path(tmp) / 'payload'; root.mkdir()
               file = root / 'sample.bin'; file.write_bytes(b'content')
