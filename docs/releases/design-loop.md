@@ -176,6 +176,39 @@ and −0.863 against binder RMSD; the 3 Å cutoff separates the high-iPTM pair f
 with no exceptions. Spearman on the target chain is not reported: the low-iPTM group is
 compressed into 9.15–14.05 Å, and tied ranks make ρ unstable there.
 
+## Final-candidate readout
+
+The best-scoring design of round 4 (`req-df3e9ff05896ad2589f13345`, iPTM 0.904,
+2.03 Å to the parent fold) was scored with the remaining platform operators. Prediction
+PDB copied from the job's `tmp/artifacts/boltz_complex/*/prediction.pdb` to
+`design_loop/round4/final_candidate/complex_d3.pdb` (188,106 B).
+
+| Operator | Job | Result |
+| --- | --- | --- |
+| `interface_hotspots` | `req-bc9cd4e6649325fe7febffbb` | 30 interface residues within 5 Å, total buried area 1,180.24 Å² |
+| `antibody_developability` | `req-625c9dbe0fbd525ba4110020` | length 88, MW 10,060.5 Da, pI 4.531, net charge −6.65 at pH 6.0 / −7.01 at pH 7.4, 0 cysteines, 1 deamidation motif, 0 isomerisation motifs, longest hydrophobic run 3, hydrophobic fraction 0.386 |
+| `sequence_liability_scan` | `req-57845c5a023059e86d98c7c1` | 3 sites: E1 pyroglutamate (low, `EVKI`), N14 deamidation (high, `NG`), D63 isomerisation (high, `DG`) |
+
+The developability panel reports zero isomerisation motifs while the liability scan flags
+D63 in a DG motif; the two operators use different motif sets, and the disagreement is
+kept rather than reconciled because each score carries its operator identity. The binder
+sequence is `design_loop/round4/final_candidate/binder_d3.fa` (88 aa, record
+`binder_d3_round4`).
+
+## Reproducing the loop
+
+The scripts used here are shipped under `scripts/design_loop/`, with the workspace and
+prediction paths taken from the arguments or from the `D:\OperonTest517rc7` layout used
+for the runs in this document:
+
+| Script | Purpose |
+| --- | --- |
+| `collect_round.py` | walk `<base>/results/req-*/runs/*/steps/01_boltz_complex_confidence.json`, emit the score CSV |
+| `make_complexes.py` | rebuild `>binder`/`>target` FASTAs from a parent PDB plus a ProteinMPNN FASTA |
+| `submit_boltz.py` | emit one Boltz graph per complex and submit it through the CLI |
+| `ca_rmsd.py` | superpose a prediction on the parent through the target chain and report both RMSDs |
+| `rmsd_stats.py` | correlate iPTM with fold retention over the collected rows |
+
 ## Platform defects found by the loop
 
 | Defect | Symptom | Fix | Version |
