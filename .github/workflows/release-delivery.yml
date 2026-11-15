@@ -1,12 +1,21 @@
 name: Exact Linux delivery acceptance
 on:
+  workflow_dispatch:
+    inputs:
+      server_url:
+        description: Expiring read-only URL for the candidate server archive
+        required: true
+      runtime_url:
+        description: Expiring read-only URL for the pinned test runtime
+        required: true
   push:
     branches: ['release/**']
-    paths: ['.github/release-transfer.json']
+    paths: ['.github/release-transfer.json', '.github/workflows/release-delivery.yml', 'scripts/acceptance/verify_server_delivery.py']
 permissions:
   contents: read
 jobs:
   linux-delivery:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -16,11 +25,14 @@ jobs:
           python-version: '3.11'
       - name: Download exact candidate and pinned test runtime
         env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
+          SERVER_URL: ${{ inputs.server_url }}
+          RUNTIME_URL: ${{ inputs.runtime_url }}
         run: |
+          echo "::add-mask::$SERVER_URL"
+          echo "::add-mask::$RUNTIME_URL"
           mkdir delivery-input
-          gh release download v5.2.0 --pattern Operon-5.2.0-Server.zip --pattern cpython-3.11.14-linux.tar.gz --dir delivery-input
+          curl --fail --location --silent --show-error "$SERVER_URL" --output delivery-input/Operon-5.2.0-Server.zip
+          curl --fail --location --silent --show-error "$RUNTIME_URL" --output delivery-input/cpython-3.11.14-linux.tar.gz
       - name: Install and verify delivered CLI and portable package
         run: |
           SHA=$(python -c "import json;print(json.load(open('.github/release-transfer.json'))['server_sha256'])")
