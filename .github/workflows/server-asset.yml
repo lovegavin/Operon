@@ -66,6 +66,28 @@ jobs:
           "$PREFIX/bin/operon" --workspace "$PREFIX/workspace" run "$PREFIX/workspace/demo/workflow.yaml" --progress --brief
           "$PREFIX/bin/operon" --workspace "$PREFIX/workspace" jobs list --json
           "$PREFIX/bin/operon" --workspace "$PREFIX/workspace" service stop || true
+      - name: Check installed frozen script RunPlan boundary
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, subprocess
+          result = json.loads((pathlib.Path(os.environ['RUNNER_TEMP'])/'server-install.json').read_text())
+          fixture = pathlib.Path.cwd()/'examples/workflows/script_pipeline/workflow.yaml'
+          code = '''from pathlib import Path
+          import sys
+          from operon.workflow_spec import load_workflow
+          from operon.planning import WorkflowCompiler
+          from operon.execution.native_bootstrap import validate_native_descriptors
+          path=Path(sys.argv[1])
+          plan=WorkflowCompiler().compile(load_workflow(path),None,{},root=path.parent,require_files=True)
+          unit=plan.units[0]
+          assert len(unit.node_ids)==3 and len(plan.edges)==2
+          assert isinstance(unit.payload['task_manifest']['steps'][0]['params']['script']['dependencies'],tuple)
+          validate_native_descriptors(unit.payload['native_descriptors'],plan.implementations,unit.payload['task_manifest'])
+          print('Installed frozen script RunPlan: passed')
+          '''
+          import textwrap
+          subprocess.run([result['python'],'-I','-c',textwrap.dedent(code),str(fixture)],check=True)
+          PY
       - name: Record installed artifact identity
         run: |
           PREFIX=$(cat "$RUNNER_TEMP/operon-path")
