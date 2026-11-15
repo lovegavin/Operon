@@ -494,6 +494,7 @@ class PoolService:
                         'managed_budget_bytes': int(allocation.get('budget_bytes', 0)),
                         'process_reservation_bytes': int(allocation.get('reserved_bytes', 0)),
                         'cpu_threads': max(1, int(allocation.get('cpu_threads', 1))),
+                        'devices': [f'gpu:{device}' for device in allocation.get('gpu_devices', [])],
                         'scratch_reserved_bytes': 0},
                     'capability': 'legacy-sequential', 'retry_limit': 1}],
             workspace_id=service.engine.workspace_id, principal=principal,

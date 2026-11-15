@@ -1340,6 +1340,9 @@ class JobService:
             if job.get('status') == 'running' or job_id in self.processes or job_id in self._starting:
                 return
             allocation = dict(job.get('allocation') or {})
+            gpu_count = max(0, int(allocation.get('gpu_count', 0) or 0))
+            if gpu_count and not allocation.get('gpu_devices'):
+                allocation['gpu_devices'] = list(self.admission.gpus[:gpu_count])
             allocation.update({
                 'budget_bytes': int(committed.managed_budget_bytes),
                 'reserved_bytes': int(committed.process_reservation_bytes),

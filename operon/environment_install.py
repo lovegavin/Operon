@@ -330,8 +330,15 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None):
         default_index = ('https://download.pytorch.org/whl/cpu' if entry.get('torch_cpu')
                          else 'https://download.pytorch.org/whl/cu121')
         index = str(entry.get('torch_index_url') or default_index)
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, requirement,
-              '--index-url', index], log=log, timeout=3600, progress=progress)
+        torched = str(entry.get('torch_wheel') or '').strip()
+        if torched and Path(torched).is_file():
+            requirement = torched
+        command = [python, '-m', 'pip', 'install', *PIP_TRANSFER, requirement,
+                   '--index-url', index]
+        links = str(entry.get('torch_wheelhouse') or os.environ.get('OPERON_TORCH_WHEELHOUSE') or '')
+        if links:
+            command.extend(['--find-links', links, '--prefer-binary'])
+        _run(command, log=log, timeout=3600, progress=progress)
     if direct:
         _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, *PIP_INDEX, *direct], log=log,
              timeout=1800, progress=progress)
