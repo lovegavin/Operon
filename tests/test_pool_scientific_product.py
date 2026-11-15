@@ -86,7 +86,7 @@ def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, 
                  'position': {'x': 1, 'y': 1}, 'params': {'factor': 3, 'output': 'scaled'}}],
             'edges': [{'id': 'e', 'source': 'input', 'target': 'scale'}]})
         if custom_output:
-            graph.runtime['results_root'] = str(workspace / 'selected results')
+            graph.base_dir = str(workspace / 'selected task')
         first = app.jobs.submit({'graph': graph.model_dump(mode='json'), 'request_id': 'science-1'})
         assert first['id'].startswith('exec-')  # orchestration was not bypassed
         if publication_failure:
@@ -111,7 +111,7 @@ def test_installed_contract_real_pool_workflow_and_cache(tmp_path, monkeypatch, 
         from operon.bytecode import io_path
         output = io_path(Path(report['output_dir']))
         if custom_output:
-            assert Path(report['output_dir']).parent == workspace / 'selected results'
+            assert Path(report['output_dir']).parent == workspace / 'selected task' / 'results'
         arrays = list(output.rglob('*.npy'))
         assert arrays, list(output.rglob('*'))
         assert any(np.array_equal(np.load(p, allow_pickle=False), data * 3) for p in arrays)
