@@ -119,7 +119,11 @@ jobs:
       - run: python -m pytest tests/test_optional_library_imports.py tests/test_resource_downloads.py tests/test_remote_handshake.py -q
       - run: python -m pytest tests/test_remote_library.py tests/test_remote_upgrade.py tests/test_operon_import_compatibility.py tests/test_environment_checks.py tests/test_execution_plan.py tests/test_readiness.py tests/test_remote_bridge_close.py tests/test_control_limits.py tests/test_pin_validation.py tests/test_fasta_cdr_contract.py -q
       - run: python -m pytest tests/test_server_package.py tests/test_server_setup.py tests/test_workflow_import_errors.py tests/test_workflow_spec_v3.py tests/test_setup_wrapper.py tests/test_bundled_long_imports.py tests/test_script_operators_v3.py -q
-      - run: python -m operon registry check
+      - run: python -m operon registry check --scope packages
+      # Route indexes are generated and gitignored in the independent library.
+      # Validate generation and reproducibility without changing that library.
+      - run: python -m operon registry build --scope routes --output-dir .verification/registry-ci
+      - run: python -m operon registry check --scope routes --output-dir .verification/registry-ci
       # The factory seed belongs to its independent library release. A newer
       # application template (including branding) must not rewrite that seed.
       # Registry check above verifies its declarations and document hashes;
