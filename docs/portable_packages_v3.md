@@ -94,3 +94,7 @@ python -m operon.environment_store --store ./environments verify GENERATION
 python -m operon.environment_store --store ./environments audit GENERATION
 python -m operon.environment_store --store ./environments materialize GENERATION --destination ./recovered-environments
 ```
+
+Writable managed stores automatically seal an old generation on its first normal
+binding. Read-only legacy portable bundles retain their original verification
+behavior and are never modified in place. New exports use package bindings.

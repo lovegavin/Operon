@@ -78,3 +78,17 @@ def test_recover_missing_cache_into_fresh_store_from_archives(tmp_path):
     copy_generation(source, target, binding.generation_id)
     assert target.binding(binding.generation_id, verify='deep') == binding
     assert not (directory / 'payload').exists()
+
+
+def test_legacy_mutable_store_migrates_once_but_readonly_bundle_does_not(tmp_path, monkeypatch):
+    store = EnvironmentStore(tmp_path)
+    binding = store.prepare(requirement(), LayerBuilder())
+    root = store.root / 'generations' / binding.generation_id
+    (root / 'packages.json').unlink(); (root / 'materialized.json').unlink()
+    assert EnvironmentStore(tmp_path, create=False).binding(binding.generation_id) == binding
+    assert not (root / 'packages.json').exists()
+    assert store.binding(binding.generation_id) == binding
+    assert (root / 'packages.json').exists()
+    def forbidden(*a, **kw): raise AssertionError('Repeated migration scan')
+    monkeypatch.setattr('operon.environment_store.verification.inventory', forbidden)
+    assert EnvironmentStore(tmp_path).binding(binding.generation_id) == binding

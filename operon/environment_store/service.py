@@ -33,6 +33,7 @@ def read(path):
 class EnvironmentStore:
     def __init__(self, root, *, create=True):
         self.root = Path(root).resolve()
+        self.allow_package_migration = create
         if create:
             for folder in ('blobs/sha256', 'staging', 'generations', 'references', 'journal', 'leases', 'locks', 'trash'):
                 (self.root / folder).mkdir(parents=True, exist_ok=True)
@@ -88,8 +89,15 @@ class EnvironmentStore:
         path, manifest, receipt = self._manifest(generation)
         if verify:
             from .packages import verify as verify_packages
-            if verify == 'deep' or not verify_packages(self, generation):
+            if verify == 'deep':
                 verify_inventory(path / 'payload', manifest['files'])
+            elif not verify_packages(self, generation):
+                if self.allow_package_migration:
+                    from .packages import seal
+                    seal(self, generation)
+                else:
+                    # Read-only legacy portable bundles must not be mutated.
+                    verify_inventory(path / 'payload', manifest['files'])
         return EnvironmentBinding(requirement_digest=manifest['requirement_digest'],
             target=manifest['requirement']['target'], generation_id=generation,
             content_digest=manifest['content_digest'], verification_receipt=receipt)
