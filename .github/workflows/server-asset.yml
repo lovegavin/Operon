@@ -15,6 +15,9 @@ on:
       expected_sha256:
         description: SHA256 of the exact server ZIP
         required: true
+      asset_url:
+        description: Optional expiring read-only URL for a draft asset
+        required: false
   push:
     paths: ['release-trigger']
 
@@ -32,11 +35,17 @@ jobs:
       - name: Download exact release asset
         env:
           GH_TOKEN: ${{ github.token }}
+          ASSET_URL: ${{ inputs.asset_url }}
         run: |
           mkdir -p "$RUNNER_TEMP/server-asset"
-          gh release download "$RELEASE_TAG" \
-            --pattern "$ASSET_NAME" \
-            --dir "$RUNNER_TEMP/server-asset"
+          if [ -n "$ASSET_URL" ]; then
+            echo "::add-mask::$ASSET_URL"
+            curl --fail --location --silent --show-error "$ASSET_URL" --output "$RUNNER_TEMP/server-asset/$ASSET_NAME"
+          else
+            gh release download "$RELEASE_TAG" \
+              --pattern "$ASSET_NAME" \
+              --dir "$RUNNER_TEMP/server-asset"
+          fi
           cd "$RUNNER_TEMP/server-asset"
           echo "$EXPECTED_SHA256  $ASSET_NAME" | sha256sum -c -
           unzip -q "$ASSET_NAME" -d bundle
