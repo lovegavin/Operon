@@ -96,6 +96,10 @@ jobs:
           '''
           import textwrap
           subprocess.run([result['python'],'-I','-c',textwrap.dedent(code),str(fixture)],check=True)
+          source=subprocess.check_output([result['python'],'-I','-c','import operon;from pathlib import Path;print(Path(operon.__file__).resolve().parent.parent)'],text=True).strip()
+          subprocess.run([result['python'],'-I','scripts/acceptance/verify_canvas_preflight.py',
+              '--code-root',source,'--workflow',str(fixture),
+              '--workspace',str(pathlib.Path(os.environ['RUNNER_TEMP'])/'canvas-preflight')],check=True)
           PY
       - name: Record installed artifact identity
         run: |
