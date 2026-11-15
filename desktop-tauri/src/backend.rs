@@ -15,7 +15,7 @@ use serde::Deserialize;
 use std::fs;
 use std::io;
 use std::path::{Path, PathBuf};
-use std::process::Stdio;
+use std::process::{ExitStatus, Stdio};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncWriteExt, BufReader};
@@ -57,7 +57,9 @@ pub struct Backend {
     diagnostics: Arc<Diagnostics>,
     stdout_task: Option<JoinHandle<()>>,
     stderr_task: Option<JoinHandle<()>>,
-    exited: bool,
+    exit_status: Option<ExitStatus>,
+    exit_failure: Option<HostError>,
+    shutdown_succeeded: bool,
 }
 
 impl Backend {
@@ -224,7 +226,9 @@ impl Backend {
             diagnostics,
             stdout_task: Some(stdout_task),
             stderr_task: Some(stderr_task),
-            exited: false,
+            exit_status: None,
+            exit_failure: None,
+            shutdown_succeeded: false,
         })
     }
 
@@ -240,14 +244,24 @@ impl Backend {
         &self.token
     }
 
-    /// Non-blocking owned-child exit check for the host state machine.
+    /// The actual parent exit status, once observed by `try_exited` or
+    /// `shutdown`. The status is retained rather than reduced to a bool.
+    pub fn exit_status(&self) -> Option<ExitStatus> {
+        self.exit_status
+    }
+
+    /// Non-blocking check for parent-process exit.
+    ///
+    /// `true` means the parent has exited; it does not mean the whole owned job
+    /// is empty. A monitor must call `shutdown` (or otherwise query the job
+    /// tree) before treating the service as drained.
     pub fn try_exited(&mut self) -> Result<bool, HostError> {
-        if self.exited {
+        if self.exit_status.is_some() {
             return Ok(true);
         }
         match self.child.try_wait() {
-            Ok(Some(_)) => {
-                self.exited = true;
+            Ok(Some(status)) => {
+                self.observe_exit(status);
                 Ok(true)
             }
             Ok(None) => Ok(false),
@@ -255,43 +269,74 @@ impl Backend {
         }
     }
 
-    /// Ask the owned child to exit and wait for confirmation.
+    /// Ask the parent to exit and wait for the entire owned job tree.
     ///
-    /// On timeout this returns a retryable failure without killing, terminating
-    /// the job, or reporting success. Ownership remains with this `Backend`, so
-    /// the caller can retry `shutdown` or observe `try_exited`.
+    /// Success requires a normal parent exit status **and** zero active
+    /// processes in the owned Job Object. A parent exit with a nonzero status
+    /// is a sticky failure: repeated calls return the same error, never success.
+    /// If the parent exits normally but a non-breakaway helper remains, this
+    /// waits within the caller's deadline and then returns a retryable failure
+    /// while retaining child/job ownership. No forced kill is reported as a
+    /// successful graceful shutdown.
     pub async fn shutdown(&mut self, timeout: Duration) -> Result<(), HostError> {
-        if self.exited {
+        if self.shutdown_succeeded {
             return Ok(());
         }
+        if let Some(error) = &self.exit_failure {
+            return Err(error.clone());
+        }
 
-        if let Some(mut stdin) = self.stdin.take() {
-            let write = async {
-                let _ = stdin.write_all(b"shutdown\n").await;
-                let _ = stdin.flush().await;
-            };
-            let write_bound = timeout.min(Duration::from_secs(1));
-            let _ = tokio::time::timeout(write_bound, write).await;
-            // Dropping stdin also gives the existing service EOF, which it
-            // already treats as a host exit request.
+        // A parent that already exited must not be sent another handshake.
+        if self.exit_status.is_none() {
+            if let Some(mut stdin) = self.stdin.take() {
+                let write = async {
+                    let _ = stdin.write_all(b"shutdown\n").await;
+                    let _ = stdin.flush().await;
+                };
+                let write_bound = timeout.min(Duration::from_secs(1));
+                let _ = tokio::time::timeout(write_bound, write).await;
+                // Dropping stdin also gives the existing service EOF, which it
+                // already treats as a host exit request.
+            }
+        } else {
+            // The parent is already gone; close our write end rather than
+            // leaving an unused pipe handle open for the rest of host life.
+            drop(self.stdin.take());
         }
 
         let deadline = Instant::now() + timeout;
         loop {
-            match self.child.try_wait() {
-                Ok(Some(_)) => {
-                    self.exited = true;
+            if self.exit_status.is_none() {
+                match self.child.try_wait() {
+                    Ok(Some(status)) => self.observe_exit(status),
+                    Ok(None) => {}
+                    Err(_) => return Err(HostError::bridge_unavailable()),
+                }
+            }
+
+            // A nonzero parent exit is a permanent failure, even when the job
+            // has no remaining processes. Preserve it across repeated calls.
+            if let Some(error) = &self.exit_failure {
+                return Err(error.clone());
+            }
+
+            if self
+                .exit_status
+                .as_ref()
+                .is_some_and(|status| status.success())
+            {
+                let active = self._job.active_processes()?;
+                if active == 0 {
+                    self.shutdown_succeeded = true;
                     self.finish_logging().await;
                     return Ok(());
                 }
-                Ok(None) => {}
-                Err(_) => return Err(HostError::bridge_unavailable()),
             }
 
             let now = Instant::now();
             if now >= deadline {
                 self.diagnostics
-                    .host("owned management service did not stop before the drain deadline");
+                    .host("owned management tree did not stop before the drain deadline");
                 return Err(HostError::capability_unavailable(
                     HostNextAction::Retry,
                     None,
@@ -299,6 +344,16 @@ impl Backend {
             }
             let remaining = deadline.saturating_duration_since(now);
             tokio::time::sleep(remaining.min(Duration::from_millis(25))).await;
+        }
+    }
+
+    fn observe_exit(&mut self, status: ExitStatus) {
+        if self.exit_status.is_some() {
+            return;
+        }
+        self.exit_status = Some(status);
+        if !status.success() {
+            self.exit_failure = Some(HostError::bridge_unavailable());
         }
     }
 

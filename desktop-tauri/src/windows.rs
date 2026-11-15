@@ -6,6 +6,8 @@
 //! really dies terminates the owned service tree; a child that explicitly asks
 //! to break away (the existing shared pool/viewer helpers) is allowed to leave
 //! the job and survive. No process-name based cleanup is performed here.
+//! Graceful shutdown additionally requires the job accounting count to reach
+//! zero; a parent exit alone is not treated as a tree drain.
 
 use crate::error::HostError;
 use tokio::process::Child;
@@ -66,6 +68,34 @@ impl JobObject {
         }
     }
 
+    /// Number of active processes still in the owned job. A parent exit alone
+    /// is not a tree drain: non-breakaway helpers remain counted here.
+    pub fn active_processes(&self) -> Result<u32, HostError> {
+        use std::ffi::c_void;
+        use windows_sys::Win32::System::JobObjects::{
+            JobObjectBasicAccountingInformation, QueryInformationJobObject,
+            JOBOBJECT_BASIC_ACCOUNTING_INFORMATION,
+        };
+
+        let mut information: JOBOBJECT_BASIC_ACCOUNTING_INFORMATION =
+            unsafe { std::mem::zeroed() };
+        let mut returned_length = 0u32;
+        let queried = unsafe {
+            QueryInformationJobObject(
+                self.raw(),
+                JobObjectBasicAccountingInformation,
+                &mut information as *mut _ as *mut c_void,
+                std::mem::size_of::<JOBOBJECT_BASIC_ACCOUNTING_INFORMATION>() as u32,
+                &mut returned_length,
+            )
+        };
+        if queried == 0 {
+            Err(HostError::bridge_unavailable())
+        } else {
+            Ok(information.ActiveProcesses)
+        }
+    }
+
     /// Terminate only the processes still inside the owned job. Breakaway
     /// helpers are no longer in the job and are intentionally untouched.
     pub fn terminate(&self) {
@@ -104,6 +134,12 @@ impl JobObject {
 
     pub fn assign(&self, _child: &Child) -> Result<(), HostError> {
         Ok(())
+    }
+
+    /// No Unix job-tree accounting is implemented in this Windows-x64
+    /// experiment. Report unsupported rather than a fake empty-tree proof.
+    pub fn active_processes(&self) -> Result<u32, HostError> {
+        Err(HostError::unsupported(None))
     }
 
     pub fn terminate(&self) {}

@@ -29,8 +29,9 @@ pub mod windows;
 
 `Cargo.toml` already contains every crate used: Tokio `process/io-util/time/
 rt-multi-thread/sync`, `reqwest` without redirects/proxy, `url`, `uuid`, `fs2`,
-`serde`/`serde_json`, `windows-sys` features and `tempfile` (dev). No dependency
-change is requested.
+`serde`/`serde_json`, `windows-sys` features and `tempfile` (dev). Root adds the
+Tokio `macros` feature for `select!` and any test runner features; no crate
+addition or dependency change is requested here.
 
 ## `Backend` API
 
@@ -45,9 +46,14 @@ impl Backend {
     pub fn origin(&self) -> &url::Url;
     pub fn studio_token(&self) -> &str;
     pub fn try_exited(&mut self) -> Result<bool, HostError>;
+    pub fn exit_status(&self) -> Option<std::process::ExitStatus>;
     pub async fn shutdown(&mut self, timeout: Duration) -> Result<(), HostError>;
 }
 ```
+
+`try_exited` reports **parent** exit only; it does not prove the owned job tree
+is empty. `exit_status` exposes the retained parent status so a monitor can
+distinguish normal and abnormal parent exit. `shutdown` is the tree-drain check.
 
 `Backend` intentionally has no `Debug` implementation. The token is never put in
 a URL, a `HostError` message, or a log line. `start` returns only the four safe
@@ -111,17 +117,33 @@ written.
 
 ### Shutdown and failure ownership
 
-- `shutdown` writes `shutdown\n`, closes stdin, and polls the retained child
-  until the caller's deadline.
-- On timeout it returns
-  `HostError::capability_unavailable(HostNextAction::Retry, None)` and **does
-  not** kill, terminate the job, mark closed, or report success. Ownership stays
-  in `Backend` for a UI retry or a later `try_exited`.
-- Unexpected child exit is returned as a safe bridge error by `start` or
-  `try_exited`; there is no automatic restart or job replay.
+- `shutdown` writes `shutdown\n`, closes stdin, then waits for **both** a normal
+  parent exit status and `JobObject::active_processes() == 0`.
+- `JobObject::active_processes()` uses
+  `QueryInformationJobObject(JobObjectBasicAccountingInformation)` on Windows.
+  A parent exit is not a tree drain: a non-breakaway helper keeps the count
+  nonzero even after the parent and its pipe handles exit.
+- If the parent exits normally but the job still has active processes,
+  `shutdown` keeps waiting within the same caller deadline. At timeout it returns
+  `HostError::capability_unavailable(HostNextAction::Retry, None)` and does not
+  kill, terminate the job, mark closed, or report success. Ownership stays in
+  `Backend`; a later retry succeeds once the helper ends and the job is empty.
+- A nonzero parent exit status is recorded and is a **sticky** failure. Even when
+  the job is already empty, `shutdown` returns a bridge error; repeated calls
+  return the same error and never turn exit code 5/1 into success. `try_exited`
+  retains the status and exposes it through `exit_status()`.
+- `try_exited` means only “parent exited”. A monitor must not treat that as the
+  owned tree being drained; it should call `shutdown` (or wait for the host close
+  flow) to check the job.
+- Unexpected child exit is a safe bridge error by `start`; there is no automatic
+  restart or job replay.
 - Successful shutdown keeps the Job Object until `Backend` drops. Dropping
   `Backend` closes the job handle, which is the fail-safe only for actual host
   death. Breakaway children are no longer in the job and survive.
+- On non-Windows targets `active_processes()` returns
+  `HostError::unsupported(None)` instead of faking a zero count, so a non-Windows
+  graceful shutdown cannot claim tree-drain proof. This remains a Windows-x64
+  experiment.
 
 ## `InstanceGuard` API
 
@@ -226,6 +248,11 @@ configure global `tracing` output.
 - a fixture child that uses `CREATE_BREAKAWAY_FROM_JOB` survives backend
   shutdown (proves `BREAKAWAY_OK` semantics);
 - shutdown timeout → retryable failure, not success, ownership retained;
+- nonzero parent exit on shutdown → retained status 5 and sticky bridge error on a
+  repeated call;
+- parent exits normally while a non-breakaway child inherits stdout/stderr and
+  remains in the job → shutdown times out instead of accepting parent exit, then
+  succeeds after the helper ends;
 - receipt/identity mismatch, readiness PID mismatch and studio version mismatch
   all fail startup.
 
@@ -256,6 +283,11 @@ Python. No test result is claimed by this handoff.
    `profile_dir` is rejected.
 5. **Non-Windows:** `windows.rs` provides a no-op guard so the crate shape can
    compile, but process-tree ownership is only claimed for Windows x64.
+   `active_processes()` returns `HostError::unsupported(None)` there, so
+   non-Windows shutdown cannot fake a zero-process proof.
+6. **Tree drain:** a parent exit is only one half of graceful shutdown. The
+   Job Object accounting count must also be zero; a nonzero parent exit is a
+   sticky failure even when the job is empty.
 
 ## Unresolved gates for root
 

@@ -63,6 +63,30 @@ def spawn_breakaway_helper() -> None:
         raise SystemExit(9)
 
 
+def spawn_inherited_child() -> None:
+    """Spawn a non-breakaway helper that inherits stdout/stderr pipes."""
+    helper = HERE / "unrelated_server.py"
+    port_file = HERE / "parent_exit_child_port.txt"
+    error_file = HERE / "parent_exit_child_error.txt"
+    try:
+        subprocess.Popen(
+            [sys.executable, str(helper), "--port-file", str(port_file)],
+            stdin=subprocess.DEVNULL,
+            # stdout/stderr intentionally inherited: the helper keeps the
+            # parent's pipe handles open after the parent exits the job.
+            close_fds=False,
+        )
+    except Exception as error:  # pragma: no cover - Windows-only fixture path
+        error_file.write_text(repr(error), encoding="utf-8")
+        print(f"inherited child spawn failed: {error!r}", file=sys.stderr, flush=True)
+        os._exit(9)
+
+    # CreateProcess has returned, so the helper already exists in the inherited
+    # job even if its Python initialization has not finished yet. Give the job
+    # accounting a moment before the parent exits.
+    time.sleep(0.2)
+
+
 def main() -> int:
     mode = read_mode()
     args = parse_args()
@@ -179,6 +203,11 @@ def main() -> int:
             try:
                 for command in sys.stdin:
                     if command.strip() == "shutdown":
+                        if mode == "exit_nonzero_on_shutdown":
+                            os._exit(5)
+                        if mode == "parent_exits_child_lives":
+                            spawn_inherited_child()
+                            os._exit(0)
                         break
             finally:
                 threading.Thread(target=server.shutdown, daemon=True).start()

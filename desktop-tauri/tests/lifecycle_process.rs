@@ -357,6 +357,88 @@ fn shutdown_timeout_is_not_reported_as_success() {
 }
 
 #[test]
+fn nonzero_shutdown_exit_is_a_sticky_failure() {
+    let Some(python) = test_python() else {
+        return;
+    };
+    let fixture = Fixture::build("exit_nonzero_on_shutdown", &python);
+    let runtime = runtime();
+    runtime.block_on(async {
+        let mut backend = Backend::start(&fixture.config)
+            .await
+            .expect("fixture should start");
+        let first = backend
+            .shutdown(Duration::from_secs(5))
+            .await
+            .expect_err("exit status 5 must not be reported as graceful shutdown");
+        assert_eq!(first.code(), HostErrorCode::HostBridgeUnavailable);
+        assert_eq!(
+            backend.exit_status().and_then(|status| status.code()),
+            Some(5),
+            "the actual exit status must be retained"
+        );
+        assert!(backend.try_exited().expect("exit probe"));
+
+        let second = backend
+            .shutdown(Duration::from_secs(2))
+            .await
+            .expect_err("a repeated shutdown must preserve the failed outcome");
+        assert_eq!(second.code(), first.code());
+        assert_eq!(second.message(), first.message());
+    });
+}
+
+#[test]
+fn parent_exit_does_not_count_as_tree_drain() {
+    let Some(python) = test_python() else {
+        return;
+    };
+    let fixture = Fixture::build("parent_exits_child_lives", &python);
+    let runtime = runtime();
+    runtime.block_on(async {
+        let mut backend = Backend::start(&fixture.config)
+            .await
+            .expect("fixture should start");
+
+        // The parent exits normally after spawning a non-breakaway helper that
+        // inherits stdout/stderr. Parent exit alone must not be accepted.
+        let error = backend
+            .shutdown(Duration::from_secs(3))
+            .await
+            .expect_err("a live job-attached helper must keep the drain pending");
+        assert_eq!(error.code(), HostErrorCode::HostCapabilityUnavailable);
+        assert_eq!(error.next_actions(), [HostNextAction::Retry].as_slice());
+        assert!(backend.try_exited().expect("parent exit probe"));
+        assert!(
+            backend
+                .exit_status()
+                .is_some_and(|status| status.success()),
+            "the parent exit itself was normal"
+        );
+
+        let port_file = fixture
+            .backend_root
+            .join("scripts")
+            .join("parent_exit_child_port.txt");
+        let port = wait_for_file(&port_file, Duration::from_secs(5)).await;
+        let helper_url = format!("http://127.0.0.1:{port}/");
+        let client = http_client();
+        wait_http(&client, &helper_url, Duration::from_secs(5)).await;
+
+        // Ending the helper empties the job; a retried shutdown can now succeed.
+        let _ = client
+            .get(format!("http://127.0.0.1:{port}/stop"))
+            .send()
+            .await;
+        wait_port_closed(port.parse().expect("helper port"), Duration::from_secs(5)).await;
+        backend
+            .shutdown(Duration::from_secs(5))
+            .await
+            .expect("shutdown should succeed after the owned tree drains");
+    });
+}
+
+#[test]
 fn identity_mismatch_fails_startup() {
     let Some(python) = test_python() else {
         return;
