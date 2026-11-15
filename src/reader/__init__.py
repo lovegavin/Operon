@@ -11,6 +11,7 @@ from __future__ import annotations
 import bz2
 import gzip
 import importlib
+import json
 import lzma
 import os
 import pkgutil
@@ -36,7 +37,48 @@ def _from_packages():
     return [reader_proxy(d, lambda d=d: load_entry(d)) for _, d in bundled_entries("reader")]
 
 
-READERS: list[Reader] = [] if os.getenv("OPERON_REGISTRY_MAINTENANCE") == "1" else _from_packages()
+
+def _from_installed_readers():
+    """Load reader classes shipped as provider packages inside an isolated env."""
+    try:
+        package = importlib.import_module("operon_readers.readers")
+    except Exception:
+        return []
+    found = []
+    seen = set()
+    for _finder, name, _is_pkg in pkgutil.iter_modules(package.__path__):
+        try:
+            module = importlib.import_module(f"{package.__name__}.{name}")
+        except Exception:
+            continue
+        for value in vars(module).values():
+            if (isinstance(value, type) and issubclass(value, Reader)
+                    and value is not Reader and value.__module__ == module.__name__
+                    and value not in seen):
+                seen.add(value)
+                try:
+                    instance = value()
+                except Exception:
+                    continue
+                schema = getattr(instance, "parameters_schema", None)
+                if schema is None:
+                    filename = getattr(value, "parameters_file", None)
+                    if filename:
+                        candidate = Path(module.__file__).with_name(filename)
+                        try:
+                            schema = json.loads(candidate.read_text(encoding="utf-8"))
+                        except Exception:
+                            schema = None
+                    if schema is not None:
+                        instance.parameters_schema = schema
+                definition = getattr(value, "definition", {}) or {}
+                for attribute in ("extensions", "requires_siblings", "excludes_siblings"):
+                    if not getattr(instance, attribute, None):
+                        setattr(instance, attribute, list(definition.get(attribute) or []))
+                found.append(instance)
+    return found
+
+READERS: list[Reader] = _from_installed_readers() if os.getenv("OPERON_REGISTRY_MAINTENANCE") == "1" else (_from_packages() or _from_installed_readers())
 
 
 def _output_kind(reader) -> str:
@@ -152,8 +194,12 @@ def read_source(
     reader = pick_reader(path, reader_id)
     if reader.parameters_schema is None:
         raise ReaderError("Protocol v3 requires a Reader parameter schema; migrate the declaration first")
-    from operon_sdk.protocol import validate_parameters
-    args = validate_parameters(reader.parameters_schema, args)
+    try:
+        from operon_sdk.protocol import validate_parameters
+    except ModuleNotFoundError:
+        validate_parameters = None
+    if validate_parameters is not None:
+        args = validate_parameters(reader.parameters_schema, args)
 
     if reader.handles_compression:
         form = reader.read(path, dims, labels, **args)
