@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import shutil
+import sys
 from pathlib import Path
 import time
 import uuid
@@ -64,6 +65,10 @@ def _parameters(plan, values):
 def run_bundle(root, *, inputs=None, parameters=None, resume=False, work_dir=None, output_dir=None,
                memory=None, threads=None, check=False, prepare_only=False):
     root = Path(root).resolve()
+    def progress(phase):
+        if os.environ.get('OPERON_EXPORT_PROBE') == '1':
+            print(f'[Operon portable probe] {phase}', file=sys.stderr, flush=True)
+    progress('verify_bundle')
     manifest = inspect_bundle(root)
     plan = RunPlan.model_validate_json((root / 'payload' / 'plan.json').read_text(encoding='utf-8'))
     validate_run_plan(plan)
@@ -106,8 +111,13 @@ def run_bundle(root, *, inputs=None, parameters=None, resume=False, work_dir=Non
     binding['storage'] = storage
     store_root = root / 'payload' / 'environments'
     source_environments = EnvironmentStore(store_root, create=False)
+    verified_generations = set()
     for value in binding['environments'].values():
-        source_environments.binding(value['generation_id'])
+        generation = value['generation_id']
+        if generation not in verified_generations:
+            progress('verify_source_environment')
+            source_environments.binding(generation)
+            verified_generations.add(generation)
     work = Path(work_dir or root / 'work').resolve()
     output = Path(output_dir or root / 'results').resolve()
     if work.is_relative_to((root / 'payload').resolve()) or output.is_relative_to((root / 'payload').resolve()):
@@ -139,23 +149,32 @@ def run_bundle(root, *, inputs=None, parameters=None, resume=False, work_dir=Non
     # standalone, not a second host-wide service started under Slurm/Studio.
     with FileLock(work / 'controller.lock', timeout=1):
         environments = EnvironmentStore(work / 'environments')
+        deployed_generations = {}
         for value in binding['environments'].values():
             generation = value['generation_id']
+            if generation in deployed_generations:
+                value['generation_id'] = deployed_generations[generation]
+                continue
             original, metadata, _ = source_environments._manifest(generation)
             if metadata['identity']['builder'].get('fixups'):
                 from .environments import destination_binding
                 deployed = destination_binding(source_environments, environments, generation)
                 value['generation_id'] = deployed.generation_id
+                deployed_generations[generation] = deployed.generation_id
                 continue
             target = environments.root / 'generations' / generation
             if not target.exists():
+                progress('copy_destination_environment')
                 temporary = environments.root / 'staging' / uuid.uuid4().hex
                 shutil.copytree(io_path(original), io_path(temporary), symlinks=True)
                 os.replace(temporary, target)
+            progress('verify_destination_environment')
             environments.binding(generation)
+            deployed_generations[generation] = generation
         identity = sha256_hex({'plan': plan.plan_id, 'inputs': identities,
                               'environments': binding['environments']})
         if prepare_only:
+            progress('preparation_complete')
             return {'status': 'ready', 'environments': binding['environments'],
                     'run_identity': identity, 'network_resolution': False}
         import psutil

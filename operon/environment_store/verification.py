@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import stat
 from pathlib import Path
 
 from operon.contracts.base import ContractError, sha256_hex
@@ -11,8 +12,13 @@ from operon.bytecode import io_path
 
 
 def confined(root, relative):
-    validate_relative_path(relative)
     root = Path(root).resolve()
+    return _confined_resolved(root, relative)
+
+
+def _confined_resolved(root, relative):
+    """Internal helper: root was already resolved for this inventory operation."""
+    validate_relative_path(relative)
     path = root / relative
     if not path.resolve().is_relative_to(root):
         raise ContractError('Path escapes its owned root', code='path_escape')
@@ -36,17 +42,17 @@ def inventory(root):
         for name in sorted(dirs + files):
             path = Path(directory) / name
             relative = path.relative_to(scan_root).as_posix()
-            confined(root, relative)
-            if path.is_symlink():
+            _confined_resolved(root, relative)
+            attrs = path.lstat()
+            if stat.S_ISLNK(attrs.st_mode):
                 target = os.readlink(path)
                 if Path(target).is_absolute():
                     raise ContractError('Absolute symlinks are not relocatable', code='invalid_environment')
                 result[relative] = {'kind': 'symlink', 'target': target}
-            elif path.is_file():
-                stat = path.stat()
-                result[relative] = {'kind': 'file', 'size': stat.st_size,
-                                    'sha256': file_digest(path), 'executable': bool(stat.st_mode & 0o111)}
-            elif not path.is_dir():
+            elif stat.S_ISREG(attrs.st_mode):
+                result[relative] = {'kind': 'file', 'size': attrs.st_size,
+                                    'sha256': file_digest(path), 'executable': bool(attrs.st_mode & 0o111)}
+            elif not stat.S_ISDIR(attrs.st_mode):
                 raise ContractError('Special files cannot be packaged', code='invalid_environment')
     return result
 

@@ -115,6 +115,7 @@ class ExportService:
                     target.write_bytes(content)
             phase('prepare_environments')
             management = management_environment or next(iter(environments))
+            needs_destination_preparation = False
             if management not in environments:
                 raise ContractError('Management environment was not provided', code='environment_unavailable')
             for item in environments.values():
@@ -122,6 +123,7 @@ class ExportService:
                 path, generation_manifest, _ = self.environments._manifest(generation)
                 self.environments.binding(generation)
                 if generation_manifest['identity']['builder'].get('fixups'):
+                    needs_destination_preparation = True
                     if generation == environments[management]['generation_id']:
                         raise ContractError('Management Python must start before destination environment preparation',
                                             code='environment_preparation_required')
@@ -166,8 +168,15 @@ class ExportService:
             with temporary_directory('operon-export-relocate-') as test:
                 moved = Path(test) / 'moved package'
                 shutil.copytree(io_path(temporary), io_path(moved), symlinks=True)
-                probe(moved, (executable, '-I', '-B', 'run.py', '--prepare-only'), timeout=600, cancel=cancel)
-                probe(moved, (executable, '-I', '-B', 'run.py', '--check'), timeout=180, cancel=cancel)
+                # Prefix-independent runtimes are already runnable in payload.
+                # Copying all of them into work/ merely to check relocation adds
+                # a second environment deployment (and antivirus scan) on Windows.
+                # Packed runtimes with prefix fixups still require real preparation.
+                if needs_destination_preparation:
+                    probe(moved, (executable, '-I', '-B', 'run.py', '--prepare-only'), timeout=600,
+                          cancel=cancel, environment={'OPERON_EXPORT_PROBE': '1'})
+                probe(moved, (executable, '-I', '-B', 'run.py', '--check'), timeout=180,
+                      cancel=cancel, environment={'OPERON_EXPORT_PROBE': '1'})
             phase('publish')
             if output.exists():
                 output.rmdir()

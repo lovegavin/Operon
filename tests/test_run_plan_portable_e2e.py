@@ -93,8 +93,15 @@ def target_store():
     return store, generation, EnvironmentRequirement.model_validate(manifest['requirement']), executable
 
 
-def test_real_export_moved_bundle_branch_join_parameter_input_resume(target_store, tmp_path):
+def test_real_export_moved_bundle_branch_join_parameter_input_resume(target_store, tmp_path, monkeypatch):
     store, generation, requirement, executable = target_store
+    import operon.export.service as export_module
+    original_probe = export_module.probe
+    probes = []
+    def observe_probe(root, argv, **kwargs):
+        probes.append(argv)
+        return original_probe(root, argv, **kwargs)
+    monkeypatch.setattr(export_module, 'probe', observe_probe)
     source = tmp_path / 'input.json'
     atomic_json(source, {'value': 7})
     # Explicit test-owned transient failure; no cache eligibility is claimed.
@@ -105,6 +112,9 @@ def test_real_export_moved_bundle_branch_join_parameter_input_resume(target_stor
         environments={'python': {'generation_id': generation, 'executable': executable}},
         management_environment='python', input_formats={'data': 'json'})
     assert result['status'] == 'complete'
+    assert any('--check' in argv for argv in probes)
+    if not store._manifest(generation)[1]['identity']['builder'].get('fixups'):
+        assert not any('--prepare-only' in argv for argv in probes)
     moved = tmp_path / 'moved package'
     directory.rename(moved)
     runtime = moved / 'payload/environments/generations' / generation / 'payload' / executable

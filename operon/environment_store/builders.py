@@ -137,7 +137,11 @@ def probe(root, argv, *, timeout=60, cancel=None, environment=None):
                 if cancel and cancel():
                     raise InterruptedError('Environment probe cancelled')
                 if time.monotonic() > deadline:
-                    raise TimeoutError('Environment probe timed out')
+                    with log.open('rb') as stream:
+                        stream.seek(max(0, log.stat().st_size - 8192))
+                        detail = stream.read().decode('utf-8', errors='replace')
+                    raise TimeoutError(f'Environment probe timed out after {timeout}s: {list(argv)!r}; '
+                                       f'last output: {detail}')
                 if log.stat().st_size > 4 * 1024 * 1024:
                     raise ContractError('Environment probe exceeded log allowance', code='environment_unverified')
                 time.sleep(.02)

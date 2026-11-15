@@ -87,6 +87,45 @@ def test_archive_recipe_lock_is_not_assumed(tmp_path):
         LockedArchiveBuilder([], []).resolve(requirement())
 
 
+def test_inventory_preserves_bytes_modes_and_detects_changes(tmp_path):
+    import hashlib
+    from operon.environment_store.verification import inventory, verify_inventory
+    folder = tmp_path / 'nested'; folder.mkdir()
+    file = folder / 'content.bin'; file.write_bytes(b'\x00synthetic\xff')
+    expected = {'nested/content.bin': {'kind': 'file', 'size': 11,
+        'sha256': hashlib.sha256(file.read_bytes()).hexdigest(),
+        'executable': bool(file.stat().st_mode & 0o111)}}
+    assert inventory(tmp_path) == expected
+    file.write_bytes(b'\x00different\xff')
+    with pytest.raises(ContractError, match='changed'):
+        verify_inventory(tmp_path, expected)
+
+
+def test_inventory_still_rejects_external_symlink(tmp_path):
+    from operon.environment_store.verification import inventory
+    root = tmp_path / 'root'; root.mkdir()
+    outside = tmp_path / 'outside'; outside.write_text('outside')
+    try:
+        (root / 'link').symlink_to(outside)
+    except OSError:
+        pytest.skip('Symlink privilege unavailable')
+    with pytest.raises(ContractError, match='escapes'):
+        inventory(root)
+
+
+def test_probe_timeout_keeps_phase_and_command_diagnostics():
+    import sys
+    from operon.environment_store.builders import probe
+    runtime = Path(sys.executable)
+    with pytest.raises(TimeoutError) as error:
+        probe(runtime.parent, (runtime.name, '-I', '-c',
+              "import time; print('verify_destination_environment', flush=True); time.sleep(60)"),
+              timeout=2)
+    assert 'last output: verify_destination_environment' in str(error.value)
+    assert runtime.name in str(error.value)
+    assert 'after 2s' in str(error.value)
+
+
 def test_grouping_only_merges_verified_compatible_runtime():
     calls = []
     req = {name: {'runtime': runtime, 'target': 'test', 'version': version}
