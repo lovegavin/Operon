@@ -20,6 +20,16 @@ LANGUAGES = {'.py': 'python', '.r': 'r', '.c': 'c', '.cpp': 'cpp', '.cc': 'cpp'}
 PREFIX = 'operon.script.'
 
 
+
+def _host_version():
+    from operon import __version__ as version
+    return version
+
+
+def _host_major():
+    from operon import __version__ as version
+    return int(version.split('.', 1)[0])
+
 def inspect_script(path):
     path = Path(path)
     return inspect_source(path.name, path.read_text(encoding='utf-8-sig'))
@@ -54,16 +64,24 @@ def inspect_source(filename, code):
                                           for line in match[1].splitlines()))
             dependencies = data.get('dependencies', [])
             requires_python = data.get('requires-python')
+    timeout = None
+    match = re.search(r'^\s*(?:#|//)\s*timeout:\s*(\d+)\s*$', code, re.M)
+    if match:
+        timeout = int(match.group(1))
+        if not 1 <= timeout <= 86400:
+            raise ValueError('Script timeout must be between 1 and 86400 seconds')
     snapshot = {'language': language, 'code': code, 'filename': path.name,
                 **ports, 'parameters_schema': {'type': 'object', 'properties': {}, 'additionalProperties': False},
                 'dependencies': dependencies, 'code_sha': hashlib.sha256(code.encode()).hexdigest()}
     if requires_python:
         snapshot['requires_python'] = requires_python
+    if timeout is not None:
+        snapshot['timeout'] = timeout
     return validate_script(snapshot)
 
 
 def validate_script(snapshot):
-    if not isinstance(snapshot, dict) or set(snapshot) - {'language', 'code', 'filename', 'inputs', 'outputs', 'parameters_schema', 'dependencies', 'code_sha', 'requires_python'}:
+    if not isinstance(snapshot, dict) or set(snapshot) - {'language', 'code', 'filename', 'inputs', 'outputs', 'parameters_schema', 'dependencies', 'code_sha', 'requires_python', 'timeout'}:
         raise ValueError('Invalid script snapshot fields')
     value = deepcopy(snapshot)
     if value.get('language') not in LANGUAGES.values() or not isinstance(value.get('code'), str):
@@ -78,6 +96,10 @@ def validate_script(snapshot):
     if value.get('code_sha', digest) != digest:
         raise ValueError('Script source hash does not match frozen snapshot')
     value['code_sha'] = digest
+    timeout = value.get('timeout', 3600)
+    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or not 0 < timeout <= 86400:
+        raise ValueError('Script timeout must be between 1 and 86400 seconds')
+    value['timeout'] = int(timeout)
     for field in ('inputs', 'outputs'):
         if not isinstance(value.get(field), dict):
             raise ValueError(f'Script {field} must declare named file ports')
@@ -160,6 +182,21 @@ def extract_parameters(snapshot, names):
             'bindings': {name: {'kind': 'environment-json', 'key': name} for name in names}}
 
 
+def _apply_library_path(env, executable):
+    """Expose an isolated interpreter's native libraries to child scripts."""
+    if os.name == 'nt':
+        return
+    try:
+        prefix = Path(executable).resolve().parent.parent
+    except OSError:
+        return
+    libraries = [str(prefix / name) for name in ('lib', 'lib64') if (prefix / name).is_dir()]
+    if not libraries:
+        return
+    previous = env.get('LD_LIBRARY_PATH')
+    env['LD_LIBRARY_PATH'] = os.pathsep.join(libraries + ([previous] if previous else []))
+
+
 def execute_script(snapshot, values, inputs, output_dir, *, cancel=None, timeout=3600, python=None, rscript=None, compiler=None):
     """Run a frozen script with file-backed logs and process-tree ownership."""
     snapshot = validate_script(snapshot)
@@ -189,6 +226,7 @@ def execute_script(snapshot, values, inputs, output_dir, *, cancel=None, timeout
     from .processes import owned_process
 
     def command(argv, log):
+        _apply_library_path(env, argv[0])
         with log.open('wb') as output, owned_process(argv, cwd=directory, env=env, stdout=output, stderr=output) as process:
             start = time.monotonic()
             try:
@@ -355,7 +393,8 @@ def run_script_step(snapshot, ctx, inputs, values, output):
         artifact.validate()
         files[port] = next(iter(artifact.files.values()))
     result = execute_script(snapshot, values, files, ctx.out_dir / 'scripts' / uuid.uuid4().hex,
-                            cancel=lambda: (ctx.task_dir / 'cancel.requested').exists())
+                            cancel=lambda: (ctx.task_dir / 'cancel.requested').exists(),
+                            timeout=float(snapshot.get('timeout', 3600)))
     for artifact in inputs:
         artifact.validate()
     format = next(iter(snapshot['outputs'].values()))['format']
@@ -418,7 +457,8 @@ def export_script_package(snapshot, directory, *, operator_id, title, category='
     (directory / 'pyproject.toml').write_text(
         '[build-system]\nrequires = ["setuptools>=69"]\nbuild-backend = "setuptools.build_meta"\n'
         f'[project]\nname = "{package}"\nversion = "{version}"\nrequires-python = ">=3.11"\n'
-        'dependencies = ["operon-studio>=3.0.0,<4"]\n'
+        f'dependencies = ["operon-studio>={_host_version()},<{_host_major() + 1}"]\n'
+
         f'[project.entry-points."operon.operators"]\n{module} = "{module}:ScriptStep"\n'
         f'[tool.setuptools.packages.find]\ninclude = ["{module}*"]\n'
         f'[tool.setuptools.package-data]\n"{module}" = ["*.json", "*.md"]\n', encoding='utf-8')

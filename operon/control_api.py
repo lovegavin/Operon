@@ -45,6 +45,7 @@ class SubmissionRequest(BaseModel):
 class EnvironmentRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     names: list[str] | None = Field(default=None, max_length=20)
+    force: bool = False
 
 
 class TaskRequest(BaseModel):
@@ -135,7 +136,7 @@ def mount_control(app, application, bridge):
     def prepare_environments(request: Request, payload: EnvironmentRequest):
         authorize(request, 'plugins')
         return {**application.isolated_environments(),
-                'prepared': application.start_isolated_environments(payload.names)}
+                'prepared': application.start_isolated_environments(payload.names, force=payload.force)}
 
     @app.get('/api/v1/large-resources')
     def large_resources(request: Request):

@@ -117,15 +117,19 @@ class Application:
                 'environments': environment_install.plan(root(), descriptors, source=source),
                 'operations': self.environment_operations()}
 
-    def prepare_isolated_environments(self, names=None, *, graph=None):
+    def prepare_isolated_environments(self, names=None, *, graph=None, force=False):
         """Install isolated environments, optionally limited to those a graph uses."""
         from . import environment_install
         from .environments import root
         source = self._library_source()
         descriptors = self.service.plugins.state().get('descriptors') or []
         plan = environment_install.plan(root(), descriptors, source=source)
-        wanted = list(names) if names else [name for name, item in plan.items()
-                                            if item['status'] in ('missing', 'stale')]
+        if names:
+            wanted = list(names)
+        elif force:
+            wanted = list(plan)
+        else:
+            wanted = [name for name, item in plan.items() if item['status'] in ('missing', 'stale')]
         if graph is not None:
             used = {getattr(node, 'operator', None) for node in graph.nodes}
             wanted = [name for name in wanted if used.intersection(plan.get(name, {}).get('used_by') or [])]
@@ -138,7 +142,7 @@ class Application:
                 prepared.append({'name': name, 'status': 'failed', 'error': str(exc)})
         return prepared
 
-    def start_isolated_environments(self, names=None, *, graph=None):
+    def start_isolated_environments(self, names=None, *, graph=None, force=False):
         """Start installation in the background and return immediately."""
         import threading
         import time

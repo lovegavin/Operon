@@ -121,7 +121,7 @@ def create_server(client):
 
     @server.tool()
     def operon_environments_prepare(names: list[str] | None = None, profile_id: str | None = None,
-                                    dependencies: bool = False) -> dict:
+                                    dependencies: bool = False, force: bool = False) -> dict:
         """Install isolated environments and optionally repair operator dependencies.
 
         Requires --allow-plugins and explicit user intent. Pass profile_id to install on that
@@ -132,7 +132,7 @@ def create_server(client):
         if profile_id:
             return client.request('/remote/' + quote(profile_id, safe='') + '/environments/prepare',
                                   {'names': names, 'dependencies': dependencies})
-        return client.request('/v1/environments/prepare', {'names': names})
+        return client.request('/v1/environments/prepare', {'names': names, 'force': force})
 
     @server.tool()
     def operon_resources() -> dict:
@@ -186,7 +186,11 @@ def create_server(client):
     @server.tool()
     def operon_jobs() -> dict:
         """List durable task status independently of open windows."""
-        return {'items': client.request('/v1/jobs')}
+        items = client.request('/v1/jobs')
+        for item in items:
+            for key in ('graph', 'children', 'parents'):
+                item.pop(key, None)
+        return {'items': items}
 
     @server.tool()
     def operon_logs(job_id: str, offset: int = 0, limit: int = 4096, encoding: str = 'text') -> dict:
@@ -346,9 +350,22 @@ def create_server(client):
         return client.request("/validate", {"graph": graph})
 
     @server.tool()
-    def operon_graph(session_id: str) -> dict:
-        """Read the complete canvas workspace and its revision."""
-        return client.request(f"/sessions/{session_id}")
+    def operon_graph(session_id: str, document_id: str | None = None, compact: bool = True) -> dict:
+        """Read the canvas revision and one document (all documents when compact=False)."""
+        snapshot = client.request(f"/sessions/{session_id}")
+        if not compact:
+            return snapshot
+        documents = (snapshot.get('workspace') or {}).get('documents') or []
+        active = document_id or (snapshot.get('presence') or {}).get('document_id')
+        selected = next((doc for doc in documents if doc.get('id') == active), None)
+        if selected is None and documents:
+            selected = documents[0]
+        return {'id': snapshot.get('id'), 'name': snapshot.get('name'),
+                'revision': snapshot.get('revision'), 'ui_revision': snapshot.get('ui_revision'),
+                'updated_at': snapshot.get('updated_at'), 'presence': snapshot.get('presence'),
+                'document_ids': snapshot.get('document_ids') or [doc.get('id') for doc in documents],
+                'document': selected,
+                'documents': documents if selected is None else [selected]}
 
     @server.tool()
     def operon_open(session_id: str, expected_revision: int, graph: dict,
@@ -430,11 +447,12 @@ def create_server(client):
 
     @server.tool()
     def operon_job(job_id: str, view: str = 'brief', wait_seconds: float = 0) -> dict:
-        """Read brief status, or wait internally up to 120 seconds; a closed window returns running with wait_timed_out, never a failure."""
+        """Read brief status, or wait internally up to 45 seconds; a closed window returns running with wait_timed_out, never a failure."""
         import math
         from .agent_views import job_view, wait_job
-        if not math.isfinite(wait_seconds) or not 0 <= wait_seconds <= 120:
-            raise ValueError('wait_seconds must be between 0 and 120')
+        if not math.isfinite(wait_seconds):
+            raise ValueError('wait_seconds must be finite')
+        wait_seconds = max(0.0, min(float(wait_seconds), 45.0))
         job_view({}, view)
         if quote(job_id, safe='').startswith(''):
             try:

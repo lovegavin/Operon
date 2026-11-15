@@ -317,7 +317,9 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None):
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
              timeout=1800, progress=progress)
     if entry.get('torch_cpu'):
-        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, 'torch',
+        torch_version = str(entry.get('torch_version') or '').strip()
+        requirement = f'torch=={torch_version}' if torch_version else 'torch'
+        _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, requirement,
               '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
              progress=progress)
     if direct:
