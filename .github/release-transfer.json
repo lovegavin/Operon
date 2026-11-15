@@ -1,137 +1,135 @@
 {
-  "tag": "v5.2.0",
-  "release_id": 445759201,
-  "filename": "Operon-5.2.0-rc12-acceptance.zip",
-  "bytes": 418035761,
-  "sha256": "2baa7b6172a08d6fda444cfb6f5410ac8568ebee2dcd5dc7e13a21b09aec22c6",
+  "tag": "v5.3.0",
+  "release_id": 445964186,
+  "filename": "Operon-5.3.0-rc1-acceptance.zip",
+  "bytes": 418287757,
+  "sha256": "9be182fab6de7d12d6086a1f856ad0627ef640b25a1b9c65fb1959787bdc5a3e",
   "parts": [
     {
-      "name": "operon-rc12-transfer-000.part",
-      "sha256": "c2c768f6d4e08930f01d662c1c8895cfffb25badd64c0d9040a9668602d9e3cc",
+      "name": "operon-rc5301-transfer-000.part",
+      "sha256": "fe96d268f997c3caf9ba221a8d144d443efb65ac8dd381817f1255f275eb4f11",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-001.part",
-      "sha256": "80b1ea3e3bff8ee225d201a77b72932f979f5988359e3f929f3e67481bab23ba",
+      "name": "operon-rc5301-transfer-001.part",
+      "sha256": "37901067f9bd8a2d8cb1651d6d06b8fffd3fc86f1eec4417e80ee2791c8d856f",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-002.part",
-      "sha256": "6e271ff7b010345548dc61f98a3e0b93de70b20d7d6a96e4c0df93c4c8070158",
+      "name": "operon-rc5301-transfer-002.part",
+      "sha256": "cb937d80e1084c3fc5181f8b847ac97654593615744be98169bdd3f7f1b9af0b",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-003.part",
-      "sha256": "94b823551bca1b235b12e391cbf7e9a4de3f5e48014788b7d0a5d4f8218064a8",
+      "name": "operon-rc5301-transfer-003.part",
+      "sha256": "64bb33288ce5de9905f8100004a92f2f4e073f25e9a00b0c086c797ff441bd91",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-004.part",
-      "sha256": "7f8ca60e8fc8a8d832e4be83b3c09358e33f08129708839ee96a13ebf2b1f41f",
+      "name": "operon-rc5301-transfer-004.part",
+      "sha256": "8e8f8abc80cc3cfbdcb4a5cd6dc5865c97997985b197b8e9278fc2471a24752b",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-005.part",
-      "sha256": "fc32c22b0726d1772b8f4f5b957cad10469540d3dfb6b0d6bc60edda6e601c41",
+      "name": "operon-rc5301-transfer-005.part",
+      "sha256": "147aeb3473b3f7dc62d696b0220b21f44bb639cbca3f729c3082c7314493287f",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-006.part",
-      "sha256": "2022ab6153d9d63846ccd05cd5ed066142f07af7ded33374315f8194db6d6b61",
+      "name": "operon-rc5301-transfer-006.part",
+      "sha256": "629121df976232b657c334dae8501608890a6c88570cbffa3de6a6f659cbf593",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-007.part",
-      "sha256": "6239e304aedcb823d7c4fcce9f84008a38bc432760e5cfd7613d23985da42e4b",
+      "name": "operon-rc5301-transfer-007.part",
+      "sha256": "089385e956fd5f6b3c25d43c15aeb9ca6068a497c4d6e33eecb343d2d9246452",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-008.part",
-      "sha256": "365e71b4ccbc93942af3db2189d2662edfe4a5ed19b511377a111c517456406d",
+      "name": "operon-rc5301-transfer-008.part",
+      "sha256": "3f681816c23b015999b8c814169554c0eaa208a2e40a12a51dbebb7838ad35f2",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-009.part",
-      "sha256": "9a7a39a6ee7479e95dd024b07c9921f3deaa91a88472139a7330904c9ec9f01f",
+      "name": "operon-rc5301-transfer-009.part",
+      "sha256": "9c17a2a8e23e7aa64236d690c9d3920eed2cd8cd922784c4daed138af12bf903",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-010.part",
-      "sha256": "5a9146fbddd7057b1e9b348a121a4fbd5bbca7601ab09c4d73c5f147a10daee6",
+      "name": "operon-rc5301-transfer-010.part",
+      "sha256": "76eda7034ca9c9498366a95a0419f885ab73fc394bca3c459ec1b4f4d9bc67dc",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-011.part",
-      "sha256": "9f7052368688944e2ce8215cfcf182c3e243003b13dab8020796640c37b0b8e0",
+      "name": "operon-rc5301-transfer-011.part",
+      "sha256": "f820331f139a5e200ce1c7c428ea7c13f94782feb94a439dbb55fa725fe3abf9",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-012.part",
-      "sha256": "5463e09095e9ec171eb9cece421f5071b451a29f1e56f054aae149a177afeeac",
+      "name": "operon-rc5301-transfer-012.part",
+      "sha256": "73965e02778d1ce5f3acc0d88d2384c1a4c1f877f8abbbaf6b74233134f5c60e",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-013.part",
-      "sha256": "3cd555091504309c950285cd319af434fd4c4b751e0ce08c6e9a0a52ccabe697",
+      "name": "operon-rc5301-transfer-013.part",
+      "sha256": "4059694fbd00e3075e8263e50125a80799ca02f5a56aacfc4467bffcf734f2b2",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-014.part",
-      "sha256": "92af869c10d09c24083b86f299902a97809f7e5ed9cc7847e5db4d33b45ee613",
+      "name": "operon-rc5301-transfer-014.part",
+      "sha256": "138f674fbaadcad00f5f2eb6310197508f12a611596216d73c1b0a85c84febdd",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-015.part",
-      "sha256": "4fe982186415c7dabfd1d57ee25a7ce364be85490d6c064053fa1056e607ac0a",
+      "name": "operon-rc5301-transfer-015.part",
+      "sha256": "9dd1b1373259aa42f3f4e8950a7b52ec0439dea14183c2c50931bfd067121fdc",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-016.part",
-      "sha256": "81eaad797941e336ecd8e8ec143940a4834adb42c6f53f09a3971e602893f34a",
+      "name": "operon-rc5301-transfer-016.part",
+      "sha256": "24c9e6f7fb2a884f8f4e8264682635daa890e42f3deac653f962c6e67608f44f",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-017.part",
-      "sha256": "108c49a1d74777edeaf95098cd8a18d1c35f188d79b35a08226ea3804d135454",
+      "name": "operon-rc5301-transfer-017.part",
+      "sha256": "be952debe58a3cff364d4c174903444c1fced9594ac808c7888c854b07a55fcf",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-018.part",
-      "sha256": "fab3b1e189d2b2bbc9f920665ea106cff87ecaeb79a01c037cc412482c670103",
+      "name": "operon-rc5301-transfer-018.part",
+      "sha256": "9c8afef4cf61bfd8df2f52d18f5b2a1623812e1cb98dcfe31b637fc3619f97b3",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-019.part",
-      "sha256": "8b2eff453beee33326be738ee43ae0cce8ae09ee96b4f5962fe9cca3113b353a",
+      "name": "operon-rc5301-transfer-019.part",
+      "sha256": "5f8a31f38d8b0d97fdf4232def66571b77cf5fd828f4e6e5ac83e3ad5558829e",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-020.part",
-      "sha256": "bc959345e41978924dde7099283a8c65920ca8833ff29d81d4fd48016396f31e",
+      "name": "operon-rc5301-transfer-020.part",
+      "sha256": "00c38aa2b6cbf535fd712afcd1ebb2df6a7b8443005936b58385a8049336271a",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-021.part",
-      "sha256": "b1dbbffaa1fb53aac0c28e14e0aed2ef351e2d7ad2ed6e38adaee7d36f705529",
+      "name": "operon-rc5301-transfer-021.part",
+      "sha256": "6b7ade66cc8a4c2c165d722d51b30b04b86f9558804afdcdb2ef8772425ee55c",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-022.part",
-      "sha256": "d9e4260f2dee34eacb83af2a1ff68028864973fe2d8154f0b1f8beea31599885",
+      "name": "operon-rc5301-transfer-022.part",
+      "sha256": "52d8a5de7c9de0be4dc793c9864c9e4b6543094bb9c874680487a410c0e55e45",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-023.part",
-      "sha256": "8668cfb9df1c2fe965beb99cc1a85d87fe9815c6cbe10f832509c84b6cf54297",
+      "name": "operon-rc5301-transfer-023.part",
+      "sha256": "d26b4a81c2b8c6ad3e2712b87a10f1734feabcf7a81a91bcefbdd461c8fbde55",
       "bytes": 16777216
     },
     {
-      "name": "operon-rc12-transfer-024.part",
-      "sha256": "8ec2a65c18ffd881cb15b3f3f902873fbce4e6df0d92d948f576dd28aea32dde",
-      "bytes": 15382577
+      "name": "operon-rc5301-transfer-024.part",
+      "sha256": "607872475cc863b2f75ff13b1bbf394ef589e33ecb043dba5b83daf04cdc086d",
+      "bytes": 15634573
     }
   ],
-  "source_commit": "3535c589",
-  "application_source_commit": "3535c589",
-  "server_sha256": "f9ea67c3c6349b8f46742ab2bfc1cb2962e24d4f3c58caaaaf304b8c308fd328"
+  "application_source_commit": "c5ba21a5e815b51eb71b6f670b6cb9e63c5a5b09"
 }
