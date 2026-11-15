@@ -207,6 +207,14 @@ def _validate(spec: dict):
         candidate = value.split(' @ ', 1)[1].strip() if ' @ ' in value else value.strip()
         if not (candidate.startswith('https://') or candidate.startswith('git+https://')):
             raise ValueError(f'only https package sources are allowed: {value}')
+    index = spec.get('torch_index_url')
+    if index is not None and (not isinstance(index, str) or not index.startswith('https://')):
+        raise ValueError(f'torch_index_url must be an https URL: {index}')
+    if spec.get('torch_cuda') and spec.get('torch_cpu'):
+        raise ValueError('torch_cuda and torch_cpu are mutually exclusive')
+    gpu_count = spec.get('gpu_count')
+    if gpu_count is not None and (isinstance(gpu_count, bool) or not isinstance(gpu_count, int) or gpu_count < 0):
+        raise ValueError('gpu_count must be a non-negative integer')
 
 
 def _micromamba(directory: Path, log) -> Path:
@@ -316,12 +324,14 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None):
         _run([mamba, '--no-rc', 'install', '-y', '-p', staging, '-c', CONDA_FORGE, '--override-channels',
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
              timeout=1800, progress=progress)
-    if entry.get('torch_cpu'):
+    if entry.get('torch_cpu') or entry.get('torch_cuda'):
         torch_version = str(entry.get('torch_version') or '').strip()
         requirement = f'torch=={torch_version}' if torch_version else 'torch'
+        default_index = ('https://download.pytorch.org/whl/cpu' if entry.get('torch_cpu')
+                         else 'https://download.pytorch.org/whl/cu121')
+        index = str(entry.get('torch_index_url') or default_index)
         _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, requirement,
-              '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
-             progress=progress)
+              '--index-url', index], log=log, timeout=3600, progress=progress)
     if direct:
         _run([python, '-m', 'pip', 'install', *PIP_TRANSFER, *PIP_INDEX, *direct], log=log,
              timeout=1800, progress=progress)
@@ -358,6 +368,8 @@ def _probe(python: Path, entry: dict, log, progress=None):
     if not modules:
         return ''
     script = ';'.join('import ' + module for module in modules)
+    if entry.get('torch_cuda'):
+        script += ';import torch;assert torch.cuda.is_available(),"CUDA is not available"'
     _run([python, '-X', 'utf8', '-c', script], log=log, env=_probe_environment(python),
          timeout=600, progress=progress)
     return script
@@ -413,6 +425,8 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
         (staging / 'receipt.json').write_text(json.dumps({
             'schema': 1, 'name': name, 'python': str(entry.get('python', '3.11')),
             'spec_sha256': spec_sha256(entry), 'imports': script,
+            'torch': {'mode': 'cuda' if entry.get('torch_cuda') else ('cpu' if entry.get('torch_cpu') else 'none'),
+                      'version': entry.get('torch_version') or None},
             'bootstrap': 'setuptools>=68,<81 wheel', 'installer': 'environment_install/2',
             'created_at': now(),
         }, indent=2), encoding='utf-8')

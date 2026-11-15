@@ -40,11 +40,12 @@ def test_library_path_exposes_isolated_prefix(tmp_path):
     assert first[-1] == '/host/lib'
 
 
-def test_boltz_environment_is_pure_wheel_with_pinned_cpu_torch():
+def test_boltz_environment_is_pure_wheel_with_pinned_cuda_torch():
     document = json.loads((ROOT / 'library/seed/operon/environments.json').read_text())
     boltz = document['environments']['boltz']
     assert boltz['conda_packages'] == []
-    assert boltz['torch_cpu'] is True
+    assert boltz['torch_cuda'] is True
+    assert boltz['torch_index_url'].endswith('/cu121')
     assert boltz['torch_version'] == '2.3.1'
     assert 'libstdcxx-ng' not in json.dumps(boltz)
     assert 'omegaconf==2.3.0' in boltz['pip_wheels']

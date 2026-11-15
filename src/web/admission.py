@@ -11,6 +11,7 @@ import math
 import os
 from pathlib import Path
 import socket
+import subprocess
 import uuid
 
 import psutil
@@ -92,8 +93,27 @@ def cpu_capacity():
     return max(1, count)
 
 
+def gpu_capacity():
+    """Return the number of visible NVIDIA devices (0 when unavailable)."""
+    override = os.environ.get('OPERON_GPU_COUNT')
+    if override is not None:
+        try:
+            return max(0, int(override))
+        except ValueError:
+            return 0
+    try:
+        result = subprocess.run(
+            ['nvidia-smi', '--query-gpu=index', '--format=csv,noheader'],
+            capture_output=True, text=True, timeout=8, check=False)
+    except (OSError, subprocess.SubprocessError):
+        return 0
+    if result.returncode:
+        return 0
+    return len([line for line in result.stdout.splitlines() if line.strip()])
+
+
 class HostAdmission:
-    def __init__(self, directory=None, *, available_bytes=None, cpu_threads=None, preserve_snapshot=False):
+    def __init__(self, directory=None, *, available_bytes=None, cpu_threads=None, gpu_devices=None, preserve_snapshot=False):
         self.directory = Path(directory or os.environ.get('OPERON_ADMISSION_DIR') or
                               Path.home() / '.operon' / 'admission' / socket.gethostname())
         self.path = self.directory / 'resources.json'
@@ -128,13 +148,17 @@ class HostAdmission:
                          'available_at_start_bytes': int(available_bytes) if available_bytes is not None else None,
                          'capacity_bytes': int((available_bytes or 0) * AUTO_BUDGET_FRACTION),
                          'cpu_threads': max(1, cpu_threads), 'capacity_error': capacity_error,
-                         'cpu_warning': cpu_warning, 'coordinator': None}
+                         'cpu_warning': cpu_warning, 'coordinator': None,
+                         'gpu_devices': list(range(gpu_devices if gpu_devices is not None else gpu_capacity()))}
                 if state['capacity_bytes'] <= 0:
                     state['capacity_error'] = capacity_error or 'No available memory for the host execution pool'
             state['clients'][self.client] = self.identity
+            if 'gpu_devices' not in state:
+                state['gpu_devices'] = list(range(gpu_devices if gpu_devices is not None else gpu_capacity()))
             atomic_json(self.path, state)
         self.capacity = state['capacity_bytes']
         self.cpus = state['cpu_threads']
+        self.gpus = list(state.get('gpu_devices') or [])
         self.available_at_start = state['available_at_start_bytes']
         self.capacity_error = state.get('capacity_error')
         self.baseline_bytes = min(self.capacity // 4,
@@ -215,8 +239,25 @@ class HostAdmission:
         slots = min(self.cpus, parallel)
         def resource(value, default=0):
             return value if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value > 0 else default
+        steps = manifest.get('steps', [])
         requested_threads = max([1] + [int(resource(step.get('params', {}).get('threads'), 1))
-                                       for step in manifest.get('steps', [])])
+                                       for step in steps])
+        explicit_gpus = execution.get('gpu_count', execution.get('gpus', 0))
+        try:
+            requested_gpus = max(0, int(explicit_gpus or 0))
+        except (TypeError, ValueError):
+            requested_gpus = 0
+        if requested_gpus == 0:
+            for step in steps:
+                device = str(step.get('params', {}).get('device', '')).strip().lower()
+                if device in ('cuda', 'gpu'):
+                    requested_gpus = 1
+                    break
+        if requested_gpus > len(self.gpus):
+            raise ValueError(f'The graph requests {requested_gpus} GPU(s) but only {len(self.gpus)} are visible')
+        # Larger graphs and GPU work get more CPU threads without asking every operator.
+        difficulty_threads = 1 + max(0, len(steps) - 1) // 20 + (2 if requested_gpus else 0)
+        requested_threads = max(requested_threads, min(self.cpus, difficulty_threads))
         enabled = memory.get('enabled', True)
         if not enabled:
             budget, reserved, cpus = 0, 0, self.cpus
@@ -240,7 +281,7 @@ class HostAdmission:
                     raise ValueError('Requested process limit exceeds the frozen host capacity')
         return {'budget_bytes': budget, 'reserved_bytes': reserved,
                 'process_limit_bytes': min(reserved, int(float(memory.get('process_limit_mb', reserved / MIB)) * MIB)),
-                'cpu_threads': cpus, 'memory_enabled': enabled,
+                'cpu_threads': cpus, 'memory_enabled': enabled, 'gpu_count': requested_gpus,
                 'available_at_start_bytes': self.available_at_start,
                 'host_capacity_bytes': self.capacity,
                 'policy': 'fixed-startup-pool', 'state': 'queued'}
@@ -254,9 +295,15 @@ class HostAdmission:
                 return state['reservations'][key]['client'] == self.client
             used = sum(v['reserved_bytes'] for v in state['reservations'].values())
             cpus = sum(v['cpu_threads'] for v in state['reservations'].values())
+            gpu_count = max(0, int(allocation.get('gpu_count', 0) or 0))
+            used_gpus = {d for v in state['reservations'].values() for d in (v.get('gpu_devices') or [])}
+            free_gpus = [d for d in state['gpu_devices'] if d not in used_gpus]
             fits = (used + allocation['reserved_bytes'] <= state['capacity_bytes'] and
-                    cpus + allocation['cpu_threads'] <= state['cpu_threads'])
+                    cpus + allocation['cpu_threads'] <= state['cpu_threads'] and
+                    len(free_gpus) >= gpu_count)
             if fits:
+                if gpu_count:
+                    allocation['gpu_devices'] = free_gpus[:gpu_count]
                 state['reservations'][key] = {**allocation, 'owner': self.identity, 'client': self.client}
             atomic_json(self.path, state)
             return fits
@@ -284,11 +331,16 @@ class HostAdmission:
             atomic_json(self.path, state)
             used = sum(v['reserved_bytes'] for v in state['reservations'].values())
             cpu = sum(v['cpu_threads'] for v in state['reservations'].values())
+            gpus = list(state.get('gpu_devices') or [])
+            used_gpus = {d for v in state['reservations'].values() for d in (v.get('gpu_devices') or [])}
             return {k: state[k] for k in ('snapshot_at', 'available_at_start_bytes', 'capacity_bytes', 'cpu_threads')} | {
                 'reserved_bytes': used, 'free_bytes': max(0, state['capacity_bytes'] - used),
                 'available_bytes': max(0, state['capacity_bytes'] - used),
                 'cpu_capacity': state['cpu_threads'], 'cpu_reserved': cpu,
                 'reserved_cpu_threads': cpu, 'free_cpu_threads': max(0, state['cpu_threads'] - cpu),
+                'gpu_capacity': len(gpus), 'gpu_reserved': len(used_gpus),
+                'reserved_gpu_devices': sorted(used_gpus), 'free_gpu_devices': [d for d in gpus if d not in used_gpus],
+                'gpu_devices': gpus,
                 'running_jobs': len(state['reservations']), 'active_jobs': len(state['reservations']), 'scope': 'host-user',
                 'capacity_error': state.get('capacity_error'),
                 'cpu_warning': state.get('cpu_warning'),

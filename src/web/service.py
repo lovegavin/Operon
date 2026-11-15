@@ -1083,6 +1083,29 @@ class JobService:
         finally:
             Path(temporary).unlink(missing_ok=True)
 
+    def worker_environment(self, allocation, temporary):
+        """Build the child environment for one admitted job.
+
+        Kept separate from _start so admission/GPU wiring is testable without
+        launching a worker process.
+        """
+        env = dict(os.environ, PYTHONUNBUFFERED='1', PYTHONIOENCODING='utf-8', PYTHONFAULTHANDLER='1',
+                   TEMP=str(io_path(temporary)), TMP=str(io_path(temporary)),
+                   MPLCONFIGDIR=str(io_path(self.directory / 'matplotlib')))
+        threads = str(allocation['cpu_threads'])
+        for name in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS',
+                     'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS', 'OPERON_CPU_LIMIT'):
+            env[name] = threads
+        env['OPERON_AVAILABLE_AT_START_BYTES'] = str(allocation['available_at_start_bytes'])
+        gpu_devices = allocation.get('gpu_devices') or []
+        if gpu_devices:
+            visible = ','.join(str(device) for device in gpu_devices)
+            env['CUDA_VISIBLE_DEVICES'] = visible
+            env['NVIDIA_VISIBLE_DEVICES'] = visible
+        elif allocation.get('gpu_count'):
+            raise RuntimeError('The job was granted GPU capacity but no device IDs were reserved')
+        return env
+
     def _run_payload(self, job):
         key = job["id"]
         graph = job.get("graph") or {}
@@ -1225,13 +1248,7 @@ class JobService:
                               environment=environment)
             environment_lease = True
             temporary = directory / 'tmp'; io_path(temporary).mkdir(exist_ok=True)
-            env = dict(os.environ, PYTHONUNBUFFERED='1', PYTHONIOENCODING='utf-8', PYTHONFAULTHANDLER='1',
-                       TEMP=str(io_path(temporary)), TMP=str(io_path(temporary)), MPLCONFIGDIR=str(io_path(self.directory / 'matplotlib')))
-            threads = str(allocation['cpu_threads'])
-            for name in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS',
-                         'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS', 'OPERON_CPU_LIMIT'):
-                env[name] = threads
-            env['OPERON_AVAILABLE_AT_START_BYTES'] = str(allocation['available_at_start_bytes'])
+            env = self.worker_environment(allocation, temporary)
             code_root = self.settings.code_root or self.root
             python = self.plugins.python_for(read_json(directory / 'plugins.lock.json'))
             if io_path(code_root / 'operon/worker.py').is_file():

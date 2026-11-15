@@ -214,9 +214,32 @@ def test_native_tool_thread_count_honors_admission(tmp_path, monkeypatch):
 
 
 def test_actual_scientific_workers_keep_independent_memory_and_logs(service):
+    from operon.script_operators import inspect_script
     service.settings.code_root = ROOT
     graph = graph_for(service)
     graph.memory['budget_mb'] = 64
+    # Keep both workers alive long enough to prove independent process/admission
+    # state; the bundled three-step demo can finish before the second launch.
+    script = service.root / 'hold.py'
+    script.write_text(
+        '# output: result file.txt\n'
+        'import time, argparse\n'
+        'from pathlib import Path\n'
+        'p = argparse.ArgumentParser()\n'
+        "p.add_argument('--out-result')\n"
+        'a = p.parse_args()\n'
+        'time.sleep(4)\n'
+        "Path(a.out_result).write_text('ok')\n",
+        encoding='utf-8',
+    )
+    snapshot = inspect_script(script)
+    node = graph.nodes[0].model_copy(update={
+        'kind': 'script', 'operator': None, 'source': None, 'script': snapshot,
+        'params': {}, 'input_count': 0, 'title': 'hold',
+    })
+    graph.nodes = [node]
+    graph.edges = []
+    graph.interface = None
     jobs = [service.launch(graph) for _ in range(2)]
     assert all(job['status'] == 'running' for job in jobs)
     assert len({service.processes[job['id']].pid for job in jobs}) == 2
@@ -262,3 +285,18 @@ def test_coordinator_ownership_atomically_blocks_legacy_reservations(tmp_path):
         assert first.release_coordinator(owner) is True
         assert second.reserve('legacy-key', allocation) is True
         second.close(); first.close()
+
+def test_worker_environment_sets_visible_gpu_and_threads(service, tmp_path):
+    env = service.worker_environment({
+        'cpu_threads': 3, 'available_at_start_bytes': 1234, 'gpu_count': 1, 'gpu_devices': [2],
+    }, tmp_path)
+    assert env['CUDA_VISIBLE_DEVICES'] == '2'
+    assert env['NVIDIA_VISIBLE_DEVICES'] == '2'
+    assert env['OPERON_CPU_LIMIT'] == '3'
+    assert env['OMP_NUM_THREADS'] == '3'
+    assert env['OPERON_AVAILABLE_AT_START_BYTES'] == '1234'
+
+    with pytest.raises(RuntimeError, match='no device IDs'):
+        service.worker_environment({
+            'cpu_threads': 1, 'available_at_start_bytes': 0, 'gpu_count': 1,
+        }, tmp_path)
