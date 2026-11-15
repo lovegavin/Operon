@@ -4,6 +4,7 @@ import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import re
+import sys
 import threading
 import time
 import uuid
@@ -104,7 +105,11 @@ class RemoteManager:
         if self._build is None:
             try:
                 from operon.build_identity import build_identity
-                root = getattr(self.service.settings, 'code_root', None) or self.service.root
+                root = Path(getattr(self.service.settings, 'code_root', None) or self.service.root)
+                if not (root / 'library').is_dir():
+                    candidate = Path(sys.executable).resolve().parents[2]
+                    if (candidate / 'library').is_dir():
+                        root = candidate
                 self._build = build_identity(root)
             except Exception:  # noqa: BLE001 - old checkouts and isolated tests
                 self._build = {}

@@ -31,10 +31,17 @@ def source_archive(root):
     files = [root / name for name in ('pyproject.toml', 'README.md', 'requirements-hic-linux.txt',
                                      'scripts/run.py', 'scripts/desktop_server.py') if (root / name).is_file()]
     named = {}
-    for bundle in sorted((root / 'library').glob('operon-library-*.zip')):
-        named[bundle] = 'library/' + bundle.name
-    for bundle in sorted((root / 'library/libraries').glob('*/archive.zip')):
-        named[bundle] = 'library/operon-library-' + bundle.parent.name + '.operon-library.zip'
+    # A source tree keeps one archive per installed branch. Root-level zips are
+    # only a fallback for a tree that has no managed branches yet: shipping both
+    # would deliver two libraries with the same primary name and the installer
+    # would reject the second one as a conflict.
+    branches = sorted((root / 'library/libraries').glob('*/archive.zip'))
+    if branches:
+        for bundle in branches:
+            named[bundle] = 'library/operon-library-' + bundle.parent.name + '.operon-library.zip'
+    else:
+        for bundle in sorted((root / 'library').glob('operon-library-*.zip')):
+            named[bundle] = 'library/' + bundle.name
     files += sorted(named)
     for directory in ('operon', 'operon_sdk', 'operon', 'src'):
         files += [p for p in (root / directory).rglob('*') if p.is_file()
@@ -456,8 +463,11 @@ def _provision_body(connection, profile, progress, cancel, root=None, expected=N
     digest = hashlib.sha256(data).hexdigest()
     from operon.build_identity import build_identity
     identity = build_identity(root or application_root(), source_sha256=digest)
-    if expected is not None and expected.get('build_id') != identity['build_id']:
-        raise RemoteError('本地程序在准备期间发生变化，请重试。', code='build_changed')
+    # A forced upgrade may rebuild the local program while the remote
+    # deployment is prepared; the caller explicitly asked to replace
+    # the server. Non-forced installs still require a stable build.
+    if not force and expected is not None and expected.get("build_id") != identity["build_id"]:
+        raise RemoteError("本地程序在准备期间发生变化，请重试。", code="build_changed")
     if not force:
         try:
             current = locate(connection, profile, progress, cancel, expected=None)
