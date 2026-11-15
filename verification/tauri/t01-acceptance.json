@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "baseline_commit": "0600b2bba146240495882b0a5275297b942c5b80",
+  "implementation_commit": "d4942849",
+  "branch": "experimental/tauri-shell",
+  "harness": {"version": "0.2.2-rc.3", "provider": "deepseek-account", "model": "deepseek-flash", "smoke_exit": 0, "smoke_challenge_verified": true},
+  "reviewer": "Codex; independently executed tests and actual legacy host smoke",
+  "toolchain": {"node": "v24.14.1", "npm": "11.11.0", "rust": "not available", "msvc": "unverified"},
+  "tests": {"files": 7, "passed": 44, "failed": 0},
+  "frontend_build": "passed; large chunk advisory",
+  "legacy_webview2_smoke": {"exit_code": 0, "total_seconds": 12.08, "frontend_ready": true, "draft_flushed": true, "backend_exit_zero": true, "host_stopped": true, "global_runtime_configs_unchanged": true},
+  "production_branch_unchanged": true,
+  "library_diff_empty": true,
+  "sdk_diff_empty": true,
+  "native_host_implemented": false,
+  "tauri_build_tested": false,
+  "manual_installed_tauri_acceptance": false,
+  "pushed": false,
+  "published": false
+}

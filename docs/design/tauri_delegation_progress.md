@@ -1,31 +1,85 @@
 # Tauri delegation progress
 
-Status snapshot for the coordinated T01 pass. This is not release evidence and
-does not claim a native Tauri adapter.
+Updated 2026-11-16. Experimental source only; no push, release, installer or
+native Tauri window is claimed. Integration branch: `experimental/tauri-shell`.
+Base: Operon 5.3.0, `0600b2bba146240495882b0a5275297b942c5b80`.
 
-| Session | Scope | Implementation | Review | Automated tests | Real interaction |
+## Delegation and ownership
+
+Codex owns architecture, bounded assignments, review and acceptance. DeepSeek
+Harness CLI 0.2.2-rc.3 implements the assigned files using the configured
+`deepseek-account` / `deepseek-flash` route. The smoke request returned the exact
+JSON challenge in 2.67 seconds with exit code 0; continued sessions also returned
+structured final results. CLI prompts are supplied through stdin to preserve
+quotes. An invocation-only headless overlay enables the existing account and
+credential services; it does not modify the desktop account configuration.
+
+Each implementation session has its own experimental worktree. No production
+source, operator library, SDK, dependency lockfile or version change was made.
+The CLI file tools worked. Its shell tool encountered a Windows ACL error;
+Codex ran all verification independently without changing ACLs.
+
+| Session | Scope | Implementation | Review | Automated acceptance | Native/installed interaction |
 |---|---|---|---|---|---|
-| A | Shared T01 contract, baseline observations, bridge v1 document | Done | Pending Codex review | `frontend/src/host/types.test.ts` written; not run because frontend dependencies are absent | Pending |
-| B | Browser/WebView2 adapters, close lifecycle, narrow App wiring | Not implemented | Pending | Not run | Pending |
-| C | Rust backend process and window lifecycle | Not implemented | Pending | Not run | Pending |
-| D | Dialogs, artifacts, credentials, navigation | Not implemented | Pending | Not run | Pending |
-| E | Experimental packaging and updates | Not implemented | Pending | Not run | Pending |
-| F | Independent installed-window acceptance | Not implemented | Pending | Not run | Pending |
+| A | T01 shared contract and source baseline | Completed for T01; native crate deferred | Accepted with close-ownership corrections | Contract tests included in 44 passing tests | Not a native implementation |
+| B | Browser/WebView2 adapters and App close wiring | Completed for T01; Tauri adapter deferred | Accepted after one focused correction | Host and Agent tests: 44 passed; TypeScript/Vite build passed | Existing real C# WebView2 host smoke passed |
+| C | Rust backend process and window lifecycle | Pending | Pending | Not run | Not run |
+| D | Native OS integration | Pending | Pending | Not run | Not run |
+| E | Experimental packaging/update | Pending | Pending | Not run | Not run |
+| F | Installed-window acceptance | Pending | Pending | Not run | Not run |
 
-## T01 gate
+## Reviewed commits
 
-- Contract: shared six-method `DesktopHost`, stable error shape and exact legacy
-  wire strings are defined in `frontend/src/host/types.ts`.
-- Adapters: not implemented; no native adapter exists.
-- App: unchanged in this pass. No File/Quit control was added.
-- Verification: the types test file exists but has not been executed. No build,
-  WebView2 smoke test, browser interaction or installed-window check was run.
-- Gate result: pending review. T02 Rust work must not start until T01 is reviewed
-  and its adapters and tests actually pass.
+- A source: `c9a1b14567f315c77f3df500f5efbe47950caafd`; integration: `04c55a45`.
+- B source: `41b8419c`; integration: `d4942849`.
+- Shared six-method contract: `frontend/src/host/types.ts`.
+- The old C# transport has one uncorrelated close waiter. The WebView2 adapter
+  coalesces repeated prepare-close requests, invalidates stale acknowledgements
+  and isolates subscription closures even if removing a listener fails.
+- Browser and unsupported legacy host operations reject with typed errors;
+  unavailable full-exit/diagnostics/artifact IPC is not reported as success.
+- The existing HTTP artifact path and tray exit are unchanged. No Quit UI was
+  added in this compatibility stage.
 
-## T00 baseline
+## Verification
 
-- `verification/tauri/baseline.json` records source observations only.
-- Timings are null and explicitly marked not measured.
-- Rust and MSVC availability is recorded as missing or unverified.
-- No historical timing or build result was copied into the evidence.
+From the integration worktree:
+
+```text
+npm --prefix frontend test -- src/host src/agentBridge.test.ts src/agentTransport.test.ts
+7 files / 44 tests passed
+npm --prefix frontend run build
+TypeScript and Vite passed; large-chunk advisory remains
+```
+
+The existing validated C# host executable was copied into an isolated test
+folder, pointed at the new frontend and existing backend, and launched with
+`--smoke-test` using a private profile/runtime configuration. Evidence confirms
+frontend ready, draft flushed, backend exit=0 and host stopped. Total automated
+smoke duration: 12.08 seconds (not a startup or shutdown performance benchmark).
+Both pre-existing global runtime configuration hashes were unchanged.
+
+Local evidence is under `BioPipe/verification/tauri-dsh-20261116/`: CLI receipts,
+prompts and NDJSON, `frontend-tests.log`, `frontend-build.log`, `host-smoke.json`
+and `host-smoke.log`. The compact portable result is
+`verification/tauri/t01-acceptance.json`. Do not publish local account/config/log
+files as part of a product package.
+
+## Gates and remaining work
+
+T01 adapter compatibility gate passes targeted automated tests, production build
+and the real legacy host smoke. This is not installed Tauri acceptance and does
+not replace F. No manual browser/desktop interaction is claimed in this pass.
+
+T00 source observations remain in `verification/tauri/baseline.json`; that file is
+the initial A receipt, not the current acceptance state. Node v24.14.1 and npm
+11.11.0 were independently verified; frontend dependencies were installed from
+the unchanged lockfile in the review worktree. Cold/warm performance baselines
+remain unmeasured. Rust was not found and MSVC is unverified; no Cargo build or
+native dependency lock is claimed.
+
+Before C/D: complete native toolchain verification and baseline measurements,
+then have A pin the minimal Tauri 2 crate, Cargo.lock and capabilities. C owns
+process lifecycle, D owns OS integration, E owns packaging, F independently
+accepts the integrated candidate. Preserve the existing scientific backend,
+operator library and production branch throughout.
