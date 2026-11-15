@@ -1200,7 +1200,14 @@ class PoolClient:
     def _recv_exact(connection, size):
         chunks = []
         while size:
-            block = connection.recv(min(size, 65536))
+            try:
+                block = connection.recv(min(size, 65536))
+            except ConnectionResetError as exc:
+                # Windows may reset a rejected oversized frame before its
+                # error response drains. This is an unknown response, never
+                # evidence that a submitted operation is safe to relaunch.
+                raise PoolClientError('Pool connection reset before the response',
+                                      code='response_unavailable') from exc
             if not block:
                 raise PoolClientError('Pool connection closed before the response', code='response_unavailable')
             chunks.append(block)

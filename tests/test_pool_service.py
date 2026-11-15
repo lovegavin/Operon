@@ -147,6 +147,23 @@ def test_lifecycle_client_does_not_fall_back_to_bulk_endpoint(pool, monkeypatch)
     assert attempts == [server.lifecycle_address]
 
 
+def test_reset_response_is_unknown_and_not_retried():
+    from operon.pool_service import PoolClientError
+
+    class ResetPeer:
+        calls = 0
+
+        def recv(self, size):
+            self.calls += 1
+            raise ConnectionResetError('peer rejected frame')
+
+    peer = ResetPeer()
+    with pytest.raises(PoolClientError) as error:
+        PoolClient._recv_exact(peer, 8)
+    assert error.value.code == 'response_unavailable'
+    assert peer.calls == 1
+
+
 def test_both_pool_listener_threads_stop_on_close(pool):
     _, server, _, _ = pool
     server.close()

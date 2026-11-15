@@ -948,7 +948,7 @@ class ExecutionService:
             events = []
             for path in self.service.event_paths(child['id']):
                 name = str(path)
-                with path.open('rb') as stream:
+                with io_path(path).open('rb') as stream:
                     stream.seek(offsets.get(name, 0))
                     for _ in range(200):
                         start = stream.tell(); line = stream.readline()
