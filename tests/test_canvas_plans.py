@@ -198,6 +198,28 @@ def test_canvas_http_preparation_requires_run_permission(tmp_path, monkeypatch):
         assert calls == ['same']
 
 
+def test_application_compiles_imported_script_canvas_without_library(tmp_path, monkeypatch):
+    from operon.application import Application
+    from operon.workflow_spec import load_workflow
+    from operon.execution.native_bootstrap import validate_native_descriptors
+    from src.web.service import Settings
+    monkeypatch.setenv('OPERON_REGISTRY_MAINTENANCE', '1')
+    app = Application(Settings(tmp_path, tmp_path / '.studio', tmp_path / 'no-ui',
+                               testing=True, code_root=ROOT),
+                      catalog={'operators': [], 'readers': []})
+    try:
+        document = load_workflow(ROOT / 'examples/workflows/script_pipeline/workflow.yaml')
+        prepared = app.prepare(document)
+        checked = app.validate(prepared, require_files=True)
+        bound = app._execution_binding(prepared, checked)
+        plan = app.compile_plan(bound, require_files=True)
+        assert len(plan.units[0].node_ids) == 3 and len(plan.edges) == 2
+        payload = plan.units[0].payload
+        validate_native_descriptors(payload['native_descriptors'], plan.implementations, payload['task_manifest'])
+    finally:
+        app.shutdown()
+
+
 def test_actual_canvas_auto_prepare_pool_run_and_portable_export(provider, tmp_path, monkeypatch):
     """Opt-in real private Python; no fake generation/build/probe success."""
     python = os.environ.get('OPERON_CANVAS_TEST_PYTHON')
@@ -243,6 +265,11 @@ def test_actual_canvas_auto_prepare_pool_run_and_portable_export(provider, tmp_p
             monkeypatch.setattr(operon.dependencies, 'find_tool', lambda name: rscript if name == 'Rscript' else None)
     (root / 'numbers.owned').write_text('1 2 3')
     document = graph(root)
+    script_demo = bool(os.environ.get('OPERON_CANVAS_TEST_SCRIPT'))
+    if script_demo:
+        from operon.workflow_spec import load_workflow
+        document = load_workflow(ROOT / 'examples/workflows/script_pipeline/workflow.yaml')
+        catalog = {'operators': [], 'readers': []}
     document['memory'] = {'enabled': True, 'budget_mb': 32, 'process_limit_mb': 192, 'auto_spill': True}
     pool = PoolService(root=root / 'pool', admission_dir=root / 'admission',
         workspaces=[{'root': root, 'principal': 'canvas-test'}], code_root=ROOT, catalog=catalog,
@@ -266,7 +293,11 @@ def test_actual_canvas_auto_prepare_pool_run_and_portable_export(provider, tmp_p
         prepared = canvas.prepare(document)
         plan = prepared['plan']
         assert plan['execution_policy']['memory']['budget_mb'] == 32
-        assert plan['units'][0]['payload']['task_manifest']['steps'][0]['params'] == {'output': 'result'}
+        if script_demo:
+            assert len(plan['units'][0]['payload']['task_manifest']['steps']) == 3
+            assert len(plan['edges']) == 2
+        else:
+            assert plan['units'][0]['payload']['task_manifest']['steps'][0]['params'] == {'output': 'result'}
         # Same runtime/package generation reused without walking it again.
         import operon.environment_store.canvas as environment_module
         monkeypatch.setattr(environment_module, 'archive_tree', lambda *a, **kw: pytest.fail('runtime resealed'))

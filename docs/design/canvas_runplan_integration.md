@@ -134,8 +134,30 @@ acceptance gates; module tests alone do not satisfy them.
 Evidence lives under `verification/backend/`: XML reports, automatic export
 receipts, `standalone-final.json`, `isolation-actual.json`, and the focused
 `canvas_isolation_check.py` reproduction. Intermediate failed diagnostics are
-retained. There was no real SSH/Linux or installed desktop interaction test in
-this change, and no full scientific-suite rerun.
+retained. These initial integration checks preceded the real Linux and installed
+desktop gates below; they did not include a full scientific-suite rerun.
+
+## Automatic closure acceptance (2026-11-15)
+
+The subsequent 5.3.0 change captures Conda/system-Python/R/tool closures. Windows
+private Python plus actual R computation, moved standalone execution with spaces,
+and owned R scratch cleanup passed. Linux system-Python-derived and Conda 3.13
+routes completed preparation, reuse, pool execution and independent moved export;
+the Conda fixture also executed the real xz compression/decompression tool.
+Linux monitor initialization/cancellation/fencing tests passed (5 tests). Official
+runtime archives were supplied through a local mirror after the server download
+stalled; this is not evidence that the original online download completed.
+
+Focused checks: 17 passed for R/path/closure execution, 38 passed and one opt-in
+skip for canvas/package/native/R/SSH regressions, and 8 final closure selection
+checks passed. The opt-in runtime was exercised separately. A broader portability
+selection returned 31 passes and 5 failures. The same five failures reproduce
+on 5.2.0: audit matches historical example paths, old copied-code fixtures omit
+the independent Reader library, and legacy history rebasing fails. These are not
+reported as passed or as caused by the new export path. No library was changed.
+
+Final Setup interaction and exact server-archive installation are separate gates;
+see the release acceptance record rather than inferring them from these tests.
 
 ## Tauri handoff
 

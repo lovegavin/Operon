@@ -13,7 +13,7 @@ from types import ModuleType
 
 from pydantic import Field, field_validator
 
-from operon.contracts.base import ContractError, ContractModel, sha256_hex
+from operon.contracts.base import ContractError, ContractModel, canonical_json, sha256_hex
 
 
 class NativeRuntimeSnapshot(ContractModel):
@@ -81,7 +81,10 @@ def validate_native_descriptors(descriptors, implementations, manifest, *, envir
             raise ContractError('Native task references an unselected operator: ' + step['name'], code='implementation_unavailable')
         if step['name'].startswith('operon.script.'):
             from operon.script_operators import validate_script
-            snapshot = validate_script(step['params']['script'])
+            # RunPlan freezes nested arrays as tuples. Script validation consumes
+            # the JSON wire contract, just like the worker's deserialized task;
+            # do not loosen the public script/SDK schema to accept arbitrary types.
+            snapshot = validate_script(json.loads(canonical_json(step['params']['script'])))
             if snapshot['code_sha'] != selected[step['name']]['implementation'].get('code_sha'):
                 raise ContractError('Native script differs from its frozen descriptor', code='implementation_unavailable')
     exchanges = set((manifest.get('runtime') or {}).get('exchange_inputs', []))

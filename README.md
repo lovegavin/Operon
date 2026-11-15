@@ -22,7 +22,7 @@ The new RunPlan interface shares compilation, execution and portable export
 across desktop and headless clients. Environments are explicitly prepared and
 bound; configured file browsing preserves storage references in saved workflows.
 See the [backend quick start](docs/design/backend_cli_quickstart.md) and
-[5.2.0 release scope](docs/releases/v5.2.0.md). Multi-host placement and Slurm
+[5.3.0 release scope](docs/releases/v5.3.0.md). Multi-host placement and Slurm
 remain experimental; they are not required for ordinary local or single-server use.
 
 Operon does not bundle or require an AI model. Agent access is optional.

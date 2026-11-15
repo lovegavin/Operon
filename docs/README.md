@@ -28,6 +28,8 @@ Release notes, verification reports and dated design records preserve the versio
 they tested; they are historical evidence, not current installation instructions.
 
 - [Shared execution pools](design/pool_service.md)
+- [5.3.0 automatic canvas export scope](releases/v5.3.0.md)
+- [5.3.0 targeted installed-package acceptance](releases/v5.3.0-acceptance.md)
 - [5.2.0 application release scope](releases/v5.2.0.md)
 - [5.2.0 exact-package acceptance](releases/v5.2.0-acceptance.md)
 - [Desktop RunPlan and export controls](design/backend_k11_desktop.md)

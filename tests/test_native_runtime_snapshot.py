@@ -94,6 +94,24 @@ def snapshot(plan):
         audit_descriptors=plan.diagnostics['native_descriptor_audit'])
 
 
+def test_frozen_script_plan_uses_json_wire_validation_without_mutation():
+    from pathlib import Path
+    from operon.workflow_spec import load_workflow
+    root = Path(__file__).resolve().parents[1] / 'examples/workflows/script_pipeline'
+    plan = WorkflowCompiler().compile(load_workflow(root / 'workflow.yaml'), None, {}, root=root)
+    unit = plan.units[0]
+    before = plan.model_dump(mode='json')
+    script = unit.payload['task_manifest']['steps'][0]['params']['script']
+    assert isinstance(script['dependencies'], tuple)
+    validate_native_descriptors(unit.payload['native_descriptors'], plan.implementations,
+                                unit.payload['task_manifest'])
+    assert plan.model_dump(mode='json') == before
+    from operon.script_operators import validate_script
+    with pytest.raises(ValueError, match='dependencies must be a list'):
+        validate_script({**before['units'][0]['payload']['task_manifest']['steps'][0]['params']['script'],
+                         'dependencies': 'numpy'})
+
+
 def test_compiler_snapshot_is_lazy_and_default_only_drift_keeps_plan_identity(provider):
     root, catalog = provider
     compiler = WorkflowCompiler()

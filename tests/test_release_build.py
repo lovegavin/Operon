@@ -8,6 +8,16 @@ import pytest
 from scripts.build_runtime import windows_descriptors, runtime_requirements
 
 
+def test_packaging_rejects_stale_runtime_receipt(tmp_path, monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / 'scripts'))
+    from scripts.package_release import verify_runtime_package
+    for receipt in ({'application_version': '5.2.0', 'distributions': {'operon-studio': '5.3.0'}},
+                    {'application_version': '5.3.0', 'distributions': {'operon-studio': '5.2.0'}}):
+        (tmp_path / 'operon-runtime.json').write_text(json.dumps(receipt))
+        with pytest.raises(SystemExit, match='receipt is stale'):
+            verify_runtime_package(tmp_path, '5.3.0')
+
+
 def test_packaging_rejects_stale_frontend_install_after_lock_version_change(tmp_path, monkeypatch):
     monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1] / 'scripts'))
     from scripts.package_release import verify_frontend_versions

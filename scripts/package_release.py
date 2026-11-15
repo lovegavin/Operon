@@ -43,6 +43,9 @@ def verify_frontend_versions(frontend):
 
 def verify_runtime_package(python_root, version):
     """Reject a runtime that carries a different application package version."""
+    receipt = json.loads((Path(python_root) / 'operon-runtime.json').read_text(encoding='utf-8'))
+    if receipt.get('application_version') != version or receipt.get('distributions', {}).get('operon-studio') != version:
+        raise SystemExit('Bundled runtime receipt is stale; refresh it from the installed application wheel before packaging.')
     packages = Path(python_root) / 'Lib' / 'site-packages'
     init = packages / 'operon' / '__init__.py'
     if not init.is_file():

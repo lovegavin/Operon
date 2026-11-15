@@ -15,6 +15,12 @@
 
 ## Technology stack and repository layout
 
+Implementation references: [Tauri capabilities](https://v2.tauri.app/security/capabilities/),
+[sidecar packaging](https://tauri.app/develop/sidecar/) and
+[shell plugin scope](https://v2.tauri.app/reference/javascript/shell/).
+These define available mechanisms, not permission to expose arbitrary process
+execution to the renderer. Keep the narrow Rust-owned lifecycle contract below.
+
 | Layer | Choice |
 |---|---|
 | Host | Tauri 2, Rust edition 2021, stable toolchain pinned in `rust-toolchain.toml` at first verified build |
