@@ -88,7 +88,10 @@ def developability_row(
         float(_charge(clean, high_ph)),
         float(clean.count("C")),
         float(count_motif(clean, "NG") + count_motif(clean, "NS")),
-        float(count_motif(clean, "DP")),
+        # Asp isomerisation is driven by DG (high risk) as well as DP (low risk);
+        # counting only DP reported zero sites for sequences that the liability
+        # scan flags as DG isomerisation hotspots.
+        float(count_motif(clean, "DP") + count_motif(clean, "DG")),
         float(count_sequons(clean)),
         float(longest_run(clean, residues)),
         float(hydrophobic_count / length),

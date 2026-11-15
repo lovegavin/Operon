@@ -8,7 +8,7 @@ runs, through the equivalent `operon run` command over the same service; none
 was executed by a shell pipeline.
 
 Environment: application `5.1.17-rc7` (`D:\OperonTest517rc7`, version directory
-`5.1.17-f397f8157e17`), operator library `main-v0.1.21` (1069 operators,
+`5.1.17-f397f8157e17`), operator library `main-v0.1.22` (1069 operators,
 108 readers, 1177 descriptors), local pool with one RTX 3090 (24 GB) and
 33.4 GB of schedulable capacity. Sequence design and folding used the `boltz`
 isolated environment's interpreter (`torch 2.3.1+cu121`) with ProteinMPNN's
@@ -209,6 +209,50 @@ for the runs in this document:
 | `ca_rmsd.py` | superpose a prediction on the parent through the target chain and report both RMSDs |
 | `rmsd_stats.py` | correlate iPTM with fold retention over the collected rows |
 
+## Replicate scoring of the retained designs
+
+Every Boltz run draws a fresh diffusion trajectory, so the retained designs were
+re-scored with identical graphs, parameters and inputs to measure the spread.
+Scores live in each job's `output_dir` (read from `.studio/jobs/<id>/job.json`)
+under `runs/<run>/steps/01_boltz_complex_confidence.json`.
+
+| Design | Original iPTM | Replicate jobs | Mean | SD | Min | Max |
+|---|---|---|---|---|---|---|
+| d3 (round 4, 0.904) | 0.904 | `req-c8bd27039de63941aa000138`, `req-a1a14d80d34712ccbee2d55a`, `req-53d1f8385744966add6bc992` | 0.894 | 0.006 | 0.887 | 0.899 |
+| d4 (round 4, 0.887) | 0.887 | `req-787e52e9fdedb2b185443d10`, `req-327404fa52fe3e731fd89849`, `req-a09a499943fde1778af13733` | 0.851 | 0.023 | 0.826 | 0.870 |
+| d1 (round 4, 0.102) | 0.102 | `req-faccc7bf908b52490061ab0f`, `req-ca9bc6511d0be4b304a6fb9d` | 0.130 | 0.025 | 0.112 | 0.147 |
+
+The two retained designs reproduce within a few hundredths and stay an order of
+magnitude above the low-scoring control, so the upper mode is a property of the
+designs rather than of one lucky sample.
+
+## Second retained candidate
+
+The round-4 design at iPTM 0.887 was carried through the same readout as the
+0.904 design, from its own prediction (`req-c5acbf6aab15b640f68f2dcd`).
+
+| Operator | Job | Reading |
+|---|---|---|
+| `interface_hotspots` | `req-9d5e713a97e0eb15f267abfb` | 32 interface residues, 1,266.84 Å² buried |
+| `antibody_developability` | `req-1fcef7ad8c939d6a5a130436` | length 88, MW 9,851.15, pI 4.209, net charge −9.68 (pH 6.0) / −10.01 (pH 7.4), 0 cysteines, 3 hydrophobic run, fraction 0.409 |
+| `sequence_liability_scan` | `req-08b8a1836f8516967fd950d6` | 2 sites, both isomerisation high: D14 and D63 in DG motifs |
+
+## The developability defect and library 0.1.22
+
+The developability panel reported zero isomerisation sites for both candidates
+while the liability scan flagged one and two DG motifs. The panel counted only
+`DP`; library 0.1.22 counts `DP` and `DG` and both readouts were re-run against
+it. The re-runs report 1 site for the 0.904 design (`req-3c121a41e225827ddfbe3f0e`)
+and 2 sites for the 0.887 design (`req-5ab6e5d1086ce6e3dd90e454`), agreeing with
+the scan site for site.
+
+Library 0.1.22: bundle
+`operon-library-main-v0.1.22.operon-library.zip`, 6,870,118 B, sha256
+`682a78491612e7f6b1c715c56f43a02cd0070b6378cec3a94f532057d8547049`; routes
+`operon-routes-main-v0.1.22.zip`, 201,351 B, sha256
+`6edce3920c3b95c165085525d8b76038fcfadd9942dc7392c97f9ae0b17d41d7`. Readouts
+above that name no re-run job predate this fix and report the old zero count.
+
 ## Platform defects found by the loop
 
 | Defect | Symptom | Fix | Version |
@@ -218,6 +262,7 @@ for the runs in this document:
 | CUDA capability probed in the wrong interpreter | `device=cuda` refused on a host with a GPU | probe CUDA through the operator's `python_executable` | library `0.1.20` |
 | `CUDA_VISIBLE_DEVICES` cleared to an empty string | CPU-mode runs still tried to deserialise on CUDA device 0 | set `-1` in CPU mode, keep the granted devices in CUDA mode | library `0.1.20` |
 | Fixed positions keyed by full path | `KeyError: 'complex_d3'` in `protein_mpnn_utils.tied_featurize` | key the JSONL by the PDB stem, as ProteinMPNN indexes `b['name']` | library `0.1.21` |
+| Isomerisation counted `DP` only | developability panel reported 0 while the liability scan flagged `DG` sites | count `DP` and `DG` | library `0.1.22` |
 
 ## Reproducing a scoring run
 
