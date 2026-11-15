@@ -113,6 +113,32 @@ def test_inventory_still_rejects_external_symlink(tmp_path):
         inventory(root)
 
 
+@pytest.mark.skipif(__import__('os').name != 'nt', reason='Windows handle boundary')
+def test_windows_inventory_checks_opened_handle_before_reading(tmp_path):
+    from operon.bytecode import io_path
+    from operon.environment_store.verification import _windows_inventory_digest
+    root = tmp_path / 'root'; root.mkdir()
+    outside = tmp_path / 'outside.bin'; outside.write_bytes(b'outside')
+    with pytest.raises(ContractError, match='escapes'):
+        _windows_inventory_digest(io_path(outside), io_path(root), outside.stat())
+
+
+@pytest.mark.skipif(__import__('os').name != 'nt', reason='Windows long handle paths')
+def test_windows_inventory_long_unicode_paths_keep_exact_manifest(tmp_path):
+    import hashlib
+    from operon.bytecode import io_path
+    from operon.environment_store.verification import inventory
+    nested = tmp_path
+    while len(str(nested)) < 600:
+        nested /= 'unicode-\u6570\u636e-' + 'x' * 30
+    io_path(nested).mkdir(parents=True)
+    file = io_path(nested / 'sample.bin'); file.write_bytes(b'content')
+    result = inventory(tmp_path)
+    assert result == {(nested / 'sample.bin').relative_to(tmp_path).as_posix(): {
+        'kind': 'file', 'size': 7, 'sha256': hashlib.sha256(b'content').hexdigest(),
+        'executable': bool(file.stat().st_mode & 0o111)}}
+
+
 def test_probe_timeout_keeps_phase_and_command_diagnostics():
     import sys
     from operon.environment_store.builders import probe

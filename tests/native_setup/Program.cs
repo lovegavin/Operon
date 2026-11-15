@@ -113,6 +113,11 @@ Check(!Directory.Exists(version), "stopped installation not cleaned");
 var removalArgs = SetupInvocation.Normalize([], Path.Combine(root, "Operon_Uninstall.exe"), root);
 Check(removalArgs.Contains("--uninstall"), "direct uninstaller did not select removal");
 Check(removalArgs.Contains(root), "direct uninstaller lost its own installation directory");
+var trailingRemoval = SetupInvocation.Normalize([], Path.Combine(root, "Operon_Uninstall.exe"), root + Path.DirectorySeparatorChar);
+Check(SetupInvocation.RunsInsideInstallation(Path.Combine(root, "Operon_Uninstall.exe"),
+    trailingRemoval[Array.IndexOf(trailingRemoval, "--install-dir") + 1]), "trailing separator bypassed uninstall relocation");
+Check(SetupInvocation.RunsInsideInstallation(Path.Combine(root, "Operon_Uninstall.exe"), root), "uninstaller directory was not recognized");
+Check(!SetupInvocation.RunsInsideInstallation(Path.Combine(root, "helper", "Operon_Uninstall.exe"), root), "temporary helper recursively relocated");
 Check(!SetupInvocation.Normalize([], Path.Combine(root, "Operon_Setup.exe"), root).Contains("--uninstall"), "setup became uninstaller");
 var lockRoot = Path.Combine(root, "locked-cleanup"); var lockVersion = Path.Combine(lockRoot, "versions", "old");
 Directory.CreateDirectory(lockVersion);

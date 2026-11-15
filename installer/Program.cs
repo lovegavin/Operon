@@ -68,7 +68,7 @@ internal static class Program
             // the UI to the helper; unattended mode waits so the result file and
             // exit code still describe the completed uninstall.
             if (uninstall && !flags.Contains("--uninstall-worker") &&
-                string.Equals(Path.GetDirectoryName(Environment.ProcessPath), Path.GetFullPath(options.InstallDir), StringComparison.OrdinalIgnoreCase))
+                SetupInvocation.RunsInsideInstallation(Environment.ProcessPath!, options.InstallDir))
             {
                 var folder = Path.Combine(Path.GetTempPath(), "Operon-Uninstall-" + Guid.NewGuid().ToString("N"));
                 Directory.CreateDirectory(folder); var helper = Path.Combine(folder, "Operon_Uninstall.exe");
