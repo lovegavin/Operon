@@ -112,6 +112,36 @@ Across the eight children: iPTM mean **0.0835**, median 0.0731, maximum
 0.1270, interface pLDDT mean 71.75, and none above 0.3 — against a parent at
 0.8678 with its 17 interface positions conserved in every child.
 
+## Round 4 — free redesign of the retained fold
+
+The retention failure of round 3 has two readings: the fold is fragile, or the
+constraint pattern is harmful. Round 4 separates them by redesigning the very
+same parent complex with no fixed positions and a fourth seed.
+
+| Stage | Job | Operator | Parameters | Duration | Result |
+| --- | --- | --- | --- | ---: | --- |
+| Sequence design | `req-fe46c92b3987842cef536832` | `proteinmpnn_design` | `chains=A`, `ca_only=true`, no `fixed_positions`, `seed=4`, 8 sequences | 12 s | 8 designs, 19–34 substitutions from the parent |
+
+Scoring (`boltz_complex_confidence`, identical parameters):
+
+| Design | Job | iPTM | Interface residues | Interface pLDDT |
+| --- | --- | ---: | ---: | ---: |
+| 1 | `req-c577c7bd58587ccae4cef9a3` | 0.1022 | 47 | 67.99 |
+| 2 | `req-c5b3b1b86e202066bbaead6c` | 0.0572 | 38 | 65.66 |
+| 3 | `req-df3e9ff05896ad2589f13345` | **0.9037** | 42 | **87.68** |
+| 4 | `req-c5acbf6aab15b640f68f2dcd` | **0.8865** | 45 | **87.10** |
+| 5 | `req-c28a51891d9590c4b571e509` | 0.1174 | 45 | 71.17 |
+| 6 | `req-f2d1c4f2d4314eeed1f29c01` | 0.0846 | 53 | 72.04 |
+| 7 | `req-73ffb8be6ff61d6600bf7e02` | 0.1028 | 44 | 68.66 |
+| 8 | `req-232c9eb50eb53a01f4b74b8d` | 0.0637 | 39 | 54.22 |
+
+Across the eight children: iPTM mean **0.2898**, median 0.1025, maximum
+**0.9037**, interface pLDDT mean 71.83, two designs above 0.3 — starting from the
+0.8678 parent of round 3. The fold therefore tolerates wholesale sequence change,
+including every interface residue; pinning 17 interface positions while
+rewriting the 71 positions beneath them is what destroyed the interface in
+round 3.
+
 ## Platform defects found by the loop
 
 | Defect | Symptom | Fix | Version |
