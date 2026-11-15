@@ -1,7 +1,8 @@
 # Tauri delegation progress
 
-Updated 2026-11-16. Experimental source only; no push, release, installer or
-native Tauri window is claimed. Integration branch: `experimental/tauri-shell`.
+Updated 2026-11-16. Experimental source and RC3 test installer; no push or release.
+Integration branch: `experimental/tauri-shell`. The sections below preserve the
+earlier T01 observations; the current gate table and RC3 record supersede them.
 Base: Operon 5.3.0, `0600b2bba146240495882b0a5275297b942c5b80`.
 
 ## Delegation and ownership
@@ -23,10 +24,10 @@ Codex ran all verification independently without changing ACLs.
 |---|---|---|---|---|---|
 | A | T01 shared contract and source baseline | Completed for T01; native crate deferred | Accepted with close-ownership corrections | Contract tests included in 44 passing tests | Not a native implementation |
 | B | Browser/WebView2 adapters and App close wiring | Completed for T01; Tauri adapter deferred | Accepted after one focused correction | Host and Agent tests: 44 passed; TypeScript/Vite build passed | Existing real C# WebView2 host smoke passed |
-| C | Rust backend process and window lifecycle | Pending | Pending | Not run | Not run |
-| D | Native OS integration | Pending | Pending | Not run | Not run |
-| E | Experimental packaging/update | Pending | Pending | Not run | Not run |
-| F | Installed-window acceptance | Pending | Pending | Not run | Not run |
+| C | Rust backend process and window lifecycle | Integrated | Accepted for Windows experiment | 94 native tests in C/D baseline | Native ready/save/exit passed |
+| D | Native OS integration | Integrated | Accepted for Windows experiment | C/D baseline and 73 frontend tests | Manual OS/canvas gates remain in F |
+| E | Experimental packaging/update | Integrated via Harness, root reviewed/fixed | RC3 local lifecycle passed | 5 packaging, 9 maintenance, 2 cross-instance tests and installer SelfTest | Real installed update/reinstall/uninstall passed; self-stub retained |
+| F | Installed-window acceptance | Probes/instructions implemented | Local preservation passed | Installed native smoke + profile/production hash checks | Second-machine transfer blocked before install; manual gates pending |
 
 ## Reviewed commits
 
@@ -99,3 +100,16 @@ hashes and the production/library boundaries were preserved. Detailed status and
 remaining manual, packaging and cross-machine gates are in
 `tauri_native_acceptance.md`; T05-T08 are not marked complete. This supersedes the
 earlier missing-Rust/MSVC observation, not the earlier T01 compatibility evidence.
+
+## E/F packaging review — 2026-11-16
+
+Harness implemented E on `experimental/tauri-packaging` (`af6f3237`), integrated
+as `368627a6`. Root added focused F probes and reviewed actual Setup behavior.
+Harness subsequently implemented the bounded receipt-ACK correction; root found
+and fixed pending C# `ValueTask` handling with a real delayed-pipe regression.
+The final candidate source is `01ff3be3`. No operator library, backend, production
+branch or production version was changed. No network updater/signing was enabled.
+
+See `tauri_packaging_acceptance.md` for exact RC3 hashes, local lifecycle results,
+withdrawn candidates, retained uninstaller stub and the blocked independent-machine
+gate. Do not turn successful native smoke tests into manual interaction claims.

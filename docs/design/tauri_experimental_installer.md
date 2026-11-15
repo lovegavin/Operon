@@ -84,7 +84,13 @@ unknown fields and caller paths/commands are rejected. On acceptance it replies
 {"schema":1,"request_id":"...","status":"accepted"}
 ```
 
-and only then invokes the existing `bridge::request_exit`. Repeated identical
+The installer validates this response and sends
+`{"schema":1,"request_id":"...","action":"ack"}` on the same authenticated
+connection. The host holds the pipe open for this bounded acknowledgment and
+only then invokes the existing `bridge::request_exit`. Missing or mismatched
+acknowledgments never request exit. The C# client converts memory-based pipe
+`ValueTask` operations to tasks before waiting synchronously; pending reads are
+covered by a real delayed-pipe regression. Repeated identical
 request IDs are acknowledged without a second exit request; a bounded recent-ID
 list allows a new request ID after a timeout. The host never performs file
 operations or process control from this channel.
@@ -196,7 +202,10 @@ dotnet build desktop-tauri/installer/OperonExperimentalInstaller.csproj -c Relea
 dotnet run --project desktop-tauri/installer/OperonExperimentalInstaller.csproj -- --self-test --result <path>
 ```
 
-Root still needs a real built candidate, a clean install/update/uninstall on
-Windows, double-click shortcut verification, a running owned backend update,
+The local RC3 candidate now has real installed-host startup, running-host update,
+failed-authentication preservation and same-profile reinstall evidence. The
+independent-machine double-click/interaction gates and uninstall evidence are
+tracked separately in `tauri_packaging_acceptance.md`. Packaging alone does not
+close those gates. Remaining acceptance includes double-click shortcut verification,
 unrelated-process preservation, profile retention, and production-baseline hash
 comparison. Source tests alone are not installed-product acceptance.
