@@ -54,6 +54,8 @@ pub struct HostState {
     pub expected_origin: RwLock<Option<Url>>,
     pub smoke: bool,
     pub instance: InstanceGuard,
+    pub maintenance_start: Mutex<Option<crate::maintenance::StartupGuard>>,
+    pub maintenance: Mutex<Option<crate::maintenance::MaintenanceService>>,
     startup_cancelled: AtomicBool,
     startup_finished: AtomicBool,
     drain_started: AtomicBool,
@@ -64,7 +66,12 @@ pub struct HostState {
 }
 
 impl HostState {
-    pub fn new(config: HostConfig, instance: InstanceGuard, smoke: bool) -> Self {
+    pub fn new(
+        config: HostConfig,
+        instance: InstanceGuard,
+        smoke: bool,
+        maintenance_start: crate::maintenance::StartupGuard,
+    ) -> Self {
         Self {
             config,
             backend: AsyncMutex::new(None),
@@ -72,6 +79,8 @@ impl HostState {
             expected_origin: RwLock::new(None),
             smoke,
             instance,
+            maintenance_start: Mutex::new(Some(maintenance_start)),
+            maintenance: Mutex::new(None),
             startup_cancelled: AtomicBool::new(false),
             startup_finished: AtomicBool::new(false),
             drain_started: AtomicBool::new(false),
@@ -108,6 +117,20 @@ fn smoke_lock(state: &HostState) -> MutexGuard<'_, Vec<SmokeEvent>> {
 /// backend asynchronously. This function never blocks on the backend.
 pub fn setup_native_shell(app: &AppHandle) {
     let state = app.state::<HostState>();
+    if crate::maintenance::start(app).is_err() {
+        // No backend has been started. The installation channel is required for
+        // a safe update/uninstall, so fail closed instead of running without it.
+        state.shell_failed.store(true, Ordering::SeqCst);
+        eprintln!("Operon Studio Experimental: the installation maintenance channel could not be started.");
+        let _ = rfd::MessageDialog::new()
+            .set_level(rfd::MessageLevel::Error)
+            .set_title("Operon Studio Experimental")
+            .set_description("The installation maintenance channel could not be started. No owned backend was started.")
+            .set_buttons(rfd::MessageButtons::Ok)
+            .show();
+        app.exit(1);
+        return;
+    }
     if build_native_menu(app).is_err()
         || build_tray(app).is_err()
         || build_diagnostics_window(app).is_err()

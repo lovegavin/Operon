@@ -13,6 +13,7 @@
 use operon_desktop_experimental::bridge::{self, HostState};
 use operon_desktop_experimental::config::HostConfig;
 use operon_desktop_experimental::instance::InstanceGuard;
+use operon_desktop_experimental::maintenance::StartupGuard;
 use std::path::PathBuf;
 
 struct ParsedArgs {
@@ -37,6 +38,16 @@ fn main() {
             "The experimental profile cannot be claimed: {error}"
         ));
     }
+    // The installation-scoped gate must be held before the profile instance lock
+    // or backend spawn. A setup/update holding the active event fails closed.
+    let startup_guard = match StartupGuard::acquire(&config.installation_id) {
+        Ok(guard) => guard,
+        Err(error) => fatal(&format!(
+            "{} An experimental setup, update or uninstall may be active. Wait for maintenance to finish and try again.",
+            error.message()
+        )),
+    };
+
     let instance = match InstanceGuard::acquire(&config.profile, &config.installation_id) {
         Ok(instance) => instance,
         Err(error) => fatal(&format!(
@@ -45,7 +56,7 @@ fn main() {
         )),
     };
 
-    let state = HostState::new(config, instance, args.smoke_test);
+    let state = HostState::new(config, instance, args.smoke_test, startup_guard);
 
     let app = match tauri::Builder::default()
         .manage(state)

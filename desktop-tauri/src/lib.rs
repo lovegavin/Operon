@@ -19,3 +19,5 @@ pub mod windows;
 
 #[cfg(feature = "desktop")]
 pub mod bridge;
+#[cfg(feature = "desktop")]
+pub mod maintenance;

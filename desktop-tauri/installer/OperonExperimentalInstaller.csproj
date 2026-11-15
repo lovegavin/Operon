@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName Condition="'$(UninstallerStub)' != 'true'">Operon_Experimental_Installer</AssemblyName>
+    <AssemblyName Condition="'$(UninstallerStub)' == 'true'">Operon_Experimental_Uninstall</AssemblyName>
+    <Product>Operon Studio Experimental Setup</Product>
+    <ApplicationIcon>../../assets/branding/operon.ico</ApplicationIcon>
+    <Title>Operon Studio Experimental Setup</Title>
+    <Version>0.1.0</Version>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <DefineConstants Condition="'$(UninstallerStub)' == 'true'">$(DefineConstants);UNINSTALLER_STUB</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../installer/InstallFiles.cs" Link="InstallFiles.cs" />
+    <EmbeddedResource Include="$(ExperimentalManifest)" LogicalName="Operon.Experimental.json" Condition="'$(ExperimentalManifest)' != ''" />
+    <EmbeddedResource Include="$(PayloadManifest)" LogicalName="Operon.Payload.json" Condition="'$(PayloadManifest)' != ''" />
+    <EmbeddedResource Include="$(UninstallerStubPath)" LogicalName="Operon.UninstallerStub.exe" Condition="'$(UninstallerStubPath)' != ''" />
+  </ItemGroup>
+</Project>
