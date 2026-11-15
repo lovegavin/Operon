@@ -194,17 +194,26 @@ def test_server_install_rejects_active_environment_maintenance(remote, tmp_path,
 
 
 def test_missing_library_capability_does_not_make_ssh_connect_fail(tmp_path):
+    calls = []
     class Connection:
         connected = True
         def __init__(self, *_):
             self.info = {'catalog': {'operators': [], 'readers': []}, 'dependencies': {'entries': [{'status': 'unchecked'}]}}
-        call = staticmethod(forbidden)
+        def call(self, method, params):
+            calls.append(method)
+            if method == 'pool_info':
+                # Status includes a bounded pool probe. An older server can
+                # reject it without scanning or installing any dependencies.
+                from operon.remote.client import RemoteError
+                raise RemoteError('Unknown remote operation: pool_info')
+            return forbidden(method, params)
         def close(self): self.connected = False
     manager = RemoteManager(SimpleNamespace(directory=tmp_path, plugins=SimpleNamespace(state=lambda: state())), Connection)
     key = manager.save({'name': 'test', 'host': 'example.org', 'username': 'tester', 'app_dir': '/app', 'workspace': '/work'})['id']
     result = manager.connect(key, {})
     assert manager.status()[0]['connected']
     assert not result['library_check']['supported']
+    assert calls == ['pool_info']
     manager.close()
 
 
