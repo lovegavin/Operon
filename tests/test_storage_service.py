@@ -71,6 +71,26 @@ def test_local_listing_pages_without_duplicates_and_reports_metadata(tmp_path):
         service.close()
 
 
+def test_listed_local_file_version_survives_stat_preview_and_detects_change(tmp_path):
+    source = tmp_path / 'table.csv'
+    source.write_text('a,b\n1,2\n', encoding='utf-8')
+    service = service_for(tmp_path)
+    try:
+        entry = service.list({'storage_id': 'data'}, principal='alice').entries[0]
+        checked = service.stat(entry.ref, principal='alice')
+        preview = service.preview({'storage_id': 'data', 'relative_path': 'table.csv'},
+                                  principal='alice')
+        assert checked.ref.version == entry.ref.version
+        assert preview.entry.ref.version == entry.ref.version
+        assert '1,2' in preview.text
+        source.write_text('a,b\n123,456\n', encoding='utf-8')
+        with pytest.raises(StorageError) as error:
+            service.stat(entry.ref, principal='alice')
+        assert error.value.code == 'storage_changed'
+    finally:
+        service.close()
+
+
 def test_cursor_is_principal_session_directory_and_filter_scoped(tmp_path):
     (tmp_path / 'one').write_text('a')
     (tmp_path / 'two').write_text('b')

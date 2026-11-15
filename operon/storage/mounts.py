@@ -160,7 +160,10 @@ class _LocalSession:
         return hashlib.sha256((str(path) + '\0' + _signature(attrs)).encode()).hexdigest()
 
     def listing_entry(self, storage_id, value, attrs):
-        if stat.S_ISLNK(attrs.st_mode or 0):
+        # Windows DirEntry.stat omits file identity (st_ino/st_dev are zero).
+        # Use the same metadata source as preview/execution, retaining identity
+        # checks instead of weakening the version signature to fit READDIR.
+        if os.name == 'nt' or stat.S_ISLNK(attrs.st_mode or 0):
             return self.stat(storage_id, value, listing=True)
         return _entry(storage_id, value, attrs)
 
