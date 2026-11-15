@@ -199,6 +199,7 @@ class ProteinMpnnDesignStep(Step):
         fixed_text = str(params.get("fixed_positions", "")).strip()
         design_text = str(params.get("design_ranges", "")).strip()
         device = str(params.get("device", "cpu")).strip().lower()
+        ca_only = bool(params.get("ca_only", False))
         out_name = params.get("output", self.name)
         timeout = float(params.get("timeout_seconds", 1800.0))
 
@@ -244,7 +245,7 @@ class ProteinMpnnDesignStep(Step):
             )
         if device not in ("cpu", "cuda"):
             raise StepError("proteinmpnn_design: device must be 'cpu' or 'cuda'")
-        if device == "cuda" and not _cuda_available():
+        if device == "cuda" and not _cuda_available(python_executable):
             raise StepError(
                 "proteinmpnn_design: device 'cuda' requested but CUDA is not "
                 "available"
@@ -297,6 +298,8 @@ class ProteinMpnnDesignStep(Step):
                 "--model_name", model_name,
                 "--suppress_print", "1",
             ]
+            if ca_only:
+                command.append("--ca_only")
             if chains:
                 command.extend(["--pdb_path_chains", chains])
             if fixed_positions:
@@ -314,9 +317,11 @@ class ProteinMpnnDesignStep(Step):
 
             environment = dict(os.environ)
             if device == "cpu":
-                environment["CUDA_VISIBLE_DEVICES"] = ""
-            else:
-                environment.pop("CUDA_VISIBLE_DEVICES", None)
+                # An empty value is not portable: some torch builds treat it as
+                # "every device" and then fail while restoring CUDA tensors.
+                environment["CUDA_VISIBLE_DEVICES"] = "-1"
+            # On cuda keep the devices the pool assigned instead of widening
+            # visibility to every GPU on the host.
 
             completed = subprocess.run(
                 command,
@@ -446,7 +451,31 @@ def _artifact_dir(ctx: Context, name: str) -> Path | None:
     return output_directory(ctx, name)
 
 
-def _cuda_available() -> bool:
+def _cuda_available(executable: str = "") -> bool:
+    """True when the interpreter that runs ProteinMPNN can see a GPU.
+
+    The step process itself rarely imports torch, so a local import says
+    nothing about ``python_executable``.  Probe that interpreter when it is a
+    real file and differs from the current one, then fall back to torch here.
+    """
+    target = (executable or "").strip()
+    if target:
+        candidate = Path(target).expanduser()
+        try:
+            distinct = candidate.is_file() and candidate.resolve() != Path(sys.executable).resolve()
+        except OSError:
+            distinct = False
+        if distinct:
+            try:
+                probe = subprocess.run(
+                    [str(candidate), "-c",
+                     "import torch; print('1' if torch.cuda.is_available() else '0')"],
+                    capture_output=True, text=True, timeout=180,
+                )
+            except (OSError, subprocess.SubprocessError):
+                probe = None
+            if probe is not None and probe.returncode == 0:
+                return probe.stdout.strip().endswith("1")
     try:
         import torch
     except Exception:
