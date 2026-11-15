@@ -41,6 +41,22 @@ def _parse_time(value: str | None) -> float:
         return time.time()
 
 
+# A quarantined attempt whose recorded worker is proven dead still holds its
+# reservation.  Reclaim it after this grace period so a crashed or restarted
+# service cannot starve the pool forever.
+ABANDON_AFTER_SECONDS = 300.0
+
+
+def _age_seconds(stamp: str | None) -> float:
+    """Age of a durable timestamp; an unreadable stamp counts as brand new."""
+    if not stamp:
+        return 0.0
+    try:
+        return max(0.0, time.time() - datetime.fromisoformat(stamp).timestamp())
+    except (TypeError, ValueError):
+        return 0.0
+
+
 @dataclass(frozen=True)
 class CoordinatorConfig:
     heartbeat_seconds: float = 2.0
@@ -544,6 +560,32 @@ class Coordinator:
         # scientific non-zero exit or a cancelled attempt is explicit.
         return result is not None and result.detail in ('launch_failed', 'recovery_required')
 
+    def _abandon_dead_quarantine(self, attempt: dict, grace: float) -> bool:
+        """Reclaim a quarantined lease once its recorded worker is proven dead.
+
+        The worker identity is durable and checked by pid plus create time, so a
+        dead identity is proof that no scientific process from that attempt can
+        still be using the reservation.  The grace period keeps a restart from
+        abandoning a launch that is still in flight.
+        """
+        identity = attempt.get('process') or {}
+        if not identity or _age_seconds(attempt.get('updated_at')) < grace:
+            return False
+        if identity_alive(identity):
+            return False
+        unit = self.store.unit(attempt['unit_id'])
+        run = self.store.run(unit['run_id'])
+        if run['cancel_requested']:
+            self._finalize_cancelled(attempt, unit)
+        else:
+            self._fail_attempt(attempt['id'], result=None,
+                               error='The quarantined worker is confirmed dead; '
+                                     'its lease was reclaimed',
+                               error_code='recovery_abandoned', release=True, retry=False)
+        self._diagnose('attempt_abandoned', attempt_id=attempt['id'],
+                       previous_state=attempt.get('state'))
+        return True
+
     def _fail_attempt(self, attempt_id: str, *, result: ExecutionResult | None, error: str,
                       error_code: str, release: bool, retry: bool):
         attempt = self.store.attempt(attempt_id)
@@ -678,9 +720,12 @@ class Coordinator:
             self._diagnose('prune_error', error=str(exc))
 
     # -- recovery ------------------------------------------------------
-    def recover(self):
+    def recover(self, *, abandon_after_seconds: float | None = None):
         """Reconcile every active attempt and outbox entry after a takeover."""
-        recovered = {'adopted': 0, 'failed': 0, 'quarantined': 0, 'relaunched': 0}
+        grace = (ABANDON_AFTER_SECONDS if abandon_after_seconds is None
+                 else max(0.0, float(abandon_after_seconds)))
+        recovered = {'adopted': 0, 'failed': 0, 'quarantined': 0, 'relaunched': 0,
+                     'abandoned': 0}
         states = [AttemptState.ADMITTED.value, AttemptState.STARTING.value, AttemptState.RUNNING.value,
                   AttemptState.COMMITTING.value, AttemptState.RECOVERY_REQUIRED.value]
         for attempt in self.store.attempts_for_pool(self.pool_id, states=states):
@@ -728,6 +773,9 @@ class Coordinator:
                                        error_code='launch_failed', release=True, retry=True)
                     recovered['failed'] += 1
                 else:
+                    if self._abandon_dead_quarantine(attempt, grace):
+                        recovered['abandoned'] += 1
+                        continue
                     if state != AttemptState.RECOVERY_REQUIRED:
                         self._transition(attempt['id'], AttemptState.RECOVERY_REQUIRED,
                                          error='No verifiable launch receipt after coordinator restart')
@@ -735,6 +783,9 @@ class Coordinator:
                 continue
             if state in (AttemptState.ADMITTED, AttemptState.STARTING):
                 continue  # a pending launch outbox entry will launch it
+            if self._abandon_dead_quarantine(attempt, grace):
+                recovered['abandoned'] += 1
+                continue
             if state != AttemptState.RECOVERY_REQUIRED:
                 self._transition(attempt['id'], AttemptState.RECOVERY_REQUIRED,
                                  error='Process ownership after restart is uncertain')

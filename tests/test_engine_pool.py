@@ -2,6 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor
 import os
 import socket
+import subprocess
 import sys
 import threading
 import time
@@ -202,6 +203,56 @@ def test_unknown_live_ownership_is_quarantined_with_its_lease_charged(tmp_path):
     assert report.quarantined >= 1
     assert store.attempt(attempt['id'])['state'] == 'recovery_required'
     assert store.lease(attempt['id'])['state'] != 'released'
+
+
+def test_quarantined_attempt_with_dead_worker_is_abandoned_and_lease_reclaimed(tmp_path):
+    store, spec, coordinator, root = make(tmp_path)
+    submit(coordinator)
+    unit = store.units('run-1')[0]
+    attempt = store.create_attempt(unit['id'], epoch=coordinator.epoch)
+    dead = subprocess.Popen([sys.executable, '-c', 'pass'])
+    dead.wait(timeout=60)
+    # A recorded identity whose process is gone proves no worker still uses the
+    # reservation; the grace period is bypassed here.
+    store.transition_attempt(attempt['id'], 'running', expected_revision=attempt['revision'],
+                             process={'pid': dead.pid, 'created': 0.0})
+    coordinator.resources.admit(attempt_id=attempt['id'],
+                                request=ResourceRequest(managed_budget_bytes=1024,
+                                                        process_reservation_bytes=2048,
+                                                        cpu_threads=1),
+                                owner={})
+    coordinator.stop()
+    report = coordinator.recover(abandon_after_seconds=0)
+    assert report['abandoned'] >= 1
+    assert store.attempt(attempt['id'])['state'] == 'failed'
+    assert store.attempt(attempt['id'])['error_code'] == 'recovery_abandoned'
+    assert store.lease(attempt['id'])['state'] == 'released'
+    assert store.unit(unit['id'])['state'] == 'failed'
+    assert any(item['kind'] == 'attempt_abandoned' for item in coordinator.diagnostics)
+
+
+def test_quarantined_attempt_with_live_worker_keeps_its_lease(tmp_path):
+    store, spec, coordinator, root = make(tmp_path)
+    submit(coordinator)
+    unit = store.units('run-1')[0]
+    attempt = store.create_attempt(unit['id'], epoch=coordinator.epoch)
+    import psutil
+    live = psutil.Process(os.getpid())
+    store.transition_attempt(attempt['id'], 'running', expected_revision=attempt['revision'],
+                             process={'pid': live.pid, 'created': live.create_time()})
+    coordinator.resources.admit(attempt_id=attempt['id'],
+                                request=ResourceRequest(managed_budget_bytes=1024,
+                                                        process_reservation_bytes=2048,
+                                                        cpu_threads=1),
+                                owner={})
+    coordinator.stop()
+    report = coordinator.recover(abandon_after_seconds=0)
+    assert report['abandoned'] == 0
+    assert report['quarantined'] >= 1
+    assert store.attempt(attempt['id'])['state'] == 'recovery_required'
+    assert store.lease(attempt['id'])['state'] != 'released'
+
+
 def test_standalone_pool_snapshot_respects_container_memory_and_cpu(tmp_path, monkeypatch):
     from operon.engine.facade import pool_from_host
     from src.task.memory.config import AUTO_BUDGET_FRACTION

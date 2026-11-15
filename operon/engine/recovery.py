@@ -2,17 +2,20 @@
 
 Recovery is deliberately conservative: a live identity is adopted only with a
 verified receipt, a missing receipt for a never-launched attempt is failed and
-released, and unknown ownership remains quarantined with its lease charged.
+released, and unknown ownership stays quarantined with its lease charged until
+its recorded worker is proven dead and the grace period has elapsed.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
+import time
 
 from .artifacts import ArtifactCommitter
 from .contracts import AttemptState, RunState
 from .events import EventStream
 from .state import now_iso
-from .supervisor import ProcessSupervisor, SupervisorError
+from .supervisor import ProcessSupervisor, SupervisorError, identity_alive
 from .telemetry import METRICS
 
 
@@ -21,24 +24,37 @@ class RecoveryReport:
     adopted: int = 0
     failed: int = 0
     quarantined: int = 0
+    abandoned: int = 0
     leases_released: int = 0
     artifacts: dict | None = None
     settled: int = 0
 
     def to_json(self) -> dict:
         return {'adopted': self.adopted, 'failed': self.failed, 'quarantined': self.quarantined,
+                'abandoned': self.abandoned,
                 'leases_released': self.leases_released, 'artifacts': self.artifacts or {},
                 'settled': self.settled, 'at': now_iso()}
 
 
+def _age_seconds(stamp: str | None) -> float:
+    """Age of a durable timestamp; an unreadable stamp counts as brand new."""
+    if not stamp:
+        return 0.0
+    try:
+        return max(0.0, time.time() - datetime.fromisoformat(stamp).timestamp())
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def recover(runtime, *, supervisor: ProcessSupervisor | None = None,
-            artifact_committer: ArtifactCommitter | None = None) -> RecoveryReport:
+            artifact_committer: ArtifactCommitter | None = None,
+            abandon_after_seconds: float = 300.0) -> RecoveryReport:
     """Reconcile one engine root after a coordinator/service restart."""
     store = runtime.store
     if store is None:
         return RecoveryReport()
     supervisor = supervisor or ProcessSupervisor(runtime.workspace_root / 'supervisor')
-    adopted = failed = quarantined = released = settled = 0
+    adopted = failed = quarantined = abandoned = released = settled = 0
     now = now_iso()
     # 1. Artifact crash points: resolve rename/receipt/database asymmetries.
     artifact_report = {}
@@ -61,7 +77,6 @@ def recover(runtime, *, supervisor: ProcessSupervisor | None = None,
         state = AttemptState(attempt['state'])
         if receipt is not None and receipt.fence == int(attempt['fence']) and \
                 receipt.identity is not None:
-            from .supervisor import identity_alive
             if identity_alive(receipt.identity):
                 if state in (AttemptState.ADMITTED, AttemptState.STARTING, AttemptState.RECOVERY_REQUIRED):
                     store.transition_attempt(attempt['id'], AttemptState.RUNNING,
@@ -97,6 +112,24 @@ def recover(runtime, *, supervisor: ProcessSupervisor | None = None,
                                     released_process_bytes=lease['committed'].process_reservation_bytes)
                 released += 1
             failed += 1
+            continue
+        # A quarantined attempt whose worker identity is provably dead can no
+        # longer be using its reservation: reclaim it after the grace period.
+        identity = attempt.get('process') or {}
+        if identity and not identity_alive(identity) and \
+                _age_seconds(attempt.get('updated_at')) >= float(abandon_after_seconds):
+            if state not in (AttemptState.SUCCEEDED, AttemptState.FAILED, AttemptState.CANCELLED):
+                store.transition_attempt(attempt['id'], AttemptState.FAILED,
+                                         expected_revision=attempt['revision'],
+                                         error='The quarantined worker is confirmed dead; '
+                                               'its lease was reclaimed',
+                                         error_code='recovery_abandoned')
+            lease = store.lease(attempt['id'])
+            if lease and lease['state'] != 'released':
+                store.release_lease(lease['id'], reason='recovery: abandoned dead worker',
+                                    released_process_bytes=lease['committed'].process_reservation_bytes)
+                released += 1
+            abandoned += 1
             continue
         # A running/committing attempt with no verifiable receipt is unknown
         # ownership: quarantine it and keep its lease charged.
@@ -134,6 +167,8 @@ def recover(runtime, *, supervisor: ProcessSupervisor | None = None,
         METRICS.increment('recovery.quarantined_runs')
     store.append_event('recovery_completed', principal=runtime.principal,
                        payload={'adopted': adopted, 'failed': failed, 'quarantined': quarantined,
+                                'abandoned': abandoned,
                                 'leases_released': released, 'artifacts': artifact_report})
     return RecoveryReport(adopted=adopted, failed=failed, quarantined=quarantined,
-                          leases_released=released, artifacts=artifact_report, settled=settled)
+                          abandoned=abandoned, leases_released=released,
+                          artifacts=artifact_report, settled=settled)
