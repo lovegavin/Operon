@@ -220,6 +220,32 @@ def test_application_compiles_imported_script_canvas_without_library(tmp_path, m
         app.shutdown()
 
 
+def test_http_script_canvas_reaches_environment_after_real_preflight(tmp_path, monkeypatch):
+    """Exercise the UI's frozen request DTO, asynchronous worker and real compiler."""
+    from fastapi.testclient import TestClient
+    from operon.headless import create_headless_app
+    from operon.workflow_spec import load_workflow
+    from src.web.service import Settings
+    import operon.environment_store.canvas as environment_module
+    monkeypatch.setenv('OPERON_REGISTRY_MAINTENANCE', '1')
+    def reached(*args, **kwargs):
+        raise InterruptedError('test stopped before environment capture')
+    monkeypatch.setattr(environment_module, 'prepare_python', reached)
+    server = create_headless_app(Settings(tmp_path, tmp_path / '.studio', tmp_path / 'no-ui',
+                                          testing=True, code_root=ROOT))
+    with TestClient(server, base_url='http://127.0.0.1') as client:
+        token = client.post('/api/agent/connect', headers={'X-Operon-Bridge': server.state.bridge.secret},
+                            json={'name': 'script-canvas', 'scopes': ['context', 'run']}).json()['token']
+        client.headers['Authorization'] = 'Bearer ' + token
+        graph = load_workflow(ROOT / 'examples/workflows/script_pipeline/workflow.yaml')
+        result = client.post('/api/v1/canvas-plans/prepare',
+                             json={'graph': graph, 'request_id': 'script-http'})
+        assert result.status_code == 200, result.text
+        record = settled(server.state.application.canvas_plans, 'script-http')
+        assert record['status'] == 'cancelled', record
+        assert record['error'] == 'test stopped before environment capture'
+
+
 def test_actual_canvas_auto_prepare_pool_run_and_portable_export(provider, tmp_path, monkeypatch):
     """Opt-in real private Python; no fake generation/build/probe success."""
     python = os.environ.get('OPERON_CANVAS_TEST_PYTHON')

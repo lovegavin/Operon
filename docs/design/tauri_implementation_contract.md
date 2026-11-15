@@ -64,6 +64,7 @@ interface DesktopHost {
   ready(): Promise<void>;
   acknowledgeDraftFlush(requestId: string, saved: boolean): Promise<void>;
   showDiagnostics(): Promise<void>;
+  requestFullExit(): Promise<void>;
   openCommittedArtifact(runId: string, artifactId: string, fileId: string): Promise<void>;
   onPrepareClose(handler: (requestId: string) => void): () => void;
 }
@@ -116,12 +117,24 @@ and [configuration reference](https://v2.tauri.app/reference/config/).
 ## Ownership and shutdown state machine
 
 ```text
+ready.visible -> ready.hidden (window close, when close-to-tray is enabled)
+ready.hidden -> ready.visible (tray/shortcut activation)
 starting -> ready -> close_requested -> flushing_draft
   -> draining_owned_management -> closed
 flushing_draft -> ready (save failed/user cancels close)
 draining_owned_management -> recovery_prompt (timeout/unconfirmed exit)
 starting/ready -> backend_failed (diagnostics; no job replay)
 ```
+
+Distinguish hiding a window from exiting the application. Preserve the existing
+close-to-tray policy, but provide an accessible explicit **Quit Operon** command
+in both the tray and the application menu. `requestFullExit` initiates the same
+confirmed draft/active-job shutdown flow; it is not permission to kill a PID.
+Installer maintenance must request that explicit flow through an authenticated,
+installation-scoped host channel. Do not assume `WM_CLOSE` exits a tray application.
+Test hidden-window maintenance, cancellation and old-host compatibility before
+allowing an update to remove files. If an older host cannot accept the request,
+show the exact manual exit action and retain its installation.
 
 Use correlation IDs for close messages. The current draft-save timeout is a
 starting compatibility value; record it, do not silently discard a failed save.

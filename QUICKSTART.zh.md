@@ -4,7 +4,7 @@
 
 你不需要会 Python，不需要装 Conda，也不需要 AI 账号。示例数据是编造的，只用于检查流程，不代表任何生物学结论。
 
-本说明对应 **Operon Studio 5.2.0** 与单独安装的兼容算子库；本体安装包不再捆绑或更新算子。
+本说明对应 **Operon Studio 5.3.0** 与单独安装的兼容算子库；本体安装包不再捆绑或更新算子。
 
 ## 你需要准备
 
@@ -75,12 +75,12 @@ gene_a,gene_b,gene_c
 
 只有当你确实有一台 Linux 服务器时才做这一步。Windows 本机用户可以直接跳过。
 
-1. 在 Releases 下载 **Operon-5.2.0-Server.zip**，上传到服务器。
+1. 在 Releases 下载 **Operon-5.3.0-Server.zip**，上传到服务器。
 2. 在服务器上执行：
 
 ```sh
-unzip Operon-5.2.0-Server.zip
-cd Operon-5.2.0-Server
+unzip Operon-5.3.0-Server.zip
+cd Operon-5.3.0-Server
 bash install.sh --prefix "$HOME/operon" --result "$PWD/server-install.json"
 ```
 
@@ -99,7 +99,7 @@ bash install.sh --prefix "$HOME/operon" --result "$PWD/server-install.json"
 - **窗口一直白屏**：等 1–2 分钟；仍然不行就完全退出再开。不要同时开很多个 Operon。
 - **检查环境失败**：先确认能上网，再点“准备环境”。公司网络需要代理时，先在系统代理里配好。
 - **安装时提示目录不可写**：换到 `<your writable install folder>` 这类普通目录，不要用 系统保护目录。
-- **想卸载**：在 Windows“应用”里卸载，或运行安装目录里的 `Operon_Uninstall.exe`。5.2.0 会保留 `<安装目录>\workspace` 里的工作区和分析结果，确认不需要后再手动删除。
+- **想卸载**：在 Windows“应用”里卸载，或运行安装目录里的 `Operon_Uninstall.exe`。5.3.0 会保留 `<安装目录>\workspace` 里的工作区和分析结果，确认不需要后再手动删除。
 - **日志在哪**：`%USERPROFILE%\.operon\profiles\<profile-id>\logs\desktop-YYYYMMDD.log`。
 
 ## 接下来

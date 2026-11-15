@@ -27,6 +27,9 @@ Do not run scientific dependency checks merely to open the shell.
 Implement `frontend/src/host/types.ts`, browser and current WebView2 adapters.
 Move only host-message handling out of App into the adapter. Add targeted tests
 for message correlation, listener removal, failed draft save and repeated close.
+Include the difference between hiding to tray and explicit full exit. The new
+host needs an accessible in-app Quit action and an installation-scoped maintenance
+request; a generic window-close message must never be treated as exit evidence.
 Current browser/WebView2 behavior must remain unchanged. Do not start Rust work
 until this compatibility gate passes.
 

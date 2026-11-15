@@ -25,7 +25,9 @@ def mount_canvas(app, application, bridge):
     @app.post('/api/v1/canvas-plans/prepare')
     async def prepare(request: Request, payload: PrepareCanvas):
         bridge.actor(request, 'run')
-        return application.canvas_plans.start(payload.graph, payload.request_id)
+        # ContractModel freezes nested JSON arrays; the graph preparation service
+        # consumes the mutable JSON wire representation, not frozen DTO internals.
+        return application.canvas_plans.start(payload.model_dump(mode='json')['graph'], payload.request_id)
 
     @app.get('/api/v1/canvas-plans/status')
     async def status(request: Request, request_id: str):

@@ -93,6 +93,9 @@ and graceful drain. A window's death must not terminate a shared server or other
 installation. Use process identity/creation-time and installation ownership, never
 process name alone. Handle occupied ports, stale receipts and startup failure.
 Respect existing pool task survival and maintenance/upgrade semantics.
+Keep hide-to-tray distinct from full exit. Provide an accessible in-app Quit
+command as well as the tray action; the installer cannot treat `WM_CLOSE` as a
+proof of exit. Session E consumes C's installation-scoped maintenance handshake.
 
 Acceptance: real child-process tests for normal/repeated exit, delayed readiness,
 backend crash, close during preparation, shared-pool work continuing after UI
