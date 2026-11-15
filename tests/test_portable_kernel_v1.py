@@ -107,7 +107,7 @@ def test_export_uses_measured_scan_budget_and_retains_failure_receipt(tmp_path, 
     fixture = tmp_path / 'fixture'; plan = bundle_at(fixture, source)
     binding = json.loads((fixture / 'payload/bindings.json').read_text())['environments']
     store = EnvironmentStore(fixture / 'payload/environments', create=False)
-    monkeypatch.setattr(service, '_inventory_with_duration', lambda path: (inventory(path), 300.0))
+    monkeypatch.setattr(service, '_inventory_with_duration', lambda path, **kwargs: (inventory(path, **kwargs), 300.0))
     observed = []
     def timeout_probe(root, argv, **kwargs):
         observed.append(kwargs)

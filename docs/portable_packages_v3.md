@@ -59,3 +59,38 @@ process scanning this exact payload; subprocess output cannot extend the deadlin
 This allows slower storage and cold copied runtimes without disabling hashes,
 turning timeouts into success, or making probes unbounded. Cancellation still
 stops an active probe. A timeout retains its failure receipt and recent progress.
+
+
+### Reusable environment packages
+
+Managed generations now seal into content-addressed TAR layers in
+`packages/sha256/<digest>.tar`. `packages.json` binds the layers to the original
+generation, requirement and content identities. `runtime/` is the language layer;
+Python `site-packages`/`dist-packages` and explicit `packages/` are dependency
+layers; remaining resources form a separate layer. Opaque native/R distributions
+remain intact runtime closures unless their builder separates dependency paths.
+Identical layers deduplicate across generations. Conflicting requirements retain
+separate generation bindings and isolated worker processes; no imports are renamed.
+
+Sealing an old generation performs one full audit and validates the bytes written
+to each archive. Subsequent ordinary verification hashes the small number of
+archive files, not the extracted tree. Package copies are verified while copying.
+Exports record managed cache exclusions explicitly and still verify code, metadata,
+package archives and relocated execution. A launchable management cache remains
+in the standalone package, so this change does not promise a smaller download.
+
+Expanded payloads are managed execution caches, not independently authenticated
+artifacts. Direct edits to those caches are unsupported and are not detected by
+normal package verification. This is not isolation from a malicious same-account
+user. Use `audit` for an explicit per-file cache audit; use `materialize` into a
+fresh store to recover from immutable archives without altering a live generation.
+Package changes require new content identities. Existing leases and generation GC
+are unchanged. Shared package blobs are retained conservatively, not removed when
+one referencing generation is collected.
+
+```sh
+python -m operon.environment_store --store ./environments package GENERATION
+python -m operon.environment_store --store ./environments verify GENERATION
+python -m operon.environment_store --store ./environments audit GENERATION
+python -m operon.environment_store --store ./environments materialize GENERATION --destination ./recovered-environments
+```

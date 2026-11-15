@@ -34,9 +34,9 @@ runpy.run_module('operon.export.kernel', run_name='__main__')
 '''
 
 
-def _inventory_with_duration(payload):
+def _inventory_with_duration(payload, *, excluded_roots=()):
     started = time.monotonic()
-    files = inventory(payload)
+    files = inventory(payload, excluded_roots=excluded_roots)
     return files, time.monotonic() - started
 
 
@@ -94,7 +94,9 @@ class ExportService:
             if not selected <= environments.keys():
                 raise ContractError('An execution unit has no materialized environment', code='environment_unavailable')
             required = {sha256_hex(item) for item in plan.environment_requirements}
+            from operon.environment_store.packages import seal, copy_generation
             for key in selected:
+                seal(self.environments, environments[key]['generation_id'], cancel=cancel)
                 binding = self.environments.binding(environments[key]['generation_id'])
                 expected = plan.execution_policy.get('environment_refs', {}).get(key)
                 if expected is None and len(required) == 1:
@@ -149,7 +151,7 @@ class ExportService:
                     collect_packed_inputs(self.environments, payload / 'environments', generation)
                 target = payload / 'environments' / 'generations' / generation
                 if not target.exists():
-                    shutil.copytree(io_path(path), io_path(target), symlinks=True)
+                    copy_generation(self.environments, EnvironmentStore(payload / 'environments'), generation, cancel=cancel)
             phase('assemble')
             atomic_json(payload / 'plan.json', portable.model_dump(mode='json'))
             atomic_json(payload / 'bindings.json', {'environments': environments, 'inputs': {},
@@ -173,13 +175,16 @@ class ExportService:
                 executable + '" -I -B "$ROOT/run.py" "$@"\n', encoding='utf-8')
             (temporary / 'run.sh').chmod(0o755)
             phase('structural_verification')
-            files, scan_seconds = _inventory_with_duration(payload)
+            caches = sorted({'environments/generations/' + item['generation_id'] + '/payload'
+                             for item in environments.values()})
+            files, scan_seconds = _inventory_with_duration(payload, excluded_roots=caches)
             check_timeout = _relocation_probe_timeout(scan_seconds)
             preparation_timeout = _relocation_probe_timeout(scan_seconds, prepare=True)
             receipt['verification'] = {'inventory_seconds': scan_seconds, 'entries': len(files),
                 'probe_timeout_seconds': check_timeout, 'preparation_timeout_seconds': preparation_timeout}
             manifest = {'format': 'operon.portable', 'schema_version': 1, 'status': 'complete',
                         'plan_id': portable.plan_id, 'files': files,
+                        'managed_environment_caches': caches,
                         'management_executable': executable, 'implementation_manifests': implementations,
                         'management_packages': 'payload/environments/generations/' + control['generation_id'] + '/payload/packages',
                         'launchers': {name: file_digest(temporary / name) for name in ('run.py', 'run.cmd', 'run.sh')},

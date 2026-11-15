@@ -69,13 +69,13 @@ def test_orphan_and_unknown_spawn_never_expires(tmp_path):
         store.release('orphan', 4)
 
 
-def test_mutated_or_missing_manifest_never_ready(tmp_path):
+def test_explicit_deep_audit_detects_cache_mutation_and_missing_manifest_never_ready(tmp_path):
     store = EnvironmentStore(tmp_path)
     binding = store.prepare(requirement(), FixtureBuilder())
     root = store.root / 'generations' / binding.generation_id
     (root / 'payload' / 'runtime' / 'fixture').write_text('changed')
     with pytest.raises(ContractError, match='changed'):
-        store.binding(binding.generation_id)
+        store.binding(binding.generation_id, verify='deep')
     (root / 'verification.json').unlink()
     with pytest.raises(ContractError, match='generation manifest'):
         store.binding(binding.generation_id)

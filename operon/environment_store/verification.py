@@ -83,14 +83,18 @@ def _windows_inventory_digest(path, root, attrs):
         return digest.hexdigest()
 
 
-def inventory(root):
+def inventory(root, *, excluded_roots=()):
     """No dereferencing of external links, no in-memory file contents."""
     root = Path(root).resolve()
     scan_root = io_path(root)
     result = {}
+    excluded = set(excluded_roots)
+    for relative in excluded:
+        _confined_resolved(root, relative)
     progress = os.environ.get('OPERON_EXPORT_PROBE') == '1'
     started = reported = time.monotonic()
     for directory, dirs, files in os.walk(scan_root, followlinks=False):
+        dirs[:] = [name for name in dirs if (Path(directory) / name).relative_to(scan_root).as_posix() not in excluded]
         for name in sorted(dirs + files):
             path = Path(directory) / name
             relative = path.relative_to(scan_root).as_posix()
@@ -120,8 +124,8 @@ def inventory(root):
     return result
 
 
-def verify_inventory(root, expected):
-    actual = inventory(root)
+def verify_inventory(root, expected, *, excluded_roots=()):
+    actual = inventory(root, excluded_roots=excluded_roots)
     if actual != expected:
         changed = sorted(set(actual) ^ set(expected) | {
             key for key in actual.keys() & expected.keys() if actual[key] != expected[key]})

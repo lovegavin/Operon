@@ -9,7 +9,7 @@ on:
         description: Exact candidate wheel SHA256
         required: true
       scope:
-        description: Changed surface only (inventory or budget)
+        description: Changed surface only (inventory, budget or packages)
         default: inventory
         required: true
   push:
@@ -46,6 +46,32 @@ jobs:
           from operon.environment_store.verification import inventory, verify_inventory
           from operon.contracts.base import ContractError
           assert 'site-packages' in str(operon.__file__)
+          if os.environ['SMOKE_SCOPE'] == 'packages':
+              from operon.environment_store import EnvironmentStore
+              from operon.environment_store.packages import copy_generation, descriptor
+              import operon.environment_store.verification as checks
+              from operon.contracts.run_plan import EnvironmentRequirement, TargetSpec
+              class FixtureBuilder:
+                  def resolve(self, requirement): pass
+                  def build(self, root, store, **kwargs):
+                      (root/'runtime').mkdir()
+                      (root/'runtime/tool').write_bytes(b'fixture only')
+                      (root/'runtime/tool').chmod(0o755)
+                      return {'builder': 'ci-package-fixture'}
+                  def verify(self, root, **kwargs):
+                      return {'status': 'passed', 'relocation': 'passed', 'synthetic': True}
+              with tempfile.TemporaryDirectory() as temp:
+                  source = EnvironmentStore(Path(temp)/'source')
+                  requirement = EnvironmentRequirement(target=TargetSpec(os='linux', arch='x86_64'), runtime='fixture')
+                  binding = source.prepare(requirement, FixtureBuilder())
+                  def forbidden(*a, **kw): raise AssertionError('Repeated expanded scan')
+                  checks.inventory = forbidden
+                  target = EnvironmentStore(Path(temp)/'target')
+                  copy_generation(source, target, binding.generation_id)
+                  assert target.binding(binding.generation_id) == binding
+                  assert (target.root/'generations'/binding.generation_id/'payload/runtime/tool').stat().st_mode & 0o111
+              print('PASS: exact installed wheel package copy, cache materialization, executable mode and no expanded rescan; synthetic boundary fixture')
+              raise SystemExit(0)
           if os.environ['SMOKE_SCOPE'] == 'budget':
               from operon.export.service import _relocation_probe_timeout
               assert _relocation_probe_timeout(300) == 1260

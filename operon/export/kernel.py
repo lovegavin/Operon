@@ -29,7 +29,19 @@ def inspect_bundle(root):
     manifest = json.loads((root / 'bundle.json').read_text(encoding='utf-8'))
     if manifest.get('format') != 'operon.portable' or manifest.get('status') != 'complete':
         raise ContractError('Bundle is not complete', code='incomplete_export')
-    verify_inventory(root / 'payload', manifest['files'])
+    caches = manifest.get('managed_environment_caches', [])
+    if caches:
+        bindings = json.loads((root / 'payload/bindings.json').read_text())
+        expected = sorted({'environments/generations/' + item['generation_id'] + '/payload'
+                           for item in bindings['environments'].values()})
+        if caches != expected:
+            raise ContractError('Invalid managed cache boundaries', code='environment_corrupt')
+        store = EnvironmentStore(root / 'payload/environments', create=False)
+        from operon.environment_store.packages import verify
+        for item in bindings['environments'].values():
+            if not verify(store, item['generation_id']):
+                raise ContractError('Missing environment packages', code='environment_corrupt')
+    verify_inventory(root / 'payload', manifest['files'], excluded_roots=caches)
     for name, expected in manifest.get('launchers', {}).items():
         if name not in ('run.py', 'run.cmd', 'run.sh') or file_digest(root / name) != expected:
             raise ContractError('Bundle launcher changed after export', code='artifact_mismatch')
@@ -165,9 +177,8 @@ def run_bundle(root, *, inputs=None, parameters=None, resume=False, work_dir=Non
             target = environments.root / 'generations' / generation
             if not target.exists():
                 progress('copy_destination_environment')
-                temporary = environments.root / 'staging' / uuid.uuid4().hex
-                shutil.copytree(io_path(original), io_path(temporary), symlinks=True)
-                os.replace(temporary, target)
+                from operon.environment_store.packages import copy_generation
+                copy_generation(source_environments, environments, generation)
             progress('verify_destination_environment')
             environments.binding(generation)
             deployed_generations[generation] = generation

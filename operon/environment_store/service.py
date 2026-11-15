@@ -87,7 +87,9 @@ class EnvironmentStore:
     def binding(self, generation, *, verify=True):
         path, manifest, receipt = self._manifest(generation)
         if verify:
-            verify_inventory(path / 'payload', manifest['files'])
+            from .packages import verify as verify_packages
+            if verify == 'deep' or not verify_packages(self, generation):
+                verify_inventory(path / 'payload', manifest['files'])
         return EnvironmentBinding(requirement_digest=manifest['requirement_digest'],
             target=manifest['requirement']['target'], generation_id=generation,
             content_digest=manifest['content_digest'], verification_receipt=receipt)
@@ -164,6 +166,8 @@ class EnvironmentStore:
                     record['state'] = 'ready'
                     atomic_json(journal, record)
                 checkpoint('ready')
+                from .packages import seal
+                seal(self, generation, cancel=cancel)
                 return self.binding(generation)
             except Exception as exc:
                 # A publish with a lost acknowledgment is reconciled, not deleted.

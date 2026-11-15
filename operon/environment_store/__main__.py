@@ -38,14 +38,25 @@ def prepare_recipe(store, path):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--store', type=Path, required=True)
-    parser.add_argument('action', choices=('prepare', 'verify', 'recover', 'collect'))
+    parser.add_argument('action', choices=('prepare', 'verify', 'audit', 'package', 'materialize', 'recover', 'collect'))
     parser.add_argument('value', nargs='?')
+    parser.add_argument('--destination', type=Path)
     args = parser.parse_args(argv)
     store = EnvironmentStore(args.store)
     if args.action == 'prepare':
         result = prepare_recipe(store, args.value).model_dump(mode='json')
-    elif args.action == 'verify':
-        result = store.binding(args.value).model_dump(mode='json')
+    elif args.action in ('verify', 'audit'):
+        result = store.binding(args.value, verify='deep' if args.action == 'audit' else True).model_dump(mode='json')
+    elif args.action == 'package':
+        from .packages import seal
+        result = seal(store, args.value)
+    elif args.action == 'materialize':
+        if args.destination is None or args.destination.resolve() == args.store.resolve():
+            parser.error('materialize requires a different --destination store; live environments are never overwritten')
+        from .packages import copy_generation
+        target = EnvironmentStore(args.destination)
+        copy_generation(store, target, args.value)
+        result = target.binding(args.value).model_dump(mode='json')
     elif args.action == 'recover':
         result = store.recover()
     else:
