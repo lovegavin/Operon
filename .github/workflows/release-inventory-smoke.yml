@@ -60,3 +60,4 @@ jobs:
               assert 'StorageInputRef' in schema['$defs']
           print('PASS: exact installed wheel inventory, corruption, external-link boundary and StorageInputRef schemas')
           PY
+# Only workflow_dispatch performs this focused gate.
