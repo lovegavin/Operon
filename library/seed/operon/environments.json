@@ -155,7 +155,6 @@
         "torch"
       ],
       "requirements": [
-        "torch==2.3.1",
         "numpy==1.26.4",
         "biopython==1.83",
         "scipy==1.13.1",
@@ -169,7 +168,8 @@
         "fair-esm==2.0.0"
       ],
       "wired": true,
-      "notes": "Separate env because fair-esm and ESM3 both provide the top-level `esm` package. The 2.5 GB ESMFold checkpoint is still an external resource (resources.json esmfold); prepare installs the code only."
+      "notes": "CPU-only ESMFold environment: torch is installed from the PyTorch CPU wheel index, so no CUDA wheel is downloaded. The 2.5 GB ESMFold checkpoint remains an external resource (resources.json esmfold); prepare installs the code only.",
+      "torch_cpu": true
     },
     "openmm81": {
       "title": "OpenMM 8.1.1 structure preparation (PDBFixer bundled)",
