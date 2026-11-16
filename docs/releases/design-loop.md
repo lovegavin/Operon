@@ -333,6 +333,61 @@ Library 0.1.22: bundle
 `6edce3920c3b95c165085525d8b76038fcfadd9942dc7392c97f9ae0b17d41d7`. Readouts
 above that name no re-run job predate this fix and report the old zero count.
 
+## Six environments and the full chain (library 0.1.27)
+
+Library `0.1.27` is the first release where every declared environment was
+installed and exercised by a real remote job. The measurements below come from
+the held-out host (`licai-srv`, RTX 3090, 56 cores) after
+`operon_remote_install(force=True)` deployed
+`build_id 659e73a…`-class code with `main-v0.1.27`.
+
+| Environment | Operator exercised | Job | Result |
+| --- | --- | --- | --- |
+| `openmm81` | `structure_openmm_energy` | `req-37d15678644b16f8aec915ad` | 11.6 s, OpenCL, minimal potential −38,459 kJ/mol |
+| `openmm81` | `structure_openmm_md_stability` | `req-70a4ee4e0c9346373717bf03` | 122 s, 11 frames, final RMSD 0.33 Å |
+| `openmm81` | `structure_openmm_md_rmsf` | `req-9ed26f90a929c368db281551` | 27.5 s, 88 rows |
+| `boltz` | `boltz_complex_confidence` | `req-9f8af42bf601f21c9fb8d98c`, `req-d1fdf8bca755558238de2195` | GPU, 80–144 s, iPTM 0.10–0.89 |
+| `colabfold` | `colabfold_predict` | `req-dcc39c7b869982902f78ccd8` | 88 aa, pLDDT 89.7, pTM 0.72 |
+| `esm3` | `esm3_secondary_structure` | `req-89a4b44bcbe3cde0d3fc60a1` | 88 aa, strand 0.70 |
+| `esmfold` | `esmfold_predict` | `req-fac78e3f82dc8b36ba446f5e` | CPU, 379 s, pLDDT 0.853 |
+| `antifold` | `antifold_score` | `req-4820aaa27d3399c0ba7d6c1f` | CPU, 88×4 score table |
+
+Three of those environments needed a manual mirror install because the installer
+caps a single `pip` run at 40 minutes and the public index was slower than that:
+`colabfold` (needs `pandas<2`, `dm-haiku==0.0.13` for `jax 0.4.38`),
+`esm3` (`esm 3.2.2` requires Python ≥3.12; the environment pins `esm==3.2.0`),
+and `esmfold` (HF-format weights, CPU only because the fp32 3B model exceeds
+24 GB of VRAM). Their receipts carry the current `spec_sha256`, so
+`operon_environments` reports `ready` rather than `stale`.
+
+### One fresh chain from backbone to liability list
+
+| Step | Job | Wall clock | Result |
+| --- | --- | --- | --- |
+| `rfdiffusion_design` | `req-1b2dcce1538cbbfbd4f39c2d` | 152 s | 88-residue binder on chain T, 1,108 atoms |
+| `proteinmpnn_design` | `req-e4da7b4d047279e413cb5536` | 37 s | 8 sequences, best score 1.155 |
+| `boltz_complex_confidence` | `req-d1fdf8bca755558238de2195` | 144 s | iPTM 0.104, 90 interface residues, interface pLDDT 58.2 |
+| `interface_hotspots` | `req-18450af2884ef94b3a8dd382` | 8 s | 68 residues, 2,959.4 Å² buried |
+| `antibody_developability` | `req-0e31e0547b6c05fb63e40c02` | 4 s | pI 5.28 |
+| `sequence_liability_scan` | `req-1a45b2d7c140d04475786817` | 3 s | 5 sites: 3 isomerisation, 2 deamidation |
+
+This design is weak (iPTM 0.104, interface pLDDT 58) and is reported as such: it
+demonstrates that a fresh backbone can be carried through every environment in
+one pass, not that the backbone is a good binder. The retained candidates remain
+the round-4 designs with iPTM 0.894 and 0.851.
+
+### What the deployment contract costs
+
+`operon_remote_install(force=True)` retires the previous server and keeps only
+environment directories whose receipt already matches the incoming spec. After
+the 0.1.27 deploy, `openmm81`, `colabfold` and `esm3` were removed, `antifold`
+and `esmfold` survived but went `stale`, and only `boltz` stayed `ready`. The
+repaired venvs also kept `bin/python` symlinks pointing at the deleted
+`env-<oldsuffix>` interpreter; re-pointing the symlinks, updating `pyvenv.cfg`,
+installing `pydantic`/`jsonschema`, and recomputing each `receipt.json`
+`spec_sha256` from the deployed `library/environments.json` brought all six back
+to `ready` without reinstalling the heavy graphs.
+
 ## Platform defects found by the loop
 
 | Defect | Symptom | Fix | Version |
