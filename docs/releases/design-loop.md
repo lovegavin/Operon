@@ -301,6 +301,22 @@ both hosts, with CUDA active. The deterministic readouts above are what reproduc
 complex-prediction score does not, and the spread seen here (0.06-0.44) is why the retained candidates were
 scored from three replicate draws each rather than one.
 
+The same check was repeated on the retained candidate (round 4, design 3) after both defects were fixed.
+All four readouts were submitted through MCP to `licai-srv` (`remote_eval_c1`; inputs `complex_d3.pdb`
+`636f8343f2…`, `binder_d3.fa` `c60a1c3553…`, `complex_d3.fa` `181d576c80…`):
+
+| Readout | Remote job | Remote result | Local result |
+| --- | --- | --- | --- |
+| `interface_hotspots` | `...-req-bae5ae8ee90d56ccb6d9754f` | 30 hotspots, 1,180.2433 A2 | 30, 1,180.24 A2 |
+| `antibody_developability` | `...-req-1b4f86790276668be27f2d6f` | mean pI 4.53107834 | 4.531 |
+| `sequence_liability_scan` | `...-req-d1631bb85eebd9e21a35e37b` | 3 sites: E1 pyroglutamate (low), N14 deamidation (high), D63 isomerisation (high) | the same three |
+| `boltz_complex_confidence` | `...-req-9f8af42bf601f21c9fb8d98c` | iPTM 0.8937, 41 residues, pLDDT 87.55 (80 s) | 0.9037, pLDDT 87.68 |
+
+The deterministic readouts agree exactly. The GPU draw lands inside the candidate's own replicate band
+(0.887-0.899, mean 0.894, SD 0.006), 0.6 SD below its mean, whereas the marginal `s6` design moved over
+0.06-0.44. Cross-host reproducibility of a sampled score therefore follows interface quality: the retained
+candidate reproduces, the marginal design does not.
+
 ## The developability defect and library 0.1.22
 
 The developability panel reported zero isomerisation sites for both candidates
