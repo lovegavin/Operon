@@ -39,6 +39,29 @@ def write_yaml(path: Path, sequence: str, *, chain: str = "A", ligand_smiles: st
     path.write_text(body)
 
 
+def cache_directory(params: dict, resource=None) -> str:
+    """Return a writable Boltz cache rooted in the declared resource directory.
+
+    A first run has no pre-populated resource directory. Resolving only
+    existing roots would leave Boltz on its private default cache, so the
+    declared root is authoritative and is created here.
+    """
+
+    value = str(params.get("cache_dir", "") or os.environ.get("OPERON_BOLTZ_CACHE", "") or "").strip()
+    if not value and resource is not None:
+        value = str(os.environ.get(resource.env, "") or "").strip()
+    if not value and resource is not None and resource.roots:
+        value = str(resource.roots[0])
+    if not value:
+        value = "~/.local/share/operon/resources/boltz"
+    path = Path(value).expanduser().resolve()
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise StepError(f"boltz_predict: cannot create cache directory {path}: {exc}") from None
+    return str(path)
+
+
 def boltz_command(
     binary: str,
     yaml_path: Path,
