@@ -272,6 +272,35 @@ The library sources were also reconciled with the published bundle in this pass.
 byte for byte (`682a7849…`, 6,870,118 B) after `1a37d4c7`, the `0.1.18`-lineage merge `fe8f6ede`, and
 `9508d8b21`, which keeps the released `boltz_predict.py` cache path.
 
+## Remote GPU complex prediction
+
+The complex-prediction operator was re-executed on the remote RTX 3090 under library `main-v0.1.23`. Two
+defects had to be fixed first, and neither was numerical.
+
+- `boltz_complex_confidence` hard-coded `--num_workers 1`. On Linux, Boltz forks its data loader after CUDA
+  initialisation and that fork deadlocks: the job sat at 0 % GPU utilisation with the main thread in
+  `futex_wait_queue_me` for ten minutes, while a manual run of the same `complex.yaml` with `--num_workers 0`
+  finished in 190.6 s. Library `0.1.23` exposes the value as a parameter (`num_workers`, default 0, range 0-8).
+- The remote `boltz` environment lacked `pydantic` and `jsonschema`, which the shared worker needs to load a
+  Reader's parameter schema; the first submission failed with `No module named 'pydantic'` after the operator
+  itself had already started.
+
+With both fixed, the same graph completed on the remote host in **103 s**
+(`ssh-df1ff559c6fd474ca2d11a88f12a9bc7-req-5d6972ab0a0df2fb5f2229c2`). Because Boltz samples, the scores of
+this marginal design move between draws. Four independent draws, two per host:
+
+| Host | Job | iPTM | Interface residues | Interface pLDDT |
+|---|---|---:|---:|---:|
+| local, 0.1.22 | `req-02daa2bb6ecf3b7384ec8a01` | 0.3825 | 71 | 67.36 |
+| local, 0.1.23, `num_workers 0` | `req-6411a07a52e65e7ab256f182` | 0.3287 | 60 | 68.92 |
+| remote, 0.1.23 | `...-req-5d6972ab0a0df2fb5f2229c2` | 0.0605 | 63 | 67.74 |
+| remote, 0.1.23 | `...-req-d2913e71d087bcef7ff1264a` | 0.4412 | 61 | 69.44 |
+
+The cross-host claim is therefore about execution parity: identical operator, inputs, library and MCP path on
+both hosts, with CUDA active. The deterministic readouts above are what reproduces exactly; a single
+complex-prediction score does not, and the spread seen here (0.06-0.44) is why the retained candidates were
+scored from three replicate draws each rather than one.
+
 ## The developability defect and library 0.1.22
 
 The developability panel reported zero isomerisation sites for both candidates
@@ -297,6 +326,7 @@ above that name no re-run job predate this fix and report the old zero count.
 | CUDA capability probed in the wrong interpreter | `device=cuda` refused on a host with a GPU | probe CUDA through the operator's `python_executable` | library `0.1.20` |
 | `CUDA_VISIBLE_DEVICES` cleared to an empty string | CPU-mode runs still tried to deserialise on CUDA device 0 | set `-1` in CPU mode, keep the granted devices in CUDA mode | library `0.1.20` |
 | Fixed positions keyed by full path | `KeyError: 'complex_d3'` in `protein_mpnn_utils.tied_featurize` | key the JSONL by the PDB stem, as ProteinMPNN indexes `b['name']` | library `0.1.21` |
+| Hard-coded `--num_workers 1` | Boltz forked its data loader after CUDA init and deadlocked (0 % GPU, main thread in `futex_wait_queue_me`) | expose `num_workers`, default 0 | library `0.1.23` |
 | Isomerisation counted `DP` only | developability panel reported 0 while the liability scan flagged `DG` sites | count `DP` and `DG` | library `0.1.22` |
 
 ## Reproducing a scoring run
