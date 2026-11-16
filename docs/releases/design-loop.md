@@ -237,6 +237,41 @@ The round-4 design at iPTM 0.887 was carried through the same readout as the
 | `antibody_developability` | `req-1fcef7ad8c939d6a5a130436` | length 88, MW 9,851.15, pI 4.209, net charge −9.68 (pH 6.0) / −10.01 (pH 7.4), 0 cysteines, 3 hydrophobic run, fraction 0.409 |
 | `sequence_liability_scan` | `req-08b8a1836f8516967fd950d6` | 2 sites, both isomerisation high: D14 and D63 in DG motifs |
 
+## Cross-host replication
+
+The three readouts that carry the retained designs were re-executed on `licai-srv` through the same MCP
+calls used locally: application `5.1.17-rc7`, library `main-v0.1.22` (7 packages, 1069 operators,
+108 readers, 1177 descriptors), one RTX 3090, CUDA 12.1 with `torch 2.3.1+cu121`. Inputs were staged in
+`workspace/remote_eval_s6` with sha256 `064af0b4…` (`s6_pred.pdb`, 184,580 B), `4ef94eda…`
+(`binder_s6.fa`, 95 B) and `28b1c6d6…` (`s6_binder.fa`, 100 B).
+
+| Readout | Remote job | Result |
+| --- | --- | --- |
+| `interface_hotspots` | `ssh-df1ff559c6fd474ca2d11a88f12a9bc7-req-f67ceaad1907c43e45918e62` | 55 hotspots, 2,285.093 Å² buried, cutoff 5.0 |
+| `antibody_developability` | `ssh-df1ff559c6fd474ca2d11a88f12a9bc7-req-03bb43ef492e5e2077e11f67` | mean pI 6.07317160 |
+| `sequence_liability_scan` | `ssh-df1ff559c6fd474ca2d11a88f12a9bc7-req-33cc2139bd6a306ff465856e` | 7 sites: N41/N54/N79 glycosylation (medium), M55 oxidation (medium), N63 deamidation (high), N74 deamidation (medium), D76 isomerisation (high) |
+
+The developability and liability payloads are identical to the local jobs `20261115T154606-d07a7ff8`
+(same pI `6.073171615600586`, same seven sites with the same severities). A local rerun of
+`interface_hotspots` on `s6_pred.pdb` with the same parameters (`req-54aec4b2166fbfdd91a80e4c`) returns
+exactly 55 hotspots and 2,285.093 Å², so the two hosts agree bit for bit on all three readouts.
+
+Two numbers that circulated earlier are **not** comparable with these and should not be mixed:
+`structure_interface_core` (`20261115T154515-8d25b89c`) reports 63 interface residues for the same
+structure (37 core, 26 rim, 33 binder + 30 target residues) using its own distance rule, and
+`minibinder_interface` reports 31 interface residues over 88 atom contacts at cutoff 5.0 with
+`min_contacts: 1`. `interface_hotspots` uses `min_contacts: 3` and reports per-residue buried area, so its
+55 is the figure to quote alongside `interface_hotspots` runs.
+
+Two operational requirements came out of the exercise: a remote graph must name its input by a path
+relative to the workspace (an absolute Windows path fails the server-side existence check), and
+`runtime.submission_key` must be regenerated, otherwise the idempotent submit returns an older job.
+
+The library sources were also reconciled with the published bundle in this pass. `library/seed` on
+`library/resource-download-interface` now reproduces `operon-library-main-v0.1.22.operon-library.zip`
+byte for byte (`682a7849…`, 6,870,118 B) after `1a37d4c7`, the `0.1.18`-lineage merge `fe8f6ede`, and
+`9508d8b21`, which keeps the released `boltz_predict.py` cache path.
+
 ## The developability defect and library 0.1.22
 
 The developability panel reported zero isomerisation sites for both candidates
