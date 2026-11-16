@@ -229,6 +229,12 @@ class BoltzComplexConfidenceStep(Step):
         device = str(params.get("device", "cpu"))
         if device not in ("cpu", "cuda"):
             raise StepError("boltz_complex_confidence: device must be 'cpu' or 'cuda'")
+        cache = str(params.get("cache_dir", "") or "").strip()
+        if not cache:
+            from operon_core.steps._resources_common import load_resources
+            entry = load_resources().get("boltz")
+            if entry and entry.roots:
+                cache = str(Path(entry.roots[0]).expanduser())
         workdir = Path(tempfile.mkdtemp(prefix="boltz_cx_"))
         yaml_path = workdir / "complex.yaml"
         yaml_path.write_text(complex_yaml([("A", sequences[0]), ("B", sequences[1])]))
@@ -241,7 +247,7 @@ class BoltzComplexConfidenceStep(Step):
             device=device,
             sampling_steps=int(params.get("sampling_steps", 50)),
             diffusion_samples=int(params.get("diffusion_samples", 1)),
-            cache_dir=str(params.get("cache_dir", "") or ""),
+            cache_dir=cache,
             timeout=int(params.get("timeout_seconds", 3600)),
         )
         pdb_path, json_path = find_outputs(out_dir)

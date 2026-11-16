@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-import os
-
 import numpy as np
 
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
-from src.task.step.steps._resources_common import load_resources
 
 
 import json
@@ -40,29 +37,6 @@ def write_yaml(path: Path, sequence: str, *, chain: str = "A", ligand_smiles: st
             raise StepError("boltz_predict: affinity requires a ligand_smiles")
         body += f"properties:\n  - affinity:\n      binder: {ligand_chain}\n"
     path.write_text(body)
-
-
-def cache_directory(params: dict, resource=None) -> str:
-    """Return a writable Boltz cache rooted in the declared resource directory.
-
-    A first run has no pre-populated resource directory. Resolving only
-    existing roots would leave Boltz on its private default cache, so the
-    declared root is authoritative and is created here.
-    """
-
-    value = str(params.get("cache_dir", "") or os.environ.get("OPERON_BOLTZ_CACHE", "") or "").strip()
-    if not value and resource is not None:
-        value = str(os.environ.get(resource.env, "") or "").strip()
-    if not value and resource is not None and resource.roots:
-        value = str(resource.roots[0])
-    if not value:
-        value = "~/.local/share/operon/resources/boltz"
-    path = Path(value).expanduser().resolve()
-    try:
-        path.mkdir(parents=True, exist_ok=True)
-    except OSError as exc:
-        raise StepError(f"boltz_predict: cannot create cache directory {path}: {exc}") from None
-    return str(path)
 
 
 def boltz_command(
@@ -215,9 +189,9 @@ class BoltzPredictStep(Step):
             no_kernels=bool(params.get("no_kernels", False)),
             extra=str(params.get("extra_args", "")),
         )
-        resource = load_resources().get("boltz")
-        cache_dir = cache_directory(params, resource)
-        command.extend(["--cache", cache_dir])
+        cache_dir = str(params.get("cache_dir", "") or "")
+        if cache_dir:
+            command.extend(["--cache", cache_dir])
         if str(resolved).lower().endswith(".py"):
             command = [sys.executable] + command
         try:

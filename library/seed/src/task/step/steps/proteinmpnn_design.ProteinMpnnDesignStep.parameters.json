@@ -28,11 +28,24 @@
     },
     "model_name": {
       "type": "string",
-      "enum": ["v_48_002", "v_48_010", "v_48_020", "v_48_030"],
+      "enum": [
+        "v_48_002",
+        "v_48_010",
+        "v_48_020",
+        "v_48_030"
+      ],
       "default": "v_48_020",
       "title": "模型",
       "x-ui-group": "basic",
       "x-ui-order": 30
+    },
+    "ca_only": {
+      "type": "boolean",
+      "default": false,
+      "title": "CA-only 模型",
+      "description": "Pass --ca_only when the checkpoint under weights_path is a CA-only model (for example ca_model_weights/v_48_020.pt). Leave it off for the vanilla all-atom weights.",
+      "x-ui-group": "basic",
+      "x-ui-order": 35
     },
     "num_seq_per_target": {
       "type": "integer",
@@ -85,7 +98,10 @@
     },
     "device": {
       "type": "string",
-      "enum": ["cpu", "cuda"],
+      "enum": [
+        "cpu",
+        "cuda"
+      ],
       "default": "cpu",
       "title": "设备",
       "x-ui-group": "advanced",
