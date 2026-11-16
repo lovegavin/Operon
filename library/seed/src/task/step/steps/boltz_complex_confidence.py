@@ -1,4 +1,9 @@
-"""boltz_complex_confidence: Boltz-2 complex prediction with confidence parsing."""
+"""boltz_complex_confidence: Boltz-2 complex prediction with confidence parsing.
+
+DataLoader workers default to zero: on Linux, forking workers after CUDA is
+initialised can deadlock the prediction, so the safe default is the parent
+process only.
+"""
 
 from __future__ import annotations
 
@@ -47,7 +52,7 @@ def complex_yaml(chains: list[tuple[str, str]]) -> str:
     return body
 
 
-def boltz_command(binary: str, yaml_path: Path, out_dir: Path, *, model: str, device: str, sampling_steps: int, diffusion_samples: int, cache_dir: str = "") -> list[str]:
+def boltz_command(binary: str, yaml_path: Path, out_dir: Path, *, model: str, device: str, sampling_steps: int, diffusion_samples: int, cache_dir: str = "", num_workers: int = 0) -> list[str]:
     """Build the Boltz prediction command."""
 
     launcher = [sys.executable, binary] if binary.lower().endswith(".py") else [binary]
@@ -68,7 +73,7 @@ def boltz_command(binary: str, yaml_path: Path, out_dir: Path, *, model: str, de
         "--diffusion_samples",
         str(diffusion_samples),
         "--num_workers",
-        "1",
+        str(num_workers),
         "--no_kernels",
     ]
     if cache_dir:
@@ -76,10 +81,10 @@ def boltz_command(binary: str, yaml_path: Path, out_dir: Path, *, model: str, de
     return command
 
 
-def run_boltz(binary: str, yaml_path: Path, out_dir: Path, *, model: str, device: str, sampling_steps: int, diffusion_samples: int, cache_dir: str = "", timeout: int = 3600) -> None:
+def run_boltz(binary: str, yaml_path: Path, out_dir: Path, *, model: str, device: str, sampling_steps: int, diffusion_samples: int, cache_dir: str = "", timeout: int = 3600, num_workers: int = 0) -> None:
     """Run Boltz and surface a readable error on failure."""
 
-    command = boltz_command(binary, yaml_path, out_dir, model=model, device=device, sampling_steps=sampling_steps, diffusion_samples=diffusion_samples, cache_dir=cache_dir)
+    command = boltz_command(binary, yaml_path, out_dir, model=model, device=device, sampling_steps=sampling_steps, diffusion_samples=diffusion_samples, cache_dir=cache_dir, num_workers=num_workers)
     env = dict(os.environ)
     env["CUDA_VISIBLE_DEVICES"] = "" if device == "cpu" else env.get("CUDA_VISIBLE_DEVICES", "0")
     try:
@@ -249,6 +254,7 @@ class BoltzComplexConfidenceStep(Step):
             diffusion_samples=int(params.get("diffusion_samples", 1)),
             cache_dir=cache,
             timeout=int(params.get("timeout_seconds", 3600)),
+            num_workers=int(params.get("num_workers", 0)),
         )
         pdb_path, json_path = find_outputs(out_dir)
         directory = output_directory(ctx, "boltz_complex")

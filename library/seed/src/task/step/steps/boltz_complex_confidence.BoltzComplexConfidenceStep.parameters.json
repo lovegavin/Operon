@@ -103,6 +103,15 @@
       "default": "confidence",
       "x-ui-group": "输出",
       "x-ui-order": 2
+    },
+    "num_workers": {
+      "title": "数据加载进程数",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 8,
+      "x-ui-group": "模型",
+      "x-ui-order": 5
     }
   }
 }
