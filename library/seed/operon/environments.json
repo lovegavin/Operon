@@ -13,7 +13,9 @@
         "numpy==1.26.4",
         "pandas==2.2.3",
         "tqdm",
-        "scipy==1.13.1"
+        "scipy==1.13.1",
+        "pydantic==2.14.3",
+        "jsonschema==4.26.0"
       ],
       "no_deps": [
         "antifold==0.3.1"
@@ -33,7 +35,10 @@
         "biotite==0.38",
         "torch-geometric==2.4.0",
         "biopython==1.83"
-      ]
+      ],
+      "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
+      "torch_cuda": true,
+      "torch_version": "2.3.1"
     },
     "boltz": {
       "title": "Boltz structure and affinity prediction",
@@ -92,16 +97,18 @@
         "colabfold"
       ],
       "requirements": [
-        "colabfold[alphafold]==1.5.5"
+        "colabfold[alphafold]==1.5.5",
+        "pydantic==2.14.3",
+        "jsonschema==4.26.0",
+        "pandas==1.5.3",
+        "dm-haiku==0.0.13"
       ],
-      "conda_packages": [
-        "mmseqs2",
-        "kalign2",
-        "hmmer"
-      ],
+      "conda_packages": [],
       "torch_cpu": true,
       "wired": true,
-      "notes": "Provides colabfold_batch in the environment bin directory. The MMseqs2/UniRef databases remain external and are checked by resources.json colabfold."
+      "notes": "colabfold 1.5.5 requires pandas<2, so this environment pins pandas 1.5.3; dm-haiku 0.0.13 is required because jax 0.4.38 removed jax.linear_util that haiku 0.0.10 used. colabfold_batch lives in the environment bin directory; the MMseqs2/UniRef databases remain external (resources.json colabfold).",
+      "torch_version": "2.3.1",
+      "torch_index_url": "https://mirrors.aliyun.com/pypi/simple"
     },
     "esm3": {
       "title": "ESM-3 sequence and structure generation",
@@ -133,10 +140,14 @@
         "msgpack-numpy",
         "meson-python",
         "ninja",
-        "cython"
+        "cython",
+        "pydantic==2.14.3",
+        "jsonschema==4.26.0",
+        "esm==3.2.0",
+        "scikit-learn==1.5.2"
       ],
       "no_deps": [],
-      "notes": "Verified on licai-srv-node80 (glibc 2.17): Python 3.12, torch 2.6.0, ESM 3.2.2. torch >= 2.9 wheels need manylinux_2_28 and cannot be installed on this OS, so the bridge pins the newest compatible torch. ESM 3.4 requires torch >= 2.11 and is not installable there; the operator surface is unchanged.",
+      "notes": "esm 3.2.2+ requires Python >= 3.12 while the bridge runs Python 3.11, so this environment pins esm==3.2.0 (same operator surface) plus scikit-learn 1.5.2, the last release with a cp311 wheel. open ESM3 weights are fetched from Hugging Face on first use; gated checkpoints need a token the operator cannot supply.",
       "wired": true,
       "pip_wheels": [
         "setuptools",
@@ -146,9 +157,10 @@
         "tenacity",
         "torchvision"
       ],
-      "no_build_isolation": [
-        "esm @ git+https://github.com/evolutionaryscale/esm.git@v3.2.2"
-      ]
+      "no_build_isolation": [],
+      "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
+      "torch_cuda": true,
+      "torch_version": "2.6.0"
     },
     "esmfold": {
       "title": "ESMFold (fair-esm)",
@@ -165,16 +177,20 @@
         "einops",
         "omegaconf==2.3.0",
         "pytorch-lightning",
-        "dm-tree"
+        "dm-tree",
+        "pydantic==2.14.3",
+        "jsonschema==4.26.0",
+        "pandas==2.2.3"
       ],
       "pip_pypi": [
-        "fair-esm==2.0.0"
+        "fair-esm==2.0.0",
+        "transformers==4.46.3"
       ],
       "wired": true,
-      "notes": "CUDA 12.1 torch wheel; GPU required.",
+      "notes": "fair-esm + HF transformers path. pandas/pydantic/jsonschema are required because the isolated worker reads the predicted PDB back through PdbReader. The 3B fp32 weights do not fit a 24 GB card; run on CPU or with the fp16 dtype option.",
       "torch_version": "2.3.1",
       "torch_cuda": true,
-      "torch_index_url": "https://download.pytorch.org/whl/cu121"
+      "torch_index_url": "https://mirrors.aliyun.com/pypi/simple"
     },
     "openmm81": {
       "title": "OpenMM 8.1.1 structure preparation (PDBFixer bundled)",

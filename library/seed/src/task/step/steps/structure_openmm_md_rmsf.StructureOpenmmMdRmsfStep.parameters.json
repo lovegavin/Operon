@@ -64,13 +64,25 @@
     "platform": {
       "title": "计算平台",
       "type": "string",
-      "default": "CPU",
+      "default": "auto",
       "enum": [
+        "auto",
+        "CUDA",
+        "OpenCL",
         "CPU",
         "Reference"
       ],
       "x-ui-group": "模拟",
       "x-ui-order": 8
+    },
+    "threads": {
+      "title": "CPU 线程数（0 表示按配额自动）",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 256,
+      "x-ui-group": "模拟",
+      "x-ui-order": 9
     },
     "residue_dim": {
       "title": "输出维度名",

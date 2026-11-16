@@ -10,6 +10,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
+from src.task.step.steps._openmm_platforms import select_platform
 from src.task.step.steps._protein_common import decode_column
 from src.task.step.steps.structure_openmm_energy import write_pdb
 from src.task.step.steps.structure_rmsd import kabsch
@@ -97,6 +98,8 @@ def md_run(
     equilibrate_steps: int = 500,
     seed: int = 0,
     forcefield_files: tuple[str, ...] = ("amber14-all.xml", "implicit/gbn2.xml"),
+    platform: str = "auto",
+    threads: int = 0,
 ) -> dict:
     """Minimise, then run a short Langevin trajectory and sample drift statistics."""
 
@@ -118,9 +121,12 @@ def md_run(
         temperature * unit.kelvin, friction / unit.picosecond, step_size_fs * 0.001 * unit.picoseconds
     )
     integrator.setRandomNumberSeed(seed)
-    context = openmm.Context(system, integrator, Platform.getPlatformByName("CPU"))
+    platform_name, platform_handle, platform_properties = select_platform(
+        openmm, platform, threads, precision="double"
+    )
+    context = openmm.Context(system, integrator, platform_handle, platform_properties)
     context.setPositions(fixer.positions)
-    LocalEnergyMinimizer.minimize(context, 10.0, minimize_iterations)
+    LocalEnergyMinimizer.minimize(context, 1.0, max(500, int(minimize_iterations)))
     context.setVelocitiesToTemperature(temperature * unit.kelvin, seed)
     if equilibrate_steps:
         integrator.step(int(equilibrate_steps))
@@ -131,6 +137,12 @@ def md_run(
         potential = float(state.getPotentialEnergy().value_in_unit(unit.kilojoule_per_mole))
         kinetic = float(state.getKineticEnergy().value_in_unit(unit.kilojoule_per_mole))
         reference = reference_positions
+        if not np.all(np.isfinite(positions)) or not np.isfinite(potential):
+            raise StepError(
+                "structure_openmm_md_stability: the trajectory diverged "
+                f"(non-finite coordinates or energy at step {step_index}); "
+                "lower the timestep or the temperature"
+            )
         _rotation, _translation, rmsd = kabsch(positions, reference)
         dof = 3 * system.getNumParticles() - system.getNumConstraints()
         return {
@@ -232,6 +244,8 @@ class StructureOpenmmMdStabilityStep(Step):
                 steps=int(params.get("steps", 500)),
                 sample_every=int(params.get("sample_every", 50)),
                 minimize_iterations=int(params.get("minimize_iterations", 500)),
+                platform=str(params.get("platform", "auto")),
+                threads=int(params.get("threads", 0)),
                 equilibrate_steps=int(params.get("equilibrate_steps", 500)),
                 seed=int(params.get("seed", 0)),
                 forcefield_files=tuple(str(params.get("forcefield", "amber14-all.xml,implicit/gbn2.xml")).split(",")),

@@ -10,6 +10,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
+from src.task.step.steps._openmm_platforms import select_platform
 from src.task.step.steps._protein_common import decode_column, residue_labels, residue_order
 
 BACKBONE = {"N", "CA", "C", "O", "OXT"}
@@ -63,7 +64,7 @@ def prepare(pdb_path: Path, *, ph: float = 7.0):
     return fixer
 
 
-def build_simulation(topology, positions, *, temperature: float = 300.0, timestep_fs: float = 2.0, platform: str = "CPU"):
+def build_simulation(topology, positions, *, temperature: float = 300.0, timestep_fs: float = 2.0, platform: str = "auto", threads: int = 0):
     """Build a minimised GB-Neck2 simulation for the prepared system."""
 
     try:
@@ -75,9 +76,12 @@ def build_simulation(topology, positions, *, temperature: float = 300.0, timeste
     forcefield = openmm.app.ForceField("amber14-all.xml", "implicit/gbn2.xml")
     system = forcefield.createSystem(topology, nonbondedMethod=NoCutoff, constraints=HBonds)
     integrator = openmm.LangevinMiddleIntegrator(float(temperature) * unit.kelvin, 1.0 / unit.picosecond, float(timestep_fs) * unit.femtoseconds)
-    simulation = openmm.app.Simulation(topology, system, integrator, openmm.Platform.getPlatformByName(platform))
+    _name, platform_handle, platform_properties = select_platform(
+        openmm, platform, threads, precision="double"
+    )
+    simulation = openmm.app.Simulation(topology, system, integrator, platform_handle, platform_properties)
     simulation.context.setPositions(positions)
-    simulation.minimizeEnergy(maxIterations=100)
+    simulation.minimizeEnergy(tolerance=1.0, maxIterations=500)
     simulation.context.setVelocitiesToTemperature(float(temperature) * unit.kelvin)
     return simulation
 
@@ -115,7 +119,8 @@ def simulate(
     timestep_fs: float = 2.0,
     steps: int = 5000,
     report_interval: int = 50,
-    platform: str = "CPU",
+    platform: str = "auto",
+    threads: int = 0,
     workdir: Path | None = None,
 ) -> dict:
     """Run a short MD and return RMSF, Rg and the collected frames."""
@@ -153,7 +158,7 @@ def simulate(
         from openmm.app import PDBFile
 
         PDBFile.writeFile(topology, positions, handle)
-    simulation = build_simulation(topology, positions, temperature=temperature, timestep_fs=timestep_fs, platform=platform)
+    simulation = build_simulation(topology, positions, temperature=temperature, timestep_fs=timestep_fs, platform=platform, threads=threads)
     frames = []
     step = 0
     numerator = 0
@@ -255,7 +260,8 @@ class StructureOpenmmMdRmsfStep(Step):
             timestep_fs=float(params.get("timestep_fs", 2.0)),
             steps=int(params.get("steps", 5000)),
             report_interval=int(params.get("report_interval", 50)),
-            platform=str(params.get("platform", "CPU")),
+            platform=str(params.get("platform", "auto")),
+            threads=int(params.get("threads", 0)),
             workdir=workdir,
         )
         values = np.asarray([[value, result["mean_rg_nm"]] for value in result["rmsf"]], dtype=np.float32)

@@ -10,6 +10,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step import Step
+from src.task.step.steps._openmm_platforms import describe as describe_platform, select_platform
 from src.task.step.steps._protein_common import column_index, decode_column
 
 _REQUIRED = ("x", "y", "z", "residue_number", "resname", "chain", "atom_name", "element")
@@ -81,6 +82,8 @@ def run_openmm(
     minimize: bool,
     max_iterations: int,
     tolerance: float,
+    platform: str = "auto",
+    threads: int = 0,
 ) -> dict:
     unit, LangevinMiddleIntegrator, Platform, Context, LocalEnergyMinimizer, ForceField, HBonds, NoCutoff, PDBFixer = _load_openmm()
 
@@ -99,7 +102,10 @@ def run_openmm(
     forcefield = ForceField(*forcefield_files)
     system = forcefield.createSystem(fixer.topology, nonbondedMethod=NoCutoff, constraints=HBonds)
     integrator = LangevinMiddleIntegrator(300 * unit.kelvin, 1 / unit.picosecond, 0.002 * unit.picoseconds)
-    context = Context(system, integrator, Platform.getPlatformByName("CPU"))
+    platform_name, platform_handle, platform_properties = select_platform(
+        __import__("openmm"), platform, threads
+    )
+    context = Context(system, integrator, platform_handle, platform_properties)
     context.setPositions(fixer.positions)
     initial_energy = energy_terms(context)
     initial_gradient = gradient_norm(context)
@@ -118,6 +124,7 @@ def run_openmm(
         "n_forces": system.getNumForces(),
         "missing_atoms": missing_atoms,
         "missing_terminals": missing_terminals,
+        **describe_platform(platform_name, platform_properties),
     }
 
 
@@ -172,13 +179,15 @@ class StructureOpenmmEnergyStep(Step):
         ph = float(params.get("ph", 7.0))
         if not 0.0 < ph < 14.0:
             raise StepError("structure_openmm_energy: ph must be between 0 and 14")
-        max_iterations = int(params.get("max_iterations", 300))
+        max_iterations = int(params.get("max_iterations", 100))
         if max_iterations < 1:
             raise StepError("structure_openmm_energy: max_iterations must be at least 1")
         tolerance = float(params.get("tolerance", 10.0))
         if tolerance <= 0:
             raise StepError("structure_openmm_energy: tolerance must be positive")
-        minimize = bool(params.get("minimize", True))
+        minimize = bool(params.get("minimize", False))
+        platform = str(params.get("platform", "auto"))
+        threads = int(params.get("threads", 0))
 
         workdir = Path(tempfile.mkdtemp(prefix="openmm_"))
         pdb_path = workdir / "input.pdb"
@@ -190,6 +199,8 @@ class StructureOpenmmEnergyStep(Step):
             minimize=minimize,
             max_iterations=max_iterations,
             tolerance=tolerance,
+            platform=platform,
+            threads=threads,
         )
         stage_dim = str(params.get("stage_dim", "stage"))
         stages = ["initial", "minimized"] if minimize else ["initial"]
@@ -210,6 +221,8 @@ class StructureOpenmmEnergyStep(Step):
             "implicit_model": implicit,
             "ph": ph,
             "minimized": minimize,
+            "platform": result["platform"],
+            "platform_properties": result["platform_properties"],
         }
         output = Form(
             data=data,
