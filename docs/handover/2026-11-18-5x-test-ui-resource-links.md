@@ -347,3 +347,11 @@ ssh lihj@172.22.148.93 'cd /tmp/repo.git && git push --force "https://x-access-t
 | `GnuTLS recv error (-110)` | 加 `-c http.version=HTTP/1.1` 并重试；仍失败走中继 |
 | API 403（srv 上） | srv 到 `api.github.com` 返回 403 属已知，改用本机经代理调 API |
 | 上传中断 | 先看代理是否存活，再重跑 `publish_release.py`（按 tag 覆盖/续传） |
+
+### 11.5 两条实测补充
+
+- **srv 中继是已验证的兜底**，但 srv 上的 git 很旧：不要用 `git -C`，也不要 `git init -q`；
+  正确写法是在远端命令里 `cd /tmp && git init --bare 540.git && cd 540.git &&
+  git fetch /tmp/540.bundle '+refs/heads/*:refs/heads/*'`，再 `git push --force <url> refs/heads/release/5.4.0`。
+- **推送输出会回显带 token 的 URL**（`remote: To https://x-access-token:...`）。汇报、日志、
+  截图里都不要整段贴出该输出；需要贴就先把 token 段替换成 `<TOKEN>`。
