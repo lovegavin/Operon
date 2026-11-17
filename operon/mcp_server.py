@@ -5,6 +5,27 @@ from urllib.parse import quote, urlencode
 from .client import Client, data_directory
 
 
+def installation_root() -> Path:
+    """The application tree this adapter was started from."""
+    return Path(__file__).resolve().parents[1]
+
+
+def require_installation(root: Path | None = None) -> Path:
+    """Refuse to serve from an installation that no longer exists.
+
+    A process survives deleting its version directory. Its imports are already
+    loaded, so it keeps answering with a dead code root and a stale pool
+    registration, and the next client sees timeouts instead of a reconnect.
+    Exiting here makes the client start the current installation instead.
+    """
+    value = (root or installation_root()).resolve()
+    if not (value / 'operon' / 'managed_pool.py').is_file():
+        raise SystemExit(
+            f"Operon MCP server: the installation at {value} was removed or replaced; "
+            "restart the MCP client so it starts the current version.")
+    return value
+
+
 def create_server(client):
     from mcp.server.fastmcp import FastMCP
     from .guidance import guide, instructions
@@ -605,6 +626,7 @@ def create_server(client):
 
 
 def serve(args):
+    require_installation()
     scopes = ["context"]
     if not args.read_only:
         scopes.append("edit")

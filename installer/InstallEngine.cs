@@ -283,9 +283,13 @@ internal sealed class InstallEngine
         MigrateEnvironments(root);
         report("正在断开旧版本的全部连接…");
         if (old is not null) DisconnectAgents(old.Profile);
+        else DisconnectAgents(null, everything: true);
         foreach (var target in UpgradeTargets(root))
             try { DisconnectAgents(target.Profile); }
             catch (Exception error) { Log("Disconnect " + target.Profile + ": " + error.Message); }
+        report("正在清理被替换版本遗留的进程…");
+        var orphans = TerminateOrphanAgents();
+        if (orphans > 0) Log("Stopped " + orphans + " orphaned agent process(es) with removed code roots.");
         var pool = InstallUpgrade.InspectPool();
         if (pool is { Busy: true } && !force)
             throw new PoolBusyException(pool.Reason + " 如需立即更新，请勾选“强制重装”，安装程序将停止共享池中的任务并清空池状态。");
@@ -550,6 +554,8 @@ internal sealed class InstallEngine
         var targets = InstallUpgrade.Targets(root, receipt);
         using var upgrade = InstallUpgrade.Prepare(targets, message => Report(message, 5),
             CancellationToken.None).GetAwaiter().GetResult();
+        var orphans = TerminateOrphanAgents();
+        if (orphans > 0) Log("Stopped " + orphans + " orphaned agent process(es) with removed code roots.");
         Report("正在卸载软件；用户档案和分析数据会保留…", 0);
         var expectedKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\OperonStudio-" + InstallLease.Identity(root);
         if (receipt.UninstallKey is not null && receipt.UninstallKey != expectedKey) throw new InvalidDataException("卸载注册信息无效。");
@@ -594,8 +600,9 @@ internal sealed class InstallEngine
         using var lease = new InstallLease("Local\\OperonSetup-" + InstallLease.Identity(root));
         if (LooksLikeOperonRoot(root))
         {
-            DisconnectAgents(null);
+            DisconnectAgents(null, everything: true);
             TerminateManagedProcesses(root);
+            TerminateOrphanAgents();
             RemoveRegistrationsUnder(root);
             RemoveShortcutsUnder(root);
             RemoveAutostart();
@@ -753,7 +760,8 @@ internal sealed class InstallEngine
     {
         if (receipt is null)
         {
-            DisconnectAgents(null);
+            DisconnectAgents(null, everything: true);
+            TerminateOrphanAgents();
             var foreignStopped = TerminateManagedProcesses(root);
             if (foreignStopped > 0) Log($"Stopped {foreignStopped} owned process(es).");
             RemoveManagedVersions(root);
@@ -802,7 +810,10 @@ internal sealed class InstallEngine
         catch (Exception error) { Log("Old versions directory retained: " + error.Message); }
     }
 
-    private void DisconnectAgents(string? profile)
+    // A permanent address is the installation, so a replacement disconnects
+    // this installation only: revoking profiles of another tree would drop
+    // agents that have nothing to do with the directory being replaced.
+    private void DisconnectAgents(string? profile, bool everything = false)
     {
         var ports = new HashSet<int>();
         void AddProfile(string? directory)
@@ -817,9 +828,14 @@ internal sealed class InstallEngine
             catch (Exception) { }
         }
         AddProfile(profile);
-        var profiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".operon", "profiles");
-        if (Directory.Exists(profiles))
-            foreach (var directory in Directory.EnumerateDirectories(profiles)) AddProfile(directory);
+        if (everything)
+        {
+            // A legacy tree without a receipt has no recorded profile, so the
+            // only way to find its desktop servers is the profile directory.
+            var profiles = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".operon", "profiles");
+            if (Directory.Exists(profiles))
+                foreach (var directory in Directory.EnumerateDirectories(profiles)) AddProfile(directory);
+        }
         foreach (var port in ports) if (PortOpen(port)) DisconnectPort(port);
     }
 
@@ -849,6 +865,56 @@ internal sealed class InstallEngine
             Log("Disconnected MCP clients: " + (int)response.StatusCode);
         }
         catch (Exception error) { Log("MCP disconnect skipped: " + error.Message); }
+    }
+
+    // True when the process image is an interpreter that belongs to a version
+    // directory which no longer exists.
+    internal static bool IsOrphanAgentImage(string image)
+    {
+        if (string.IsNullOrWhiteSpace(image)) return false;
+        var name = Path.GetFileName(image);
+        if (!string.Equals(name, "python.exe", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(name, "pythonw.exe", StringComparison.OrdinalIgnoreCase)) return false;
+        var full = Path.GetFullPath(image);
+        var marker = Path.DirectorySeparatorChar + "versions" + Path.DirectorySeparatorChar;
+        var at = full.LastIndexOf(marker, StringComparison.OrdinalIgnoreCase);
+        if (at < 0) return false;
+        // The release lives in versions/<id>/runtime/python/python.exe; the id is
+        // the directory that disappears when that release is removed.
+        var after = full.Substring(at + marker.Length);
+        var slash = after.IndexOf(Path.DirectorySeparatorChar);
+        if (slash <= 0) return false;
+        var id = after.Substring(0, slash);
+        var version = full.Substring(0, at + marker.Length) + id;
+        return !Directory.Exists(version);
+    }
+
+    // Deleting a version directory does not stop the processes started from it.
+    // An MCP adapter or shared pool left behind by a replaced version keeps a
+    // dead code root: it cannot serve the new installation, and on this machine
+    // it also holds the shared pool registration that the new install needs, so
+    // the next library operation waits forever. Kill those orphans explicitly.
+
+    internal static int TerminateOrphanAgents()
+    {
+        var self = Environment.ProcessId;
+        var stopped = new HashSet<int>();
+        foreach (var process in Process.GetProcesses())
+        {
+            if (process.Id == self) { process.Dispose(); continue; }
+            try
+            {
+                var image = process.MainModule?.FileName;
+                if (string.IsNullOrWhiteSpace(image)) continue;
+                if (!IsOrphanAgentImage(image)) continue;
+                process.Kill(entireProcessTree: true);
+                process.WaitForExit(3000);
+                stopped.Add(process.Id);
+            }
+            catch (Exception) { /* access denied or already exited */ }
+            finally { process.Dispose(); }
+        }
+        return stopped.Count;
     }
 
     internal static int TerminateManagedProcesses(string installRoot, bool strict = true)
