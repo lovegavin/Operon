@@ -1853,8 +1853,8 @@ function Studio() {
           {job ? t(statusLabel[job.status]) : t("就绪")}
           <span className="meta-dot" />
           {order.length}{t("个算子")}</span>
-        <span>
-          Operon <span className="mono">{studioVersion}</span>
+        <span title={bootstrap?.studio?.build ? `build ${bootstrap.studio.build}` : undefined}>
+          Operon <span className="mono">{bootstrap?.studio?.display || studioVersion}</span>
         </span>
       </footer>
       {contextMenu && <>
@@ -1886,7 +1886,7 @@ function Studio() {
       {statusOpen && <RuntimeStatusPanel onClose={() => setStatusOpen(false)}/>}
       {planPanel && <PlanPanel graph={graph} onClose={() => setPlanPanel(false)}/>}
       {canvasPlan && <CanvasPlanDialog graph={graph} intent={canvasPlan} onClose={() => setCanvasPlan(null)} onEnvironment={() => {setCanvasPlan(null); setSettings(true); setInspectorOpen(true);}} onAdvanced={() => {setCanvasPlan(null); setPlanPanel(true);}}/>}
-      {pluginsOpen && <PluginPanel initialTab={pluginsOpen} onClose={() => setPluginsOpen(null)} onChanged={async () => {const expected = catalogUpdates.current.checkpoint(); const latest = await api.catalog(); acceptCatalog(latest, undefined, expected); await refreshRoutes();}}/>}
+      {pluginsOpen && <PluginPanel initialTab={pluginsOpen} onClose={() => setPluginsOpen(null)} onChanged={async () => {const latest = await api.catalog(); catalogUpdates.current.force(latest, value => setBootstrap(current => current ? {...current, catalog: value} : current)); await refreshRoutes();}}/>}
       {picker && <WorkflowPicker mode={picker} onClose={() => setPicker(null)} onOpen={openSaved} onRegister={refreshRoutes} onImport={() => routeImport.current?.click()}/>}
       {saveDialog && <SaveWorkflowDialog graph={saveDialog} catalog={catalog} workflowId={documents.find(doc=>doc.id===activeId)?.workflow_id} version={documents.find(doc=>doc.id===activeId)?.workflow_version} onClose={() => setSaveDialog(null)} onSaved={savedWorkflow}/>}
       {agentPanel && <AgentPanel sessionId={agentBridge.current?.state?.id} command={bootstrap.agent_config} onClose={() => setAgentPanel(false)} onCopySelection={() => void copyAgentContext()}/>}

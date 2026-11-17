@@ -17,7 +17,7 @@ from operon.bytecode import io_path
 import yaml
 
 from src.core import ManifestError
-from operon import __version__
+from operon import __version__, build_info
 from .operator_catalog import catalog_from_descriptors
 from src.task.memory.config import AUTO_BUDGET_FRACTION
 from .graph import GraphError, compile_graph, import_manifest, project_path, relative_manifest
@@ -131,7 +131,11 @@ def create_app(settings=None):
     @app.get("/health")
     @app.get("/ready")
     def health():
-        return {"status": "ok", "studio": __version__}
+        return {"status": "ok", "studio": __version__, **build_info.info()}
+
+    @app.get("/api/version")
+    def version():
+        return build_info.info()
 
     @app.get("/api/bootstrap")
     def bootstrap():
@@ -140,7 +144,7 @@ def create_app(settings=None):
         from .preferences import load as load_preferences
         catalog = service.catalog
         agent_args = ["-m", "operon", "--workspace", str(service.root), "--data-dir", str(service.directory), "mcp", "--allow-run"]
-        return {"token": token, "catalog": catalog, "demo": service.demo,
+        return {"token": token, "studio": build_info.info(), "catalog": catalog, "demo": service.demo,
                 "system": platform.system().lower().replace('darwin', 'macos'),
                 "automatic_memory_fraction": AUTO_BUDGET_FRACTION,
                 "automatic_memory_budget_bytes": automatic_memory_budget,

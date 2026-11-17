@@ -10,4 +10,11 @@ export class CatalogUpdates {
     update(catalog);
     return true;
   }
+
+  /** An install or delete must land even when a poll advanced the revision meanwhile. */
+  force(catalog: Catalog, update: (catalog: Catalog) => void): boolean {
+    this.revision++;
+    update(catalog);
+    return true;
+  }
 }

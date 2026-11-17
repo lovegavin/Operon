@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Modal } from './RouteDialogs';
 import { t } from './i18n';
 import { api } from './api';
-import type { EnvironmentSnapshot, PoolStatus, RemoteEnvironments } from './api';
+import type { EnvironmentSnapshot, PoolStatus, RemoteEnvironments, StudioVersion } from './api';
 
 function size(bytes: number) {
   if (!bytes) return '0 B';
@@ -20,6 +20,7 @@ const statusLabel: Record<string, string> = {
 
 export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
   const [pool, setPool] = useState<PoolStatus | null>(null);
+  const [appVersion, setAppVersion] = useState<StudioVersion | null>(null);
   const [environments, setEnvironments] = useState<EnvironmentSnapshot | null>(null);
   const [error, setError] = useState('');
   const [remoteEnvironments, setRemoteEnvironments] = useState<Record<string, RemoteEnvironments>>({});
@@ -30,10 +31,10 @@ export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     mounted.current = true;
     const refresh = () => {
-      Promise.all([api.pool(), api.environments()])
-        .then(([nextPool, nextEnvironments]) => {
+      Promise.all([api.pool(), api.environments(), api.version().catch(() => null)])
+        .then(([nextPool, nextEnvironments, nextVersion]) => {
           if (!mounted.current) return;
-          setPool(nextPool); setEnvironments(nextEnvironments); setError('');
+          setPool(nextPool); setEnvironments(nextEnvironments); setAppVersion(nextVersion); setError('');
         })
         .catch((e: Error) => {if (mounted.current) setError(e.message);});
     };
@@ -95,9 +96,13 @@ export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
     {error && <pre className="modal-error">{error}</pre>}
     <section className="runtime-section">
       <h4>{t('本地共享池')}</h4>
+      <p>{t('应用')} <span className="mono">{appVersion?.display || '—'}</span>
+        {!!appVersion?.build && <> · {t('构建')} <span className="mono">{appVersion.build.slice(0, 12)}</span></>}</p>
       {!instance?.version ? <p className="modal-empty">{t('尚未启动共享池')}</p> : <>
-        <p>{t('版本')} <span className="mono">{instance.version}</span> · PID <span className="mono">{instance.pid || '—'}</span>
-          {instance.closing && <> · {t('正在退出')}</>}</p>
+        <p>{t('共享池')} <span className="mono">{instance.version}</span> · PID <span className="mono">{instance.pid || '—'}</span>
+          {instance.closing && <> · {t('正在退出')}</>}
+          {!!appVersion?.version && instance.version !== appVersion.version &&
+            <> · <strong className="version-mismatch">{t('与应用版本不一致，请停止共享池后重启')}</strong></>}</p>
         <p className="muted">{t('已注册工作区')} {pool?.workspaces.length || 0} · {t('运行中任务')} {pool?.active.length || 0}</p>
         <button className="subtle-button" onClick={() => void stopPool(false)}>{t('停止共享池')}</button>
         <button className="subtle-button" onClick={() => {

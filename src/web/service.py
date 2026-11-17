@@ -317,14 +317,30 @@ class JobService:
 
         self.plugins._install_many = guarded
 
+    def _shared_environment_guard(self):
+        """Open the pool gate file without registering this workspace.
+
+        The gate lives beside the shared admission ledger, so installs can take
+        their maintenance lock without a pool round-trip.  Asking the pool for
+        it used to register the workspace first, and registration builds a
+        JobService whose PluginManager waits for the plugin lock the install
+        path already holds - that deadlocked every library install for a full
+        client timeout while the pool had not seen this workspace yet.
+        """
+        from operon import managed_pool
+        from operon.engine.environment import EnvironmentGuard
+        path = os.environ.get('OPERON_ENVIRONMENT_GATE')
+        if not path:
+            try:
+                admission, _ = managed_pool.locations(self.settings)
+            except Exception:  # noqa: BLE001 - fall back to the documented default
+                admission = Path.home() / '.operon' / 'admission' / socket.gethostname()
+            path = Path(admission).parent / 'environment-gate.json'
+        return EnvironmentGuard(path)
+
     def execution_environment_guard(self):
-        if self.pool_remote:
-            self._ensure_pool_session()
-            path = self.pool_client.status()['environment_gate']['path']
-            from operon.engine.environment import EnvironmentGuard
-            if not Path(path).is_absolute():
-                raise PoolSubmissionError('The pool did not return an absolute shared environment gate')
-            self.environment_guard = EnvironmentGuard(path)
+        if self.pool_remote and self.environment_guard is None:
+            self.environment_guard = self._shared_environment_guard()
         if self.environment_guard is None:
             raise PoolSubmissionError('The execution environment gate is unavailable')
         return self.environment_guard

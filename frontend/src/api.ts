@@ -10,6 +10,7 @@ export type Readiness = {
   scope?: 'dependencies' | 'preflight'; dependencies_cached?: boolean; unresolved_sources?: string[];
 };
 export type CheckFeedback = {signature: string; readiness?: Readiness; error?: string};
+export type StudioVersion = {version: string; build: string; display: string};
 export type RouteCollectionImport = {count: number; names: string[]; failed: {name: string; error: string}[]};
 
 export type EnvironmentProgress = {phase?: string; bytes?: number; files?: number; updated_at?: number};
@@ -158,6 +159,7 @@ export const api = {
   prepareEnvironments: (names?: string[]) => request<EnvironmentSnapshot & {prepared: {name: string; job: string; status: string}[]}>('/api/environments/prepare', names ? {names} : {}),
   retryEnvironment: (name: string) => request<EnvironmentSnapshot & {job: string}>(`/api/environments/${encodeURIComponent(name)}/retry`, {}),
   environmentLog: (name: string, limit = 200) => request<{name: string; text: string}>(`/api/environments/${encodeURIComponent(name)}/log?limit=${limit}`),
+  version: () => request<StudioVersion>('/api/version'),
   pool: () => request<PoolStatus>('/api/pool'),
   stopPool: (force = false) =>
     request<{stopped: boolean; forced?: boolean; busy?: boolean; error?: string}>('/api/pool/stop', {force}),

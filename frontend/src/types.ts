@@ -241,6 +241,7 @@ export type Bootstrap = {
   demo: Graph;
   history: Job[];
   upload_limit_mb: number | null;
+  studio?: {version?: string; build?: string; display?: string};
 };
 
 export type RemoteProfile = {id?: string; name: string; host: string; port: number; username: string;

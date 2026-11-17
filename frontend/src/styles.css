@@ -2362,3 +2362,5 @@ strong {
 .library-legacy-alert p { margin:4px 0; font-size:12px; color:var(--text-muted); }
 .library-legacy-alert .primary-button { margin-top:10px; }
 @media(max-width:600px) { .operator-install-heading { flex-wrap:wrap; }.operator-install-heading > button { margin-left:0; }.operator-install-actions { margin-left:0; }.library-management-tabs { margin:0 12px; } }
+
+.version-mismatch {color: var(--warn, #d08700);}
