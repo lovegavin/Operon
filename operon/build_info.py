@@ -10,6 +10,15 @@ from pathlib import Path
 from . import __version__
 
 _BUILD = re.compile(r'^(?P<version>\d+\.\d+\.\d+(?:[.\-+][0-9A-Za-z.\-+]+)?)[-+](?P<build>[0-9a-f]{6,40})$')
+_SEPARATOR = '\u00b7'
+
+
+def _parse_directory(name: str) -> tuple[str, str]:
+    """Split ``<semver>-<hex>`` into ``(version, build)``; unknown names yield empties."""
+    match = _BUILD.match(name)
+    if not match:
+        return '', ''
+    return match.group('version'), match.group('build')
 
 
 def _version_directory() -> str:
@@ -37,10 +46,9 @@ def build() -> str:
     if explicit:
         return explicit
     for candidate in (_version_directory(), str(_installation_record().get('current') or '')):
-        name = Path(candidate).name
-        match = _BUILD.match(name)
-        if match:
-            return match.group('build')
+        _version, suffix = _parse_directory(Path(candidate).name)
+        if suffix:
+            return suffix
     return ''
 
 
@@ -51,7 +59,9 @@ def version() -> str:
 def display() -> str:
     """Return the label the footer shows: ``5.4.1 · 0bbcaa57`` when a build is known."""
     suffix = build()
-    return f'{version()} · {suffix[:8]}' if suffix else version()
+    if not suffix:
+        return version()
+    return f'{version()} {_SEPARATOR} {suffix[:8]}'
 
 
 def info() -> dict:

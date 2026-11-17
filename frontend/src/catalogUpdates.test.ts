@@ -21,3 +21,20 @@ it('keeps a saved operator visible when an older catalog response finishes late'
   expect(updates.apply({...oldCatalog}, render, next)).toBe(true);
   expect(visible.operators).toEqual([]);
 });
+
+it('forces an install result past a poll that advanced the revision', () => {
+  const updates = new CatalogUpdates();
+  const empty: Catalog = {schema_version: 1, operators: []};
+  const installed = {...empty, operators: [{id: 'main.new', category: 'data'}]} as Catalog;
+  let visible = empty;
+  const render = (catalog: Catalog) => {visible = catalog;};
+  const checkpoint = updates.checkpoint();
+  expect(updates.apply(empty, render, checkpoint)).toBe(true);
+  expect(updates.apply(installed, render, checkpoint)).toBe(false);
+  expect(visible.operators).toEqual([]);
+  expect(updates.force(installed, render)).toBe(true);
+  expect(visible.operators.map(operator => operator.id)).toEqual(['main.new']);
+  const after = updates.checkpoint();
+  expect(updates.apply(empty, render, after)).toBe(true);
+  expect(visible.operators).toEqual([]);
+});
