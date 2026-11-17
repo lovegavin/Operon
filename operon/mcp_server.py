@@ -499,6 +499,10 @@ def create_server(client):
         if not math.isfinite(wait_seconds) or not 0 <= wait_seconds <= 120:
             raise ValueError('wait_seconds must be between 0 and 120')
         job_view({}, view)
+        try:
+            return client.request('/v1/large-resources/operations/' + quote(job_id, safe=''))
+        except Exception:
+            pass
         job = client.request('/v1/jobs/' + quote(job_id, safe='') + '?view=' + view)
         return wait_job(client, job, wait_seconds, view=view) if wait_seconds else job
 
@@ -511,6 +515,38 @@ def create_server(client):
     def operon_plugin_install(wheel: str) -> dict:
         """Install an explicitly selected trusted local plugin wheel. Requires --allow-plugins."""
         return client.request("/plugins/install", {"wheel": wheel})
+
+    @server.tool()
+    def operon_resources() -> dict:
+        """List the legacy-free large resources declared by the installed library.
+
+        Read-only. Each item reports presence, downloaded files, size and the
+        declared HTTPS downloads; use operon_resource_download to fetch one.
+        """
+        return client.request('/v1/large-resources')
+
+    @server.tool()
+    def operon_resource_download(name: str, root: str | None = None,
+                                 overwrite: bool = False) -> dict:
+        """Start one declared resource download; returns the durable operation id.
+
+        Poll operon_resources or operon_job(operation id). Requires --allow-plugins.
+        """
+        payload = {'overwrite': bool(overwrite)}
+        if root:
+            payload['root'] = root
+        return client.request('/v1/large-resources/' + quote(name, safe='') + '/download', payload)
+
+    @server.tool()
+    def operon_resource_cancel(name: str) -> dict:
+        """Cancel the active download of one resource. Requires --allow-run."""
+        return client.request('/v1/large-resources/' + quote(name, safe='') + '/cancel', {})
+
+    @server.tool()
+    def operon_resource_log(name: str, limit: int = 200) -> dict:
+        """Read the tail of one resource download log (at most 2000 lines)."""
+        return client.request('/v1/large-resources/' + quote(name, safe='') + '/log?limit=' +
+                              str(max(1, min(int(limit), 2000))))
 
     @server.tool()
     def operon_library_install(path: str, name: str | None = None,

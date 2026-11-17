@@ -293,6 +293,12 @@ def worker_environment(python: Path, paths=()) -> dict[str, str]:
     base = python.parent.parent if python.parent.name in {'bin', 'Scripts'} else python.parent
     paths = [python.parent, base / 'Scripts', base / 'Library/bin', base / 'bin']
     env['PATH'] = os.pathsep.join([*(str(p) for p in paths if p.is_dir()), env.get('PATH', '')])
+    libs = [p for p in (base / 'lib', base / 'lib64') if p.is_dir()]
+    if libs:
+        previous = env.get('LD_LIBRARY_PATH', '')
+        env['LD_LIBRARY_PATH'] = os.pathsep.join(
+            [*(str(p) for p in libs), *([previous] if previous else [])]
+        )
     return env
 
 

@@ -112,7 +112,7 @@ def mount_control(app, application, bridge):
                 'capabilities': ['workflows', 'tasks', 'artifacts', 'operator-docs', 'canvas-sessions', 'agent-guides', 'brief-views', 'result-viewers', 'workflow-readiness', 'explicit-environment-preparation', 'transaction-diffs',
                                 'task-scaffolding', 'workspace-files', 'workspace-binary-files',
                                 'library-install', 'route-collection-import', 'storage-browse', 'storage-preview',
-                                'plan-compile', 'plan-submit', 'run-plan-export'],
+                                'plan-compile', 'plan-submit', 'run-plan-export', 'large-resource-download'],
                 'guides_href': '/api/v1/guides', 'openapi_href': '/api/v1/openapi.json',
                 'permission_scopes': ['context', 'edit', 'run', 'plugins']}
 
@@ -141,6 +141,53 @@ def mount_control(app, application, bridge):
         authorize(request, 'plugins')
         return {**application.isolated_environments(),
                 'prepared': application.start_isolated_environments(payload.names)}
+
+    @app.get('/api/v1/large-resources')
+    def large_resources(request: Request):
+        authorize(request)
+        from src.web import resource_api
+        try:
+            return resource_api.snapshot(application.service)
+        except ValueError as error:
+            raise CommandError('resource_unavailable', str(error)) from error
+
+    @app.post('/api/v1/large-resources/{name}/download')
+    def large_resource_download(request: Request, name: str, payload: dict | None = None):
+        authorize(request, 'plugins')
+        from src.web import resource_api
+        body = payload or {}
+        try:
+            return resource_api.start(application.service, name, body.get('root'),
+                                      bool(body.get('overwrite', False)))
+        except KeyError as error:
+            raise CommandError('unknown_resource', f'unknown resource: {name}') from error
+
+    @app.post('/api/v1/large-resources/{name}/cancel')
+    def large_resource_cancel(request: Request, name: str):
+        authorize(request, 'run')
+        from src.web import resource_api
+        try:
+            return resource_api.cancel(application.service, name)
+        except KeyError as error:
+            raise CommandError('no_running_download', f'no running download: {name}') from error
+
+    @app.get('/api/v1/large-resources/operations/{job_id}')
+    def large_resource_operation(request: Request, job_id: str):
+        authorize(request)
+        from src.web import resource_api
+        job = resource_api.operation(job_id)
+        if job is None:
+            raise CommandError('unknown_resource_operation', f'unknown resource operation: {job_id}')
+        return job
+
+    @app.get('/api/v1/large-resources/{name}/log')
+    def large_resource_log(request: Request, name: str, limit: int = 200):
+        authorize(request)
+        from src.web import resource_api
+        try:
+            return resource_api.read_log(application.service, name, limit)
+        except KeyError as error:
+            raise CommandError('unknown_resource', f'unknown resource: {name}') from error
 
     @app.get('/api/v1/libraries')
     def libraries(request: Request):

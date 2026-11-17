@@ -1241,6 +1241,16 @@ class JobService:
                          'NUMEXPR_NUM_THREADS', 'VECLIB_MAXIMUM_THREADS', 'BLIS_NUM_THREADS', 'OPERON_CPU_LIMIT'):
                 env[name] = threads
             env['OPERON_AVAILABLE_AT_START_BYTES'] = str(allocation['available_at_start_bytes'])
+            gpu_count = max(0, int(allocation.get('gpu_count', 0) or 0))
+            gpu_devices = allocation.get('gpu_devices') or []
+            if not gpu_devices and gpu_count:
+                gpu_devices = list(getattr(self.admission, 'gpus', []) or [])[:gpu_count] or list(range(gpu_count))
+            if gpu_devices:
+                visible = ','.join(str(device) for device in gpu_devices)
+                env['CUDA_VISIBLE_DEVICES'] = visible
+                env['NVIDIA_VISIBLE_DEVICES'] = visible
+            elif allocation.get('gpu_count'):
+                raise RuntimeError('The job was granted GPU capacity but no device IDs were reserved')
             code_root = self.settings.code_root or self.root
             python = self.plugins.python_for(read_json(directory / 'plugins.lock.json'))
             if io_path(code_root / 'operon/worker.py').is_file():

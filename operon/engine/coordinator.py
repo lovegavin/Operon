@@ -32,6 +32,9 @@ from .supervisor import SupervisorError, boot_identity, identity_alive
 from .telemetry import METRICS, span
 
 
+ABANDON_AFTER_SECONDS = 300.0
+
+
 def _parse_time(value: str | None) -> float:
     if not value:
         return time.time()
@@ -690,9 +693,32 @@ class Coordinator:
             self._diagnose('prune_error', error=str(exc))
 
     # -- recovery ------------------------------------------------------
+    def _abandon_quarantined(self, attempt) -> bool:
+        """Release the lease of a quarantined attempt whose worker is provably gone.
+
+        A worker that died before recording a receipt leaves its attempt in
+        RECOVERY_REQUIRED forever; its lease keeps charging pool capacity that no
+        live process can use.  After a grace period, and only when the recorded
+        process identity is provably dead, fail the attempt and release the lease.
+        """
+        process = attempt.get('process') or {}
+        if not process.get('pid'):
+            return False
+        started = _parse_time(attempt.get('started_at') or attempt.get('created_at'))
+        if time.time() - started < ABANDON_AFTER_SECONDS:
+            return False
+        if identity_alive(process):
+            return False
+        self._fail_attempt(attempt['id'], result=None,
+                           error='The quarantined worker is gone; its lease was released so the pool can continue',
+                           error_code='recovery_abandoned', release=True, retry=False)
+        self._diagnose('recovery_abandoned', attempt_id=attempt['id'])
+        return True
+
     def recover(self):
         """Reconcile every active attempt and outbox entry after a takeover."""
-        recovered = {'adopted': 0, 'failed': 0, 'quarantined': 0, 'relaunched': 0, 'completed': 0}
+        recovered = {'adopted': 0, 'failed': 0, 'quarantined': 0, 'relaunched': 0, 'completed': 0,
+                     'abandoned': 0}
         states = [AttemptState.ADMITTED.value, AttemptState.STARTING.value, AttemptState.RUNNING.value,
                   AttemptState.COMMITTING.value, AttemptState.RECOVERY_REQUIRED.value]
         for attempt in self.store.attempts_for_pool(self.pool_id, states=states):
@@ -758,6 +784,9 @@ class Coordinator:
                 continue
             if state in (AttemptState.ADMITTED, AttemptState.STARTING):
                 continue  # a pending launch outbox entry will launch it
+            if self._abandon_quarantined(attempt):
+                recovered['abandoned'] += 1
+                continue
             if state != AttemptState.RECOVERY_REQUIRED:
                 self._transition(attempt['id'], AttemptState.RECOVERY_REQUIRED,
                                  error='Process ownership after restart is uncertain')
