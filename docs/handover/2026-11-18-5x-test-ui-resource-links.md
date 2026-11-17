@@ -283,3 +283,67 @@ operon_download_result(s) / operon_resources / operon_environment(s) / operon_re
 3. 先跑阶段 0/1（安装 + MCP 工具面），把失败项记进 test report。
 4. 再按阶段 2→6 推进；UI 与资源外链可以在等环境安装时并行做。
 5. 每修一个 bug，补一条回归测试；每完成一阶段，更新 test report 并提交。
+
+---
+
+## 11. 提交与下载一律走 srv 代理（硬要求）
+
+这台机器（Windows 与 WSL 两侧）到 `github.com:443` 直连会超时或被 reset，`api.github.com`
+在 WSL 里可达但不足以完成上传。**所有对 GitHub 的提交、发布、资产上传/下载都必须走 srv
+代理**，不要直连。srv：`lihj@172.22.148.93`，代理服务在 srv 上监听 `127.0.0.1:18080`。
+
+### 11.1 建立隧道
+
+```bash
+# Windows 侧开隧道（保持后台运行）
+ssh -N -L 18080:127.0.0.1:18080 lihj@172.22.148.93
+# 校验
+curl -x http://127.0.0.1:18080 -sS -o /dev/null -w '%{http_code}\n' https://api.github.com/
+```
+
+代理是否可用也可以先看 `scripts/release_proxy/` 的默认配置（`lovegavin@127.0.0.1:18080`）。
+隧道断了先 `wfp_status`/`wfp_restart`，再重连 `ssh srv`。
+
+### 11.2 提交（git push）
+
+优先用代理直推，令牌从文件读，**不要内联进 PowerShell**（`$`、引号会被吞）：
+
+```bash
+cd /home/gavin/Operon-540
+TOK=$(cat "/mnt/c/Users/梦天曦/.operon/gh_token.txt")
+https_proxy=http://127.0.0.1:18080 http_proxy=http://127.0.0.1:18080 \
+  git -c http.version=HTTP/1.1 push \
+  "https://x-access-token:$TOK@github.com/lovegavin/Operon.git" \
+  release/5.4.0:release/5.4.0
+```
+
+代理仍失败时走 **srv 中继**（已验证可行的兜底）：
+
+```bash
+git bundle create /tmp/repo.bundle release/5.4.0
+scp /tmp/repo.bundle lihj@172.22.148.93:/tmp/
+ssh lihj@172.22.148.93 'cd /tmp && git clone --bare repo.bundle repo.git 2>/dev/null || git -C repo.git fetch /tmp/repo.bundle "+refs/heads/*:refs/heads/*"'
+# 在 srv 上推（srv 到 github.com 可达）
+ssh lihj@172.22.148.93 'cd /tmp/repo.git && git push --force "https://x-access-token:<TOKEN>@github.com/lovegavin/Operon.git" refs/heads/release/5.4.0'
+```
+
+### 11.3 发布与下载
+
+- 发布：`scripts/release_proxy/publish_release.py --token-file /tmp/op_token --direct
+  publish --tag vX.Y.Z ...`，脚本本身走代理；不要用直连 curl 上传资产。
+- 大资产（Setup 约 430 MB、Server、wheel）先在本机生成，再用 `scp` 经 srv 中转；
+  从 GitHub 拉取历史资产同样用 `curl -x http://127.0.0.1:18080` 或 srv 中继。
+- `D:\download` 只是本地交付目录，**不是**“直连下载”的入口；给用户的哈希要来自本地生成物，
+  并与 release API（经代理）的 digest 对齐后再报。
+- 令牌只放在 `C:\Users\梦天曦\.operon\gh_token.txt` 或 `/tmp/op_token`（srv 侧），
+  不要写进仓库、日志或对话。
+
+### 11.4 常见失败
+
+| 现象 | 处理 |
+|---|---|
+| `Could not resolve host: github.com` / 超时 | 隧道没起，重开 `ssh -N -L 18080:...` |
+| `Authentication failed` | 令牌文件被换行/截断，`tr -d '\r\n'`；或改用 11.2 的 srv 中继 |
+| `GnuTLS recv error (-110)` | 加 `-c http.version=HTTP/1.1` 并重试；仍失败走中继 |
+| API 403（srv 上） | srv 到 `api.github.com` 返回 403 属已知，改用本机经代理调 API |
+| 上传中断 | 先看代理是否存活，再重跑 `publish_release.py`（按 tag 覆盖/续传） |
