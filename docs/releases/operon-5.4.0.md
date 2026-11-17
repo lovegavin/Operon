@@ -21,7 +21,7 @@ Version identity is 5.4.0 in `pyproject.toml`, `operon/__init__.py`,
 
 ## Verification on the installed build
 
-Clean install: `Operon_Setup-5.4.0.exe --quiet --install-dir D:\OperonTest540`.
+Clean install: `Operon_Setup-5.4.0.exe --quiet --install-dir <test-dir>`.
 
 | Check | Result |
 |---|---|
