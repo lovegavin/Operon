@@ -621,27 +621,38 @@ function Studio() {
   useEffect(() => {
     if (!bootstrap) return;
     let active = true;
-    let pending = false;
-    const refresh = () => {
+    let pendingSince = 0;
+    const forceCatalog = (value: Bootstrap["catalog"]) =>
+      catalogUpdates.current.force(value, next => setBootstrap(current => current ? {...current, catalog: next} : current));
+    const refresh = (reload = false) => {
       if (document.visibilityState === "hidden") return;
-      if (pending) return;
-      pending = true;
+      // A request that never settles must not freeze the registry view: after
+      // 30 s the in-flight cycle is abandoned so the next tick can recover.
+      if (pendingSince && Date.now() - pendingSince < 30000) return;
+      pendingSince = Date.now();
       const expected = catalogUpdates.current.checkpoint();
-      void Promise.all([api.routes(), api.libraryState(), api.catalogIfChanged(bootstrapCatalog.current?.plugin_generation)]).then(([value, state, latest]) => {
-        if (!active || expected !== catalogUpdates.current.checkpoint()) return;
-        if (latest) acceptCatalog(latest, undefined, expected);
+      void Promise.all([
+        api.routes(20000),
+        api.libraryState(20000),
+        reload ? api.catalog(20000) : api.catalogIfChanged(bootstrapCatalog.current?.plugin_generation, 20000),
+      ]).then(([value, state, latest]) => {
+        if (!active || !latest) return;
+        if (reload) forceCatalog(latest);
+        else if (expected === catalogUpdates.current.checkpoint()) acceptCatalog(latest, undefined, expected);
+        else return;
         setRoutes(value); setLibraryState(state);
       }).catch(() => {
         // Preserve the visible registry during a transient connection failure.
-      }).finally(() => {pending = false;});
+      }).finally(() => {pendingSince = 0;});
     };
-    window.addEventListener("focus", refresh);
-    document.addEventListener("visibilitychange", refresh);
+    const reload = () => refresh(true);
+    window.addEventListener("focus", reload);
+    document.addEventListener("visibilitychange", reload);
     const timer = window.setInterval(refresh, 5000);
     return () => {
       active = false; window.clearInterval(timer);
-      window.removeEventListener("focus", refresh);
-      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("focus", reload);
+      document.removeEventListener("visibilitychange", reload);
     };
   }, [!!bootstrap]);
   useEffect(() => {

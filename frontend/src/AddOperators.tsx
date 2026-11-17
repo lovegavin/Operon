@@ -4,6 +4,7 @@ import {api} from './api';
 import {normalizeGraph} from './graph';
 import {isRouteArchiveFile, isRouteLibraryFile} from './libraryImport';
 import {isWorkflowBundle, ROUTE_FILE_ACCEPT} from './workflowFiles';
+import type {RouteCollectionSummary} from './api';
 import type {WorkflowSummary} from './types';
 import {t} from './i18n';
 
@@ -13,6 +14,7 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
   onError: (value: string) => void; onMessage: (value: string) => void;
 }) {
   const [routes, setRoutes] = useState<WorkflowSummary[]>([]);
+  const [collections, setCollections] = useState<RouteCollectionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const file = useRef<HTMLInputElement>(null);
   const collection = useRef<HTMLInputElement>(null);
@@ -20,6 +22,7 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
     let active = true;
     api.workflows().then(items => {if (active) setRoutes(items);}).catch(error => {if (active) onError(error.message);})
       .finally(() => {if (active) setLoading(false);});
+    api.routeCollections().then(value => {if (active) setCollections(value.collections);}).catch(() => {});
     return () => {active = false;};
   }, []);
   async function importCollection(file: File) {
@@ -33,6 +36,24 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
       if (imported.failed.length) onError(t('{count} 条路线未导入：{reason}', {count: imported.failed.length, reason: imported.failed[0].error}));
     } catch (error) {
       // Pin mismatches name the operator id and expected/actual code_sha: keep the server text verbatim.
+      onError((error as Error).message);
+    } finally {
+      try {
+        setRoutes(await api.workflows());
+        setCollections((await api.routeCollections()).collections);
+        await onChanged();
+      }
+      catch (error) {onError((error as Error).message);}
+      onPending(false);
+    }
+  }
+  async function uninstallCollection(slug: string, name: string) {
+    onPending(true); onError(''); onMessage('');
+    try {
+      const result = await api.deleteRouteCollection(slug);
+      onMessage(t('已卸载路线库 {name}（{count} 条路线）。', {name, count: result.removed}));
+      setCollections((await api.routeCollections()).collections);
+    } catch (error) {
       onError((error as Error).message);
     } finally {
       try {setRoutes(await api.workflows()); await onChanged();}
@@ -122,6 +143,14 @@ export function AddOperators({busy, onPackage, onChanged, onPending, onError, on
           </div>)}
         </div>
       </div>
+      {!!collections.length && <div className="saved-operator-routes">
+        <div className="add-route-list">
+          {collections.map(item => <div className="workflow-choice" key={item.slug}>
+            <span className="workflow-choice-text"><strong>{item.name}</strong><small>{t('{count} 条路线', {count: item.count})}{item.imported_at ? ` · ${item.imported_at.slice(0, 10)}` : ''}</small></span>
+            <button className="subtle-button" disabled={busy} onClick={() => void uninstallCollection(item.slug, item.name)}>{t('卸载路线库')}</button>
+          </div>)}
+        </div>
+      </div>}
     </section>
   </div>;
 }

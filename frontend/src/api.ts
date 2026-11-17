@@ -12,6 +12,7 @@ export type Readiness = {
 export type CheckFeedback = {signature: string; readiness?: Readiness; error?: string};
 export type StudioVersion = {version: string; build: string; display: string};
 export type RouteCollectionImport = {count: number; names: string[]; failed: {name: string; error: string}[]};
+export type RouteCollectionSummary = {name: string; slug: string; imported_at: string; count: number};
 
 export type EnvironmentProgress = {phase?: string; bytes?: number; files?: number; updated_at?: number};
 export type EnvironmentStatus = {
@@ -93,7 +94,7 @@ export class ApiError extends Error {
   }
 }
 export async function request<T>(path: string, body?: unknown,
-  options: {signal?: AbortSignal; storageSession?: string} = {}): Promise<T> {
+  options: {signal?: AbortSignal; storageSession?: string; timeoutMs?: number} = {}): Promise<T> {
   const response = await fetch(base + path, {
     method: body === undefined ? "GET" : "POST",
     headers: {
@@ -102,7 +103,7 @@ export async function request<T>(path: string, body?: unknown,
       ...(options.storageSession ? {'X-Operon-Storage-Session': options.storageSession} : {}),
     },
     body: body === undefined ? undefined : JSON.stringify(body),
-    signal: options.signal,
+    signal: options.signal ?? (options.timeoutMs ? AbortSignal.timeout(options.timeoutMs) : undefined),
   });
   let value;
   try {
@@ -148,7 +149,7 @@ function libraryFailure(value: unknown, fallback: string) {
 }
 
 export const api = {
-  catalogIfChanged: (generation?: string) => request<Bootstrap['catalog'] | null>(`/api/operators${generation ? '?generation=' + encodeURIComponent(generation) : ''}`),
+  catalogIfChanged: (generation?: string, timeoutMs?: number) => request<Bootstrap['catalog'] | null>(`/api/operators${generation ? '?generation=' + encodeURIComponent(generation) : ''}`, undefined, timeoutMs ? {timeoutMs} : undefined),
   inspectScript: (payload: {filename: string; code: string; script?: import('./types').ScriptSnapshot}) => request<{script: import('./types').ScriptSnapshot; candidates: {name: string; line: number; schema: Record<string, unknown>}[]}>('/api/scripts/inspect', payload),
   extractScript: (payload: {script: import('./types').ScriptSnapshot; names: string[]}) => request<{script: import('./types').ScriptSnapshot; values: Record<string, unknown>; bindings: unknown}>('/api/scripts/extract', payload),
   publishScript: (payload: {script: import('./types').ScriptSnapshot; operator_id: string; title: string; category: string; version?: string}) => request<{id: string; catalog: Bootstrap['catalog']}>('/api/scripts/publish', payload),
@@ -254,8 +255,18 @@ export const api = {
     if (!response.ok) throw new ApiError(libraryFailure(result, t("删除算子库未完成")), undefined, response.status);
     return (result || {removed: name}) as {removed: string};
   },
+  routeCollections: () => request<{collections: RouteCollectionSummary[]; count: number}>('/api/route-collections'),
+  deleteRouteCollection: async (slug: string): Promise<{collection: string; removed: number; routes: string[]}> => {
+    const response = await fetch(base + '/api/route-collections/' + encodeURIComponent(slug), {
+      method: 'DELETE', headers: {'X-Studio-Token': token},
+    });
+    let result: unknown = null;
+    try { result = await response.json(); } catch { result = null; }
+    if (!response.ok) throw new ApiError(libraryFailure(result, t("卸载路线库未完成")), undefined, response.status);
+    return (result || {collection: slug, removed: 0, routes: []}) as {collection: string; removed: number; routes: string[]};
+  },
   agent: <T,>(path: string, body?: unknown) => request<T>("/api/agent" + path, body),
-  catalog: () => request<Bootstrap["catalog"]>("/api/operators"),
+  catalog: (timeoutMs?: number) => request<Bootstrap["catalog"]>("/api/operators", undefined, timeoutMs ? {timeoutMs} : undefined),
   workspace: () => request<Workspace | null>("/api/workspace"),
   saveWorkspace: (workspace: Workspace) => {
     workspaceWrite = workspaceWrite.catch(() => undefined).then(() => request<{saved: boolean}>("/api/workspace", workspace));
@@ -316,8 +327,8 @@ export const api = {
     }));
     return {count: typeof record.count === 'number' ? record.count : names.length, names, failed};
   },
-  routes: () => request<RouteDefinition[]>("/api/routes"),
-  libraryState: () => request<LibraryState>("/api/library/state"),
+  routes: (timeoutMs?: number) => request<RouteDefinition[]>("/api/routes", undefined, timeoutMs ? {timeoutMs} : undefined),
+  libraryState: (timeoutMs?: number) => request<LibraryState>("/api/library/state", undefined, timeoutMs ? {timeoutMs} : undefined),
   manageLibrary: (key: string, action: LibraryAction) => request<{routes: RouteDefinition[]; state: LibraryState}>("/api/library/manage", {key, action}),
   registerRoutes: (workflow_ids: string[]) => request<RouteDefinition[]>("/api/routes/register", {workflow_ids}),
   bootstrap: async () => {

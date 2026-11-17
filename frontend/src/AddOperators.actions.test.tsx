@@ -9,7 +9,7 @@ vi.mock('react',async original=>({...await original<typeof import('react')>(),us
   const i=hooks.cursor++; if(!(i in hooks.values))hooks.values[i]=initial;
   return [hooks.values[i],(next:unknown)=>{hooks.values[i]=typeof next==='function'?next(hooks.values[i]):next;}];
 }}));
-vi.mock('./api',()=>({api:{workflows:vi.fn(),importWorkflow:vi.fn(),importRouteArchive:vi.fn(),importRouteCollection:vi.fn(),saveWorkflow:vi.fn(),registerRoutes:vi.fn()}}));
+vi.mock('./api',()=>({api:{workflows:vi.fn(),importWorkflow:vi.fn(),importRouteArchive:vi.fn(),importRouteCollection:vi.fn(),routeCollections:vi.fn(),deleteRouteCollection:vi.fn(),saveWorkflow:vi.fn(),registerRoutes:vi.fn()}}));
 const onChanged=vi.fn(async()=>{}),onPending=vi.fn(),onError=vi.fn(),onMessage=vi.fn();
 type Element={type:unknown;props:Record<string,unknown>};
 function elements(node:ReactNode):Element[] {
@@ -27,7 +27,7 @@ function triggerCollection(files: unknown[]) {
   (field.props.onChange as Function)({target:{files,value:'fake'}});
 }
 const graph:Graph={schema_version:2,name:'Imported',base_dir:'.',nodes:[],edges:[],memory:{enabled:true}};
-beforeEach(()=>{hooks.values=[];hooks.cursor=0;vi.clearAllMocks();vi.mocked(api.workflows).mockResolvedValue([]);
+beforeEach(()=>{hooks.values=[];hooks.cursor=0;vi.clearAllMocks();vi.mocked(api.workflows).mockResolvedValue([]);vi.mocked(api.routeCollections).mockResolvedValue({collections:[],count:0});
   vi.mocked(api.saveWorkflow).mockResolvedValue({id:'saved',version:1,graph,updated_at:''});vi.mocked(api.registerRoutes).mockResolvedValue([]);});
 it.each(['route.operon.zip', 'route.operon', 'route.OPERON'])('imports %s, saves its graph and registers it without opening or running a canvas',async name=>{
   vi.mocked(api.importWorkflow).mockResolvedValue(graph);

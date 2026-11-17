@@ -119,6 +119,24 @@ def mount_library(app, service):
         await asyncio.to_thread(service.refresh_catalog)
         return result
 
+    @app.get("/api/route-collections")
+    async def list_route_collections_route():
+        from operon.library_install import route_collections
+        return await asyncio.to_thread(route_collections, service)
+
+    @app.delete("/api/route-collections/{slug}")
+    async def remove_route_collection_route(slug: str):
+        from operon.library_install import uninstall_routes_collection
+        try:
+            result = await asyncio.to_thread(uninstall_routes_collection, service, slug)
+        except ValueError as exc:
+            return JSONResponse(status_code=404, content={"error": {
+                "code": "collection_missing",
+                "message": str(exc),
+            }})
+        await asyncio.to_thread(service.refresh_catalog)
+        return result
+
     @app.post("/api/routes/import-collection")
     async def import_collection_route(request: Request):
         from operon.library_install import RoutePinMismatch, install_routes_collection

@@ -24,6 +24,7 @@ from packaging.utils import canonicalize_name
 from packaging.version import InvalidVersion, Version
 
 from operon.bytecode import filesystem_path
+from operon.engine.fs import atomic_json
 
 LIBRARY_FORMAT = "operon.library"
 BUNDLE_FORMAT = 1
@@ -986,7 +987,77 @@ def install_routes_collection(service, path) -> dict:
     missing = [item["id"] for item in saved if item["id"] not in registered]
     if missing:
         raise _invalid(f"Route registration failed for {', '.join(missing)}")
+    collections = Path(service.routes.directory) / "collections"
+    collections.mkdir(parents=True, exist_ok=True)
+    manifest = {
+        "name": source.stem,
+        "imported_at": datetime.now(timezone.utc).isoformat(),
+        "routes": [{"key": item["key"], "name": item["name"], "workflow_id": item["id"]} for item in saved],
+    }
+    atomic_json(collections / f"{_collection_slug(manifest['name'])}.json", manifest)
     return {
         "routes": [{"key": item["key"], "name": item["name"]} for item in saved],
         "count": len(saved),
     }
+
+
+def _collection_slug(name: str) -> str:
+    value = re.sub(r"[^a-z0-9._-]+", "-", (name or "collection").lower()).strip("-")
+    return value or "collection"
+
+
+def route_collections(service) -> dict:
+    """List the route collections imported into this workspace."""
+    collections = Path(service.routes.directory) / "collections"
+    items = []
+    for path in sorted(collections.glob("*.json")):
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        items.append({"name": data.get("name") or path.stem, "slug": path.stem,
+                      "imported_at": data.get("imported_at") or "",
+                      "count": len(data.get("routes") or [])})
+    return {"collections": items, "count": len(items)}
+
+
+def uninstall_routes_collection(service, slug: str) -> dict:
+    """Remove every route registered by one imported route collection."""
+    collections = Path(service.routes.directory) / "collections"
+    manifest_path = collections / f"{_collection_slug(slug)}.json"
+    if not manifest_path.is_file():
+        raise ValueError(f"{slug}: route collection is not imported")
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as error:
+        raise ValueError(f"{manifest_path}: route collection manifest is unreadable") from error
+    routes = Path(service.routes.directory).resolve()
+    removed = []
+    for entry in manifest.get("routes") or []:
+        key = entry.get("key")
+        if key:
+            try:
+                service.routes.manage_item(key, "delete")
+            except KeyError:
+                pass
+            removed.append(key)
+        workflow_id = entry.get("workflow_id")
+        if not workflow_id:
+            continue
+        record = routes / f"{workflow_id}.json"
+        values = {}
+        if record.is_file():
+            try:
+                values = json.loads(record.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                values = {}
+        for field in ("parameters_file", "execution_file"):
+            value = values.get(field)
+            if isinstance(value, str) and value:
+                target = (routes / value).resolve()
+                if target != routes and routes in target.parents:
+                    target.unlink(missing_ok=True)
+        record.unlink(missing_ok=True)
+    manifest_path.unlink(missing_ok=True)
+    return {"collection": manifest.get("name") or slug, "removed": len(removed), "routes": removed}
+
