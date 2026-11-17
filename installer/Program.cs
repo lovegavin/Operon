@@ -102,7 +102,14 @@ internal static class Program
                 Console.CancelKeyPress += stop;
                 try
                 {
-                    if (!uninstall) options = options with { InstallDir = InstallEngine.ResolveDestination(options.InstallDir) };
+                    if (!uninstall)
+                    {
+                        var requested = InstallEngine.NamedDestination(options.InstallDir);
+                        var resolved = InstallEngine.ResolveDestination(options.InstallDir);
+                        if (!string.Equals(resolved, requested, StringComparison.OrdinalIgnoreCase))
+                            engine.Note($"提示：{requested} 已有其他内容，本次安装到 {resolved}。");
+                        options = options with { InstallDir = resolved };
+                    }
                     var result = uninstall ? engine.Uninstall(options.InstallDir) : engine.Install(options, cancellation.Token).GetAwaiter().GetResult();
                     return SetupConsole.Result(result, resultFile) ? 0 : 1;
                 }

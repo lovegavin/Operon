@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 from urllib.parse import quote, urlencode
-from .client import Client, data_directory
+from .client import Client, ClientError, data_directory
 
 
 def installation_root() -> Path:
@@ -30,6 +30,11 @@ def create_server(client):
     from mcp.server.fastmcp import FastMCP
     from .guidance import guide, instructions
     server = FastMCP("Operon", instructions=instructions())
+    try:
+        from . import __version__ as product_version
+        server._mcp_server.version = product_version
+    except Exception:  # pragma: no cover - the SDK keeps the attribute private
+        pass
 
     def _download_root():
         value = client.workspace or client.status().get('workspace')
@@ -521,10 +526,16 @@ def create_server(client):
             raise ValueError('wait_seconds must be between 0 and 120')
         job_view({}, view)
         try:
-            return client.request('/v1/large-resources/operations/' + quote(job_id, safe=''))
-        except Exception:
-            pass
-        job = client.request('/v1/jobs/' + quote(job_id, safe='') + '?view=' + view)
+            job = client.request('/v1/jobs/' + quote(job_id, safe='') + '?view=' + view)
+        except ClientError as error:
+            if error.code != 'unknown_job':
+                raise
+            try:
+                return client.request('/v1/large-resources/operations/' + quote(job_id, safe=''))
+            except ClientError as missing:
+                if missing.code != 'unknown_resource_operation':
+                    raise
+                raise ClientError(f'unknown job or resource operation: {job_id}', 'unknown_job') from missing
         return wait_job(client, job, wait_seconds, view=view) if wait_seconds else job
 
     @server.tool()
@@ -541,8 +552,10 @@ def create_server(client):
     def operon_resources() -> dict:
         """List the legacy-free large resources declared by the installed library.
 
-        Read-only. Each item reports presence, downloaded files, size and the
-        declared HTTPS downloads; use operon_resource_download to fetch one.
+        Read-only. Each item reports presence, downloaded files, size, the
+        declared HTTPS downloads and link state (linked/source/mode, link_roots,
+        expected files, used_by); use operon_resource_download to fetch one or
+        operon_resource_link to attach an existing local tree.
         """
         return client.request('/v1/large-resources')
 
@@ -557,6 +570,25 @@ def create_server(client):
         if root:
             payload['root'] = root
         return client.request('/v1/large-resources/' + quote(name, safe='') + '/download', payload)
+
+    @server.tool()
+    def operon_resource_link(name: str, source: str, replace: bool = False) -> dict:
+        """Link an existing local tree into the resource root without copying bytes.
+
+        The source must be an absolute path inside a declared link root; no
+        bytes are copied. Requires --allow-plugins.
+        """
+        return client.request('/v1/large-resources/' + quote(name, safe='') + '/link',
+                              {'source': source, 'replace': bool(replace)})
+
+    @server.tool()
+    def operon_resource_unlink(name: str) -> dict:
+        """Remove the external link of one resource; the source tree is kept.
+
+        Requires --allow-plugins.
+        """
+        return client.request('/v1/large-resources/' + quote(name, safe='') + '/link',
+                              method='DELETE')
 
     @server.tool()
     def operon_resource_cancel(name: str) -> dict:

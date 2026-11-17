@@ -7840,6 +7840,16 @@
     "status": "generated"
   },
   {
+    "id": "resource_fetch",
+    "kind": "operator",
+    "title": "Fetch large-resource files",
+    "category": "Data",
+    "version": "1.0.0",
+    "description": "Download the files declared by src/task/step/steps/resources.json for one resource. Files are streamed to a .part file, checked when size or sha256 are declared, and then moved into place atomically.",
+    "doc": "src/task/step/steps/resource_fetch.ResourceFetchStep.md",
+    "status": "authored"
+  },
+  {
     "id": "resource_preflight",
     "kind": "operator",
     "title": "Large-resource preflight",
@@ -9060,6 +9070,16 @@
     "status": "generated"
   },
   {
+    "id": "structure_convert_format",
+    "kind": "operator",
+    "title": "Structure Format Conversion",
+    "category": "Structure",
+    "version": "1.0.0",
+    "description": "Convert a structure Form to a complete PDB file and back to a PDB-style Form.",
+    "doc": "src/task/step/steps/structure_convert_format.StructureConvertFormatStep.md",
+    "status": "authored"
+  },
+  {
     "id": "structure_disorder_profile",
     "kind": "operator",
     "title": "Structure disorder profile",
@@ -9108,6 +9128,16 @@
     "description": "",
     "doc": "src/task/step/steps/structure_dssp_segments.StructureDsspSegmentsStep.md",
     "status": "generated"
+  },
+  {
+    "id": "structure_extract_chain",
+    "kind": "operator",
+    "title": "Structure Chain Extraction",
+    "category": "Structure",
+    "version": "1.0.0",
+    "description": "Select chain A/B/... from a structure Form, write a native PDB and return a PDB-style Form.",
+    "doc": "src/task/step/steps/structure_extract_chain.StructureExtractChainStep.md",
+    "status": "authored"
   },
   {
     "id": "structure_glycosylation_sites",

@@ -104,6 +104,36 @@ package's own error, and the gated real test stays skipped.
 per expected file with its presence and size and records the remedy in
 `info["missing_resources"]`.
 
+## Link an existing copy instead of downloading
+
+Large weights are often already on the machine: a shared NFS dataset, a
+previous virtual environment, or a Windows drive. Linking reuses those bytes
+without copying them. The resource root becomes a junction (Windows) or a
+symbolic link (POSIX) to the existing tree, and the source is never modified.
+
+* Allowed sources are the `link_roots` declared in `resources.json` (top-level,
+  plus any per-resource `link_roots`). Add your own tree there before linking;
+  a source outside every allowed root is rejected.
+* The resource root itself and anything below it cannot be a source, and
+  relative paths or `..` components are rejected.
+* Authorised and idempotent through HTTP
+  `POST /api/v1/large-resources/{name}/link` with
+  `{"source": "/data/models/esm2", "replace": false}`, through MCP
+  `operon_resource_link(name, source, replace=False)`, or from the Resource
+  panel in the desktop app. `DELETE /api/v1/large-resources/{name}/link` and
+  MCP `operon_resource_unlink(name)` remove the link and keep the source.
+* Linking twice reports `already_linked`. A root that holds unmanaged data is
+  refused with `409` unless `replace=true`, and even then a populated real
+  directory is never deleted silently.
+* Windows links directories with `cmd /c mklink /J` and a single file on the
+  same volume with a hard link; when no link can be created the request fails
+  with an explicit error instead of copying the tree.
+* After linking, the service reads the first expected file through the link and
+  records `<resources base>/.receipts/receipt-<id>.json` with `kind`, `source`,
+  `target`, `mode`, `created_at`, `probe` and `probe_bytes`. `resource_preflight`
+  and the resource list report `linked` and `source` from that receipt, so the
+  state survives a restart, and `unlink` never has to write into the source.
+
 ## Manifest fields
 
 | field | meaning |
@@ -114,6 +144,9 @@ per expected file with its presence and size and records the remedy in
 | `files` | files that must exist below the root |
 | `install` | copy-paste installation command (quoted by the error message) |
 | `url` | official source |
+| `downloads` | per-file HTTPS downloads used by `resource_fetch` and the Resource panel |
+| `expected_files` | files verified after linking; defaults to `files` |
+| `link_roots` | directories allowed as link sources (top level or per resource) |
 
 ## Resources
 

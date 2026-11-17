@@ -1,15 +1,47 @@
 """Isolated operator environments: declared status, background preparation, logs."""
 from __future__ import annotations
 
-import asyncio
+import json
+import os
+import signal
+import subprocess
+import threading
 import time
 import uuid
+from pathlib import Path
 
 from fastapi import HTTPException
+
+# A complete environment is a few hundred megabytes to several gigabytes; the
+# panel polls every few seconds, so a short cache keeps /api/environments cheap.
+_SIZE_TTL = 90.0
+_VERSION_TTL = 300.0
+_USED_BY_LIMIT = 8
 
 
 def _now():
     return time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+
+
+def _iso(seconds):
+    """Render an epoch-seconds progress stamp as the ISO text the panel expects."""
+    if isinstance(seconds, str):
+        return seconds
+    if not isinstance(seconds, (int, float)) or not seconds:
+        return ''
+    return time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(float(seconds)))
+
+
+def _usage(directory):
+    size = files = 0
+    for parent, _, names in os.walk(directory):
+        for item in names:
+            try:
+                size += (Path(parent) / item).stat().st_size
+                files += 1
+            except OSError:
+                pass
+    return size, files
 
 
 def mount_environments(app, service):
@@ -18,7 +50,11 @@ def mount_environments(app, service):
     app.state.environment_tasks = set()
     jobs = {}
     current = {}
+    cancelled = set()
+    controls = {}
     logs = service.directory / 'environments'
+    sizes = {}
+    versions = {}
 
     def source_root():
         try:
@@ -40,6 +76,128 @@ def mount_environments(app, service):
         path = environments.manifest_path(source_root())
         return {'path': str(path), 'present': path.is_file()}
 
+    def declared():
+        """Raw manifest entries: notes/title are authored there, not in the planner."""
+        try:
+            entries = environments.load(source_root())
+        except Exception:
+            return {}
+        return entries if isinstance(entries, dict) else {}
+
+    def owners():
+        result = {}
+        for descriptor in descriptors():
+            name = (descriptor.get('resources') or {}).get('environment')
+            identifier = descriptor.get('id')
+            if name and identifier:
+                result.setdefault(name, []).append(identifier)
+        return {name: sorted(set(values)) for name, values in result.items()}
+
+    def size_bytes(location):
+        if not location:
+            return 0
+        cached = sizes.get(location)
+        now = time.monotonic()
+        if cached and cached[0] > now:
+            return cached[1]
+        try:
+            value = _usage(location)[0] if Path(location).is_dir() else 0
+        except OSError:
+            value = 0
+        sizes[location] = (now + _SIZE_TTL, value)
+        return value
+
+    def python_version(item):
+        interpreter = item.get('interpreter') or ''
+        if not interpreter:
+            return ''
+        try:
+            stamp = Path(interpreter).stat().st_mtime
+        except OSError:
+            stamp = 0
+        cached = versions.get(interpreter)
+        if cached and cached[0] > time.monotonic() and cached[1] == stamp:
+            return cached[2]
+        version = ''
+        meta = Path(item.get('location') or '') / 'conda-meta'
+        if meta.is_dir():
+            for path in sorted(meta.glob('python-3*.json'), reverse=True):
+                try:
+                    version = str(json.loads(path.read_text(encoding='utf-8')).get('version') or '')
+                except (OSError, ValueError):
+                    version = ''
+                if version:
+                    break
+        if not version:
+            try:
+                completed = subprocess.run(
+                    [interpreter, '-c', 'import platform; print(platform.python_version())'],
+                    capture_output=True, text=True, timeout=5)
+                version = completed.stdout.strip().splitlines()[0] if completed.stdout.strip() else ''
+            except Exception:
+                version = ''
+        versions[interpreter] = (time.monotonic() + _VERSION_TTL, stamp, version)
+        return version
+
+    def updated_at(name, item):
+        stamp = (item.get('progress') or {}).get('updated_at')
+        text = _iso(stamp)
+        if text:
+            return text
+        try:
+            created = environment_install.receipt(name, environments.root()).get('created_at')
+        except Exception:
+            created = ''
+        return created if isinstance(created, str) else ''
+
+    def augment(name, item, entry=None, used_by=None):
+        """Add the panel-facing facts without dropping any planner key."""
+        entry = entry if isinstance(entry, dict) else {}
+        notes = entry.get('notes')
+        item['title'] = str(entry.get('title') or name)
+        item['notes'] = notes if isinstance(notes, str) else ''
+        item['size_bytes'] = int(size_bytes(item.get('location') or ''))
+        item['python_version'] = python_version(item)
+        item['updated_at'] = updated_at(name, item)
+        owned = list(used_by if used_by is not None else item.get('used_by') or [])
+        item['used_by_count'] = len(owned)
+        item['used_by'] = owned[:_USED_BY_LIMIT]
+        return item
+
+    def described():
+        entries, owned = declared(), owners()
+        result = plan()
+        for name, item in result.items():
+            augment(name, item, entries.get(name), owned.get(name) or item.get('used_by') or [])
+        return result
+
+    def operation(value):
+        """Normalize one tracked job for the operations list."""
+        item = dict(value)
+        if item.get('id') in cancelled or item.get('cancelled'):
+            item['status'] = 'cancelled'
+        item['cancelable'] = item.get('status') == 'running'
+        info = {}
+        try:
+            info = environment_install.read_progress(item.get('name') or '') or {}
+        except Exception:
+            info = {}
+        if item.get('status') == 'running':
+            for key in ('phase', 'detail'):
+                if not item.get(key):
+                    item[key] = info.get(key) or ''
+            for key in ('bytes', 'files'):
+                if item.get(key) is None:
+                    item[key] = info.get(key, 0)
+            if not item.get('updated_at'):
+                item['updated_at'] = info.get('updated_at')
+        elif not item.get('finished_at'):
+            # Synthesised operations carry no finish stamp; the last progress
+            # write is the moment the work stopped.
+            item['finished_at'] = _iso(item.get('updated_at') or info.get('updated_at')) or None
+        item.pop('cancelled', None)
+        return item
+
     def snapshot():
         application = getattr(service, 'application', None)
         data = None
@@ -53,17 +211,19 @@ def mount_environments(app, service):
             operations.extend(data.get('operations') or [])
         known = {item.get('id') for item in operations}
         for job in list(jobs.values())[-20:]:
-            value = dict(job)
-            if value.get('status') == 'running':
-                info = environment_install.read_progress(value['name'])
-                value.update({'phase': info.get('phase'), 'bytes': info.get('bytes', 0),
-                              'files': info.get('files', 0), 'detail': info.get('detail', ''),
-                              'updated_at': info.get('updated_at')})
-            if value.get('id') not in known:
-                operations.append(value)
+            if job.get('id') not in known:
+                operations.append(job)
+        operations = [operation(value) for value in operations]
         if data is None:
             data = {'root': str(environments.root()), 'manifest': manifest(),
-                    'environments': plan()}
+                    'environments': described()}
+        else:
+            entries, owned = declared(), owners()
+            environments_data = data.get('environments') or {}
+            for name, item in environments_data.items():
+                if isinstance(item, dict):
+                    augment(name, item, entries.get(name), owned.get(name) or item.get('used_by') or [])
+            data = {**data, 'environments': environments_data}
         return {**data, 'operations': operations}
 
     def log_path(name):
@@ -80,6 +240,8 @@ def mount_environments(app, service):
                'started_at': _now(), 'finished_at': None}
         jobs[key] = job
         current[name] = key
+        control = environment_install._Control()
+        controls[key] = control
         log = log_path(name)
         log.write_text('', encoding='utf-8')
 
@@ -88,28 +250,53 @@ def mount_environments(app, service):
                 stream.write(str(line) + '\n')
                 stream.flush()
 
-        async def run():
+        def work():
             try:
-                result = await asyncio.to_thread(environment_install.prepare,
-                                                 name, None, source_root(), emit)
+                result = environment_install.prepare(name, None, source_root(), emit, control=control)
                 job['status'] = 'complete' if (result or {}).get('status') == 'ready' else 'failed'
                 job['error'] = (result or {}).get('error') or None
+            except environment_install.Cancelled:
+                job['status'] = 'cancelled'
+                job['error'] = None
+                emit(f'CANCELLED {name}')
             except Exception as exc:
                 job['status'] = 'failed'
                 job['error'] = str(exc)
                 emit(f'FAIL {name}: {exc}')
             finally:
+                if key in cancelled or control.stopped:
+                    job['status'] = 'cancelled'
+                    job['error'] = None
+                controls.pop(key, None)
                 job['finished_at'] = _now()
+                app.state.environment_tasks.discard(thread)
 
-        task = asyncio.create_task(run())
-        app.state.environment_tasks.add(task)
-        task.add_done_callback(app.state.environment_tasks.discard)
+        # FastAPI runs these sync handlers in its worker threadpool, where there is
+        # no event loop to hand an asyncio task to; the installer is blocking
+        # anyway, so a daemon thread keeps preparation off the request path.
+        thread = threading.Thread(target=work, name=f'environment-{name}', daemon=True)
+        app.state.environment_tasks.add(thread)
+        thread.start()
         return job
+
+    def signal_stop(name):
+        """Best-effort termination of the installer process; prepare() reports the failure."""
+        try:
+            pid = (environment_install.read_progress(name) or {}).get('pid')
+        except Exception:
+            pid = None
+        if not isinstance(pid, int) or pid <= 1:
+            return False
+        try:
+            os.kill(pid, getattr(signal, 'SIGTERM', 15))
+        except OSError:
+            return False
+        return True
 
     def import_summary():
         """Report declared environments after an import; installation stays explicit."""
         return {'root': str(environments.root()), 'manifest': manifest(),
-                'environments': plan(), 'prepared': []}
+                'environments': described(), 'prepared': []}
 
     service.environments_after_install = import_summary
 
@@ -124,12 +311,14 @@ def mount_environments(app, service):
             names = [name for name, item in plan().items() if item['status'] != 'ready']
         if not isinstance(names, list) or not all(isinstance(name, str) for name in names):
             raise HTTPException(422, '请提供需要准备的环境名称列表。')
-        prepared = []
         for name in names:
             try:
-                job = start(name)
+                environments.describe(name, source_root())
             except ValueError as exc:
                 raise HTTPException(404, str(exc)) from exc
+        prepared = []
+        for name in names:
+            job = start(name)
             prepared.append({'name': name, 'job': job['id'], 'status': job['status']})
         return {**snapshot(), 'prepared': prepared}
 
@@ -140,6 +329,34 @@ def mount_environments(app, service):
         except ValueError as exc:
             raise HTTPException(404, str(exc)) from exc
         return {**snapshot(), 'job': job['id']}
+
+    @app.post('/api/environments/{name}/cancel')
+    def cancel(name: str):
+        try:
+            environments.describe(name, source_root())
+        except ValueError as exc:
+            raise HTTPException(404, str(exc)) from exc
+        job_id = None
+        for job in list(jobs.values()):
+            if job.get('name') == name and job.get('status') == 'running':
+                cancelled.add(job['id'])
+                job['status'] = 'cancelled'
+                job_id = job['id']
+        application = getattr(service, 'application', None)
+        remote_jobs = getattr(application, '_environment_jobs', None) or {}
+        for job in list(remote_jobs.values()):
+            if job.get('name') == name and job.get('status') == 'running':
+                job['cancelled'] = True
+                if job.get('id'):
+                    cancelled.add(str(job['id']))
+                job_id = job_id or job.get('id')
+        if job_id is None:
+            raise HTTPException(404, '没有正在进行的准备任务。')
+        handle = controls.get(str(job_id)) if job_id is not None else None
+        if handle is not None:
+            handle.stop()
+        signal_stop(name)
+        return {**snapshot(), 'cancelled': True, 'job': job_id}
 
     @app.get('/api/environments/{name}/log')
     def read_log(name: str, limit: int = 200):

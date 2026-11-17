@@ -17,11 +17,13 @@ export type RouteCollectionSummary = {name: string; slug: string; imported_at: s
 export type EnvironmentProgress = {phase?: string; bytes?: number; files?: number; updated_at?: number};
 export type EnvironmentStatus = {
   name: string; python: string; spec_sha256: string; interpreter: string; location: string;
-  imports: string[]; status: 'missing' | 'stale' | 'ready' | 'failed'; error: string; used_by: string[];
+  imports: string[]; status: 'missing' | 'stale' | 'ready' | 'failed' | 'installing'; error: string; used_by: string[];
+  title?: string; notes?: string; size_bytes?: number; python_version?: string; updated_at?: string;
+  used_by_count?: number;
   progress?: EnvironmentProgress | null;
 };
 export type EnvironmentJob = {
-  id: string; name: string; status: 'running' | 'complete' | 'failed';
+  id: string; name: string; status: 'running' | 'complete' | 'failed' | 'cancelled'; cancelable?: boolean;
   error: string | null; started_at: string; finished_at: string | null;
   phase?: string; bytes?: number; files?: number; detail?: string; updated_at?: number;
 };
@@ -94,9 +96,9 @@ export class ApiError extends Error {
   }
 }
 export async function request<T>(path: string, body?: unknown,
-  options: {signal?: AbortSignal; storageSession?: string; timeoutMs?: number} = {}): Promise<T> {
+  options: {signal?: AbortSignal; storageSession?: string; timeoutMs?: number; method?: 'GET' | 'POST' | 'DELETE'} = {}): Promise<T> {
   const response = await fetch(base + path, {
-    method: body === undefined ? "GET" : "POST",
+    method: options.method ?? (body === undefined ? "GET" : "POST"),
     headers: {
       ...(token ? { "X-Studio-Token": token } : {}),
       ...(body === undefined ? {} : { "Content-Type": "application/json" }),
@@ -160,6 +162,7 @@ export const api = {
   prepareEnvironments: (names?: string[]) => request<EnvironmentSnapshot & {prepared: {name: string; job: string; status: string}[]}>('/api/environments/prepare', names ? {names} : {}),
   retryEnvironment: (name: string) => request<EnvironmentSnapshot & {job: string}>(`/api/environments/${encodeURIComponent(name)}/retry`, {}),
   environmentLog: (name: string, limit = 200) => request<{name: string; text: string}>(`/api/environments/${encodeURIComponent(name)}/log?limit=${limit}`),
+  cancelEnvironment: (name: string) => request<EnvironmentSnapshot & {cancelled: boolean; job: string}>(`/api/environments/${encodeURIComponent(name)}/cancel`, {}),
   version: () => request<StudioVersion>('/api/version'),
   pool: () => request<PoolStatus>('/api/pool'),
   stopPool: (force = false) =>
@@ -201,6 +204,11 @@ export const api = {
   disconnectRemote: (id: string) => request(`/api/remote/${id}/disconnect`, {}),
   removeRemote: (id: string) => request(`/api/remote/${id}/remove`, {}),
   browseRemote: (id: string, path: string, offset = 0, hidden = false) => request<import('./types').RemoteListing>(`/api/remote/${id}/browse`, {path, offset, hidden}),
+  largeResources: () => request<import('./types').LargeResourceSnapshot>('/api/resources'),
+  largeResourceLink: (name: string, source: string, replace = false) =>
+    request<import('./types').LargeResourceLinkResult>(`/api/resources/${encodeURIComponent(name)}/link`, {source, replace}),
+  largeResourceUnlink: (name: string) =>
+    request<import('./types').LargeResourceLinkResult>(`/api/resources/${encodeURIComponent(name)}/link`, undefined, {method: 'DELETE'}),
   storageRoots: (signal?: AbortSignal) => request<{roots: StorageRef[]}>('/api/v1/storage/roots', undefined, {signal}),
   browseStorage: (value: StorageBrowseRequest, session: string, signal?: AbortSignal) =>
     request<StoragePage>('/api/v1/storage/browse', value, {storageSession: session, signal}),

@@ -90,6 +90,29 @@
       "x-ui-group": "积分",
       "x-ui-order": 10
     },
+    "platform": {
+      "title": "计算平台",
+      "type": "string",
+      "default": "auto",
+      "enum": [
+        "auto",
+        "CUDA",
+        "OpenCL",
+        "CPU",
+        "Reference"
+      ],
+      "x-ui-group": "平台",
+      "x-ui-order": 1
+    },
+    "threads": {
+      "title": "CPU 线程数（0 表示按配额自动）",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 256,
+      "x-ui-group": "平台",
+      "x-ui-order": 2
+    },
     "forcefield": {
       "title": "力场文件（逗号分隔）",
       "type": "string",

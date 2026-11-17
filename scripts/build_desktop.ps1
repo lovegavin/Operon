@@ -1,7 +1,10 @@
 param([switch]$SkipFrontend, [string]$OutputDirectory, [switch]$NoRestore)
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
-$output = if ($OutputDirectory) { [System.IO.Path]::GetFullPath($OutputDirectory, $repo) } else { Join-Path $repo 'dist\Operon Studio' }
+$output = if ($OutputDirectory) {
+    if ([System.IO.Path]::IsPathRooted($OutputDirectory)) { [System.IO.Path]::GetFullPath($OutputDirectory) }
+    else { [System.IO.Path]::GetFullPath((Join-Path $repo $OutputDirectory)) }
+} else { Join-Path $repo 'dist\Operon Studio' }
 if (-not $env:DOTNET_CLI_HOME) { $env:DOTNET_CLI_HOME = Join-Path $repo '.local\dotnet' }
 if (-not $env:NUGET_PACKAGES) { $env:NUGET_PACKAGES = Join-Path $repo '.local\nuget' }
 $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'

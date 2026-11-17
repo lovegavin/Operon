@@ -1,5 +1,7 @@
 """Isolated environment planning, state and safety checks."""
 import json
+import sys
+import threading
 from pathlib import Path
 
 import pytest
@@ -70,3 +72,50 @@ def test_unknown_environment_is_reported(tmp_path):
     source = manifest(tmp_path / 'source', {})
     with pytest.raises(ValueError, match='unknown isolated environment'):
         environment_install.state('nope', tmp_path / 'external', source)
+
+
+def test_control_reports_cancellation():
+    stop = threading.Event()
+    control = environment_install._Control(stop)
+    control.check()
+    assert control.stopped is False
+    stop.set()
+    assert control.stopped is True
+    with pytest.raises(environment_install.Cancelled):
+        control.check()
+
+
+def test_run_kills_the_child_when_cancelled():
+    control = environment_install._Control()
+    timer = threading.Timer(0.5, control.stop)
+    timer.start()
+    try:
+        with pytest.raises(environment_install.Cancelled):
+            environment_install._run(
+                [sys.executable, '-c', 'import time; time.sleep(30)'], log=None, control=control)
+    finally:
+        timer.cancel()
+
+
+def test_run_reports_cancellation_even_when_the_kill_lands_first():
+    control = environment_install._Control()
+    timer = threading.Timer(0.2, control.stop)
+    timer.start()
+    try:
+        with pytest.raises(environment_install.Cancelled):
+            environment_install._run(
+                [sys.executable, '-c', 'import time; time.sleep(30)'], log=None, control=control)
+    finally:
+        timer.cancel()
+
+
+def test_prepare_stops_early_without_recording_a_failure(tmp_path):
+    source = manifest(tmp_path / 'source', {'demo': {'python': '3.11', 'imports': []}})
+    control = environment_install._Control()
+    control.stop()
+    with pytest.raises(environment_install.Cancelled):
+        environment_install.prepare('demo', tmp_path / 'external', source, control=control)
+    progress = environment_install.read_progress('demo', tmp_path / 'external')
+    assert progress['phase'] == 'cancelled'
+    assert 'error' not in progress
+    assert not (tmp_path / 'external' / '.operon-environment-errors' / 'demo.json').exists()

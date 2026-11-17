@@ -278,3 +278,18 @@ export type ExecutionResources = {targets: {target: TargetRef; name: string; cap
   reserved_bytes: number; available_bytes: number; active_jobs: number; queued_jobs: number;
   cpu_capacity: number; cpu_reserved: number}[]};
 export type BrowseRemote = (current: string, onSelected: (path: string, source?: DataSource, location?: TargetRef) => void, source?: boolean, target?: TargetRef, reader?: string) => void;
+
+export type LargeResourceDownload = {url: string; name?: string; dest?: string; size?: number; sha256?: string};
+export type LargeResource = {
+  id: string; title?: string; kind?: string; env?: string | null; root?: string | null;
+  present?: boolean; status?: string; missing?: string[]; files?: string[];
+  linked?: boolean; source?: string | null; mode?: string | null; size_bytes?: number;
+  expected_files?: string[]; link_roots?: string[]; used_by?: string[]; downloads?: LargeResourceDownload[];
+};
+export type LargeResourceOperation = {id: string; name?: string; kind?: string; status: string;
+  error?: string | null; started_at?: string; finished_at?: string | null; mode?: string | null;
+  root?: string | null; source?: string | null};
+export type LargeResourceSnapshot = {library?: {version?: string; tag?: string; release?: string};
+  library_root?: string; resources: LargeResource[]; operations: LargeResourceOperation[]};
+export type LargeResourceLinkResult = {id: string; status: string; mode?: string; source?: string;
+  root?: string; files?: string[]; operation?: string};

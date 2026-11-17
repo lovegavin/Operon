@@ -1,10 +1,12 @@
-"""Large-resource downloads for the installed operator library.
+"""Large-resource downloads and external links for the installed library.
 
 The library declares downloadable weights and databases in ``resources.json``;
 this module lists them, runs the library's own downloader in a background
-thread, tracks progress, and supports cancellation.  It deliberately keeps the
-HTTP surface tiny so the same functions back the desktop API, the versioned
-control API and the MCP adapter.
+thread, tracks progress, and supports cancellation.  It also links an existing
+local directory into a resource root without copying bytes, and reports which
+operators declare each resource.  It deliberately keeps the HTTP surface tiny so
+the same functions back the desktop API, the versioned control API and the MCP
+adapter.
 """
 from __future__ import annotations
 
@@ -23,6 +25,15 @@ _jobs: dict[str, dict] = {}
 _running: dict[str, str] = {}
 _cancel: dict[str, threading.Event] = {}
 _lock = threading.Lock()
+
+_SCAN_SUFFIXES = ('.parameters.json', '.py', '.md')
+_SCAN_LIMIT = 256 * 1024
+_used_by_cache: dict[tuple[str, str], dict[str, tuple[str, ...]]] = {}
+_used_by_lock = threading.Lock()
+
+
+class LinkUnsupported(RuntimeError):
+    """The installed operator library predates external resource linking."""
 
 
 def _now() -> str:
@@ -51,15 +62,101 @@ def _modules(service):
         sys.path.insert(0, text)
     common = importlib.import_module('operon_core.steps._resources_common')
     fetch = importlib.import_module('operon_core.steps.resource_fetch')
-    return root, common, fetch
+    try:
+        link = importlib.import_module('operon_core.steps.resource_link')
+    except ImportError:
+        link = None
+    return root, common, fetch, link
 
 
 def _resource(service, name: str):
-    root, common, fetch = _modules(service)
+    root, common, fetch, link = _modules(service)
     resources = common.load_resources(_manifest(root))
     if name not in resources:
         raise KeyError(name)
-    return root, common, fetch, resources[name]
+    return root, common, fetch, link, resources[name]
+
+
+def _expected_files(common, resource) -> list[str]:
+    """Expected relative file names, tolerating a library without the helper."""
+    getter = getattr(common, 'expected_files', None)
+    if callable(getter):
+        try:
+            return [str(name) for name in getter(resource)]
+        except Exception:  # noqa: BLE001 - a broken helper must not break listing
+            pass
+    declared = getattr(resource, 'expected_files', ()) or getattr(resource, 'files', ())
+    return [str(name) for name in declared or ()]
+
+
+def _link_roots(common) -> list[str]:
+    getter = getattr(common, 'link_roots', None)
+    if callable(getter):
+        try:
+            return [str(path) for path in getter() or []]
+        except Exception:  # noqa: BLE001 - an old helper must not break listing
+            pass
+    return []
+
+
+def _link_state(common, resource) -> dict:
+    getter = getattr(common, 'link_state', None)
+    if callable(getter):
+        try:
+            state = dict(getter(resource) or {})
+            return {'linked': bool(state.get('linked')), 'source': state.get('source'),
+                    'mode': state.get('mode')}
+        except Exception:  # noqa: BLE001
+            pass
+    return {'linked': False, 'source': None, 'mode': None}
+
+
+def _size_bytes(root, names) -> int:
+    if not root:
+        return 0
+    base = Path(str(root))
+    total = 0
+    for name in names:
+        try:
+            path = base / str(name)
+            if path.is_file():
+                total += path.stat().st_size
+        except OSError:
+            continue
+    return total
+
+
+def _used_by_map(root: Path, release: dict, probes: list[str]) -> dict[str, list[str]]:
+    """Map each resource env (or id) to operators whose files mention it."""
+    version = str(release.get('version') or release.get('tag') or '')
+    key = (str(root), version)
+    with _used_by_lock:
+        cached = _used_by_cache.get(key)
+    if cached is None:
+        found: dict[str, set[str]] = {}
+        try:
+            candidates = [path for path in root.rglob('*')
+                          if path.is_file() and path.name != 'resources.json'
+                          and path.name.endswith(_SCAN_SUFFIXES)]
+        except OSError:
+            candidates = []
+        for path in candidates:
+            try:
+                if path.stat().st_size > _SCAN_LIMIT:
+                    continue
+                content = path.read_text(encoding='utf-8', errors='replace')
+            except OSError:
+                continue
+            owner = path.name.split('.')[0]
+            if not owner:
+                continue
+            for probe in probes:
+                if probe and probe in content:
+                    found.setdefault(probe, set()).add(owner)
+        cached = {probe: tuple(sorted(owners)) for probe, owners in found.items()}
+        with _used_by_lock:
+            _used_by_cache[key] = cached
+    return {probe: list(owners) for probe, owners in cached.items()}
 
 
 def operation(job_id: str) -> dict | None:
@@ -68,14 +165,27 @@ def operation(job_id: str) -> dict | None:
 
 
 def snapshot(service) -> dict:
-    root, common, _ = _modules(service)
-    items = []
-    for resource in common.load_resources(_manifest(root)).values():
-        item = common.check_resource(resource)
-        item['downloads'] = [dict(entry) for entry in resource.downloads]
-        item['used_by'] = []
-        items.append(item)
+    root, common, _fetch, _link = _modules(service)
+    resources = common.load_resources(_manifest(root))
     release = service.plugins.state().get('library_release') or {}
+    probes = [resource.env or resource.id for resource in resources.values()]
+    used_by = _used_by_map(root, release, [probe for probe in probes if probe])
+    link_roots = _link_roots(common)
+    items = []
+    for resource in resources.values():
+        item = common.check_resource(resource)
+        names = _expected_files(common, resource)
+        state = _link_state(common, resource)
+        probe = resource.env or resource.id
+        item['downloads'] = [dict(entry) for entry in resource.downloads]
+        item['used_by'] = used_by.get(probe, [])
+        item['link_roots'] = list(link_roots)
+        item['expected_files'] = names
+        item['linked'] = bool(item.get('linked', state['linked']))
+        item['source'] = item.get('source') or state['source']
+        item['mode'] = item.get('mode') or state['mode']
+        item['size_bytes'] = _size_bytes(item.get('root'), names)
+        items.append(item)
     return {
         'library': release,
         'library_root': str(Path(service.plugins.directory)),
@@ -164,7 +274,7 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
 
 
 def start(service, name: str, root: str | None = None, overwrite: bool = False) -> dict:
-    _code_root_path, common, fetch, resource = _resource(service, name)
+    _root_path, _common, fetch, _link_module, resource = _resource(service, name)
     if not resource.downloads:
         raise ValueError(f"resource '{name}' has no downloadable files")
     with _lock:
@@ -260,6 +370,55 @@ def read_log(service, name: str, limit: int = 200) -> dict:
     return {'name': name, 'text': chr(10).join(lines[-limit:])}
 
 
+def _record_link(name: str, status: str, result: dict, *, source: str = '') -> dict:
+    job = {'id': uuid.uuid4().hex, 'name': name, 'kind': 'link', 'status': status,
+           'error': None, 'started_at': _now(), 'finished_at': _now(),
+           'bytes': 0, 'files': len(result.get('files') or []), 'completed_bytes': 0,
+           'phase': 'complete', 'current': str(result.get('source') or source or ''),
+           'mode': result.get('mode'), 'root': result.get('root'),
+           'source': result.get('source') or source or None}
+    with _lock:
+        _jobs[job['id']] = job
+    return job
+
+
+def link(service, name: str, source: str, replace: bool = False) -> dict:
+    """Link an existing local tree into the resource root without copying bytes."""
+    _root, common, _fetch, link_module, resource = _resource(service, name)
+    operation_link = getattr(link_module, 'link', None) if link_module is not None else None
+    if not callable(operation_link):
+        raise LinkUnsupported('The installed library does not support linking existing resources.')
+    result = dict(operation_link(resource, source, replace=bool(replace),
+                                 allowed_roots=_link_roots(common)) or {})
+    result.setdefault('id', result.get('name') or name)
+    job = _record_link(name, 'linked', result, source=source)
+    result['operation'] = job['id']
+    return result
+
+
+def unlink(service, name: str) -> dict:
+    """Remove the external link recorded for one resource, keeping the source."""
+    _root, common, _fetch, link_module, resource = _resource(service, name)
+    operation_unlink = getattr(link_module, 'unlink', None) if link_module is not None else None
+    if not callable(operation_unlink):
+        raise LinkUnsupported('The installed library does not support unlinking resources.')
+    result = dict(operation_unlink(resource) or {})
+    result.setdefault('id', result.get('name') or name)
+    resolve = getattr(common, 'resolve_root', None)
+    root = None
+    if callable(resolve):
+        try:
+            resolved = resolve(resource)
+        except Exception:  # noqa: BLE001 - reporting must not fail a successful unlink
+            resolved = None
+        if resolved:
+            root = str(resolved)
+    result.setdefault('root', root)
+    job = _record_link(name, 'unlinked', result)
+    result['operation'] = job['id']
+    return result
+
+
 def mount_resources(app, service) -> None:
     @app.get('/api/resources')
     def list_resources():
@@ -275,6 +434,30 @@ def mount_resources(app, service) -> None:
             return start(service, name, body.get('root'), bool(body.get('overwrite', False)))
         except KeyError as exc:
             raise HTTPException(404, f"unknown resource: {name}") from exc
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from exc
+
+    @app.post('/api/resources/{name}/link')
+    def link_resource(name: str, payload: dict | None = None):
+        body = payload or {}
+        try:
+            return link(service, name, str(body.get('source') or ''),
+                        bool(body.get('replace', False)))
+        except KeyError as exc:
+            raise HTTPException(404, f"unknown resource: {name}") from exc
+        except LinkUnsupported as exc:
+            raise HTTPException(501, str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from exc
+
+    @app.delete('/api/resources/{name}/link')
+    def unlink_resource(name: str):
+        try:
+            return unlink(service, name)
+        except KeyError as exc:
+            raise HTTPException(404, f"unknown resource: {name}") from exc
+        except LinkUnsupported as exc:
+            raise HTTPException(501, str(exc)) from exc
         except ValueError as exc:
             raise HTTPException(409, str(exc)) from exc
 

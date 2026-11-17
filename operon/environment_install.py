@@ -152,8 +152,39 @@ def _emit(log, message):
         print(message, flush=True)
 
 
-def _run(argv, *, log, env=None, timeout=3600, progress=None):
+class Cancelled(RuntimeError):
+    """Raised when the user cancels an environment preparation."""
+
+
+class _Control:
+    """Cooperative cancellation handle shared by the web layer and the installer."""
+
+    def __init__(self, event=None):
+        self.event = event or threading.Event()
+        self.process = None
+
+    @property
+    def stopped(self):
+        return self.event.is_set()
+
+    def check(self):
+        if self.event.is_set():
+            raise Cancelled('preparation was cancelled')
+
+    def stop(self):
+        self.event.set()
+        process = self.process
+        if process is not None and process.poll() is None:
+            try:
+                process.kill()
+            except OSError:
+                pass
+
+
+def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None):
     command = [str(part) for part in argv]
+    if control is not None:
+        control.check()
     _emit(log, '$ ' + ' '.join(command))
     if progress is not None:
         progress.update({'command': ' '.join(command)[:400], 'pid': None, 'updated_at': _now()})
@@ -162,12 +193,31 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None):
     if progress is not None:
         progress['pid'] = process.pid
         progress['updated_at'] = _now()
+    if control is not None:
+        control.process = process
+    deadline = time.monotonic() + timeout if timeout else None
     try:
-        output, _ = process.communicate(timeout=timeout)
-    except subprocess.TimeoutExpired:
-        process.kill()
-        output, _ = process.communicate()
-        raise RuntimeError(f'{" ".join(command[:3])} timed out after {timeout}s')
+        while True:
+            try:
+                output, _ = process.communicate(timeout=0.5)
+                break
+            except subprocess.TimeoutExpired:
+                if control is not None and control.stopped:
+                    process.kill()
+                    try:
+                        process.communicate()
+                    except Exception:
+                        pass
+                    raise Cancelled(f'preparation was cancelled during {" ".join(command[:2])}')
+                if deadline is not None and time.monotonic() > deadline:
+                    process.kill()
+                    output, _ = process.communicate()
+                    raise RuntimeError(f'{" ".join(command[:3])} timed out after {timeout}s')
+    finally:
+        if control is not None:
+            control.process = None
+    if control is not None and control.stopped:
+        raise Cancelled(f'preparation was cancelled during {" ".join(command[:2])}')
     tail = output or ''
     for line in [line for line in tail.splitlines() if line.strip()][-25:]:
         _emit(log, '  ' + line)
@@ -275,23 +325,23 @@ def _commit(name: str, staging: Path, final: Path) -> None:
         shutil.rmtree(previous, ignore_errors=True)
 
 
-def _create(entry: dict, staging: Path, log, root=None, progress=None):
+def _create(entry: dict, staging: Path, log, root=None, progress=None, control=None):
     if entry.get('venv_shared'):
         _run([sys.executable, '-m', 'venv', '--system-site-packages', staging], log=log, timeout=900,
-             progress=progress)
+             progress=progress, control=control)
         return
     mamba = _micromamba(base(root), log)
     env = _mamba_env(base(root))
     if entry.get('clone_shared'):
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '--clone', sys.prefix], log=log, env=env,
-             timeout=1800, progress=progress)
+             timeout=1800, progress=progress, control=control)
     else:
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '-c', CONDA_FORGE, '--override-channels',
               '--strict-channel-priority', 'python=' + str(entry.get('python', '3.11')), 'pip'],
-             log=log, env=env, timeout=1800, progress=progress)
+             log=log, env=env, timeout=1800, progress=progress, control=control)
 
 
-def _install(entry: dict, staging: Path, log, root=None, progress=None):
+def _install(entry: dict, staging: Path, log, root=None, progress=None, control=None):
     python = _python(staging)
     # Use the extended prefix only for pip filesystem writes. Keep the actual
     # interpreter and DLL lookup paths native (the retained 5.1.9 loader fix).
@@ -302,36 +352,36 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None):
     # Base build tooling must exist before any source build or `--no-build-isolation` install.
     # `pkg_resources` ships with setuptools below 81; some packages (pdbfixer) still import it.
     _run([*install, *PIP_TRANSFER, '--no-input', *PIP_INDEX,
-          'setuptools>=68,<81', 'wheel'], log=log, timeout=900, progress=progress)
+          'setuptools>=68,<81', 'wheel'], log=log, timeout=900, progress=progress, control=control)
     conda_packages = entry.get('conda_packages') or []
     if conda_packages:
         mamba = _micromamba(base(root), log)
         _run([mamba, '--no-rc', 'install', '-y', '-p', staging, '-c', CONDA_FORGE, '--override-channels',
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
-             timeout=1800, progress=progress)
+             timeout=1800, progress=progress, control=control)
     if entry.get('torch_cpu'):
         _run([*install, *PIP_TRANSFER, 'torch',
               '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
-             progress=progress)
+             progress=progress, control=control)
     if direct:
         _run([*install, *PIP_TRANSFER, *PIP_INDEX, *direct], log=log,
-             timeout=1800, progress=progress)
+             timeout=1800, progress=progress, control=control)
     wheels = entry.get('pip_wheels') or []
     if wheels:
         _run([*install, *PIP_TRANSFER, '--only-binary=:all:', *PIP_INDEX, *wheels],
-             log=log, timeout=1800, progress=progress)
+             log=log, timeout=1800, progress=progress, control=control)
     requirements = entry.get('requirements') or []
     if requirements:
         _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *requirements],
-             log=log, timeout=2400, progress=progress)
+             log=log, timeout=2400, progress=progress, control=control)
     no_deps = entry.get('no_deps') or []
     if no_deps:
         _run([*install, *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *no_deps], log=log,
-             timeout=2400, progress=progress)
+             timeout=2400, progress=progress, control=control)
     no_build = entry.get('no_build_isolation') or []
     if no_build:
         _run([*install, *PIP_TRANSFER, '--no-build-isolation', *no_build], log=log,
-             timeout=3600, progress=progress)
+             timeout=3600, progress=progress, control=control)
 
 
 def _probe_environment(python: Path) -> dict[str, str]:
@@ -343,19 +393,46 @@ def _probe_environment(python: Path) -> dict[str, str]:
     return env
 
 
-def _probe(python: Path, entry: dict, log, progress=None):
+def _probe(python: Path, entry: dict, log, progress=None, control=None):
     python = environments._native_path(python)
     modules = entry.get('imports') or []
     if not modules:
         return ''
     script = ';'.join('import ' + module for module in modules)
     _run([python, '-X', 'utf8', '-c', script], log=log, env=_probe_environment(python),
-         timeout=600, progress=progress)
+         timeout=600, progress=progress, control=control)
     return script
 
 
-def prepare(name: str, root=None, source=None, log=None) -> dict:
+def _force_remove(function, path, excinfo):
+    """Retry a removal after making the entry writable (Windows keeps read-only flags)."""
+    try:
+        os.chmod(path, 0o700)
+    except OSError:
+        pass
+    try:
+        function(path)
+    except OSError:
+        pass
+
+
+def _remove_tree(path, *, attempts=6, delay=0.3) -> bool:
+    """Remove a staging tree even while a killed interpreter still holds handles."""
+    path = Path(path)
+    for attempt in range(attempts):
+        if not path.exists():
+            return True
+        shutil.rmtree(path, onerror=_force_remove)
+        if not path.exists():
+            return True
+        time.sleep(delay * (attempt + 1))
+    shutil.rmtree(path, ignore_errors=True)
+    return not path.exists()
+
+
+def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
     """Create or refresh one declared environment; safe to call concurrently."""
+    control = control or _Control()
     manifest = environments.manifest_path(source)
     if not manifest.is_file():
         raise FileNotFoundError(
@@ -369,6 +446,8 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
         lock.__enter__()
     except TimeoutError:
         raise RuntimeError(f'environment {name} is already being prepared')
+    for leftover in base(root).glob(f'.staging-{name}-*'):
+        _remove_tree(leftover, attempts=1)
     staging = base(root) / f'.staging-{name}-{uuid.uuid4().hex[:8]}'
     now = lambda: time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
     progress = {'name': name, 'phase': 'creating', 'detail': '', 'bytes': 0, 'files': 0,
@@ -394,12 +473,16 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
     threading.Thread(target=watch, name=f'environment-progress-{name}', daemon=True).start()
     try:
         note(f'preparing isolated environment {name} at {target(name, root)}')
-        _create(entry, staging, note, root, progress=progress)
+        control.check()
+        _create(entry, staging, note, root, progress=progress, control=control)
+        control.check()
         progress['phase'] = 'installing'
-        _install(entry, staging, note, root, progress=progress)
+        _install(entry, staging, note, root, progress=progress, control=control)
+        control.check()
         progress['phase'] = 'probing'
         python = _python(staging)
-        script = _probe(python, entry, note, progress=progress)
+        script = _probe(python, entry, note, progress=progress, control=control)
+        control.check()
         progress['phase'] = 'committing'
         (staging / 'receipt.json').write_text(json.dumps({
             'schema': 1, 'name': name, 'python': str(entry.get('python', '3.11')),
@@ -412,6 +495,15 @@ def prepare(name: str, root=None, source=None, log=None) -> dict:
         _error_path(name, root).unlink(missing_ok=True)
         progress['phase'] = 'ready'
         note(f'environment {name} is ready')
+    except Cancelled:
+        progress['phase'] = 'cancelled'
+        progress.pop('error', None)
+        _remove_tree(staging)
+        try:
+            _error_path(name, root).unlink(missing_ok=True)
+        except OSError:
+            pass
+        raise
     except BaseException as error:
         progress['phase'] = 'failed'
         progress['error'] = str(error)

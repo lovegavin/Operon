@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import subprocess
 import tempfile
@@ -70,7 +71,6 @@ def design_command(
         f"inference.output_prefix={(outdir / 'design').as_posix()}",
         f"inference.num_designs={int(params.get('num_designs') or 1)}",
         f"contigmap.contigs=[{parse_contigs(str(params.get('contigs') or ''))}]",
-        f"inference.device={params.get('device') or 'cpu'}",
     ]
     if structure is not None:
         command.append(f"inference.input_pdb={structure.as_posix()}")
@@ -184,6 +184,12 @@ class RfdiffusionDesignStep(Step):
             outdir = Path(work) / "out"
             outdir.mkdir(parents=True, exist_ok=True)
             command = design_command(params, runner, structure, outdir)
+            environment = os.environ.copy()
+            environment['PYTHONPATH'] = str(repo) + (os.pathsep + environment['PYTHONPATH'] if environment.get('PYTHONPATH') else '')
+            interpreter = Path(python)
+            if interpreter.is_file() and interpreter.parent.parent.joinpath('lib').is_dir():
+                lib = str(interpreter.parent.parent / 'lib')
+                environment['LD_LIBRARY_PATH'] = lib + (os.pathsep + environment['LD_LIBRARY_PATH'] if environment.get('LD_LIBRARY_PATH') else '')
             try:
                 completed = subprocess.run(
                     command,
@@ -191,7 +197,7 @@ class RfdiffusionDesignStep(Step):
                     capture_output=True,
                     text=True,
                     timeout=timeout,
-                    env=None,
+                    env=environment,
                 )
             except FileNotFoundError as exc:
                 raise StepError(

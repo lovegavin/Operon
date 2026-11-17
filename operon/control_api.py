@@ -86,6 +86,24 @@ class RouteCollectionRequest(LibraryRequest):
     pass
 
 
+def _missing_job(error: Exception) -> bool:
+    """Whether a backend lookup reported a job that does not exist."""
+    if isinstance(error, KeyError):
+        return True
+    try:
+        from .pool_service import PoolClientError
+    except Exception:  # pragma: no cover - optional service module
+        return False
+    if not isinstance(error, PoolClientError):
+        return False
+    text = str(error).lower()
+    return 'unknown' in text or 'not found' in text or 'no such' in text
+
+
+def _unknown_job(key: str) -> CommandError:
+    return CommandError('unknown_job', f'unknown job: {key}', 404)
+
+
 def mount_control(app, application, bridge):
     from .viewer_api import mount_viewers
     mount_viewers(app, application, bridge)
@@ -112,7 +130,8 @@ def mount_control(app, application, bridge):
                 'capabilities': ['workflows', 'tasks', 'artifacts', 'operator-docs', 'canvas-sessions', 'agent-guides', 'brief-views', 'result-viewers', 'workflow-readiness', 'explicit-environment-preparation', 'transaction-diffs',
                                 'task-scaffolding', 'workspace-files', 'workspace-binary-files',
                                 'library-install', 'route-collection-import', 'storage-browse', 'storage-preview',
-                                'plan-compile', 'plan-submit', 'run-plan-export', 'large-resource-download'],
+                                'plan-compile', 'plan-submit', 'run-plan-export', 'large-resource-download',
+                                'large-resource-link'],
                 'guides_href': '/api/v1/guides', 'openapi_href': '/api/v1/openapi.json',
                 'permission_scopes': ['context', 'edit', 'run', 'plugins']}
 
@@ -161,6 +180,36 @@ def mount_control(app, application, bridge):
                                       bool(body.get('overwrite', False)))
         except KeyError as error:
             raise CommandError('unknown_resource', f'unknown resource: {name}') from error
+        except ValueError as error:
+            raise CommandError('resource_rejected', str(error), 409) from error
+
+    @app.post('/api/v1/large-resources/{name}/link')
+    def large_resource_link(request: Request, name: str, payload: dict | None = None):
+        authorize(request, 'plugins')
+        from src.web import resource_api
+        body = payload or {}
+        try:
+            return resource_api.link(application.service, name, str(body.get('source') or ''),
+                                     bool(body.get('replace', False)))
+        except KeyError as error:
+            raise CommandError('unknown_resource', f'unknown resource: {name}') from error
+        except resource_api.LinkUnsupported as error:
+            raise CommandError('link_unsupported', str(error), 501) from error
+        except ValueError as error:
+            raise CommandError('link_rejected', str(error), 409) from error
+
+    @app.delete('/api/v1/large-resources/{name}/link')
+    def large_resource_unlink(request: Request, name: str):
+        authorize(request, 'plugins')
+        from src.web import resource_api
+        try:
+            return resource_api.unlink(application.service, name)
+        except KeyError as error:
+            raise CommandError('unknown_resource', f'unknown resource: {name}') from error
+        except resource_api.LinkUnsupported as error:
+            raise CommandError('link_unsupported', str(error), 501) from error
+        except ValueError as error:
+            raise CommandError('link_rejected', str(error), 409) from error
 
     @app.post('/api/v1/large-resources/{name}/cancel')
     def large_resource_cancel(request: Request, name: str):
@@ -313,26 +362,48 @@ def mount_control(app, application, bridge):
     def job(key: str, request: Request, view: Literal['brief', 'full'] = 'full'):
         authorize(request)
         from .agent_views import job_view
-        return job_view(application.jobs.details(key), view)
+        try:
+            detail = application.jobs.details(key)
+        except Exception as error:
+            if _missing_job(error):
+                raise _unknown_job(key) from error
+            raise
+        return job_view(detail, view)
 
     @app.post('/api/v1/jobs/{key}/cancel')
     def cancel(key: str, request: Request):
         authorize(request, 'run')
-        return application.jobs.cancel(key)
+        try:
+            return application.jobs.cancel(key)
+        except Exception as error:
+            if _missing_job(error):
+                raise _unknown_job(key) from error
+            raise
 
     @app.get('/api/v1/jobs/{key}/logs')
     def logs(key: str, request: Request, offset: int = 0, limit: int = 65536,
              encoding: Literal['text', 'base64', 'both'] = 'both'):
         authorize(request)
         from .agent_views import log_view
-        return log_view(application.jobs.logs(key, offset=offset, limit=limit), encoding)
+        try:
+            entries = application.jobs.logs(key, offset=offset, limit=limit)
+        except Exception as error:
+            if _missing_job(error):
+                raise _unknown_job(key) from error
+            raise
+        return log_view(entries, encoding)
 
     @app.get('/api/v1/jobs/{key}/parameters')
     def parameters(key: str, request: Request):
         authorize(request)
         from src.web.models import Graph
         from src.web.parameters import split_graph
-        job = application.jobs.details(key)
+        try:
+            job = application.jobs.details(key)
+        except Exception as error:
+            if _missing_job(error):
+                raise _unknown_job(key) from error
+            raise
         _, values = split_graph(Graph.model_validate(job['graph']))
         return {'job_id': key, 'values': values,
                 'execution': job['graph'].get('runtime', {}).get('execution', {}),
@@ -370,7 +441,12 @@ def mount_control(app, application, bridge):
     @app.get('/api/v1/jobs/{key}/results')
     def results(key: str, request: Request):
         authorize(request)
-        return application.artifacts.results(key)
+        try:
+            return application.artifacts.results(key)
+        except Exception as error:
+            if _missing_job(error):
+                raise _unknown_job(key) from error
+            raise
 
     @app.get('/api/v1/jobs/{key}/results/file')
     def result_file(key: str, path: str, request: Request):

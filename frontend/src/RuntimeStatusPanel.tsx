@@ -1,185 +1,475 @@
-import { useEffect, useRef, useState } from 'react';
-import { Modal } from './RouteDialogs';
-import { t } from './i18n';
-import { api } from './api';
-import type { EnvironmentSnapshot, PoolStatus, RemoteEnvironments, StudioVersion } from './api';
+import {useEffect, useState} from 'react';
+import {Modal} from './RouteDialogs';
+import {t} from './i18n';
+import {api} from './api';
+import type {
+  EnvironmentJob, EnvironmentSnapshot, PoolStatus, RemoteEnvironments, StudioVersion,
+} from './api';
 
-function size(bytes: number) {
-  if (!bytes) return '0 B';
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let value = bytes, index = 0;
-  while (value >= 1024 && index < units.length - 1) { value /= 1024; index += 1; }
-  return `${value.toFixed(index ? 1 : 0)} ${units[index]}`;
-}
-
-const statusLabel: Record<string, string> = {
-  missing: '未安装', stale: '需要更新', ready: '已就绪', failed: '准备失败',
-  running: '安装中', complete: '已完成', queued: '排队中', preparing: '准备中',
-  recovery_required: '需要恢复',
+export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
+  title?: string;
+  notes?: string;
+  size_bytes?: number;
+  python_version?: string;
+  updated_at?: string;
+  used_by_count?: number;
+};
+export type EnvironmentOperation = EnvironmentJob & {cancelable?: boolean};
+export type EnvironmentView = Omit<EnvironmentSnapshot, 'environments' | 'operations'> & {
+  environments: Record<string, EnvironmentItem>;
+  operations: EnvironmentOperation[];
 };
 
-export function RuntimeStatusPanel({ onClose }: { onClose: () => void }) {
+export type Tone = 'ready' | 'missing' | 'stale' | 'installing' | 'failed';
+export type Action = 'prepare' | 'repair' | 'log' | 'cancel';
+
+const tones: Tone[] = ['ready', 'missing', 'stale', 'installing', 'failed'];
+
+/** Status chips share this mapping: green ready, grey missing, amber stale, blue installing, red failed. */
+export function statusTone(status: string): Tone {
+  switch (status) {
+    case 'ready':
+    case 'complete':
+      return 'ready';
+    case 'stale':
+      return 'stale';
+    case 'installing':
+    case 'running':
+      return 'installing';
+    case 'failed':
+      return 'failed';
+    default:
+      return 'missing';
+  }
+}
+
+const statusKeys: Record<Tone, string> = {
+  ready: '已就绪',
+  missing: '未安装',
+  stale: '需要更新',
+  installing: '安装中',
+  failed: '准备失败',
+};
+
+export function statusLabelKey(status: string) {
+  return statusKeys[statusTone(status)];
+}
+
+const phaseKeys: Record<string, string> = {
+  creating: '创建环境',
+  installing: '安装依赖',
+  probing: '校验导入',
+  committing: '提交环境',
+  ready: '已就绪',
+  failed: '准备失败',
+};
+
+export function phaseLabel(phase?: string) {
+  if (!phase) return t('准备中');
+  return t(phaseKeys[phase] || '准备中');
+}
+
+export function availableActions(status: string): Action[] {
+  const actions: Action[] = [];
+  if (status === 'missing' || status === 'cancelled') actions.push('prepare');
+  if (status === 'stale' || status === 'failed') actions.push('repair');
+  actions.push('log');
+  if (statusTone(status) === 'installing') actions.push('cancel');
+  return actions;
+}
+
+export function summarize(items: EnvironmentItem[]) {
+  const counts = {total: items.length, ready: 0, missing: 0, stale: 0, installing: 0, failed: 0};
+  for (const item of items) {
+    const tone = statusTone(item.status);
+    if (tone === 'missing') counts.missing += 1;
+    else counts[tone] += 1;
+  }
+  return counts;
+}
+
+export function formatBytes(bytes?: number) {
+  if (!bytes || bytes < 0) return '—';
+  if (bytes < 1024) return `${bytes} B`;
+  const units = ['KB', 'MB', 'GB', 'TB'];
+  let value = bytes / 1024;
+  let index = 0;
+  while (value >= 1024 && index < units.length - 1) {
+    value /= 1024;
+    index += 1;
+  }
+  const rounded = value >= 10 ? value.toFixed(0) : value.toFixed(1);
+  return `${rounded.replace(/\.0$/, '')} ${units[index]}`;
+}
+
+export function formatElapsed(start?: string | null, now: number = Date.now()) {
+  if (!start) return '—';
+  const from = Date.parse(start);
+  if (!Number.isFinite(from)) return '—';
+  const seconds = Math.max(0, Math.round((now - from) / 1000));
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ${seconds % 60}s`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours}h ${minutes % 60}m`;
+}
+
+/** The manifest `notes` field is prose; the card shows one sentence of it. */
+export function purposeOf(item: EnvironmentItem) {
+  const notes = (item.notes || '').trim();
+  if (!notes) return '';
+  const line = notes.split('\n').map(part => part.trim()).find(Boolean) || '';
+  return line.length > 160 ? `${line.slice(0, 157)}…` : line;
+}
+
+export function shortId(id?: string) {
+  if (!id) return '';
+  return id.length > 8 ? `${id.slice(0, 8)}…` : id;
+}
+
+export function usedByText(item: EnvironmentItem) {
+  const names = item.used_by || [];
+  const total = item.used_by_count ?? names.length;
+  if (!total) return t('无');
+  const head = names.slice(0, 3);
+  const suffix = total > head.length ? ` +${total - head.length}` : '';
+  return `${head.join(' · ')}${suffix}`;
+}
+
+export function actionLabel(action: Action) {
+  return t({prepare: '准备', repair: '修复', log: '查看日志', cancel: '取消'}[action]);
+}
+
+function progressText(item: EnvironmentItem) {
+  const phase = item.progress?.phase;
+  const size = formatBytes(item.progress?.bytes);
+  const label = phase ? phaseLabel(phase) : t('正在安装…');
+  return size === '—' ? label : `${label} · ${size}`;
+}
+
+export function SummaryStrip({items, busy, onPrepareAll, onRefresh}: {
+  items: EnvironmentItem[];
+  busy: boolean;
+  onPrepareAll: () => void;
+  onRefresh: () => void;
+}) {
+  const counts = summarize(items);
+  const pending = counts.missing + counts.stale + counts.failed;
+  return <div className="runtime-summary">
+    <div className="runtime-summary-counts" aria-live="polite" aria-label={t('环境概况')}>
+      <strong>{t('{count} 个环境', {count: counts.total})}</strong>
+      {tones.filter(tone => counts[tone] > 0).map(tone =>
+        <span className="runtime-summary-item" data-status={tone} key={tone}>
+          <i className="runtime-dot" aria-hidden="true"/>
+          {t('{count} {label}', {count: counts[tone], label: t(statusKeys[tone])})}
+        </span>)}
+    </div>
+    <div className="runtime-summary-actions">
+      <button className="subtle-button" disabled={busy} onClick={onRefresh}>{t('刷新')}</button>
+      <button className="primary-button" disabled={busy || pending === 0} onClick={onPrepareAll}>{t('全部准备')}</button>
+    </div>
+  </div>;
+}
+
+export function EnvironmentCard({item, busy = false, onAction}: {
+  item: EnvironmentItem;
+  busy?: boolean;
+  onAction?: (action: Action, name: string) => void;
+}) {
+  const tone = statusTone(item.status);
+  const installing = tone === 'installing';
+  return <article className="runtime-card" data-status={tone} data-testid={`environment-${item.name}`}>
+    <header className="runtime-card-head">
+      <div className="runtime-card-title">
+        <h3>{item.title || item.name}</h3>
+        <code>{item.name}</code>
+      </div>
+      <span className={`runtime-chip is-${tone}`} data-status={tone}>{t(statusKeys[tone])}</span>
+    </header>
+    <p className="runtime-purpose" title={item.notes || undefined}>
+      {purposeOf(item) || t('暂无说明')}
+    </p>
+    {installing && <div className="runtime-progress" role="progressbar" aria-label={t('安装进度')}
+      aria-valuetext={progressText(item)}>
+      <span className="runtime-progress-bar"/>
+      <small>{progressText(item)}</small>
+    </div>}
+    <dl className="runtime-facts">
+      <div><dt>{t('Python 版本')}</dt><dd>{item.python_version || item.python || '—'}</dd></div>
+      <div><dt>{t('占用空间')}</dt><dd>{formatBytes(item.size_bytes)}</dd></div>
+      <div><dt>{t('使用算子')}</dt><dd title={(item.used_by || []).join(', ')}>{usedByText(item)}</dd></div>
+    </dl>
+    <footer className="runtime-actions">
+      {availableActions(item.status).map(action =>
+        <button key={action}
+          className={`subtle-button${action === 'prepare' || action === 'repair' ? ' is-primary' : ''}${action === 'cancel' ? ' is-danger' : ''}`}
+          disabled={busy}
+          onClick={() => onAction?.(action, item.name)}>
+          {actionLabel(action)}
+        </button>)}
+    </footer>
+  </article>;
+}
+
+export function OperationList({operations, now = Date.now(), onCancel}: {
+  operations: EnvironmentOperation[];
+  now?: number;
+  onCancel?: (name: string) => void;
+}) {
+  const running = operations.filter(operation => operation.status === 'running');
+  if (!running.length) return null;
+  return <section className="runtime-operations" aria-label={t('进行中的操作')}>
+    <h3>{t('进行中的操作')}</h3>
+    {running.map(operation => <div className="runtime-operation" key={operation.id}
+      data-testid={`operation-${operation.id}`}>
+      <strong>{operation.name}</strong>
+      <code title={operation.id}>{shortId(operation.id)}</code>
+      <span className="runtime-op-phase">{phaseLabel(operation.phase)}</span>
+      <span className="runtime-op-elapsed">{formatElapsed(operation.started_at, now)}</span>
+      {operation.cancelable !== false &&
+        <button className="subtle-button is-danger" onClick={() => onCancel?.(operation.name)}>{t('取消')}</button>}
+    </div>)}
+  </section>;
+}
+
+export function LogDrawer({name, text, pending, error, onClose, onRefresh}: {
+  name: string;
+  text: string;
+  pending: boolean;
+  error: string;
+  onClose: () => void;
+  onRefresh: () => void;
+}) {
+  return <section className="runtime-log-drawer" aria-label={t('操作日志')}>
+    <header>
+      <h3>{t('{name} 的日志', {name})}</h3>
+      <div className="runtime-actions">
+        <button className="subtle-button" disabled={pending} onClick={onRefresh}>{t('刷新')}</button>
+        <button className="subtle-button" onClick={onClose}>{t('关闭')}</button>
+      </div>
+    </header>
+    {error && <p className="runtime-warning">{error}</p>}
+    <pre className="environment-log">{pending ? t('正在读取日志…') : text || t('暂无日志')}</pre>
+  </section>;
+}
+
+export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
+  const [snapshot, setSnapshot] = useState<EnvironmentView | null>(null);
   const [pool, setPool] = useState<PoolStatus | null>(null);
   const [appVersion, setAppVersion] = useState<StudioVersion | null>(null);
-  const [environments, setEnvironments] = useState<EnvironmentSnapshot | null>(null);
   const [error, setError] = useState('');
-  const [remoteEnvironments, setRemoteEnvironments] = useState<Record<string, RemoteEnvironments>>({});
-  const [remoteEnvironmentBusy, setRemoteEnvironmentBusy] = useState<Record<string, boolean>>({});
-  const [remoteEnvironmentError, setRemoteEnvironmentError] = useState<Record<string, string>>({});
-  const [poolBusy, setPoolBusy] = useState('');
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    const refresh = () => {
-      Promise.all([api.pool(), api.environments(), api.version().catch(() => null)])
-        .then(([nextPool, nextEnvironments, nextVersion]) => {
-          if (!mounted.current) return;
-          setPool(nextPool); setEnvironments(nextEnvironments); setAppVersion(nextVersion); setError('');
-        })
-        .catch((e: Error) => {if (mounted.current) setError(e.message);});
-    };
-    refresh();
-    const timer = setInterval(refresh, 3000);
-    return () => {mounted.current = false; clearInterval(timer);};
-  }, []);
-  const loadRemoteEnvironments = async (id: string) => {
-    setRemoteEnvironmentBusy(current => ({...current, [id]: true}));
-    try {
-      const next = await api.remoteEnvironments(id);
-      setRemoteEnvironments(current => ({...current, [id]: next}));
-      setRemoteEnvironmentError(current => ({...current, [id]: ''}));
-    } catch (failure) {
-      setRemoteEnvironmentError(current => ({...current, [id]: (failure as Error).message}));
-    } finally {
-      setRemoteEnvironmentBusy(current => ({...current, [id]: false}));
-    }
-  };
-  const stopPool = async (force: boolean) => {
-    try {
-      const result = await api.stopPool(force);
-      setPoolBusy(result.busy ? t('共享池中仍有任务，请确认后强制停止') : '');
-    } catch (failure) {
-      setPoolBusy((failure as Error).message);
-    }
-  };
-  const stopRemotePool = async (id: string, force: boolean) => {
-    try {
-      const result = await api.remotePoolStop(id, force);
-      setRemoteEnvironmentError(current => ({...current,
-        [id]: result.busy ? t('远程共享池中仍有任务，请确认后强制停止') : ''}));
-    } catch (failure) {
-      setRemoteEnvironmentError(current => ({...current, [id]: (failure as Error).message}));
-    }
-  };
-  const prepareRemoteEnvironments = async (id: string) => {
-    setRemoteEnvironmentBusy(current => ({...current, [id]: true}));
-    try {
-      await api.remotePrepareEnvironments(id);
-      setRemoteEnvironmentError(current => ({...current, [id]: ''}));
-    } catch (failure) {
-      setRemoteEnvironmentError(current => ({...current, [id]: (failure as Error).message}));
-    } finally {
-      setRemoteEnvironmentBusy(current => ({...current, [id]: false}));
-      await loadRemoteEnvironments(id);
-    }
-  };
-  useEffect(() => {
-    (pool?.remotes || []).filter(remote => remote.connected && !remoteEnvironments[remote.profile.id])
-      .forEach(remote => {void loadRemoteEnvironments(remote.profile.id);});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pool]);
+  const [busy, setBusy] = useState('');
+  const [poolBusy, setPoolBusy] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  const [log, setLog] = useState<{name: string; text: string; error: string} | null>(null);
+  const [logPending, setLogPending] = useState(false);
+  const [remoteLoaded, setRemoteLoaded] = useState<Record<string, RemoteEnvironments>>({});
+  const [remoteBusy, setRemoteBusy] = useState('');
+  const [remoteError, setRemoteError] = useState('');
 
-  const instance = pool?.instance;
-  const jobs = environments?.operations || [];
-  const running = jobs.filter(job => job.status === 'running');
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        const [nextPool, nextSnapshot, nextVersion] = await Promise.all([
+          api.pool(),
+          api.environments(),
+          api.version().catch(() => null),
+        ]);
+        if (!active) return;
+        setPool(nextPool);
+        setSnapshot(nextSnapshot as unknown as EnvironmentView);
+        setAppVersion(nextVersion);
+        setError('');
+      } catch (failure) {
+        if (active) setError((failure as Error).message);
+      }
+    }
+    load();
+    const timer = window.setInterval(load, 3000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const items = Object.values(snapshot?.environments || {}).sort((left, right) =>
+    left.name.localeCompare(right.name));
+  const operations = snapshot?.operations || [];
+
+  async function run(label: string, work: () => Promise<EnvironmentSnapshot>) {
+    setBusy(label);
+    setError('');
+    try {
+      setSnapshot(await work() as unknown as EnvironmentView);
+    } catch (failure) {
+      setError((failure as Error).message);
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function loadLog(name: string) {
+    setLog({name, text: '', error: ''});
+    setLogPending(true);
+    try {
+      const value = await api.environmentLog(name, 400);
+      setLog({name, text: value.text, error: ''});
+    } catch (failure) {
+      setLog({name, text: '', error: (failure as Error).message});
+    } finally {
+      setLogPending(false);
+    }
+  }
+
+  function act(action: Action, name: string) {
+    if (action === 'log') return void loadLog(name);
+    if (action === 'prepare') return void run(`prepare:${name}`, () => api.prepareEnvironments([name]));
+    if (action === 'repair') return void run(`repair:${name}`, () => api.retryEnvironment(name));
+    return void run(`cancel:${name}`, () => api.cancelEnvironment(name));
+  }
+
+  async function stopPool(force: boolean) {
+    if (typeof window !== 'undefined' && !window.confirm(force ? t('确定要强制清除本地共享池吗？') : t('确定要停止本地共享池吗？'))) return;
+    setPoolBusy(true);
+    setError('');
+    try {
+      await api.stopPool(force);
+      setPool(await api.pool());
+    } catch (failure) {
+      setError((failure as Error).message);
+    } finally {
+      setPoolBusy(false);
+    }
+  }
+
+  async function stopRemote(id: string, force: boolean) {
+    if (typeof window !== 'undefined' && !window.confirm(t('确定要停止远程共享池吗？'))) return;
+    setPoolBusy(true);
+    setRemoteError('');
+    try {
+      await api.remotePoolStop(id, force);
+      setPool(await api.pool());
+    } catch (failure) {
+      setRemoteError((failure as Error).message);
+    } finally {
+      setPoolBusy(false);
+    }
+  }
+
+  async function loadRemote(id: string) {
+    setRemoteBusy(id);
+    setRemoteError('');
+    try {
+      const value = await api.remoteEnvironments(id);
+      setRemoteLoaded(current => ({...current, [id]: value}));
+    } catch (failure) {
+      setRemoteError((failure as Error).message);
+    } finally {
+      setRemoteBusy('');
+    }
+  }
+
+  async function prepareRemote(id: string) {
+    setRemoteBusy(id);
+    setRemoteError('');
+    try {
+      const value = await api.remotePrepareEnvironments(id);
+      setRemoteLoaded(current => ({...current, [id]: value}));
+    } catch (failure) {
+      setRemoteError((failure as Error).message);
+    } finally {
+      setRemoteBusy('');
+    }
+  }
+
   return <Modal title={t('运行状态')} onClose={onClose}>
-    {error && <pre className="modal-error">{error}</pre>}
-    <section className="runtime-section">
-      <h4>{t('本地共享池')}</h4>
-      <p>{t('应用')} <span className="mono">{appVersion?.display || '—'}</span>
-        {!!appVersion?.build && <> · {t('构建')} <span className="mono">{appVersion.build.slice(0, 12)}</span></>}</p>
-      {!instance?.version ? <p className="modal-empty">{t('尚未启动共享池')}</p> : <>
-        <p>{t('共享池')} <span className="mono">{instance.version}</span> · PID <span className="mono">{instance.pid || '—'}</span>
-          {instance.closing && <> · {t('正在退出')}</>}
-          {!!appVersion?.version && instance.version !== appVersion.version &&
-            <> · <strong className="version-mismatch">{t('与应用版本不一致，请停止共享池后重启')}</strong></>}</p>
-        <p className="muted">{t('已注册工作区')} {pool?.workspaces.length || 0} · {t('运行中任务')} {pool?.active.length || 0}</p>
-        <button className="subtle-button" onClick={() => void stopPool(false)}>{t('停止共享池')}</button>
-        <button className="subtle-button" onClick={() => {
-          if (window.confirm(t('共享池仍有任务，是否强制清除？'))) void stopPool(true);
-        }}>{t('强制清除共享池')}</button>
-      </>}
-      {poolBusy && <p className="muted">{poolBusy}</p>}
-      {!!pool?.active.length && <ul className="runtime-list">{pool.active.map(item =>
-        <li key={`${item.workspace}:${item.id}`}><strong>{item.title || item.id}</strong>
-          <span>{statusLabel[item.status || ''] || item.status} · {item.workspace}</span></li>)}</ul>}
-    </section>
-    <section className="runtime-section">
-      <h4>{t('隔离环境安装进度')}</h4>
-      {!environments?.manifest.present && <p className="modal-empty">{t('当前算子库没有环境清单')}</p>}
-      {Object.values(environments?.environments || {}).map(item => {
-        const job = running.find(value => value.name === item.name);
-        const phase = job?.phase || item.progress?.phase;
-        return <article className="runtime-environment" key={item.name}>
-          <div><strong>{item.name}</strong> <span>{statusLabel[item.status] || item.status}</span></div>
-          <p>{t('Python')} {item.python} · {item.used_by.length} {t('个算子')}
-            {phase && <> · {phase}</>}
-            {!!job?.bytes && <> · {size(job.bytes)} / {job.files} {t('个文件')}</>}</p>
-          {item.error && <pre className="modal-error">{item.error}</pre>}
-        </article>;
-      })}
-    </section>
-    <section className="runtime-section">
-      <h4>{t('服务器连接')}</h4>
-      {!pool?.remotes.length && <p className="modal-empty">{t('没有配置服务器')}</p>}
-      {pool?.remotes.map(remote => <article className="runtime-environment" key={remote.profile.id}>
-        <div><strong>{remote.profile.name || remote.profile.host}</strong>
-          <span>{remote.connected ? t('已连接') : t('未连接')}</span></div>
-        <p>{remote.info?.build?.application?.version || '—'}{remote.info?.library_check?.replacement_required ? ` · ${t('算子库需要更新')}` : ''}</p>
-        {remote.connected && <div className="runtime-remote-pool">
-          <h5>{t('远程共享池')}</h5>
-          {remote.pool?.available ? <>
-            <p><span className="mono">{remote.pool.version || '—'}</span> · PID{' '}
-              <span className="mono">{remote.pool.owner?.pid || '—'}</span>
-              {remote.pool.closing && <> · {t('正在退出')}</>}</p>
-            <button className="subtle-button" onClick={() => {
-              if (window.confirm(t('远程共享池中仍有任务，是否强制清除？'))) {
-                void stopRemotePool(remote.profile.id, true);
-              }
-            }}>{t('强制清除远程共享池')}</button>
-            <p className="muted">{t('运行中任务')} {remote.pool.active_count || 0}
-              {' · '}{t('会话')} {remote.pool.sessions ?? 0}</p>
-            {!!remote.pool.active_jobs?.length && <ul className="runtime-list">{remote.pool.active_jobs.map(job =>
-              <li key={job.id}><strong>{job.title || job.id}</strong>
-                <span>{statusLabel[job.status || ''] || job.status}</span></li>)}</ul>}
-          </> : <p className="muted">{remote.pool?.unsupported ? t('服务端版本较旧，无法读取池状态')
-            : (remote.pool?.error || t('尚未启动共享池'))}</p>}
+    <div className="runtime-panel">
+      {error && <pre className="modal-error">{error}</pre>}
+      {!snapshot && !error && <div className="modal-empty"><p>{t('正在读取环境状态…')}</p></div>}
+      {snapshot && !snapshot.manifest.present &&
+        <div className="modal-empty"><p>{t('当前算子库没有环境清单')}</p></div>}
+      {snapshot && snapshot.manifest.present && !items.length &&
+        <div className="modal-empty">
+          <p>{t('没有隔离环境')}</p>
+          <small>{t('算子库未声明需要独立安装的环境。')}</small>
         </div>}
-        {remote.connected && <div className="runtime-remote-pool">
-          <h5>{t('远程环境')}
-            <button className="subtle-button" onClick={() => void loadRemoteEnvironments(remote.profile.id)}>
-              {t('读取')}
-            </button>
-          </h5>
-          {remoteEnvironmentBusy[remote.profile.id] && <p className="muted">{t('读取中…')}</p>}
-          {remoteEnvironmentError[remote.profile.id] &&
-            <p className="muted">{remoteEnvironmentError[remote.profile.id]}</p>}
-          {remoteEnvironments[remote.profile.id]?.error &&
-            <p className="muted">{remoteEnvironments[remote.profile.id].error}</p>}
-          {!!Object.keys(remoteEnvironments[remote.profile.id]?.environments || {}).length && <>
-            <ul className="runtime-list">
-              {Object.entries(remoteEnvironments[remote.profile.id]?.environments || {}).map(([name, item]) =>
-                <li key={name}><strong>{name}</strong>
-                  <span>{statusLabel[item.status || ''] || item.status}
-                    {item.progress?.phase ? ` · ${item.progress.phase}` : ''}
-                    {item.progress?.detail ? ` · ${item.progress.detail}` : ''}</span></li>)}
-            </ul>
-            <button className="primary-button" onClick={() => void prepareRemoteEnvironments(remote.profile.id)}>
-              {t('准备远程环境')}
-            </button>
-          </>}
-        </div>}
-      </article>)}
-    </section>
+      {snapshot && snapshot.manifest.present && items.length > 0 &&
+        <SummaryStrip items={items} busy={Boolean(busy)}
+          onRefresh={() => void run('refresh', () => api.environments())}
+          onPrepareAll={() => void run('all', () => api.prepareEnvironments())}/>}
+      {items.length > 0 && <div className="runtime-grid">
+        {items.map(item => <EnvironmentCard key={item.name} item={item}
+          busy={Boolean(busy)} onAction={act}/>)}
+      </div>}
+      <OperationList operations={operations} now={now} onCancel={name => act('cancel', name)}/>
+      {log && <LogDrawer name={log.name} text={log.text} pending={logPending} error={log.error}
+        onClose={() => setLog(null)} onRefresh={() => void loadLog(log.name)}/>}
+      <details className="runtime-advanced">
+        <summary>{t('高级选项')}</summary>
+        <section className="runtime-pool">
+          <h3>{t('本地共享池')}</h3>
+          {pool ? <>
+            <p className="muted">
+              {t('版本')} {appVersion?.display || appVersion?.version || pool.instance.version || '—'}
+              {' · '}PID {pool.instance.pid ?? '—'}
+              {' · '}{t('工作区')} {pool.workspaces.length}
+              {' · '}{t('运行任务')} {pool.active.length}
+            </p>
+            {appVersion?.version && pool.instance.version && appVersion.version !== pool.instance.version &&
+              <p className="runtime-warning">{t('共享池版本与界面版本不一致。')}</p>}
+            <div className="runtime-actions">
+              <button className="subtle-button" disabled={poolBusy} onClick={() => void stopPool(false)}>{t('停止共享池')}</button>
+              <button className="subtle-button is-danger" disabled={poolBusy} onClick={() => void stopPool(true)}>{t('强制清除共享池')}</button>
+            </div>
+            {pool.active.length > 0 && <ul className="runtime-jobs">
+              {pool.active.map(job => <li key={job.id}>
+                <code title={job.id}>{shortId(job.id)}</code>
+                <span>{job.title || job.status}</span>
+                <span>{job.status}</span>
+              </li>)}
+            </ul>}
+          </> : <p className="muted">{t('尚未连接共享池。')}</p>}
+        </section>
+        <section className="runtime-remotes">
+          <h3>{t('服务器连接')}</h3>
+          {!pool?.remotes.length && <p className="muted">{t('没有配置远程服务器。')}</p>}
+          {pool?.remotes.map(remote => <div className="runtime-remote" key={remote.profile.id}>
+            <header>
+              <strong>{remote.profile.name}</strong>
+              <span>{remote.connected ? t('已连接') : t('未连接')}</span>
+            </header>
+            {remote.pool && <p className="muted">
+              {t('运行任务')} {remote.pool.active_count ?? 0}
+            </p>}
+            <div className="runtime-actions">
+              {remote.pool && <button className="subtle-button" disabled={poolBusy}
+                onClick={() => void stopRemote(remote.profile.id, false)}>{t('停止共享池')}</button>}
+              <button className="subtle-button" disabled={remoteBusy === remote.profile.id}
+                onClick={() => void loadRemote(remote.profile.id)}>{t('查看远程环境')}</button>
+              <button className="subtle-button" disabled={remoteBusy === remote.profile.id}
+                onClick={() => void prepareRemote(remote.profile.id)}>{t('准备远程环境')}</button>
+            </div>
+            {remoteLoaded[remote.profile.id]?.environments &&
+              <ul className="runtime-jobs">
+                {Object.entries(remoteLoaded[remote.profile.id].environments || {}).map(([name, item]) =>
+                  <li key={name}>
+                    <code>{name}</code>
+                    <span>{item.used_by?.length ? `${item.used_by.length} ${t('个算子')}` : '—'}</span>
+                    <span>{item.status || '—'}</span>
+                  </li>)}
+              </ul>}
+          </div>)}
+          {remoteError && <p className="runtime-warning">{remoteError}</p>}
+        </section>
+      </details>
+    </div>
   </Modal>;
 }
+
+export default RuntimeStatusPanel;

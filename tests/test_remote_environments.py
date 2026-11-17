@@ -120,7 +120,7 @@ def test_prepare_can_repair_dependencies(tmp_path, monkeypatch):
     deadline = time.time() + 5
     while not fake.dependencies.calls and time.time() < deadline:
         time.sleep(0.01)
-    assert fake.dependencies.calls == [{'repair': True, 'repair_r': True}]
+    assert fake.dependencies.calls == [{'repair': True, 'repair_r': True, 'ids': ['alpha']}]
 
 
 def test_environment_log_returns_tail(tmp_path):

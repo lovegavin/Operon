@@ -1,0 +1,15 @@
+.large-resources { display:grid; gap:14px; }
+.large-resource-list { display:grid; gap:10px; }
+.large-resource { border:1px solid var(--border); border-radius:var(--radius-md); padding:14px 16px; background:var(--surface); }
+.large-resource-heading { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.large-resource-heading strong { font-size:13px; font-weight:500; }
+.large-resource-heading code { font-size:11px; color:var(--text-muted); }
+.large-resource-badge { font-size:10px; padding:2px 7px; border-radius:999px; border:1px solid var(--border); color:var(--text-muted); margin-left:auto; }
+.large-resource-badge.linked { color:var(--accent); border-color:currentColor; }
+.large-resource-mode { font-size:10px; text-transform:uppercase; letter-spacing:.4px; color:var(--text-muted); }
+.large-resource-size { font-size:11px; color:var(--text-secondary); }
+.large-resource dl { display:grid; gap:4px; margin:10px 0 8px; }
+.large-resource dl > div { display:grid; grid-template-columns:88px minmax(0, 1fr); gap:10px; font-size:11px; }
+.large-resource dt { color:var(--text-muted); }
+.large-resource dd { margin:0; min-width:0; overflow-wrap:anywhere; color:var(--text-secondary); }
+.large-resource .settings-form-actions { margin:0; }

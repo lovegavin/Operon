@@ -84,6 +84,7 @@ internal sealed class InstallEngine
     private void Report(string message, int percent) { Log(message); progress.Report(new(message, percent)); }
 
     private void ReportText(string message) => Report(message, 1);
+    internal void Note(string message) => Report(message, 1);
     private static string ReceiptPath(string root) => Path.Combine(root, "installation.json");
 
     // Resolve without modifying anything. Both UI and unattended installation
@@ -323,6 +324,9 @@ internal sealed class InstallEngine
     internal async Task<InstallResult> Install(InstallOptions options, CancellationToken token)
     {
         string root = ResolveDestination(options.InstallDir);
+        var requestedRoot = NamedDestination(options.InstallDir);
+        if (!string.Equals(root, requestedRoot, StringComparison.OrdinalIgnoreCase))
+            ReportText($"提示：{requestedRoot} 已有其他内容，本次安装到 {root}。");
         using var installLease = new InstallLease("Local\\OperonSetup-" + InstallLease.Identity(root));
         InstallFiles.NoLinks(root);
         var old = ReadReceipt(root);

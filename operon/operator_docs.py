@@ -151,8 +151,9 @@ class OperatorDocs:
             # requests must never observe a half-built or mixed-generation index.
             self._index_cache = (state['generation'], index)
         terms = re.findall(r'[^\W_]+', query.casefold())
-        def score(item):
-            total = 0
+
+        def per_term(item):
+            values = []
             for term in terms:
                 best = 0
                 forms = {term, term[:-1]} if len(term) > 3 and term.endswith('s') else {term}
@@ -164,17 +165,35 @@ class OperatorDocs:
                     # substrings for scripts that do not delimit words by spaces.
                     if forms & words or not term.isascii() and term in text:
                         best = max(best, weight)
-                if not best:
-                    return -1
-                total += best
+                values.append(best)
+            return values
+
+        def score(item):
+            values = per_term(item)
+            if not values or min(values) == 0:
+                return -1
+            total = sum(values)
             if query.strip().casefold() == item['id'].casefold():
                 total += 1000
             elif query.strip().casefold() == str(item.get('title', '')).casefold():
                 total += 100
             return total
-        ranked = [(score(item), item) for item in index
-                  if (not kind or item['kind'] == kind) and (not category or item['category'] == category)]
+
+        selected = [item for item in index
+                    if (not kind or item['kind'] == kind) and (not category or item['category'] == category)]
+        ranked = [(score(item), item) for item in selected]
         matches = [item for rank, item in sorted(ranked, key=lambda pair: (-pair[0], pair[1]['id'])) if rank >= 0]
+        if not matches and len(terms) > 1:
+            # A query that combines a name with descriptive words rarely matches
+            # every term in one record. Fall back to ranking by how many terms a
+            # record covers so a named operator stays discoverable.
+            loose = []
+            for item in selected:
+                values = per_term(item)
+                covered = sum(1 for value in values if value)
+                if covered:
+                    loose.append((covered, sum(values), item['id'], item))
+            matches = [item for _, _, _, item in sorted(loose, key=lambda row: (-row[0], -row[1], row[2]))]
         items = deepcopy(matches[offset:offset+limit])
         if view == 'brief':
             items = [{**{key: item[key] for key in ('id', 'kind', 'title', 'category', 'documentation_status')},

@@ -101,9 +101,16 @@ def create_app(settings=None):
         try:
             await asyncio.to_thread(service.refresh_catalog)
             response = await call_next(request)
-        except Exception:
-            logging.exception("studio request failure", extra={"request_id": request_id})
-            response = JSONResponse({"message": "本地服务处理失败，请检查服务日志。", "request_id": request_id}, status_code=500)
+        except Exception as error:
+            if isinstance(error, LookupError):
+                message = str(error.args[0]) if error.args else str(error)
+                response = JSONResponse({"code": "not_found", "message": message, "request_id": request_id},
+                                        status_code=404)
+            else:
+                logging.exception("studio request failure", extra={"request_id": request_id})
+                response = JSONResponse({"code": "internal_error",
+                                         "message": "本地服务处理失败，请检查服务日志。",
+                                         "request_id": request_id}, status_code=500)
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "DENY"

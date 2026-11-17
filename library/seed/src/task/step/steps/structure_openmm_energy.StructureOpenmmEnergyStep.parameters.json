@@ -42,17 +42,40 @@
       "x-ui-group": "模型",
       "x-ui-order": 3
     },
+    "platform": {
+      "title": "计算平台",
+      "type": "string",
+      "default": "auto",
+      "enum": [
+        "auto",
+        "CUDA",
+        "OpenCL",
+        "CPU",
+        "Reference"
+      ],
+      "x-ui-group": "平台",
+      "x-ui-order": 1
+    },
+    "threads": {
+      "title": "CPU 线程数（0 表示按配额自动）",
+      "type": "integer",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 256,
+      "x-ui-group": "平台",
+      "x-ui-order": 2
+    },
     "minimize": {
       "title": "执行最小化",
       "type": "boolean",
-      "default": true,
+      "default": false,
       "x-ui-group": "模型",
       "x-ui-order": 4
     },
     "max_iterations": {
       "title": "最小化迭代上限",
       "type": "integer",
-      "default": 300,
+      "default": 100,
       "minimum": 1,
       "maximum": 100000,
       "x-ui-group": "模型",

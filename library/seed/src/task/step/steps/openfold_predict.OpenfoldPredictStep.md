@@ -29,7 +29,7 @@ or statistical assumptions for a particular dataset.
 
 Declared Python requirements: `torch`. Prepare them explicitly in the selected execution environment; registration and application startup do not install them.
 
-Runs in the shared Operon interpreter.
+This operator executes in the dedicated `openfold` interpreter; see docs/large_resources.md for resolution and overrides.
 
 ## Limitations
 

@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "title": "获取大型资源",
+  "description": "按算子库 resources.json 中声明的 downloads 列表下载权重或数据库文件。",
+  "additionalProperties": false,
+  "properties": {
+    "resource": {
+      "type": "string",
+      "default": "",
+      "title": "资源名",
+      "description": "例如 esmfold、esm2、esm_if1；必须是 resources.json 中已声明的资源。",
+      "x-ui-group": "basic",
+      "x-ui-order": 10
+    },
+    "root": {
+      "type": "string",
+      "default": "",
+      "title": "资源根目录（可选）",
+      "description": "留空时使用 OPERON_* 环境变量或 resources.json 的默认目录。",
+      "x-ui-group": "basic",
+      "x-ui-order": 20
+    },
+    "overwrite": {
+      "type": "boolean",
+      "default": false,
+      "title": "覆盖已有文件",
+      "description": "目标文件已存在且大小或 sha256 不符时才允许覆盖。",
+      "x-ui-group": "basic",
+      "x-ui-order": 30
+    },
+    "output": {
+      "type": "string",
+      "default": "fetched",
+      "title": "输出名",
+      "x-ui-group": "advanced",
+      "x-ui-order": 10
+    }
+  }
+}

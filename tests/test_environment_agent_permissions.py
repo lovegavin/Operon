@@ -98,7 +98,7 @@ def test_explicit_preparation_waits_longer_but_never_retries_or_upgrades_permiss
     def denied(path, **options):
         calls.append((path, options))
         return httpx.Response(403, json={'detail': "Agent connection requires 'plugins' capability"})
-    client.http = SimpleNamespace(post=denied)
+    client.http = SimpleNamespace(request=lambda verb, path, **options: denied(path, **options))
     client.restart = lambda: pytest.fail('An explicit preparation must not reconnect or broaden permission')
     with pytest.raises(ClientError, match='plugins'):
         client.request('/v1/workflows/prepare-environment', {'graph': {}})
@@ -106,7 +106,7 @@ def test_explicit_preparation_waits_longer_but_never_retries_or_upgrades_permiss
     def timeout(path, **options):
         calls.append((path, options))
         raise httpx.ReadTimeout('installer still running')
-    client.http = SimpleNamespace(post=timeout)
+    client.http = SimpleNamespace(request=lambda verb, path, **options: timeout(path, **options))
     with pytest.raises(httpx.ReadTimeout):
         client.request('/v1/workflows/prepare-environment', {'graph': {}})
     assert len(calls) == 2  # One attempt per explicit request.

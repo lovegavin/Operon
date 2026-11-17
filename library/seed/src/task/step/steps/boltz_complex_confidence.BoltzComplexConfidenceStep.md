@@ -4,6 +4,10 @@
 ## Purpose
 
 > boltz_complex_confidence: Boltz-2 complex prediction with confidence parsing.
+>
+> DataLoader workers default to zero: on Linux, forking workers after CUDA is
+> initialised can deadlock the prediction, so the safe default is the parent
+> process only.
 
 ## Inputs and outputs
 

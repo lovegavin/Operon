@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "StructureConvertFormat parameters",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "atom_dim": {
+      "type": "string",
+      "default": "atom",
+      "description": "Atom dimension name."
+    },
+    "field_dim": {
+      "type": "string",
+      "default": "field",
+      "description": "Field dimension name."
+    },
+    "output": {
+      "type": "string",
+      "default": "output",
+      "description": "Output port name."
+    },
+    "filename": {
+      "type": "string",
+      "default": "converted.pdb",
+      "pattern": "^[A-Za-z0-9._-]+\\.pdb$"
+    },
+    "chain": {
+      "type": "string",
+      "default": "A",
+      "maxLength": 1
+    },
+    "resname": {
+      "type": "string",
+      "default": "UNK",
+      "maxLength": 3
+    },
+    "include_hetatm": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

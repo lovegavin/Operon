@@ -45,7 +45,7 @@ and how to author a collection against a specific library version.
 
 ## Verification
 
-- Clean install of `Operon_Setup-5.4.8.exe` in `D:\OperonTest548`
+- Clean install of `Operon_Setup-5.4.8.exe` in a fresh `--install-dir` on D:
   (version directory `5.4.8-477f6e26723a`), backend ready in 33 s.
 - The bundled base library installed on first start: `main-v0.1.28`,
   7 packages, 1069 operators, 108 Readers, 1177 descriptors.
