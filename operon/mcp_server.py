@@ -626,6 +626,8 @@ def create_server(client):
 
 
 def serve(args):
+    from .installation_maintenance import require_idle
+    require_idle()
     require_installation()
     scopes = ["context"]
     if not args.read_only:

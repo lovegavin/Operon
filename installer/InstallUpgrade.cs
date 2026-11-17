@@ -259,7 +259,8 @@ internal sealed class InstallUpgrade : IDisposable
     }
 
     internal static async Task<InstallUpgrade> Prepare(IReadOnlyList<UpgradeTarget> targets,
-        Action<string> report, CancellationToken token, TimeSpan? timeout = null)
+        Action<string> report, CancellationToken token, TimeSpan? timeout = null,
+        Action? stopAgents = null)
     {
         var session = FreezeStarts(targets);
         try
@@ -300,6 +301,14 @@ internal sealed class InstallUpgrade : IDisposable
                     foreach (var profile in targets.Select(t => t.Profile).Distinct(StringComparer.OrdinalIgnoreCase))
                         session.leases.Add(new InstallLease("Local\\OperonStudio-" + InstallLease.Identity(profile)));
                     leased = true; // Prevent the old shortcuts from reopening during the switch.
+                }
+                if (leased && stopAgents is not null && processes.Any(p => !IsHost(p)))
+                {
+                    report("正在停止旧版 MCP / 后台进程…");
+                    stopAgents();
+                    await Task.Delay(200, token);
+                    processes = Processes(targets);
+                    if (processes.Count == 0) return session;
                 }
                 if (leased && processes.Count == 0) return session;
                 if (deadline.Elapsed >= limit)

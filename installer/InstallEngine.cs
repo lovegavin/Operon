@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Win32;
+using System.ComponentModel;
 
 namespace Operon.Setup;
 
@@ -287,6 +288,9 @@ internal sealed class InstallEngine
         foreach (var target in UpgradeTargets(root))
             try { DisconnectAgents(target.Profile); }
             catch (Exception error) { Log("Disconnect " + target.Profile + ": " + error.Message); }
+        report("正在停止旧版本的 MCP / 后台进程…");
+        var agents = TerminateAgents(root);
+        if (agents > 0) Log("Stopped " + agents + " MCP/backend process(es) before replacing files.");
         report("正在清理被替换版本遗留的进程…");
         var orphans = TerminateOrphanAgents();
         if (orphans > 0) Log("Stopped " + orphans + " orphaned agent process(es) with removed code roots.");
@@ -553,7 +557,7 @@ internal sealed class InstallEngine
         using var lease = new InstallLease("Local\\OperonSetup-" + InstallLease.Identity(root));
         var targets = InstallUpgrade.Targets(root, receipt);
         using var upgrade = InstallUpgrade.Prepare(targets, message => Report(message, 5),
-            CancellationToken.None).GetAwaiter().GetResult();
+            CancellationToken.None, stopAgents: () => TerminateAgents(root)).GetAwaiter().GetResult();
         var orphans = TerminateOrphanAgents();
         if (orphans > 0) Log("Stopped " + orphans + " orphaned agent process(es) with removed code roots.");
         Report("正在卸载软件；用户档案和分析数据会保留…", 0);
@@ -601,6 +605,7 @@ internal sealed class InstallEngine
         if (LooksLikeOperonRoot(root))
         {
             DisconnectAgents(null, everything: true);
+            TerminateAgents(root);
             TerminateManagedProcesses(root);
             TerminateOrphanAgents();
             RemoveRegistrationsUnder(root);
@@ -894,6 +899,37 @@ internal sealed class InstallEngine
     // dead code root: it cannot serve the new installation, and on this machine
     // it also holds the shared pool registration that the new install needs, so
     // the next library operation waits forever. Kill those orphans explicitly.
+
+    internal static int TerminateAgents(string installRoot)
+    {
+        var root = Path.GetFullPath(installRoot).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        var stopped = 0;
+        for (var pass = 0; pass < 25; pass++)
+        {
+            var found = 0;
+            foreach (var process in Process.GetProcesses())
+            {
+                using (process)
+                try
+                {
+                    var image = process.MainModule?.FileName;
+                    if (image is null || !image.StartsWith(root, StringComparison.OrdinalIgnoreCase)) continue;
+                    var name = Path.GetFileName(image);
+                    if (!name.Equals("python.exe", StringComparison.OrdinalIgnoreCase) &&
+                        !name.Equals("pythonw.exe", StringComparison.OrdinalIgnoreCase)) continue;
+                    found++;
+                    process.Kill(entireProcessTree: true);
+                    process.WaitForExit(3000);
+                    stopped++;
+                }
+                catch (Exception error) when (error is Win32Exception or InvalidOperationException or NotSupportedException)
+                { /* Exited or another account; the next pass retries. */ }
+            }
+            if (found == 0) break;
+            Thread.Sleep(200);
+        }
+        return stopped;
+    }
 
     internal static int TerminateOrphanAgents()
     {

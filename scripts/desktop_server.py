@@ -87,6 +87,8 @@ def report_stalled_shutdown(finished, delay=3):
 
 
 def main():
+    from operon.installation_maintenance import require_idle
+    require_idle()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workspace", type=Path, help="Explicit isolated workspace")
     parser.add_argument("--profile-dir", type=Path, help="Shared Studio profile")

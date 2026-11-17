@@ -27,12 +27,12 @@ beside a live `versions` directory) and the rebuilt installer passes it.
 | --- | --- |
 | Native installer harness | `PASS: 94 native installer checks` (4 orphan-classifier checks, including one removed version id beside a live `versions` directory) |
 | MCP guard tests | `tests/test_mcp_installation_guard.py` 3 passed |
-| Clean install | `D:\OperonTest542`, version directory `5.4.2-90d343c140d7`, `operon --version` = `Operon 5.4.2` |
+| Clean install | `<test-dir>`, version directory `5.4.2-90d343c140d7`, `operon --version` = `Operon 5.4.2` |
 | Version rendering | `/health`, `/api/version` and bootstrap all report `5.4.2 (90d343c1)` |
 | Built-in library | `main-v0.1.28`, 7 packages, 1,177 descriptors, 1,069 operators, 108 readers |
 | Library operations | `fork1-v0.0.0` imported beside `main-v0.1.28` and removed again; catalog generation changed on removal |
 | MCP adapters | 69 tools, `operon_resources` reports 16 resources |
-| Orphan cleanup | an adapter started from `D:\OperonBuild542\fakeinstall\versions\deadbeef0000\runtime\python\python.exe` survived the pre-build upgrade and was stopped by the next one: `Stopped 1 orphaned agent process(es) with removed code roots.` |
+| Orphan cleanup | an adapter started from `<foreign-root>\versions\<id>\runtime\python\python.exe` survived the pre-build upgrade and was stopped by the next one: `Stopped 1 orphaned agent process(es) with removed code roots.` |
 | Upgrade in place | second install produced `5.4.2-1c07d87f487d`; `/health` reported `5.4.2 (1c07d87f)` |
 
 ## Artifacts

@@ -63,6 +63,17 @@ def start_guard(root):
         api.CloseHandle(handle)
 
 
+def installation_root():
+    return Path(__file__).resolve().parents[1]
+
+
+def require_idle(root=None):
+    """Refuse agent work while Setup is replacing this installation."""
+    target = Path(root) if root is not None else installation_root()
+    if maintenance_active(target):
+        raise SystemExit('Operon is being updated or uninstalled; start again after Setup finishes.')
+
+
 def maintenance_active(root):
     if os.name != 'nt':
         return False

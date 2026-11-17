@@ -791,6 +791,8 @@ def execute(args):
 
 
 def main(argv=None):
+    from .installation_maintenance import require_idle
+    require_idle()
     from .installation import configure_environment
     configure_environment(Path(__file__).resolve().parents[1])
     for stream in (sys.stdout, sys.stderr):
