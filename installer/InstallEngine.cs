@@ -421,7 +421,7 @@ internal sealed class InstallEngine
             // A version whose files were still mapped by a respawning agent may
             // survive the pre-extraction sweep; now that the new version is
             // current nothing should start it again, so sweep once more.
-            try { RemoveVersionTrees(root); }
+            try { RemoveVersionTrees(root, relative); }
             catch (Exception error) { Log("Post-install cleanup: " + error.Message); }
             Report("安装完成", 100);
             return new("installed", root, Path.Combine(installed, "Operon Studio.exe"), resolvedProfile, LogPath);
@@ -1014,14 +1014,26 @@ internal sealed class InstallEngine
         return stopped.Count;
     }
 
-    private void RemoveVersionTrees(string root)
+    internal static bool IsStaleVersion(string directory, string? keep)
+    {
+        var name = Path.GetFileName(directory.TrimEnd(Path.DirectorySeparatorChar));
+        if (name.StartsWith(".install-", StringComparison.Ordinal)) return false;
+        if (!string.IsNullOrEmpty(keep))
+        {
+            var wanted = Path.GetFileName(keep!.TrimEnd(Path.DirectorySeparatorChar));
+            if (string.Equals(name, wanted, StringComparison.Ordinal)) return false;
+        }
+        return true;
+    }
+
+    private void RemoveVersionTrees(string root, string? keep = null)
     {
         var versions = Path.Combine(root, "versions");
         if (!Directory.Exists(versions)) return;
         for (var attempt = 0; attempt < 40; attempt++)
         {
             var remaining = Directory.EnumerateDirectories(versions)
-                .Where(item => !Path.GetFileName(item).StartsWith(".install-", StringComparison.Ordinal)).ToList();
+                .Where(item => IsStaleVersion(item, keep)).ToList();
             if (remaining.Count == 0) break;
             try { TerminateAgents(root); }
             catch (Exception error) { Log("Stop agents for version cleanup: " + error.Message); }
@@ -1033,7 +1045,7 @@ internal sealed class InstallEngine
                 catch (Exception error) { Log("Old version retained: " + error.Message); }
             }
             if (!Directory.EnumerateDirectories(versions)
-                .Any(item => !Path.GetFileName(item).StartsWith(".install-", StringComparison.Ordinal))) break;
+                .Any(item => IsStaleVersion(item, keep))) break;
             Thread.Sleep(500);
         }
         try

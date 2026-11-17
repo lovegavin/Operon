@@ -70,6 +70,9 @@ Check(InstallEngine.IsOrphanAgentImage(orphanAgent), "agent of a removed version
         File.WriteAllText(sibling, "");
         Directory.Delete(Path.Combine(siblingRoot, "1.2.3-abcdef"), true);
         Check(InstallEngine.IsOrphanAgentImage(sibling), "agent of one removed id beside a live versions directory");
+        Check(!InstallEngine.IsStaleVersion(Path.Combine(root, "versions", ".install-abc"), null), "staging tree treated as stale");
+        Check(!InstallEngine.IsStaleVersion(Path.Combine(root, "versions", "5.4.5-abcdef"), "versions/5.4.5-abcdef"), "current version treated as stale");
+        Check(InstallEngine.IsStaleVersion(Path.Combine(root, "versions", "5.4.4-abcdef"), "versions/5.4.5-abcdef"), "older version not treated as stale");
 var occupied = Path.Combine(root, "chosen-parent"); Directory.CreateDirectory(occupied);
 var untouched = Path.Combine(occupied, "research.txt"); File.WriteAllText(untouched, "keep my files");
 Check(InstallEngine.ResolveDestination(occupied) == Path.Combine(occupied, "Operon"), "nonempty parent not redirected");
