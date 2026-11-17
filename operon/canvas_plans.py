@@ -209,8 +209,12 @@ class CanvasPlans:
         kernel = kernel_files(app_root)
         data['execution_policy']['kernel_digest'] = sha256_hex(kernel)
         plan = RunPlan.model_validate(data).with_identity()
-        package = self.directory / 'code' / plan.plan_id
         roots = provider_roots(manager, state, app_root)
+        from .export.automatic import canvas_code_inventory, code_inventory_identity
+        discovered = canvas_code_inventory(plan, application_root=app_root, roots=roots, kernel=kernel)
+        data['execution_policy']['code_closure'] = code_inventory_identity(discovered)
+        plan = RunPlan.model_validate(data).with_identity()
+        package = self.directory / 'code' / plan.plan_id
         # Atomic complete-code publication. Failed preparations do not publish a
         # usable package or replace code referenced by an accepted run.
         with FileLock(package.with_suffix('.lock'), timeout=600):
@@ -219,7 +223,8 @@ class CanvasPlans:
                 implementations = json.loads(io_path(receipt).read_text(encoding='utf-8'))
             else:
                 temporary = package.with_name(package.name + '.partial-' + uuid.uuid4().hex)
-                implementations = collect_canvas_code(plan, temporary, application_root=app_root, roots=roots, kernel=kernel)
+                implementations = collect_canvas_code(plan, temporary, application_root=app_root,
+                                                     roots=roots, kernel=kernel, discovered=discovered)
                 from .export.collector import collect
                 for relative, resource in resources.items():
                     source = Path(resource['source'])

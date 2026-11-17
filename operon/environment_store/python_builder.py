@@ -11,6 +11,7 @@ from pathlib import Path
 import shutil
 
 from operon.contracts.base import ContractError, sha256_hex
+from operon.python_paths import bootstrap_code
 from .builders import LockedArchiveBuilder, probe
 from .verification import confined, file_digest
 
@@ -37,7 +38,7 @@ class PythonWheelhouseBuilder(LockedArchiveBuilder):
                 if clean.startswith('-') or ' @ ' in clean or '://' in clean or '==' not in clean:
                     raise ContractError('Use exact version pins and SHA256 hashes only', code='unlocked_artifact')
         checks = [(executable, '-I', '-B', '-c',
-                   'import importlib; ' + '; '.join('importlib.import_module(' + repr(name) + ')' for name in imports)),
+                   bootstrap_code('; '.join('importlib.import_module(' + repr(name) + ')' for name in imports))),
                   (executable, '-I', '-B', '-m', 'pip', 'check')]
         super().__init__([runtime], checks, timeout=timeout)
 

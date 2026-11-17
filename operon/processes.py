@@ -108,7 +108,15 @@ def owned_process(args, **options):
     spawn-before-registration race. POSIX gives the operation its own session.
     Always stop descendants before closing pipes: an orphan may hold them open.
     """
-    owner = _WindowsJob() if os.name == 'nt' else None
+    from operon.process_paths import ProcessDirectory
+    cwd = ProcessDirectory(options.get('cwd'))
+    if options.get('cwd') is not None:
+        options['cwd'] = cwd.path
+    try:
+        owner = _WindowsJob() if os.name == 'nt' else None
+    except BaseException:
+        cwd.finish(confirmed=True)
+        raise
     if owner:
         options['creationflags'] = options.get('creationflags', 0) | 0x00000004
         # Explicit lpApplicationName avoids Windows' MAX_PATH limit when it
@@ -120,6 +128,7 @@ def owned_process(args, **options):
     else:
         options['start_new_session'] = True
     process = None
+    tree_stopped = False
     try:
         with subprocess.Popen(args, **options) as process:
             try:
@@ -131,6 +140,7 @@ def owned_process(args, **options):
                 if owner:
                     try:
                         owner.stop()
+                        tree_stopped = True
                     finally:
                         owner.close()
                 else:
@@ -142,16 +152,19 @@ def owned_process(args, **options):
                     process.kill()
                 process.wait(timeout=5)
     finally:
-        if owner:
-            owner.close()
-            if process is not None and process.returncode is not None:
-                # Popen otherwise waits for GC to release this native handle;
-                # an exception traceback can keep the terminated PID alive.
-                process._handle.Close()
-                try:
-                    psutil.Process(process.pid).wait(timeout=1)
-                except psutil.NoSuchProcess:
-                    pass
+        try:
+            if owner:
+                owner.close()
+                if process is not None and process.returncode is not None:
+                    # Popen otherwise waits for GC to release this native handle;
+                    # an exception traceback can keep the terminated PID alive.
+                    process._handle.Close()
+                    try:
+                        psutil.Process(process.pid).wait(timeout=1)
+                    except psutil.NoSuchProcess:
+                        pass
+        finally:
+            cwd.finish(confirmed=process is None or tree_stopped or os.name != 'nt')
 
 
 def stop_tree(process):

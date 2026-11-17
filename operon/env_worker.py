@@ -7,6 +7,9 @@ import sys
 import traceback
 from pathlib import Path
 
+from operon.python_paths import configure_python_paths
+configure_python_paths()
+
 import numpy as np
 
 

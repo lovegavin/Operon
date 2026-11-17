@@ -1,12 +1,16 @@
 //! Installation-scoped maintenance channel for the experimental Windows host.
 //!
-//! The only accepted request is a bearer-authenticated graceful `quit`.
-//! The host replies `accepted` and then requires a matching receipt `ack` on
-//! the same authenticated connection within the frame deadline before it
-//! records the request or requests exit. The channel never exposes a renderer
-//! command, caller paths, process control, or arbitrary IPC. A local named pipe
-//! is published together with a private profile receipt before the startup gate
-//! is released; the receipt is removed only by the session that still owns it.
+//! Authenticated requests are the graceful `quit` and the shortcut `show`.
+//! A ready request replies `accepted` and then requires a matching receipt `ack`
+//! on the same authenticated connection within the frame deadline before it
+//! takes effect. `show` additionally returns a final `shown`/`rejected` status;
+//! a `not_ready` reply is the only retryable status and never bypasses
+//! maintenance or shutdown. `quit` remains byte-for-byte compatible and has no
+//! post-ack frame.
+//! The channel never exposes a renderer command, caller paths, process control,
+//! or arbitrary IPC. A local named pipe is published together with a private
+//! profile receipt before the startup gate is released; the receipt is removed
+//! only by the session that still owns it.
 //!
 //! The startup gate is a named mutex plus a manual-reset active event. The host
 //! takes the mutex before the profile instance lock or backend spawn and checks
@@ -18,7 +22,7 @@ use crate::error::HostError;
 #[cfg(windows)]
 mod windows_impl {
     use super::HostError;
-    use crate::bridge::HostState;
+    use crate::bridge::{ActivationVerdict, HostState};
     use serde::{Deserialize, Serialize};
     use sha2::{Digest, Sha256};
     use std::collections::VecDeque;
@@ -33,10 +37,13 @@ mod windows_impl {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::net::windows::named_pipe::{NamedPipeServer, PipeMode, ServerOptions};
     use uuid::Uuid;
-    use windows_sys::Win32::Foundation::{CloseHandle, FILETIME, WAIT_ABANDONED, WAIT_OBJECT_0};
+    use windows_sys::Win32::Foundation::{
+        CloseHandle, GetLastError, ERROR_FILE_NOT_FOUND, ERROR_PATH_NOT_FOUND, FILETIME,
+        WAIT_ABANDONED, WAIT_OBJECT_0, WAIT_TIMEOUT,
+    };
     use windows_sys::Win32::System::Threading::{
-        CreateEventW, CreateMutexW, GetCurrentProcess, GetProcessTimes, ReleaseMutex, ResetEvent,
-        SetEvent, WaitForSingleObject,
+        CreateEventW, CreateMutexW, GetCurrentProcess, GetProcessTimes, OpenEventW, ReleaseMutex,
+        ResetEvent, SetEvent, WaitForSingleObject,
     };
 
     pub const RECEIPT_FILE: &str = ".operon-maintenance-host.json";
@@ -45,6 +52,8 @@ mod windows_impl {
     const MAX_RECENT_REQUESTS: usize = 8;
     const MUTEX_PREFIX: &str = "Local\\OperonExperimentalMaintenance-";
     const EVENT_SUFFIX: &str = "-active";
+    // SYNCHRONIZE is not exported by the enabled windows-sys features.
+    const SYNCHRONIZE_ACCESS: u32 = 0x0010_0000;
 
     /// A held named mutex proving that host startup is still in the pre-spawn
     /// phase. Windows mutex ownership is thread-specific, so a dedicated owner
@@ -73,6 +82,33 @@ mod windows_impl {
             if let Some(thread) = self.thread.take() {
                 let _ = thread.join();
             }
+        }
+    }
+
+    /// Read-only check of the installation-scoped maintenance-active event.
+    ///
+    /// A missing event means no installation transaction is active. Any other
+    /// handle/wait failure is returned as an error so callers fail closed.
+    pub fn is_active(installation_id: &str) -> Result<bool, HostError> {
+        let hash = installation_hash(installation_id);
+        let event_name = wide(&format!("{MUTEX_PREFIX}{hash}{EVENT_SUFFIX}"));
+        let event = unsafe { OpenEventW(SYNCHRONIZE_ACCESS, 0, event_name.as_ptr()) };
+        if event.is_null() {
+            let error = unsafe { GetLastError() };
+            return if error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND {
+                Ok(false)
+            } else {
+                Err(HostError::bridge_unavailable())
+            };
+        }
+        let wait = unsafe { WaitForSingleObject(event, 0) };
+        unsafe {
+            CloseHandle(event);
+        }
+        match wait {
+            WAIT_OBJECT_0 => Ok(true),
+            WAIT_TIMEOUT => Ok(false),
+            _ => Err(HostError::bridge_unavailable()),
         }
     }
 
@@ -273,13 +309,20 @@ mod windows_impl {
         token: String,
     }
 
+    #[derive(Clone, Copy, PartialEq, Eq, Deserialize)]
+    #[serde(rename_all = "lowercase")]
+    enum Action {
+        Quit,
+        Show,
+    }
+
     #[derive(Deserialize)]
     #[serde(deny_unknown_fields)]
     struct Request {
         schema: u32,
         installation_id: String,
         token: String,
-        action: String,
+        action: Action,
         request_id: String,
     }
 
@@ -430,23 +473,51 @@ mod windows_impl {
         recent: Arc<Mutex<VecDeque<String>>>,
     ) {
         let app = app.clone();
-        serve_connection(&mut server, installation_id, token, recent, move || {
-            crate::bridge::request_exit(app)
-        })
+        let app_quit = app.clone();
+        let app_show = app.clone();
+        serve_connection(
+            &mut server,
+            installation_id,
+            token,
+            recent,
+            move || show_precheck(&app),
+            move || crate::bridge::request_exit(app_quit),
+            move || async move { crate::bridge::activate_main_window(&app_show).await },
+        )
         .await;
     }
 
+    fn show_precheck(app: &AppHandle) -> ActivationVerdict {
+        let state = app.state::<HostState>();
+        match is_active(&state.config.installation_id) {
+            Ok(false) => {}
+            _ => return ActivationVerdict::Rejected,
+        }
+        let lifecycle = state
+            .lifecycle
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        crate::bridge::activation_verdict(lifecycle.state())
+    }
+
     /// Complete one authenticated request on the connection that carried it.
-    /// The quit callback runs only after the peer returns the exact request id
-    /// as an `ack`; a dropped connection or any other frame leaves the request
+    /// `accepted` is withheld for `not_ready`/`rejected` show requests. The quit
+    /// callback runs only after the peer returns the exact request id as an
+    /// `ack`; a dropped connection or any other frame leaves the request
     /// unrecorded so a retry with the same id can still deliver the quit.
-    async fn serve_connection(
+    async fn serve_connection<Q, S, Fut>(
         server: &mut NamedPipeServer,
         installation_id: &str,
         token: &str,
         recent: Arc<Mutex<VecDeque<String>>>,
-        on_accepted: impl FnOnce(),
-    ) {
+        show_verdict: impl FnOnce() -> ActivationVerdict,
+        on_quit: Q,
+        on_show: S,
+    ) where
+        Q: FnOnce(),
+        S: FnOnce() -> Fut,
+        Fut: std::future::Future<Output = bool>,
+    {
         let frame = match read_frame(server).await {
             Ok(frame) => frame,
             Err(_) => return,
@@ -455,6 +526,32 @@ mod windows_impl {
             Ok(request) => request,
             Err(_) => return,
         };
+
+        if request.action == Action::Show {
+            match show_verdict() {
+                ActivationVerdict::NotReady => {
+                    let reply = Response {
+                        schema: 1,
+                        request_id: &request.request_id,
+                        status: "not_ready",
+                    };
+                    let _ = write_frame(server, &reply).await;
+                    let _ = read_frame(server).await; // Keep reply alive until consumed.
+                    return;
+                }
+                ActivationVerdict::Rejected => {
+                    let reply = Response {
+                        schema: 1,
+                        request_id: &request.request_id,
+                        status: "rejected",
+                    };
+                    let _ = write_frame(server, &reply).await;
+                    let _ = read_frame(server).await;
+                    return;
+                }
+                ActivationVerdict::Ready => {}
+            }
+        }
 
         let reply = Response {
             schema: 1,
@@ -478,24 +575,41 @@ mod windows_impl {
             return;
         }
 
-        let newly_recorded = {
-            let mut ids = recent
-                .lock()
-                .unwrap_or_else(|poisoned| poisoned.into_inner());
-            if ids.iter().any(|value| value == &request.request_id) {
-                false
-            } else {
-                if ids.len() == MAX_RECENT_REQUESTS {
-                    ids.pop_front();
+        match request.action {
+            Action::Quit => {
+                let newly_recorded = {
+                    let mut ids = recent
+                        .lock()
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+                    if ids.iter().any(|value| value == &request.request_id) {
+                        false
+                    } else {
+                        if ids.len() == MAX_RECENT_REQUESTS {
+                            ids.pop_front();
+                        }
+                        ids.push_back(request.request_id.clone());
+                        true
+                    }
+                };
+                if newly_recorded {
+                    // The existing close flow owns draft save, pending-job
+                    // confirmation, drain and exit status. This channel never
+                    // invokes process control.
+                    on_quit();
                 }
-                ids.push_back(request.request_id.clone());
-                true
             }
-        };
-        if newly_recorded {
-            // The existing close flow owns draft save, pending-job confirmation,
-            // drain and exit status. This channel never invokes process control.
-            on_accepted();
+            Action::Show => {
+                let shown = on_show().await;
+                let reply = Response {
+                    schema: 1,
+                    request_id: &request.request_id,
+                    status: if shown { "shown" } else { "rejected" },
+                };
+                let _ = write_frame(server, &reply).await;
+                // Flush alone cannot prove Windows pipe peer consumption. Keep
+                // the final result alive until acknowledgement (or deadline).
+                let _ = read_frame(server).await;
+            }
         }
     }
 
@@ -520,7 +634,6 @@ mod windows_impl {
         if request.schema != 1
             || request.installation_id != installation_id
             || request.token != token
-            || request.action != "quit"
             || !valid_token(&request.token)
             || Uuid::parse_str(&request.request_id).is_err()
         {
@@ -612,7 +725,7 @@ mod windows_impl {
         Ok(((created.dwHighDateTime as u64) << 32) | created.dwLowDateTime as u64)
     }
 
-    fn valid_token(value: &str) -> bool {
+    pub(crate) fn valid_token(value: &str) -> bool {
         if value.len() != 72 {
             return false;
         }
@@ -745,9 +858,11 @@ mod windows_impl {
                     &server_id,
                     &server_token,
                     server_recent,
+                    || ActivationVerdict::Ready,
                     move || {
                         server_calls.fetch_add(1, Ordering::SeqCst);
                     },
+                    || async { false },
                 )
                 .await;
             });
@@ -803,11 +918,183 @@ mod windows_impl {
         }
 
         #[test]
-        fn accepts_only_the_exact_quit_action() {
+        fn accepts_only_the_exact_quit_and_show_actions() {
             let token = format!("{}{}", Uuid::new_v4(), Uuid::new_v4());
             assert!(validate_request(&request("quit", &token), "installation-a", &token).is_ok());
+            assert!(validate_request(&request("show", &token), "installation-a", &token).is_ok());
             assert!(validate_request(&request("run", &token), "installation-a", &token).is_err());
-            assert!(validate_request(&request("quit", &token), "installation-b", &token).is_err());
+            assert!(validate_request(&request("SHOW", &token), "installation-a", &token).is_err());
+            assert!(validate_request(&request("show", &token), "installation-b", &token).is_err());
+        }
+
+        #[test]
+        fn maintenance_active_event_is_readable() {
+            let id = format!("active-test-{}", Uuid::new_v4());
+            assert!(!is_active(&id).unwrap());
+            let lease = MaintenanceLease::acquire(&id).unwrap();
+            assert!(is_active(&id).unwrap());
+            drop(lease);
+            assert!(!is_active(&id).unwrap());
+        }
+
+        async fn read_optional_frame(
+            client: &mut tokio::net::windows::named_pipe::NamedPipeClient,
+        ) -> Option<Vec<u8>> {
+            let mut output = Vec::new();
+            let mut one = [0u8; 1];
+            loop {
+                let read = tokio::time::timeout(READ_DEADLINE, client.read(&mut one))
+                    .await
+                    .ok()?
+                    .ok()?;
+                if read == 0 {
+                    return None;
+                }
+                if one[0] == b'\n' {
+                    return Some(output);
+                }
+                output.push(one[0]);
+            }
+        }
+
+        async fn show_round_trip(
+            verdict: ActivationVerdict,
+            reply: AckReply,
+        ) -> (String, Option<String>, usize) {
+            let pipe_name = format!(r"\\.\pipe\OperonShowTest-{}", Uuid::new_v4());
+            let mut server = ServerOptions::new()
+                .pipe_mode(PipeMode::Byte)
+                .first_pipe_instance(true)
+                .create(&pipe_name)
+                .expect("create show test server");
+            let installation_id = "installation-a".to_owned();
+            let token = format!("{}{}", Uuid::new_v4(), Uuid::new_v4());
+            let request_id = Uuid::new_v4().to_string();
+            let show_calls = Arc::new(AtomicUsize::new(0));
+            let raw_request = request_frame(&installation_id, &token, &request_id, "show");
+
+            let server_calls = Arc::clone(&show_calls);
+            let server_id = installation_id.clone();
+            let server_token = token.clone();
+            let server_task = tokio::spawn(async move {
+                server.connect().await.expect("connect show client");
+                serve_connection(
+                    &mut server,
+                    &server_id,
+                    &server_token,
+                    Arc::new(Mutex::new(VecDeque::new())),
+                    move || verdict,
+                    || {},
+                    move || async move {
+                        server_calls.fetch_add(1, Ordering::SeqCst);
+                        true
+                    },
+                )
+                .await;
+            });
+
+            let mut client = ClientOptions::new()
+                .open(&pipe_name)
+                .expect("open show test client");
+            client.write_all(&raw_request).await.unwrap();
+            client.flush().await.unwrap();
+            let first = read_optional_frame(&mut client)
+                .await
+                .expect("first show reply");
+            let first: serde_json::Value = serde_json::from_slice(&first).unwrap();
+            let first_status = first["status"].as_str().unwrap().to_owned();
+            assert_eq!(first["request_id"].as_str(), Some(request_id.as_str()));
+
+            let mut final_status = None;
+            if first_status == "accepted" {
+                match reply {
+                    AckReply::Matching => {
+                        client
+                            .write_all(&ack_frame(&request_id, "ack"))
+                            .await
+                            .unwrap();
+                        client.flush().await.unwrap();
+                        tokio::time::sleep(Duration::from_millis(80)).await;
+                        let final_frame = read_optional_frame(&mut client)
+                            .await
+                            .expect("final show reply");
+                        let final_frame: serde_json::Value =
+                            serde_json::from_slice(&final_frame).unwrap();
+                        final_status = final_frame["status"].as_str().map(str::to_owned);
+                        assert_eq!(
+                            final_frame["request_id"].as_str(),
+                            Some(request_id.as_str())
+                        );
+                        client
+                            .write_all(&ack_frame(&request_id, "ack"))
+                            .await
+                            .unwrap();
+                        client.flush().await.unwrap();
+                    }
+                    AckReply::Wrong => {
+                        client
+                            .write_all(&ack_frame(&Uuid::new_v4().to_string(), "ack"))
+                            .await
+                            .unwrap();
+                        client.flush().await.unwrap();
+                    }
+                    AckReply::Missing => {
+                        drop(client);
+                    }
+                }
+            } else {
+                client
+                    .write_all(&ack_frame(&request_id, "ack"))
+                    .await
+                    .unwrap();
+                client.flush().await.unwrap();
+            }
+
+            tokio::time::timeout(READ_DEADLINE + Duration::from_secs(1), server_task)
+                .await
+                .expect("show test server timed out")
+                .expect("show test server panicked");
+            (
+                first_status,
+                final_status,
+                show_calls.load(Ordering::SeqCst),
+            )
+        }
+
+        #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+        async fn show_requires_ack_and_shown_before_effect() {
+            let (first, final_status, calls) =
+                show_round_trip(ActivationVerdict::Ready, AckReply::Matching).await;
+            assert_eq!(first, "accepted");
+            assert_eq!(final_status.as_deref(), Some("shown"));
+            assert_eq!(calls, 1);
+
+            let (first, final_status, calls) =
+                show_round_trip(ActivationVerdict::Ready, AckReply::Wrong).await;
+            assert_eq!(first, "accepted");
+            assert_eq!(final_status, None);
+            assert_eq!(calls, 0);
+
+            let (first, final_status, calls) =
+                show_round_trip(ActivationVerdict::Ready, AckReply::Missing).await;
+            assert_eq!(first, "accepted");
+            assert_eq!(final_status, None);
+            assert_eq!(calls, 0);
+        }
+
+        #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+        async fn show_not_ready_and_rejected_do_not_accept_or_show() {
+            let (first, final_status, calls) =
+                show_round_trip(ActivationVerdict::NotReady, AckReply::Missing).await;
+            assert_eq!(first, "not_ready");
+            assert_eq!(final_status, None);
+            assert_eq!(calls, 0);
+
+            let (first, final_status, calls) =
+                show_round_trip(ActivationVerdict::Rejected, AckReply::Missing).await;
+            assert_eq!(first, "rejected");
+            assert_eq!(final_status, None);
+            assert_eq!(calls, 0);
         }
 
         #[test]
@@ -907,7 +1194,11 @@ mod windows_impl {
 }
 
 #[cfg(windows)]
-pub use windows_impl::{start, MaintenanceLease, MaintenanceService, StartupGuard, RECEIPT_FILE};
+pub(crate) use windows_impl::valid_token;
+#[cfg(windows)]
+pub use windows_impl::{
+    is_active, start, MaintenanceLease, MaintenanceService, StartupGuard, RECEIPT_FILE,
+};
 
 #[cfg(not(windows))]
 pub struct StartupGuard;
@@ -930,6 +1221,10 @@ pub struct MaintenanceService;
 #[cfg(not(windows))]
 pub fn start(_app: &tauri::AppHandle) -> Result<(), HostError> {
     Err(HostError::unsupported(None))
+}
+#[cfg(not(windows))]
+pub fn is_active(_installation_id: &str) -> Result<bool, HostError> {
+    Ok(false)
 }
 #[cfg(not(windows))]
 pub const RECEIPT_FILE: &str = ".operon-maintenance-host.json";

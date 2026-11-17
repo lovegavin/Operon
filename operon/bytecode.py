@@ -27,16 +27,8 @@ def enable_long_import_paths():
     Updating sys.path alone cannot repair importlib's already cached __path__.
     CPython loads that package before the invocation bootstrap runs.
     """
-    if os.name != 'nt':
-        return
-    def normalize(paths):
-        return [str(io_path(p)) if p and os.path.isabs(p) else p for p in paths]
-    sys.path[:] = normalize(sys.path)
-    for module in tuple(sys.modules.values()):
-        paths = getattr(module, '__path__', None)
-        if isinstance(paths, list):
-            paths[:] = normalize(paths)
-    importlib.invalidate_caches()
+    from operon.python_paths import configure_python_paths
+    configure_python_paths()
 
 
 def executable_path(path):

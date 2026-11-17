@@ -20,6 +20,7 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj/**;bin/**;.selftest-out/**</DefaultItemExcludes>
     <DefineConstants Condition="'$(UninstallerStub)' == 'true'">$(DefineConstants);UNINSTALLER_STUB</DefineConstants>
   </PropertyGroup>
   <ItemGroup>

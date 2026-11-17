@@ -12,6 +12,7 @@ import sys
 from operon.contracts.base import ContractError
 from operon.engine.fs import FileLock, atomic_json
 from operon.plugins import run_process
+from operon.python_paths import bootstrap_code
 
 
 def tooling(root, module, version):
@@ -32,7 +33,7 @@ def tooling(root, module, version):
                          '--no-compile', '--target', str(directory), module.replace('_', '-') + '==' + version],
                         timeout=900)
             run_process([sys.executable, '-I', '-c',
-                         'import sys,importlib;sys.path.insert(0,sys.argv[1]);importlib.import_module(sys.argv[2])',
+                         bootstrap_code('importlib.import_module(sys.argv[2])', paths_expression='[sys.argv[1]]'),
                          str(directory), module], timeout=45)
             atomic_json(receipt, identity)
     return directory
@@ -70,8 +71,8 @@ def standalone_python(root, details):
 def pack_conda(prefix, output, root):
     """conda-pack owns prefix relocation; editable/missing files are NOT ignored."""
     module = tooling(root, 'conda_pack', '0.8.1')
-    code = ('import sys; sys.path.insert(0,sys.argv[1]); import conda_pack; '
-            'conda_pack.pack(prefix=sys.argv[2],output=sys.argv[3],format="tar",verbose=False)')
+    code = bootstrap_code('import conda_pack; conda_pack.pack(prefix=sys.argv[2],output=sys.argv[3],format="tar",verbose=False)',
+                          paths_expression='[sys.argv[1]]')
     run_process([sys.executable, '-I', '-c', code, str(module), str(prefix), str(output)], timeout=1800)
 
 

@@ -18,6 +18,7 @@ from operon.environment_store.verification import confined, file_digest
 from ..invocation import PreparedInvocation, OutputManifest
 from ..codecs import file_reference, validate_reference
 from operon.bytecode import io_path, executable_path
+from operon.python_paths import bootstrap_code
 from ..foreign_paths import r_path, validate_r_generation
 
 
@@ -50,9 +51,9 @@ class CommandInvocationAdapter:
     def prepare(self, invocation, context):
         binding = self.store.binding(self.generation_id)
         root = context.attempt_root.resolve()
-        root.mkdir(parents=True, exist_ok=True)
+        io_path(root).mkdir(parents=True, exist_ok=True)
         for name in ('outputs', 'scratch', 'logs'):
-            (root / name).mkdir(exist_ok=True)
+            io_path(root / name).mkdir(exist_ok=True)
         payload = context.payload
         params = payload.get('parameters', {})
         refs = payload.get('inputs', {})
@@ -76,7 +77,7 @@ class CommandInvocationAdapter:
             resolved_outputs.append((name, resolved))
             outputs[name] = str(output)
         for output in outputs.values():
-            Path(output).parent.mkdir(parents=True, exist_ok=True)
+            io_path(output).parent.mkdir(parents=True, exist_ok=True)
         for name, value in (('parameters.json', params), ('inputs.json', refs),
                             ('environment.json', binding.model_dump(mode='json'))):
             atomic_json(root / name, value)
@@ -101,10 +102,11 @@ class CommandInvocationAdapter:
                 raise ContractError('Script differs from frozen code identity', code='implementation_unavailable')
             if invocation.kind == 'python_script':
                 bootstrap = root / 'script_bootstrap.py'
-                bootstrap.write_text('import runpy,sys\nsys.path[:0] = ' + repr([
-                    str(self.package_root), str(launch_generation / 'packages')]) +
-                    '\nsys.argv = [' + repr(str(script)) + ', *sys.argv[1:]]\nrunpy.run_path(' +
-                    repr(str(script)) + ', run_name="__main__")\n', encoding='utf-8')
+                io_path(bootstrap).write_text(bootstrap_code(
+                    'import runpy\nsys.argv = [' + repr(str(script)) + ', *sys.argv[1:]]\nrunpy.run_path(' +
+                    repr(str(io_path(script))) + ', run_name="__main__")\n',
+                    paths_expression=repr([str(self.package_root), str(launch_generation / 'packages')])),
+                    encoding='utf-8')
                 arguments = ('-I', '-B', str(io_path(bootstrap)), *arguments)
             else:
                 arguments = ('--vanilla', str(r_path(script, role='script') if windows_r else script), *arguments)

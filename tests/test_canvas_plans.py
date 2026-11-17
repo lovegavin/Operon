@@ -41,6 +41,37 @@ def minimal_app(tmp_path):
     return SimpleNamespace(service=service)
 
 
+def test_selected_provider_preserves_unused_resources_without_checking_unused_imports(provider, tmp_path):
+    root, catalog = provider
+    unused = root / 'owned_native_provider/unused_tool'
+    unused.mkdir()
+    (unused / '__init__.py').write_text('from .unavailable import Tool\n')
+    (unused / 'data.bin').write_bytes(b'\x00\xffresource')
+    plan = WorkflowCompiler().compile(graph(root), None, catalog, root=root, freeze_defaults=False)
+    # Package the complete fixture before freezing it; never bypass verification.
+    from operon_sdk.declarations import compile_declaration
+    from operon_sdk.protocol import Descriptor
+    from src.web.operator_catalog import catalog_from_descriptors
+    descriptors = []
+    for original in plan.diagnostics['native_descriptor_audit'].values():
+        raw = deepcopy(original)
+        identity = raw.pop('implementation')
+        updated = compile_declaration({k: v for k, v in raw.items() if k in Descriptor.model_fields}, root)
+        updated['distribution'] = raw['distribution']
+        updated['implementation'] = {**identity, 'code_sha': updated['code_sha'],
+                                     'declaration_sha': updated['declaration_sha']}
+        descriptors.append(updated)
+    catalog = catalog_from_descriptors(descriptors)
+    plan = WorkflowCompiler().compile(graph(root), None, catalog, root=root, freeze_defaults=False)
+    frozen = deepcopy(plan.implementations)
+    destination = tmp_path / 'selected-payload'
+    manifests = collect_canvas_code(plan, destination, application_root=ROOT, roots=[ROOT, root])
+    assert plan.implementations == frozen
+    assert (destination / 'owned_native_provider/unused_tool/data.bin').read_bytes() == b'\x00\xffresource'
+    assert 'owned_native_provider/unused_tool/__init__.py' in manifests['owned.identity']['files']
+    assert (destination / 'src/core/forms/form.py').is_file()
+
+
 def settled(canvas, key):
     deadline = time.monotonic() + 5
     while time.monotonic() < deadline:

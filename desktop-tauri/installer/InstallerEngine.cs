@@ -21,6 +21,10 @@ internal static class ProductIdentity
     internal const string ProfileMarker = ".operon-experimental.json";
     internal const string InstanceLock = ".operon-instance.lock";
     internal const string MaintenanceReceipt = ".operon-maintenance-host.json";
+    internal const string LibraryDirectory = "library";
+    internal const string LibraryBindingName = "experimental-library-binding.json";
+    internal const string LibraryRelativeLocation = "../../library";
+    internal const string LibraryMigrationPrefix = ".library-migration-";
     internal static string DefaultRoot => System.IO.Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Programs", "Operon Studio Experimental");
@@ -113,6 +117,42 @@ internal sealed class CurrentPointer
     [JsonPropertyName("profile")] public string Profile { get; set; } = "";
 }
 
+internal sealed class ExperimentalLibraryBinding
+{
+    [JsonPropertyName("schema")] public int Schema { get; set; } = 1;
+    [JsonPropertyName("installation_id")] public string InstallationId { get; set; } = "";
+    [JsonPropertyName("location")] public string Location { get; set; } = ProductIdentity.LibraryRelativeLocation;
+}
+
+internal sealed class LibraryMigrationResult
+{
+    internal bool StableLibraryAvailable { get; init; }
+    internal bool Migrated { get; init; }
+    internal bool Reused { get; init; }
+    internal string? RecoveryNote { get; init; }
+}
+
+internal sealed class LibraryTreeEntry
+{
+    internal string RelativePath { get; init; } = "";
+    internal long Bytes { get; init; }
+    internal string Sha256 { get; init; } = "";
+}
+
+internal sealed class LibraryTree
+{
+    internal Dictionary<string, LibraryTreeEntry> Files { get; } = new(StringComparer.OrdinalIgnoreCase);
+    internal HashSet<string> Directories { get; } = new(StringComparer.OrdinalIgnoreCase);
+    internal bool HasFiles => Files.Count > 0;
+
+    internal bool SameFiles(LibraryTree other) =>
+        Files.Count == other.Files.Count &&
+        Files.All(pair => other.Files.TryGetValue(pair.Key, out var value) &&
+            value.Bytes == pair.Value.Bytes && value.Sha256 == pair.Value.Sha256);
+
+    internal bool ExactEquals(LibraryTree other) => SameFiles(other) && Directories.SetEquals(other.Directories);
+}
+
 internal sealed class InstallResult
 {
     internal int Code { get; init; }
@@ -128,6 +168,7 @@ internal sealed class InstallationLayout
     internal string Root { get; }
     internal string InstallationId { get; }
     internal string Versions => System.IO.Path.Combine(Root, "versions");
+    internal string Library => System.IO.Path.Combine(Root, ProductIdentity.LibraryDirectory);
     internal string Profile => System.IO.Path.Combine(Root, "profiles", InstallationId);
     internal string StatePath => System.IO.Path.Combine(Root, "install-state.json");
     internal string CurrentPath => System.IO.Path.Combine(Root, "current.json");
@@ -159,6 +200,8 @@ internal sealed class InstallationLayout
     }
 
     internal string HostConfig(string versionDirectory) => System.IO.Path.Combine(versionDirectory, "host.json");
+    internal string LibraryBinding(string versionDirectory) =>
+        System.IO.Path.Combine(versionDirectory, ProductIdentity.LibraryBindingName);
 }
 
 internal static class PathPolicy
@@ -210,15 +253,48 @@ internal static class PathPolicy
         if (!Directory.Exists(full)) return full;
         if (File.Exists(System.IO.Path.Combine(full, "install-state.json")))
             return full;
+        // A completed uninstall removes install-state.json but deliberately
+        // retains <root>/library and the profile. Recognize that retained
+        // layout so a reinstall reuses the library instead of nesting a new
+        // installation under the old root.
+        if (IsRetainedInstallationRoot(full)) return full;
         if (HasOnlyTransientEntries(full)) return full;
 
         var child = System.IO.Path.Combine(full, "Operon Studio Experimental");
         EnsureNoReparse(child);
         if (File.Exists(System.IO.Path.Combine(child, "install-state.json"))) return child;
+        if (IsRetainedInstallationRoot(child)) return child;
         if (File.Exists(child)) throw new InstallerException(3, "The selected directory contains a foreign file named Operon Studio Experimental.");
         if (Directory.Exists(child) && Directory.EnumerateFileSystemEntries(child).Any() && !HasOnlyTransientEntries(child))
             throw new InstallerException(3, "The selected directory contains a nonempty foreign child: " + child);
         return child;
+    }
+
+    private static bool IsRetainedInstallationRoot(string root)
+    {
+        if (!Directory.Exists(System.IO.Path.Combine(root, ProductIdentity.LibraryDirectory))) return false;
+        var profiles = System.IO.Path.Combine(root, "profiles");
+        if (!Directory.Exists(profiles)) return false;
+        try
+        {
+            foreach (var profile in Directory.EnumerateDirectories(profiles))
+            {
+                var marker = System.IO.Path.Combine(profile, ProductIdentity.ProfileMarker);
+                if (!File.Exists(marker)) continue;
+                try
+                {
+                    using var document = JsonDocument.Parse(File.ReadAllBytes(marker));
+                    if (document.RootElement.GetProperty("schema_version").GetInt32() == 1 &&
+                        string.Equals(document.RootElement.GetProperty("installation_id").GetString(),
+                            System.IO.Path.GetFileName(profile), StringComparison.OrdinalIgnoreCase))
+                        return true;
+                }
+                catch (Exception error) when (error is JsonException or KeyNotFoundException or
+                    InvalidOperationException or IOException or UnauthorizedAccessException) { }
+            }
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
+        return false;
     }
 
     internal static InstalledState? ReadState(string root)
@@ -594,6 +670,7 @@ internal sealed class ExperimentalInstaller
         var manifest = ManifestVerifier.LoadEmbedded();
         ManifestVerifier.Validate(manifest);
         var embedded = ManifestVerifier.ReadEmbeddedBytes();
+        LibraryMigrationResult? libraryMigration = null;
         try
         {
             cancellation.ThrowIfCancellationRequested();
@@ -661,12 +738,14 @@ internal sealed class ExperimentalInstaller
             }
 
             cancellation.ThrowIfCancellationRequested();
-            _progress("Promoting the verified version...");
-            Directory.CreateDirectory(layout.Versions);
-            PathPolicy.EnsureNoReparse(layout.Versions);
+            if (Directory.Exists(layout.Versions)) PathPolicy.EnsureNoReparse(layout.Versions);
             var versionDirectory = layout.VersionDirectory(manifest.BuildId);
             if (Directory.Exists(versionDirectory))
             {
+                // Validate version-directory identity before the library
+                // migration so a wrong build identifier leaves all files
+                // unchanged, including the stable library.
+                PathPolicy.EnsureNoReparse(versionDirectory);
                 if (pointer?.BuildId != manifest.BuildId)
                     throw new InstallerException(5, "The target version directory already exists and is not current. No files were changed.");
                 var existingManifest = System.IO.Path.Combine(versionDirectory, ProductIdentity.ManifestName);
@@ -674,10 +753,26 @@ internal sealed class ExperimentalInstaller
                     InstallFiles.Hash(existingManifest) == extractedManifestHash;
                 if (!manifestMatches)
                     throw new InstallerException(5, "This build identifier already names a different payload. Use a new experimental build identifier; the current version was preserved.");
-                if (manifestMatches && VerifyInstalledVersion(versionDirectory, manifest))
+            }
+
+            _progress("Preparing the imported library...");
+            // Mutable imported-library state is separated from immutable code
+            // ownership before any version directory is replaced or promoted.
+            // The version-local source is retained byte-for-byte for rollback.
+            libraryMigration = MigrateLibrary(layout, currentVersion, installationId, cancellation, _log.Write);
+            cancellation.ThrowIfCancellationRequested();
+
+            _progress("Promoting the verified version...");
+            Directory.CreateDirectory(layout.Versions);
+            PathPolicy.EnsureNoReparse(layout.Versions);
+            if (Directory.Exists(versionDirectory))
+            {
+                if (VerifyInstalledVersion(versionDirectory, manifest,
+                        libraryMigration?.StableLibraryAvailable == true))
                 {
                     // The current version already contains the exact immutable
-                    // payload; only generated host.json/runtime cache may differ.
+                    // payload; only generated host.json/runtime cache and the
+                    // now-separated mutable library tree may differ.
                     DeleteStage(stage, manifest);
                     stage = null;
                 }
@@ -697,10 +792,12 @@ internal sealed class ExperimentalInstaller
             }
 
             var hostConfig = layout.HostConfig(versionDirectory);
+            var libraryBinding = layout.LibraryBinding(versionDirectory);
             var shortcutSnapshot = new FileSnapshot(layout.Shortcut);
             var pointerSnapshot = new FileSnapshot(layout.CurrentPath);
             var stateSnapshot = new FileSnapshot(layout.StatePath);
             var configSnapshot = new FileSnapshot(hostConfig);
+            var libraryBindingSnapshot = new FileSnapshot(libraryBinding);
             var uninstallerSnapshot = new FileSnapshot(layout.Uninstaller);
             var registrySnapshot = new RegistrySnapshot(layout.UninstallKey);
             try
@@ -715,6 +812,7 @@ internal sealed class ExperimentalInstaller
                     frontend = "frontend",
                     profile = layout.Profile
                 });
+                WriteLibraryBinding(layout, versionDirectory, installationId);
                 InstallUninstaller(layout);
                 var hostExe = System.IO.Path.Combine(versionDirectory, ProductIdentity.HostExe);
                 if (!File.Exists(hostExe)) throw new InstallerException(5, "The promoted payload is missing its host executable.");
@@ -744,6 +842,7 @@ internal sealed class ExperimentalInstaller
             {
                 registrySnapshot.Restore();
                 uninstallerSnapshot.Restore();
+                libraryBindingSnapshot.Restore();
                 configSnapshot.Restore();
                 stateSnapshot.Restore();
                 pointerSnapshot.Restore();
@@ -759,10 +858,13 @@ internal sealed class ExperimentalInstaller
             }
 
             _log.Write($"installed build={manifest.BuildId} payload={manifest.PayloadId} profile={layout.Profile}");
+            var message = "Operon Studio Experimental was installed. Launch it from the Start Menu.";
+            if (!string.IsNullOrWhiteSpace(libraryMigration?.RecoveryNote))
+                message += " " + libraryMigration.RecoveryNote;
             return new InstallResult
             {
                 Code = 0,
-                Message = "Operon Studio Experimental was installed. Launch it from the Start Menu.",
+                Message = message,
                 Root = layout.Root,
                 Action = "install",
                 LogPath = _log.Path
@@ -806,8 +908,11 @@ internal sealed class ExperimentalInstaller
             if (promotedPath is not null) DeleteStage(promotedPath, manifest);
             if (promotedPath is not null)
             {
-                var hostConfig = System.IO.Path.Combine(promotedPath, "host.json");
-                if (File.Exists(hostConfig)) File.Delete(hostConfig);
+                foreach (var name in new[] { "host.json", ProductIdentity.LibraryBindingName })
+                {
+                    var generated = System.IO.Path.Combine(promotedPath, name);
+                    if (File.Exists(generated)) File.Delete(generated);
+                }
             }
             if (replacedBackup is not null && layout is not null)
             {
@@ -819,6 +924,19 @@ internal sealed class ExperimentalInstaller
             }
             if (freshInstall && layout is not null)
             {
+                try
+                {
+                    if (Directory.Exists(layout.Library))
+                    {
+                        var stableTree = CaptureLibraryTree(layout.Library, CancellationToken.None);
+                        if (stableTree is not null && !stableTree.HasFiles)
+                            Directory.Delete(layout.Library, recursive: true);
+                    }
+                }
+                catch (Exception error) when (error is InstallerException or IOException or UnauthorizedAccessException)
+                {
+                    _log.Write("retained the stable library after the failed fresh install: " + error.Message);
+                }
                 if (File.Exists(layout.Uninstaller)) File.Delete(layout.Uninstaller);
                 if (Directory.Exists(layout.Bin) && !Directory.EnumerateFileSystemEntries(layout.Bin).Any())
                     Directory.Delete(layout.Bin);
@@ -961,6 +1079,11 @@ internal sealed class ExperimentalInstaller
             }
             removalBarrier.Dispose();
             RemoveEmptyDirectories(layout.Versions);
+            // The stable library lives outside every version directory and is
+            // never part of manifest-owned removal. Keep it explicitly, even
+            // when the last version is gone, so imported state and pins survive.
+            if (Directory.Exists(layout.Library))
+                notes.Add("The installation library was retained: " + layout.Library);
             notes.Add("The profile was retained: " + layout.Profile);
             var message = "Operon Studio Experimental was uninstalled. " + string.Join(" ", notes);
             _log.Write(message);
@@ -1049,7 +1172,7 @@ internal sealed class ExperimentalInstaller
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
 
-    private static bool VerifyInstalledVersion(string directory, ExperimentalManifest manifest)
+    internal static bool VerifyInstalledVersion(string directory, ExperimentalManifest manifest, bool allowLegacyLibrary)
     {
         try
         {
@@ -1068,7 +1191,9 @@ internal sealed class ExperimentalInstaller
                 if (expected.Contains(relative) ||
                     string.Equals(relative, ProductIdentity.ManifestName, StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(relative, "host.json", StringComparison.OrdinalIgnoreCase) ||
-                    IsRuntimeCache(relative))
+                    string.Equals(relative, ProductIdentity.LibraryBindingName, StringComparison.OrdinalIgnoreCase) ||
+                    IsRuntimeCache(relative) ||
+                    (allowLegacyLibrary && IsLegacyLibraryPath(relative)))
                     continue;
                 return false;
             }
@@ -1078,6 +1203,315 @@ internal sealed class ExperimentalInstaller
         {
             return false;
         }
+    }
+
+    private static bool IsLegacyLibraryPath(string relative) =>
+        relative.StartsWith(ProductIdentity.LibraryDirectory + "/", StringComparison.OrdinalIgnoreCase);
+
+    // The stable library is a mutable tree outside every immutable version
+    // directory. It is copied, verified, and renamed into place only after the
+    // owned host is drained and before any version directory is promoted or
+    // replaced. The version-local source is deliberately left untouched so a
+    // failed transaction can still roll back to the old pointer and its pins.
+    internal static LibraryMigrationResult MigrateLibrary(InstallationLayout layout, string? currentVersion,
+        string installationId, CancellationToken cancellation, Action<string>? log = null)
+    {
+        if (string.IsNullOrWhiteSpace(installationId))
+            throw new InstallerException(3, "The installation identity is missing; the imported library was not changed.");
+        cancellation.ThrowIfCancellationRequested();
+
+        var stable = layout.Library;
+        if (File.Exists(stable))
+            throw new InstallerException(5, "The installation library path is a file, not a directory: " + stable);
+        var source = currentVersion is null
+            ? null
+            : System.IO.Path.Combine(currentVersion, ProductIdentity.LibraryDirectory);
+
+        // The immutable version already identifies this mutable location.
+        // Reinstall is not an operator-package verification operation: do not
+        // re-hash every installed environment/file on each application update.
+        if (currentVersion is not null && HasValidLibraryBinding(currentVersion, installationId))
+        {
+            if (!Directory.Exists(stable))
+                throw new InstallerException(5, "The bound imported library is missing: " + stable);
+            PathPolicy.EnsureNoReparse(stable);
+            log?.Invoke("reusing the installation-bound library without scanning package contents: " + stable);
+            return new LibraryMigrationResult { StableLibraryAvailable = true, Reused = true };
+        }
+
+        var stableTree = CaptureLibraryTree(stable, cancellation);
+        var sourceTree = source is null ? null : CaptureLibraryTree(source, cancellation);
+        var stablePresent = stableTree is not null && stableTree.HasFiles;
+        var sourcePresent = sourceTree is not null && sourceTree.HasFiles;
+
+        if (stablePresent)
+        {
+            if (sourcePresent)
+            {
+                if (!HasValidLibraryBinding(currentVersion!, installationId) && !stableTree!.SameFiles(sourceTree!))
+                {
+                    throw new InstallerException(5,
+                        "The current version has a different nonempty imported library than the retained installation library. " +
+                        "No library was merged, moved, or replaced. Current version library: " + source +
+                        ". Retained installation library: " + stable +
+                        ". Recovery: back up and then remove or rename one divergent copy (or restore the expected library), then retry.");
+                }
+                log?.Invoke("the retained installation library is authoritative; the version-local copy was left unchanged: " + stable);
+            }
+            else
+            {
+                log?.Invoke("the retained installation library is authoritative: " + stable);
+            }
+            return new LibraryMigrationResult { StableLibraryAvailable = true, Reused = true };
+        }
+
+        if (!sourcePresent)
+        {
+            // The RC4 backend resolver requires the bound location to be an
+            // ordinary directory even when the user has not imported anything.
+            // Create an empty stable library; it is data-free and is the future
+            // import target, so a fresh install never falls back to the
+            // version-local tree.
+            EnsureStableLibraryDirectory(stable, cancellation);
+            var note = LibraryRecoveryNote(layout);
+            if (note is not null) log?.Invoke(note);
+            return new LibraryMigrationResult { StableLibraryAvailable = true, RecoveryNote = note };
+        }
+
+        string? staging = System.IO.Path.Combine(layout.Root,
+            ProductIdentity.LibraryMigrationPrefix + Guid.NewGuid().ToString("N"));
+        if (!PathPolicy.IsWithin(layout.Root, staging))
+            throw new InstallerException(5, "The imported library migration path is outside the installation root.");
+        try
+        {
+            Directory.CreateDirectory(staging);
+            log?.Invoke("copying the imported library to a staged tree: " + source + " -> " + staging);
+            CopyLibraryTree(source!, sourceTree!, staging, cancellation);
+            VerifyLibraryCopy(sourceTree!, staging, cancellation);
+            PromoteStagedLibrary(staging, stable, cancellation);
+            staging = null;
+            log?.Invoke("the imported library was migrated; the version-local source was retained: " + stable);
+            return new LibraryMigrationResult { StableLibraryAvailable = true, Migrated = true, Reused = false };
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (InstallerException)
+        {
+            throw;
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException)
+        {
+            throw new InstallerException(5,
+                "The imported library could not be migrated safely. The source library and the current pointer were not changed. " +
+                error.Message, error);
+        }
+        finally
+        {
+            if (staging is not null) DeleteLibraryStaging(staging);
+        }
+    }
+
+    internal static void WriteLibraryBinding(InstallationLayout layout, string versionDirectory, string installationId)
+    {
+        if (string.IsNullOrWhiteSpace(installationId))
+            throw new InstallerException(3, "The installation identity is missing; the library binding was not written.");
+        InstallFiles.AtomicJson(layout.LibraryBinding(versionDirectory), new ExperimentalLibraryBinding
+        {
+            Schema = 1,
+            InstallationId = installationId,
+            Location = ProductIdentity.LibraryRelativeLocation
+        });
+    }
+
+    internal static bool HasValidLibraryBinding(string versionDirectory, string installationId)
+    {
+        var path = System.IO.Path.Combine(versionDirectory, ProductIdentity.LibraryBindingName);
+        if (!File.Exists(path)) return false;
+        try
+        {
+            if ((File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0) return false;
+            var binding = JsonSerializer.Deserialize<ExperimentalLibraryBinding>(
+                File.ReadAllBytes(path), InstallFiles.Json);
+            return binding is not null && binding.Schema == 1 &&
+                   binding.InstallationId == installationId &&
+                   binding.Location == ProductIdentity.LibraryRelativeLocation;
+        }
+        catch (Exception error) when (error is JsonException or IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    private static LibraryTree? CaptureLibraryTree(string root, CancellationToken cancellation)
+    {
+        root = PathPolicy.Full(root);
+        if (!Directory.Exists(root)) return null;
+        var tree = new LibraryTree();
+        var pending = new Stack<string>();
+        pending.Push(root);
+        while (pending.Count > 0)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var directory = pending.Pop();
+            RequireNoLibraryReparse(directory);
+            foreach (var entry in Directory.EnumerateFileSystemEntries(directory))
+            {
+                cancellation.ThrowIfCancellationRequested();
+                if ((File.GetAttributes(entry) & FileAttributes.ReparsePoint) != 0)
+                    throw new InstallerException(5,
+                        "The imported library contains a link or reparse point and cannot be migrated: " + entry);
+                var relative = RelativeLibraryPath(root, entry);
+                if (Directory.Exists(entry))
+                {
+                    tree.Directories.Add(relative);
+                    pending.Push(entry);
+                }
+                else
+                {
+                    var info = new FileInfo(entry);
+                    if (!tree.Files.TryAdd(relative, new LibraryTreeEntry
+                        {
+                            RelativePath = relative,
+                            Bytes = info.Length,
+                            Sha256 = InstallFiles.Hash(entry)
+                        }))
+                        throw new InstallerException(5, "The imported library contains a duplicate path: " + entry);
+                }
+            }
+        }
+        return tree;
+    }
+
+    private static string RelativeLibraryPath(string root, string path)
+    {
+        var relative = System.IO.Path.GetRelativePath(root, path).Replace('\\', '/');
+        if (string.IsNullOrEmpty(relative) || relative == "." ||
+            relative.StartsWith("../", StringComparison.Ordinal) || relative.Contains('\0'))
+            throw new InstallerException(5, "The imported library contains an unsafe path: " + path);
+        return relative;
+    }
+
+    private static void RequireNoLibraryReparse(string path)
+    {
+        try { InstallFiles.NoLinks(path, ancestors: false); }
+        catch (InvalidDataException error)
+        {
+            throw new InstallerException(5,
+                "The imported library contains a link or reparse point and cannot be migrated: " + path, error);
+        }
+    }
+
+    private static void CopyLibraryTree(string source, LibraryTree tree, string destination,
+        CancellationToken cancellation)
+    {
+        Directory.CreateDirectory(destination);
+        RequireNoLibraryReparse(destination);
+        foreach (var relative in tree.Directories.OrderBy(value => value.Length))
+        {
+            cancellation.ThrowIfCancellationRequested();
+            Directory.CreateDirectory(InstallFiles.Inside(destination, relative));
+        }
+        foreach (var entry in tree.Files.Values.OrderBy(value => value.RelativePath, StringComparer.Ordinal))
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var sourcePath = InstallFiles.Inside(source, entry.RelativePath);
+            var target = InstallFiles.Inside(destination, entry.RelativePath);
+            Directory.CreateDirectory(System.IO.Path.GetDirectoryName(target)!);
+            File.Copy(sourcePath, target, overwrite: false);
+            File.SetAttributes(target, FileAttributes.Normal);
+            if (new FileInfo(target).Length != entry.Bytes || InstallFiles.Hash(target) != entry.Sha256)
+                throw new InstallerException(5,
+                    "The copied imported library file did not match its source size or SHA-256: " + entry.RelativePath);
+        }
+    }
+
+    private static void VerifyLibraryCopy(LibraryTree expected, string destination, CancellationToken cancellation)
+    {
+        var actual = CaptureLibraryTree(destination, cancellation)
+            ?? throw new InstallerException(5, "The staged imported library disappeared before verification.");
+        if (!expected.ExactEquals(actual))
+            throw new InstallerException(5,
+                "The staged imported library does not match the source file set, sizes, hashes, or directories. " +
+                "The source library was not changed.");
+    }
+
+    private static void EnsureStableLibraryDirectory(string stable, CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        if (Directory.Exists(stable))
+        {
+            RequireNoLibraryReparse(stable);
+            return;
+        }
+        if (File.Exists(stable))
+            throw new InstallerException(5, "The installation library path is a file, not a directory: " + stable);
+        Directory.CreateDirectory(stable);
+        RequireNoLibraryReparse(stable);
+    }
+
+    private static void PromoteStagedLibrary(string staging, string stable, CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        if (Directory.Exists(stable))
+        {
+            RequireNoLibraryReparse(stable);
+            var current = CaptureLibraryTree(stable, cancellation);
+            if (current is not null && current.HasFiles)
+                throw new InstallerException(5,
+                    "The installation library appeared while the imported library was being staged. No files were replaced. " +
+                    "Installation library: " + stable);
+            Directory.Delete(stable, recursive: true);
+        }
+        // Same-volume rename: the verified staged tree appears as <root>/library
+        // in one step, and an existing stable library is never overwritten.
+        Directory.Move(staging, stable);
+    }
+
+    private static void DeleteLibraryStaging(string staging)
+    {
+        try
+        {
+            if (!Directory.Exists(staging)) return;
+            foreach (var file in Directory.EnumerateFiles(staging, "*", SearchOption.AllDirectories))
+            {
+                try { File.SetAttributes(file, FileAttributes.Normal); } catch { }
+            }
+            Directory.Delete(staging, recursive: true);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException) { }
+    }
+
+    private static string? LibraryRecoveryNote(InstallationLayout layout)
+    {
+        var candidates = new List<string>();
+        try
+        {
+            foreach (var directory in Directory.EnumerateDirectories(layout.Root))
+            {
+                var name = System.IO.Path.GetFileName(directory);
+                if (name.StartsWith(".staging-replaced-", StringComparison.Ordinal))
+                {
+                    var library = System.IO.Path.Combine(directory, ProductIdentity.LibraryDirectory);
+                    if (Directory.Exists(library)) candidates.Add(library);
+                }
+                else if (name.StartsWith(ProductIdentity.LibraryMigrationPrefix, StringComparison.Ordinal))
+                {
+                    candidates.Add(directory);
+                }
+            }
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+            return "No current or retained installation library was found; retained backup paths could not be listed. " +
+                   "Recovery boundary: restore or re-import the expected library before using pinned tasks.";
+        }
+        if (candidates.Count == 0) return null;
+        return "No current or retained installation library was found, and no backup was used automatically. " +
+               "Recovery boundary: restore or re-import the expected library before using pinned tasks. " +
+               "Retained paths not used by setup: " +
+               string.Join("; ", candidates.OrderBy(value => value, StringComparer.OrdinalIgnoreCase));
     }
 
     private static bool IsRuntimeCache(string relative)
@@ -1124,7 +1558,7 @@ internal sealed class ExperimentalInstaller
             }
             catch (Exception error) when (error is IOException or UnauthorizedAccessException or InvalidDataException) { }
         }
-        foreach (var name in new[] { ProductIdentity.ManifestName, "host.json" })
+        foreach (var name in new[] { ProductIdentity.ManifestName, "host.json", ProductIdentity.LibraryBindingName })
         {
             try
             {

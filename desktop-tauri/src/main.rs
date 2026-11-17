@@ -12,8 +12,9 @@
 
 use operon_desktop_experimental::bridge::{self, HostState};
 use operon_desktop_experimental::config::HostConfig;
-use operon_desktop_experimental::instance::InstanceGuard;
-use operon_desktop_experimental::maintenance::StartupGuard;
+use operon_desktop_experimental::error::{HostErrorCode, HostNextAction};
+use operon_desktop_experimental::instance::{self, InstanceGuard};
+use operon_desktop_experimental::maintenance::{self, StartupGuard};
 use std::path::PathBuf;
 
 struct ParsedArgs {
@@ -40,22 +41,58 @@ fn main() {
     }
     // The installation-scoped gate must be held before the profile instance lock
     // or backend spawn. A setup/update holding the active event fails closed.
+    // A busy gate with a live instance lock is the first-launch race: a second
+    // shortcut may still activate that host, but this process never spawns.
     let startup_guard = match StartupGuard::acquire(&config.installation_id) {
-        Ok(guard) => guard,
+        Ok(guard) => Some(guard),
+        Err(error) if error.code() == HostErrorCode::HostCapabilityUnavailable => {
+            match maintenance::is_active(&config.installation_id) {
+                Ok(false) => {}
+                Ok(true) => fatal(&format!(
+                    "{} An experimental setup, update or uninstall is active. Wait for maintenance to finish and try again.",
+                    error.message()
+                )),
+                Err(_) => fatal(
+                    "The installation maintenance state could not be verified. No experimental backend was started.",
+                ),
+            }
+            match instance::lock_is_held(&config.profile) {
+                Ok(true) => {}
+                Ok(false) => fatal(&format!(
+                    "{} Another experimental instance may own this profile. Use its tray menu to exit it.",
+                    error.message()
+                )),
+                Err(_) => fatal(
+                    "The experimental profile instance state could not be verified. No backend was started.",
+                ),
+            }
+            None
+        }
         Err(error) => fatal(&format!(
-            "{} An experimental setup, update or uninstall may be active. Wait for maintenance to finish and try again.",
+            "{} The experimental installation gate is unavailable. No backend was started.",
             error.message()
         )),
     };
+
+    if startup_guard.is_none() {
+        activate_or_exit(&config, args.smoke_test);
+    }
 
     let instance = match InstanceGuard::acquire(&config.profile, &config.installation_id) {
         Ok(instance) => instance,
+        Err(error)
+            if error.code() == HostErrorCode::HostCapabilityUnavailable
+                && error.next_actions() == [HostNextAction::UseTrayMenuExit].as_slice() =>
+        {
+            activate_or_exit(&config, args.smoke_test);
+        }
         Err(error) => fatal(&format!(
-            "{} Another experimental instance may own this profile. Use its tray menu to exit it; activation IPC is not implemented.",
+            "{} Another experimental instance may own this profile. Use its tray menu to exit it.",
             error.message()
         )),
     };
 
+    let startup_guard = startup_guard.expect("the startup guard is retained on the spawning path");
     let state = HostState::new(config, instance, args.smoke_test, startup_guard);
 
     let app = match tauri::Builder::default()
@@ -90,6 +127,24 @@ fn main() {
             }
         }
     });
+}
+
+#[cfg(windows)]
+fn activate_or_exit(config: &HostConfig, smoke_test: bool) -> ! {
+    if smoke_test {
+        fatal(
+            "A smoke test cannot reuse another experimental instance. Exit it from the tray first.",
+        );
+    }
+    match operon_desktop_experimental::activation::request_show(config) {
+        Ok(()) => std::process::exit(0),
+        Err(error) => fatal(error.message()),
+    }
+}
+
+#[cfg(not(windows))]
+fn activate_or_exit(_config: &HostConfig, _smoke_test: bool) -> ! {
+    fatal("Shortcut activation is supported only on Windows x64.");
 }
 
 fn parse_args() -> Result<ParsedArgs, String> {

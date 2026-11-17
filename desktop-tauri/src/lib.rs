@@ -17,6 +17,8 @@ pub mod logging;
 pub mod navigation;
 pub mod windows;
 
+#[cfg(all(feature = "desktop", windows))]
+pub mod activation;
 #[cfg(feature = "desktop")]
 pub mod bridge;
 #[cfg(feature = "desktop")]

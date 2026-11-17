@@ -28,6 +28,153 @@ KERNEL_MODULES = (
     'operon_sdk.figures', 'src.reader.disk',
 )
 LOCAL_PREFIXES = ('operon', 'operon_sdk', 'src')
+CODE_CLOSURE_ABI = 'operon-code-closure-v3'
+
+
+def source_imports(source, module):
+    """Yield module candidates and whether absence is an error for local code.
+
+    from package import Name may name an attribute, not a submodule. Literal
+    importlib calls are supported without executing code. Computed imports and
+    non-code resources still need the explicit provider/resource contract.
+    """
+    package = module if source.name == '__init__.py' else module.rpartition('.')[0]
+    tree = ast.parse(io_path(source).read_text(encoding='utf-8-sig'), filename=str(source))
+    importlib_aliases = {'importlib'}
+    import_function_aliases = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            importlib_aliases.update(item.asname or item.name for item in node.names if item.name == 'importlib')
+        elif isinstance(node, ast.ImportFrom) and node.module == 'importlib' and not node.level:
+            import_function_aliases.update(item.asname or item.name for item in node.names
+                                           if item.name == 'import_module')
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for item in node.names:
+                yield item.name, True
+        elif isinstance(node, ast.ImportFrom):
+            name = node.module or ''
+            if node.level:
+                try:
+                    name = importlib.util.resolve_name('.' * node.level + name, package)
+                except (ImportError, ValueError) as exc:
+                    raise ContractError('Cannot resolve relative import in ' + str(source),
+                                        code='export_missing_resource') from exc
+            if name:
+                yield name, True
+                for item in node.names:
+                    if item.name != '*':
+                        yield name + '.' + item.name, False
+        elif isinstance(node, ast.Call) and node.args and isinstance(node.args[0], ast.Constant):
+            function = node.func
+            recognized = (isinstance(function, ast.Name) and function.id in import_function_aliases | {'__import__'}
+                          or isinstance(function, ast.Attribute) and function.attr == 'import_module'
+                          and isinstance(function.value, ast.Name) and function.value.id in importlib_aliases)
+            name = node.args[0].value
+            if recognized and isinstance(name, str) and name and not name.startswith('.'):
+                yield name, True
+
+
+def checked_source(root, source):
+    """Reject source aliases at every component, not only the final file."""
+    root, source = Path(root).absolute(), Path(source).absolute()
+    if not source.is_relative_to(root):
+        raise ContractError('Code dependency escapes its root', code='export_missing_resource')
+    current = root
+    for part in (None, *source.relative_to(root).parts):
+        if part is not None:
+            current /= part
+        info = io_path(current).lstat()
+        if current.is_symlink() or getattr(info, 'st_file_attributes', 0) & 0x400:
+            raise ContractError('Code dependency contains a filesystem alias: ' + str(current),
+                                code='export_missing_resource')
+    return source
+
+
+def expand_local_dependencies(owners, *, application_root, roots, entry_files=None):
+    """Expand selected code's imports into an owned, content-addressed closure.
+
+    owners maps relative names to (source root, manifest record). Application
+    namespaces resolve against the authoritative app first; explicit provider
+    roots resolve other local modules. Never inspect Python site-packages.
+    owners is the retained payload, not the traversal frontier. With explicit
+    entry_files only selected entry points/kernel files and their imports are
+    inspected; unrelated retained provider files are not dependency roots.
+    """
+    application_root = Path(application_root)
+    roots = list(dict.fromkeys([application_root, *map(Path, roots)]))
+    owners = dict(owners)
+    local_prefixes = set(LOCAL_PREFIXES) | {name.split('/')[0].removesuffix('.py') for name in owners}
+    entries = set(owners if entry_files is None else entry_files)
+    if entries - owners.keys():
+        raise ContractError('Dependency entry is outside the selected payload',
+                            code='export_missing_resource')
+    pending = [name for name in entries if name.endswith('.py')]
+    visited, resolutions = set(), {}
+
+    def resolve(module, required, source):
+        if not module or not all(part.isidentifier() for part in module.split('.')):
+            return None
+        if module not in resolutions:
+            choices = []
+            # An explicitly selected/frozen provider namespace owns its entries,
+            # including legacy src.reader.readers package initializers. Only
+            # unowned dependencies fall back to the application/provider roots.
+            selected = next((key for key in
+                             (module.replace('.', '/') + '.py', module.replace('.', '/') + '/__init__.py')
+                             if key in owners), None)
+            if selected is not None:
+                selected_root, _ = owners[selected]
+                choices.append((selected_root, checked_source(selected_root, selected_root / selected)))
+            for root in (() if choices else roots):
+                path = module_file(root, module)
+                if path is not None:
+                    checked_source(root, path)
+                    choices.append((root, path))
+                    if root == application_root and module.split('.')[0] in LOCAL_PREFIXES:
+                        break
+            if len({file_digest(path) for _, path in choices}) > 1:
+                raise ContractError('Ambiguous local dependency ' + module + ' imported by ' + source,
+                                    code='export_missing_resource')
+            resolutions[module] = choices[0] if choices else None
+        found = resolutions[module]
+        if found is None and required and module.split('.')[0] in local_prefixes:
+            # A bare namespace parent may intentionally have no __init__.py.
+            if not any(io_path(root.joinpath(*module.split('.'))).is_dir() for root in roots):
+                raise ContractError('Missing local dependency ' + module + ' imported by ' + source,
+                                    code='export_missing_resource')
+        return found
+
+    while pending:
+        relative = pending.pop()
+        if relative in visited:
+            continue
+        visited.add(relative)
+        root, _ = owners[relative]
+        source = checked_source(root, root / relative)
+        parts = list(Path(relative).with_suffix('').parts)
+        if parts[-1] == '__init__':
+            parts.pop()
+        module = '.'.join(parts)
+        imports = list(source_imports(source, module))
+        imports.extend(('.'.join(parts[:size]), False) for size in range(1, len(parts)))
+        for name, required in imports:
+            match = resolve(name, required, relative)
+            if match is None:
+                continue  # external distribution or from-import attribute
+            dep_root, path = match
+            local_prefixes.add(name.split('.')[0])
+            dep_relative = path.relative_to(dep_root).as_posix()
+            item = {'path': dep_relative, 'sha256': file_digest(path), 'role': 'dependency'}
+            if dep_relative in owners:
+                if owners[dep_relative][1]['sha256'] != item['sha256']:
+                    raise ContractError('Conflicting local dependency: ' + dep_relative,
+                                        code='export_missing_resource')
+            else:
+                owners[dep_relative] = (dep_root, item)
+            if dep_relative not in visited:
+                pending.append(dep_relative)
+    return owners
 
 
 def module_file(root, module):

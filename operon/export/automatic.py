@@ -4,13 +4,16 @@ Collect whole *selected provider namespaces*, including data files, because an
 AST cannot discover arbitrary importlib/resource access. Never import providers
 or guess that a user parameter is a file. External resources still require a
 declaration; missing resources fail with the owning implementation ID.
+Only selected entry points and the runtime kernel seed dependency traversal;
+retained unused Python files are payload, not additional execution roots.
 """
 from pathlib import Path
 import os
 
-from operon.contracts.base import ContractError
+from operon.contracts.base import ContractError, sha256_hex
 from operon.environment_store.verification import confined, file_digest
-from .collector import kernel_files, module_file, collect, validate_coverage
+from .collector import (kernel_files, module_file, collect, validate_coverage,
+                        expand_local_dependencies, CODE_CLOSURE_ABI)
 
 
 def provider_roots(manager, state, application_root):
@@ -35,13 +38,17 @@ def _files(directory):
                 yield Path(parent) / name
 
 
-def collect_canvas_code(plan, destination, *, application_root, roots, kernel=None):
-    """Return automatically generated, hash-verified implementation manifests."""
-    application_root, destination = Path(application_root), Path(destination)
+def canvas_code_inventory(plan, *, application_root, roots, kernel=None):
+    """Discover once before choosing the immutable canvas code-cache identity."""
+    application_root = Path(application_root)
+    roots = list(map(Path, roots))
     kernel = kernel if kernel is not None else kernel_files(application_root)
-    collect(application_root, destination, kernel)
     audit = plan.diagnostics.get('native_descriptor_audit', {})
-    manifests, owners = {}, dict(kernel)
+    manifests = {}
+    owners = {name: (application_root, item) for name, item in kernel.items()}
+    # Copying a provider's resources does not make every file executable code
+    # for this route. Traverse only the runtime and frozen selected entries.
+    entry_files = set(kernel)
     for identifier, implementation in plan.implementations.items():
         descriptor = audit.get(identifier)
         if not descriptor:
@@ -73,6 +80,7 @@ def collect_canvas_code(plan, destination, *, application_root, roots, kernel=No
             raise ContractError('Installed code differs from saved route: ' + identifier,
                                 code='implementation_unavailable')
         root, entry_path = valid[0]
+        entry_files.add(entry_path.relative_to(root).as_posix())
         # Legacy namespaces share src with the kernel. Do not copy all src/web.
         prefix = next((p for p in ('src.task.step.steps', 'src.reader.readers')
                        if module.startswith(p + '.')), module.split('.')[0])
@@ -87,13 +95,37 @@ def collect_canvas_code(plan, destination, *, application_root, roots, kernel=No
         for path in files:
             name = path.relative_to(root).as_posix()
             item = {'path': name, 'sha256': file_digest(path), 'role': 'implementation'}
-            if name in owners and owners[name]['sha256'] != item['sha256']:
+            if name in owners and owners[name][1]['sha256'] != item['sha256']:
                 raise ContractError('Conflicting provider namespace: ' + name, code='export_missing_resource')
-            owners[name] = item
+            owners[name] = (root, item)
             manifest[name] = item
-        collect(root, destination, manifest)
         manifests[identifier] = {'implementation': implementation['implementation'], 'files': manifest}
+    expanded = expand_local_dependencies(owners, application_root=application_root,
+                                        roots=roots, entry_files=entry_files)
+    extra = {name: item for name, (_, item) in expanded.items() if name not in owners}
+    # Portable export consumes these same manifests, not another hand-written
+    # kernel allowlist. Shared dependencies are deduplicated by path and digest.
+    for manifest in manifests.values():
+        manifest['files'].update(extra)
     validate_coverage(plan, manifests)
+    return manifests, expanded
+
+
+def code_inventory_identity(discovered):
+    return {'abi': CODE_CLOSURE_ABI,
+            'digest': sha256_hex({name: item['sha256'] for name, (_, item) in sorted(discovered[1].items())})}
+
+
+def collect_canvas_code(plan, destination, *, application_root, roots, kernel=None, discovered=None):
+    """Canvas and portable export share this metadata-only dependency closure."""
+    discovered = discovered or canvas_code_inventory(plan, application_root=application_root,
+                                                     roots=roots, kernel=kernel)
+    manifests, owners = discovered
+    groups = {}
+    for name, (root, item) in owners.items():
+        groups.setdefault(root, {})[name] = item
+    for root, files in groups.items():
+        collect(root, destination, files)
     return manifests
 
 

@@ -21,6 +21,17 @@ import traceback
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def packaged_file(path, root):
+    """Check physical ownership, including Windows extended-length paths."""
+    try:
+        candidate = Path(path).resolve(strict=True)
+        directory = Path(root).resolve(strict=True)
+        return candidate.is_file() and any(
+            parent.samefile(directory) for parent in candidate.parents)
+    except (OSError, ValueError):
+        return False
+
+
 def write(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding='utf-8')
@@ -53,12 +64,13 @@ class Acceptance:
         if not args.allow_headless:
             assert not record.get('headless'), 'Expected packaged desktop, found headless service'
             entry = next((part for part in command if part.endswith('desktop_server.py')), None)
-            assert entry and Path(entry).resolve().is_relative_to(self.code), 'Backend is not from the selected packaged code root'
+            assert entry and packaged_file(entry, self.code), 'Backend is not from the selected packaged code root'
+            assert Path(entry).samefile(self.code / 'scripts' / 'desktop_server.py'), 'Unexpected packaged backend entry point'
             self.report['backend_process']['entry'] = str(Path(entry).resolve())
         probe = json.loads(self.process([str(args.python), '-c',
             'import json,operon,operon.worker; print(json.dumps({"package":operon.__file__,"worker":operon.worker.__file__,"version":operon.__version__}))']))
-        assert Path(probe['package']).resolve().is_relative_to(self.code)
-        assert Path(probe['worker']).resolve().is_relative_to(self.code)
+        assert packaged_file(probe['package'], self.code)
+        assert packaged_file(probe['worker'], self.code)
         assert probe['version'] == args.version
         self.report['client_package'] = probe
 

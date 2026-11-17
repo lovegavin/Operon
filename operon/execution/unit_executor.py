@@ -12,7 +12,7 @@ from pathlib import Path
 from operon.contracts.base import ContractError, sha256_hex
 from operon.contracts.run_plan import RunPlan
 from operon.engine.executor import ProcessExecutor, ExecutionResult
-from operon.engine.supervisor import LaunchSpec
+from operon.engine.supervisor import LaunchSpec, SupervisorError
 from operon.engine.fs import atomic_json
 from operon.environment_store.verification import confined
 from operon.environment_store.builders import isolated_environment
@@ -239,10 +239,12 @@ class RunPlanExecutor(ProcessExecutor):
 
     def reconcile(self, context):
         result = super().reconcile(context)
+        if result.state == 'unknown':
+            self._release_scratch(context, result)
         if result.state in ('running', 'dead'):
             try:
                 self._restore(context)
-            except (OSError, ValueError, KeyError, TypeError) as exc:
+            except (OSError, ValueError, KeyError, TypeError, SupervisorError) as exc:
                 return ExecutionResult('unknown', identity=result.identity, tree_alive=result.tree_alive,
                     error=str(exc), detail='recovery_required')
         if result.state == 'dead':
@@ -252,9 +254,13 @@ class RunPlanExecutor(ProcessExecutor):
     def _command(self, context):
         from .windows_paths import attempt_launch_cwd
         generation, prepared = self._prepare(context)
+        from operon.process_path_scopes import prepare_scope
+        scoped_environment = dict(prepared.environment)
+        scoped_environment.update(prepare_scope(prepared.context.attempt_root,
+                                  attempt_id=context.attempt_id, fence=context.fence))
         cwd = attempt_launch_cwd(self.root, prepared.context.attempt_root,
                                  run_id=context.run['id'], attempt_id=context.attempt_id)
-        return LaunchSpec(prepared.command, str(cwd), prepared.environment,
+        return LaunchSpec(prepared.command, str(cwd), scoped_environment,
                           str(prepared.context.attempt_root / 'logs' / 'worker.log'),
                           # The adapter selected the executable spelling for its runtime.
                           # Python needs its extended path even when only a loaded DLL
@@ -276,6 +282,22 @@ class RunPlanExecutor(ProcessExecutor):
         return result
 
     def _release_scratch(self, context, result):
+        from operon.process_path_scopes import release_scope, RECEIPT
+        root = self.directory(context)
+        if io_path(root / RECEIPT).is_file() and (result.state in
+                ('succeeded', 'failed', 'cancelled', 'unknown', 'dead')):
+            try:
+                confirmed = (result.state in ('succeeded', 'failed', 'cancelled')
+                             and not result.tree_alive
+                             and self.supervisor.generation_tree_exit(context.attempt_id, fence=context.fence))
+                release_scope(root, attempt_id=context.attempt_id,
+                              fence=context.fence, confirmed=confirmed)
+            except (OSError, ValueError, KeyError, TypeError, SupervisorError) as exc:
+                # Keep scientific result separate; durable diagnostic means
+                # cleanup is not silently reported as complete.
+                atomic_json(root / 'process-cwd-cleanup.json', {
+                    'state': 'recovery_required', 'attempt_id': context.attempt_id,
+                    'fence': context.fence, 'error': str(exc)})
         if result.state in ('succeeded', 'failed', 'cancelled') and not result.tree_alive:
             from .foreign_paths import release_r_scratch
             try:

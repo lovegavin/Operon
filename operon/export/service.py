@@ -17,23 +17,22 @@ from operon.environment_store import EnvironmentStore
 from operon.environment_store.verification import confined, inventory, file_digest
 from operon.environment_store.builders import probe, temporary_directory
 from operon.bytecode import io_path
+from operon.python_paths import bootstrap_code
 from .collector import collect, kernel_files, validate_coverage
 from .planner import bindable_plan
 
 
-BOOTSTRAP = '''import runpy,sys
+BOOTSTRAP = bootstrap_code('''import runpy,sys
 from pathlib import Path
 root = Path(__file__).resolve().parent
 sys.dont_write_bytecode = True
-sys.path.insert(0, str(root / 'payload' / 'code'))
-from operon.bytecode import io_path, enable_long_import_paths
-enable_long_import_paths()
+from operon.bytecode import io_path
 import json
-manifest = json.loads((root / 'bundle.json').read_text(encoding='utf-8'))
+manifest = json.loads(io_path(root / 'bundle.json').read_text(encoding='utf-8'))
 sys.path.insert(1, str(io_path(root / manifest['management_packages'])))
 sys.argv = ['operon.export.kernel', '--bundle', str(root), *sys.argv[1:]]
 runpy.run_module('operon.export.kernel', run_name='__main__')
-'''
+''', paths_expression='[str(Path(__file__).resolve().parent / "payload" / "code")]')
 
 
 def _inventory_with_duration(payload, *, excluded_roots=()):

@@ -147,10 +147,11 @@ class ToolRunner:
             executed = self.prefix + ["python3", self.path(Path(__file__).with_name("tool_relay.py")), self.path(request)]
         start = time.monotonic()
         descendants = {}
-        with output.open("wb") as out, log.open("wb") as err:
-            child = subprocess.Popen(executed, stdout=out, stderr=err, cwd=self.directory,
+        from operon.processes import owned_process
+        with output.open("wb") as out, log.open("wb") as err, owned_process(
+                                     executed, stdout=out, stderr=err, cwd=self.directory,
                                      env={**os.environ, **env}, start_new_session=os.name != "nt",
-                                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+                                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0)) as child:
             try:
                 while child.poll() is None:
                     self.checkpoint()

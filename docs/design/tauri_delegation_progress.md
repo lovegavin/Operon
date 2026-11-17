@@ -111,5 +111,58 @@ The final candidate source is `01ff3be3`. No operator library, backend, producti
 branch or production version was changed. No network updater/signing was enabled.
 
 See `tauri_packaging_acceptance.md` for exact RC3 hashes, local lifecycle results,
-withdrawn candidates, retained uninstaller stub and the blocked independent-machine
-gate. Do not turn successful native smoke tests into manual interaction claims.
+withdrawn candidates and the retained uninstaller stub. Second-machine F now ran
+through actual installation, Agent editing, portable export, reinstall and
+Windows uninstall. F is **FAIL**: a long script subprocess working directory
+causes WinError 267, and same-build reinstall strands imported library state in
+the retained version backup, preventing Agent task reuse. The shipped acceptance
+helper also needed an external physical-path identity correction; seven focused
+helper tests pass. No scientific/backend/library code or production checkout was
+changed to hide these failures. Do not turn native smoke or partial UI passes
+into full product acceptance. Preserve completed evidence for narrow retesting.
+
+RC4 follow-up: DSH implemented scoped installer and native activation changes; root reviewed and completed cwd/tool-runner/portable overlay integration, stable-library no-scan reuse, and final-response pipe ACK. Local checks passed, but actual remote F was FAIL: unchecked RC3 bytecode shadowed updated modules and the task TEMP was too long for alias metadata. Shortcut activation and normal exit passed. See tauri_rc5_bytecode_and_temp.md. DSH implemented bounded packaging invalidation; root reviewed it, fixed task-TEMP metadata placement and verified the actual RC5 bundled runtime. RC5 is ready for user-copy and remaining targeted acceptance; retain both RC3/RC4 failure evidence.
+
+RC6 follow-up: RC5 actual acceptance found incomplete provider-to-application
+code collection and retained cancellation cwd metadata. Root implemented both
+repairs after two DSH attempts stalled without code edits; they are not credited
+as contractor implementation. Generic code collection, cache identity, durable
+attempt cleanup, and actual packaged-Python probes are documented in the RC6
+design notes and packaging acceptance. Source-focused checks passed; actual RC6
+test-machine acceptance is pending manual copy. Production and library source
+remain unchanged, with no push or release.
+
+RC7: root completed the narrowly scoped follow-up using the RC6 live evidence.
+Payload preservation and reachable dependency traversal are now separate; two
+collector modules changed. Focused source and actual packaged-Python checks
+passed. No contractor output is claimed for this change. Manual transfer and
+the original saved scientific route/export acceptance are pending; validated
+RC6 cancellation cleanup is unchanged and will not be rerun.
+
+RC8: RC7 installation succeeded, but the original route and complete export
+failed in environment preparation before worker launch. The failure was a real
+261-character dependency resource path, not a missing resource. Read-only probes
+using each original failed staging interpreter reproduced failure with ordinary
+paths and success with extended paths. Root implemented a shared stdlib-only
+Python import/resource bootstrap, including cached filesystem loader metadata,
+probe identity and independent export entry points. No package-specific patch
+or operator edit was used. Eight subprocess boundary checks, 51 related checks,
+and two real isolation/streaming checks passed; two symlink checks skipped for
+Windows privileges. See `tauri_rc8_python_resource_paths.md` and the RC8 delivery
+proofs. Actual RC8 test-machine acceptance subsequently passed: the original
+saved route completed a new scientific run, and its complete exported bundle ran
+after relocation using the delivered launcher. Both exited 0; PCA and describe
+JSON were byte-identical and both runs produced PNG/PDF/SVG. The original eight
+route/task file hashes and library registry/archive matched. Source environment
+absence was not tested. A nonblocking Matplotlib font-cache warning was retained.
+RC8 remains installed and closed with no owned test processes. Unchanged RC6
+cancellation and native/installer suites were not repeated. No push or release.
+
+RC8 supplemental acceptance (2026-11-17) also passed with the original source
+installation path temporarily unavailable, host environment injection removed,
+and a copied/hash-checked input outside that source root. The delivered launcher
+used bundle Python, and a new non-resumed run produced byte-identical numeric
+results and nonempty figures. Source root/config were restored and baseline
+hashes matched. See the supplemental section in packaging acceptance for exact
+scope, interpreter observation limits, run ID and evidence. No source/runtime
+changes or previously passed suite reruns were required; no push/publication.

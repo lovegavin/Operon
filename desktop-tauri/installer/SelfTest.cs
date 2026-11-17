@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -150,6 +151,254 @@ internal static class SelfTest
                 catch (InstallerException) { return; }
                 throw new Exception("extra stage file was accepted");
             });
+
+            Check(failures, "library-migration-exact-copy", () =>
+            {
+                var layout = NewLayout(root, "library-exact");
+                var version = layout.VersionDirectory("build-exact");
+                var source = Path.Combine(version, "library");
+                Directory.CreateDirectory(Path.Combine(source, "packages"));
+                Directory.CreateDirectory(Path.Combine(source, "snapshots", "empty"));
+                Directory.CreateDirectory(Path.Combine(source, "environments"));
+                var pin = Encoding.UTF8.GetBytes("{\"pin\":\"provider@1\",\"audit_archive\":\"C:\\\\absolute\\\\audit.zip\"}");
+                var snapshot = Encoding.UTF8.GetBytes("snapshot-bytes");
+                var environment = Encoding.UTF8.GetBytes("environment-bytes");
+                File.WriteAllBytes(Path.Combine(source, "packages", "pins.json"), pin);
+                File.WriteAllBytes(Path.Combine(source, "snapshots", "snap.bin"), snapshot);
+                File.WriteAllBytes(Path.Combine(source, "environments", "env.json"), environment);
+
+                var bindingPath = layout.LibraryBinding(version);
+                File.WriteAllText(layout.CurrentPath, "old-pointer");
+
+                var result = ExperimentalInstaller.MigrateLibrary(layout, version, layout.InstallationId,
+                    CancellationToken.None);
+                if (!result.Migrated || !result.StableLibraryAvailable || result.Reused)
+                    throw new Exception("migration did not report a staged copy");
+                var stable = layout.Library;
+                if (!File.ReadAllBytes(Path.Combine(stable, "packages", "pins.json")).SequenceEqual(pin))
+                    throw new Exception("pin bytes changed");
+                if (!File.ReadAllBytes(Path.Combine(stable, "snapshots", "snap.bin")).SequenceEqual(snapshot))
+                    throw new Exception("snapshot bytes changed");
+                if (!File.ReadAllBytes(Path.Combine(stable, "environments", "env.json")).SequenceEqual(environment))
+                    throw new Exception("environment bytes changed");
+                if (!Directory.Exists(Path.Combine(stable, "snapshots", "empty")))
+                    throw new Exception("empty relative directory was not copied");
+                if (!File.ReadAllBytes(Path.Combine(source, "packages", "pins.json")).SequenceEqual(pin))
+                    throw new Exception("version-local source library was moved or changed");
+                if (File.Exists(bindingPath))
+                    throw new Exception("migration published a binding before version commit");
+                if (File.ReadAllText(layout.CurrentPath) != "old-pointer")
+                    throw new Exception("migration changed the current pointer");
+                if (Directory.EnumerateDirectories(layout.Root, ".library-migration-*").Any())
+                    throw new Exception("migration staging directory was retained");
+            });
+
+            Check(failures, "library-migration-idempotent", () =>
+            {
+                var layout = NewLayout(root, "library-idempotent");
+                var version = layout.VersionDirectory("build-idempotent");
+                var source = Path.Combine(version, "library");
+                Directory.CreateDirectory(source);
+                File.WriteAllText(Path.Combine(source, "pins.json"), "pins");
+                var first = ExperimentalInstaller.MigrateLibrary(layout, version, layout.InstallationId,
+                    CancellationToken.None);
+                var stablePins = Path.Combine(layout.Library, "pins.json");
+                var firstBytes = File.ReadAllBytes(stablePins);
+                var second = ExperimentalInstaller.MigrateLibrary(layout, version, layout.InstallationId,
+                    CancellationToken.None);
+                if (!first.Migrated || !second.Reused || second.Migrated)
+                    throw new Exception("repeated migration was not an idempotent reuse");
+                if (!File.ReadAllBytes(stablePins).SequenceEqual(firstBytes))
+                    throw new Exception("repeated migration changed the stable library");
+                if (!File.Exists(Path.Combine(source, "pins.json")))
+                    throw new Exception("repeated migration removed the version-local source");
+                if (Directory.EnumerateDirectories(layout.Root, ".library-migration-*").Any())
+                    throw new Exception("repeated migration retained a staging directory");
+            });
+
+            Check(failures, "bound-library-no-content-scan", () =>
+            {
+                var layout = NewLayout(root, "library-bound-fast");
+                var version = layout.VersionDirectory("build-bound");
+                Directory.CreateDirectory(version);
+                Directory.CreateDirectory(layout.Library);
+                ExperimentalInstaller.WriteLibraryBinding(layout, version, layout.InstallationId);
+                var file = Path.Combine(layout.Library, "package-held.bin");
+                File.WriteAllText(file, "immutable package bytes");
+                using var held = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.None);
+                var result = ExperimentalInstaller.MigrateLibrary(layout, version,
+                    layout.InstallationId, CancellationToken.None);
+                if (!result.Reused) throw new Exception("bound library was not reused");
+            });
+
+            Check(failures, "library-empty-stable", () =>
+            {
+                var layout = NewLayout(root, "library-empty");
+                var result = ExperimentalInstaller.MigrateLibrary(layout, null, layout.InstallationId,
+                    CancellationToken.None);
+                if (!result.StableLibraryAvailable || result.Migrated || !Directory.Exists(layout.Library))
+                    throw new Exception("a fresh bound version did not get an empty stable library directory");
+                if (Directory.EnumerateFileSystemEntries(layout.Library).Any())
+                    throw new Exception("the fresh stable library directory was not empty");
+            });
+
+            Check(failures, "library-migration-divergent", () =>
+            {
+                var layout = NewLayout(root, "library-divergent");
+                var version = layout.VersionDirectory("build-divergent");
+                var source = Path.Combine(version, "library");
+                Directory.CreateDirectory(source);
+                Directory.CreateDirectory(layout.Library);
+                File.WriteAllText(Path.Combine(source, "old.json"), "old");
+                File.WriteAllText(Path.Combine(layout.Library, "stable.json"), "stable");
+
+                var rejected = false;
+                try { _ = ExperimentalInstaller.MigrateLibrary(layout, version, layout.InstallationId, CancellationToken.None); }
+                catch (InstallerException error)
+                {
+                    rejected = true;
+                    if (!error.Message.Contains(source) || !error.Message.Contains(layout.Library))
+                        throw new Exception("divergence message omitted the exact source/stable paths");
+                }
+                if (!rejected)
+                    throw new Exception("divergent nonempty libraries were merged or replaced");
+                if (File.ReadAllText(Path.Combine(source, "old.json")) != "old" ||
+                    File.ReadAllText(Path.Combine(layout.Library, "stable.json")) != "stable")
+                    throw new Exception("divergent refusal changed one of the libraries");
+
+                ExperimentalInstaller.WriteLibraryBinding(layout, version, layout.InstallationId);
+                var bound = ExperimentalInstaller.MigrateLibrary(layout, version, layout.InstallationId,
+                    CancellationToken.None);
+                if (!bound.Reused || bound.Migrated)
+                    throw new Exception("a version already bound to the stable library was not authoritative");
+                if (!File.Exists(Path.Combine(source, "old.json")) ||
+                    !File.Exists(Path.Combine(layout.Library, "stable.json")))
+                    throw new Exception("bound reuse removed or merged the divergent copy");
+            });
+
+            Check(failures, "library-migration-reparse", () =>
+            {
+                var layout = NewLayout(root, "library-reparse");
+                var version = layout.VersionDirectory("build-reparse");
+                var source = Path.Combine(version, "library");
+                var outside = Path.Combine(layout.Root, "outside");
+                Directory.CreateDirectory(source);
+                Directory.CreateDirectory(outside);
+                File.WriteAllText(Path.Combine(outside, "target.txt"), "target");
+                var link = Path.Combine(source, "linked");
+                if (!TryCreateReparsePoint(link, outside))
+                    throw new Exception("could not create a directory reparse point for the test");
+                try
+                {
+                    try { _ = ExperimentalInstaller.MigrateLibrary(layout, version, layout.InstallationId, CancellationToken.None); }
+                    catch (InstallerException error)
+                    {
+                        if (error.Message.IndexOf("reparse", StringComparison.OrdinalIgnoreCase) < 0 &&
+                            error.Message.IndexOf("link", StringComparison.OrdinalIgnoreCase) < 0)
+                            throw new Exception("unexpected reparse rejection: " + error.Message);
+                        if (Directory.Exists(layout.Library))
+                            throw new Exception("stable library was created despite the reparse point");
+                        return;
+                    }
+                    throw new Exception("a reparse point inside the imported library was accepted");
+                }
+                finally
+                {
+                    try { if (Directory.Exists(link)) Directory.Delete(link); } catch { }
+                }
+            });
+
+            Check(failures, "library-binding-rollback", () =>
+            {
+                var layout = NewLayout(root, "library-binding-rollback");
+                var oldVersion = layout.VersionDirectory("old-build");
+                Directory.CreateDirectory(oldVersion);
+                var oldBinding = layout.LibraryBinding(oldVersion);
+                var oldBytes = Encoding.UTF8.GetBytes(
+                    "{\"schema\":1,\"installation_id\":\"" + layout.InstallationId + "\",\"location\":\"../../library\"}");
+                File.WriteAllBytes(oldBinding, oldBytes);
+                File.WriteAllText(layout.CurrentPath, "old-pointer");
+
+                var bindingSnapshot = new FileSnapshot(oldBinding);
+                var pointerSnapshot = new FileSnapshot(layout.CurrentPath);
+                var newVersion = layout.VersionDirectory("new-build");
+                Directory.CreateDirectory(newVersion);
+                var newBindingSnapshot = new FileSnapshot(layout.LibraryBinding(newVersion));
+
+                File.WriteAllText(oldBinding, "replacement-binding");
+                ExperimentalInstaller.WriteLibraryBinding(layout, newVersion, layout.InstallationId);
+                File.WriteAllText(layout.CurrentPath, "new-pointer");
+
+                bindingSnapshot.Restore();
+                newBindingSnapshot.Restore();
+                pointerSnapshot.Restore();
+                if (!File.ReadAllBytes(oldBinding).SequenceEqual(oldBytes))
+                    throw new Exception("rollback did not restore the old binding bytes");
+                if (File.Exists(layout.LibraryBinding(newVersion)))
+                    throw new Exception("rollback did not remove the promoted binding");
+                if (File.ReadAllText(layout.CurrentPath) != "old-pointer")
+                    throw new Exception("rollback did not restore the current pointer");
+            });
+
+            Check(failures, "library-binding-integrity", () =>
+            {
+                var layout = NewLayout(root, "library-binding-integrity");
+                var version = layout.VersionDirectory("binding-build");
+                Directory.CreateDirectory(version);
+                File.WriteAllBytes(Path.Combine(version, "app.txt"), fileBytes);
+                File.WriteAllText(Path.Combine(version, "host.json"), "{}");
+                ExperimentalInstaller.WriteLibraryBinding(layout, version, layout.InstallationId);
+                if (!ExperimentalInstaller.HasValidLibraryBinding(version, layout.InstallationId))
+                    throw new Exception("generated binding was not accepted");
+                if (ExperimentalInstaller.HasValidLibraryBinding(version, Guid.NewGuid().ToString("D")))
+                    throw new Exception("binding for another installation was accepted");
+
+                Directory.CreateDirectory(Path.Combine(version, "library"));
+                File.WriteAllText(Path.Combine(version, "library", "legacy.json"), "legacy");
+                if (!ExperimentalInstaller.VerifyInstalledVersion(version, manifest, allowLegacyLibrary: true))
+                    throw new Exception("binding plus legacy library failed integrity checks");
+                if (ExperimentalInstaller.VerifyInstalledVersion(version, manifest, allowLegacyLibrary: false))
+                    throw new Exception("legacy library was ignored without a stable library");
+
+                File.WriteAllText(Path.Combine(version, "library", "legacy.json"), "tampered");
+                if (!ExperimentalInstaller.VerifyInstalledVersion(version, manifest, allowLegacyLibrary: true))
+                    throw new Exception("mutable legacy library content was treated as immutable payload");
+
+                File.WriteAllText(Path.Combine(version, "foreign.txt"), "foreign");
+                if (ExperimentalInstaller.VerifyInstalledVersion(version, manifest, allowLegacyLibrary: true))
+                    throw new Exception("foreign file was accepted");
+                File.Delete(Path.Combine(version, "foreign.txt"));
+
+                File.WriteAllText(layout.LibraryBinding(version),
+                    "{\"schema\":1,\"installation_id\":\"" + layout.InstallationId + "\",\"location\":\"../../other\"}");
+                if (ExperimentalInstaller.HasValidLibraryBinding(version, layout.InstallationId))
+                    throw new Exception("binding with a foreign location was accepted");
+
+                ExperimentalInstaller.WriteLibraryBinding(layout, version, layout.InstallationId);
+                File.WriteAllText(Path.Combine(version, "app.txt"), "corrupt");
+                if (ExperimentalInstaller.VerifyInstalledVersion(version, manifest, allowLegacyLibrary: true))
+                    throw new Exception("corrupt manifest-owned file was accepted");
+            });
+
+            Check(failures, "retained-library-root", () =>
+            {
+                var retained = Path.Combine(root, "retained-root");
+                var installationId = Guid.NewGuid().ToString("D");
+                Directory.CreateDirectory(Path.Combine(retained, "library"));
+                var profile = Path.Combine(retained, "profiles", installationId);
+                Directory.CreateDirectory(profile);
+                File.WriteAllText(Path.Combine(profile, ProductIdentity.ProfileMarker),
+                    "{\"schema_version\":1,\"installation_id\":\"" + installationId + "\"}");
+                if (PathPolicy.ResolveRoot(retained) != retained)
+                    throw new Exception("retained library root was not reused");
+
+                var parent = Path.Combine(root, "retained-parent");
+                Directory.CreateDirectory(parent);
+                var child = Path.Combine(parent, "Operon Studio Experimental");
+                Directory.Move(retained, child);
+                if (PathPolicy.ResolveRoot(parent) != child)
+                    throw new Exception("retained library child was not reused");
+            });
         }
         catch (Exception error)
         {
@@ -175,6 +424,42 @@ internal static class SelfTest
         try { ManifestVerifier.Validate(manifest); }
         catch (InstallerException) { return; }
         throw new Exception(description + " was accepted");
+    }
+
+    private static InstallationLayout NewLayout(string root, string name)
+    {
+        var layout = new InstallationLayout(Path.Combine(root, name), Guid.NewGuid().ToString("D"));
+        Directory.CreateDirectory(layout.Root);
+        return layout;
+    }
+
+    private static bool TryCreateReparsePoint(string link, string target)
+    {
+        try
+        {
+            Directory.CreateSymbolicLink(link, target);
+            return true;
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or NotSupportedException) { }
+
+        try
+        {
+            var command = Environment.GetEnvironmentVariable("ComSpec") ?? "cmd.exe";
+            var start = new ProcessStartInfo(command)
+            {
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                Arguments = $"/d /c mklink /J \"{link}\" \"{target}\""
+            };
+            using var process = Process.Start(start);
+            if (process is null) return false;
+            if (!process.WaitForExit(10000)) return false;
+            return process.ExitCode == 0 && Directory.Exists(link);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception)
+        {
+            return false;
+        }
     }
 
     private static ExperimentalManifest Clone(ExperimentalManifest source) => new()

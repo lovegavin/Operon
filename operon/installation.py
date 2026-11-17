@@ -45,6 +45,30 @@ def library_root(code_root=None):
     for start in candidates:
         for parent in (start, *start.parents):
             if parent.parent.name == 'versions':
+                binding = parent / 'experimental-library-binding.json'
+                if binding.is_file():
+                    from operon.bytecode import io_path
+                    value = json.loads(io_path(binding).read_text(encoding='utf-8'))
+                    root = parent.parent.parent
+                    state = json.loads(io_path(root / 'install-state.json').read_text(encoding='utf-8'))
+                    host = json.loads(io_path(parent / 'host.json').read_text(encoding='utf-8'))
+                    identity = value.get('installation_id')
+                    if (value.get('schema') != 1 or value.get('location') != '../../library'
+                            or not isinstance(identity, str) or not identity
+                            or state.get('schema') != 1
+                            or state.get('product') != 'operon-studio-experimental'
+                            or state.get('channel') != 'experimental'
+                            or state.get('installation_id') != identity
+                            or host.get('installation_id') != identity):
+                        raise ValueError('Invalid experimental installation library binding')
+                    library = root / 'library'
+                    # Setup owns this ordinary directory. A misplaced binding
+                    # must never silently attach another installation's library.
+                    if (not io_path(library).is_dir()
+                            or io_path(library).is_symlink()
+                            or getattr(io_path(library).lstat(), 'st_file_attributes', 0) & 0x400):
+                        raise ValueError('Experimental installation library directory is unavailable')
+                    return _native_library_directory(library)
                 return _native_library_directory(parent / 'library')
             candidate = parent / 'library'
             if (candidate / 'registry.json').is_file() or (candidate / 'libraries').is_dir():

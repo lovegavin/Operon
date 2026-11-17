@@ -28,7 +28,8 @@ from .verification import confined, file_digest
 def temporary_directory(prefix):
     """Owned temporary tree with Windows long-path-safe cleanup."""
     parent = Path(tempfile.gettempdir()).resolve()
-    directory = Path(tempfile.mkdtemp(prefix=prefix, dir=parent)).resolve()
+    created = Path(tempfile.mkdtemp(prefix=prefix, dir=io_path(parent)))
+    directory = parent / created.name
     if directory.parent != parent or not directory.name.startswith(prefix):
         raise ValueError('Temporary directory escaped its requested parent')
     try:
@@ -127,7 +128,7 @@ def probe(root, argv, *, timeout=60, cancel=None, environment=None, executable_o
         raise ContractError('Required environment executable is missing: ' + argv[0], code='environment_unverified')
     # File-backed bounded-tail diagnostics avoid stdout pipe deadlocks/whole logs.
     with temporary_directory('operon-probe-') as temp:
-        log = Path(temp) / 'probe.log'
+        log = io_path(Path(temp) / 'probe.log')
         env = isolated_environment(root, extra=environment)
         env.update(TEMP=str(temp), TMP=str(temp), TMPDIR=str(temp), HOME=str(temp), USERPROFILE=str(temp))
         with log.open('wb') as output, owned_process([executable_path(executable), *argv[1:]], cwd=io_path(root),

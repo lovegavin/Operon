@@ -15,16 +15,17 @@ from operon.contracts.run_plan import EnvironmentRequirement, TargetSpec
 from operon.engine.fs import FileLock, atomic_json
 from operon.plugins import run_process
 from operon.bytecode import io_path
+from operon.python_paths import bootstrap_code, PYTHON_PATH_ABI
 from . import EnvironmentStore
 from .builders import LockedArchive, LockedArchiveBuilder
 from .verification import file_digest, confined
 
 
-PROBE = '''import json,sys,sysconfig,platform,importlib.metadata as m
+PROBE = bootstrap_code('''import json,sys,sysconfig,platform,importlib.metadata as m
 print(json.dumps(dict(executable=sys.executable,prefix=sys.prefix,base_prefix=sys.base_prefix,
  version=list(sys.version_info[:3]),os=platform.system().lower(),arch=platform.machine().lower(),
  purelib=sysconfig.get_path('purelib'),distributions=sorted((d.metadata.get('Name',''),d.version) for d in m.distributions()))))
-'''
+''')
 
 
 def archive_tree(root, output, *, exclude=(), cancel=None):
@@ -104,7 +105,7 @@ def prepare_python(store_root, python, state, descriptors, *, cancel=None, r_roo
         return [str(path), value.st_size, value.st_mtime_ns]
     implementation = {name: file_digest(Path(__file__).with_name(name))
                       for name in ('canvas.py', 'closures.py', 'acquisition.py')}
-    key = sha256_hex({'format': 2, 'preparer': implementation, 'python': info, 'selected': original_info, 'binary': stamp(home / executable),
+    key = sha256_hex({'format': 2, 'python_path_abi': PYTHON_PATH_ABI, 'preparer': implementation, 'python': info, 'selected': original_info, 'binary': stamp(home / executable),
         'generation': state.get('generation'), 'targets': [stamp(path) for path in target_roots],
         'external': external, 'closures': discovered})
     cache = store_root / 'canvas'; cache.mkdir(exist_ok=True)
@@ -159,8 +160,8 @@ def prepare_python(store_root, python, state, descriptors, *, cancel=None, r_roo
             external_interpreters[name] = external_executable
             modules = sorted({module for d in descriptors if d.get('resources', {}).get('environment') == name
                               for module in d.get('dependency_imports', [])})
-            external_probes.append((external_executable, '-I', '-B', '-c', 'import importlib; '
-                '[importlib.import_module(n) for n in ' + repr(modules) + ']'))
+            external_probes.append((external_executable, '-I', '-B', '-c', bootstrap_code(
+                '[importlib.import_module(n) for n in ' + repr(modules) + ']')))
         shared_targets = [paths[str(confined(base, path))] for path in shared]
         relative_python = 'runtime/' + executable
         # The actual relocated runtime must resolve required imports and engine
@@ -168,19 +169,19 @@ def prepare_python(store_root, python, state, descriptors, *, cancel=None, r_roo
         imports = sorted({'psutil', 'pydantic', 'yaml', 'jsonschema', 'numpy', 'packaging'} |
             {name for d in descriptors if (d.get('execution') or {}).get('mode') != 'isolated' and not d.get('resources', {}).get('environment')
              for name in d.get('dependency_imports', []) if isinstance(name, str)})
-        check = ('import sys,pathlib,importlib,os,json; root=pathlib.Path.cwd(); '
-                 'sys.path[:0]=[str(root/p) for p in ' + repr(shared_targets) + '] + '
-                 'json.loads(os.environ.get("OPERON_PACKED_PYTHON_PATHS","[]")) + [str(root/"packages")]; '
+        check = bootstrap_code(
                  'mods=[importlib.import_module(n) for n in ' + repr(imports) + ']; '
-                 'roots=[root,*map(pathlib.Path,json.loads(os.environ.get("OPERON_PACKED_PREFIXES","[]")))]; '
-                 'assert all(not getattr(m,"__file__",None) or any(pathlib.Path(m.__file__).resolve().is_relative_to(r.resolve()) for r in roots) for m in mods)')
+                 'roots=[Path(python_path(str(Path.cwd()))),*map(lambda p:Path(python_path(p)),json.loads(os.environ.get("OPERON_PACKED_PREFIXES","[]")))]; '
+                 'assert all(not getattr(m,"__file__",None) or any(Path(python_path(str(Path(m.__file__).resolve()))).is_relative_to(r.resolve()) for r in roots) for m in mods)',
+                 paths_expression='[str(Path.cwd()/p) for p in ' + repr(shared_targets) + '] + '
+                 'json.loads(os.environ.get("OPERON_PACKED_PYTHON_PATHS","[]")) + [str(Path.cwd()/"packages")]')
         probes = [(relative_python, '-I', '-B', '-c', check), *external_probes]
         for d in descriptors:
             if (d.get('execution') or {}).get('mode') == 'isolated':
                 selected = [paths[str(confined(base, path))] for path in d['execution'].get('paths', [])]
                 probes.append((relative_python, '-I', '-B', '-c',
-                    'import sys,pathlib,importlib; r=pathlib.Path.cwd(); sys.path[:0]=[str(r/p) for p in ' +
-                    repr(selected + ['packages']) + ']; [importlib.import_module(n) for n in ' + repr(d.get('dependency_imports', [])) + ']'))
+                    bootstrap_code('[importlib.import_module(n) for n in ' + repr(d.get('dependency_imports', [])) + ']',
+                                   paths_expression='[str(Path.cwd()/p) for p in ' + repr(selected + ['packages']) + ']')))
         if discovered['roots']:
             captured = staging / 'closures'
             capture(discovered, captured, store_root, cancel=cancel)
@@ -217,7 +218,7 @@ class CanvasArchiveBuilder(LockedArchiveBuilder):
         self.relative_python, self.imports = relative_python, imports
 
     def recipe(self):
-        return {**super().recipe(), 'canvas_closures': 1,
+        return {**super().recipe(), 'canvas_closures': 1, 'python_path_abi': PYTHON_PATH_ABI,
                 'relative_python': self.relative_python, 'imports': self.imports}
 
     def verify(self, root, *, cancel=None):
@@ -239,8 +240,8 @@ class CanvasArchiveBuilder(LockedArchiveBuilder):
                                          environment=env, executable_override=override))
                 if selected['python']:
                     results.append(probe(payload, (self.relative_python, '-I', '-c',
-                        'import sys,importlib; sys.path.insert(0,' + repr(str(payload / 'packages')) + '); '
-                        '[importlib.import_module(n) for n in ["pydantic","numpy","yaml","psutil","jsonschema","packaging"]]'),
+                        bootstrap_code('[importlib.import_module(n) for n in ["pydantic","numpy","yaml","psutil","jsonschema","packaging"]]',
+                                       paths_expression=repr([str(payload / 'packages')]))),
                         timeout=self.timeout, cancel=cancel, environment=env))
                 for record in selected['r'].values():
                     from operon.r_runtime import RRuntime

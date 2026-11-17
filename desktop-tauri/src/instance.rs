@@ -115,6 +115,34 @@ impl InstanceGuard {
     }
 }
 
+/// Read-only probe for a live owner of `profile`.
+///
+/// This never creates or writes the lock file. It is used only to decide
+/// whether a second launch may attempt activation; the real ownership decision
+/// is still [`InstanceGuard::acquire`].
+pub fn lock_is_held(profile: &Path) -> Result<bool, HostError> {
+    let profile = match fs::canonicalize(profile) {
+        Ok(profile) => profile,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(false),
+        Err(_) => return Err(HostError::bridge_unavailable()),
+    };
+    let lock_path = profile.join(INSTANCE_LOCK_FILE);
+    let file = match OpenOptions::new().read(true).write(true).open(&lock_path) {
+        Ok(file) => file,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(false),
+        Err(_) => return Err(HostError::bridge_unavailable()),
+    };
+
+    match file.try_lock_exclusive() {
+        Ok(()) => {
+            let _ = file.unlock();
+            Ok(false)
+        }
+        Err(error) if is_lock_contention(&error) => Ok(true),
+        Err(_) => Err(HostError::bridge_unavailable()),
+    }
+}
+
 fn is_lock_contention(error: &io::Error) -> bool {
     if error.kind() == io::ErrorKind::WouldBlock {
         return true;
@@ -155,6 +183,19 @@ mod tests {
             [HostNextAction::UseTrayMenuExit].as_slice()
         );
         assert!(!error.retryable());
+    }
+
+    #[test]
+    fn lock_probe_tracks_a_live_owner_without_creating_or_writing_the_file() {
+        let root = tempdir().unwrap();
+        let profile = root.path().join("profile");
+        assert!(!lock_is_held(&profile).unwrap());
+        assert!(!profile.join(INSTANCE_LOCK_FILE).exists());
+
+        let guard = InstanceGuard::acquire(&profile, "installation-a").unwrap();
+        assert!(lock_is_held(&profile).unwrap());
+        drop(guard);
+        assert!(!lock_is_held(&profile).unwrap());
     }
 
     #[test]

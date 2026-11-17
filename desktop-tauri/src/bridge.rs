@@ -615,6 +615,75 @@ async fn drain_owned_backend(app: AppHandle) {
     }
 }
 
+/// Whether an activation request may proceed. `Starting` is retryable by the
+/// second-launch client; every shutdown/failure state is terminal.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ActivationVerdict {
+    Ready,
+    NotReady,
+    Rejected,
+}
+
+pub(crate) fn activation_verdict(state: &LifecycleState) -> ActivationVerdict {
+    match state {
+        LifecycleState::ReadyVisible | LifecycleState::ReadyHidden => ActivationVerdict::Ready,
+        LifecycleState::Starting => ActivationVerdict::NotReady,
+        LifecycleState::Flushing { .. }
+        | LifecycleState::Draining
+        | LifecycleState::Recovery
+        | LifecycleState::BackendFailed
+        | LifecycleState::Closed => ActivationVerdict::Rejected,
+    }
+}
+
+/// Bring the existing main window forward on the Tauri UI thread.
+///
+/// Maintenance and lifecycle are checked again on that thread immediately
+/// before the window is shown. A failed dispatch, missing window or any
+/// non-ready state reports `false`; the caller must not claim success.
+pub(crate) async fn activate_main_window(app: &AppHandle) -> bool {
+    let (sender, receiver) = tokio::sync::oneshot::channel();
+    let app_for_ui = app.clone();
+    let dispatched = app.run_on_main_thread(move || {
+        let state = app_for_ui.state::<HostState>();
+        let verdict = match crate::maintenance::is_active(&state.config.installation_id) {
+            Ok(false) => {
+                let mut lifecycle = lifecycle_lock(state.inner());
+                let verdict = activation_verdict(lifecycle.state());
+                if verdict == ActivationVerdict::Ready
+                    && matches!(lifecycle.state(), LifecycleState::ReadyHidden)
+                    && lifecycle.show().is_err()
+                {
+                    ActivationVerdict::Rejected
+                } else {
+                    verdict
+                }
+            }
+            _ => ActivationVerdict::Rejected,
+        };
+        if verdict != ActivationVerdict::Ready {
+            let _ = sender.send(false);
+            return;
+        }
+        let Some(window) = app_for_ui.get_webview_window(MAIN_LABEL) else {
+            let _ = sender.send(false);
+            return;
+        };
+        let visible = window.show().is_ok();
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+        let _ = sender.send(visible);
+    });
+    if dispatched.is_err() {
+        return false;
+    }
+    tokio::time::timeout(Duration::from_secs(2), receiver)
+        .await
+        .ok()
+        .and_then(Result::ok)
+        .unwrap_or(false)
+}
+
 fn show_main(app: &AppHandle) {
     {
         let state = app.state::<HostState>();
@@ -1226,6 +1295,29 @@ mod tests {
         assert!(!caller_url_is_authorized("main", &ipv6, &origin()));
         assert!(!caller_url_is_authorized("main", &https, &origin()));
         assert!(!caller_url_is_authorized("main", &path, &origin()));
+    }
+
+    #[test]
+    fn activation_is_ready_only_for_ready_lifecycle_states() {
+        use ActivationVerdict::{NotReady, Ready, Rejected};
+        let cases = [
+            (LifecycleState::Starting, NotReady),
+            (LifecycleState::ReadyVisible, Ready),
+            (LifecycleState::ReadyHidden, Ready),
+            (
+                LifecycleState::Flushing {
+                    request_id: "request".to_owned(),
+                },
+                Rejected,
+            ),
+            (LifecycleState::Draining, Rejected),
+            (LifecycleState::Recovery, Rejected),
+            (LifecycleState::BackendFailed, Rejected),
+            (LifecycleState::Closed, Rejected),
+        ];
+        for (state, expected) in cases {
+            assert_eq!(activation_verdict(&state), expected, "{state:?}");
+        }
     }
 
     #[test]

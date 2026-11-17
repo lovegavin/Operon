@@ -16,17 +16,15 @@ def main():
     for stream in (sys.stdin, sys.stdout, sys.stderr):
         stream.reconfigure(encoding='utf-8', errors='replace')
     config, module, *arguments = sys.argv[1:]
-    paths = json.loads(Path(config).read_text(encoding='utf-8'))['paths']
-    sys.path[:] = list(dict.fromkeys([*paths, *sys.path]))
-    if os.name == 'nt':
-        # -S deliberately skips the private runtime's .pth startup hook. Keep
-        # dependency imports long-path capable without executing any .pth code.
-        def native(path):
-            value = os.path.abspath(path)
-            if value.startswith('\\\\?\\'):
-                return value
-            return '\\\\?\\UNC\\' + value[2:] if value.startswith('\\\\') else '\\\\?\\' + value
-        sys.path[:] = [native(path) for path in sys.path]
+    # Load the adjacent stdlib helper explicitly: -I -S has no application root
+    # yet, and importing operon through an unprefixed long root can itself fail.
+    helper = os.path.abspath(Path(__file__).with_name('python_paths.py'))
+    if os.name == 'nt' and not helper.startswith('\\\\?\\'):
+        helper = '\\\\?\\UNC\\' + helper[2:] if helper.startswith('\\\\') else '\\\\?\\' + helper
+    bootstrap = runpy.run_path(helper)
+    setup = bootstrap['configure_python_paths']
+    paths = json.loads(Path(bootstrap['python_path'](config)).read_text(encoding='utf-8'))['paths']
+    setup(list(dict.fromkeys(paths)))
     if module == 'pip' and importlib.util.find_spec('pip') is None:
         # uv and other environment creators can omit pip. Run CPython's bundled
         # installer wheel directly, as ensurepip itself does, without installing
@@ -39,7 +37,7 @@ def main():
         if not wheels:
             raise RuntimeError('Dependency installation requires pip. This Python has neither pip nor a bundled ensurepip wheel; install pip in the selected Python environment.')
         wheel = max(wheels, key=lambda p: tuple(int(v) for v in p.name.split('-')[1].split('.')))
-        sys.path.insert(0, str(wheel))
+        setup([str(wheel)])
     os.environ['OPERON_REGISTRY_MAINTENANCE'] = '1'
     sys.argv = [module, *arguments]
     runpy.run_module(module, run_name='__main__')

@@ -1,5 +1,15 @@
 # Operon
 
+> **Experimental Tauri branch — 0.1.0 RC8.** This branch contains the Tauri
+> desktop host and its isolated installer, based on the Operon 5.3.0 backend.
+> It is not the current production release and does not include all subsequent
+> 5.4.x application changes. Operator-library sources are unchanged.
+> See the [build and acceptance record](docs/design/tauri_packaging_acceptance.md)
+> and [implementation progress](docs/design/tauri_delegation_progress.md).
+> RC8 passed the targeted saved-route and relocated-export checks, including a
+> supplemental run with the source installation unavailable. These results do
+> not claim exhaustive desktop, platform or operator coverage.
+
 **Open-source, contract-first bioinformatics workflows — visual, scriptable and agent-ready.**
 
 [中文快速开始](QUICKSTART.zh.md) · [English quick start](QUICKSTART.en.md) ·

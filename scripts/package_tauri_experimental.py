@@ -4,8 +4,9 @@
 The base 5.3.0 payload is read-only. This script never searches for a Python
 interpreter, installs scientific dependencies, signs, publishes, or updates over
 the network. It replaces only the production host/frontend wrappers with the
-experimental host and frontend, writes a distinct experimental manifest, and
-appends the payload to the experimental Setup with the existing footer format.
+experimental host and frontend, invalidates bytecode cached for those explicit
+Python overlays, writes a distinct experimental manifest, and appends the
+payload to the experimental Setup with the existing footer format.
 """
 from __future__ import annotations
 
@@ -46,11 +47,16 @@ README = """Operon Studio Experimental
 This is an independent experimental Tauri host installation. It is not the
 production Operon Studio application.
 
-- Management/backend/library payload: Operon Studio 5.3.0 (read-only input)
+- Management/backend payload: Operon Studio 5.3.0 (read-only input)
 - Experimental host version: 0.1.0
 - Product identifier: org.operon.studio.experimental
 - The profile is retained by updates and uninstall.
 - This package has no automatic updater and is not signed for publication.
+
+Operator libraries are independent. If the input application payload has no
+library, import a compatible existing .operon-library.zip through Add operators
+before using library-based routes. Any libraries present in the input payload
+are preserved unchanged. Prepare only the chosen route's execution dependencies.
 
 Use the Setup normally, or run it with:
   --silent --install-dir <path> [--uninstall] [--result <path>]
@@ -174,6 +180,91 @@ def verify_library_resources(base: Path, candidate: Path) -> None:
             target = candidate / relative
             if not target.is_file() or digest(target) != digest(file):
                 raise ValueError(f"Bundled library resource was not preserved: {relative}")
+
+
+EXPERIMENTAL_BACKEND_OVERLAY = (
+    'operon/installation.py', 'operon/processes.py', 'operon/process_paths.py',
+    'operon/tool_runner.py', 'scripts/verify_release_agent.py',
+    'operon/process_path_scopes.py', 'operon/execution/unit_executor.py',
+    'operon/export/collector.py', 'operon/export/automatic.py', 'operon/canvas_plans.py',
+    'operon/python_paths.py', 'operon/bytecode.py', 'operon/runtime_bootstrap.py',
+    'operon/environment_store/canvas.py', 'operon/environment_store/acquisition.py',
+    'operon/environment_store/python_builder.py', 'operon/execution/adapters/command.py',
+    'operon/environment_store/builders.py',
+    'operon/export/service.py', 'operon/env_worker.py',
+)
+
+
+def is_module_bytecode_name(name: str, stem: str) -> bool:
+    """Match ``<module>.<tag>[.opt-*].pyc`` without matching another module."""
+    prefix = stem + '.'
+    return name.startswith(prefix) and name.endswith('.pyc') and len(name) > len(prefix) + 4
+
+
+def checked_candidate_path(candidate: Path, path: Path, description: str) -> Path:
+    """Require a path to stay inside the candidate and contain no reparse points."""
+    reject_reparse(candidate, description)
+    try:
+        relative = path.relative_to(candidate)
+    except ValueError as error:
+        raise ValueError(f'Refusing bytecode outside the candidate payload: {path}') from error
+    current = candidate
+    for part in relative.parts:
+        current = current / part
+        if current.exists() or current.is_symlink():
+            reject_reparse(current, description)
+    try:
+        path.resolve().relative_to(candidate.resolve())
+    except (OSError, ValueError) as error:
+        raise ValueError(f'Refusing bytecode outside the candidate payload: {path}') from error
+    return path
+
+
+def remove_stale_module_bytecode(candidate: Path, module: Path) -> list[dict]:
+    """Remove this module's candidate-only bytecode, recording path and hash."""
+    removed: list[dict] = []
+    legacy = module.with_suffix('.pyc')
+    if legacy.exists() or legacy.is_symlink():
+        checked_candidate_path(candidate, legacy, 'candidate bytecode')
+        if legacy.is_dir():
+            raise ValueError(f'Candidate bytecode path is a directory: {legacy}')
+        removed.append({'path': legacy.relative_to(candidate).as_posix(), 'sha256': digest(legacy)})
+        legacy.unlink()
+    cache = module.parent / '__pycache__'
+    if not (cache.exists() or cache.is_symlink()):
+        return removed
+    checked_candidate_path(candidate, cache, 'candidate bytecode cache')
+    if not cache.is_dir():
+        return removed
+    for entry in sorted(cache.iterdir(), key=lambda item: item.name):
+        if not is_module_bytecode_name(entry.name, module.stem):
+            continue
+        checked_candidate_path(candidate, entry, 'candidate bytecode')
+        if entry.is_dir():
+            raise ValueError(f'Candidate bytecode path is a directory: {entry}')
+        removed.append({'path': entry.relative_to(candidate).as_posix(), 'sha256': digest(entry)})
+        entry.unlink()
+    return removed
+
+
+def apply_backend_overlay(source: Path, candidate: Path) -> dict:
+    """Ship a small, audited experimental delta without mutating the release base."""
+    records = []
+    for name in EXPERIMENTAL_BACKEND_OVERLAY:
+        origin, target = source / name, candidate / name
+        reject_reparse(origin, 'experimental backend overlay')
+        if not origin.is_file():
+            raise ValueError(f'Missing experimental backend overlay: {name}')
+        checked_candidate_path(candidate, target, 'experimental backend target')
+        before = digest(target) if target.is_file() else None
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(origin, target)
+        caches = remove_stale_module_bytecode(candidate, target)
+        records.append({'path': name, 'base_sha256': before, 'sha256': digest(target), 'caches': caches})
+    receipt = {'format': 'operon.experimental-backend-overlay', 'version': 1, 'files': records}
+    (candidate / 'experimental-backend-overlay.json').write_text(
+        json.dumps(receipt, indent=2) + '\n', encoding='utf-8')
+    return receipt
 
 
 def payload_id(manifest: dict) -> str:
@@ -364,6 +455,7 @@ def main(argv: list[str] | None = None) -> int:
         copy_tree(base, candidate)
         remove_production_wrappers(candidate)
         verify_library_resources(base, candidate)
+        apply_backend_overlay(root, candidate)
         frontend_target = candidate / "frontend"
         reject_reparse(frontend_target, "candidate payload")
         shutil.rmtree(frontend_target, ignore_errors=True)
