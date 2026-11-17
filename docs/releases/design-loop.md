@@ -388,6 +388,82 @@ installing `pydantic`/`jsonschema`, and recomputing each `receipt.json`
 `spec_sha256` from the deployed `library/environments.json` brought all six back
 to `ready` without reinstalling the heavy graphs.
 
+## AlphaFold-2 through OpenFold (library 0.1.28)
+
+`openfold_predict` is the library's AlphaFold-2 path: OpenFold is a faithful
+re-implementation of the AF2 architecture, and the operator runs
+`run_pretrained_openfold.py` against a local checkout and a checkpoint. Until
+0.1.28 the operator declared no isolated environment, so the readiness probe
+checked the shared application runtime, reported `torch: not installed`, and
+refused to submit. 0.1.28 adds an `openfold` environment to the library
+manifest and points `openfold_predict.resources.environment` at it, so the probe
+now inspects the environment that actually runs the model.
+
+| Item | Value |
+|---|---|
+| Checkout | `/public/home/lihj/operon-resources/openfold_code2` (`git clone --depth 1`) |
+| Weights | `openfold/finetuning_2.pt`, 374,586,533 B |
+| Config preset | `model_1` (`model_1_ptm` does not match these weights: `aux_heads.tm.*` keys are missing) |
+| Environment | `managed-v1/environments/openfold` (`torch 2.3.1+cu121`, CUDA available) |
+| Hardware | one RTX 3090, one CPU thread, 16 GB budget |
+
+Four edits make the checkout importable without compiling optional CUDA
+extensions: `attn_core_inplace_cuda` becomes optional (the in-place attention
+branch falls back to the standard path via `ATTENTION_CORE_AVAILABLE`),
+`pytorch_lightning` becomes optional (only DeepSpeed checkpoints need it), the
+TensorRT import moves inside `instrument_with_trt_compile()` after its early
+return, and `stereo_chemical_props.txt` is copied from the ColabFold
+environment because the upstream host answers 403. `pdbfixer` has no wheel for
+this Python on the mirror and pins `openmm>=8.2`, so `openmm==8.1.1` is
+installed first and `pdbfixer==1.12.0` afterwards with `--no-deps`; the pair
+imports and relaxes correctly.
+
+### Single-sequence and MSA runs
+
+| Target | Alignment | Residues | MSA depth | pLDDT | Atoms | Time |
+|---|---|---|---|---|---|---|
+| binder (de novo) | single sequence | 88 | 1 | **92.57** | 708 | 26 s |
+| binder (de novo) | uniref30 subset | 88 | 1 | **92.70** | 708 | 47 s |
+| target domain | single sequence | 193 | 1 | **41.32** | 1,583 | 43 s |
+| target domain | uniref30 subset | 193 | 74 | **86.65** | 1,583 | 96 s |
+
+The de novo binder has no natural homologue, so its MSA is the query alone and
+the fold is unchanged; the natural target domain gains 45 pLDDT points from 74
+homologues. That contrast is the point of the exercise: a single-sequence AF2
+run on a designed protein is meaningful, a single-sequence AF2 run on a natural
+domain is not.
+
+The MSA path uses the MMseqs2 static build
+(`bc48fd6f3ffe28017800c826aa608b4d55b1baa0`) plus a 3,000,000-entry prefix of
+`uniref30_2302`: `createdb` produces a 2.28 GB database, `createindex` an
+18.65 GB index (six minutes, eight threads), and `search -s 7.5 --max-seqs 2000`
+followed by `result2msa` yields the A3M. `result2msa` writes MMseqs records, not
+FASTA: the trailing `\\0` padding must be stripped (`tr -d '\\000'`) or OpenFold
+dies in `make_msa_features` with `KeyError: '\\x00'`.
+
+### Two smaller 0.1.28 fixes
+
+`esmfold_predict` gained a `dtype` parameter so the 8.4 GB float32 checkpoint
+can be tried in half precision. On a 24 GB card the float16 path still fails
+(`index 0 is out of bounds for dimension 0 with size 0`), so ESMFold remains a
+CPU operator here (379 s, pLDDT 0.853, measured earlier).
+`antifold_score` now downgrades `device=cuda` to CPU with an explanatory note
+instead of raising a device-mismatch error: the upstream batching helper only
+produces CPU tensors, so the CUDA path could never work. The downgraded run
+completes in 21.4 s with an 88x4 score artifact.
+
+### Environment hygiene after a forced redeploy
+
+`operon_remote_install(force=True)` retires the previous application
+environment. Isolated environments survive as directories, but any venv whose
+`bin/python` is a symlink to the retired interpreter then resolves
+`sys.prefix` to the *base* environment and silently loses its own
+site-packages. Re-pointing the symlink is not enough; the base interpreter has
+to be copied into the venv (`bin/python3.11`) and `python`/`python3` linked at
+that copy. Seven environments were repaired this way and re-verified by import
+(`esmfold`: `transformers 4.46.3`, `torch 2.3.1+cu121`, CUDA true; `boltz`: CUDA
+true; `antifold`: CUDA true).
+
 ## Platform defects found by the loop
 
 | Defect | Symptom | Fix | Version |
