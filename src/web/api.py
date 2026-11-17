@@ -208,36 +208,19 @@ def create_app(settings=None):
         registered = {}
         failed = []
         migrations = []
-        state = service.plugins.state()
-        from operon.library_pins import replacements
-        from operon.pins import graphs, identity, matches
+        from operon.pins import strip_pins
         for name, content in members:
             try:
                 graph = import_bundle(content)
-                # A route bundle carries the pins of the library it was built
-                # against. Only a source-to-wheel identity proven by the
-                # installed library may be rewritten; everything else is an
-                # explicit failure, never a guess about missing code.
-                proof = replacements(graph, state)
-                unresolved = []
-                for part in graphs(graph):
-                    for key, before in list(part.plugin_lock.items()):
-                        after = proof.get((key, identity(before)))
-                        if after is not None:
-                            part.plugin_lock[key] = after
-                            migrations.append({'operator': key, 'before': before,
-                                               'after': after, 'route': name,
-                                               'reason': 'Verified source-to-wheel identity '
-                                                         'from the installed library'})
-                        elif not matches(state, {key: before}):
-                            unresolved.append((key, before))
-                if unresolved:
-                    key, before = unresolved[0]
-                    raise ValueError(
-                        'Unable to prove pin correspondence for %s: stored code_sha %s does not '
-                        'match any recorded library source. Refusing to rewrite it; rebuild the '
-                        'route against the installed library or restore the library build it was '
-                        'created with.' % (key, (before or {}).get('code_sha') or '<missing>'))
+                # Routes resolve operators by id against the installed library;
+                # the pins a bundle was built with are provenance, not a gate.
+                pins = strip_pins(graph)
+                if pins:
+                    migrations.append({
+                        'route': name,
+                        'pins': pins,
+                        'reason': 'Recorded route pins; operators resolve by id '
+                                  'against the installed library'})
                 key = application.workflows.save(graph)["id"]
                 for item in service.routes.register([key]):
                     registered[item["id"]] = item

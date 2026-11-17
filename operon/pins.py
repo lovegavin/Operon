@@ -69,6 +69,22 @@ def graphs(graph):
             yield from graphs(node.route.graph)
 
 
+def strip_pins(graph):
+    """Drop pin metadata so operators resolve by id against the installed library.
+
+    Canvas graphs never carried pins; route bundles were compiled with them.
+    The installed library is the single source of truth at run time, so import
+    keeps the original pins as provenance and clears them from the graph.
+    """
+    removed = {}
+    for part in graphs(graph):
+        if not part.plugin_lock:
+            continue
+        removed.update(part.plugin_lock)
+        part.plugin_lock = {}
+    return removed
+
+
 def requirements(graph, replacements=None, *, state=None):
     required = {}
     bundled = {d['id'] for d in (state or {}).get('descriptors', []) if d.get('origin') == 'bundled'}

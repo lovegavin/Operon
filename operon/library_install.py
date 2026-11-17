@@ -963,14 +963,17 @@ def install_routes_collection(service, path) -> dict:
     application = getattr(service, "application", None)
     if application is None:
         raise _invalid("Route collections can only be imported into a running application.")
+    from operon.pins import strip_pins
+
     state = service.plugins.state()
     planned = []
     for route in routes:
         graph = _route_graph(entries, route)
         _verify_pins(state, graph)
+        pins = strip_pins(graph)
         name = route.get("name") or graph.name or route["key"]
         graph.name = name
-        planned.append({"key": route["key"], "name": name, "graph": graph})
+        planned.append({"key": route["key"], "name": name, "graph": graph, "pins": pins})
     workflows = application.workflows
     existing = {item["name"]: item for item in workflows.list()}
     saved = []
@@ -987,12 +990,21 @@ def install_routes_collection(service, path) -> dict:
     missing = [item["id"] for item in saved if item["id"] not in registered]
     if missing:
         raise _invalid(f"Route registration failed for {', '.join(missing)}")
+    pins_by_key = {item["key"]: item["pins"] for item in planned}
     collections = Path(service.routes.directory) / "collections"
     collections.mkdir(parents=True, exist_ok=True)
     manifest = {
         "name": source.stem,
         "imported_at": datetime.now(timezone.utc).isoformat(),
-        "routes": [{"key": item["key"], "name": item["name"], "workflow_id": item["id"]} for item in saved],
+        "routes": [
+            {
+                "key": item["key"],
+                "name": item["name"],
+                "workflow_id": item["id"],
+                **({"pins": pins_by_key[item["key"]]} if pins_by_key.get(item["key"]) else {}),
+            }
+            for item in saved
+        ],
     }
     atomic_json(collections / f"{_collection_slug(manifest['name'])}.json", manifest)
     return {
