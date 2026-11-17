@@ -12,7 +12,7 @@ def test_display_prefers_build_suffix(monkeypatch):
     assert build_info.info() == {
         "version": __version__,
         "build": "0bbcaa570d84",
-        "display": f"{__version__} \u00b7 0bbcaa57",
+        "display": f"{__version__} (0bbcaa57)",
     }
 
 
@@ -37,4 +37,4 @@ def test_installation_record_names(monkeypatch):
     monkeypatch.setattr(build_info, "_version_directory", lambda: "5.4.1")
     monkeypatch.setattr(build_info, "_installation_record", lambda: {"current": "versions/5.4.1-0123456789ab"})
     assert build_info.build() == "0123456789ab"
-    assert build_info.info()["display"].endswith("01234567")
+    assert build_info.info()["display"].endswith("(01234567)")

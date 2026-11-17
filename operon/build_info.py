@@ -57,11 +57,11 @@ def version() -> str:
 
 
 def display() -> str:
-    """Return the label the footer shows: ``5.4.1 · 0bbcaa57`` when a build is known."""
+    """Return the label the footer shows: ``5.4.1 (0bbcaa57)`` when a build is known."""
     suffix = build()
     if not suffix:
         return version()
-    return f'{version()} {_SEPARATOR} {suffix[:8]}'
+    return f'{version()} ({suffix[:8]})'
 
 
 def info() -> dict:
