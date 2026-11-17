@@ -17,7 +17,7 @@ from src.task.step.steps._resources_common import remedy, check_resource, load_r
 from src.task.step.steps._sequence_common import decode_sequences
 
 
-def _load_model(device: str, chunk_size: int, weights_dir: str = ""):
+def _load_model(device: str, chunk_size: int, weights_dir: str = "", dtype: str = "auto"):
     """Load ESMFold 3B (lazy import so the operator stays importable without fair-esm)."""
 
     if weights_dir:
@@ -28,7 +28,12 @@ def _load_model(device: str, chunk_size: int, weights_dir: str = ""):
                 "esmfold_predict: weights_dir needs transformers; install it with "
                 "'python -m pip install transformers'"
             ) from exc
-        model = EsmForProteinFolding.from_pretrained(weights_dir)
+        load_kwargs = {}
+        if dtype in ("float16", "float32", "bfloat16"):
+            import torch
+
+            load_kwargs["torch_dtype"] = getattr(torch, dtype)
+        model = EsmForProteinFolding.from_pretrained(weights_dir, **load_kwargs)
         model = model.eval()
         if device == "cuda":
             model = model.cuda()
@@ -141,7 +146,7 @@ class EsmfoldPredictStep(Step):
         if status["status"] == "partial" and status["root"]:
             print(f"[esmfold_predict] note: {remedy(status)}")
 
-        model = _load_model(device, chunk_size, str(params.get("weights_dir", "") or ""))
+        model = _load_model(device, chunk_size, str(params.get("weights_dir", "") or ""), str(params.get("dtype") or "auto"))
         _apply_recycles(model, num_recycles)
         try:
             pdb_text = model.infer_pdb(sequence)

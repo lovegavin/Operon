@@ -179,6 +179,16 @@ class AntifoldScoreStep(Step):
                 "https://opig.stats.ox.ac.uk/data/downloads/AntiFold/models/model.pt"
             )
         device = str(params.get("device", "cpu")).lower()
+        device_note: dict[str, str] = {}
+        if device == "cuda":
+            # AntiFold's own batching feeds CPU tensors into a CUDA model, so a GPU
+            # run dies with a device-mismatch before any score exists.
+            device = "cpu"
+            device_note = {
+                "device_requested": "cuda",
+                "device_used": "cpu",
+                "device_note": "AntiFold cannot run on CUDA in this version",
+            }
         if device not in ("cpu", "cuda"):
             raise StepError("antifold_score: device must be 'cpu' or 'cuda'")
         if device == "cpu":
@@ -203,6 +213,8 @@ class AntifoldScoreStep(Step):
             "imgt_regions": list(regions),
             "chain": chain,
             "weights_path": str(Path(weights).expanduser()),
+            "device_used": device,
+            **device_note,
         }
         form = Form(
             data=data,

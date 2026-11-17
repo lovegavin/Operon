@@ -211,6 +211,39 @@
         "wheel"
       ],
       "venv_shared": true
+    },
+    "openfold": {
+      "title": "OpenFold (AlphaFold-2)",
+      "python": "3.11",
+      "imports": [
+        "torch",
+        "numpy",
+        "Bio",
+        "ml_collections",
+        "absl",
+        "scipy",
+        "pandas",
+        "tree",
+        "modelcif"
+      ],
+      "requirements": [
+        "numpy==1.26.4",
+        "biopython==1.83",
+        "scipy==1.13.1",
+        "ml-collections==0.1.1",
+        "absl-py",
+        "pandas==2.2.3",
+        "dm-tree==0.1.8",
+        "modelcif",
+        "ihm",
+        "pydantic==2.14.3",
+        "jsonschema==4.26.0"
+      ],
+      "wired": true,
+      "notes": "OpenFold inference environment. The checkout and the AlphaFold-2 weights are external: pass openfold_path (contains run_pretrained_openfold.py) and params_path. Alignment is a single-sequence A3M because no local mmseqs2 search is bundled; supply alignment_dir with precomputed MSAs to run the full AlphaFold-2 pipeline.",
+      "torch_version": "2.3.1",
+      "torch_cuda": true,
+      "torch_index_url": "https://mirrors.aliyun.com/pypi/simple"
     }
   }
 }

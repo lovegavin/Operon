@@ -61,6 +61,20 @@
       "default": "",
       "x-ui-group": "依赖",
       "x-ui-order": 4
+    },
+    "dtype": {
+      "title": "权重精度",
+      "type": "string",
+      "default": "auto",
+      "enum": [
+        "auto",
+        "float32",
+        "float16",
+        "bfloat16"
+      ],
+      "x-ui-group": "依赖",
+      "x-ui-order": 5,
+      "description": "仅 weights_dir 的 HF 权重生效；float16 可让 3B ESMFold 在 24 GB 显卡上运行。"
     }
   }
 }
