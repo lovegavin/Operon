@@ -202,7 +202,9 @@ internal sealed class StudioWindow : Form
             backend.BeginOutputReadLine(); backend.BeginErrorReadLine();
             await backend.StandardInput.WriteLineAsync("start");
             await backend.StandardInput.FlushAsync();
-            origin = await ready.Task.WaitAsync(TimeSpan.FromSeconds(90), stopped.Token);
+            // The first launch installs the bundled base library before the backend reports ready,
+            // which can exceed two minutes on a cold or slow disk.
+            origin = await ready.Task.WaitAsync(TimeSpan.FromSeconds(300), stopped.Token);
             var url = new Uri(origin);
             if (url.Scheme != "http" || url.Host != "127.0.0.1") throw new InvalidOperationException("运行时地址无效。");
             using var health = JsonDocument.Parse(await http.GetStringAsync(origin + "/ready", stopped.Token));

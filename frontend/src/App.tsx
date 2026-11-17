@@ -203,6 +203,8 @@ function Studio() {
   const [agentHighlights, setAgentHighlights] = useState<string[]>([]);
   const [routes, setRoutes] = useState<RouteDefinition[]>([]);
   const [servers, setServers] = useState<RemoteStatus[]>([]);
+  // The palette source is explicit: this installation, or one named server.
+  const [librarySource, setLibrarySource] = useState<string>("local");
   const [appSettings, setAppSettings] = useState<SettingsSection | null>(null);
   const appearance = useAppearance();
   const [remotePicker, setRemotePicker] = useState<{profileId: string; initial: string; source?: boolean; reader?: string; onSelect: (path: string, source?: DataSource) => void} | null>(null);
@@ -293,16 +295,19 @@ function Studio() {
     // Runs own immutable snapshots; editing is only briefly gated during submit.
     busy = action === 'run';
   const activeJobs = history.filter(isActiveJob);
-  const catalog = useMemo(() => {
-    const preferred = selectedServerId ? selectedServer?.info?.catalog : bootstrap?.catalog;
-    const available = [preferred, bootstrap?.catalog, ...servers.filter(server => server.connected).map(server => server.info?.catalog)].filter(Boolean);
-    const operators = new Map(), readers = new Map();
-    for (const source of available) {
-      for (const operator of source!.operators) if (!operators.has(operator.id)) operators.set(operator.id, operator);
-      for (const reader of source!.readers || []) if (!readers.has(reader.id)) readers.set(reader.id, reader);
-    }
-    return presentCatalog({schema_version: 1, operators: [...operators.values()], readers: [...readers.values()]});
-  }, [bootstrap?.catalog, selectedServerId, servers, locale]);
+  // The palette renders exactly one source: this installation or a server the
+  // operator picked in the source selector. Merging snapshots would make the
+  // tree a union, so removing or replacing a library could never shrink it.
+  const paletteServer = librarySource === 'local' ? undefined : servers.find(server => server.profile.id === librarySource);
+  const paletteCatalog = librarySource === 'local' ? bootstrap?.catalog : paletteServer?.info?.catalog;
+  const catalog = useMemo(
+    () => presentCatalog({
+      schema_version: 1,
+      operators: paletteCatalog?.operators || [],
+      readers: paletteCatalog?.readers || [],
+    }),
+    [paletteCatalog, locale],
+  );
   function acceptCatalog(latest: Bootstrap['catalog'], createdId?: string, expected?: number) {
     const applied = catalogUpdates.current.apply(latest, value => setBootstrap(current => current ? {...current, catalog: value} : current), expected);
     if (applied && createdId) {
@@ -509,21 +514,31 @@ function Studio() {
     setRoutes(registered); setLibraryState(state);
   }
   async function refreshPlugins() {
-    if (selectedServerId) {setAppSettings('servers'); return;}
     if (refreshingPlugins) return;
     setRefreshingPlugins(true);
     try {
-      let operation = await api.refreshPlugins();
-      while (operation.status === "running") {
-        await new Promise(resolve => setTimeout(resolve, 800));
-        operation = await api.pluginOperation(operation.id);
+      if (librarySource !== 'local') {
+        await refreshServers();
+        notify(t("已重新读取服务器算子库。"), "success");
+        return;
       }
-      if (operation.status === "failed") throw Error(operation.error || t("算子库刷新失败"));
-      const expected = catalogUpdates.current.checkpoint();
-      const latest = await api.catalog();
-      acceptCatalog(latest, undefined, expected);
-      const count = operation.result && 'updated' in operation.result ? operation.result.updated.length : 0;
-      notify(count ? t("算子库已更新，即刻可用。") : t("算子库已是最新。"), "success");
+      // A managed installation has no editable sources, so the backend scan may
+      // refuse; the catalog read below is what actually repaints the palette.
+      try {
+        let operation = await api.refreshPlugins();
+        while (operation.status === "running") {
+          await new Promise(resolve => setTimeout(resolve, 800));
+          operation = await api.pluginOperation(operation.id);
+        }
+        if (operation.status === "failed") throw Error(operation.error || t("算子库刷新失败"));
+      } catch (error) {
+        if (!(error instanceof ApiError) || !error.status || error.status >= 500) throw error;
+      }
+      const before = bootstrap?.catalog ? bootstrap.catalog.operators.length + (bootstrap.catalog.readers?.length ?? 0) : 0;
+      const latest = await api.catalog(20000);
+      catalogUpdates.current.force(latest, value => setBootstrap(current => current ? {...current, catalog: value} : current));
+      const after = latest.operators.length + (latest.readers?.length ?? 0);
+      notify(after !== before ? t("算子库已更新，即刻可用。") : t("算子库已是最新。"), "success");
     } catch (error) {failure(error);}
     finally {setRefreshingPlugins(false);}
   }
@@ -1413,8 +1428,12 @@ function Studio() {
           <div className="panel-heading">
             <h2>{t("算子库")}</h2>
             <span className="count-badge">{catalog.operators.filter(item => !libraryState.hidden.includes(item.id)).length + (catalog.readers?.length ?? 0) + routes.length}</span>
+            <select className="library-source" aria-label={t("算子库来源")} title={t("算子库来源")} value={librarySource} onChange={event => setLibrarySource(event.target.value)}>
+              <option value="local">{t("本机")}</option>
+              {servers.map(server => <option key={server.profile.id} value={server.profile.id}>{server.profile.name}{server.connected ? '' : t(" · 离线")}</option>)}
+            </select>
             <button className="icon-button register-route-button" aria-label={t("添加算子")} title={t("添加算子")} onClick={() => setPluginsOpen("add")}><Plus size={18}/></button>
-            <button className="icon-button library-refresh" aria-label={t("刷新算子库")} title={selectedServerId ? t("连接服务器并读取算子库") : t("扫描算子与 Reader 目录并热更新")} disabled={refreshingPlugins} onClick={() => void refreshPlugins()}><ArrowClockwise size={16} className={refreshingPlugins ? "spin" : ""}/></button>
+            <button className="icon-button library-refresh" aria-label={t("刷新算子库")} title={t("重新读取算子库")} disabled={refreshingPlugins} onClick={() => void refreshPlugins()}><ArrowClockwise size={16} className={refreshingPlugins ? "spin" : ""}/></button>
             <button
               className="icon-button mobile-close"
               aria-label={t("关闭算子库")}

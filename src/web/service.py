@@ -1000,7 +1000,10 @@ class JobService:
             return
         marker = Path(self.plugins.directory) / 'base-library.json'
         state = self.plugins.state()
-        if state.get('libraries') or io_path(marker).exists():
+        # The marker records that a base library *was* installed; it must not
+        # stop the recovery when that library is gone (an interrupted upgrade
+        # or a delete leaves a valid marker behind and an empty palette).
+        if state.get('libraries'):
             return
         from operon.library_install import install_library
         try:
