@@ -418,8 +418,11 @@ internal sealed class InstallEngine
             allVersions.Add(relative);
             var receipt = new InstallReceipt(InstallFiles.Owner, spec.Version, relative, resolvedProfile, allVersions, shortcuts, registrationKey, root);
             InstallFiles.AtomicJson(ReceiptPath(root), receipt); committed = true;
-            // Previous versions were already deleted before extraction; only
-            // the fresh version remains under versions/.
+            // A version whose files were still mapped by a respawning agent may
+            // survive the pre-extraction sweep; now that the new version is
+            // current nothing should start it again, so sweep once more.
+            try { RemoveVersionTrees(root); }
+            catch (Exception error) { Log("Post-install cleanup: " + error.Message); }
             Report("安装完成", 100);
             return new("installed", root, Path.Combine(installed, "Operon Studio.exe"), resolvedProfile, LogPath);
         }
@@ -569,7 +572,12 @@ internal sealed class InstallEngine
             if (!allowedLinks.Contains(path, StringComparer.OrdinalIgnoreCase)) throw new InvalidDataException("快捷方式记录无效。");
             InstallFiles.NoLinks(path);
         }
-        foreach (var relative in receipt.Versions) PreflightVersion(root, relative);
+        // Agents of a version without the maintenance gate can be respawned by
+        // their client while we hold the directory; 5.1.17 simply logged and let
+        // RemoveVersionTrees retry. Keep the diagnostic, never abort the update.
+        foreach (var relative in receipt.Versions)
+            try { PreflightVersion(root, relative); }
+            catch (Exception error) { Log("Preflight delayed: " + error.Message); }
         foreach (var relative in receipt.Versions) CleanVersion(root, relative, Path.GetDirectoryName(receipt.Profile)!,
             targets.FirstOrDefault(t => t.Directory == InstallFiles.Inside(root, relative))?.Profile);
         RemoveAutostart();
@@ -788,7 +796,12 @@ internal sealed class InstallEngine
         DisconnectAgents(receipt.Profile);
         var stopped = TerminateManagedProcesses(root, strict: false);
         if (stopped > 0) Log($"Stopped {stopped} process(es) from the previous installation.");
-        foreach (var relative in receipt.Versions) PreflightVersion(root, relative);
+        // Agents of a version without the maintenance gate can be respawned by
+        // their client while we hold the directory; 5.1.17 simply logged and let
+        // RemoveVersionTrees retry. Keep the diagnostic, never abort the update.
+        foreach (var relative in receipt.Versions)
+            try { PreflightVersion(root, relative); }
+            catch (Exception error) { Log("Preflight delayed: " + error.Message); }
         var allowedLinks = new[] {
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "Operon Studio.lnk"),
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Programs), "Operon", "Operon Studio.lnk")
@@ -1005,11 +1018,13 @@ internal sealed class InstallEngine
     {
         var versions = Path.Combine(root, "versions");
         if (!Directory.Exists(versions)) return;
-        for (var attempt = 0; attempt < 15; attempt++)
+        for (var attempt = 0; attempt < 40; attempt++)
         {
             var remaining = Directory.EnumerateDirectories(versions)
                 .Where(item => !Path.GetFileName(item).StartsWith(".install-", StringComparison.Ordinal)).ToList();
             if (remaining.Count == 0) break;
+            try { TerminateAgents(root); }
+            catch (Exception error) { Log("Stop agents for version cleanup: " + error.Message); }
             try { TerminateManagedProcesses(root, strict: false); }
             catch (Exception error) { Log("Stop for version cleanup: " + error.Message); }
             foreach (var directory in remaining)
@@ -1019,7 +1034,7 @@ internal sealed class InstallEngine
             }
             if (!Directory.EnumerateDirectories(versions)
                 .Any(item => !Path.GetFileName(item).StartsWith(".install-", StringComparison.Ordinal))) break;
-            Thread.Sleep(400);
+            Thread.Sleep(500);
         }
         try
         {
