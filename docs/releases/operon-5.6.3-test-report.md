@@ -10,8 +10,8 @@ missing-file report, and the remote/local manifest warning.
 
 | Artifact | Bytes | SHA-256 |
 | --- | --- | --- |
-| Operon-Studio-v5.6.3-Windows-x64.zip | 357,354,203 | 9c83f300cda4b702b657120e73eae7a340095df7983e3416cda8d25276d509a2 |
-| Operon_Setup-5.6.3.exe | 429,131,563 | c233c105432f4b107b442246462d79fe1a0dbc54ea271a78d32767a630320aab |
+| Operon-Studio-v5.6.3-Windows-x64.zip | 357,354,269 | 3faee6066360ae244d70cff4876f62807d58526ab6adeabef12b20003ec74dd2 |
+| Operon_Setup-5.6.3.exe | 429,131,627 | faf89e6588b7f9cca008e1bf426817732ac988dda8d23b7a97e6c70f9809e6d2 |
 | operon_studio-5.6.3-py3-none-any.whl | 992,674 | d19e5c01cf3b67ac1a171a83f383bcb12e5043ed7f1ebcecfd8d8ba0f3cc1f27 |
 | Operon-5.6.3-Server.zip | 4,757,303 | 9b022a958c916d8884605d2573ccfbdc932cc816135fed189462203088b2017d |
 | operon-library-main-v1.0.2.operon-library.zip | 6,949,024 | 3f2c672e13094ee66fede0256bc4707a2d3985ab5eedd162d70d776a02e52b1f |
