@@ -19,14 +19,28 @@ function stateLabel(resource: LargeResource) {
   return resource.status === 'partial' ? t("不完整") : t("缺失");
 }
 
+export type LinkEnvironment = {name: string; status: string; title?: string};
 type Target = {id: string; name: string};
-type Draft = {name: string; source: string; target: string};
+type Draft = {name: string; source: string; target: string; environment: string};
+
+export function missingEnvironments(options: LinkEnvironment[]): LinkEnvironment[] {
+  return options.filter(option => option.status !== 'ready');
+}
+
+export function linkCandidates(resources: LargeResource[], environment: string, keep = ''): LargeResource[] {
+  return resources.filter(resource => {
+    if (!(resource.link_roots || []).length) return false;
+    if (environment && !(resource.environments || []).includes(environment)) return false;
+    return !resource.present || resource.id === keep;
+  });
+}
 
 export function LargeResources() {
   const [snapshot, setSnapshot] = useState<LargeResourceSnapshot | null>(null);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false), [message, setMessage] = useState('');
   const [draft, setDraft] = useState<Draft | null>(null);
   const [targets, setTargets] = useState<Target[]>([]);
+  const [environments, setEnvironments] = useState<LinkEnvironment[]>([]);
   useEffect(() => {
     let alive = true;
     api.largeResources().then(value => {if (alive) setSnapshot(value);})
@@ -37,6 +51,18 @@ export function LargeResources() {
     }).catch(() => {});
     return () => {alive = false;};
   }, []);
+  const openTarget = draft ? draft.target : null;
+  useEffect(() => {
+    if (openTarget === null) return;
+    let alive = true;
+    const load = openTarget
+      ? api.remoteEnvironments(openTarget).then(value => Object.entries(value.environments || {}).map(([name, entry]) =>
+        ({name, status: String(entry.status || ''), title: entry.name})))
+      : api.environments().then(value => Object.entries(value.environments || {}).map(([name, entry]) =>
+        ({name, status: entry.status, title: entry.title})));
+    load.then(list => {if (alive) setEnvironments(list);}).catch(() => {if (alive) setEnvironments([]);});
+    return () => {alive = false;};
+  }, [openTarget]);
   async function run(action: () => Promise<void>, success: string) {
     setBusy(true); setError(''); setMessage('');
     try {await action(); setMessage(success);}
@@ -44,14 +70,22 @@ export function LargeResources() {
     finally {setBusy(false);}
   }
   async function reload() {setSnapshot(await api.largeResources());}
+  const resources = snapshot?.resources || [];
+  const linkable = resources.filter(resource => (resource.link_roots || []).length > 0);
   function open(resource?: LargeResource) {
     const first = resource || linkable[0];
     if (!first) return;
-    setDraft({name: first.id, source: first.link_roots?.[0] || '', target: ''});
+    setDraft({name: first.id, source: '', target: '', environment: ''});
+  }
+  function chooseEnvironment(environment: string) {
+    if (!draft) return;
+    const next = linkCandidates(linkable, environment, draft.name);
+    const name = next.some(item => item.id === draft.name) ? draft.name : (next[0]?.id || '');
+    setDraft({...draft, environment, name});
   }
   async function submit(value: Draft) {
     const source = value.source.trim();
-    if (!source) return;
+    if (!source || !value.name) return;
     await run(async () => {
       const send = async (replace: boolean) => value.target
         ? api.remoteLinkResource(value.target, value.name, source, replace)
@@ -71,8 +105,9 @@ export function LargeResources() {
     if (!window.confirm(t("解除 {v0} 的链接？源目录和文件不会被删除。", {v0: resource.title || resource.id}))) return;
     await run(async () => {await api.largeResourceUnlink(resource.id); await reload();}, t("已解除链接"));
   }
-  const resources = snapshot?.resources || [];
-  const linkable = resources.filter(resource => (resource.link_roots || []).length > 0);
+  const options = missingEnvironments(environments);
+  const candidates = draft ? linkCandidates(linkable, draft.environment, draft.name) : [];
+  const current = draft ? resources.find(resource => resource.id === draft.name) : undefined;
   return <div className="large-resources">
     <div className="settings-section-heading"><h3>{t("大型资源与模型权重")}</h3>
       <button className="subtle-button" disabled={busy || !linkable.length} onClick={() => open()}><Link size={15}/>{t("链接资源")}</button>
@@ -90,6 +125,7 @@ export function LargeResources() {
         <div><dt>{t("资源根目录")}</dt><dd><code>{resource.root || t("未解析")}</code></dd></div>
         {resource.linked && resource.source ? <div><dt>{t("链接来源")}</dt><dd><code>{resource.source}</code></dd></div> : null}
         {resource.env ? <div><dt>{t("环境变量")}</dt><dd><code>{resource.env}</code></dd></div> : null}
+        {resource.environments?.length ? <div><dt>{t("所属环境")}</dt><dd>{resource.environments.join(', ')}</dd></div> : null}
         <div><dt>{t("使用算子")}</dt><dd>{resource.used_by?.length ? resource.used_by.join(', ') : t("未被算子引用")}</dd></div>
       </dl>
       <div className="settings-form-actions">
@@ -100,27 +136,36 @@ export function LargeResources() {
     {draft ? <div className="link-dialog" role="dialog" aria-label={t("链接资源")}>
       <h3>{t("链接资源")}</h3>
       <p className="settings-note">{t("仅支持链接数据库或模型权重目录，不复制字节；运行依赖请使用下载或安装。")}</p>
-      <label><span>{t("选择资源")}</span>
-        <select value={draft.name} onChange={event => {
-          const next = resources.find(resource => resource.id === event.target.value);
-          setDraft({...draft, name: event.target.value, source: next?.link_roots?.[0] || draft.source});
-        }}>{linkable.map(resource =>
-          <option key={resource.id} value={resource.id}>{resource.title || resource.id}</option>)}</select>
-      </label>
-      <label><span>{t("链接位置")}</span>
-        <input value={draft.source} placeholder={resources.find(resource => resource.id === draft.name)?.link_roots?.[0] || t('输入已有目录的绝对路径')}
-          onChange={event => setDraft({...draft, source: event.target.value})}/>
-      </label>
-      <label><span>{t("目标主机")}</span>
+      <label><span>{t("执行位置")}</span>
         <select value={draft.target} onChange={event => setDraft({...draft, target: event.target.value})}>
           <option value="">{t("本地")}</option>
           {targets.map(remote => <option key={remote.id} value={remote.id}>{remote.name}</option>)}
         </select>
       </label>
-      {resources.find(resource => resource.id === draft.name)?.link_roots?.length ?
-        <p className="settings-note">{t("允许的链接根：")}{(resources.find(resource => resource.id === draft.name)?.link_roots || []).join('；')}</p> : null}
+      {!targets.length ? <p className="settings-note">{t("尚未配置服务器连接；在设置 → 服务器中添加后可在远端执行链接。")}</p> : null}
+      <label><span>{t("缺失的环境")}</span>
+        <select value={draft.environment} onChange={event => chooseEnvironment(event.target.value)}>
+          <option value="">{t("全部环境")}</option>
+          {options.map(option => <option key={option.name} value={option.name}>{option.title || option.name}（{option.status}）</option>)}
+        </select>
+      </label>
+      <label><span>{t("缺失的权重或数据库")}</span>
+        <select value={draft.name} disabled={!candidates.length} onChange={event => setDraft({...draft, name: event.target.value})}>
+          {candidates.length ? candidates.map(resource =>
+            <option key={resource.id} value={resource.id}>{resource.title || resource.id}</option>)
+            : <option value="">{t("该环境下没有缺失的可链接资源")}</option>}
+        </select>
+      </label>
+      <label><span>{t("目标绝对位置")}</span>
+        <input value={draft.source} placeholder={current?.link_roots?.[0] || t('输入已有目录的绝对路径')}
+          onChange={event => setDraft({...draft, source: event.target.value})}/>
+      </label>
+      <p className="settings-note">{t("填该资源在本机上的绝对路径；链接建好后 Operon 从资源根目录读取，字节不复制。")}</p>
+      <p className="settings-note">{t("链接只作用于执行它的那台机器的本地文件系统，不会把远端文件映射到本机，也不复制字节。")}</p>
+      {current?.link_roots?.length ?
+        <p className="settings-note">{t("允许的链接根：")}{current.link_roots.join('；')}</p> : null}
       <div className="settings-form-actions">
-        <button className="primary-button" disabled={busy || !draft.source.trim()} onClick={() => void submit(draft)}>{t("链接")}</button>
+        <button className="primary-button" disabled={busy || !draft.source.trim() || !draft.name} onClick={() => void submit(draft)}>{t("链接")}</button>
         <button className="subtle-button" disabled={busy} onClick={() => setDraft(null)}>{t("取消")}</button>
       </div>
     </div> : null}

@@ -115,6 +115,8 @@ they tested; they are historical evidence, not current installation instructions
 - [Operon Studio 5.5.0 test report](releases/operon-5.5.0-test-report.md)
 - [Operon Studio 5.5.1 release](releases/operon-5.5.1.md)
 - [Operon Studio 5.5.1 test report](releases/operon-5.5.1-test-report.md)
+- [Operon Studio 5.5.2 release](releases/operon-5.5.2.md)
+- [Operon Studio 5.5.2 test report](releases/operon-5.5.2-test-report.md)
 - [Operator library 0.1.29 release](releases/library-v0.1.29.md)
 - [Operon Studio 5.0.0 release](releases/operon-5.0.0.md)
 - [Operon Studio 4.1.9 release](releases/v4.1.9.md)

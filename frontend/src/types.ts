@@ -284,7 +284,8 @@ export type LargeResource = {
   id: string; title?: string; kind?: string; env?: string | null; root?: string | null;
   present?: boolean; status?: string; missing?: string[]; files?: string[];
   linked?: boolean; source?: string | null; mode?: string | null; size_bytes?: number;
-  expected_files?: string[]; link_roots?: string[]; used_by?: string[]; downloads?: LargeResourceDownload[];
+  expected_files?: string[]; link_roots?: string[]; used_by?: string[]; environments?: string[];
+  downloads?: LargeResourceDownload[];
 };
 export type LargeResourceOperation = {id: string; name?: string; kind?: string; status: string;
   error?: string | null; started_at?: string; finished_at?: string | null; mode?: string | null;

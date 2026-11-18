@@ -159,6 +159,18 @@ def _used_by_map(root: Path, release: dict, probes: list[str]) -> dict[str, list
     return {probe: list(owners) for probe, owners in cached.items()}
 
 
+def _environment_map(service) -> dict[str, str]:
+    """Map each operator id to the isolated environment its descriptor declares."""
+    catalog = getattr(service, 'catalog', None) or {}
+    found: dict[str, str] = {}
+    for entry in list(catalog.get('operators') or []) + list(catalog.get('readers') or []):
+        environment = (entry.get('resources') or {}).get('environment')
+        identifier = entry.get('id')
+        if environment and identifier:
+            found[str(identifier)] = str(environment)
+    return found
+
+
 def operation(job_id: str) -> dict | None:
     job = _jobs.get(job_id)
     return dict(job) if job else None
@@ -170,6 +182,7 @@ def snapshot(service) -> dict:
     release = service.plugins.state().get('library_release') or {}
     probes = [resource.env or resource.id for resource in resources.values()]
     used_by = _used_by_map(root, release, [probe for probe in probes if probe])
+    environment_of = _environment_map(service)
     link_roots = _link_roots(common)
     items = []
     for resource in resources.values():
@@ -179,6 +192,8 @@ def snapshot(service) -> dict:
         probe = resource.env or resource.id
         item['downloads'] = [dict(entry) for entry in resource.downloads]
         item['used_by'] = used_by.get(probe, [])
+        item['environments'] = sorted({environment_of[name] for name in item['used_by']
+                                       if environment_of.get(name)})
         item['link_roots'] = list(link_roots)
         item['expected_files'] = names
         item['linked'] = bool(item.get('linked', state['linked']))
