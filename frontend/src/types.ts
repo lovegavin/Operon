@@ -291,6 +291,7 @@ export type LargeResource = {
   expected_files?: string[]; link_roots?: string[]; used_by?: string[]; environments?: string[];
   downloads?: LargeResourceDownload[]; state?: string; link_unit?: string;
   link_target?: string | null; root_linked?: boolean; root_target?: string | null;
+  official_root?: string;
   units?: LargeResourceUnit[];
 };
 export type LargeResourceOperation = {id: string; name?: string; kind?: string; status: string;

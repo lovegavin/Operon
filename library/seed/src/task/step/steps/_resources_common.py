@@ -44,6 +44,7 @@ class Resource:
     link_roots: tuple[str, ...] = ()
     expected_files: tuple[str, ...] = ()
     link_unit: str = "tree"
+    link_root: str = ""
 
     @classmethod
     def from_entry(cls, entry: dict[str, Any]) -> "Resource":
@@ -112,6 +113,7 @@ class Resource:
             str(name) for name in entry.get("expected_files") or [] if str(name).strip()
         )
         unit = str(entry.get("link_unit") or "tree").strip().lower() or "tree"
+        link_root = str(entry.get("link_root") or "").strip()
         if unit not in {"tree", "items"}:
             raise StepError(
                 f"resource '{identifier}' link_unit must be 'tree' or 'items': {unit!r}"
@@ -135,6 +137,7 @@ class Resource:
             link_roots=resource_link_roots,
             expected_files=expected,
             link_unit=unit,
+            link_root=link_root,
         )
 
 
@@ -393,7 +396,7 @@ def check_resource(resource: Resource, root: str | Path | None = None) -> dict[s
 
     resolved = resolve_root(resource, root)
     files: dict[str, dict[str, Any]] = {}
-    for name in resource.files:
+    for name in expected_files(resource):
         path = resolved / name if resolved is not None else None
         files[name] = _file_entry(path)
         present = bool(files[name]["present"])

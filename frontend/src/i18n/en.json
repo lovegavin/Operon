@@ -1017,5 +1017,15 @@
   "绝对路径": "Absolute path",
   "/绝对/路径": "/absolute/path",
   "请填写本机上已有的绝对路径。": "Enter an absolute path that exists on this machine.",
-  "已链接：{target}": "Linked: {target}"
+  "已链接：{target}": "Linked: {target}",
+  "官方目录或文件": "Official directory or file",
+  "官方目录或文件：{name}。链接后 Operon 会检查其中缺失的文件。": "Official directory or file: {name}. After linking, Operon checks the files inside it.",
+  "查看缺失项": "View missing files",
+  "链接目录": "Link directory",
+  "缺少 {count} 个文件": "{count} file(s) missing",
+  "整棵目录": "Whole directory",
+  "所需文件": "Required files",
+  "重新链接该目录": "Relink that directory",
+  "请选择官方目录或文件：{name}。": "Choose the official directory or file: {name}.",
+  "已开始下载": "Download started"
 }

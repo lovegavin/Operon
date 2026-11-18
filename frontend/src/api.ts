@@ -225,6 +225,9 @@ export const api = {
   largeResourceUnlink: (name: string, unit = '') =>
     request<import('./types').LargeResourceLinkResult>(`/api/resources/${encodeURIComponent(name)}/link` +
       (unit ? `?unit=${encodeURIComponent(unit)}` : ''), undefined, {method: 'DELETE'}),
+  largeResourceDownload: (name: string, root = '', overwrite = false) =>
+    request<import('./types').LargeResourceLinkResult>(
+      `/api/resources/${encodeURIComponent(name)}/download`, {root, overwrite}),
   storageRoots: (signal?: AbortSignal) => request<{roots: StorageRef[]}>('/api/v1/storage/roots', undefined, {signal}),
   browseStorage: (value: StorageBrowseRequest, session: string, signal?: AbortSignal) =>
     request<StoragePage>('/api/v1/storage/browse', value, {storageSession: session, signal}),

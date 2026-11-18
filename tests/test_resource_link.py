@@ -50,6 +50,27 @@ def _source(tmp_path: Path, payload: bytes = b"weights") -> Path:
 
 
 @POSIX_ONLY
+def test_check_resource_reports_every_declared_file(tmp_path: Path) -> None:
+    resource = common.Resource(
+        id='demo',
+        title='Demo',
+        kind='weights',
+        url='',
+        install='',
+        env='OPERON_DEMO',
+        roots=(str(tmp_path),),
+        files=('weights/a.pt',),
+        expected_files=('weights/a.pt', 'weights/b.pt'),
+    )
+    (tmp_path / 'weights').mkdir()
+    (tmp_path / 'weights' / 'a.pt').write_bytes(b'1')
+    result = common.check_resource(resource)
+    assert set(result['files']) == {'weights/a.pt', 'weights/b.pt'}
+    assert result['files']['weights/a.pt']['present'] is True
+    assert result['files']['weights/b.pt']['present'] is False
+    assert result['status'] == 'partial'
+
+
 def test_link_directory_records_receipt(tmp_path):
     source = _source(tmp_path)
     root = tmp_path / "resources" / "esm2"
@@ -85,14 +106,21 @@ def test_link_directory_records_receipt(tmp_path):
     assert check["source"] == str(source)
     assert check["receipt"] == str(receipt_file)
 
-    assert common.link_state(resource) == {
-        "linked": True,
-        "source": str(source),
-        "mode": "symlink",
-        "created_at": receipt["created_at"],
-        "probe": EXPECTED,
-        "present": True,
-    }
+    state = common.link_state(resource)
+    assert state["linked"] is True
+    assert state["source"] == str(source)
+    assert state["mode"] == "symlink"
+    assert state["created_at"] == receipt["created_at"]
+    assert state["probe"] == EXPECTED
+    assert state["present"] is True
+    assert state["state"] == "linked"
+    assert state["root_linked"] is True
+    assert state["root_target"] == str(source)
+    units = state["units"]
+    assert [unit["name"] for unit in units] == ["tree"]
+    assert units[0]["state"] == "linked"
+    assert units[0]["receipt"] is True
+    assert units[0]["source"] == str(source)
 
 
 def test_link_directory_uses_a_junction_on_windows(tmp_path, monkeypatch):
@@ -220,6 +248,7 @@ def test_unlink_removes_the_link_but_not_the_source(tmp_path):
         "target": str(root),
         "root": str(root),
         "mode": "symlink",
+        "unit": "tree",
     }
     assert not root.exists()
     assert not root.is_symlink()

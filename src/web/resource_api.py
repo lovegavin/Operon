@@ -239,6 +239,7 @@ def snapshot(service) -> dict:
         item['state'] = item.get('state') or state.get('state') or (
             'linked' if item['linked'] else ('downloaded' if item.get('present') else 'missing'))
         item['link_unit'] = item.get('link_unit') or 'tree'
+        item['official_root'] = str(getattr(resource, 'link_root', '') or item['id'])
         item['link_target'] = state.get('root_target') or item.get('root_target') or ''
         units = {unit['name']: dict(unit) for unit in state.get('units') or []}
         for unit in item.get('units') or []:

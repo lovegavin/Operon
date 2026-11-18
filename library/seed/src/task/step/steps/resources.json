@@ -23,7 +23,8 @@
         "protein_mpnn_run.py",
         "vanilla_model_weights/v_48_020.pt"
       ],
-      "link_unit": "tree"
+      "link_unit": "tree",
+      "link_root": "ProteinMPNN"
     },
     {
       "id": "ligandmpnn",
@@ -39,7 +40,8 @@
         "run.py",
         "model_params/ligandmpnn_v_32_010_25.pt"
       ],
-      "link_unit": "tree"
+      "link_unit": "tree",
+      "link_root": "LigandMPNN"
     },
     {
       "id": "esm2",
@@ -64,7 +66,8 @@
           "bytes": 30099493
         }
       ],
-      "link_unit": "items"
+      "link_unit": "items",
+      "link_root": "esm2"
     },
     {
       "id": "esm_if1",
@@ -86,7 +89,8 @@
           "bytes": 1700450121
         }
       ],
-      "link_unit": "items"
+      "link_unit": "items",
+      "link_root": "esm_if1"
     },
     {
       "id": "esmfold",
@@ -109,7 +113,8 @@
           "bytes": 2771653574
         }
       ],
-      "link_unit": "items"
+      "link_unit": "items",
+      "link_root": "esmfold"
     },
     {
       "id": "colabfold",
@@ -125,7 +130,8 @@
       "files": [
         "colabfold_batch"
       ],
-      "link_unit": "items"
+      "link_unit": "items",
+      "link_root": "colabfold"
     },
     {
       "id": "alphafold2",
@@ -140,7 +146,19 @@
       "files": [
         "params/params_model_1_ptm.npz"
       ],
-      "link_unit": "tree"
+      "link_unit": "tree",
+      "link_root": "afdb",
+      "expected_files": [
+        "params/params_model_1_ptm.npz",
+        "uniref90/uniref90.fasta",
+        "uniref30/UniRef30_2021_03_a3m.ffdata",
+        "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_a3m.ffdata",
+        "mgnify/mgy_clusters_2022_05.fa",
+        "pdb70/pdb70_a3m.ffdata",
+        "pdb_mmcif/mmcif_files",
+        "pdb_seqres/pdb_seqres.txt",
+        "uniprot/uniprot.fasta"
+      ]
     },
     {
       "id": "rfdiffusion",
@@ -168,7 +186,8 @@
           "bytes": 483380617
         }
       ],
-      "link_unit": "tree"
+      "link_unit": "tree",
+      "link_root": "RFdiffusion"
     },
     {
       "id": "prodigal",
@@ -185,7 +204,8 @@
       "files": [
         "prodigal"
       ],
-      "link_unit": "items"
+      "link_unit": "items",
+      "link_root": "prodigal"
     },
     {
       "id": "pfam",
@@ -200,7 +220,8 @@
       "files": [
         "Pfam-A.hmm"
       ],
-      "link_unit": "tree"
+      "link_unit": "tree",
+      "link_root": "Pfam-A.hmm"
     },
     {
       "id": "boltz",
@@ -227,7 +248,8 @@
         "ccd.pkl": 345859128,
         "boltz1_conf.ckpt": 3595352714
       },
-      "link_unit": "tree"
+      "link_unit": "tree",
+      "link_root": "boltz"
     },
     {
       "id": "rfam",
@@ -246,7 +268,8 @@
         "Rfam.cm.i1m",
         "Rfam.cm.i1p"
       ],
-      "link_unit": "tree"
+      "link_unit": "tree",
+      "link_root": "Rfam.cm"
     },
     {
       "id": "amrfinder",
@@ -265,7 +288,8 @@
         "AMR_CDS.fa",
         "version.txt"
       ],
-      "link_unit": "tree"
+      "link_unit": "tree",
+      "link_root": "amrfinder"
     },
     {
       "id": "antismash",
@@ -282,7 +306,8 @@
         "resfam/Resfams.hmm",
         "tigrfam/TIGRFam.hmm"
       ],
-      "link_unit": "tree"
+      "link_unit": "tree",
+      "link_root": "antismash"
     },
     {
       "id": "openfold",
@@ -305,7 +330,8 @@
           "bytes": 374586533
         }
       ],
-      "link_unit": "tree"
+      "link_unit": "tree",
+      "link_root": "openfold"
     },
     {
       "id": "antifold",
@@ -327,7 +353,8 @@
           "bytes": 566838063
         }
       ],
-      "link_unit": "items"
+      "link_unit": "items",
+      "link_root": "antifold"
     }
   ]
 }
