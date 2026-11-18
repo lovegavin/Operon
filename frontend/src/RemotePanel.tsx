@@ -136,7 +136,7 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
             {info.dependencies && (info.dependencies.deferred
               ? <span>{t("依赖按需安装")}</span>
               : <span>{t("依赖")} {info.dependencies.entries.filter(entry => entry.status === 'passed').length}/{info.dependencies.entries.length} {t("已通过")}{info.dependencies.running ? t(" · 检查中") : ''}</span>)}
-            {!!Object.keys(info.tools || {}).length && <span>{t("工具")} {Object.values(info.tools).filter(Boolean).length}/{Object.keys(info.tools).length} {t("可用")}</span>}
+            <span>{t("Reader")} {Array.isArray(info.catalog.readers) ? info.catalog.readers.length : (info.catalog.readers ?? 0)}</span>
           </div>}
         </div>}
         {selected?.connected && profile.id && <RemoteLibraryPanel key={profile.id} id={profile.id}

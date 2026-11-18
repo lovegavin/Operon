@@ -1,6 +1,6 @@
 import {renderToStaticMarkup} from 'react-dom/server';
 import {describe, expect, it} from 'vitest';
-import {LargeResourceSection, ResourceCard, missingFiles, officialRoot, resourceState} from './LargeResourceSection';
+import {LargeResourceSection, ResourceCard, missingFiles, officialRoot, resourceComponents, resourceState} from './LargeResourceSection';
 import type {LargeResource} from './types';
 
 function resource(overrides: Partial<LargeResource> = {}): LargeResource {
@@ -36,13 +36,23 @@ describe('resource cards', () => {
     expect(missingFiles(resource())).toEqual(['uniref90/uniref90.fasta']);
   });
 
-  it('renders a card with the official directory and the missing count', () => {
+  it('renders the official unit card with its own state and actions', () => {
     const html = renderToStaticMarkup(
-      <ResourceCard resource={resource()} onOpen={() => {}} onLink={() => {}}/>,
+      <ResourceCard resource={resource({
+        components: [
+          {name: 'params', path: 'params', state: 'missing', bytes: 5384039577},
+          {name: 'afdb', state: 'present', linked: true},
+        ],
+      } as Partial<LargeResource>)} busy={false} onLink={() => {}} onUnlink={() => {}} onDownload={() => {}}/>,
     );
-    expect(html).toContain('afdb');
-    expect(html).toContain('缺少 1 个文件');
-    expect(html).toContain('查看缺失项');
+    expect(html).toContain('官方目录或文件：afdb');
+    expect(html).toContain('data-testid="unit-params"');
+    expect(html).toContain('data-testid="unit-afdb"');
+    expect(html).toContain('5.0 GB');
+  });
+
+  it('falls back to the official root when no unit is declared', () => {
+    expect(resourceComponents(resource()).map((unit) => unit.name)).toEqual(['afdb']);
   });
 
   it('renders the section shell while loading', () => {

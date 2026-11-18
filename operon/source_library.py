@@ -147,7 +147,7 @@ def prepare(manager, current, temporary):
     records, errors = scan_sources(staged)
     if errors:
         raise ValueError('; '.join(f"{e['source']}: {e['error']}" for e in errors))
-    manifest = package_manifest(records, read_json(staged / 'operon/builtin_packages.json', {'packages': []}))
+    manifest = package_manifest(records, read_json(staged / 'operon/builtin_packages.json', {'packages': []}), staged)
     from operon.operator_docs import cache_sources
     cache_sources(manager, [record[0] for record in records], staged)
     installed = {p["name"]: p for p in current["packages"]}

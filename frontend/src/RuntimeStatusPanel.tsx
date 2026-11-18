@@ -17,6 +17,10 @@ export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
   expected_bytes?: number;
   queue_position?: number;
   error?: string;
+  resources?: string[];
+  dependencies?: Array<{kind: string; name: string}>;
+  shared?: boolean;
+  managed?: boolean;
 };
 export type EnvironmentOperation = EnvironmentJob & {cancelable?: boolean};
 export type EnvironmentView = Omit<EnvironmentSnapshot, 'environments' | 'operations'> & {
@@ -219,14 +223,25 @@ export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
   </div>;
 }
 
-export function EnvironmentCard({item, busy = false, onAction}: {
+export function EnvironmentCard({item, busy = false, onAction, onOpen}: {
   item: EnvironmentItem;
   busy?: boolean;
   onAction?: (action: Action, name: string) => void;
+  onOpen?: (item: EnvironmentItem) => void;
 }) {
   const tone = statusTone(item.status);
   const installing = tone === 'installing';
-  return <article className="runtime-card" data-status={tone} data-testid={`environment-${item.name}`}>
+  return <article className="runtime-card is-openable" data-status={tone} data-testid={`environment-${item.name}`}
+    role="button" tabIndex={0}
+    onClick={(event) => {
+      if ((event.target as HTMLElement).closest('button, summary, a, input, select')) return;
+      onOpen?.(item);
+    }}
+    onKeyDown={(event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      onOpen?.(item);
+    }}>
     <header className="runtime-card-head">
       <div className="runtime-card-title">
         <h3>{item.title || item.name}</h3>
@@ -326,6 +341,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   const [remoteBusy, setRemoteBusy] = useState('');
   const [remoteError, setRemoteError] = useState('');
   const [target, setTarget] = useState('');
+  const [detail, setDetail] = useState<EnvironmentItem | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -505,12 +521,37 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
           onPrepareAll={() => void (target
             ? runRemote('all', () => api.remotePrepareEnvironments(target))
             : run('all', () => api.prepareEnvironments()))}/>}
-      <LargeResourceSection target={target} targets={remoteTargets} onTarget={chooseTarget}/>
       {items.length > 0 && <div className="runtime-grid">
         {ordered.map(item => <EnvironmentCard key={item.name} item={item}
-          busy={Boolean(busy)} onAction={act}/>)}
+          busy={Boolean(busy)} onAction={act} onOpen={setDetail}/>)}
       </div>}
       <OperationList operations={operations} now={now} onCancel={name => act('cancel', name)}/>
+      {detail && <Modal title={`${detail.title || detail.name}`} onClose={() => setDetail(null)}>
+        <p className="settings-note">{detail.name} · {t(statusKeys[statusTone(detail.status)])}</p>
+        <section className="runtime-detail-block">
+          <h4>{t('环境依赖')}</h4>
+          {(detail.dependencies || []).length === 0
+            ? <p className="settings-note">{t('这个环境没有额外依赖。')}</p>
+            : <ul className="runtime-dependency-list">
+              {(detail.dependencies || []).map((entry) => <li key={`${entry.kind}:${entry.name}`}>
+                <code>{entry.name}</code><span>{entry.kind}</span>
+              </li>)}
+            </ul>}
+          <div className="runtime-actions">
+            <button className="subtle-button is-primary" disabled={Boolean(busy)}
+              onClick={() => act('prepare', detail.name)}>{t('安装依赖')}</button>
+            <button className="subtle-button is-danger" disabled={Boolean(busy)}
+              onClick={() => act('cancel', detail.name)}>{t('取消')}</button>
+            <button className="subtle-button" disabled={Boolean(busy)}
+              onClick={() => setDetail(null)}>{t('关闭')}</button>
+          </div>
+        </section>
+        <section className="runtime-detail-block">
+          <h4>{t('资源')}</h4>
+          <LargeResourceSection target={target} targets={remoteTargets} onTarget={chooseTarget}
+            environment={detail.name} compact/>
+        </section>
+      </Modal>}
       {log && <LogDrawer name={log.name} text={log.text} pending={logPending} error={log.error}
         onClose={() => setLog(null)} onRefresh={() => void loadLog(log.name)}/>}
       <details className="runtime-advanced">

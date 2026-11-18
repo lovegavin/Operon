@@ -221,10 +221,20 @@ def parser():
     workflow.add_argument('--format', choices=['bundle', 'yaml', 'portable'], default='bundle')
     workflow.add_argument('--template', choices=['csv-pca'], default='csv-pca')
     workflow.add_argument('--runtime-dir', type=Path, help='Prepared relocatable runtime for portable export')
-    environment = commands.add_parser('environment', help='Inspect the service runtime or check/prepare a route on its selected hosts')
-    environment.add_argument('action', choices=['status', 'check', 'prepare'])
+    environment = commands.add_parser('environment', help='Inspect environments, their resources and check/prepare routes')
+    environment.add_argument('action', choices=['status', 'check', 'prepare', 'list', 'install', 'cancel'])
     environment.add_argument('file', nargs='?', type=Path, help='YAML, graph JSON or workflow ZIP for check/prepare')
+    environment.add_argument('names', nargs='*', help='Environment names for install/cancel')
+    environment.add_argument('--profile', default='', help='Configured server id; empty means this host')
     environment.add_argument('--require-files', action='store_true', help='Also verify input files during check')
+    resource = commands.add_parser('resources', help='Inspect and manage large resources and their official units')
+    resource.add_argument('action', choices=['list', 'download', 'link', 'unlink', 'cancel', 'log'])
+    resource.add_argument('name', nargs='?', help='Resource id')
+    resource.add_argument('--source', default='', help='Existing absolute path for link')
+    resource.add_argument('--unit', default='', help='Official unit name; empty means the whole resource')
+    resource.add_argument('--replace', action='store_true', help='Replace an existing link')
+    resource.add_argument('--root', default='', help='Destination root for download')
+    resource.add_argument('--profile', default='', help='Configured server id; empty means this host')
     engine = commands.add_parser('engine', help='Inspect the durable backend engine and its resumable events')
     engine.add_argument('action', choices=['status', 'events'])
     engine.add_argument('--after', type=int, default=0, help='Resume after this durable event cursor')
@@ -488,7 +498,7 @@ def execute(args):
                   else args.file if args.command in ('run', 'environment') else None)
     # Reject malformed/missing projects before creating a persistent service.
     graph_value = read_graph_file(graph_file) if graph_file is not None else None
-    if args.command == 'environment' and args.action != 'status' and graph_value is None:
+    if args.command == 'environment' and args.action in ('check', 'prepare') and graph_value is None:
         raise ValueError('environment check/prepare requires a workflow file')
     scopes = ['context'] if args.command in ('storage', 'plan') else ["context", "edit"]
     if args.command == 'plan' and args.action in ('submit', 'cancel', 'export', 'export-cancel'):
@@ -589,6 +599,19 @@ def execute(args):
             path = Path(args.path).expanduser().resolve()
             return client.request('/v1/routes/import-collection', {'path': str(path)})
         if args.command == 'environment':
+            if args.action == 'list':
+                profile_id = getattr(args, 'profile', '') or ''
+                path = ('/remote/' + quote(profile_id, safe='') + '/environments') if profile_id else '/v1/environments'
+                return client.request(path)
+            if args.action in ('install', 'cancel'):
+                names = list(getattr(args, 'names', []) or [])
+                if not names:
+                    raise ValueError('At least one environment name is required')
+                profile_id = getattr(args, 'profile', '') or ''
+                if args.action == 'install':
+                    path = ('/remote/' + quote(profile_id, safe='') + '/environments/prepare') if profile_id else '/v1/environments/prepare'
+                    return client.request(path, {'names': names})
+                return client.request('/v1/environments/' + quote(names[0], safe='') + '/cancel', {})
             if args.action == 'status':
                 return client.request('/v1/environment')
             payload = {'graph': graph_value}
@@ -597,6 +620,28 @@ def execute(args):
             if args.action == 'check' and not args.require_files:
                 return client.request('/v1/workflows/check-environment', {'graph': graph_value})
             return client.request('/v1/workflows/' + ('validate' if args.action == 'check' else 'prepare-environment'), payload)
+        if args.command == 'resources':
+            profile_id = getattr(args, 'profile', '') or ''
+            prefix = ('/remote/' + quote(profile_id, safe='') + '/resources') if profile_id else '/v1/large-resources'
+            if args.action == 'list':
+                return client.request(prefix)
+            name = args.name or ''
+            if not name:
+                raise ValueError('A resource name is required')
+            if args.action == 'download':
+                return client.request(prefix + '/' + quote(name, safe='') + '/download', {'root': args.root or None})
+            if args.action == 'link':
+                if not args.source:
+                    raise ValueError('--source is required for link')
+                return client.request(prefix + '/' + quote(name, safe='') + '/link',
+                                      {'source': args.source, 'replace': bool(args.replace),
+                                       'unit': args.unit or None})
+            if args.action == 'unlink':
+                return client.request(prefix + '/' + quote(name, safe='') + '/link?' +
+                                      urlencode({'unit': args.unit or 'tree'}), {})
+            if args.action == 'cancel':
+                return client.request(prefix + '/' + quote(name, safe='') + '/cancel', {})
+            return client.request(prefix + '/' + quote(name, safe='') + '/log?' + urlencode({'limit': 200}))
         if args.command == 'engine':
             if args.action == 'status':
                 return client.request('/v1/engine')

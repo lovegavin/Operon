@@ -75,7 +75,7 @@ def build_bundle(root, output, version, minimum_application=None):
         records, errors = scan_sources(source)
         if errors:
             raise ValueError(json.dumps(errors, ensure_ascii=False))
-        manifest = package_manifest(records, read_json(source / "operon/builtin_packages.json", {}))
+        manifest = package_manifest(records, read_json(source / "operon/builtin_packages.json", {}), source)
         (source / "operon/builtin_packages.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
         packages = []
         for package in manifest["packages"]:

@@ -237,6 +237,17 @@ def create_server(client):
         return client.request('/v1/environments/prepare', {'names': names})
 
     @server.tool()
+    def operon_environments_cancel(name: str, profile_id: str | None = None) -> dict:
+        """Cancel a running or queued environment preparation.
+
+        Requires --allow-plugins. The environment returns to missing and can be installed again.
+        """
+        suffix = '/environments/' + quote(name, safe='') + '/cancel'
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + suffix, {})
+        return client.request('/v1' + suffix, {})
+
+    @server.tool()
     def operon_submit(request_id: str, graph: dict | None = None, workflow_id: str | None = None,
                        expected_version: int | None = None, view: str = 'brief') -> dict:
         """Submit a workflow without a canvas; requires --allow-run. Exactly one graph or workflow_id.

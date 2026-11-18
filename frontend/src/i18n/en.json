@@ -1027,5 +1027,15 @@
   "所需文件": "Required files",
   "重新链接该目录": "Relink that directory",
   "请选择官方目录或文件：{name}。": "Choose the official directory or file: {name}.",
-  "已开始下载": "Download started"
+  "已开始下载": "Download started",
+  "查看详情": "Open details",
+  "环境依赖": "Environment dependencies",
+  "这个环境没有额外依赖。": "This environment needs no extra dependencies.",
+  "资源": "Resources",
+  "官方目录或文件：{name}": "Official directory or file: {name}",
+  "链接 {unit}": "Link {unit}",
+  "请选择官方维护单元 {unit} 在本机已有的绝对路径。": "Choose the existing absolute path of the official unit {unit} on this machine.",
+  "未检查": "Not checked",
+  "下载全部": "Download all",
+  "当前环境没有登记资源。": "This environment declares no resources."
 }

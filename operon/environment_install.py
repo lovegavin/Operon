@@ -261,6 +261,27 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None):
     return tail
 
 
+_SPACE_MARGIN = 1.25
+_SPACE_FLOOR = 512 * 1024 * 1024
+
+
+def require_space(root, needed, *, what='installation') -> int:
+    """Refuse to start when the destination volume cannot hold ``needed`` bytes."""
+
+    destination = base(root)
+    try:
+        destination.mkdir(parents=True, exist_ok=True)
+        usage = shutil.disk_usage(str(destination))
+    except OSError:
+        return 0
+    required = int(max(needed, 0) * _SPACE_MARGIN) + _SPACE_FLOOR
+    if needed and usage.free < required:
+        raise RuntimeError(
+            f'not enough free space for {what}: {required} bytes required, '
+            f'{usage.free} bytes available at {destination}')
+    return usage.free
+
+
 def _validate(spec: dict):
     if not isinstance(spec, dict):
         raise ValueError('invalid environment declaration')
@@ -529,6 +550,8 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
     entry = environments.describe(name, source)
     _validate(entry)
     base(root).mkdir(parents=True, exist_ok=True)
+    require_space(root, estimates.expected(name, entry, base(root)),
+                  what=f'environment {name}')
     from src.web.storage import FileLock
     lock = FileLock(base(root) / f'.{name}.lock', timeout=1)
     try:

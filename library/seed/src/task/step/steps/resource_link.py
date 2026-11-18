@@ -378,10 +378,15 @@ def link(
         key = 'tree'
         target = _target(resource, src)
     else:
-        if expected and key not in expected:
-            choices = ', '.join(['tree', *expected])
+        component = common.component_of(resource, key)
+        if component is not None:
+            relative = str(component.get("path") or "").strip()
+            target = root / relative if relative else root
+        elif expected and key not in expected:
+            choices = ', '.join(['tree', *expected]) or 'tree'
             raise ValueError(f"unknown link unit: {key}; expected one of {choices}")
-        target = root / key
+        else:
+            target = root / key
 
     if _is_link(target) and _points_to(target, real):
         receipt = common.read_receipt(resource) or {}

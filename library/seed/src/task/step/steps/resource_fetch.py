@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -25,6 +26,23 @@ from src.task.step.steps._resources_common import (
 _CHUNK = 1024 * 1024
 _TIMEOUT = 120
 _STATISTICS = ("downloaded", "bytes")
+_SPACE_MARGIN = 1.1
+_SPACE_FLOOR = 64 * 1024 * 1024
+
+
+def _require_space(destination: Path, needed: int) -> None:
+    """Refuse to download when the destination volume cannot hold the file."""
+
+    try:
+        usage = shutil.disk_usage(str(destination.parent))
+    except OSError:
+        return
+    required = int(max(needed, 0) * _SPACE_MARGIN) + _SPACE_FLOOR
+    if needed and usage.free < required:
+        raise StepError(
+            f"not enough free space for {destination.name}: {required} bytes required, "
+            f"{usage.free} bytes available at {destination.parent}"
+        )
 
 
 def _target_root(resource: Resource, root: str | None) -> Path:
@@ -93,12 +111,18 @@ def _download_one(
         return {"path": relative, "downloaded": False, "bytes": actual, "status": "existing"}
 
     destination.parent.mkdir(parents=True, exist_ok=True)
+    _require_space(destination, expected_bytes)
     partial = destination.with_name(destination.name + ".part")
     hasher = hashlib.sha256()
     written = 0
     open_url = opener or _open_url
     try:
         with open_url(url, token_env) as response, partial.open("wb") as handle:
+            try:
+                announced = int(response.headers.get("Content-Length") or 0)
+            except (TypeError, ValueError):
+                announced = 0
+            _require_space(destination, max(expected_bytes, announced))
             while True:
                 chunk = response.read(_CHUNK)
                 if not chunk:

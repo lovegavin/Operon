@@ -45,6 +45,8 @@ class Resource:
     expected_files: tuple[str, ...] = ()
     link_unit: str = "tree"
     link_root: str = ""
+    environments: tuple[str, ...] = ()
+    components: tuple[dict[str, Any], ...] = ()
 
     @classmethod
     def from_entry(cls, entry: dict[str, Any]) -> "Resource":
@@ -55,6 +57,28 @@ class Resource:
         if not files:
             raise StepError(f"resource '{identifier}' lists no expected files")
         roots = tuple(str(root) for root in entry.get("roots") or [] if str(root).strip())
+        environments = tuple(
+            str(name).strip() for name in entry.get("envs") or [] if str(name).strip()
+        )
+        components: list[dict[str, Any]] = []
+        for raw in entry.get("units") or []:
+            if not isinstance(raw, dict):
+                raise StepError(f"resource '{identifier}' has a malformed unit entry")
+            name = str(raw.get("name") or "").strip()
+            if not name:
+                raise StepError(f"resource '{identifier}' has a unit without a name")
+            components.append(
+                {
+                    "name": name,
+                    "path": str(raw.get("path") or "").strip(),
+                    "mode": "items" if str(raw.get("mode") or "tree") == "items" else "tree",
+                    "kind": str(raw.get("kind") or "").strip(),
+                    "bytes": int(raw.get("bytes") or 0),
+                    "url": str(raw.get("url") or "").strip(),
+                    "files": tuple(str(item) for item in raw.get("files") or [] if str(item).strip()),
+                    "note": str(raw.get("note") or "").strip(),
+                }
+            )
         downloads: list[dict[str, Any]] = []
         raw_downloads = entry.get("downloads") or []
         items: list[dict[str, Any]] = []
@@ -138,6 +162,8 @@ class Resource:
             expected_files=expected,
             link_unit=unit,
             link_root=link_root,
+            environments=environments,
+            components=tuple(components),
         )
 
 
@@ -391,6 +417,51 @@ def link_state(resource: Resource) -> dict[str, Any]:
     }
 
 
+def component_of(resource: Resource, name: str) -> dict[str, Any] | None:
+    """Return one declared official maintenance unit by name."""
+
+    wanted = str(name or "").strip()
+    for unit in getattr(resource, "components", ()) or ():
+        if unit.get("name") == wanted:
+            return unit
+    return None
+
+
+def resource_components(resource: Resource, resolved: str | Path | None = None) -> list[dict[str, Any]]:
+    """Official maintenance units of one resource with their on-disk state."""
+
+    root_path = Path(resolved) if resolved is not None else None
+    rows: list[dict[str, Any]] = []
+    for unit in getattr(resource, "components", ()) or ():
+        files = list(unit.get("files") or [])
+        entries = [_file_entry(root_path / name if root_path is not None else None) for name in files]
+        present = [entry["present"] for entry in entries]
+        if not entries:
+            state = "unknown"
+        elif all(present):
+            state = "present"
+        elif any(present):
+            state = "partial"
+        else:
+            state = "missing"
+        rows.append(
+            {
+                "name": unit["name"],
+                "path": unit.get("path") or "",
+                "mode": unit.get("mode") or "tree",
+                "kind": unit.get("kind") or "",
+                "bytes": int(unit.get("bytes") or 0),
+                "url": unit.get("url") or "",
+                "note": unit.get("note") or "",
+                "state": state,
+                "files": [{"name": name, **entry} for name, entry in zip(files, entries)],
+                "missing": [name for name, entry in zip(files, entries) if not entry["present"]],
+                "size_mb": round(sum(entry["size_mb"] for entry in entries), 3),
+            }
+        )
+    return rows
+
+
 def check_resource(resource: Resource, root: str | Path | None = None) -> dict[str, Any]:
     """Presence and size of every expected file of one resource."""
 
@@ -442,6 +513,8 @@ def check_resource(resource: Resource, root: str | Path | None = None) -> dict[s
         "url": resource.url,
         "install": resource.install,
         "files": files,
+        "components": resource_components(resource, resolved),
+        "environments": list(getattr(resource, "environments", ()) or ()),
         "missing": missing,
         "size_mb": round(sum(info["size_mb"] for info in files.values()), 3),
         "receipt": str(receipt_file) if receipt is not None else "",

@@ -154,6 +154,18 @@ def mount_environments(app, service):
             created = ''
         return created if isinstance(created, str) else ''
 
+    def dependencies(entry):
+        """Flatten one environment definition into installable dependency rows."""
+        rows = []
+        for key, kind in (('requirements', 'requirements'), ('pip_wheels', 'wheel'),
+                          ('pip_pypi', 'pypi'), ('conda_packages', 'conda'),
+                          ('binaries', 'binary')):
+            for value in entry.get(key) or []:
+                rows.append({'kind': kind, 'name': str(value)})
+        for value in entry.get('imports') or []:
+            rows.append({'kind': 'import', 'name': str(value)})
+        return rows
+
     def augment(name, item, entry=None, used_by=None):
         """Add the panel-facing facts without dropping any planner key."""
         entry = entry if isinstance(entry, dict) else {}
@@ -168,6 +180,10 @@ def mount_environments(app, service):
         item['used_by'] = owned[:_USED_BY_LIMIT]
         item['expected_bytes'] = environment_install.estimates.expected(
             name, entry, environments.root())
+        item['resources'] = [str(value) for value in entry.get('resources') or []]
+        item['dependencies'] = dependencies(entry)
+        item['shared'] = bool(entry.get('shared'))
+        item['managed'] = not bool(entry.get('shared'))
         with queue_lock:
             waiting = [entry[0] for entry in pending]
         if name in waiting:

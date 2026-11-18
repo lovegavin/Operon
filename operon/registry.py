@@ -61,8 +61,37 @@ def scan_sources(root=ROOT, sources=None, warnings_out=None):
     return descriptors, errors
 
 
-def package_manifest(descriptors, previous):
+def environment_map(root=None):
+    """Return the operator-to-environment map shipped with a library tree."""
+    base = source_root(root or ROOT)
+    data = read_json(base / "operon/environment_assignments.json", {})
+    mapping = data.get("operators") or {}
+    default = str(data.get("default") or "core")
+    return {str(key): str(value or default) for key, value in mapping.items()}, default
+
+
+def stamp_environments(descriptors, root=None):
+    """Attach the owning environment to every descriptor before it is packaged."""
+    base = source_root(root or ROOT)
+    mapping, default = environment_map(base)
+    known = set((read_json(base / "operon/environments.json", {}).get("environments") or {}).keys())
+    if not known:
+        return descriptors
+    from operon_sdk.declarations import declaration_hash
+    for descriptor, _, source in descriptors:
+        resources = descriptor.setdefault("resources", {})
+        name = str(resources.get("environment") or mapping.get(descriptor["id"]) or default)
+        if name not in known:
+            raise ValueError(f"{source}: {descriptor['id']} declares unknown environment {name!r}")
+        if resources.get("environment") != name:
+            resources["environment"] = name
+            descriptor["declaration_sha"] = declaration_hash(descriptor)
+    return descriptors
+
+
+def package_manifest(descriptors, previous, root=None):
     from operon_sdk.protocol import PROTOCOL_VERSION
+    stamp_environments(descriptors, root)
     owners = {(d["kind"], d["id"]): p["name"] for p in previous["packages"] for d in p["descriptors"]}
     packages = {p["name"]: {**deepcopy(p), "descriptors": []} for p in previous["packages"]}
     for descriptor, declared_owner, source in descriptors:
@@ -279,7 +308,12 @@ def maintain(action="check", *, root=ROOT, route_roots=None, output_dir=None, sc
     previous = read_json(root / PACKAGE_INDEX, {"protocol_version": PROTOCOL_VERSION, "packages": []})
     warnings = []
     descriptors, errors = scan_sources(root, warnings_out=warnings)
-    candidate = package_manifest(descriptors, previous)
+    if not errors:
+        try:
+            stamp_environments(descriptors, root)
+        except ValueError as exc:
+            errors.append({"source": "operon/environment_assignments.json", "error": str(exc)})
+    candidate = package_manifest(descriptors, previous, root)
     catalog = {"schema_version": 1, "protocol_version": PROTOCOL_VERSION, "contract_version": 1,
                "operators": [catalog_entry(d) for d, _, _ in descriptors if d["kind"] == "operator"],
                "readers": [catalog_entry(d) for d, _, _ in descriptors if d["kind"] == "reader"]}

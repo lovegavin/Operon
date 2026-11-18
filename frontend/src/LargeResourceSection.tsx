@@ -2,7 +2,7 @@ import {useEffect, useMemo, useState} from 'react';
 import {Modal} from './RouteDialogs';
 import {t} from './i18n';
 import {api} from './api';
-import type {LargeResource, LargeResourceSnapshot} from './types';
+import type {LargeResource, LargeResourceComponent, LargeResourceSnapshot} from './types';
 
 export type ResourceTarget = {id: string; name: string};
 
@@ -45,6 +45,26 @@ export function missingFiles(resource: LargeResource): string[] {
   return [];
 }
 
+/** Official maintenance units keep their own state; a missing unit is still listed. */
+export function resourceComponents(resource: LargeResource): LargeResourceComponent[] {
+  if (resource.components?.length) return resource.components;
+  const name = officialRoot(resource);
+  return [{name, state: resourceState(resource) === 'missing' ? 'missing' : 'present'}];
+}
+
+export function componentStateLabel(component: LargeResourceComponent): string {
+  switch (String(component.state || '')) {
+    case 'present':
+      return t('已就位');
+    case 'partial':
+      return t('部分就位');
+    case 'unknown':
+      return t('未检查');
+    default:
+      return t('缺失');
+  }
+}
+
 /** Group by the environment whose operators consume the resource. */
 export function groupResources(resources: LargeResource[]): Array<{environment: string; items: LargeResource[]}> {
   const groups = new Map<string, LargeResource[]>();
@@ -64,54 +84,84 @@ export function groupResources(resources: LargeResource[]): Array<{environment: 
     }));
 }
 
-export function ResourceCard({resource, onOpen, onLink}: {
+/** Resources consumed by one environment. */
+export function resourcesOf(resources: LargeResource[], environment: string): LargeResource[] {
+  if (!environment) return resources;
+  return resources.filter((resource) => (resource.environments || []).includes(environment));
+}
+
+export function UnitRow({unit, busy, onLink, onUnlink}: {
+  unit: LargeResourceComponent;
+  busy: boolean;
+  onLink: (unit: LargeResourceComponent) => void;
+  onUnlink: (unit: LargeResourceComponent) => void;
+}) {
+  const state = String(unit.state || 'missing');
+  const linked = state === 'present' && !!unit.linked;
+  return (
+    <li className="resource-unit" data-testid={`unit-${unit.name}`} data-state={state}>
+      <div className="resource-unit-name">
+        <code>{unit.name}</code>
+        {unit.note ? <span className="resource-unit-note">{unit.note}</span> : null}
+      </div>
+      <span className={`resource-chip is-${state === 'present' ? 'linked' : state}`}>{componentStateLabel(unit)}</span>
+      <span className="resource-unit-size">{bytes(unit.bytes || (unit.size_mb || 0) * 1024 * 1024)}</span>
+      <span className="resource-unit-actions">
+        <button type="button" className="ghost" disabled={busy} onClick={() => onLink(unit)}>{t('链接')}</button>
+        {linked ? <button type="button" className="ghost" disabled={busy} onClick={() => onUnlink(unit)}>{t('解除')}</button> : null}
+      </span>
+    </li>
+  );
+}
+
+export function ResourceCard({resource, busy, onLink, onUnlink, onDownload}: {
   resource: LargeResource;
-  onOpen: (resource: LargeResource) => void;
-  onLink: (resource: LargeResource) => void;
+  busy: boolean;
+  onLink: (unit: LargeResourceComponent) => void;
+  onUnlink: (unit: LargeResourceComponent) => void;
+  onDownload: () => void;
 }) {
   const state = resourceState(resource);
-  const missing = missingFiles(resource).length;
+  const units = resourceComponents(resource);
   return (
     <article className="environment-card resource-card" data-state={state} data-testid={`resource-${resource.id}`}>
       <header className="environment-card-head">
         <div>
-          <h3>{resource.title}</h3>
-          <p className="resource-id">{resource.id}</p>
+          <h3>{resource.title || resource.id}</h3>
+          <p className="resource-id">{t('官方目录或文件：{name}', {name: officialRoot(resource)})}</p>
         </div>
         <span className={`resource-chip is-${state}`}>{resourceStateLabel(resource)}</span>
       </header>
-      <dl className="environment-facts">
-        <dt>{t('官方目录或文件')}</dt>
-        <dd><code>{officialRoot(resource)}</code></dd>
-        <dt>{t('占用空间')}</dt>
-        <dd>{bytes(resource.size_bytes)}</dd>
-        <dt>{t('消费算子')}</dt>
-        <dd>{resource.used_by?.length || 0}</dd>
-        <dt>{t('链接单元')}</dt>
-        <dd>{t('整棵目录')}</dd>
-      </dl>
-      {state === 'partial' ? <p className="resource-warning">{t('缺少 {count} 个文件', {count: missing})}</p> : null}
+      <ul className="resource-units">
+        {units.map((unit) => (
+          <UnitRow key={unit.name} unit={unit} busy={busy} onLink={onLink} onUnlink={onUnlink}/>
+        ))}
+      </ul>
       <footer className="resource-row-actions">
-        <button type="button" className="ghost" onClick={() => onOpen(resource)}>{t('查看缺失项')}</button>
-        <button type="button" onClick={() => onLink(resource)}>{t('链接目录')}</button>
+        <span className="resource-unit-size">{bytes(resource.size_bytes)}</span>
+        <button type="button" className="ghost" disabled={busy} onClick={onDownload}>{t('下载全部')}</button>
       </footer>
     </article>
   );
 }
 
-export function LargeResourceSection({target, targets, onTarget}: {
+export function LargeResourceSection({target, targets = [], onTarget = () => {}, environment = '',
+                                     compact = false, resources: supplied}: {
   target: string;
-  targets: ResourceTarget[];
-  onTarget: (value: string) => void;
+  targets?: ResourceTarget[];
+  onTarget?: (value: string) => void;
+  environment?: string;
+  compact?: boolean;
+  resources?: LargeResource[];
 }) {
   const [snapshot, setSnapshot] = useState<LargeResourceSnapshot | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');
   const [message, setMessage] = useState('');
-  const [detail, setDetail] = useState<LargeResource | null>(null);
-  const [draft, setDraft] = useState<{resource: LargeResource; source: string} | null>(null);
+  const [draft, setDraft] = useState<{resource: LargeResource; unit: LargeResourceComponent; source: string} | null>(null);
 
   const load = async () => {
+    if (supplied) return;
     try {
       setSnapshot(target ? await api.remoteResources(target) : await api.largeResources());
       setError('');
@@ -123,27 +173,26 @@ export function LargeResourceSection({target, targets, onTarget}: {
   useEffect(() => {
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target]);
+  }, [target, supplied]);
 
-  const resources = snapshot?.resources || [];
+  const resources = useMemo(() => resourcesOf(supplied || snapshot?.resources || [], environment),
+    [supplied, snapshot, environment]);
   const groups = useMemo(() => groupResources(resources), [resources]);
 
   const submit = async () => {
     if (!draft) return;
-    const name = draft.resource.id;
     const source = draft.source.trim();
     if (!source) {
       setError(t('请填写本机上已有的绝对路径。'));
       return;
     }
-    setBusy(name);
+    setBusy(draft.resource.id);
     try {
       const result = target
-        ? await api.remoteLinkResource(target, name, source, true)
-        : await api.largeResourceLink(name, source, true);
+        ? await api.remoteLinkResource(target, draft.resource.id, source, true, draft.unit.name)
+        : await api.largeResourceLink(draft.resource.id, source, true, draft.unit.name);
       setMessage(t('已链接：{target}', {target: result.root || source}));
       setDraft(null);
-      setDetail(null);
       await load();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -152,12 +201,11 @@ export function LargeResourceSection({target, targets, onTarget}: {
     }
   };
 
-  const unlink = async (resource: LargeResource) => {
+  const unlink = async (resource: LargeResource, unit: LargeResourceComponent) => {
     setBusy(resource.id);
     try {
-      if (target) await api.remoteUnlinkResource(target, resource.id);
-      else await api.largeResourceUnlink(resource.id);
-      setDetail(null);
+      if (target) await api.remoteUnlinkResource(target, resource.id, unit.name);
+      else await api.largeResourceUnlink(resource.id, unit.name);
       await load();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
@@ -179,7 +227,60 @@ export function LargeResourceSection({target, targets, onTarget}: {
     }
   };
 
-  const current = detail ? resources.find((item) => item.id === detail.id) || detail : null;
+  const body = (
+    <>
+      {error ? <p className="form-error">{error}</p> : null}
+      {message ? <p className="form-notice">{message}</p> : null}
+      {!supplied && !snapshot ? <p className="settings-note">{t('正在读取大型资源…')}</p> : null}
+      {resources.length === 0 && snapshot ? <p className="settings-note">{t('当前环境没有登记资源。')}</p> : null}
+      {compact ? (
+        <div className="runtime-grid">
+          {resources.map((resource) => (
+            <ResourceCard key={resource.id} resource={resource} busy={busy === resource.id}
+              onLink={(unit) => { setDraft({resource, unit, source: resource.link_roots?.[0] || ''}); setError(''); }}
+              onUnlink={(unit) => void unlink(resource, unit)}
+              onDownload={() => void download(resource)}/>
+          ))}
+        </div>
+      ) : groups.map((group) => (
+        <div className="resource-group" key={group.environment || 'other'}>
+          <div className="resource-group-head">
+            <h4>{group.environment ? t('环境：{name}', {name: group.environment}) : t('其他资源')}</h4>
+            <span className="resource-group-count">{group.items.length}</span>
+          </div>
+          <div className="runtime-grid">
+            {group.items.map((resource) => (
+              <ResourceCard key={resource.id} resource={resource} busy={busy === resource.id}
+                onLink={(unit) => { setDraft({resource, unit, source: resource.link_roots?.[0] || ''}); setError(''); }}
+                onUnlink={(unit) => void unlink(resource, unit)}
+                onDownload={() => void download(resource)}/>
+            ))}
+          </div>
+        </div>
+      ))}
+      {draft ? (
+        <Modal title={`${draft.resource.title || draft.resource.id} · ${t('链接 {unit}', {unit: draft.unit.name})}`}
+          onClose={() => setDraft(null)}>
+          <p className="settings-note">
+            {t('请选择官方维护单元 {unit} 在本机已有的绝对路径。', {unit: draft.unit.name})}
+          </p>
+          <label className="field">
+            <span>{t('绝对路径')}</span>
+            <input value={draft.source}
+              placeholder={draft.resource.link_roots?.[0] || t('请填写本机上已有的绝对路径。')}
+              onChange={(event) => setDraft({...draft, source: event.target.value})}/>
+          </label>
+          <p className="settings-note">{t('链接只作用于执行它的那台机器的本地文件系统，不会把远端文件映射到本机，也不复制字节。')}</p>
+          <footer className="dialog-actions">
+            <button type="button" className="ghost" onClick={() => setDraft(null)}>{t('取消')}</button>
+            <button type="button" disabled={!!busy} onClick={() => void submit()}>{t('链接')}</button>
+          </footer>
+        </Modal>
+      ) : null}
+    </>
+  );
+
+  if (compact) return <div className="runtime-resources is-compact">{body}</div>;
 
   return (
     <section className="runtime-resources">
@@ -191,12 +292,9 @@ export function LargeResourceSection({target, targets, onTarget}: {
         <div className="runtime-resources-actions">
           <label className="field inline">
             <span>{t('执行位置')}</span>
-            <select
-              className="select-compact"
-              value={target}
+            <select className="select-compact" value={target}
               aria-label={`${t('执行位置')}: ${target || t('本地')}`}
-              onChange={(event) => onTarget(event.target.value)}
-            >
+              onChange={(event) => onTarget(event.target.value)}>
               <option value="">{t('本地')}</option>
               {targets.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
             </select>
@@ -204,76 +302,7 @@ export function LargeResourceSection({target, targets, onTarget}: {
           <button type="button" className="ghost" onClick={() => void load()}>{t('刷新')}</button>
         </div>
       </header>
-      {error ? <p className="form-error">{error}</p> : null}
-      {message ? <p className="form-notice">{message}</p> : null}
-      {!snapshot ? <p className="settings-note">{t('正在读取大型资源…')}</p> : null}
-      {snapshot && resources.length === 0 ? <p className="settings-note">{t('当前库没有声明大型资源。')}</p> : null}
-      {groups.map((group) => (
-        <div className="resource-group" key={group.environment || 'other'}>
-          <div className="resource-group-head">
-            <h4>{group.environment ? t('环境：{name}', {name: group.environment}) : t('其他资源')}</h4>
-            <span className="resource-group-count">{group.items.length}</span>
-          </div>
-          <div className="runtime-grid">
-            {group.items.map((resource) => (
-              <ResourceCard key={resource.id} resource={resource} onOpen={setDetail} onLink={(item) => {
-                setDraft({resource: item, source: item.link_roots?.[0] || ''});
-                setError('');
-              }}/>
-            ))}
-          </div>
-        </div>
-      ))}
-      {current ? (
-        <Modal title={`${current.title} · ${t('所需文件')}`} onClose={() => setDetail(null)}>
-          <p className="settings-note">
-            {t('官方目录或文件：{name}。链接后 Operon 会检查其中缺失的文件。', {name: officialRoot(current)})}
-          </p>
-          <ul className="resource-units">
-            {(current.expected_files || []).map((name) => {
-              const missing = missingFiles(current).includes(name);
-              return (
-                <li key={name} className="resource-unit">
-                  <code>{name}</code>
-                  <span className={`resource-chip is-${missing ? 'missing' : 'linked'}`}>
-                    {missing ? t('缺失') : t('已就位')}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-          <footer className="dialog-actions">
-            <button type="button" className="ghost" onClick={() => {
-              setDraft({resource: current, source: current.link_roots?.[0] || ''});
-            }}>{t('重新链接该目录')}</button>
-            <button type="button" className="ghost" disabled={busy === current.id}
-              onClick={() => void download(current)}>{t('下载')}</button>
-            <button type="button" className="ghost" disabled={busy === current.id}
-              onClick={() => void unlink(current)}>{t('解除链接')}</button>
-            <button type="button" onClick={() => setDetail(null)}>{t('关闭')}</button>
-          </footer>
-        </Modal>
-      ) : null}
-      {draft ? (
-        <Modal title={`${draft.resource.title} · ${t('链接目录')}`} onClose={() => setDraft(null)}>
-          <p className="settings-note">
-            {t('请选择官方目录或文件：{name}。', {name: officialRoot(draft.resource)})}
-          </p>
-          <label className="field">
-            <span>{t('绝对路径')}</span>
-            <input
-              value={draft.source}
-              placeholder={draft.resource.link_roots?.[0] || t('请填写本机上已有的绝对路径。')}
-              onChange={(event) => setDraft({...draft, source: event.target.value})}
-            />
-          </label>
-          <p className="settings-note">{t('链接只作用于执行它的那台机器的本地文件系统，不会把远端文件映射到本机，也不复制字节。')}</p>
-          <footer className="dialog-actions">
-            <button type="button" className="ghost" onClick={() => setDraft(null)}>{t('取消')}</button>
-            <button type="button" disabled={!!busy} onClick={() => void submit()}>{t('链接')}</button>
-          </footer>
-        </Modal>
-      ) : null}
+      {body}
     </section>
   );
 }

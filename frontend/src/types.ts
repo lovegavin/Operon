@@ -248,7 +248,7 @@ export type RemoteProfile = {id?: string; name: string; host: string; port: numb
   auth: 'password' | 'key' | 'agent'; key_path: string; python: string; app_dir: string; workspace: string;
   mode: 'exec' | 'shell'; menu_choice: string; environment?: 'managed' | 'existing'; managed_root?: string};
 export type RemoteInfo = {catalog: Catalog; history?: Job[]; system: string; version: string; python: string;
-  workspace: string; automatic_memory_budget_bytes: number; automatic_memory_fraction: number; tools: Record<string, boolean>;
+  workspace: string; automatic_memory_budget_bytes: number; automatic_memory_fraction: number; tools?: Record<string, boolean>;
   dependencies?: DependencyState;
   library_check?: RemoteLibraryCheck;
   handshake?: {version: number; server_id: string; catalog_digest: string; dependency_revision: string; capabilities: string[]; operator_protocol: number}};
@@ -284,6 +284,11 @@ export type LargeResourceUnit = {
   name: string; target?: string; title?: string; state?: string;
   source?: string | null; receipt?: boolean;
 };
+export type LargeResourceComponent = {
+  name: string; path?: string; mode?: string; kind?: string; bytes?: number;
+  url?: string | null; note?: string; state?: string; linked?: boolean;
+  files?: string[]; missing?: string[]; size_mb?: number;
+};
 export type LargeResource = {
   id: string; title?: string; kind?: string; env?: string | null; root?: string | null;
   present?: boolean; status?: string; missing?: string[]; files?: string[];
@@ -292,6 +297,7 @@ export type LargeResource = {
   downloads?: LargeResourceDownload[]; state?: string; link_unit?: string;
   link_target?: string | null; root_linked?: boolean; root_target?: string | null;
   official_root?: string;
+  components?: LargeResourceComponent[];
   units?: LargeResourceUnit[];
 };
 export type LargeResourceOperation = {id: string; name?: string; kind?: string; status: string;

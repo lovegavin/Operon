@@ -230,7 +230,10 @@ def snapshot(service) -> dict:
                  if environment_of.get(name)}
         if resource.id in declared:
             owned.add(resource.id)
+        owned.update(getattr(resource, 'environments', ()) or ())
         item['environments'] = sorted(owned)
+        item['components'] = [dict(entry) for entry in item.get('components') or ()]
+        item['official_root'] = str(getattr(resource, 'link_root', '') or item['id'])
         item['link_roots'] = list(link_roots)
         item['expected_files'] = names
         item['linked'] = bool(item.get('linked') or state['linked'] or item.get('root_linked'))
