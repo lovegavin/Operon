@@ -262,9 +262,12 @@ export function EnvironmentCard({item, busy = false, onAction, onOpen}: {
       {purposeOf(item) || t('暂无说明')}
     </p>
     {installing && <div className="runtime-progress" role="progressbar" aria-label={t('安装进度')}
-      aria-valuetext={progressText(item)} aria-valuenow={percentDone(item) || undefined}>
-      <span className="runtime-progress-bar" style={{width: `${percentDone(item)}%`}}/>
-      <small>{progressText(item)}{item.expected_bytes ? ` · ${percentDone(item)}%` : ''}</small>
+      aria-valuetext={progressText(item)} aria-valuemin={0} aria-valuemax={100}
+      aria-valuenow={item.expected_bytes ? percentDone(item) : undefined}>
+      <span className="runtime-progress-fill" style={{width: `${percentDone(item)}%`}}/>
+      <small>{item.expected_bytes
+        ? `${percentDone(item)}% · ${progressText(item)}`
+        : progressText(item)}</small>
     </div>}
     <dl className="runtime-facts">
       <div><dt>{t('Python 版本')}</dt><dd>{item.python_version || item.python || '—'}</dd></div>
@@ -309,6 +312,9 @@ export function OperationList({operations, now = Date.now(), onCancel}: {
       {operation.cancelable !== false &&
         <button className="subtle-button is-danger" onClick={() => onCancel?.(operation.name)}>{t('取消')}</button>}
     </div>)}
+    <small className="runtime-background-note">
+      {t('安装与下载在后台运行，关闭窗口不会中断。')}
+    </small>
   </section>;
 }
 
@@ -545,6 +551,21 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
             ? runRemote('all', () => api.remotePrepareEnvironments(target))
             : run('all', () => api.prepareEnvironments()))}
           />}
+      {target && items.length > 0 && (() => {
+        const local = new Set(Object.keys(snapshot?.environments || {}));
+        const remote = new Set(items.map(item => item.name));
+        const onlyLocal = [...local].filter(name => !remote.has(name)).sort();
+        const onlyRemote = [...remote].filter(name => !local.has(name)).sort();
+        if (!onlyLocal.length && !onlyRemote.length) return null;
+        return <div className="runtime-warning" data-testid="remote-mismatch">
+          <strong>{t('远程环境清单与本地不一致')}</strong>
+          <span>{t('本地 {local} 个，远程 {remote} 个。', {local: local.size, remote: remote.size})}</span>
+          {onlyLocal.length ? <span>{t('只有本地有：')}{onlyLocal.join('、')}</span> : null}
+          {onlyRemote.length ? <span>{t('只有远程有：')}{onlyRemote.join('、')}</span> : null}
+          <span>{t('本地清单')}：<code>{snapshot?.manifest?.path || '—'}</code></span>
+          <span>{t('远程清单')}：<code>{(remoteLoaded[target] as unknown as { manifest?: { path?: string } })?.manifest?.path || '—'}</code></span>
+        </div>;
+      })()}
       {items.length > 0 && <div className="runtime-grid">
         {ordered.map(item => <EnvironmentCard key={item.name} item={item}
           busy={Boolean(busy)} onAction={act} onOpen={setDetail}/>)}
@@ -553,9 +574,6 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
       {detail && <Modal title={`${detail.title || detail.name}`}
         onClose={() => { setDetail(null); setView('root'); }}>
         <p className="settings-note">{detail.name} · {t(statusKeys[statusTone(detail.status)])}</p>
-        {view !== 'root' && <div className="runtime-actions">
-          <button className="subtle-button" onClick={() => setView('root')}>{t('返回')}</button>
-        </div>}
         {view === 'root' && <div className="resource-unit-grid">
           <button type="button" className="runtime-card resource-entry-card"
             data-testid="detail-dependencies" onClick={() => setView('deps')}>
@@ -612,6 +630,10 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
         {view === 'resources' && <section className="runtime-detail-block">
           <LargeResourceSection target={target} environment={detail.name} compact/>
         </section>}
+        {view !== 'root' && <div className="runtime-detail-footer">
+          <button type="button" className="subtle-button"
+            onClick={() => setView('root')}>{t('返回')}</button>
+        </div>}
       </Modal>}
       {log && <LogDrawer name={log.name} text={log.text} pending={logPending} error={log.error}
         onClose={() => setLog(null)} onRefresh={() => void loadLog(log.name)}/>}

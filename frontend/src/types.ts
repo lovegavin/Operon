@@ -284,10 +284,14 @@ export type LargeResourceUnit = {
   name: string; target?: string; title?: string; state?: string;
   source?: string | null; receipt?: boolean;
 };
+export type LargeResourceFileEntry = {
+  name: string; present?: boolean; size_mb?: number; linked?: boolean;
+  target?: string; mode?: string;
+};
 export type LargeResourceComponent = {
   name: string; path?: string; mode?: string; kind?: string; bytes?: number;
   url?: string | null; note?: string; state?: string; linked?: boolean;
-  files?: string[]; missing?: string[]; size_mb?: number;
+  files?: LargeResourceFileEntry[]; missing?: string[]; size_mb?: number;
 };
 export type LargeResource = {
   id: string; title?: string; kind?: string; env?: string | null; root?: string | null;

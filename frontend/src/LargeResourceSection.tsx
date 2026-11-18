@@ -44,6 +44,11 @@ export function componentStateLabel(component: LargeResourceComponent): string {
   return resourceStateLabel(String(component.state || 'missing'));
 }
 
+export function missingFiles(component: LargeResourceComponent): string[] {
+  const files = Array.isArray(component.files) ? component.files : [];
+  return files.filter((file) => file && file.present === false).map((file) => String(file.name || ''));
+}
+
 export function isReady(component: LargeResourceComponent): boolean {
   const state = String(component.state || '').toLowerCase();
   return state === 'present' || state === 'linked';
@@ -68,6 +73,7 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
 }) {
   const state = String(component.state || 'missing').toLowerCase();
   const linked = state === 'linked';
+  const missing = missingFiles(component);
   return (
     <article
       className="runtime-card resource-unit-card"
@@ -87,7 +93,18 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
       <dl className="runtime-facts">
         <div><dt>{t('官方目录或文件')}</dt><dd><code>{component.name}</code></dd></div>
         <div><dt>{t('占用空间')}</dt><dd>{megabytes(component.bytes || resource.size_bytes)}</dd></div>
+        {component.url
+          ? <div><dt>{t('下载地址')}</dt><dd><code title={component.url}>{component.url}</code></dd></div>
+          : null}
       </dl>
+      {!linked && missing.length
+        ? <details className="runtime-missing" open={missing.length <= 4}>
+          <summary>{t('缺少 {n} 个文件', { n: missing.length })}</summary>
+          <ul>{missing.slice(0, 12).map((name) => <li key={name}><code>{name}</code></li>)}
+            {missing.length > 12 ? <li>{t('等 {n} 项', { n: missing.length - 12 })}</li> : null}
+          </ul>
+        </details>
+        : null}
       <footer className="runtime-actions">
         {linked ? (
           <button type="button" className="subtle-button" disabled={busy}

@@ -104,7 +104,7 @@ describe('progress rendering', () => {
   it('renders phase and transferred size for an installing card', () => {
     const html = card({status: 'installing', progress: {phase: 'installing', bytes: 300 * 1024 * 1024}});
     expect(html).toContain('role="progressbar"');
-    expect(html).toContain('runtime-progress-bar');
+    expect(html).toContain('runtime-progress-fill');
     expect(html).toContain('安装依赖 · 300 MB');
     expect(html).toContain('class="runtime-chip is-installing"');
   });
