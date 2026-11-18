@@ -20,9 +20,10 @@ resources in the API.
      the allowed link roots shown underneath so a rejected path is obvious
      before submitting.
 - **`environments` on every large resource.** `GET /api/v1/large-resources`
-  items now carry the environments whose operators read the resource, derived
-  from the `resources.environment` field of the operator descriptors. The list
-  view shows this as an "所属环境" row.
+  items now carry the environments that read the resource: the
+  `resources.environment` field of every operator that consumes it, plus the
+  environment that shares its name when one is installed. The list view shows
+  this as an "所属环境" row.
 
 ## Changed
 
@@ -43,13 +44,18 @@ resources in the API.
 
 ## Verification
 
-- `pytest tests/test_resource_api.py` - 12 passed, covering the environment map,
-  its tolerance for a service without a catalog, and the snapshot field.
+- `pytest tests/test_resource_api.py` - 14 passed, covering the environment map,
+  its tolerance for a service without a catalog, the snapshot field, and the two
+  ways a resource is attributed (`require(...)` calls and a matching environment
+  name).
+- `pytest tests/test_resource_api.py tests/test_resource_link_control_api.py
+  tests/test_environment_api_runtime.py tests/test_bridge_remote_resources.py
+  tests/test_environment_install.py tests/test_environment_queue.py` - 40 passed.
 - `npm test` - 43 files, 264 tests passed, including the new
   `src/LargeResources.test.tsx`.
 - A clean install of the packaged release is verified for the four-step dialog
-  against a real library: `/api/large-resources` reports `environments` for every
-  resource, and the dialog offers only the missing environments and their
-  linkable resources.
+  against a real library: `/api/large-resources` reports `environments` for the
+  resources that have a matching environment, and the dialog offers only the
+  missing environments that still have a linkable resource.
 
 The operator library is unchanged; this release keeps `main-v0.1.29`.

@@ -146,6 +146,39 @@ def test_environment_map_follows_descriptor_resources() -> None:
     }
 
 
+def test_used_by_combines_the_environment_variable_and_the_resource_id(monkeypatch, tmp_path: Path) -> None:
+    common = _StubCommon()
+    monkeypatch.setattr(resource_api, '_modules', lambda service: (tmp_path, common, None, None))
+    monkeypatch.setattr(resource_api, '_manifest', lambda root: root / 'resources.json')
+    monkeypatch.setattr(resource_api, '_used_by_map',
+                        lambda root, release, probes: {'OPERON_OPENFOLD_PATH': ['openfold_predict'],
+                                                       'openfold': ['openfold_reader']})
+    monkeypatch.setattr(resource_api, '_link_roots', lambda common: [])
+    monkeypatch.setattr(resource_api, '_expected_files', lambda common, resource: [])
+    monkeypatch.setattr(resource_api, '_link_state',
+                        lambda common, resource: {'linked': False, 'source': '', 'mode': None})
+    monkeypatch.setattr(resource_api, '_size_bytes', lambda root, names: 0)
+    item = resource_api.snapshot(_StubService())['resources'][0]
+    assert item['used_by'] == ['openfold_predict', 'openfold_reader']
+
+
+def test_a_resource_whose_id_is_an_environment_belongs_to_it(monkeypatch, tmp_path: Path) -> None:
+    common = _StubCommon()
+    monkeypatch.setattr(resource_api, '_modules', lambda service: (tmp_path, common, None, None))
+    monkeypatch.setattr(resource_api, '_manifest', lambda root: root / 'resources.json')
+    monkeypatch.setattr(resource_api, '_used_by_map', lambda root, release, probes: {})
+    monkeypatch.setattr(resource_api, '_environment_map', lambda service: {})
+    monkeypatch.setattr(resource_api, '_declared_environments', lambda: {'openfold', 'esm3'})
+    monkeypatch.setattr(resource_api, '_link_roots', lambda common: [])
+    monkeypatch.setattr(resource_api, '_expected_files', lambda common, resource: [])
+    monkeypatch.setattr(resource_api, '_link_state',
+                        lambda common, resource: {'linked': False, 'source': '', 'mode': None})
+    monkeypatch.setattr(resource_api, '_size_bytes', lambda root, names: 0)
+    item = resource_api.snapshot(_StubService())['resources'][0]
+    assert item['used_by'] == []
+    assert item['environments'] == ['openfold']
+
+
 def test_environment_map_tolerates_a_service_without_a_catalog() -> None:
     assert resource_api._environment_map(object()) == {}
 

@@ -151,7 +151,20 @@ def _used_by_map(root: Path, release: dict, probes: list[str]) -> dict[str, list
             if not owner:
                 continue
             for probe in probes:
-                if probe and probe in content:
+                if not probe:
+                    continue
+                if probe.isupper():
+                    # Environment variables are read straight from the process
+                    # environment, so any mention of the name is a real use.
+                    if probe in content:
+                        found.setdefault(probe, set()).add(owner)
+                elif any(
+                    probe in line and not line.lstrip().startswith(('import ', 'from '))
+                    for line in content.splitlines()
+                ):
+                    # A lower-case resource id counts when the code mentions it
+                    # for real; importing a helper from a similarly named module
+                    # is not the same as consuming the resource.
                     found.setdefault(probe, set()).add(owner)
         cached = {probe: tuple(sorted(owners)) for probe, owners in found.items()}
         with _used_by_lock:
@@ -171,6 +184,20 @@ def _environment_map(service) -> dict[str, str]:
     return found
 
 
+def _declared_environments() -> set[str]:
+    """Return the isolated environment names the imported library declares.
+
+    A resource whose id equals an environment name belongs to that environment
+    even when no operator descriptor mentions it, because the environment is
+    what consumes the weights or database the resource provides.
+    """
+    try:
+        from operon import environments
+        return {str(name) for name in environments.load()}
+    except Exception:  # noqa: BLE001
+        return set()
+
+
 def operation(job_id: str) -> dict | None:
     job = _jobs.get(job_id)
     return dict(job) if job else None
@@ -180,20 +207,27 @@ def snapshot(service) -> dict:
     root, common, _fetch, _link = _modules(service)
     resources = common.load_resources(_manifest(root))
     release = service.plugins.state().get('library_release') or {}
-    probes = [resource.env or resource.id for resource in resources.values()]
+    probes = sorted({probe for resource in resources.values()
+                    for probe in (resource.env, resource.id) if probe})
     used_by = _used_by_map(root, release, [probe for probe in probes if probe])
     environment_of = _environment_map(service)
+    declared = _declared_environments()
     link_roots = _link_roots(common)
     items = []
     for resource in resources.values():
         item = common.check_resource(resource)
         names = _expected_files(common, resource)
         state = _link_state(common, resource)
-        probe = resource.env or resource.id
+        matched = set(used_by.get(resource.id, ()))
+        if resource.env:
+            matched.update(used_by.get(resource.env, ()))
         item['downloads'] = [dict(entry) for entry in resource.downloads]
-        item['used_by'] = used_by.get(probe, [])
-        item['environments'] = sorted({environment_of[name] for name in item['used_by']
-                                       if environment_of.get(name)})
+        item['used_by'] = sorted(matched)
+        owned = {environment_of[name] for name in item['used_by']
+                 if environment_of.get(name)}
+        if resource.id in declared:
+            owned.add(resource.id)
+        item['environments'] = sorted(owned)
         item['link_roots'] = list(link_roots)
         item['expected_files'] = names
         item['linked'] = bool(item.get('linked', state['linked']))

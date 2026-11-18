@@ -105,7 +105,8 @@ export function LargeResources() {
     if (!window.confirm(t("解除 {v0} 的链接？源目录和文件不会被删除。", {v0: resource.title || resource.id}))) return;
     await run(async () => {await api.largeResourceUnlink(resource.id); await reload();}, t("已解除链接"));
   }
-  const options = missingEnvironments(environments);
+  const options = missingEnvironments(environments)
+    .filter(option => linkCandidates(linkable, option.name).length > 0);
   const candidates = draft ? linkCandidates(linkable, draft.environment, draft.name) : [];
   const current = draft ? resources.find(resource => resource.id === draft.name) : undefined;
   return <div className="large-resources">
