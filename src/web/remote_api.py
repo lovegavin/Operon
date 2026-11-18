@@ -93,11 +93,12 @@ def mount_remote(app, service):
         payload = payload or {}
         return manager.call(key, 'resources_link',
                             {'name': name, 'source': str(payload.get('source') or ''),
-                             'replace': bool(payload.get('replace'))})
+                             'replace': bool(payload.get('replace')),
+                             'unit': str(payload.get('unit') or '')})
 
     @app.delete('/api/remote/{key}/resources/{name}/link')
-    def remote_resource_unlink(key: str, name: str):
-        return manager.call(key, 'resources_unlink', {'name': name})
+    def remote_resource_unlink(key: str, name: str, unit: str | None = None):
+        return manager.call(key, 'resources_unlink', {'name': name, 'unit': unit or ''})
 
     @app.get('/api/remote/{key}/pool')
     def remote_pool(key: str):

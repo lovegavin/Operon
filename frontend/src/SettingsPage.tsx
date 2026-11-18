@@ -5,7 +5,6 @@ import {RemotePanel} from './RemotePanel';
 import {ViewerSettings} from './ViewerSettings';
 import {AppearanceSettings} from './AppearanceSettings';
 import {LanguageSettings} from './LanguageSettings';
-import {LargeResources} from './LargeResources';
 import './settings.css';
 
 export type SettingsSection = 'servers' | 'viewers' | 'appearance' | 'language' | 'resources';
@@ -23,7 +22,7 @@ export function SettingsPage({initial, onClose, appearance, ...remote}: Omit<Com
     element?.showModal();
     return () => {element?.close(); previous?.focus();};
   }, []);
-  const sections = [{id:'servers', name:t("服务器"), Icon:HardDrives}, {id:'viewers', name:t("输出与查看器"), Icon:Monitor}, {id:'appearance', name:t("外观"), Icon:Palette}, {id:'language', name:t("语言"), Icon:Translate}, {id:'resources', name:t("大型资源"), Icon:Database}] as const;
+  const sections = [{id:'servers', name:t("服务器"), Icon:HardDrives}, {id:'viewers', name:t("输出与查看器"), Icon:Monitor}, {id:'appearance', name:t("外观"), Icon:Palette}, {id:'language', name:t("语言"), Icon:Translate}] as const;
   return <dialog className="settings-page" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="settings-title"
     onCancel={e => {e.preventDefault(); if (!busy) onClose();}}
     onKeyDown={e => e.stopPropagation()}>
@@ -35,7 +34,6 @@ export function SettingsPage({initial, onClose, appearance, ...remote}: Omit<Com
         <div hidden={section !== 'viewers'}><div className="settings-page-heading"><h3>{t("输出与查看器")}</h3></div><ViewerSettings onBusyChange={setViewerBusy}/></div>
         <div hidden={section !== 'appearance'}><div className="settings-page-heading"><h3>{t("外观")}</h3></div><AppearanceSettings {...appearance}/></div>
         <div hidden={section !== 'language'}><div className="settings-page-heading"><h3>{t("语言")}</h3></div><LanguageSettings/></div>
-        <div hidden={section !== 'resources'}><div className="settings-page-heading"><h3>{t("大型资源")}</h3></div><LargeResources/></div>
       </main>
     </div>
   </dialog>;

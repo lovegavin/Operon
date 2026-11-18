@@ -36,20 +36,37 @@ def test_link_remote_resource_forwards_source_and_replace():
                          json={'source': '/srv/data/esm2', 'replace': True})
     assert response.status_code == 200
     assert manager.calls == [('srv', 'resources_link',
-                              {'name': 'esm2', 'source': '/srv/data/esm2', 'replace': True})]
+                              {'name': 'esm2', 'source': '/srv/data/esm2', 'replace': True,
+                               'unit': ''})]
 
 
 def test_link_without_a_body_still_forwards_an_empty_source():
     http, manager = client()
     assert http.post('/api/remote/srv/resources/esm2/link').status_code == 200
     assert manager.calls == [('srv', 'resources_link',
-                              {'name': 'esm2', 'source': '', 'replace': False})]
+                              {'name': 'esm2', 'source': '', 'replace': False, 'unit': ''})]
 
 
 def test_unlink_remote_resource_forwards_the_name():
     http, manager = client()
     assert http.delete('/api/remote/srv/resources/esm2/link').status_code == 200
-    assert manager.calls == [('srv', 'resources_unlink', {'name': 'esm2'})]
+    assert manager.calls == [('srv', 'resources_unlink', {'name': 'esm2', 'unit': ''})]
+
+
+def test_link_forwards_the_unit():
+    http, manager = client()
+    assert http.post('/api/remote/srv/resources/esm2/link',
+                     json={'source': '/srv/data/esm2', 'unit': 'esm2_t6_8M_UR50D.pt'}).status_code == 200
+    assert manager.calls == [('srv', 'resources_link',
+                              {'name': 'esm2', 'source': '/srv/data/esm2', 'replace': False,
+                               'unit': 'esm2_t6_8M_UR50D.pt'})]
+
+
+def test_unlink_forwards_the_unit():
+    http, manager = client()
+    assert http.delete('/api/remote/srv/resources/esm2/link?unit=esm2_t6_8M_UR50D.pt').status_code == 200
+    assert manager.calls == [('srv', 'resources_unlink',
+                              {'name': 'esm2', 'unit': 'esm2_t6_8M_UR50D.pt'})]
 
 
 def test_remote_agent_dispatches_resource_methods_to_the_local_api(monkeypatch):
@@ -59,17 +76,18 @@ def test_remote_agent_dispatches_resource_methods_to_the_local_api(monkeypatch):
     seen = []
     monkeypatch.setattr(resource_api, 'snapshot', lambda service: {'resources': []})
     monkeypatch.setattr(resource_api, 'link',
-                        lambda service, name, source, replace=False: seen.append(
-                            (name, source, replace)) or {'status': 'linked'})
+                        lambda service, name, source, replace=False, unit=None: seen.append(
+                            (name, source, replace, unit)) or {'status': 'linked'})
     monkeypatch.setattr(resource_api, 'unlink',
-                        lambda service, name: seen.append((name,)) or {'status': 'unlinked'})
+                        lambda service, name, unit=None: seen.append(
+                            (name, unit)) or {'status': 'unlinked'})
 
     agent = RemoteService.__new__(RemoteService)
     agent.service = SimpleNamespace()
     agent.transport_leases = {}
     assert agent._dispatch('resources', None) == {'resources': []}
     assert agent._dispatch('resources_link',
-                           {'name': 'esm2', 'source': '/data/esm2', 'replace': True}) == {
-        'status': 'linked'}
+                           {'name': 'esm2', 'source': '/data/esm2', 'replace': True,
+                            'unit': 'tiny.pt'}) == {'status': 'linked'}
     assert agent._dispatch('resources_unlink', {'name': 'esm2'}) == {'status': 'unlinked'}
-    assert seen == [('esm2', '/data/esm2', True), ('esm2',)]
+    assert seen == [('esm2', '/data/esm2', True, 'tiny.pt'), ('esm2', None)]

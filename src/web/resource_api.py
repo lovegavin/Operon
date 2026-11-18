@@ -105,10 +105,13 @@ def _link_state(common, resource) -> dict:
         try:
             state = dict(getter(resource) or {})
             return {'linked': bool(state.get('linked')), 'source': state.get('source'),
-                    'mode': state.get('mode')}
+                    'mode': state.get('mode'), 'state': state.get('state'),
+                    'root_target': state.get('root_target') or '',
+                    'units': [dict(unit) for unit in state.get('units') or []]}
         except Exception:  # noqa: BLE001
             pass
-    return {'linked': False, 'source': None, 'mode': None}
+    return {'linked': False, 'source': None, 'mode': None, 'state': None,
+            'root_target': '', 'units': []}
 
 
 def _size_bytes(root, names) -> int:
@@ -230,9 +233,20 @@ def snapshot(service) -> dict:
         item['environments'] = sorted(owned)
         item['link_roots'] = list(link_roots)
         item['expected_files'] = names
-        item['linked'] = bool(item.get('linked', state['linked']))
-        item['source'] = item.get('source') or state['source']
+        item['linked'] = bool(item.get('linked') or state['linked'] or item.get('root_linked'))
+        item['source'] = item.get('source') or state['source'] or state.get('root_target') or None
         item['mode'] = item.get('mode') or state['mode']
+        item['state'] = item.get('state') or state.get('state') or (
+            'linked' if item['linked'] else ('downloaded' if item.get('present') else 'missing'))
+        item['link_unit'] = item.get('link_unit') or 'tree'
+        item['link_target'] = state.get('root_target') or item.get('root_target') or ''
+        units = {unit['name']: dict(unit) for unit in state.get('units') or []}
+        for unit in item.get('units') or []:
+            known = units.get(unit.get('name')) or {}
+            unit['state'] = known.get('state') or unit.get('state') or 'missing'
+            unit['source'] = known.get('source') or ''
+            unit['receipt'] = bool(known.get('receipt'))
+        item['units'] = list(item.get('units') or [])
         item['size_bytes'] = _size_bytes(item.get('root'), names)
         items.append(item)
     return {
@@ -431,27 +445,41 @@ def _record_link(name: str, status: str, result: dict, *, source: str = '') -> d
     return job
 
 
-def link(service, name: str, source: str, replace: bool = False) -> dict:
-    """Link an existing local tree into the resource root without copying bytes."""
+def link(service, name: str, source: str, replace: bool = False,
+         unit: str | None = None) -> dict:
+    """Link one official maintenance unit into the resource root; copy no bytes."""
     _root, common, _fetch, link_module, resource = _resource(service, name)
     operation_link = getattr(link_module, 'link', None) if link_module is not None else None
     if not callable(operation_link):
         raise LinkUnsupported('The installed library does not support linking existing resources.')
-    result = dict(operation_link(resource, source, replace=bool(replace),
-                                 allowed_roots=_link_roots(common)) or {})
+    try:
+        result = dict(operation_link(resource, source, replace=bool(replace),
+                                     unit=unit) or {})
+    except TypeError:
+        if unit:
+            raise LinkUnsupported(
+                'The installed library cannot link a single unit; update the operator library.')
+        result = dict(operation_link(resource, source, replace=bool(replace),
+                                     allowed_roots=_link_roots(common)) or {})
     result.setdefault('id', result.get('name') or name)
     job = _record_link(name, 'linked', result, source=source)
     result['operation'] = job['id']
     return result
 
 
-def unlink(service, name: str) -> dict:
-    """Remove the external link recorded for one resource, keeping the source."""
+def unlink(service, name: str, unit: str | None = None) -> dict:
+    """Remove one external link, keeping the source tree untouched."""
     _root, common, _fetch, link_module, resource = _resource(service, name)
     operation_unlink = getattr(link_module, 'unlink', None) if link_module is not None else None
     if not callable(operation_unlink):
         raise LinkUnsupported('The installed library does not support unlinking resources.')
-    result = dict(operation_unlink(resource) or {})
+    try:
+        result = dict(operation_unlink(resource, unit=unit) or {})
+    except TypeError:
+        if unit:
+            raise LinkUnsupported(
+                'The installed library can only unlink a whole resource; update the operator library.')
+        result = dict(operation_unlink(resource) or {})
     result.setdefault('id', result.get('name') or name)
     resolve = getattr(common, 'resolve_root', None)
     root = None
@@ -491,7 +519,8 @@ def mount_resources(app, service) -> None:
         body = payload or {}
         try:
             return link(service, name, str(body.get('source') or ''),
-                        bool(body.get('replace', False)))
+                        bool(body.get('replace', False)),
+                        str(body.get('unit') or '') or None)
         except KeyError as exc:
             raise HTTPException(404, f"unknown resource: {name}") from exc
         except LinkUnsupported as exc:
@@ -500,9 +529,9 @@ def mount_resources(app, service) -> None:
             raise HTTPException(409, str(exc)) from exc
 
     @app.delete('/api/resources/{name}/link')
-    def unlink_resource(name: str):
+    def unlink_resource(name: str, unit: str | None = None):
         try:
-            return unlink(service, name)
+            return unlink(service, name, unit)
         except KeyError as exc:
             raise HTTPException(404, f"unknown resource: {name}") from exc
         except LinkUnsupported as exc:

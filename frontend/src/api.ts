@@ -180,13 +180,14 @@ export const api = {
       {names, dependencies}),
   remoteResources: (id: string) =>
     request<import('./types').LargeResourceSnapshot>(`/api/remote/${encodeURIComponent(id)}/resources`),
-  remoteLinkResource: (id: string, name: string, source: string, replace = false) =>
+  remoteLinkResource: (id: string, name: string, source: string, replace = false, unit = '') =>
     request<import('./types').LargeResourceLinkResult>(
       `/api/remote/${encodeURIComponent(id)}/resources/${encodeURIComponent(name)}/link`,
-      {source, replace}),
-  remoteUnlinkResource: (id: string, name: string) =>
+      {source, replace, unit}),
+  remoteUnlinkResource: (id: string, name: string, unit = '') =>
     request<import('./types').LargeResourceLinkResult>(
-      `/api/remote/${encodeURIComponent(id)}/resources/${encodeURIComponent(name)}/link`,
+      `/api/remote/${encodeURIComponent(id)}/resources/${encodeURIComponent(name)}/link` +
+      (unit ? `?unit=${encodeURIComponent(unit)}` : ''),
       undefined, {method: 'DELETE'}),
 
   savePreferences: (value: Partial<import('./preferences').UiPreferences>, initialize = false) => {
@@ -218,10 +219,12 @@ export const api = {
   removeRemote: (id: string) => request(`/api/remote/${id}/remove`, {}),
   browseRemote: (id: string, path: string, offset = 0, hidden = false) => request<import('./types').RemoteListing>(`/api/remote/${id}/browse`, {path, offset, hidden}),
   largeResources: () => request<import('./types').LargeResourceSnapshot>('/api/resources'),
-  largeResourceLink: (name: string, source: string, replace = false) =>
-    request<import('./types').LargeResourceLinkResult>(`/api/resources/${encodeURIComponent(name)}/link`, {source, replace}),
-  largeResourceUnlink: (name: string) =>
-    request<import('./types').LargeResourceLinkResult>(`/api/resources/${encodeURIComponent(name)}/link`, undefined, {method: 'DELETE'}),
+  largeResourceLink: (name: string, source: string, replace = false, unit = '') =>
+    request<import('./types').LargeResourceLinkResult>(`/api/resources/${encodeURIComponent(name)}/link`,
+      {source, replace, unit}),
+  largeResourceUnlink: (name: string, unit = '') =>
+    request<import('./types').LargeResourceLinkResult>(`/api/resources/${encodeURIComponent(name)}/link` +
+      (unit ? `?unit=${encodeURIComponent(unit)}` : ''), undefined, {method: 'DELETE'}),
   storageRoots: (signal?: AbortSignal) => request<{roots: StorageRef[]}>('/api/v1/storage/roots', undefined, {signal}),
   browseStorage: (value: StorageBrowseRequest, session: string, signal?: AbortSignal) =>
     request<StoragePage>('/api/v1/storage/browse', value, {storageSession: session, signal}),

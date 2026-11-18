@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {Modal} from './RouteDialogs';
 import {t} from './i18n';
 import {api} from './api';
+import {LargeResourceSection} from './LargeResourceSection';
 import type {
   EnvironmentJob, EnvironmentSnapshot, PoolStatus, RemoteEnvironments, StudioVersion,
 } from './api';
@@ -498,13 +499,13 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
         </div>}
       {((snapshot && snapshot.manifest.present) || target) && items.length > 0 &&
         <SummaryStrip items={items} busy={Boolean(busy)} target={target} targets={remoteTargets}
-          onTarget={chooseTarget}
           onRefresh={() => void (target
             ? runRemote('refresh', () => api.remoteEnvironments(target))
             : run('refresh', () => api.environments()))}
           onPrepareAll={() => void (target
             ? runRemote('all', () => api.remotePrepareEnvironments(target))
             : run('all', () => api.prepareEnvironments()))}/>}
+      <LargeResourceSection target={target} targets={remoteTargets} onTarget={chooseTarget}/>
       {items.length > 0 && <div className="runtime-grid">
         {ordered.map(item => <EnvironmentCard key={item.name} item={item}
           busy={Boolean(busy)} onAction={act}/>)}

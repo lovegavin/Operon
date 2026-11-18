@@ -190,7 +190,8 @@ def mount_control(app, application, bridge):
         body = payload or {}
         try:
             return resource_api.link(application.service, name, str(body.get('source') or ''),
-                                     bool(body.get('replace', False)))
+                                     bool(body.get('replace', False)),
+                                     str(body.get('unit') or '') or None)
         except KeyError as error:
             raise CommandError('unknown_resource', f'unknown resource: {name}') from error
         except resource_api.LinkUnsupported as error:
@@ -199,11 +200,11 @@ def mount_control(app, application, bridge):
             raise CommandError('link_rejected', str(error), 409) from error
 
     @app.delete('/api/v1/large-resources/{name}/link')
-    def large_resource_unlink(request: Request, name: str):
+    def large_resource_unlink(request: Request, name: str, unit: str | None = None):
         authorize(request, 'plugins')
         from src.web import resource_api
         try:
-            return resource_api.unlink(application.service, name)
+            return resource_api.unlink(application.service, name, unit)
         except KeyError as error:
             raise CommandError('unknown_resource', f'unknown resource: {name}') from error
         except resource_api.LinkUnsupported as error:

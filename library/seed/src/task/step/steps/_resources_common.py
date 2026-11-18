@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -42,6 +43,7 @@ class Resource:
     downloads: tuple[dict[str, Any], ...] = ()
     link_roots: tuple[str, ...] = ()
     expected_files: tuple[str, ...] = ()
+    link_unit: str = "tree"
 
     @classmethod
     def from_entry(cls, entry: dict[str, Any]) -> "Resource":
@@ -109,6 +111,11 @@ class Resource:
         expected = tuple(
             str(name) for name in entry.get("expected_files") or [] if str(name).strip()
         )
+        unit = str(entry.get("link_unit") or "tree").strip().lower() or "tree"
+        if unit not in {"tree", "items"}:
+            raise StepError(
+                f"resource '{identifier}' link_unit must be 'tree' or 'items': {unit!r}"
+            )
         for name in expected:
             candidate = Path(name)
             if candidate.is_absolute() or ".." in candidate.parts:
@@ -127,6 +134,7 @@ class Resource:
             downloads=tuple(downloads),
             link_roots=resource_link_roots,
             expected_files=expected,
+            link_unit=unit,
         )
 
 
@@ -232,6 +240,60 @@ def expected_files(resource: Resource) -> tuple[str, ...]:
     return resource.expected_files or resource.files
 
 
+def link_unit_of(resource: Resource) -> str:
+    """Official maintenance unit: one shipped tree, or one unit per file."""
+
+    return "items" if str(getattr(resource, "link_unit", "tree") or "tree") == "items" else "tree"
+
+
+def link_units(resource: Resource) -> list[dict[str, Any]]:
+    """Units the user links one by one, in the order a UI should show them."""
+
+    if link_unit_of(resource) == "items":
+        return [
+            {"name": name, "target": name, "title": Path(name).name}
+            for name in expected_files(resource)
+        ]
+    return [{"name": "tree", "target": "", "title": resource.title}]
+
+
+def link_mode(path: str | Path | None) -> str:
+    """Return how *path* is linked: ``symlink``, ``junction``, ``hardlink`` or ``""``.
+
+    ``Path.is_symlink()`` is false for a Windows junction, and a junction is the
+    link the desktop creates without administrator rights, so link state has to
+    look at the reparse tag as well.
+    """
+
+    if not path:
+        return ""
+    try:
+        info = os.lstat(path)
+    except OSError:
+        return ""
+    if getattr(info, "st_reparse_tag", 0) == 0xA0000003:
+        return "junction"
+    if stat.S_ISLNK(info.st_mode):
+        return "symlink"
+    if stat.S_ISREG(info.st_mode) and info.st_nlink > 1:
+        return "hardlink"
+    return ""
+
+
+def _file_entry(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {"present": False, "size_mb": 0.0, "linked": False, "target": "", "mode": ""}
+    present = path.is_file()
+    mode = link_mode(path)
+    return {
+        "present": present,
+        "size_mb": round(path.stat().st_size / (1024 * 1024), 3) if present else 0.0,
+        "linked": bool(mode),
+        "target": str(Path(os.path.realpath(path))) if mode and mode != "hardlink" else (str(path) if mode else ""),
+        "mode": mode,
+    }
+
+
 def receipt_path(resource: Resource, root: str | Path | None = None) -> Path:
     """Location of the link receipt beside the resource root.
 
@@ -280,23 +342,49 @@ def write_receipt(resource: Resource, payload: dict[str, Any]) -> Path:
     return path
 
 
+def _unit_state(check: dict[str, Any], name: str) -> str:
+    if name == "tree":
+        return str(check.get("state") or "missing")
+    info = (check.get("files") or {}).get(name) or {}
+    if info.get("linked") or check.get("root_linked"):
+        return "linked" if info.get("present") or check.get("root_linked") else "missing"
+    return "downloaded" if info.get("present") else "missing"
+
+
 def link_state(resource: Resource) -> dict[str, Any]:
     """Receipt-backed view of a resource link plus live file presence."""
 
     check = check_resource(resource)
     receipt = read_receipt(resource) or {}
-    linked = (
-        bool(receipt)
-        and str(receipt.get("kind") or "") == "linked"
-        and bool(check["linked"])
-    )
+    units = dict(receipt.get("units") or {})
+    linked = bool(check["root_linked"] or any(info.get("linked") for info in check["files"].values()))
+    recorded = str(receipt.get("source") or "") or None
+    if not recorded and units:
+        recorded = str(next(iter(units.values())).get("source") or "") or None
     return {
         "linked": linked,
-        "source": str(receipt.get("source") or "") or None,
-        "mode": str(receipt.get("mode") or "") or None,
+        "state": check["state"],
+        "source": recorded,
+        "mode": (
+            str(receipt.get("mode") or "") or None
+            if receipt
+            else (str(check.get("root_mode") or "") or None)
+        ),
         "created_at": str(receipt.get("created_at") or "") or None,
         "probe": str(receipt.get("probe") or "") or None,
         "present": bool(check["present"]),
+        "root_linked": check["root_linked"],
+        "root_target": check["root_target"],
+        "units": [
+            {
+                "name": unit["name"],
+                "target": unit["target"],
+                "state": _unit_state(check, unit["name"]),
+                "source": str((units.get(unit["name"]) or {}).get("source") or "") or None,
+                "receipt": bool(units.get(unit["name"])),
+            }
+            for unit in check["units"]
+        ],
     }
 
 
@@ -307,11 +395,8 @@ def check_resource(resource: Resource, root: str | Path | None = None) -> dict[s
     files: dict[str, dict[str, Any]] = {}
     for name in resource.files:
         path = resolved / name if resolved is not None else None
-        present = bool(path is not None and path.is_file())
-        files[name] = {
-            "present": present,
-            "size_mb": round(path.stat().st_size / (1024 * 1024), 3) if present and path is not None else 0.0,
-        }
+        files[name] = _file_entry(path)
+        present = bool(files[name]["present"])
     missing = [name for name, info in files.items() if not info["present"]]
     if resolved is None:
         status = "missing"
@@ -325,11 +410,29 @@ def check_resource(resource: Resource, root: str | Path | None = None) -> dict[s
     linked = (
         bool(receipt) and str(receipt.get("kind") or "") == "linked" and resolved is not None
     )
+    root_path = Path(resolved) if resolved is not None else None
+    root_mode = link_mode(root_path)
+    root_linked = bool(root_path is not None and root_mode)
+    root_target = str(Path(os.path.realpath(root_path))) if root_linked else ""
+    if resolved is None:
+        state = "missing"
+    elif root_linked:
+        state = "linked"
+    elif missing:
+        state = "partial"
+    else:
+        state = "downloaded"
     return {
         "id": resource.id,
         "title": resource.title,
         "kind": resource.kind,
         "status": status,
+        "state": state,
+        "units": link_units(resource),
+        "link_unit": link_unit_of(resource),
+        "root_linked": root_linked,
+        "root_mode": root_mode,
+        "root_target": root_target,
         "present": present,
         "root": str(resolved) if resolved is not None else "",
         "env": resource.env,

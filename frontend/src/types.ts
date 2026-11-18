@@ -280,12 +280,18 @@ export type ExecutionResources = {targets: {target: TargetRef; name: string; cap
 export type BrowseRemote = (current: string, onSelected: (path: string, source?: DataSource, location?: TargetRef) => void, source?: boolean, target?: TargetRef, reader?: string) => void;
 
 export type LargeResourceDownload = {url: string; name?: string; dest?: string; size?: number; sha256?: string};
+export type LargeResourceUnit = {
+  name: string; target?: string; title?: string; state?: string;
+  source?: string | null; receipt?: boolean;
+};
 export type LargeResource = {
   id: string; title?: string; kind?: string; env?: string | null; root?: string | null;
   present?: boolean; status?: string; missing?: string[]; files?: string[];
   linked?: boolean; source?: string | null; mode?: string | null; size_bytes?: number;
   expected_files?: string[]; link_roots?: string[]; used_by?: string[]; environments?: string[];
-  downloads?: LargeResourceDownload[];
+  downloads?: LargeResourceDownload[]; state?: string; link_unit?: string;
+  link_target?: string | null; root_linked?: boolean; root_target?: string | null;
+  units?: LargeResourceUnit[];
 };
 export type LargeResourceOperation = {id: string; name?: string; kind?: string; status: string;
   error?: string | null; started_at?: string; finished_at?: string | null; mode?: string | null;

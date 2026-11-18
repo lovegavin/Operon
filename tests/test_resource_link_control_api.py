@@ -36,13 +36,13 @@ def test_link_error_codes_are_stable(tmp_path, monkeypatch):
     app = create_headless_app(Settings(tmp_path, tmp_path / 'profile', tmp_path / 'no-ui',
                                        testing=True, code_root=ROOT))
 
-    def missing(service, name, source, replace=False):
+    def missing(service, name, source, replace=False, unit=None):
         raise KeyError(name)
 
-    def rejected(service, name, source, replace=False):
+    def rejected(service, name, source, replace=False, unit=None):
         raise ValueError('source is outside the allowed link roots')
 
-    def unsupported(service, name, source, replace=False):
+    def unsupported(service, name, source, replace=False, unit=None):
         raise resource_api.LinkUnsupported('The installed library does not support linking.')
 
     with TestClient(app, base_url='http://127.0.0.1') as client:
@@ -50,7 +50,7 @@ def test_link_error_codes_are_stable(tmp_path, monkeypatch):
 
         monkeypatch.setattr(resource_api, 'link', missing)
         monkeypatch.setattr(resource_api, 'unlink',
-                            lambda service, name: (_ for _ in ()).throw(KeyError(name)))
+                            lambda service, name, unit=None: (_ for _ in ()).throw(KeyError(name)))
         posted = client.post('/api/v1/large-resources/nope/link', headers=plugins,
                              json={'source': '/data/weights/x'})
         assert posted.status_code == 422

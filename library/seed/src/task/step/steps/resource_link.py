@@ -352,28 +352,48 @@ def link(
     *,
     replace: bool = False,
     allowed_roots: Any = None,
+    unit: str | None = None,
 ) -> dict[str, Any]:
-    """Connect ``source`` to the resource root; never copy the payload."""
+    """Connect ``source`` to the resource root; never copy the payload.
+
+    ``unit`` selects the official maintenance unit that is being linked. A
+    resource uses one tree (``unit='tree'``, the default) when upstream ships a
+    single directory, or one unit per expected file when upstream keeps the
+    pieces apart. Passing ``allowed_roots`` restores the optional allow-list
+    check; by default any readable absolute path may be linked.
+    """
 
     src = _safe_source(source)
     real = _real(src)
-    roots = _allowed_roots(resource, allowed_roots)
-    if not any(_inside(real, root) for root in roots):
-        listed = ", ".join(_display_roots(resource, allowed_roots)) or "(no allowed roots configured)"
-        raise ValueError(f"source is outside the allowed link roots: {src}; allowed: {listed}")
+    if allowed_roots is not None:
+        roots = _allowed_roots(resource, allowed_roots)
+        if not any(_inside(real, root) for root in roots):
+            listed = ", ".join(_display_roots(resource, allowed_roots)) or "(none)"
+            raise ValueError(f"source is outside the allowed link roots: {src}; allowed: {listed}")
 
     root = _root(resource)
-    target = _target(resource, src)
+    expected = [str(name) for name in common.expected_files(resource)]
+    key = (unit or 'tree').strip() or 'tree'
+    if key in {'tree', '.', ''}:
+        key = 'tree'
+        target = _target(resource, src)
+    else:
+        if expected and key not in expected:
+            choices = ', '.join(['tree', *expected])
+            raise ValueError(f"unknown link unit: {key}; expected one of {choices}")
+        target = root / key
 
     if _is_link(target) and _points_to(target, real):
         receipt = common.read_receipt(resource) or {}
+        recorded = (receipt.get("units") or {}).get(key) or {}
         return {
             "status": "already_linked",
             "name": resource.id,
+            "unit": key,
             "target": str(target),
             "root": str(root),
-            "source": str(receipt.get("source") or src),
-            "mode": str(receipt.get("mode") or _existing_mode(target)),
+            "source": str(recorded.get("source") or receipt.get("source") or src),
+            "mode": str(recorded.get("mode") or receipt.get("mode") or _existing_mode(target)),
             "files": _present_files(resource, src),
         }
     # ``realpath`` follows an existing junction, so a linked root would look
@@ -391,6 +411,7 @@ def link(
         return {
             "status": "already_linked",
             "name": resource.id,
+            "unit": key,
             "target": str(target),
             "root": str(root),
             "source": str(src),
@@ -416,24 +437,40 @@ def link(
             _remove_target(target)
         raise
 
-    receipt = {
-        "kind": _RECEIPT_KIND,
-        "id": resource.id,
-        "name": resource.id,
+    created_at = (
+        datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+    )
+    receipt = common.read_receipt(resource) or {}
+    units = dict(receipt.get("units") or {})
+    units[key] = {
         "source": str(src),
         "target": str(target),
         "mode": mode,
-        "created_at": datetime.now(timezone.utc)
-        .isoformat(timespec="seconds")
-        .replace("+00:00", "Z"),
+        "created_at": created_at,
         "probe": probe,
         "probe_bytes": probe_bytes,
-        "created_by": "resource_link",
     }
+    receipt.update(
+        {
+            "kind": _RECEIPT_KIND,
+            "id": resource.id,
+            "name": resource.id,
+            "source": str(src),
+            "target": str(target),
+            "mode": mode,
+            "created_at": created_at,
+            "probe": probe,
+            "probe_bytes": probe_bytes,
+            "created_by": "resource_link",
+            "unit": key,
+            "units": units,
+        }
+    )
     common.write_receipt(resource, receipt)
     return {
         "status": "linked",
         "name": resource.id,
+        "unit": key,
         "target": str(target),
         "root": str(root),
         "source": str(src),
@@ -444,20 +481,50 @@ def link(
     }
 
 
-def unlink(resource: common.Resource) -> dict[str, Any]:
+def _forget_unit(
+    resource: common.Resource,
+    receipt: dict[str, Any],
+    units: dict[str, Any],
+    key: str,
+) -> None:
+    if key == 'tree':
+        _drop_receipt(resource, common.receipt_path(resource))
+        return
+    units.pop(key, None)
+    if not units:
+        _drop_receipt(resource, common.receipt_path(resource))
+        return
+    receipt = dict(receipt)
+    receipt['units'] = units
+    receipt['unit'] = sorted(units)[0]
+    first = units[receipt['unit']]
+    for field in ('source', 'target', 'mode', 'created_at', 'probe', 'probe_bytes'):
+        receipt[field] = first.get(field)
+    common.write_receipt(resource, receipt)
+
+
+def unlink(resource: common.Resource, unit: str | None = None) -> dict[str, Any]:
     """Remove only the link recorded for ``resource``; the source is untouched."""
 
     receipt = common.read_receipt(resource) or {}
-    recorded = str(receipt.get("target") or "").strip()
-    target = Path(recorded) if recorded else _target(resource)
+    key = (unit or 'tree').strip() or 'tree'
+    units = dict(receipt.get("units") or {})
+    entry = units.get(key) or {}
+    recorded = str(entry.get("target") or "").strip()
+    if key in {'tree', '.', ''}:
+        key = 'tree'
+        target = Path(recorded) if recorded else _target(resource)
+    else:
+        target = Path(recorded) if recorded else _root(resource) / key
     # The receipt sits beside the resource root, never inside the linked tree.
     receipt_file = common.receipt_path(resource)
     mode = str(receipt.get("mode") or "") or None
     if not target.exists() and not _is_link(target):
-        _drop_receipt(resource, receipt_file)
+        _forget_unit(resource, receipt, units, key)
         return {
             "status": "unlinked",
             "name": resource.id,
+            "unit": key,
             "target": str(target),
             "root": str(_root(resource)),
             "mode": mode,
@@ -470,10 +537,11 @@ def unlink(resource: common.Resource) -> dict[str, Any]:
             raise ValueError(
                 f"target is not a link; refusing to delete it: {target}"
             )
-    _drop_receipt(resource, receipt_file)
+    _forget_unit(resource, receipt, units, key)
     return {
         "status": "unlinked",
         "name": resource.id,
+        "unit": key,
         "target": str(target),
         "root": str(_root(resource)),
         "mode": mode,

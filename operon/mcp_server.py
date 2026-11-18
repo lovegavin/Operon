@@ -553,10 +553,11 @@ def create_server(client):
         """List the large resources declared by the installed library.
 
         Read-only. Each item reports presence, downloaded files, size, the
-        declared HTTPS downloads and link state (linked/source/mode, link_roots,
-        expected files, used_by); use operon_resource_download to fetch one or
-        operon_resource_link to attach an existing local tree. Pass profile_id to
-        inspect a configured remote server instead of this host.
+        declared HTTPS downloads, the official link units (``units``: name,
+        state missing|downloaded|linked, source) and which environments and
+        operators consume it. Use operon_resource_download to fetch one or
+        operon_resource_link to attach an existing local tree or a single unit.
+        Pass profile_id to inspect a configured remote server instead of this host.
         """
         if profile_id:
             return client.request('/remote/' + quote(profile_id, safe='') + '/resources')
@@ -576,31 +577,38 @@ def create_server(client):
 
     @server.tool()
     def operon_resource_link(name: str, source: str, replace: bool = False,
+                             unit: str | None = None,
                              profile_id: str | None = None) -> dict:
-        """Link an existing tree into a resource root without copying bytes.
+        """Link an official maintenance unit into a resource root; copy no bytes.
 
-        The source must be an absolute path inside a declared link root on the
-        target host; no bytes are copied. Pass profile_id to link a tree that
-        lives on a configured remote server, such as an MSA database. Requires
-        --allow-plugins.
+        ``unit`` is either ``tree`` (upstream ships one directory, such as the
+        AlphaFold-2 ``afdb`` bundle) or one expected file name (upstream keeps
+        weights and databases apart). The source is any readable absolute path
+        on the target host; no bytes are copied. Pass profile_id to link a path
+        that lives on a configured remote server. Requires --allow-plugins.
         """
-        payload = {'source': source, 'replace': bool(replace)}
+        payload: dict = {'source': source, 'replace': bool(replace)}
+        if unit:
+            payload['unit'] = unit
         if profile_id:
             return client.request('/remote/' + quote(profile_id, safe='') + '/resources/' +
                                   quote(name, safe='') + '/link', payload)
         return client.request('/v1/large-resources/' + quote(name, safe='') + '/link', payload)
 
     @server.tool()
-    def operon_resource_unlink(name: str, profile_id: str | None = None) -> dict:
-        """Remove the external link of one resource; the source tree is kept.
+    def operon_resource_unlink(name: str, unit: str | None = None,
+                               profile_id: str | None = None) -> dict:
+        """Remove one external link; the source tree is kept.
 
-        Pass profile_id to act on a configured remote server. Requires
-        --allow-plugins.
+        ``unit`` selects the link to remove (``tree`` or one expected file
+        name); omit it to remove the whole-resource link. Pass profile_id to act
+        on a configured remote server. Requires --allow-plugins.
         """
+        suffix = '' if not unit else '?unit=' + quote(unit, safe='')
         if profile_id:
             return client.request('/remote/' + quote(profile_id, safe='') + '/resources/' +
-                                  quote(name, safe='') + '/link', method='DELETE')
-        return client.request('/v1/large-resources/' + quote(name, safe='') + '/link',
+                                  quote(name, safe='') + '/link' + suffix, method='DELETE')
+        return client.request('/v1/large-resources/' + quote(name, safe='') + '/link' + suffix,
                               method='DELETE')
 
     @server.tool()

@@ -40,7 +40,8 @@ def test_bridge_forwards_remote_resource_link_and_unlink(tmp_path):
                          json={"source": "D:\\msa-data", "replace": True})
     assert linked.status_code == 200
     assert remotes.calls[-1] == ("srv", "resources_link",
-                                 {"name": "esm2", "source": "D:\\msa-data", "replace": True})
+                                 {"name": "esm2", "source": "D:\\msa-data", "replace": True,
+                                  "unit": ""})
     unlinked = client.delete("/api/agent/remote/srv/resources/esm2/link", headers=headers)
     assert unlinked.status_code == 200
-    assert remotes.calls[-1] == ("srv", "resources_unlink", {"name": "esm2"})
+    assert remotes.calls[-1] == ("srv", "resources_unlink", {"name": "esm2", "unit": ""})
