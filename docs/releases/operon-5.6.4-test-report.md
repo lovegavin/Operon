@@ -141,6 +141,23 @@ events:
 | CLI sweep (8 defects) | D1–D4, D7 fixed; D5, D6, D8 documented as limitations |
 | API sweep (109 GET + 30 mutations) | 5xx limited to unknown-job routes documented below |
 
+## Extended MCP coverage probe
+
+After the 5.6.4 artifacts were published, the ready environments were swept again over stdio MCP (`python -I -m operon mcp --allow-run --allow-plugins`) to measure how far the catalog can actually be executed on this Windows host.
+
+The sweep targeted the 83 operators with `inputs_arity == 0` in the three ready environments (`core` 61, `proteinmpnn` 21, `openmm81` 1), driving every call through `operon_workflow_prepare` -> `operon_submit` -> `operon_job`:
+
+| outcome | count | cause |
+|---|---|---|
+| success | 3 | `resource_preflight`, `tree_ultrametric`, `proteinmpnn_omit_design` |
+| submit-error | 40 | `The selected execution environment is not ready` - the `core` venv is installed but the operator-level dependencies (rdkit and friends) are not |
+| failed | 37 | runtime demands a structure file (`structure_path ... is not a file`); the catalog does not expose that input in `parameters`, so a client cannot fill it |
+| prepare-error | 3 | parameter constraints (`n_sphere_points` must be >= 100) |
+
+Structure operators that take a real PDB were exercised separately through MCP with a 164-residue antibody fixture inside the server data root: `interface_mmgbsa_delta` complete in 10.4 s, `structure_openmm_energy` in 12.2 s, `structure_interface_residue_energy` in 18.0 s; `interface_alanine_scan` refused the fixture (`no non-alanine residue lies within the interface cutoff`), and the two MD operators exceeded the 90 s client timeout (the jobs keep running server-side).
+
+Two product findings came out of this probe and are tracked for the next release: required structure inputs are missing from the operator parameter schema (F-49), and `core` reports `ready` while operator-level dependencies can still be absent (F-50).
+
 ## Known limitations
 
 - `/api/jobs/{id}` and `/api/agent/jobs/{id}` return 500 for an unknown id; `/api/v1/jobs/{id}`
