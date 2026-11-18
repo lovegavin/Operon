@@ -689,7 +689,7 @@ def main(argv: list[str] | None = None) -> int:
     client = Client(token, proxy, arguments.repo)
     handlers = {
         "verify": command_verify,
-        "list": lambda c, a: command_list(c),
+        "list": command_list,
         "create": command_create,
         "upload": command_upload,
         "publish": command_publish,
