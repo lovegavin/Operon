@@ -321,3 +321,85 @@
 .resource-dialog .field {display:flex; flex-direction:column; gap:4px; font-size:11px;}
 .resource-dialog .field input {font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size:11px; padding:6px 8px;}
+
+.resource-entry-card {
+  cursor: pointer;
+  text-align: left;
+  gap: 8px;
+}
+
+.resource-entry-card .runtime-purpose {
+  margin: 0;
+}
+
+.link-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 4px 2px 8px;
+}
+
+.link-form-lead {
+  margin: 0;
+  color: var(--text-muted, #5f6368);
+  line-height: 1.6;
+}
+
+.link-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.link-form-label {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.link-form-label code {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-sunken, #f1f1f3);
+  font-weight: 500;
+}
+
+.link-form-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.link-form-hint {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text-muted, #5f6368);
+  line-height: 1.6;
+}
+
+.link-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 12px;
+}
+
+.link-form-row { display: flex; gap: 8px; align-items: center; }
+.link-form-row input { flex: 1 1 auto; }
+.picker { display: flex; flex-direction: column; gap: 12px; }
+.picker-bar { display: flex; gap: 8px; align-items: center; }
+.picker-path { flex: 1 1 auto; padding: 6px 10px; border-radius: 8px;
+  background: var(--surface-subtle, rgba(0, 0, 0, 0.04)); overflow-wrap: anywhere; }
+.picker-roots { display: flex; flex-wrap: wrap; gap: 6px; }
+.picker-list { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow-y: auto;
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08)); border-radius: 10px; }
+.picker-list li + li { border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.06)); }
+.picker-entry { display: flex; gap: 10px; align-items: center; width: 100%; padding: 8px 12px;
+  background: transparent; border: 0; cursor: pointer; text-align: left; font: inherit; }
+.picker-entry:hover { background: var(--surface-subtle, rgba(0, 0, 0, 0.04)); }
+.picker-empty { padding: 12px; opacity: 0.7; }

@@ -195,14 +195,13 @@ function progressText(item: EnvironmentItem) {
 }
 
 export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
-  onPrepareAll, onRefresh, onDownloadAll}: {
+  onPrepareAll, onRefresh}: {
   items: EnvironmentItem[];
   busy: boolean;
   target?: string;
   targets?: Array<{id: string; name: string}>;
   onTarget?: (id: string) => void;
   onPrepareAll: () => void;
-  onDownloadAll?: () => void;
   onRefresh: () => void;
 }) {
   const counts = summarize(items);
@@ -217,8 +216,8 @@ export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
         </span>)}
     </div>
     <div className="runtime-summary-actions">
-      {onTarget && targets.length > 0 && <label className="runtime-target">
-        <span>{t('准备目标')}</span>
+      {onTarget && <label className="runtime-target">
+        <span>{t('执行位置')}</span>
         <select value={target} disabled={busy} onChange={event => onTarget(event.target.value)}>
           <option value="">{t('本地')}</option>
           {targets.map(remote => <option key={remote.id} value={remote.id}>{remote.name}</option>)}
@@ -226,7 +225,6 @@ export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
       </label>}
       <button className="subtle-button" disabled={busy} onClick={onRefresh}>{t('刷新')}</button>
       <button className="primary-button" disabled={busy || pending === 0} onClick={onPrepareAll}>{t('全部安装')}</button>
-      <button className="subtle-button" disabled={busy} onClick={onDownloadAll}>{t('全部下载')}</button>
     </div>
   </div>;
 }
@@ -414,29 +412,6 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     }
   }
 
-  async function downloadAllResources() {
-    setBusy('download-all');
-    setError('');
-    try {
-      const answer = await api.largeResources();
-      const items = (answer as { resources?: Array<Record<string, unknown>> }).resources
-        || (Array.isArray(answer) ? answer as Array<Record<string, unknown>> : []);
-      for (const item of items) {
-        const id = String(item.id || '');
-        const components = (item.components as Array<{ name?: string; state?: string }> | undefined) || [];
-        const units = components.length ? components : [{name: String(item.official_root || id), state: String(item.state || '')}];
-        for (const unit of units) {
-          const state = String(unit.state || '').toLowerCase();
-          if (state === 'present' || state === 'linked') continue;
-          await api.largeResourceDownload(id, '', false, String(unit.name || ''));
-        }
-      }
-    } catch (failure) {
-      setError((failure as Error).message);
-    } finally {
-      setBusy('');
-    }
-  }
 
   async function runDependency(name: string, kind: string, requirement: string) {
     const label = `dependency:${requirement}`;
@@ -562,13 +537,14 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
         </div>}
       {((snapshot && snapshot.manifest.present) || target) && items.length > 0 &&
         <SummaryStrip items={items} busy={Boolean(busy)} target={target} targets={remoteTargets}
+          onTarget={chooseTarget}
           onRefresh={() => void (target
             ? runRemote('refresh', () => api.remoteEnvironments(target))
             : run('refresh', () => api.environments()))}
           onPrepareAll={() => void (target
             ? runRemote('all', () => api.remotePrepareEnvironments(target))
             : run('all', () => api.prepareEnvironments()))}
-          onDownloadAll={() => void downloadAllResources()}/>}
+          />}
       {items.length > 0 && <div className="runtime-grid">
         {ordered.map(item => <EnvironmentCard key={item.name} item={item}
           busy={Boolean(busy)} onAction={act} onOpen={setDetail}/>)}
@@ -581,27 +557,33 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
           <button className="subtle-button" onClick={() => setView('root')}>{t('返回')}</button>
         </div>}
         {view === 'root' && <div className="resource-unit-grid">
-          <button type="button" className="environment-card resource-unit-card"
+          <button type="button" className="runtime-card resource-entry-card"
             data-testid="detail-dependencies" onClick={() => setView('deps')}>
-            <header><strong>{t('环境依赖')}</strong>
-              <span className="resource-chip">{(detail.dependencies || []).length}</span></header>
-            <p>{t('逐个安装依赖，也可以在依赖名片右上角全部下载。')}</p>
+            <header className="runtime-card-head">
+              <div className="runtime-card-title">
+                <h3>{t('环境依赖')}</h3>
+                <code>{t('{n} 项', {n: (detail.dependencies || []).length})}</code>
+              </div>
+            </header>
+            <p className="runtime-purpose">{t('逐个安装依赖，也可以在依赖名片右上角全部安装。')}</p>
           </button>
-          <button type="button" className="environment-card resource-unit-card"
+          <button type="button" className="runtime-card resource-entry-card"
             data-testid="detail-resources" onClick={() => setView('resources')}>
-            <header><strong>{t('资源')}</strong>
-              <span className="resource-chip">{(detail.resources || []).length}</span></header>
-            <p>{t('逐个下载或链接官方最小维护单元。')}</p>
+            <header className="runtime-card-head">
+              <div className="runtime-card-title">
+                <h3>{t('资源')}</h3>
+                <code>{t('{n} 个维护单元', {n: (detail.resources || []).length})}</code>
+              </div>
+            </header>
+            <p className="runtime-purpose">{t('逐个下载或链接官方最小维护单元。')}</p>
           </button>
         </div>}
         {view === 'deps' && <section className="runtime-detail-block">
           <header className="runtime-resources-header">
             <div><h3>{t('环境依赖')}</h3></div>
             <div className="runtime-resources-actions">
-              <button type="button" disabled={busy === `prepare:${detail.name}`}
-                onClick={() => act('prepare', detail.name)}>{t('全部下载')}</button>
-              <button type="button" disabled={busy === `cancel:${detail.name}`}
-                onClick={() => act('cancel', detail.name)}>{t('取消')}</button>
+              <button type="button" className="primary-button" disabled={busy === `prepare:${detail.name}`}
+                onClick={() => act('prepare', detail.name)}>{t('全部安装')}</button>
             </div>
           </header>
           {(detail.dependencies || []).length === 0
@@ -609,16 +591,21 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
             : <div className="resource-unit-grid">
               {(detail.dependencies || []).map((entry) => <article
                 key={`${entry.kind}:${entry.name}`}
-                className="environment-card resource-unit-card"
+                className="runtime-card resource-unit-card"
                 data-testid={`dependency-${entry.name}`}>
-                <header><strong>{entry.name}</strong>
-                  <span className="resource-chip">{entry.kind}</span></header>
-                <div className="resource-row-actions">
-                  <button type="button" disabled={busy === `dependency:${entry.name}`}
+                <header className="runtime-card-head">
+                  <div className="runtime-card-title">
+                    <h3>{entry.name}</h3>
+                    <code>{entry.kind}</code>
+                  </div>
+                </header>
+                <footer className="runtime-actions">
+                  <button type="button" className="subtle-button is-primary"
+                    disabled={busy === `dependency:${entry.name}`}
                     onClick={() => void runDependency(detail.name, entry.kind, entry.name)}>
-                    {t('下载')}
+                    {t('安装')}
                   </button>
-                </div>
+                </footer>
               </article>)}
             </div>}
         </section>}

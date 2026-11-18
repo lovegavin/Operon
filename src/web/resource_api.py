@@ -13,6 +13,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import os
+import pathlib
 import sys
 import threading
 import time
@@ -514,7 +515,70 @@ def unlink(service, name: str, unit: str | None = None) -> dict:
     return result
 
 
+def _drive_roots() -> list[str]:
+    if os.name != 'nt':
+        return ['/']
+    values = []
+    for letter in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ':
+        candidate = pathlib.Path(f'{letter}:\\')
+        try:
+            if candidate.exists():
+                values.append(str(candidate))
+        except OSError:
+            continue
+    return values
+
+
+def browse(path: str | None = None, show_files: bool = True) -> dict:
+    """List one directory so the desktop picker can walk the file system."""
+    import pathlib
+
+    raw = str(path or '').strip()
+    if not raw:
+        roots = _drive_roots()
+        target = pathlib.Path(roots[0]) if roots else pathlib.Path.home()
+    else:
+        target = pathlib.Path(raw).expanduser()
+    try:
+        target = target.resolve()
+    except OSError as exc:
+        raise ValueError(f'cannot resolve {raw}: {exc}') from exc
+    if not target.exists():
+        raise ValueError(f'no such directory: {target}')
+    if not target.is_dir():
+        target = target.parent
+    entries = []
+    try:
+        with os.scandir(target) as listing:
+            for item in listing:
+                if item.name.startswith('.'):
+                    continue
+                try:
+                    directory = item.is_dir()
+                    if not directory and not show_files:
+                        continue
+                    info = item.stat()
+                    entries.append({'name': item.name, 'path': str(target / item.name),
+                                    'directory': directory, 'bytes': info.st_size})
+                except (PermissionError, FileNotFoundError, OSError):
+                    continue
+    except PermissionError as exc:
+        raise ValueError(f'permission denied: {target}') from exc
+    entries.sort(key=lambda entry: (not entry['directory'], entry['name'].lower()))
+    parent = target.parent
+    return {'path': str(target), 'parent': str(parent) if str(parent) != str(target) else '',
+            'roots': _drive_roots(), 'entries': entries[:500]}
+
+
 def mount_resources(app, service) -> None:
+    @app.post('/api/browse')
+    def browse_directory(payload: dict | None = None):
+        body = payload or {}
+        try:
+            return browse(body.get('path'), bool(body.get('files', True)))
+        except ValueError as exc:
+            raise HTTPException(409, str(exc)) from exc
+
     @app.get('/api/resources')
     def list_resources():
         try:

@@ -1,497 +1,497 @@
 {
- "version": 2,
- "environments": {
-  "antifold": {
-   "title": "AntiFold antibody inverse folding",
-   "python": "3.11",
-   "imports": [
-    "antifold",
-    "antifold.main"
-   ],
-   "requirements": [
-    "torch==2.3.1",
-    "numpy==1.26.4",
-    "pandas==2.2.3",
-    "tqdm",
-    "scipy==1.13.1",
-    "pydantic==2.14.3",
-    "jsonschema==4.26.0"
-   ],
-   "no_deps": [
-    "antifold==0.3.1"
-   ],
-   "weights": [
-    {
-     "path": "antifold/trained_models/model.pt",
-     "url": "https://opig.stats.ox.ac.uk/data/downloads/AntiFold/models/model.pt"
+  "version": 2,
+  "environments": {
+    "antifold": {
+      "title": "AntiFold 抗体设计",
+      "python": "3.11",
+      "imports": [
+        "antifold",
+        "antifold.main"
+      ],
+      "requirements": [
+        "torch==2.3.1",
+        "numpy==1.26.4",
+        "pandas==2.2.3",
+        "tqdm",
+        "scipy==1.13.1",
+        "pydantic==2.14.3",
+        "jsonschema==4.26.0"
+      ],
+      "no_deps": [
+        "antifold==0.3.1"
+      ],
+      "weights": [
+        {
+          "path": "antifold/trained_models/model.pt",
+          "url": "https://opig.stats.ox.ac.uk/data/downloads/AntiFold/models/model.pt"
+        }
+      ],
+      "notes": "AntiFold pins NumPy 1.26 and Torch 2.3.1, incompatible with the shared NumPy 2 / Torch 2.6 runtime; pygam has no wheel and is not required for inference.",
+      "conda_packages": [
+        "numpy=1.26",
+        "scikit-learn=1.6"
+      ],
+      "pip_wheels": [
+        "biotite==0.38",
+        "torch-geometric==2.4.0",
+        "biopython==1.83"
+      ],
+      "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
+      "torch_cuda": true,
+      "torch_version": "2.3.1",
+      "resources": [
+        "antifold"
+      ]
+    },
+    "boltz": {
+      "title": "Boltz 结构与亲和力",
+      "python": "3.11",
+      "imports": [
+        "boltz"
+      ],
+      "conda_packages": [],
+      "pip_wheels": [
+        "numpy==1.26.4",
+        "pandas==2.2.3",
+        "scipy==1.13.1",
+        "scikit-learn==1.6.1",
+        "numba==0.61.0",
+        "rdkit==2024.3.2",
+        "gemmi==0.6.5",
+        "dm-tree==0.1.8",
+        "pillow",
+        "tqdm",
+        "requests==2.32.3",
+        "types-requests",
+        "pytorch-lightning==2.5.0",
+        "lightning-utilities",
+        "mashumaro==3.14",
+        "einx==0.3.0",
+        "einops==0.8.0",
+        "chembl_structure_pipeline==1.2.2",
+        "biopython==1.84",
+        "frozendict",
+        "wandb==0.18.7",
+        "click==8.1.7",
+        "pyyaml==6.0.2",
+        "omegaconf==2.3.0"
+      ],
+      "pip_pypi": [
+        "antlr4-python3-runtime==4.9.3",
+        "ihm",
+        "hydra-core==1.3.2",
+        "modelcif==1.2",
+        "fairscale==0.4.13"
+      ],
+      "requirements": [],
+      "no_deps": [
+        "boltz==2.2.1"
+      ],
+      "wired": true,
+      "notes": "CUDA 12.1 torch wheel; GPU required.",
+      "torch_version": "2.3.1",
+      "torch_cuda": true,
+      "torch_index_url": "https://download.pytorch.org/whl/cu121",
+      "resources": [
+        "boltz"
+      ]
+    },
+    "colabfold": {
+      "title": "ColabFold 结构预测",
+      "python": "3.11",
+      "imports": [
+        "colabfold"
+      ],
+      "requirements": [
+        "colabfold[alphafold]==1.5.5",
+        "pydantic==2.14.3",
+        "jsonschema==4.26.0",
+        "pandas==1.5.3",
+        "dm-haiku==0.0.13"
+      ],
+      "conda_packages": [],
+      "torch_cpu": true,
+      "wired": true,
+      "notes": "colabfold 1.5.5 requires pandas<2, so this environment pins pandas 1.5.3; dm-haiku 0.0.13 is required because jax 0.4.38 removed jax.linear_util that haiku 0.0.10 used. colabfold_batch lives in the environment bin directory; the MMseqs2/UniRef databases remain external (resources.json colabfold).",
+      "torch_version": "2.3.1",
+      "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
+      "resources": [
+        "colabfold"
+      ]
+    },
+    "esm3": {
+      "title": "ESM-3 蛋白语言模型",
+      "python": "3.11",
+      "imports": [
+        "esm",
+        "esm.sdk.api"
+      ],
+      "requirements": [
+        "torch==2.6.0",
+        "transformers<4.48.2",
+        "tokenizers",
+        "huggingface_hub",
+        "httpx",
+        "requests",
+        "cloudpathlib",
+        "einops",
+        "safetensors",
+        "dataclasses-json",
+        "zstd",
+        "accelerate",
+        "attrs",
+        "biotite",
+        "pandas==2.2.3",
+        "numpy==2.1.3",
+        "scipy==1.14.1",
+        "tqdm",
+        "brotli",
+        "msgpack-numpy",
+        "meson-python",
+        "ninja",
+        "cython",
+        "pydantic==2.14.3",
+        "jsonschema==4.26.0",
+        "esm==3.2.0",
+        "scikit-learn==1.5.2"
+      ],
+      "no_deps": [],
+      "notes": "esm 3.2.2+ requires Python >= 3.12 while the bridge runs Python 3.11, so this environment pins esm==3.2.0 (same operator surface) plus scikit-learn 1.5.2, the last release with a cp311 wheel. open ESM3 weights are fetched from Hugging Face on first use; gated checkpoints need a token the operator cannot supply.",
+      "wired": true,
+      "pip_wheels": [
+        "setuptools",
+        "wheel",
+        "flit-core",
+        "hatchling",
+        "tenacity",
+        "torchvision"
+      ],
+      "no_build_isolation": [],
+      "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
+      "torch_cuda": true,
+      "torch_version": "2.6.0",
+      "resources": [
+        "proteinmpnn"
+      ]
+    },
+    "esmfold": {
+      "title": "ESMFold 结构预测",
+      "python": "3.11",
+      "imports": [
+        "esm",
+        "torch"
+      ],
+      "requirements": [
+        "numpy==1.26.4",
+        "biopython==1.83",
+        "scipy==1.13.1",
+        "ml-collections",
+        "einops",
+        "omegaconf==2.3.0",
+        "pytorch-lightning",
+        "dm-tree",
+        "pydantic==2.14.3",
+        "jsonschema==4.26.0",
+        "pandas==2.2.3"
+      ],
+      "pip_pypi": [
+        "fair-esm==2.0.0",
+        "transformers==4.46.3"
+      ],
+      "wired": true,
+      "notes": "fair-esm + HF transformers path. pandas/pydantic/jsonschema are required because the isolated worker reads the predicted PDB back through PdbReader. The 3B fp32 weights do not fit a 24 GB card; run on CPU or with the fp16 dtype option.",
+      "torch_version": "2.3.1",
+      "torch_cuda": true,
+      "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
+      "resources": [
+        "esmfold"
+      ]
+    },
+    "openmm81": {
+      "title": "OpenMM 结构准备",
+      "python": "3.11",
+      "imports": [
+        "openmm",
+        "numpy"
+      ],
+      "requirements": [
+        "openmm==8.1.1",
+        "numpy==1.26.4",
+        "setuptools>=68,<81",
+        "wheel"
+      ],
+      "notes": "OpenMM 8.1.1 wheels use the NumPy 1 ABI. This isolated venv shares the host Python (3.11 on Studio 4.1.9; venv_shared ignores the declared version) and pins OpenMM 8.1.1 plus NumPy 1.26 without downgrading the shared NumPy 2 runtime. PDBFixer 1.9 is bundled inside the operator library, so environment creation needs no GitHub download and no external pdbfixer package.",
+      "pip_wheels": [
+        "setuptools>=68,<81",
+        "wheel"
+      ],
+      "venv_shared": true,
+      "resources": []
+    },
+    "openfold": {
+      "title": "OpenFold 结构预测",
+      "python": "3.11",
+      "imports": [
+        "torch",
+        "numpy",
+        "Bio",
+        "ml_collections",
+        "absl",
+        "scipy",
+        "pandas",
+        "tree",
+        "modelcif"
+      ],
+      "requirements": [
+        "numpy==1.26.4",
+        "biopython==1.83",
+        "scipy==1.13.1",
+        "ml-collections==0.1.1",
+        "absl-py",
+        "pandas==2.2.3",
+        "dm-tree==0.1.8",
+        "modelcif",
+        "ihm",
+        "pydantic==2.14.3",
+        "jsonschema==4.26.0"
+      ],
+      "wired": true,
+      "notes": "OpenFold inference environment. The checkout and the AlphaFold-2 weights are external: pass openfold_path (contains run_pretrained_openfold.py) and params_path. Alignment is a single-sequence A3M because no local mmseqs2 search is bundled; supply alignment_dir with precomputed MSAs to run the full AlphaFold-2 pipeline.",
+      "torch_version": "2.3.1",
+      "torch_cuda": true,
+      "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
+      "resources": [
+        "openfold"
+      ]
+    },
+    "core": {
+      "title": "基础运行时",
+      "python": "3.11",
+      "imports": [],
+      "shared": true,
+      "managed": false,
+      "requirements": [
+        "numpy>=1.26",
+        "PyYAML>=6.0",
+        "psutil>=5.9",
+        "pydantic>=2.7",
+        "jsonschema>=4.23,<5",
+        "packaging>=24",
+        "fastapi>=0.115",
+        "uvicorn>=0.30",
+        "httpx>=0.27",
+        "paramiko>=3.5,<5"
+      ],
+      "resources": [],
+      "notes": "The application runtime itself. It ships with Operon Studio, so its dependency card is satisfied by the installation and cannot be installed or removed separately."
+    },
+    "proteinmpnn": {
+      "title": "ProteinMPNN 蛋白设计",
+      "python": "3.11",
+      "imports": [
+        "torch",
+        "numpy"
+      ],
+      "requirements": [
+        "torch==2.3.1",
+        "numpy==1.26.4",
+        "scipy==1.13.1",
+        "biopython==1.83",
+        "tqdm"
+      ],
+      "resources": [
+        "proteinmpnn"
+      ],
+      "experimental": true,
+      "torch_version": "2.3.1",
+      "torch_cuda": true,
+      "notes": "Runs the ProteinMPNN checkout from resources.json (code and weights). Torch 2.3.1 with NumPy 1.26 matches the other structure environments; the install is experimental until a GPU run is verified on this environment."
+    },
+    "ligandmpnn": {
+      "title": "LigandMPNN 配体设计",
+      "python": "3.11",
+      "imports": [
+        "torch",
+        "numpy"
+      ],
+      "requirements": [
+        "torch==2.3.1",
+        "numpy==1.26.4",
+        "scipy==1.13.1",
+        "biopython==1.83",
+        "tqdm"
+      ],
+      "resources": [
+        "ligandmpnn"
+      ],
+      "experimental": true,
+      "torch_version": "2.3.1",
+      "torch_cuda": true,
+      "notes": "Runs the LigandMPNN checkout from resources.json. Experimental: the upstream package assumes torch 2.x and NumPy 1.x, which this environment pins."
+    },
+    "rfdiffusion": {
+      "title": "RFdiffusion 骨架生成",
+      "python": "3.11",
+      "imports": [
+        "torch",
+        "numpy"
+      ],
+      "requirements": [
+        "torch==2.3.1",
+        "numpy==1.26.4",
+        "scipy==1.13.1",
+        "hydra-core==1.3.2",
+        "omegaconf==2.3.0",
+        "pyyaml>=6.0"
+      ],
+      "resources": [
+        "rfdiffusion"
+      ],
+      "experimental": true,
+      "torch_version": "2.3.1",
+      "torch_cuda": true,
+      "notes": "Runs the RFdiffusion checkout and checkpoints from resources.json. Experimental: SE3Transformer and dgl are vendored by the checkout; verify on a GPU host before relying on it."
+    },
+    "hmmer": {
+      "title": "HMMER 序列比对",
+      "python": "3.11",
+      "imports": [],
+      "requirements": [],
+      "conda_packages": [
+        "hmmer=3.4",
+        "infernal=1.1.4"
+      ],
+      "binaries": [
+        "hmmscan",
+        "hmmsearch",
+        "cmscan",
+        "cmsearch"
+      ],
+      "resources": [
+        "pfam",
+        "rfam"
+      ],
+      "notes": "HMMER and Infernal profiles for Pfam and Rfam scans."
+    },
+    "antismash": {
+      "title": "antiSMASH 基因簇",
+      "python": "3.11",
+      "imports": [
+        "antismash"
+      ],
+      "requirements": [
+        "antismash==7.1.0"
+      ],
+      "conda_packages": [
+        "hmmer=3.4",
+        "prodigal=2.6.3",
+        "ncbi-amrfinderplus=3.12"
+      ],
+      "binaries": [
+        "antismash",
+        "prodigal",
+        "amrfinder"
+      ],
+      "resources": [
+        "antismash",
+        "amrfinder",
+        "prodigal"
+      ],
+      "experimental": true,
+      "notes": "antiSMASH needs its own databases in addition to the binaries; the AntismashDB and AMRFinderPlus databases are resources. Experimental until a full cluster run is verified."
+    },
+    "esm2": {
+      "title": "ESM-2 蛋白语言模型",
+      "python": "3.11",
+      "imports": [
+        "esm",
+        "torch"
+      ],
+      "requirements": [
+        "torch==2.3.1",
+        "numpy==1.26.4",
+        "scipy==1.13.1",
+        "biopython==1.83"
+      ],
+      "pip_pypi": [
+        "fair-esm==2.0.0"
+      ],
+      "resources": [
+        "esm2",
+        "esm_if1"
+      ],
+      "torch_version": "2.3.1",
+      "torch_cuda": true,
+      "notes": "fair-esm provides both the ESM-2 checkpoints and the ESM-IF1 inverse-folding model; the checkpoints themselves are resources."
+    },
+    "alphafold2": {
+      "title": "AlphaFold2 数据",
+      "python": "3.11",
+      "imports": [],
+      "requirements": [],
+      "resources": [
+        "alphafold2"
+      ],
+      "planned": true,
+      "notes": "Reserved for a local AlphaFold-2 runner. No bundled operator declares this environment yet; the card exists so the afdb parameter and MSA units can be linked or downloaded ahead of the runner."
+    },
+    "genomics": {
+      "title": "基因组组装与比对",
+      "python": "3.11",
+      "conda_packages": [
+        "minimap2=2.28",
+        "samtools=1.20",
+        "bwa=0.7.18",
+        "quast=5.3.0",
+        "flye=2.9.3",
+        "minced=0.4.2",
+        "tRNAscan-SE=2.0.12",
+        "foldseek=9.427df8a"
+      ],
+      "binaries": [
+        "minimap2",
+        "samtools",
+        "bwa",
+        "quast.py",
+        "flye",
+        "minced",
+        "tRNAscan-SE",
+        "foldseek"
+      ],
+      "resources": [],
+      "notes": "Command line tools for genome alignment, assembly and annotation operators."
+    },
+    "hic": {
+      "title": "Hi-C 分析",
+      "python": "3.11",
+      "conda_packages": [
+        "samtools=1.20"
+      ],
+      "requirements": [
+        "pairtools==1.1.0",
+        "cooler==0.9.3",
+        "cooltools==0.6.1",
+        "numpy==1.26.4",
+        "pandas==2.2.2"
+      ],
+      "binaries": [
+        "pairtools",
+        "samtools"
+      ],
+      "resources": [],
+      "notes": "Hi-C pairing, matrix building and contact analysis."
+    },
+    "rna": {
+      "title": "RNA 结构分析",
+      "python": "3.11",
+      "conda_packages": [
+        "viennarna=2.6.4"
+      ],
+      "binaries": [
+        "RNAfold"
+      ],
+      "resources": [],
+      "notes": "ViennaRNA folding and structure comparison."
     }
-   ],
-   "notes": "AntiFold pins NumPy 1.26 and Torch 2.3.1, incompatible with the shared NumPy 2 / Torch 2.6 runtime; pygam has no wheel and is not required for inference.",
-   "conda_packages": [
-    "numpy=1.26",
-    "scikit-learn=1.6"
-   ],
-   "pip_wheels": [
-    "biotite==0.38",
-    "torch-geometric==2.4.0",
-    "biopython==1.83"
-   ],
-   "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
-   "torch_cuda": true,
-   "torch_version": "2.3.1",
-   "resources": [
-    "antifold"
-   ]
-  },
-  "boltz": {
-   "title": "Boltz structure and affinity prediction",
-   "python": "3.11",
-   "imports": [
-    "boltz"
-   ],
-   "conda_packages": [],
-   "pip_wheels": [
-    "numpy==1.26.4",
-    "pandas==2.2.3",
-    "scipy==1.13.1",
-    "scikit-learn==1.6.1",
-    "numba==0.61.0",
-    "rdkit==2024.3.2",
-    "gemmi==0.6.5",
-    "dm-tree==0.1.8",
-    "pillow",
-    "tqdm",
-    "requests==2.32.3",
-    "types-requests",
-    "pytorch-lightning==2.5.0",
-    "lightning-utilities",
-    "mashumaro==3.14",
-    "einx==0.3.0",
-    "einops==0.8.0",
-    "chembl_structure_pipeline==1.2.2",
-    "biopython==1.84",
-    "frozendict",
-    "wandb==0.18.7",
-    "click==8.1.7",
-    "pyyaml==6.0.2",
-    "omegaconf==2.3.0"
-   ],
-   "pip_pypi": [
-    "antlr4-python3-runtime==4.9.3",
-    "ihm",
-    "hydra-core==1.3.2",
-    "modelcif==1.2",
-    "fairscale==0.4.13"
-   ],
-   "requirements": [],
-   "no_deps": [
-    "boltz==2.2.1"
-   ],
-   "wired": true,
-   "notes": "CUDA 12.1 torch wheel; GPU required.",
-   "torch_version": "2.3.1",
-   "torch_cuda": true,
-   "torch_index_url": "https://download.pytorch.org/whl/cu121",
-   "resources": [
-    "boltz"
-   ]
-  },
-  "colabfold": {
-   "title": "ColabFold (local runner)",
-   "python": "3.11",
-   "imports": [
-    "colabfold"
-   ],
-   "requirements": [
-    "colabfold[alphafold]==1.5.5",
-    "pydantic==2.14.3",
-    "jsonschema==4.26.0",
-    "pandas==1.5.3",
-    "dm-haiku==0.0.13"
-   ],
-   "conda_packages": [],
-   "torch_cpu": true,
-   "wired": true,
-   "notes": "colabfold 1.5.5 requires pandas<2, so this environment pins pandas 1.5.3; dm-haiku 0.0.13 is required because jax 0.4.38 removed jax.linear_util that haiku 0.0.10 used. colabfold_batch lives in the environment bin directory; the MMseqs2/UniRef databases remain external (resources.json colabfold).",
-   "torch_version": "2.3.1",
-   "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
-   "resources": [
-    "colabfold"
-   ]
-  },
-  "esm3": {
-   "title": "ESM-3 sequence and structure generation",
-   "python": "3.11",
-   "imports": [
-    "esm",
-    "esm.sdk.api"
-   ],
-   "requirements": [
-    "torch==2.6.0",
-    "transformers<4.48.2",
-    "tokenizers",
-    "huggingface_hub",
-    "httpx",
-    "requests",
-    "cloudpathlib",
-    "einops",
-    "safetensors",
-    "dataclasses-json",
-    "zstd",
-    "accelerate",
-    "attrs",
-    "biotite",
-    "pandas==2.2.3",
-    "numpy==2.1.3",
-    "scipy==1.14.1",
-    "tqdm",
-    "brotli",
-    "msgpack-numpy",
-    "meson-python",
-    "ninja",
-    "cython",
-    "pydantic==2.14.3",
-    "jsonschema==4.26.0",
-    "esm==3.2.0",
-    "scikit-learn==1.5.2"
-   ],
-   "no_deps": [],
-   "notes": "esm 3.2.2+ requires Python >= 3.12 while the bridge runs Python 3.11, so this environment pins esm==3.2.0 (same operator surface) plus scikit-learn 1.5.2, the last release with a cp311 wheel. open ESM3 weights are fetched from Hugging Face on first use; gated checkpoints need a token the operator cannot supply.",
-   "wired": true,
-   "pip_wheels": [
-    "setuptools",
-    "wheel",
-    "flit-core",
-    "hatchling",
-    "tenacity",
-    "torchvision"
-   ],
-   "no_build_isolation": [],
-   "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
-   "torch_cuda": true,
-   "torch_version": "2.6.0",
-   "resources": [
-    "proteinmpnn"
-   ]
-  },
-  "esmfold": {
-   "title": "ESMFold (fair-esm)",
-   "python": "3.11",
-   "imports": [
-    "esm",
-    "torch"
-   ],
-   "requirements": [
-    "numpy==1.26.4",
-    "biopython==1.83",
-    "scipy==1.13.1",
-    "ml-collections",
-    "einops",
-    "omegaconf==2.3.0",
-    "pytorch-lightning",
-    "dm-tree",
-    "pydantic==2.14.3",
-    "jsonschema==4.26.0",
-    "pandas==2.2.3"
-   ],
-   "pip_pypi": [
-    "fair-esm==2.0.0",
-    "transformers==4.46.3"
-   ],
-   "wired": true,
-   "notes": "fair-esm + HF transformers path. pandas/pydantic/jsonschema are required because the isolated worker reads the predicted PDB back through PdbReader. The 3B fp32 weights do not fit a 24 GB card; run on CPU or with the fp16 dtype option.",
-   "torch_version": "2.3.1",
-   "torch_cuda": true,
-   "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
-   "resources": [
-    "esmfold"
-   ]
-  },
-  "openmm81": {
-   "title": "OpenMM 8.1.1 structure preparation (PDBFixer bundled)",
-   "python": "3.11",
-   "imports": [
-    "openmm",
-    "numpy"
-   ],
-   "requirements": [
-    "openmm==8.1.1",
-    "numpy==1.26.4",
-    "setuptools>=68,<81",
-    "wheel"
-   ],
-   "notes": "OpenMM 8.1.1 wheels use the NumPy 1 ABI. This isolated venv shares the host Python (3.11 on Studio 4.1.9; venv_shared ignores the declared version) and pins OpenMM 8.1.1 plus NumPy 1.26 without downgrading the shared NumPy 2 runtime. PDBFixer 1.9 is bundled inside the operator library, so environment creation needs no GitHub download and no external pdbfixer package.",
-   "pip_wheels": [
-    "setuptools>=68,<81",
-    "wheel"
-   ],
-   "venv_shared": true,
-   "resources": []
-  },
-  "openfold": {
-   "title": "OpenFold (AlphaFold-2)",
-   "python": "3.11",
-   "imports": [
-    "torch",
-    "numpy",
-    "Bio",
-    "ml_collections",
-    "absl",
-    "scipy",
-    "pandas",
-    "tree",
-    "modelcif"
-   ],
-   "requirements": [
-    "numpy==1.26.4",
-    "biopython==1.83",
-    "scipy==1.13.1",
-    "ml-collections==0.1.1",
-    "absl-py",
-    "pandas==2.2.3",
-    "dm-tree==0.1.8",
-    "modelcif",
-    "ihm",
-    "pydantic==2.14.3",
-    "jsonschema==4.26.0"
-   ],
-   "wired": true,
-   "notes": "OpenFold inference environment. The checkout and the AlphaFold-2 weights are external: pass openfold_path (contains run_pretrained_openfold.py) and params_path. Alignment is a single-sequence A3M because no local mmseqs2 search is bundled; supply alignment_dir with precomputed MSAs to run the full AlphaFold-2 pipeline.",
-   "torch_version": "2.3.1",
-   "torch_cuda": true,
-   "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
-   "resources": [
-    "openfold"
-   ]
-  },
-  "core": {
-   "title": "Shared runtime (base application environment)",
-   "python": "3.11",
-   "imports": [],
-   "shared": true,
-   "managed": false,
-   "requirements": [
-    "numpy>=1.26",
-    "PyYAML>=6.0",
-    "psutil>=5.9",
-    "pydantic>=2.7",
-    "jsonschema>=4.23,<5",
-    "packaging>=24",
-    "fastapi>=0.115",
-    "uvicorn>=0.30",
-    "httpx>=0.27",
-    "paramiko>=3.5,<5"
-   ],
-   "resources": [],
-   "notes": "The application runtime itself. It ships with Operon Studio, so its dependency card is satisfied by the installation and cannot be installed or removed separately."
-  },
-  "proteinmpnn": {
-   "title": "ProteinMPNN sequence design",
-   "python": "3.11",
-   "imports": [
-    "torch",
-    "numpy"
-   ],
-   "requirements": [
-    "torch==2.3.1",
-    "numpy==1.26.4",
-    "scipy==1.13.1",
-    "biopython==1.83",
-    "tqdm"
-   ],
-   "resources": [
-    "proteinmpnn"
-   ],
-   "experimental": true,
-   "torch_version": "2.3.1",
-   "torch_cuda": true,
-   "notes": "Runs the ProteinMPNN checkout from resources.json (code and weights). Torch 2.3.1 with NumPy 1.26 matches the other structure environments; the install is experimental until a GPU run is verified on this environment."
-  },
-  "ligandmpnn": {
-   "title": "LigandMPNN ligand-aware design",
-   "python": "3.11",
-   "imports": [
-    "torch",
-    "numpy"
-   ],
-   "requirements": [
-    "torch==2.3.1",
-    "numpy==1.26.4",
-    "scipy==1.13.1",
-    "biopython==1.83",
-    "tqdm"
-   ],
-   "resources": [
-    "ligandmpnn"
-   ],
-   "experimental": true,
-   "torch_version": "2.3.1",
-   "torch_cuda": true,
-   "notes": "Runs the LigandMPNN checkout from resources.json. Experimental: the upstream package assumes torch 2.x and NumPy 1.x, which this environment pins."
-  },
-  "rfdiffusion": {
-   "title": "RFdiffusion backbone generation",
-   "python": "3.11",
-   "imports": [
-    "torch",
-    "numpy"
-   ],
-   "requirements": [
-    "torch==2.3.1",
-    "numpy==1.26.4",
-    "scipy==1.13.1",
-    "hydra-core==1.3.2",
-    "omegaconf==2.3.0",
-    "pyyaml>=6.0"
-   ],
-   "resources": [
-    "rfdiffusion"
-   ],
-   "experimental": true,
-   "torch_version": "2.3.1",
-   "torch_cuda": true,
-   "notes": "Runs the RFdiffusion checkout and checkpoints from resources.json. Experimental: SE3Transformer and dgl are vendored by the checkout; verify on a GPU host before relying on it."
-  },
-  "hmmer": {
-   "title": "HMMER profile search",
-   "python": "3.11",
-   "imports": [],
-   "requirements": [],
-   "conda_packages": [
-    "hmmer=3.4",
-    "infernal=1.1.4"
-   ],
-   "binaries": [
-    "hmmscan",
-    "hmmsearch",
-    "cmscan",
-    "cmsearch"
-   ],
-   "resources": [
-    "pfam",
-    "rfam"
-   ],
-   "notes": "HMMER and Infernal profiles for Pfam and Rfam scans."
-  },
-  "antismash": {
-   "title": "antiSMASH biosynthetic gene clusters",
-   "python": "3.11",
-   "imports": [
-    "antismash"
-   ],
-   "requirements": [
-    "antismash==7.1.0"
-   ],
-   "conda_packages": [
-    "hmmer=3.4",
-    "prodigal=2.6.3",
-    "ncbi-amrfinderplus=3.12"
-   ],
-   "binaries": [
-    "antismash",
-    "prodigal",
-    "amrfinder"
-   ],
-   "resources": [
-    "antismash",
-    "amrfinder",
-    "prodigal"
-   ],
-   "experimental": true,
-   "notes": "antiSMASH needs its own databases in addition to the binaries; the AntismashDB and AMRFinderPlus databases are resources. Experimental until a full cluster run is verified."
-  },
-  "esm2": {
-   "title": "ESM-2 / ESM-IF1 embeddings",
-   "python": "3.11",
-   "imports": [
-    "esm",
-    "torch"
-   ],
-   "requirements": [
-    "torch==2.3.1",
-    "numpy==1.26.4",
-    "scipy==1.13.1",
-    "biopython==1.83"
-   ],
-   "pip_pypi": [
-    "fair-esm==2.0.0"
-   ],
-   "resources": [
-    "esm2",
-    "esm_if1"
-   ],
-   "torch_version": "2.3.1",
-   "torch_cuda": true,
-   "notes": "fair-esm provides both the ESM-2 checkpoints and the ESM-IF1 inverse-folding model; the checkpoints themselves are resources."
-  },
-  "alphafold2": {
-   "title": "AlphaFold-2 parameters and MSA databases",
-   "python": "3.11",
-   "imports": [],
-   "requirements": [],
-   "resources": [
-    "alphafold2"
-   ],
-   "planned": true,
-   "notes": "Reserved for a local AlphaFold-2 runner. No bundled operator declares this environment yet; the card exists so the afdb parameter and MSA units can be linked or downloaded ahead of the runner."
-  },
-  "genomics": {
-   "title": "Genome assembly and alignment tools",
-   "python": "3.11",
-   "conda_packages": [
-    "minimap2=2.28",
-    "samtools=1.20",
-    "bwa=0.7.18",
-    "quast=5.3.0",
-    "flye=2.9.3",
-    "minced=0.4.2",
-    "tRNAscan-SE=2.0.12",
-    "foldseek=9.427df8a"
-   ],
-   "binaries": [
-    "minimap2",
-    "samtools",
-    "bwa",
-    "quast.py",
-    "flye",
-    "minced",
-    "tRNAscan-SE",
-    "foldseek"
-   ],
-   "resources": [],
-   "notes": "Command line tools for genome alignment, assembly and annotation operators."
-  },
-  "hic": {
-   "title": "Hi-C contact tools",
-   "python": "3.11",
-   "conda_packages": [
-    "samtools=1.20"
-   ],
-   "requirements": [
-    "pairtools==1.1.0",
-    "cooler==0.9.3",
-    "cooltools==0.6.1",
-    "numpy==1.26.4",
-    "pandas==2.2.2"
-   ],
-   "binaries": [
-    "pairtools",
-    "samtools"
-   ],
-   "resources": [],
-   "notes": "Hi-C pairing, matrix building and contact analysis."
-  },
-  "rna": {
-   "title": "RNA structure tools",
-   "python": "3.11",
-   "conda_packages": [
-    "viennarna=2.6.4"
-   ],
-   "binaries": [
-    "RNAfold"
-   ],
-   "resources": [],
-   "notes": "ViennaRNA folding and structure comparison."
   }
- }
 }

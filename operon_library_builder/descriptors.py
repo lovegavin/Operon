@@ -185,9 +185,31 @@ def _relative_reference(path: Path, reference: str, tree_root: Path, *, suffix: 
     return relative.as_posix()
 
 
+def environment_map(seed_root: Path) -> dict[str, str]:
+    """Return the operator -> environment map declared by the seed tree."""
+    path = Path(seed_root) / "operon" / "environment_assignments.json"
+    if not path.is_file():
+        raise ValueError(f"{path}: environment assignments are missing")
+    document = json.loads(path.read_text(encoding="utf-8"))
+    operators = document.get("operators")
+    if not isinstance(operators, dict):
+        raise ValueError(f"{path}: 'operators' must be an object")
+    environments = json.loads((Path(seed_root) / "operon" / "environments.json").read_text(encoding="utf-8"))
+    known = set((environments.get("environments") or {}).keys())
+    default = str(document.get("default") or "core")
+    mapping = {str(key): str(value) for key, value in operators.items()}
+    unknown = sorted({value for value in mapping.values()} - known)
+    if unknown:
+        raise ValueError(f"{path}: unknown environments {unknown}")
+    if default not in known:
+        raise ValueError(f"{path}: unknown default environment {default!r}")
+    return mapping
+
+
 def build_packages(seed_root: Path) -> list[PackageCode]:
     seed_root = Path(seed_root).resolve()
     declarations = discover(seed_root)
+    assignments = environment_map(seed_root)
     groups: dict[str, list[Declaration]] = {}
     for declaration in declarations:
         groups.setdefault(declaration.provider, []).append(declaration)
@@ -256,7 +278,7 @@ def build_packages(seed_root: Path) -> list[PackageCode]:
         files[f"{module}/__init__.py"] = f'"""Operon library code for {name}."""\n'.encode("utf-8")
 
         code_sha = identity.code_identity(files)
-        descriptors = [_finalize(member, module, code_sha) for member in members]
+        descriptors = [_finalize(member, module, code_sha, assignments) for member in members]
         packages.append(
             PackageCode(
                 name=name,
@@ -269,8 +291,17 @@ def build_packages(seed_root: Path) -> list[PackageCode]:
     return packages
 
 
-def _finalize(declaration: Declaration, module: str, code_sha: str) -> dict[str, Any]:
+def _finalize(declaration: Declaration, module: str, code_sha: str, assignments: dict[str, str] | None = None) -> dict[str, Any]:
     value = deepcopy(declaration.descriptor)
+    if assignments is not None:
+        environment = assignments.get(str(value.get("id") or ""))
+        if not environment:
+            raise ValueError(f"{value.get('id')!r}: no environment assignment")
+        resources = value.get("resources")
+        if not isinstance(resources, dict):
+            resources = {}
+        resources["environment"] = environment
+        value["resources"] = resources
     value.pop("load_entry_point", None)
     value.pop("load_code_sha", None)
     value["entry_point"] = f"{module}.{declaration.tree}.{declaration.path.stem}:{declaration.class_name}"

@@ -308,3 +308,17 @@ export type LargeResourceSnapshot = {library?: {version?: string; tag?: string; 
   library_root?: string; resources: LargeResource[]; operations: LargeResourceOperation[]};
 export type LargeResourceLinkResult = {id: string; status: string; mode?: string; source?: string;
   root?: string; files?: string[]; operation?: string};
+export interface LocalListingEntry {
+  name: string;
+  path: string;
+  directory: boolean;
+  bytes?: number;
+}
+
+export interface LocalListing {
+  path: string;
+  parent?: string;
+  roots?: string[];
+  entries: LocalListingEntry[];
+}
+

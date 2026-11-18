@@ -70,29 +70,37 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
   const linked = state === 'linked';
   return (
     <article
-      className="environment-card resource-unit-card"
+      className="runtime-card resource-unit-card"
       data-testid={`unit-${component.name}`}
       data-resource={resource.id}
       data-state={state}
     >
-      <header>
-        <strong>{component.name}</strong>
-        <span className="resource-chip" data-state={state}>{componentStateLabel(component)}</span>
+      <header className="runtime-card-head">
+        <div className="runtime-card-title">
+          <h3>{component.name}</h3>
+          <code>{resource.title || resource.id}</code>
+        </div>
+        <div className="runtime-card-tags">
+          <span className={`runtime-chip is-${state}`} data-state={state}>{componentStateLabel(component)}</span>
+        </div>
       </header>
-      <div className="environment-facts">
-        <span>{t('所属资源')}</span><span>{resource.title || resource.id}</span>
-        <span>{t('占用空间')}</span><span>{megabytes(component.bytes || resource.size_bytes)}</span>
-      </div>
-      <div className="resource-row-actions">
+      <dl className="runtime-facts">
+        <div><dt>{t('官方目录或文件')}</dt><dd><code>{component.name}</code></dd></div>
+        <div><dt>{t('占用空间')}</dt><dd>{megabytes(component.bytes || resource.size_bytes)}</dd></div>
+      </dl>
+      <footer className="runtime-actions">
         {linked ? (
-          <button type="button" disabled={busy} onClick={() => onUnlink(resource, component)}>{t('解除链接')}</button>
+          <button type="button" className="subtle-button" disabled={busy}
+            onClick={() => onUnlink(resource, component)}>{t('解除链接')}</button>
         ) : (
           <>
-            <button type="button" disabled={busy} onClick={() => onDownload(resource, component)}>{t('下载')}</button>
-            <button type="button" disabled={busy} onClick={() => onLink(resource, component)}>{t('链接')}</button>
+            <button type="button" className="subtle-button" disabled={busy}
+              onClick={() => onDownload(resource, component)}>{t('下载')}</button>
+            <button type="button" className="subtle-button is-primary" disabled={busy}
+              onClick={() => onLink(resource, component)}>{t('链接')}</button>
           </>
         )}
-      </div>
+      </footer>
     </article>
   );
 }
@@ -109,6 +117,9 @@ export function LargeResourceSection({ target = '', environment, compact }: {
   const [link, setLink] = useState<{ resource: LargeResource; component: LargeResourceComponent } | null>(null);
   const [source, setSource] = useState('');
   const [message, setMessage] = useState('');
+  const [picker, setPicker] = useState<{ open: boolean; path: string; parent: string;
+    roots: string[]; entries: Array<{ name: string; path: string; directory: boolean }>;
+    error: string }>({ open: false, path: '', parent: '', roots: [], entries: [], error: '' });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -177,6 +188,29 @@ export function LargeResourceSection({ target = '', environment, compact }: {
     });
   };
 
+  const loadPicker = async (path: string) => {
+    try {
+      if (target) {
+        const answer = await api.browseRemote(target, path || '', 0, false) as {
+          path: string; parent: string;
+          entries: Array<{ name: string; path: string; directory: boolean }>;
+        };
+        setPicker({ open: true, path: answer.path, parent: answer.parent || '', roots: [],
+          entries: (answer.entries || []).slice(0, 300), error: '' });
+      } else {
+        const answer = await api.browsePath(path || '', true) as unknown as {
+          path: string; parent?: string; roots?: string[];
+          entries: Array<{ name: string; path: string; directory: boolean }>;
+        };
+        setPicker({ open: true, path: answer.path, parent: answer.parent || '',
+          roots: answer.roots || [], entries: (answer.entries || []).slice(0, 300), error: '' });
+      }
+    } catch (err) {
+      setPicker((prev) => ({ ...prev, open: true,
+        error: err instanceof Error ? err.message : String(err) }));
+    }
+  };
+
   const submitLink = () => {
     if (!link) return;
     const { resource, component } = link;
@@ -197,9 +231,10 @@ export function LargeResourceSection({ target = '', environment, compact }: {
         </div>
         <div className="runtime-resources-actions">
           <span>{ready}/{total}</span>
-          <button type="button" onClick={() => void load()} disabled={loading}>{t('刷新')}</button>
-          <button type="button" onClick={downloadAll} disabled={loading || !total || busy === 'download-all'}>
-            {t('全部下载')}
+          <button type="button" className="subtle-button" onClick={() => void load()} disabled={loading}>{t('刷新')}</button>
+          <button type="button" className="primary-button" onClick={downloadAll}
+            disabled={loading || !total || busy === 'download-all'}>
+            {t('全部安装')}
           </button>
         </div>
       </header>
@@ -221,16 +256,81 @@ export function LargeResourceSection({ target = '', environment, compact }: {
         ))}
       </div>
       {link ? (
-        <Modal title={`${link.component.name} · ${t('链接目录')}`} onClose={() => setLink(null)}>
-          <p>{t('请选择官方维护单元 {unit} 在本机已有的绝对路径。', { unit: link.component.name })}</p>
-          <label>
-            <span>{t('绝对路径')}</span>
-            <input value={source} onChange={(event) => setSource(event.target.value)} placeholder={t('输入已有目录的绝对路径')} />
-          </label>
-          <p className="runtime-hint">{t('链接只作用于执行它的那台机器的本地文件系统，不会把远端文件映射到本机，也不复制字节。')}</p>
-          <div className="modal-actions">
-            <button type="button" onClick={() => setLink(null)}>{t('取消')}</button>
-            <button type="button" disabled={!source.trim()} onClick={submitLink}>{t('链接')}</button>
+        <Modal title={`${t('链接')} · ${link.component.name}`} onClose={() => setLink(null)}>
+          <div className="link-form">
+            <p className="link-form-lead">
+              {t('把这个维护单元指向本机已有的官方目录或文件，不复制字节。')}
+            </p>
+            <label className="link-form-field">
+              <span className="link-form-label">
+                {t('源路径')}
+                <code>{link.component.name}</code>
+              </span>
+              <div className="link-form-row">
+                <input value={source} onChange={(event) => setSource(event.target.value)}
+                  placeholder={t('输入该目录或文件的绝对路径')} spellCheck={false} autoFocus />
+                <button type="button" className="subtle-button"
+                  onClick={() => void loadPicker(source.trim())}>{t('浏览…')}</button>
+              </div>
+            </label>
+            <ul className="link-form-hint">
+              <li>{t('目录名或文件名应与官方一致：{name}。', { name: link.component.name })}</li>
+              <li>{t('链接只在执行它的那台机器上生效，不会把远端文件映射到本机。')}</li>
+            </ul>
+          </div>
+          <div className="link-form-actions">
+            <button type="button" className="subtle-button" onClick={() => setLink(null)}>{t('取消')}</button>
+            <button type="button" className="primary-button" disabled={!source.trim()} onClick={submitLink}>
+              {t('链接')}
+            </button>
+          </div>
+        </Modal>
+      ) : null}
+      {picker.open ? (
+        <Modal title={t('选择目录或文件')} onClose={() => setPicker((prev) => ({ ...prev, open: false }))}>
+          <div className="picker">
+            <div className="picker-bar">
+              <button type="button" className="subtle-button" disabled={!picker.path}
+                onClick={() => void loadPicker(picker.parent)}>{t('上级')}</button>
+              <code className="picker-path">{picker.path || t('根目录')}</code>
+            </div>
+            {picker.roots.length > 1 ? (
+              <div className="picker-roots">
+                {picker.roots.map((drive) => (
+                  <button type="button" key={drive} className="subtle-button"
+                    onClick={() => void loadPicker(drive)}>{drive}</button>
+                ))}
+              </div>
+            ) : null}
+            {picker.error ? <p className="runtime-error">{picker.error}</p> : null}
+            <ul className="picker-list">
+              {picker.entries.map((entry) => (
+                <li key={entry.path}>
+                  <button type="button" className="picker-entry"
+                    onClick={() => {
+                      if (entry.directory) {
+                        void loadPicker(entry.path);
+                      } else {
+                        setSource(entry.path);
+                        setPicker((prev) => ({ ...prev, open: false }));
+                      }
+                    }}>
+                    <span aria-hidden>{entry.directory ? '📁' : '📄'}</span>
+                    <span>{entry.name}</span>
+                  </button>
+                </li>
+              ))}
+              {!picker.entries.length && !picker.error ? <li className="picker-empty">{t('该目录下没有可选择的项。')}</li> : null}
+            </ul>
+          </div>
+          <div className="link-form-actions">
+            <button type="button" className="subtle-button"
+              onClick={() => setPicker((prev) => ({ ...prev, open: false }))}>{t('取消')}</button>
+            <button type="button" className="primary-button" disabled={!picker.path}
+              onClick={() => {
+                setSource(picker.path);
+                setPicker((prev) => ({ ...prev, open: false }));
+              }}>{t('选择此文件夹')}</button>
           </div>
         </Modal>
       ) : null}

@@ -218,6 +218,8 @@ export const api = {
   trustRemote: (id: string, fingerprint: string) => request(`/api/remote/${id}/trust`, {fingerprint}),
   disconnectRemote: (id: string) => request(`/api/remote/${id}/disconnect`, {}),
   removeRemote: (id: string) => request(`/api/remote/${id}/remove`, {}),
+  browsePath: (path: string, files = true) =>
+    request<import('./types').LocalListing>('/api/browse', {path, files}),
   browseRemote: (id: string, path: string, offset = 0, hidden = false) => request<import('./types').RemoteListing>(`/api/remote/${id}/browse`, {path, offset, hidden}),
   largeResources: () => request<import('./types').LargeResourceSnapshot>('/api/resources'),
   largeResourceLink: (name: string, source: string, replace = false, unit = '') =>
