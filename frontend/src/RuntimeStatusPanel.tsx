@@ -13,6 +13,9 @@ export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
   python_version?: string;
   updated_at?: string;
   used_by_count?: number;
+  expected_bytes?: number;
+  queue_position?: number;
+  error?: string;
 };
 export type EnvironmentOperation = EnvironmentJob & {cancelable?: boolean};
 export type EnvironmentView = Omit<EnvironmentSnapshot, 'environments' | 'operations'> & {
@@ -20,10 +23,10 @@ export type EnvironmentView = Omit<EnvironmentSnapshot, 'environments' | 'operat
   operations: EnvironmentOperation[];
 };
 
-export type Tone = 'ready' | 'missing' | 'stale' | 'installing' | 'failed';
+export type Tone = 'ready' | 'missing' | 'queued' | 'stale' | 'installing' | 'failed';
 export type Action = 'prepare' | 'repair' | 'log' | 'cancel';
 
-const tones: Tone[] = ['ready', 'missing', 'stale', 'installing', 'failed'];
+const tones: Tone[] = ['ready', 'missing', 'queued', 'stale', 'installing', 'failed'];
 
 /** Status chips share this mapping: green ready, grey missing, amber stale, blue installing, red failed. */
 export function statusTone(status: string): Tone {
@@ -31,6 +34,8 @@ export function statusTone(status: string): Tone {
     case 'ready':
     case 'complete':
       return 'ready';
+    case 'queued':
+      return 'queued';
     case 'stale':
       return 'stale';
     case 'installing':
@@ -44,8 +49,9 @@ export function statusTone(status: string): Tone {
 }
 
 const statusKeys: Record<Tone, string> = {
-  ready: '已就绪',
+  ready: '已安装',
   missing: '未安装',
+  queued: '准备安装',
   stale: '需要更新',
   installing: '安装中',
   failed: '准备失败',
@@ -56,6 +62,7 @@ export function statusLabelKey(status: string) {
 }
 
 const phaseKeys: Record<string, string> = {
+  queued: '准备安装',
   creating: '创建环境',
   installing: '安装依赖',
   probing: '校验导入',
@@ -74,12 +81,12 @@ export function availableActions(status: string): Action[] {
   if (status === 'missing' || status === 'cancelled') actions.push('prepare');
   if (status === 'stale' || status === 'failed') actions.push('repair');
   actions.push('log');
-  if (statusTone(status) === 'installing') actions.push('cancel');
+  if (statusTone(status) === 'installing' || statusTone(status) === 'queued') actions.push('cancel');
   return actions;
 }
 
 export function summarize(items: EnvironmentItem[]) {
-  const counts = {total: items.length, ready: 0, missing: 0, stale: 0, installing: 0, failed: 0};
+  const counts = {total: items.length, ready: 0, missing: 0, queued: 0, stale: 0, installing: 0, failed: 0};
   for (const item of items) {
     const tone = statusTone(item.status);
     if (tone === 'missing') counts.missing += 1;
@@ -100,6 +107,35 @@ export function formatBytes(bytes?: number) {
   }
   const rounded = value >= 10 ? value.toFixed(0) : value.toFixed(1);
   return `${rounded.replace(/\.0$/, '')} ${units[index]}`;
+}
+
+export function sizeText(item: EnvironmentItem) {
+  const tone = statusTone(item.status);
+  if (tone === 'ready' || tone === 'stale') return formatBytes(item.size_bytes);
+  const received = item.progress?.bytes || 0;
+  if (tone === 'installing' && received > 0) return `${t('安装中')} · ${formatBytes(received)}`;
+  return t('未安装');
+}
+
+export function usageCount(item: EnvironmentItem) {
+  return item.used_by_count ?? (item.used_by || []).length;
+}
+
+export function queueText(item: EnvironmentItem) {
+  return item.queue_position ? t('队列第 {n} 位', {n: item.queue_position}) : '';
+}
+
+export function failureText(item: EnvironmentItem) {
+  const reason = (item.error || item.progress?.error || '').trim();
+  if (!reason) return '';
+  return reason.length > 180 ? `${reason.slice(0, 177)}…` : reason;
+}
+
+export function percentDone(item: EnvironmentItem) {
+  const expected = item.expected_bytes || 0;
+  const received = item.progress?.bytes || 0;
+  if (!expected || received <= 0) return 0;
+  return Math.max(1, Math.min(100, Math.round((received / expected) * 100)));
 }
 
 export function formatElapsed(start?: string | null, now: number = Date.now()) {
@@ -147,9 +183,13 @@ function progressText(item: EnvironmentItem) {
   return size === '—' ? label : `${label} · ${size}`;
 }
 
-export function SummaryStrip({items, busy, onPrepareAll, onRefresh}: {
+export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
+  onPrepareAll, onRefresh}: {
   items: EnvironmentItem[];
   busy: boolean;
+  target?: string;
+  targets?: Array<{id: string; name: string}>;
+  onTarget?: (id: string) => void;
   onPrepareAll: () => void;
   onRefresh: () => void;
 }) {
@@ -165,8 +205,15 @@ export function SummaryStrip({items, busy, onPrepareAll, onRefresh}: {
         </span>)}
     </div>
     <div className="runtime-summary-actions">
+      {onTarget && targets.length > 0 && <label className="runtime-target">
+        <span>{t('准备目标')}</span>
+        <select value={target} disabled={busy} onChange={event => onTarget(event.target.value)}>
+          <option value="">{t('本地')}</option>
+          {targets.map(remote => <option key={remote.id} value={remote.id}>{remote.name}</option>)}
+        </select>
+      </label>}
       <button className="subtle-button" disabled={busy} onClick={onRefresh}>{t('刷新')}</button>
-      <button className="primary-button" disabled={busy || pending === 0} onClick={onPrepareAll}>{t('全部准备')}</button>
+      <button className="primary-button" disabled={busy || pending === 0} onClick={onPrepareAll}>{t('全部安装')}</button>
     </div>
   </div>;
 }
@@ -184,21 +231,32 @@ export function EnvironmentCard({item, busy = false, onAction}: {
         <h3>{item.title || item.name}</h3>
         <code>{item.name}</code>
       </div>
-      <span className={`runtime-chip is-${tone}`} data-status={tone}>{t(statusKeys[tone])}</span>
+      <div className="runtime-card-tags">
+        {queueText(item) && <span className="runtime-queue">{queueText(item)}</span>}
+        <span className={`runtime-chip is-${tone}`} data-status={tone}>{t(statusKeys[tone])}</span>
+      </div>
     </header>
     <p className="runtime-purpose" title={item.notes || undefined}>
       {purposeOf(item) || t('暂无说明')}
     </p>
     {installing && <div className="runtime-progress" role="progressbar" aria-label={t('安装进度')}
-      aria-valuetext={progressText(item)}>
-      <span className="runtime-progress-bar"/>
-      <small>{progressText(item)}</small>
+      aria-valuetext={progressText(item)} aria-valuenow={percentDone(item) || undefined}>
+      <span className="runtime-progress-bar" style={{width: `${percentDone(item)}%`}}/>
+      <small>{progressText(item)}{item.expected_bytes ? ` · ${percentDone(item)}%` : ''}</small>
     </div>}
     <dl className="runtime-facts">
       <div><dt>{t('Python 版本')}</dt><dd>{item.python_version || item.python || '—'}</dd></div>
-      <div><dt>{t('占用空间')}</dt><dd>{formatBytes(item.size_bytes)}</dd></div>
-      <div><dt>{t('使用算子')}</dt><dd title={(item.used_by || []).join(', ')}>{usedByText(item)}</dd></div>
+      <div><dt>{t('占用空间')}</dt><dd>{sizeText(item)}</dd></div>
+      <div className="runtime-facts-usage"><dt>{t('使用算子')}</dt>
+        {usageCount(item) ? <details className="runtime-usedby">
+          <summary>{t('{n} 个算子', {n: usageCount(item)})}</summary>
+          <ul>{(item.used_by || []).map(name => <li key={name}><code>{name}</code></li>)}</ul>
+        </details> : <dd>{t('无')}</dd>}
+      </div>
     </dl>
+    {tone === 'failed' && failureText(item) && <p className="runtime-error" title={failureText(item)}>
+      {t('准备失败')}：{failureText(item)}
+    </p>}
     <footer className="runtime-actions">
       {availableActions(item.status).map(action =>
         <button key={action}
@@ -266,6 +324,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   const [remoteLoaded, setRemoteLoaded] = useState<Record<string, RemoteEnvironments>>({});
   const [remoteBusy, setRemoteBusy] = useState('');
   const [remoteError, setRemoteError] = useState('');
+  const [target, setTarget] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -298,9 +357,24 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     return () => window.clearInterval(timer);
   }, []);
 
-  const items = Object.values(snapshot?.environments || {}).sort((left, right) =>
-    left.name.localeCompare(right.name));
+  const byName = (left: {name?: string}, right: {name?: string}) =>
+    String(left.name || '').localeCompare(String(right.name || ''));
+  const localItems = Object.values(snapshot?.environments || {}).sort(byName);
+  const remoteItems = Object.values(remoteLoaded[target]?.environments || {}).sort(byName);
+  const items = (target ? remoteItems : localItems) as unknown as EnvironmentItem[];
+  const rank = (item: EnvironmentItem) => {
+    const tone = statusTone(item.status);
+    return tone === 'installing' ? 0 : tone === 'queued' ? 1 : 2;
+  };
+  const ordered = [...items].sort((left, right) => {
+    const byRank = rank(left) - rank(right);
+    if (byRank) return byRank;
+    if (rank(left) < 2) return (left.queue_position || 0) - (right.queue_position || 0);
+    return String(left.name || '').localeCompare(String(right.name || ''));
+  });
   const operations = snapshot?.operations || [];
+  const remoteTargets = (pool?.remotes || []).filter(remote => remote.connected)
+    .map(remote => ({id: remote.profile.id, name: remote.profile.name}));
 
   async function run(label: string, work: () => Promise<EnvironmentSnapshot>) {
     setBusy(label);
@@ -329,9 +403,32 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
 
   function act(action: Action, name: string) {
     if (action === 'log') return void loadLog(name);
+    if (target) {
+      if (action === 'cancel') return;
+      return void runRemote(`remote:${name}`, () => api.remotePrepareEnvironments(target, [name]));
+    }
     if (action === 'prepare') return void run(`prepare:${name}`, () => api.prepareEnvironments([name]));
     if (action === 'repair') return void run(`repair:${name}`, () => api.retryEnvironment(name));
     return void run(`cancel:${name}`, () => api.cancelEnvironment(name));
+  }
+
+  async function runRemote(label: string, work: () => Promise<RemoteEnvironments>) {
+    setBusy(label);
+    setError('');
+    setRemoteError('');
+    try {
+      const value = await work();
+      setRemoteLoaded(current => ({...current, [target]: value}));
+    } catch (failure) {
+      setRemoteError((failure as Error).message);
+    } finally {
+      setBusy('');
+    }
+  }
+
+  function chooseTarget(id: string) {
+    setTarget(id);
+    if (id && !remoteLoaded[id]) void loadRemote(id);
   }
 
   async function stopPool(force: boolean) {
@@ -392,19 +489,24 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     <div className="runtime-panel">
       {error && <pre className="modal-error">{error}</pre>}
       {!snapshot && !error && <div className="modal-empty"><p>{t('正在读取环境状态…')}</p></div>}
-      {snapshot && !snapshot.manifest.present &&
+      {snapshot && !snapshot.manifest.present && !target &&
         <div className="modal-empty"><p>{t('当前算子库没有环境清单')}</p></div>}
-      {snapshot && snapshot.manifest.present && !items.length &&
+      {((snapshot && snapshot.manifest.present) || target) && !items.length &&
         <div className="modal-empty">
-          <p>{t('没有隔离环境')}</p>
-          <small>{t('算子库未声明需要独立安装的环境。')}</small>
+          <p>{target ? t('当前目标没有隔离环境') : t('没有隔离环境')}</p>
+          {!target && <small>{t('算子库未声明需要独立安装的环境。')}</small>}
         </div>}
-      {snapshot && snapshot.manifest.present && items.length > 0 &&
-        <SummaryStrip items={items} busy={Boolean(busy)}
-          onRefresh={() => void run('refresh', () => api.environments())}
-          onPrepareAll={() => void run('all', () => api.prepareEnvironments())}/>}
+      {((snapshot && snapshot.manifest.present) || target) && items.length > 0 &&
+        <SummaryStrip items={items} busy={Boolean(busy)} target={target} targets={remoteTargets}
+          onTarget={chooseTarget}
+          onRefresh={() => void (target
+            ? runRemote('refresh', () => api.remoteEnvironments(target))
+            : run('refresh', () => api.environments()))}
+          onPrepareAll={() => void (target
+            ? runRemote('all', () => api.remotePrepareEnvironments(target))
+            : run('all', () => api.prepareEnvironments()))}/>}
       {items.length > 0 && <div className="runtime-grid">
-        {items.map(item => <EnvironmentCard key={item.name} item={item}
+        {ordered.map(item => <EnvironmentCard key={item.name} item={item}
           busy={Boolean(busy)} onAction={act}/>)}
       </div>}
       <OperationList operations={operations} now={now} onCancel={name => act('cancel', name)}/>

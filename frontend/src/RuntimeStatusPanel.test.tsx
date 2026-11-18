@@ -64,6 +64,7 @@ describe('status mapping', () => {
     expect(statusTone('failed')).toBe('failed');
     expect(statusTone('missing')).toBe('missing');
     expect(statusTone('cancelled')).toBe('missing');
+    expect(statusTone('queued')).toBe('queued');
     expect(statusTone('something-new')).toBe('missing');
   });
 
@@ -74,8 +75,10 @@ describe('status mapping', () => {
       item({name: 'c', status: 'missing'}),
       item({name: 'd', status: 'installing'}),
       item({name: 'e', status: 'failed'}),
+      item({name: 'f', status: 'queued'}),
     ]);
-    expect(counts).toEqual({total: 5, ready: 2, missing: 1, stale: 0, installing: 1, failed: 1});
+    expect(counts).toEqual(
+      {total: 6, ready: 2, missing: 1, queued: 1, stale: 0, installing: 1, failed: 1});
   });
 });
 
@@ -91,6 +94,7 @@ describe('action availability', () => {
 
   it('allows cancel only while installing and keeps logs reachable', () => {
     expect(availableActions('installing')).toEqual(['log', 'cancel']);
+    expect(availableActions('queued')).toEqual(['log', 'cancel']);
     expect(availableActions('ready')).toEqual(['log']);
     expect(availableActions('cancelled')).toEqual(['prepare', 'log']);
   });
@@ -121,14 +125,16 @@ describe('summary strip', () => {
       item({name: 'b', status: 'ready'}),
       item({name: 'c', status: 'missing'}),
       item({name: 'd', status: 'installing'}),
+      item({name: 'e', status: 'queued'}),
     ];
     const html = renderToStaticMarkup(<SummaryStrip items={items} busy={false} onPrepareAll={noop} onRefresh={noop}/>);
-    expect(html).toContain('4 个环境');
-    expect(html).toContain('2 已就绪');
+    expect(html).toContain('5 个环境');
+    expect(html).toContain('2 已安装');
     expect(html).toContain('1 未安装');
     expect(html).toContain('1 安装中');
+    expect(html).toContain('1 准备安装');
     expect(html).not.toContain('需要更新');
-    expect(html).toContain('全部准备');
+    expect(html).toContain('全部安装');
     expect(html).toContain('刷新');
   });
 
@@ -204,6 +210,13 @@ describe('formatting helpers', () => {
     expect(formatElapsed('2026-01-01T00:00:00Z', NOW + 5000)).toBe('5s');
     expect(formatElapsed('2026-01-01T00:00:00Z', NOW + 65000)).toBe('1m 5s');
     expect(formatElapsed('2026-01-01T00:00:00Z', NOW + 3700000)).toBe('1h 1m');
+  });
+
+  it('renders the used-by count with the number substituted', () => {
+    const markup = renderToStaticMarkup(<EnvironmentCard
+      item={item({used_by: ['a', 'b'], used_by_count: 2})} />);
+    expect(markup).toContain('2 个算子');
+    expect(markup).not.toContain('{n}');
   });
 
   it('summarises the used-by list as three names plus a count', () => {

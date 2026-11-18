@@ -19,13 +19,22 @@ function stateLabel(resource: LargeResource) {
   return resource.status === 'partial' ? t("不完整") : t("缺失");
 }
 
+type Target = {id: string; name: string};
+type Draft = {name: string; source: string; target: string};
+
 export function LargeResources() {
   const [snapshot, setSnapshot] = useState<LargeResourceSnapshot | null>(null);
   const [error, setError] = useState(''), [busy, setBusy] = useState(false), [message, setMessage] = useState('');
+  const [draft, setDraft] = useState<Draft | null>(null);
+  const [targets, setTargets] = useState<Target[]>([]);
   useEffect(() => {
     let alive = true;
     api.largeResources().then(value => {if (alive) setSnapshot(value);})
       .catch(e => {if (alive) setError(e instanceof Error ? e.message : String(e));});
+    api.pool().then(value => {
+      if (alive) setTargets((value.remotes || []).filter(remote => remote.connected)
+        .map(remote => ({id: remote.profile.id, name: remote.profile.name})));
+    }).catch(() => {});
     return () => {alive = false;};
   }, []);
   async function run(action: () => Promise<void>, success: string) {
@@ -35,30 +44,41 @@ export function LargeResources() {
     finally {setBusy(false);}
   }
   async function reload() {setSnapshot(await api.largeResources());}
-  async function link(resource: LargeResource) {
-    const answer = window.prompt(t("输入已有目录的绝对路径，链接后不会复制文件："), resource.link_roots?.[0] || '');
-    if (answer === null || !answer.trim()) return;
-    const source = answer.trim();
+  function open(resource?: LargeResource) {
+    const first = resource || linkable[0];
+    if (!first) return;
+    setDraft({name: first.id, source: first.link_roots?.[0] || '', target: ''});
+  }
+  async function submit(value: Draft) {
+    const source = value.source.trim();
+    if (!source) return;
     await run(async () => {
+      const send = async (replace: boolean) => value.target
+        ? api.remoteLinkResource(value.target, value.name, source, replace)
+        : api.largeResourceLink(value.name, source, replace);
       try {
-        await api.largeResourceLink(resource.id, source);
+        await send(false);
       } catch (e) {
         if (e instanceof ApiError && e.status === 409 && window.confirm(`${e.message}\n\n${t("是否替换现有的链接目标？")}`)) {
-          await api.largeResourceLink(resource.id, source, true);
+          await send(true);
         } else throw e;
       }
-      await reload();
-    }, t("已链接 {v0}", {v0: resource.title || resource.id}));
+      if (!value.target) await reload();
+      setDraft(null);
+    }, t("已链接 {v0}", {v0: value.name}));
   }
   async function unlink(resource: LargeResource) {
     if (!window.confirm(t("解除 {v0} 的链接？源目录和文件不会被删除。", {v0: resource.title || resource.id}))) return;
     await run(async () => {await api.largeResourceUnlink(resource.id); await reload();}, t("已解除链接"));
   }
   const resources = snapshot?.resources || [];
+  const linkable = resources.filter(resource => (resource.link_roots || []).length > 0);
   return <div className="large-resources">
     <div className="settings-section-heading"><h3>{t("大型资源与模型权重")}</h3>
+      <button className="subtle-button" disabled={busy || !linkable.length} onClick={() => open()}><Link size={15}/>{t("链接资源")}</button>
       <button className="subtle-button" disabled={busy} onClick={() => void run(reload, t("已刷新"))}><ArrowsClockwise size={15}/>{t("刷新")}</button></div>
     <p className="settings-note">{t("可把已有的本地目录或文件树外链到资源根目录，不复制字节；链接后仍可随时解除。")}</p>
+    <p className="settings-note">{t("资源尚未安装时也可以先建立链接，安装过程会直接使用链接目录。")}</p>
     {!snapshot && !error && <p role="status">{t("正在读取资源…")}</p>}
     {!resources.length && snapshot && <p role="status">{t("当前算子库没有声明大型资源。")}</p>}
     <div className="large-resource-list">{resources.map(resource => <div className="large-resource" key={resource.id}>
@@ -73,9 +93,37 @@ export function LargeResources() {
         <div><dt>{t("使用算子")}</dt><dd>{resource.used_by?.length ? resource.used_by.join(', ') : t("未被算子引用")}</dd></div>
       </dl>
       <div className="settings-form-actions">
-        <button className="subtle-button" disabled={busy} onClick={() => void link(resource)}><Link size={15}/>{t("链接已有目录")}</button>
+        <button className="subtle-button" disabled={busy || !(resource.link_roots || []).length}
+          onClick={() => open(resource)}><Link size={15}/>{t("链接已有目录")}</button>
         {resource.linked ? <button className="subtle-button" disabled={busy} onClick={() => void unlink(resource)}><LinkBreak size={15}/>{t("解除链接")}</button> : null}</div>
     </div>)}</div>
+    {draft ? <div className="link-dialog" role="dialog" aria-label={t("链接资源")}>
+      <h3>{t("链接资源")}</h3>
+      <p className="settings-note">{t("仅支持链接数据库或模型权重目录，不复制字节；运行依赖请使用下载或安装。")}</p>
+      <label><span>{t("选择资源")}</span>
+        <select value={draft.name} onChange={event => {
+          const next = resources.find(resource => resource.id === event.target.value);
+          setDraft({...draft, name: event.target.value, source: next?.link_roots?.[0] || draft.source});
+        }}>{linkable.map(resource =>
+          <option key={resource.id} value={resource.id}>{resource.title || resource.id}</option>)}</select>
+      </label>
+      <label><span>{t("链接位置")}</span>
+        <input value={draft.source} placeholder={resources.find(resource => resource.id === draft.name)?.link_roots?.[0] || t('输入已有目录的绝对路径')}
+          onChange={event => setDraft({...draft, source: event.target.value})}/>
+      </label>
+      <label><span>{t("目标主机")}</span>
+        <select value={draft.target} onChange={event => setDraft({...draft, target: event.target.value})}>
+          <option value="">{t("本地")}</option>
+          {targets.map(remote => <option key={remote.id} value={remote.id}>{remote.name}</option>)}
+        </select>
+      </label>
+      {resources.find(resource => resource.id === draft.name)?.link_roots?.length ?
+        <p className="settings-note">{t("允许的链接根：")}{(resources.find(resource => resource.id === draft.name)?.link_roots || []).join('；')}</p> : null}
+      <div className="settings-form-actions">
+        <button className="primary-button" disabled={busy || !draft.source.trim()} onClick={() => void submit(draft)}>{t("链接")}</button>
+        <button className="subtle-button" disabled={busy} onClick={() => setDraft(null)}>{t("取消")}</button>
+      </div>
+    </div> : null}
     <div className="settings-feedback" aria-live="polite">{error ? <p className="field-error" role="alert">{error}</p> : <p role="status">{busy ? t("正在处理…") : message}</p>}</div>
   </div>;
 }

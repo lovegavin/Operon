@@ -528,6 +528,18 @@ class RemoteService:
         if method == 'environments_log':
             return environment_log(self.service, str((params or {}).get('name') or ''),
                                    (params or {}).get('limit') or 200)
+        if method == 'resources':
+            from src.web import resource_api
+            return resource_api.snapshot(self.service)
+        if method == 'resources_link':
+            from src.web import resource_api
+            payload = params or {}
+            return resource_api.link(self.service, str(payload.get('name') or ''),
+                                     str(payload.get('source') or ''),
+                                     bool(payload.get('replace')))
+        if method == 'resources_unlink':
+            from src.web import resource_api
+            return resource_api.unlink(self.service, str((params or {}).get('name') or ''))
         if method == 'library_install':
             # JobService wraps _install_many in the shared environment gate.
             # Acquiring it here too would reject our own install as concurrent

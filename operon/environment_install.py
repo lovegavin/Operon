@@ -22,6 +22,7 @@ import urllib.request
 import uuid
 from pathlib import Path
 
+from . import environment_estimates as estimates
 from . import environments
 
 PIP_TRANSFER = ['--disable-pip-version-check', '--no-input', '--timeout', '120', '--retries', '3']
@@ -29,6 +30,13 @@ PIP_INDEX = ['--index-url', 'https://pypi.org/simple']
 CONDA_FORGE = 'conda-forge'
 ERRORS = '.operon-environment-errors'
 PROGRESS = '.operon-environment-progress'
+MAMBA_MIN_BYTES = 1_000_000
+# Concurrent preparations share one micromamba binary and one disk. Without
+# these guards, six environments download it six times and replace an image a
+# sibling process is already running, which Windows rejects with
+# ``[WinError 5] access denied``.
+_MAMBA_LOCK = threading.Lock()
+_PREPARE_SLOTS = threading.BoundedSemaphore(1)
 
 
 def base(root=None) -> Path:
@@ -69,9 +77,22 @@ def read_progress(name: str, root=None) -> dict:
 def _write_progress(name: str, root, value: dict) -> None:
     path = progress_path(name, root)
     path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_suffix('.tmp')
+    if value.get('phase') == 'failed' and read_progress(name, root).get('phase') == 'cancelled':
+        # A cancellation recorded by the request thread must not be replayed as a
+        # failure by the worker that was stopped halfway.
+        return
+    temporary = path.with_name(
+        f'.{path.name}.{os.getpid()}-{threading.get_ident()}-{uuid.uuid4().hex[:6]}.tmp'
+    )
     temporary.write_text(json.dumps(value, indent=2), encoding='utf-8')
-    temporary.replace(path)
+    for attempt in range(5):
+        try:
+            os.replace(temporary, path)
+            return
+        except PermissionError:
+            if attempt == 4:
+                raise
+            time.sleep(0.05 * (attempt + 1))
 
 
 def _usage(*directories) -> tuple[int, int]:
@@ -85,6 +106,16 @@ def _usage(*directories) -> tuple[int, int]:
                 except OSError:
                     pass
     return size, files
+
+
+def mark_cancelled(name: str, root=None) -> None:
+    """Report a cancelled preparation immediately instead of waiting for the worker."""
+    progress = read_progress(name, root)
+    phase = str(progress.get('phase') or '')
+    if phase in {'queued', 'creating', 'installing', 'probing', 'committing'}:
+        progress.update({'phase': 'cancelled', 'detail': 'cancelled by user', 'error': '',
+                         'updated_at': _now()})
+        _write_progress(name, root, progress)
 
 
 def state(name: str, root=None, source=None) -> dict:
@@ -120,7 +151,10 @@ def state(name: str, root=None, source=None) -> dict:
     result['used_by'] = []
     progress = read_progress(name, root)
     result['progress'] = progress
-    if progress.get('phase') in {'creating', 'installing', 'probing', 'committing'}:
+    if progress.get('phase') == 'queued':
+        result['status'] = 'queued'
+        result['error'] = ''
+    elif progress.get('phase') in {'creating', 'installing', 'probing', 'committing'}:
         result['status'] = 'installing'
         result['error'] = ''
     return result
@@ -247,7 +281,46 @@ def _validate(spec: dict):
             raise ValueError(f'only https package sources are allowed: {value}')
 
 
-def _micromamba(directory: Path, log) -> Path:
+def _mamba_usable(path: Path) -> bool:
+    """A micromamba download only counts once the whole binary is on disk."""
+    try:
+        return path.is_file() and path.stat().st_size >= MAMBA_MIN_BYTES
+    except OSError:
+        return False
+
+
+def _acquire_slot(control) -> None:
+    """Hold one of the two preparation slots, staying responsive to cancellation."""
+    while not _PREPARE_SLOTS.acquire(timeout=0.5):
+        control.check()
+
+
+def _download(url: str, destination: Path, log, control=None, *, timeout: float = 45.0,
+              deadline: float = 420.0) -> int:
+    """Stream one HTTPS payload with a hard deadline and cooperative cancellation.
+
+    A stalled CDN connection used to freeze the whole preparation queue: the worker
+    held the single slot while ``urlopen`` waited forever, so cancelling the job left
+    the environment stuck in ``creating``. Chunked reads keep the control flag live.
+    """
+    started = time.monotonic()
+    request = urllib.request.Request(url, headers={'User-Agent': 'operon-environment/1'})
+    written = 0
+    with urllib.request.urlopen(request, timeout=timeout) as source, destination.open('wb') as output:
+        while True:
+            if control is not None:
+                control.check()
+            if time.monotonic() - started > deadline:
+                raise RuntimeError(f'download exceeded {deadline:.0f}s: {url}')
+            chunk = source.read(1 << 20)
+            if not chunk:
+                break
+            output.write(chunk)
+            written += len(chunk)
+    return written
+
+
+def _micromamba(directory: Path, log, control=None) -> Path:
     override = os.environ.get('OPERON_MAMBA')
     if override and Path(override).is_file():
         return Path(override)
@@ -257,23 +330,39 @@ def _micromamba(directory: Path, log) -> Path:
     if target_name is None:
         raise ValueError('automatic environment creation is unavailable on this platform; set OPERON_MAMBA')
     executable = directory / ('micromamba.exe' if system == 'Windows' else 'micromamba')
-    if executable.is_file():
+    if _mamba_usable(executable):
         return executable
     directory.mkdir(parents=True, exist_ok=True)
-    _emit(log, f'downloading micromamba ({target_name})')
-    with tempfile.TemporaryDirectory(dir=directory) as temporary:
-        archive = Path(temporary) / 'micromamba.tar.bz2'
-        with urllib.request.urlopen(f'https://micro.mamba.pm/api/micromamba/{target_name}/latest', timeout=120) as source, archive.open('wb') as output:
-            shutil.copyfileobj(source, output)
-        with tarfile.open(archive) as bundle:
-            member = bundle.getmember('Library/bin/micromamba.exe' if system == 'Windows' else 'bin/micromamba')
-            if not member.isfile():
-                raise ValueError('invalid micromamba archive')
-            staged = Path(temporary) / executable.name
-            with bundle.extractfile(member) as source, staged.open('wb') as output:
-                shutil.copyfileobj(source, output)
-            staged.chmod(0o755)
-            staged.replace(executable)
+    # Serialise the download: replacing a running micromamba.exe fails on Windows.
+    with _MAMBA_LOCK:
+        if _mamba_usable(executable):
+            return executable
+        _emit(log, f'downloading micromamba ({target_name})')
+        with tempfile.TemporaryDirectory(dir=directory) as temporary:
+            archive = Path(temporary) / 'micromamba.tar.bz2'
+            _download(f'https://micro.mamba.pm/api/micromamba/{target_name}/latest', archive, log, control)
+            if archive.stat().st_size < MAMBA_MIN_BYTES:
+                raise RuntimeError('micromamba download was incomplete')
+            with tarfile.open(archive) as bundle:
+                member = bundle.getmember('Library/bin/micromamba.exe' if system == 'Windows' else 'bin/micromamba')
+                if not member.isfile():
+                    raise ValueError('invalid micromamba archive')
+                staged = Path(temporary) / executable.name
+                with bundle.extractfile(member) as source, staged.open('wb') as output:
+                    shutil.copyfileobj(source, output)
+                staged.chmod(0o755)
+                for attempt in range(6):
+                    try:
+                        staged.replace(executable)
+                        break
+                    except OSError as error:
+                        if _mamba_usable(executable):
+                            _emit(log, f'reusing the existing micromamba at {executable}')
+                            break
+                        if attempt == 5:
+                            raise RuntimeError(
+                                f'could not install micromamba at {executable}: {error}') from error
+                        time.sleep(0.5 * (attempt + 1))
     return executable
 
 
@@ -330,7 +419,7 @@ def _create(entry: dict, staging: Path, log, root=None, progress=None, control=N
         _run([sys.executable, '-m', 'venv', '--system-site-packages', staging], log=log, timeout=900,
              progress=progress, control=control)
         return
-    mamba = _micromamba(base(root), log)
+    mamba = _micromamba(base(root), log, control)
     env = _mamba_env(base(root))
     if entry.get('clone_shared'):
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '--clone', sys.prefix], log=log, env=env,
@@ -355,7 +444,7 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
           'setuptools>=68,<81', 'wheel'], log=log, timeout=900, progress=progress, control=control)
     conda_packages = entry.get('conda_packages') or []
     if conda_packages:
-        mamba = _micromamba(base(root), log)
+        mamba = _micromamba(base(root), log, control)
         _run([mamba, '--no-rc', 'install', '-y', '-p', staging, '-c', CONDA_FORGE, '--override-channels',
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
              timeout=1800, progress=progress, control=control)
@@ -450,8 +539,9 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
         _remove_tree(leftover, attempts=1)
     staging = base(root) / f'.staging-{name}-{uuid.uuid4().hex[:8]}'
     now = lambda: time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
-    progress = {'name': name, 'phase': 'creating', 'detail': '', 'bytes': 0, 'files': 0,
-                'started_at': now(), 'updated_at': now()}
+    progress = {'name': name, 'phase': 'queued', 'detail': '', 'bytes': 0, 'files': 0,
+                'started_at': now(), 'updated_at': now(),
+                'expected_bytes': estimates.expected(name, entry, base(root))}
     _write_progress(name, root, progress)
     stop = threading.Event()
 
@@ -471,7 +561,12 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
             _write_progress(name, root, progress)
 
     threading.Thread(target=watch, name=f'environment-progress-{name}', daemon=True).start()
+    slot = False
     try:
+        _acquire_slot(control)
+        slot = True
+        progress['phase'] = 'creating'
+        _write_progress(name, root, progress)
         note(f'preparing isolated environment {name} at {target(name, root)}')
         control.check()
         _create(entry, staging, note, root, progress=progress, control=control)
@@ -505,6 +600,14 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
             pass
         raise
     except BaseException as error:
+        if read_progress(name, root).get('phase') == 'cancelled':
+            progress.update({'phase': 'cancelled', 'detail': 'cancelled by user', 'error': '',
+                             'updated_at': _now()})
+            try:
+                _error_path(name, root).unlink(missing_ok=True)
+            except OSError:
+                pass
+            raise
         progress['phase'] = 'failed'
         progress['error'] = str(error)
         for leftover in base(root).glob(f'.failed-{name}-*'):
@@ -521,10 +624,14 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
         raise
     finally:
         stop.set()
+        if slot:
+            _PREPARE_SLOTS.release()
         try:
             size, files = _usage(target(name, root), base(root) / 'packages')
             progress.update({'bytes': size, 'files': files, 'updated_at': _now()})
             _write_progress(name, root, progress)
+            if progress.get('phase') == 'ready':
+                estimates.record(name, size, base(root))
         except OSError:
             pass
         lock.__exit__(None, None, None)

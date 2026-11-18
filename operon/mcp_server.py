@@ -549,14 +549,17 @@ def create_server(client):
         return client.request("/plugins/install", {"wheel": wheel})
 
     @server.tool()
-    def operon_resources() -> dict:
-        """List the legacy-free large resources declared by the installed library.
+    def operon_resources(profile_id: str | None = None) -> dict:
+        """List the large resources declared by the installed library.
 
         Read-only. Each item reports presence, downloaded files, size, the
         declared HTTPS downloads and link state (linked/source/mode, link_roots,
         expected files, used_by); use operon_resource_download to fetch one or
-        operon_resource_link to attach an existing local tree.
+        operon_resource_link to attach an existing local tree. Pass profile_id to
+        inspect a configured remote server instead of this host.
         """
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/resources')
         return client.request('/v1/large-resources')
 
     @server.tool()
@@ -572,21 +575,31 @@ def create_server(client):
         return client.request('/v1/large-resources/' + quote(name, safe='') + '/download', payload)
 
     @server.tool()
-    def operon_resource_link(name: str, source: str, replace: bool = False) -> dict:
-        """Link an existing local tree into the resource root without copying bytes.
+    def operon_resource_link(name: str, source: str, replace: bool = False,
+                             profile_id: str | None = None) -> dict:
+        """Link an existing tree into a resource root without copying bytes.
 
-        The source must be an absolute path inside a declared link root; no
-        bytes are copied. Requires --allow-plugins.
+        The source must be an absolute path inside a declared link root on the
+        target host; no bytes are copied. Pass profile_id to link a tree that
+        lives on a configured remote server, such as an MSA database. Requires
+        --allow-plugins.
         """
-        return client.request('/v1/large-resources/' + quote(name, safe='') + '/link',
-                              {'source': source, 'replace': bool(replace)})
+        payload = {'source': source, 'replace': bool(replace)}
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/resources/' +
+                                  quote(name, safe='') + '/link', payload)
+        return client.request('/v1/large-resources/' + quote(name, safe='') + '/link', payload)
 
     @server.tool()
-    def operon_resource_unlink(name: str) -> dict:
+    def operon_resource_unlink(name: str, profile_id: str | None = None) -> dict:
         """Remove the external link of one resource; the source tree is kept.
 
-        Requires --allow-plugins.
+        Pass profile_id to act on a configured remote server. Requires
+        --allow-plugins.
         """
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/resources/' +
+                                  quote(name, safe='') + '/link', method='DELETE')
         return client.request('/v1/large-resources/' + quote(name, safe='') + '/link',
                               method='DELETE')
 

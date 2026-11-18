@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+from collections import deque
 import signal
 import subprocess
 import threading
@@ -16,7 +17,7 @@ from fastapi import HTTPException
 # panel polls every few seconds, so a short cache keeps /api/environments cheap.
 _SIZE_TTL = 90.0
 _VERSION_TTL = 300.0
-_USED_BY_LIMIT = 8
+_USED_BY_LIMIT = 64
 
 
 def _now():
@@ -52,6 +53,9 @@ def mount_environments(app, service):
     current = {}
     cancelled = set()
     controls = {}
+    pending = deque()
+    queue_lock = threading.Lock()
+    drainer = {'thread': None}
     logs = service.directory / 'environments'
     sizes = {}
     versions = {}
@@ -162,6 +166,16 @@ def mount_environments(app, service):
         owned = list(used_by if used_by is not None else item.get('used_by') or [])
         item['used_by_count'] = len(owned)
         item['used_by'] = owned[:_USED_BY_LIMIT]
+        item['expected_bytes'] = environment_install.estimates.expected(
+            name, entry, environments.root())
+        with queue_lock:
+            waiting = [entry[0] for entry in pending]
+        if name in waiting:
+            item['status'] = 'queued'
+            item['error'] = ''
+            item['queue_position'] = waiting.index(name) + 1
+        else:
+            item['queue_position'] = 0
         return item
 
     def described():
@@ -176,7 +190,7 @@ def mount_environments(app, service):
         item = dict(value)
         if item.get('id') in cancelled or item.get('cancelled'):
             item['status'] = 'cancelled'
-        item['cancelable'] = item.get('status') == 'running'
+        item['cancelable'] = item.get('status') in {'running', 'queued'}
         info = {}
         try:
             info = environment_install.read_progress(item.get('name') or '') or {}
@@ -230,13 +244,37 @@ def mount_environments(app, service):
         logs.mkdir(parents=True, exist_ok=True)
         return logs / f'{name}.log'
 
+    def drain_pending():
+        while True:
+            with queue_lock:
+                if not pending:
+                    drainer['thread'] = None
+                    return
+                name, key, work, control = pending.popleft()
+            job = jobs.get(key) or {}
+            if control.stopped:
+                job.update({'status': 'cancelled', 'error': None, 'finished_at': _now()})
+                continue
+            job['status'] = 'running'
+            work()
+
+    def ensure_drainer():
+        with queue_lock:
+            thread = drainer['thread']
+            if thread is not None and thread.is_alive():
+                return
+            thread = threading.Thread(target=drain_pending, name='environment-queue', daemon=True)
+            drainer['thread'] = thread
+            app.state.environment_tasks.add(thread)
+            thread.start()
+
     def start(name):
         environments.describe(name, source_root())
         running = current.get(name)
-        if running and jobs.get(running, {}).get('status') == 'running':
+        if running and jobs.get(running, {}).get('status') in {'running', 'queued'}:
             return jobs[running]
         key = uuid.uuid4().hex
-        job = {'id': key, 'name': name, 'status': 'running', 'error': None,
+        job = {'id': key, 'name': name, 'status': 'queued', 'error': None,
                'started_at': _now(), 'finished_at': None}
         jobs[key] = job
         current[name] = key
@@ -269,14 +307,12 @@ def mount_environments(app, service):
                     job['error'] = None
                 controls.pop(key, None)
                 job['finished_at'] = _now()
-                app.state.environment_tasks.discard(thread)
 
-        # FastAPI runs these sync handlers in its worker threadpool, where there is
-        # no event loop to hand an asyncio task to; the installer is blocking
-        # anyway, so a daemon thread keeps preparation off the request path.
-        thread = threading.Thread(target=work, name=f'environment-{name}', daemon=True)
-        app.state.environment_tasks.add(thread)
-        thread.start()
+        # Serial by design: parallel installers race for one micromamba image and
+        # one disk. The queue keeps the caller's order and reports positions.
+        with queue_lock:
+            pending.append((name, key, work, control))
+        ensure_drainer()
         return job
 
     def signal_stop(name):
@@ -307,8 +343,14 @@ def mount_environments(app, service):
     @app.post('/api/environments/prepare')
     def prepare(payload: dict):
         names = payload.get('names')
+        entries = declared()
         if names is None:
-            names = [name for name, item in plan().items() if item['status'] != 'ready']
+            entries_by_name = entries
+            names = sorted(
+                (name for name, item in plan().items()
+                 if item['status'] not in {'ready', 'queued', 'installing'}),
+                key=lambda name: environment_install.estimates.expected(
+                    name, entries_by_name.get(name), environments.root()) or 0)
         if not isinstance(names, list) or not all(isinstance(name, str) for name in names):
             raise HTTPException(422, '请提供需要准备的环境名称列表。')
         for name in names:
@@ -337,6 +379,20 @@ def mount_environments(app, service):
         except ValueError as exc:
             raise HTTPException(404, str(exc)) from exc
         job_id = None
+        # A queued environment never started, so cancellation is queue removal.
+        with queue_lock:
+            waiting = deque()
+            while pending:
+                entry = pending.popleft()
+                if entry[0] == name and job_id is None:
+                    queued = jobs.get(entry[1]) or {}
+                    queued.update({'status': 'cancelled', 'error': None, 'finished_at': _now()})
+                    controls.pop(entry[1], None)
+                    current.pop(name, None)
+                    job_id = entry[1]
+                else:
+                    waiting.append(entry)
+            pending.extend(waiting)
         for job in list(jobs.values()):
             if job.get('name') == name and job.get('status') == 'running':
                 cancelled.add(job['id'])
@@ -356,6 +412,7 @@ def mount_environments(app, service):
         if handle is not None:
             handle.stop()
         signal_stop(name)
+        environment_install.mark_cancelled(name)
         return {**snapshot(), 'cancelled': True, 'job': job_id}
 
     @app.get('/api/environments/{name}/log')

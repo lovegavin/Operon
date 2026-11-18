@@ -970,5 +970,22 @@
   "创建环境": "Creating environment",
   "安装依赖": "Installing dependencies",
   "校验导入": "Checking imports",
-  "提交环境": "Committing environment"
+  "提交环境": "Committing environment",
+  "准备目标": "Preparation target",
+  "本地": "Local",
+  "队列第 {n} 位": "Queue position {n}",
+  "当前目标没有隔离环境": "The selected target has no isolated environments.",
+  "链接资源": "Link resource",
+  "选择资源": "Resource",
+  "链接位置": "Link location",
+  "目标主机": "Target host",
+  "仅支持链接数据库或模型权重目录，不复制字节；运行依赖请使用下载或安装。": "Only database or model-weight trees can be linked without copying bytes; use download or install for runtime dependencies.",
+  "允许的链接根：": "Allowed link roots: ",
+  "没有可链接的资源": "No linkable resources",
+  "链接": "Link",
+  "安装中 · {size}": "Installing · {size}",
+  "准备安装": "Queued",
+  "全部安装": "Install all",
+  "资源尚未安装时也可以先建立链接，安装过程会直接使用链接目录。": "Resources can be linked before installation; the installer then uses the linked tree.",
+  "输入已有目录的绝对路径": "Enter the absolute path of an existing directory"
 }

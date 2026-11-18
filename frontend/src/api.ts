@@ -14,13 +14,16 @@ export type StudioVersion = {version: string; build: string; display: string};
 export type RouteCollectionImport = {count: number; names: string[]; failed: {name: string; error: string}[]};
 export type RouteCollectionSummary = {name: string; slug: string; imported_at: string; count: number};
 
-export type EnvironmentProgress = {phase?: string; bytes?: number; files?: number; updated_at?: number};
+export type EnvironmentProgress = {phase?: string; bytes?: number; files?: number; updated_at?: number;
+  error?: string; expected_bytes?: number; queue_position?: number};
 export type EnvironmentStatus = {
   name: string; python: string; spec_sha256: string; interpreter: string; location: string;
-  imports: string[]; status: 'missing' | 'stale' | 'ready' | 'failed' | 'installing'; error: string; used_by: string[];
+  imports: string[]; status: 'missing' | 'queued' | 'stale' | 'ready' | 'failed' | 'installing'; error: string; used_by: string[];
   title?: string; notes?: string; size_bytes?: number; python_version?: string; updated_at?: string;
   used_by_count?: number;
   progress?: EnvironmentProgress | null;
+  expected_bytes?: number;
+  queue_position?: number;
 };
 export type EnvironmentJob = {
   id: string; name: string; status: 'running' | 'complete' | 'failed' | 'cancelled'; cancelable?: boolean;
@@ -175,6 +178,16 @@ export const api = {
   remotePrepareEnvironments: (id: string, names?: string[], dependencies = false) =>
     request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments/prepare`,
       {names, dependencies}),
+  remoteResources: (id: string) =>
+    request<import('./types').LargeResourceSnapshot>(`/api/remote/${encodeURIComponent(id)}/resources`),
+  remoteLinkResource: (id: string, name: string, source: string, replace = false) =>
+    request<import('./types').LargeResourceLinkResult>(
+      `/api/remote/${encodeURIComponent(id)}/resources/${encodeURIComponent(name)}/link`,
+      {source, replace}),
+  remoteUnlinkResource: (id: string, name: string) =>
+    request<import('./types').LargeResourceLinkResult>(
+      `/api/remote/${encodeURIComponent(id)}/resources/${encodeURIComponent(name)}/link`,
+      undefined, {method: 'DELETE'}),
 
   savePreferences: (value: Partial<import('./preferences').UiPreferences>, initialize = false) => {
     // Keep responses in edit order when users switch settings sections quickly.

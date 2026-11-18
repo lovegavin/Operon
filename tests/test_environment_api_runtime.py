@@ -38,10 +38,12 @@ def test_environments_carry_panel_facts(tmp_path):
     assert item['used_by_count'] == len(item['used_by'])
 
 
-def test_used_by_is_capped_but_counted(tmp_path):
+def test_used_by_lists_every_operator_up_to_the_payload_cap(tmp_path):
+    from src.web.environment_api import _USED_BY_LIMIT
+
     app, http = client(tmp_path)
     application = app.state.application
-    names = [f'operator_{index}' for index in range(12)]
+    names = [f'operator_{index}' for index in range(_USED_BY_LIMIT + 4)]
     original = application.isolated_environments
 
     def isolated():
@@ -54,8 +56,9 @@ def test_used_by_is_capped_but_counted(tmp_path):
 
     application.isolated_environments = isolated
     item = http.get('/api/environments').json()['environments']['capdemo']
-    assert item['used_by_count'] == 12
-    assert item['used_by'] == names[:8]
+    assert item['used_by_count'] == len(names)
+    assert item['used_by'] == names[:_USED_BY_LIMIT]
+    assert len(item['used_by']) >= 12
 
 
 def test_cancel_without_a_running_job_is_rejected(tmp_path):

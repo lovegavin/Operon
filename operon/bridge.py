@@ -202,6 +202,24 @@ class Bridge:
             self.actor(request, "context")
             return service.remotes.environment_log(key, name, limit=limit)
 
+        @app.get("/api/agent/remote/{key}/resources")
+        def remote_resources(key: str, request: Request):
+            self.actor(request, "context")
+            return service.remotes.call(key, "resources")
+
+        @app.post("/api/agent/remote/{key}/resources/{name}/link")
+        def remote_resources_link(key: str, name: str, request: Request, payload: dict | None = None):
+            self.actor(request, "run")
+            body = payload or {}
+            return service.remotes.call(key, "resources_link",
+                                        {"name": name, "source": str(body.get("source") or ""),
+                                         "replace": bool(body.get("replace"))})
+
+        @app.delete("/api/agent/remote/{key}/resources/{name}/link")
+        def remote_resources_unlink(key: str, name: str, request: Request):
+            self.actor(request, "run")
+            return service.remotes.call(key, "resources_unlink", {"name": name})
+
         @app.get("/api/agent/sessions")
         def sessions(request: Request):
             self.actor(request, "context")

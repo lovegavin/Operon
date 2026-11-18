@@ -84,6 +84,21 @@ def mount_remote(app, service):
     def remote_environment_log(key: str, name: str, limit: int = 200):
         return manager.environment_log(key, name, limit)
 
+    @app.get('/api/remote/{key}/resources')
+    def remote_resources(key: str):
+        return manager.call(key, 'resources')
+
+    @app.post('/api/remote/{key}/resources/{name}/link')
+    def remote_resource_link(key: str, name: str, payload: dict | None = None):
+        payload = payload or {}
+        return manager.call(key, 'resources_link',
+                            {'name': name, 'source': str(payload.get('source') or ''),
+                             'replace': bool(payload.get('replace'))})
+
+    @app.delete('/api/remote/{key}/resources/{name}/link')
+    def remote_resource_unlink(key: str, name: str):
+        return manager.call(key, 'resources_unlink', {'name': name})
+
     @app.get('/api/remote/{key}/pool')
     def remote_pool(key: str):
         return manager.pool_info(key)

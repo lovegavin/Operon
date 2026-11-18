@@ -119,3 +119,48 @@ def test_prepare_stops_early_without_recording_a_failure(tmp_path):
     assert progress['phase'] == 'cancelled'
     assert 'error' not in progress
     assert not (tmp_path / 'external' / '.operon-environment-errors' / 'demo.json').exists()
+
+def test_mark_cancelled_reports_a_stalled_preparation(tmp_path, monkeypatch):
+    monkeypatch.setattr(environment_install.environments, 'root', lambda: tmp_path)
+    environment_install._write_progress('openfold', tmp_path,
+                                        {'name': 'openfold', 'phase': 'creating', 'detail': 'download'})
+    environment_install.mark_cancelled('openfold')
+    progress = environment_install.read_progress('openfold')
+    assert progress['phase'] == 'cancelled'
+    assert progress['detail'] == 'cancelled by user'
+    environment_install.mark_cancelled('openfold')
+    assert environment_install.read_progress('openfold')['phase'] == 'cancelled'
+
+
+def test_progress_writes_from_several_threads_do_not_collide(tmp_path, monkeypatch):
+    monkeypatch.setattr(environment_install.environments, 'root', lambda: tmp_path)
+    errors = []
+
+    def worker(index):
+        try:
+            for step in range(20):
+                environment_install._write_progress(
+                    'openfold', None,
+                    {'name': 'openfold', 'phase': 'installing', 'step': step, 'writer': index},
+                )
+        except BaseException as error:  # noqa: BLE001 - the test reports what escaped
+            errors.append(error)
+
+    threads = [threading.Thread(target=worker, args=(index,)) for index in range(6)]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+
+    assert errors == []
+    recorded = environment_install.read_progress('openfold', None)
+    assert recorded['name'] == 'openfold'
+    assert recorded['phase'] == 'installing'
+
+
+def test_a_worker_failure_does_not_overwrite_a_recorded_cancellation(tmp_path, monkeypatch):
+    monkeypatch.setattr(environment_install.environments, 'root', lambda: tmp_path)
+    environment_install._write_progress('openfold', None, {'name': 'openfold', 'phase': 'installing'})
+    environment_install.mark_cancelled('openfold', None)
+    environment_install._write_progress('openfold', None, {'name': 'openfold', 'phase': 'failed', 'error': 'boom'})
+    assert environment_install.read_progress('openfold', None)['phase'] == 'cancelled'
