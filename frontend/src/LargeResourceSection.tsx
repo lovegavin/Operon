@@ -93,9 +93,6 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
       <dl className="runtime-facts">
         <div><dt>{t('官方目录或文件')}</dt><dd><code>{component.name}</code></dd></div>
         <div><dt>{t('占用空间')}</dt><dd>{megabytes(component.bytes || resource.size_bytes)}</dd></div>
-        {component.url
-          ? <div><dt>{t('下载地址')}</dt><dd><code title={component.url}>{component.url}</code></dd></div>
-          : null}
       </dl>
       {!linked && missing.length
         ? <details className="runtime-missing" open={missing.length <= 4}>
@@ -183,7 +180,7 @@ export function LargeResourceSection({ target = '', environment, compact }: {
 
   const download = (resource: LargeResource, component: LargeResourceComponent) => {
     void act(`download:${component.name}`, async () => {
-      if (target) await api.remoteResourceDownload(target, resource.id, '', false);
+      if (target) await api.remoteResourceDownload(target, resource.id, '', false, component.name);
       else await api.largeResourceDownload(resource.id, '', false, component.name);
     });
   };
@@ -199,7 +196,7 @@ export function LargeResourceSection({ target = '', environment, compact }: {
     void act('download-all', async () => {
       for (const row of units) {
         if (isReady(row.component)) continue;
-        if (target) await api.remoteResourceDownload(target, row.resource.id, '', false);
+        if (target) await api.remoteResourceDownload(target, row.resource.id, '', false, row.component.name);
         else await api.largeResourceDownload(row.resource.id, '', false, row.component.name);
       }
     });
@@ -258,8 +255,8 @@ export function LargeResourceSection({ target = '', environment, compact }: {
       {error ? <p className="runtime-error">{error}</p> : null}
       {message ? <p className="runtime-error">{message}</p> : null}
       {loading ? <p>{t('正在读取大型资源…')}</p> : null}
-      {!loading && !total ? <p>{t('当前环境没有登记资源。')}</p> : null}
-      <div className="resource-unit-grid">
+      {!loading && !total ? <p className="runtime-hint">{t('当前环境没有登记资源。')}</p> : null}
+      {total ? <div className="resource-unit-grid">
         {units.map(({ resource, component }) => (
           <UnitCard
             key={`${resource.id}:${component.name}`}
@@ -271,7 +268,7 @@ export function LargeResourceSection({ target = '', environment, compact }: {
             onDownload={download}
           />
         ))}
-      </div>
+      </div> : null}
       {link ? (
         <Modal title={`${t('链接')} · ${link.component.name}`} onClose={() => setLink(null)}>
           <div className="link-form">

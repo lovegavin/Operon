@@ -177,7 +177,8 @@ def mount_control(app, application, bridge):
         body = payload or {}
         try:
             return resource_api.start(application.service, name, body.get('root'),
-                                      bool(body.get('overwrite', False)))
+                                      bool(body.get('overwrite', False)),
+                                      str(body.get('unit') or '') or None)
         except KeyError as error:
             raise CommandError('unknown_resource', f'unknown resource: {name}') from error
         except ValueError as error:

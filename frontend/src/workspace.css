@@ -412,3 +412,8 @@
 .runtime-facts dd code {word-break:break-all;}
 .runtime-detail-footer {display:flex; justify-content:flex-start; padding:12px 0 0; border-top:1px solid var(--line); margin-top:16px;}
 .runtime-background-note {display:block; margin-top:8px; color:var(--text-muted); font-size:12px;}
+
+.studio-modal {overflow:auto;}
+.runtime-resources-header {display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+.runtime-resources-actions {display:flex; align-items:center; gap:8px;}
+.runtime-hint {margin:8px 0 0; color:var(--text-muted); font-size:12px;}

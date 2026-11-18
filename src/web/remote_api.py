@@ -96,6 +96,15 @@ def mount_remote(app, service):
                              'replace': bool(payload.get('replace')),
                              'unit': str(payload.get('unit') or '')})
 
+    @app.post('/api/remote/{key}/resources/{name}/download')
+    def remote_resource_download(key: str, name: str, payload: dict | None = None):
+        payload = payload or {}
+        return manager.call(key, 'resources_download',
+                            {'name': name,
+                             'unit': str(payload.get('unit') or ''),
+                             'root': str(payload.get('root') or ''),
+                             'overwrite': bool(payload.get('overwrite'))})
+
     @app.delete('/api/remote/{key}/resources/{name}/link')
     def remote_resource_unlink(key: str, name: str, unit: str | None = None):
         return manager.call(key, 'resources_unlink', {'name': name, 'unit': unit or ''})

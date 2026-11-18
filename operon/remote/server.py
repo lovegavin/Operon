@@ -543,6 +543,14 @@ class RemoteService:
             payload = params or {}
             return resource_api.unlink(self.service, str(payload.get('name') or ''),
                                        str(payload.get('unit') or '') or None)
+        if method == 'resources_download':
+            from src.web import resource_api
+            payload = params or {}
+            return resource_api.start(self.service,
+                                      str(payload.get('name') or ''),
+                                      str(payload.get('root') or '') or None,
+                                      bool(payload.get('overwrite')),
+                                      str(payload.get('unit') or '') or None)
         if method == 'library_install':
             # JobService wraps _install_many in the shared environment gate.
             # Acquiring it here too would reject our own install as concurrent

@@ -1053,5 +1053,8 @@
   "默认环境": "Default environment",
   "默认运行环境": "Default execution environment",
   "（可提交运行）；只读场景移除该参数并添加": "(allows task submission); for read-only access, remove it and add",
-  "，已有算子实例保持原版本。": ". Existing operator instances keep their original version."
+  "，已有算子实例保持原版本。": ". Existing operator instances keep their original version.",
+  "该单元超过 20 GB，请改用链接。": "This unit is larger than 20 GB; link an existing copy instead.",
+  "超过 20 GB，请改用链接。": "Larger than 20 GB; link an existing copy instead.",
+  "超过 20 GB 的单元不会自动下载，请链接本机已有的副本。": "Units larger than 20 GB are never downloaded automatically; link an existing copy instead."
 }

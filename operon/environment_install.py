@@ -28,6 +28,8 @@ from . import environments
 PIP_TRANSFER = ['--disable-pip-version-check', '--no-input', '--timeout', '120', '--retries', '3']
 PIP_INDEX = ['--index-url', 'https://pypi.org/simple']
 CONDA_FORGE = 'conda-forge'
+CONDA_BIOCONDA = 'bioconda'
+BIOCONDA_MARKERS = ('hmmer', 'infernal', 'prodigal', 'amrfinder', 'antismash')
 ERRORS = '.operon-environment-errors'
 PROGRESS = '.operon-environment-progress'
 MAMBA_MIN_BYTES = 1_000_000
@@ -341,6 +343,26 @@ def _download(url: str, destination: Path, log, control=None, *, timeout: float 
     return written
 
 
+def _conda_channels(environment) -> list[str]:
+    """HMMER-family tooling is published on bioconda, not on conda-forge."""
+    packages = environment.get('conda_packages', ()) if isinstance(environment, dict) else environment or ()
+    names = [str(item).split('=')[0].split('>')[0].split('<')[0].strip().lower() for item in packages]
+    channels = [CONDA_FORGE]
+    if any(any(marker in name for marker in BIOCONDA_MARKERS) for name in names):
+        channels.append(CONDA_BIOCONDA)
+    return channels
+
+
+def _conda_flags(environment) -> list[str]:
+    """Channel flags for one environment's conda packages."""
+    channels = _conda_channels(environment)
+    flags: list[str] = []
+    for channel in channels:
+        flags.extend(['-c', channel])
+    flags.append('--override-channels')
+    return flags
+
+
 def _micromamba(directory: Path, log, control=None) -> Path:
     override = os.environ.get('OPERON_MAMBA')
     if override and Path(override).is_file():
@@ -446,7 +468,7 @@ def _create(entry: dict, staging: Path, log, root=None, progress=None, control=N
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '--clone', sys.prefix], log=log, env=env,
              timeout=1800, progress=progress, control=control)
     else:
-        _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '-c', CONDA_FORGE, '--override-channels',
+        _run([mamba, '--no-rc', 'create', '-y', '-p', staging, *_conda_flags(entry),
               '--strict-channel-priority', 'python=' + str(entry.get('python', '3.11')), 'pip'],
              log=log, env=env, timeout=1800, progress=progress, control=control)
 
@@ -466,7 +488,7 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
     conda_packages = entry.get('conda_packages') or []
     if conda_packages:
         mamba = _micromamba(base(root), log, control)
-        _run([mamba, '--no-rc', 'install', '-y', '-p', staging, '-c', CONDA_FORGE, '--override-channels',
+        _run([mamba, '--no-rc', 'install', '-y', '-p', staging, *_conda_flags(entry),
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
              timeout=1800, progress=progress, control=control)
     if entry.get('torch_cpu'):
@@ -579,8 +601,8 @@ def install_dependency(name: str, kind: str, requirement: str, root=None, log=No
     control.check()
     if kind == 'conda_packages':
         mamba = _micromamba(base(root), note, control)
-        _run([mamba, '--no-rc', 'install', '-y', '-p', str(final), '-c', CONDA_FORGE,
-              '--override-channels', '--strict-channel-priority', requirement],
+        _run([mamba, '--no-rc', 'install', '-y', '-p', str(final), *_conda_flags([requirement]),
+              '--strict-channel-priority', requirement],
              log=note, env=_mamba_env(base(root)), timeout=3600, control=control)
     else:
         python = _python(final)

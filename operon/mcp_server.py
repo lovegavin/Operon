@@ -289,9 +289,12 @@ def create_server(client):
                               + urlencode({'offset': offset, 'limit': limit}))
 
     @server.tool()
-    def operon_result_files(job_id: str) -> dict:
+    def operon_result_files(job_id: str | None = None, id: str | None = None) -> dict:
         """List every file below a job's result directory, local or ssh, with sizes."""
-        return client.request('/v1/jobs/' + quote(job_id, safe='') + '/results')
+        reference = job_id or id
+        if not reference:
+            raise ValueError('job_id is required')
+        return client.request('/v1/jobs/' + quote(reference, safe='') + '/results')
 
     @server.tool()
     def operon_plan_artifact_files(run_id: str, artifact_id: str, after: str = '', limit: int = 100) -> dict:
@@ -529,10 +532,14 @@ def create_server(client):
                                                            **({'request_id': request_id} if request_id else {})})
 
     @server.tool()
-    def operon_job(job_id: str, view: str = 'brief', wait_seconds: float = 0) -> dict:
+    def operon_job(job_id: str | None = None, view: str = 'brief', wait_seconds: float = 0,
+                   id: str | None = None) -> dict:
         """Read brief status, or wait internally up to 120 seconds; a closed window returns running with wait_timed_out, never a failure."""
         import math
         from .agent_views import job_view, wait_job
+        job_id = job_id or id
+        if not job_id:
+            raise ValueError('job_id is required')
         if not math.isfinite(wait_seconds) or not 0 <= wait_seconds <= 120:
             raise ValueError('wait_seconds must be between 0 and 120')
         job_view({}, view)

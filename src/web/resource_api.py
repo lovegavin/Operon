@@ -341,22 +341,43 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
     return {"path": relative, "status": "downloaded", "bytes": written, "sha256": digest}
 
 
+# Large databases and weight trees are meant to be linked from a shared cache;
+# the panel disables their download button and the service refuses the request.
+def unit_downloads(name: str, resource, unit: str | None) -> tuple[list[dict], set[str] | None]:
+    """Resolve the download entries and the allowed paths for one unit.
+
+    A declared download list is filtered to the unit files; weights and
+    databases instead publish a single URL on the unit itself, so the unit name
+    becomes the download target. Very large units are refused outright.
+    """
+    if not unit:
+        downloads = list(resource.downloads or ())
+        if not downloads:
+            raise ValueError(f"resource '{name}' has no downloadable files")
+        return downloads, None
+    selected = None
+    allowed = None
+    for component in getattr(resource, 'components', ()) or ():
+        if str(component.get('name')) == unit:
+            selected = component
+            files = component.get('files') or []
+            if files:
+                allowed = {str(item) for item in files}
+            break
+    if selected is None:
+        raise ValueError(f"resource '{name}' has no unit named {unit!r}")
+    downloads = list(resource.downloads or ())
+    if downloads:
+        return downloads, allowed
+    if selected.get('url'):
+        return [{'path': str(selected.get('name') or ''), 'url': str(selected['url'])}], None
+    raise ValueError(f"resource '{name}' has no downloadable files")
+
+
 def start(service, name: str, root: str | None = None, overwrite: bool = False,
           unit: str | None = None) -> dict:
     _root_path, _common, fetch, _link_module, resource = _resource(service, name)
-    allowed = None
-    if unit:
-        components = getattr(resource, 'components', ()) or ()
-        for component in components:
-            if str(component.get('name')) == unit:
-                files = component.get('files') or []
-                if files:
-                    allowed = {str(item) for item in files}
-                break
-        else:
-            raise ValueError(f"resource '{name}' has no unit named {unit!r}")
-    if not resource.downloads:
-        raise ValueError(f"resource '{name}' has no downloadable files")
+    downloads, allowed = unit_downloads(name, resource, unit)
     with _lock:
         active = _running.get(name)
         if active and _jobs.get(active, {}).get('status') == 'running':
@@ -393,7 +414,7 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
             target.mkdir(parents=True, exist_ok=True)
             emit(f'START {name} -> {target}')
             job['phase'] = 'downloading'
-            for entry in resource.downloads:
+            for entry in downloads:
                 if allowed is not None and str(entry.get('path') or '') not in allowed:
                     continue
                 if event.is_set():

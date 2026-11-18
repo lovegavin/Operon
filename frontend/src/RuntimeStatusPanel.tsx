@@ -353,7 +353,28 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   const [remoteBusy, setRemoteBusy] = useState('');
   const [remoteError, setRemoteError] = useState('');
   const [target, setTarget] = useState('');
+  const [unitIndex, setUnitIndex] = useState<Record<string, number>>({});
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      try {
+        const answer = target ? await api.remoteResources(target) : await api.largeResources();
+        const rows = ((answer as unknown as { resources?: Array<{ id?: string; components?: unknown[] }> }).resources) || [];
+        const next: Record<string, number> = {};
+        for (const row of rows) {
+          const id = String(row.id || '');
+          if (!id) continue;
+          next[id] = Array.isArray(row.components) && row.components.length ? row.components.length : 1;
+        }
+        if (alive) setUnitIndex(next);
+      } catch {
+        /* the panel still renders with the fallback count */
+      }
+    })();
+    return () => { alive = false; };
+  }, [target]);
   const [detail, setDetail] = useState<EnvironmentItem | null>(null);
+  const unitTotal = (detail?.resources || []).reduce((sum, id) => sum + (unitIndex[id] || 1), 0);
   const [view, setView] = useState<'root' | 'deps' | 'resources'>('root');
 
   useEffect(() => {
@@ -590,7 +611,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
             <header className="runtime-card-head">
               <div className="runtime-card-title">
                 <h3>{t('资源')}</h3>
-                <code>{t('{n} 个维护单元', {n: (detail.resources || []).length})}</code>
+                <code>{t('{n} 个维护单元', {n: unitTotal})}</code>
               </div>
             </header>
             <p className="runtime-purpose">{t('逐个下载或链接官方最小维护单元。')}</p>

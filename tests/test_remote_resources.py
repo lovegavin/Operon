@@ -69,6 +69,23 @@ def test_unlink_forwards_the_unit():
                               {'name': 'esm2', 'unit': 'esm2_t6_8M_UR50D.pt'})]
 
 
+def test_download_remote_resource_forwards_the_unit():
+    http, manager = client()
+    response = http.post('/api/remote/srv/resources/esm2/download',
+                         json={'unit': 'esm2_t6_8M_UR50D.pt', 'overwrite': True})
+    assert response.status_code == 200
+    assert manager.calls == [('srv', 'resources_download',
+                              {'name': 'esm2', 'unit': 'esm2_t6_8M_UR50D.pt',
+                               'root': '', 'overwrite': True})]
+
+
+def test_download_without_a_body_still_forwards_empty_values():
+    http, manager = client()
+    assert http.post('/api/remote/srv/resources/afdb/download').status_code == 200
+    assert manager.calls == [('srv', 'resources_download',
+                              {'name': 'afdb', 'unit': '', 'root': '', 'overwrite': False})]
+
+
 def test_remote_agent_dispatches_resource_methods_to_the_local_api(monkeypatch):
     from operon.remote.server import RemoteService
     from src.web import resource_api

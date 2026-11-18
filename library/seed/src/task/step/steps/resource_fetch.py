@@ -119,7 +119,8 @@ def _download_one(
     try:
         with open_url(url, token_env) as response, partial.open("wb") as handle:
             try:
-                announced = int(response.headers.get("Content-Length") or 0)
+                headers = getattr(response, "headers", None)
+                announced = int((headers.get("Content-Length") if headers is not None else 0) or 0)
             except (TypeError, ValueError):
                 announced = 0
             _require_space(destination, max(expected_bytes, announced))

@@ -21,7 +21,7 @@ def read_graph_file(path):
     if path.suffix.lower() in ('.zip', '.operon'):
         from src.web.parameters import import_bundle
         return import_bundle(path.read_bytes()).model_dump(mode="json")
-    value = json.loads(path.read_text(encoding="utf-8"))
+    value = json.loads(path.read_text(encoding="utf-8-sig"))
     return value.get('graph', value)
 
 
@@ -495,7 +495,8 @@ def execute(args):
             else:
                 storage_payload = reference(args.storage_id, args.path).model_dump(mode='json')
     graph_file = (args.value if args.command == 'workflow' and args.action not in ('list', 'get')
-                  else args.file if args.command in ('run', 'environment') else None)
+                  else args.file if args.command == 'run'
+                  or args.command == 'environment' and args.action in ('check', 'prepare') else None)
     # Reject malformed/missing projects before creating a persistent service.
     graph_value = read_graph_file(graph_file) if graph_file is not None else None
     if args.command == 'environment' and args.action in ('check', 'prepare') and graph_value is None:
@@ -504,6 +505,9 @@ def execute(args):
     if args.command == 'plan' and args.action in ('submit', 'cancel', 'export', 'export-cancel'):
         scopes.append('run')
     if args.command == 'library':
+        scopes.append('plugins')
+    if (args.command == 'resources' and args.action in ('download', 'link', 'unlink', 'cancel')
+            or args.command == 'environment' and args.action in ('install', 'cancel')):
         scopes.append('plugins')
     if (args.command == 'workflow' and args.action == 'prepare-environment'
             or args.command == 'environment' and args.action == 'prepare'):
@@ -605,6 +609,9 @@ def execute(args):
                 return client.request(path)
             if args.action in ('install', 'cancel'):
                 names = list(getattr(args, 'names', []) or [])
+                leading = getattr(args, 'file', None)
+                if leading is not None:
+                    names.insert(0, Path(leading).name if isinstance(leading, Path) else str(leading))
                 if not names:
                     raise ValueError('At least one environment name is required')
                 profile_id = getattr(args, 'profile', '') or ''

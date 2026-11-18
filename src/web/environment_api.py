@@ -381,6 +381,7 @@ def mount_environments(app, service):
         return snapshot()
 
     @app.post('/api/environments/{name}/dependencies/download')
+    @app.post('/api/v1/environments/{name}/dependencies/download')
     def download_dependency(name: str, payload: dict | None = None):
         body = payload or {}
         try:
@@ -418,6 +419,7 @@ def mount_environments(app, service):
         return {**snapshot(), 'prepared': prepared}
 
     @app.post('/api/environments/{name}/retry')
+    @app.post('/api/v1/environments/{name}/retry')
     def retry(name: str):
         try:
             job = start(name)
@@ -426,6 +428,7 @@ def mount_environments(app, service):
         return {**snapshot(), 'job': job['id']}
 
     @app.post('/api/environments/{name}/cancel')
+    @app.post('/api/v1/environments/{name}/cancel')
     def cancel(name: str):
         try:
             environments.describe(name, source_root())
@@ -469,6 +472,7 @@ def mount_environments(app, service):
         return {**snapshot(), 'cancelled': True, 'job': job_id}
 
     @app.get('/api/environments/{name}/log')
+    @app.get('/api/v1/environments/{name}/log')
     def read_log(name: str, limit: int = 200):
         try:
             environments.describe(name, source_root())
