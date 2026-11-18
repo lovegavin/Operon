@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0",
-  "minimum_application": "5.6.0",
-  "build_application": "5.5.3"
+  "version": "1.0.1",
+  "minimum_application": "5.6.1",
+  "build_application": "5.6.1"
 }

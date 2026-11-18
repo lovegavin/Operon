@@ -540,6 +540,68 @@ def _remove_tree(path, *, attempts=6, delay=0.3) -> bool:
     return not path.exists()
 
 
+def install_dependency(name: str, kind: str, requirement: str, root=None, log=None,
+                       control=None, source=None) -> dict:
+    """Install a single declared dependency into one environment."""
+    control = control or _Control()
+    entry = environments.describe(name, source)
+    requirement = str(requirement or '').strip()
+    if not requirement:
+        raise ValueError('missing dependency name')
+    declared = {
+        'requirements': entry.get('requirements') or [],
+        'pip_wheels': entry.get('pip_wheels') or [],
+        'pip_pypi': entry.get('pip_pypi') or [],
+        'conda_packages': entry.get('conda_packages') or [],
+        'no_deps': entry.get('no_deps') or [],
+        'no_build_isolation': entry.get('no_build_isolation') or [],
+    }
+    if kind not in declared:
+        raise ValueError(f"dependency kind {kind!r} cannot be installed one by one")
+    if requirement not in [str(item) for item in declared[kind]]:
+        raise ValueError(f"dependency {requirement!r} is not declared by environment {name}")
+    base(root).mkdir(parents=True, exist_ok=True)
+    final = target(name, root)
+    note = log or (lambda line: None)
+    if not final.exists():
+        require_space(root, 2 * 1024 ** 3, what=f'environment {name}')
+        staging = base(root) / f'.staging-{name}-{uuid.uuid4().hex[:8]}'
+        try:
+            _create(entry, staging, note, root, control=control)
+            _commit(name, staging, final)
+        finally:
+            if staging.exists():
+                _remove_tree(staging, attempts=2)
+    progress = {'name': name, 'phase': 'installing', 'detail': f'installing {requirement}',
+                'bytes': 0, 'files': 0, 'started_at': _now(), 'updated_at': _now(),
+                'expected_bytes': int(estimates.expected(name, entry, base(root)) or 0)}
+    _write_progress(name, root, progress)
+    control.check()
+    if kind == 'conda_packages':
+        mamba = _micromamba(base(root), note, control)
+        _run([mamba, '--no-rc', 'install', '-y', '-p', str(final), '-c', CONDA_FORGE,
+              '--override-channels', '--strict-channel-priority', requirement],
+             log=note, env=_mamba_env(base(root)), timeout=3600, control=control)
+    else:
+        python = _python(final)
+        from .bytecode import filesystem_path
+        prefix = ['--prefix', filesystem_path(final)] if os.name == 'nt' else []
+        flags = ['--no-deps'] if kind == 'no_deps' else []
+        if kind == 'no_build_isolation':
+            flags = ['--no-build-isolation']
+        extra = ['--prefer-binary'] if kind == 'requirements' else []
+        if kind == 'pip_wheels':
+            extra = ['--only-binary=:all:']
+        _run([python, '-X', 'utf8', '-m', 'pip', 'install', *prefix, *PIP_TRANSFER,
+              *(flags or []), *(extra or []), *PIP_INDEX, requirement],
+             log=note, timeout=3600, progress=progress, control=control)
+    progress['phase'] = 'complete'
+    progress['detail'] = f'installed {requirement}'
+    progress['updated_at'] = _now()
+    _write_progress(name, root, progress)
+    return {'environment': name, 'kind': kind, 'requirement': requirement, 'status': 'installed'}
+
+
 def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
     """Create or refresh one declared environment; safe to call concurrently."""
     control = control or _Control()

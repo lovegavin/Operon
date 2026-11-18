@@ -340,8 +340,20 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
     return {"path": relative, "status": "downloaded", "bytes": written, "sha256": digest}
 
 
-def start(service, name: str, root: str | None = None, overwrite: bool = False) -> dict:
+def start(service, name: str, root: str | None = None, overwrite: bool = False,
+          unit: str | None = None) -> dict:
     _root_path, _common, fetch, _link_module, resource = _resource(service, name)
+    allowed = None
+    if unit:
+        components = getattr(resource, 'components', ()) or ()
+        for component in components:
+            if str(component.get('name')) == unit:
+                files = component.get('files') or []
+                if files:
+                    allowed = {str(item) for item in files}
+                break
+        else:
+            raise ValueError(f"resource '{name}' has no unit named {unit!r}")
     if not resource.downloads:
         raise ValueError(f"resource '{name}' has no downloadable files")
     with _lock:
@@ -381,6 +393,8 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False) 
             emit(f'START {name} -> {target}')
             job['phase'] = 'downloading'
             for entry in resource.downloads:
+                if allowed is not None and str(entry.get('path') or '') not in allowed:
+                    continue
                 if event.is_set():
                     raise RuntimeError('cancelled')
                 job['current'] = str(entry.get('path') or '')
@@ -512,7 +526,8 @@ def mount_resources(app, service) -> None:
     def download(name: str, payload: dict | None = None):
         body = payload or {}
         try:
-            return start(service, name, body.get('root'), bool(body.get('overwrite', False)))
+            return start(service, name, body.get('root'), bool(body.get('overwrite', False)),
+                         str(body.get('unit') or '') or None)
         except KeyError as exc:
             raise HTTPException(404, f"unknown resource: {name}") from exc
         except ValueError as exc:

@@ -5,7 +5,7 @@
       "protocol_version": 3,
       "name": "operon-core",
       "title": "operon-core",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "origin": "bundled",
       "descriptors": [
         {
@@ -152040,7 +152040,7 @@
       "protocol_version": 3,
       "name": "operon-microbiome",
       "title": "operon-microbiome",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "origin": "bundled",
       "descriptors": [
         {
@@ -156658,7 +156658,7 @@
       "protocol_version": 3,
       "name": "operon-hic",
       "title": "operon-hic",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "origin": "bundled",
       "descriptors": [
         {
@@ -157710,7 +157710,7 @@
       "protocol_version": 3,
       "name": "operon-plots",
       "title": "operon-plots",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "origin": "bundled",
       "descriptors": [
         {
@@ -160159,7 +160159,7 @@
       "protocol_version": 3,
       "name": "operon-expression",
       "title": "operon-expression",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "origin": "bundled",
       "descriptors": [
         {
@@ -162251,7 +162251,7 @@
       "protocol_version": 3,
       "name": "operon-genetics",
       "title": "operon-genetics",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "origin": "bundled",
       "descriptors": [
         {
@@ -165403,7 +165403,7 @@
       "protocol_version": 3,
       "name": "operon-readers",
       "title": "operon-readers",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "origin": "bundled",
       "descriptors": [
         {

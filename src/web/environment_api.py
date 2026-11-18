@@ -18,6 +18,7 @@ from fastapi import HTTPException
 _SIZE_TTL = 90.0
 _VERSION_TTL = 300.0
 _USED_BY_LIMIT = 64
+_OPERATORS_TTL = 60.0
 
 
 def _now():
@@ -59,6 +60,7 @@ def mount_environments(app, service):
     logs = service.directory / 'environments'
     sizes = {}
     versions = {}
+    operator_cache = {'at': 0.0, 'map': {}}
 
     def source_root():
         try:
@@ -72,6 +74,25 @@ def mount_environments(app, service):
             return service.plugins.state().get('descriptors') or []
         except Exception:
             return []
+
+    def operator_map():
+        """Group the installed operators by the environment they belong to."""
+        now = time.monotonic()
+        if operator_cache['map'] and now - operator_cache['at'] < _OPERATORS_TTL:
+            return operator_cache['map']
+        grouped = {}
+        for descriptor in descriptors():
+            resources = descriptor.get('resources') if isinstance(descriptor, dict) else None
+            name = (resources or {}).get('environment') if isinstance(resources, dict) else None
+            identifier = descriptor.get('id') if isinstance(descriptor, dict) else None
+            if not name or not identifier:
+                continue
+            grouped.setdefault(str(name), []).append(str(identifier))
+        for names in grouped.values():
+            names.sort()
+        operator_cache['map'] = grouped
+        operator_cache['at'] = now
+        return grouped
 
     def plan():
         return environment_install.plan(environments.root(), descriptors(), source=source_root())
@@ -178,6 +199,9 @@ def mount_environments(app, service):
         owned = list(used_by if used_by is not None else item.get('used_by') or [])
         item['used_by_count'] = len(owned)
         item['used_by'] = owned[:_USED_BY_LIMIT]
+        members = operator_map().get(name) or []
+        item['operator_count'] = len(members)
+        item['operators'] = members[:_USED_BY_LIMIT]
         item['expected_bytes'] = environment_install.estimates.expected(
             name, entry, environments.root())
         item['resources'] = [str(value) for value in entry.get('resources') or []]
@@ -355,6 +379,19 @@ def mount_environments(app, service):
     @app.get('/api/environments')
     def list_environments():
         return snapshot()
+
+    @app.post('/api/environments/{name}/dependencies/download')
+    def download_dependency(name: str, payload: dict | None = None):
+        body = payload or {}
+        try:
+            return environment_install.install_dependency(
+                name, str(body.get('kind') or ''), str(body.get('name') or ''))
+        except KeyError as exc:
+            raise HTTPException(404, f"unknown environment: {name}") from exc
+        except (ValueError, FileNotFoundError) as exc:
+            raise HTTPException(409, str(exc)) from exc
+        except RuntimeError as exc:
+            raise HTTPException(409, str(exc)) from exc
 
     @app.post('/api/environments/prepare')
     def prepare(payload: dict):

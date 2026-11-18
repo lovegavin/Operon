@@ -299,6 +299,7 @@ export type LargeResource = {
   official_root?: string;
   components?: LargeResourceComponent[];
   units?: LargeResourceUnit[];
+  link_root?: string;
 };
 export type LargeResourceOperation = {id: string; name?: string; kind?: string; status: string;
   error?: string | null; started_at?: string; finished_at?: string | null; mode?: string | null;

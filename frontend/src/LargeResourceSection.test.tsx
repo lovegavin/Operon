@@ -1,65 +1,42 @@
-import {renderToStaticMarkup} from 'react-dom/server';
 import {describe, expect, it} from 'vitest';
-import {LargeResourceSection, ResourceCard, missingFiles, officialRoot, resourceComponents, resourceState} from './LargeResourceSection';
+import {
+  componentStateLabel, isReady, officialRoot, resourceComponents, resourcesOf,
+} from './LargeResourceSection';
 import type {LargeResource} from './types';
 
-function resource(overrides: Partial<LargeResource> = {}): LargeResource {
-  return {
-    id: 'alphafold2',
-    title: 'AlphaFold-2 databases',
-    kind: 'database',
-    present: false,
-    status: 'partial',
-    missing: ['uniref90/uniref90.fasta'],
-    expected_files: ['params/params_model_1_ptm.npz', 'uniref90/uniref90.fasta'],
-    official_root: 'afdb',
-    link_roots: ['/public/home/lihj/operon-resources'],
-    environments: ['openfold'],
-    used_by: ['openfold_predict'],
-    size_bytes: 2048,
-    ...overrides,
-  } as LargeResource;
-}
+const resource: LargeResource = {
+  id: 'alphafold2',
+  title: 'AlphaFold2 parameters',
+  official_root: 'afdb',
+  environments: ['alphafold2'],
+  state: 'partial',
+  components: [
+    {name: 'afdb', path: '', mode: 'tree', bytes: 5_384_039_577, state: 'missing'},
+  ],
+};
 
-describe('resource cards', () => {
-  it('uses the state reported by the API and falls back to the legacy flags', () => {
-    expect(resourceState(resource({state: 'linked'}))).toBe('linked');
-    expect(resourceState(resource({state: undefined, linked: true} as Partial<LargeResource>))).toBe('linked');
-    expect(resourceState(resource({state: undefined, status: 'ok'}))).toBe('downloaded');
-    expect(resourceState(resource({state: undefined, status: 'partial'}))).toBe('partial');
-    expect(resourceState(resource({state: undefined, status: 'missing'}))).toBe('missing');
+describe('large resource cards', () => {
+  it('falls back to a single official unit when none is declared', () => {
+    const units = resourceComponents({id: 'x', state: 'missing'} as LargeResource);
+    expect(units.map(unit => unit.name)).toEqual(['x']);
   });
 
-  it('names the official directory users have to link', () => {
-    expect(officialRoot(resource())).toBe('afdb');
-    expect(officialRoot(resource({official_root: undefined} as Partial<LargeResource>))).toBe('alphafold2');
-    expect(missingFiles(resource())).toEqual(['uniref90/uniref90.fasta']);
+  it('reads the official root and declared units', () => {
+    expect(officialRoot(resource)).toBe('afdb');
+    expect(resourceComponents(resource).map(unit => unit.name)).toEqual(['afdb']);
   });
 
-  it('renders the official unit card with its own state and actions', () => {
-    const html = renderToStaticMarkup(
-      <ResourceCard resource={resource({
-        components: [
-          {name: 'params', path: 'params', state: 'missing', bytes: 5384039577},
-          {name: 'afdb', state: 'present', linked: true},
-        ],
-      } as Partial<LargeResource>)} busy={false} onLink={() => {}} onUnlink={() => {}} onDownload={() => {}}/>,
-    );
-    expect(html).toContain('官方目录或文件：afdb');
-    expect(html).toContain('data-testid="unit-params"');
-    expect(html).toContain('data-testid="unit-afdb"');
-    expect(html).toContain('5.0 GB');
+  it('filters resources by environment', () => {
+    expect(resourcesOf([resource], 'alphafold2')).toHaveLength(1);
+    expect(resourcesOf([resource], 'boltz')).toHaveLength(0);
+    expect(resourcesOf([resource])).toHaveLength(1);
   });
 
-  it('falls back to the official root when no unit is declared', () => {
-    expect(resourceComponents(resource()).map((unit) => unit.name)).toEqual(['afdb']);
-  });
-
-  it('renders the section shell while loading', () => {
-    const html = renderToStaticMarkup(
-      <LargeResourceSection target="" targets={[]} onTarget={() => {}}/>,
-    );
-    expect(html).toContain('大型资源与模型权重');
-    expect(html).toContain('正在读取大型资源');
+  it('labels component states', () => {
+    expect(componentStateLabel({name: 'afdb', state: 'present'})).toBe('已就位');
+    expect(componentStateLabel({name: 'afdb', state: 'partial'})).toBe('部分就位');
+    expect(componentStateLabel({name: 'afdb', state: 'missing'})).toBe('缺失');
+    expect(isReady({name: 'afdb', state: 'linked'})).toBe(true);
+    expect(isReady({name: 'afdb', state: 'missing'})).toBe(false);
   });
 });

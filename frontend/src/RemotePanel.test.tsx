@@ -37,7 +37,8 @@ describe('server connection and maintenance', () => {
     expect(html).toContain('Operon 0.7.1');
     expect(html).toContain('算子 0');
     expect(html).toContain('依赖 1/2 已通过');
-    expect(html).toContain('工具 1/2 可用');
+    expect(html).toContain('Reader 0');
+    expect(html).not.toContain('可用');
     expect(html).toContain('刷新算子与依赖');
   });
   it('keeps older connected status usable without optional handshake or dependency data', () => {

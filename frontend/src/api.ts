@@ -46,6 +46,7 @@ export type RemoteEnvironment = {
   name?: string; python?: string; status?: string; imports?: string[]; used_by?: string[];
   interpreter?: string; location?: string; error?: string;
   progress?: RemoteEnvironmentProgress | null;
+  operator_count?: number;
 };
 
 export type RemoteEnvironments = {
@@ -225,9 +226,17 @@ export const api = {
   largeResourceUnlink: (name: string, unit = '') =>
     request<import('./types').LargeResourceLinkResult>(`/api/resources/${encodeURIComponent(name)}/link` +
       (unit ? `?unit=${encodeURIComponent(unit)}` : ''), undefined, {method: 'DELETE'}),
-  largeResourceDownload: (name: string, root = '', overwrite = false) =>
+  largeResourceDownload: (name: string, root = '', overwrite = false, unit = '') =>
     request<import('./types').LargeResourceLinkResult>(
-      `/api/resources/${encodeURIComponent(name)}/download`, {root, overwrite}),
+      `/api/resources/${encodeURIComponent(name)}/download`, {root, overwrite, unit}),
+  remoteResourceDownload: (id: string, name: string, root = '', overwrite = false, unit = '') =>
+    request<import('./types').LargeResourceLinkResult>(
+      `/api/remote/${encodeURIComponent(id)}/resources/${encodeURIComponent(name)}/download`,
+      {root, overwrite, unit}),
+  environmentDependencyDownload: (name: string, kind: string, dependency: string) =>
+    request<{environment: string; kind: string; requirement: string; status: string}>(
+      `/api/environments/${encodeURIComponent(name)}/dependencies/download`,
+      {kind, name: dependency}),
   storageRoots: (signal?: AbortSignal) => request<{roots: StorageRef[]}>('/api/v1/storage/roots', undefined, {signal}),
   browseStorage: (value: StorageBrowseRequest, session: string, signal?: AbortSignal) =>
     request<StoragePage>('/api/v1/storage/browse', value, {storageSession: session, signal}),

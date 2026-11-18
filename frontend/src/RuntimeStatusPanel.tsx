@@ -13,6 +13,8 @@ export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
   size_bytes?: number;
   python_version?: string;
   updated_at?: string;
+  operator_count?: number;
+  operators?: string[];
   used_by_count?: number;
   expected_bytes?: number;
   queue_position?: number;
@@ -123,7 +125,7 @@ export function sizeText(item: EnvironmentItem) {
 }
 
 export function usageCount(item: EnvironmentItem) {
-  return item.used_by_count ?? (item.used_by || []).length;
+  return item.operator_count ?? item.used_by_count ?? (item.used_by || []).length;
 }
 
 export function queueText(item: EnvironmentItem) {
@@ -168,9 +170,13 @@ export function shortId(id?: string) {
   return id.length > 8 ? `${id.slice(0, 8)}…` : id;
 }
 
+export function operatorsOf(item: EnvironmentItem) {
+  return item.operators || item.used_by || [];
+}
+
 export function usedByText(item: EnvironmentItem) {
-  const names = item.used_by || [];
-  const total = item.used_by_count ?? names.length;
+  const names = operatorsOf(item);
+  const total = usageCount(item);
   if (!total) return t('无');
   const head = names.slice(0, 3);
   const suffix = total > head.length ? ` +${total - head.length}` : '';
@@ -189,13 +195,14 @@ function progressText(item: EnvironmentItem) {
 }
 
 export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
-  onPrepareAll, onRefresh}: {
+  onPrepareAll, onRefresh, onDownloadAll}: {
   items: EnvironmentItem[];
   busy: boolean;
   target?: string;
   targets?: Array<{id: string; name: string}>;
   onTarget?: (id: string) => void;
   onPrepareAll: () => void;
+  onDownloadAll?: () => void;
   onRefresh: () => void;
 }) {
   const counts = summarize(items);
@@ -219,6 +226,7 @@ export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
       </label>}
       <button className="subtle-button" disabled={busy} onClick={onRefresh}>{t('刷新')}</button>
       <button className="primary-button" disabled={busy || pending === 0} onClick={onPrepareAll}>{t('全部安装')}</button>
+      <button className="subtle-button" disabled={busy} onClick={onDownloadAll}>{t('全部下载')}</button>
     </div>
   </div>;
 }
@@ -266,7 +274,7 @@ export function EnvironmentCard({item, busy = false, onAction, onOpen}: {
       <div className="runtime-facts-usage"><dt>{t('使用算子')}</dt>
         {usageCount(item) ? <details className="runtime-usedby">
           <summary>{t('{n} 个算子', {n: usageCount(item)})}</summary>
-          <ul>{(item.used_by || []).map(name => <li key={name}><code>{name}</code></li>)}</ul>
+          <ul>{operatorsOf(item).map(name => <li key={name}><code>{name}</code></li>)}</ul>
         </details> : <dd>{t('无')}</dd>}
       </div>
     </dl>
@@ -342,6 +350,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   const [remoteError, setRemoteError] = useState('');
   const [target, setTarget] = useState('');
   const [detail, setDetail] = useState<EnvironmentItem | null>(null);
+  const [view, setView] = useState<'root' | 'deps' | 'resources'>('root');
 
   useEffect(() => {
     let active = true;
@@ -398,6 +407,44 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     setError('');
     try {
       setSnapshot(await work() as unknown as EnvironmentView);
+    } catch (failure) {
+      setError((failure as Error).message);
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function downloadAllResources() {
+    setBusy('download-all');
+    setError('');
+    try {
+      const answer = await api.largeResources();
+      const items = (answer as { resources?: Array<Record<string, unknown>> }).resources
+        || (Array.isArray(answer) ? answer as Array<Record<string, unknown>> : []);
+      for (const item of items) {
+        const id = String(item.id || '');
+        const components = (item.components as Array<{ name?: string; state?: string }> | undefined) || [];
+        const units = components.length ? components : [{name: String(item.official_root || id), state: String(item.state || '')}];
+        for (const unit of units) {
+          const state = String(unit.state || '').toLowerCase();
+          if (state === 'present' || state === 'linked') continue;
+          await api.largeResourceDownload(id, '', false, String(unit.name || ''));
+        }
+      }
+    } catch (failure) {
+      setError((failure as Error).message);
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function runDependency(name: string, kind: string, requirement: string) {
+    const label = `dependency:${requirement}`;
+    setBusy(label);
+    setError('');
+    try {
+      await api.environmentDependencyDownload(name, kind, requirement);
+      setSnapshot(await api.environments() as unknown as EnvironmentView);
     } catch (failure) {
       setError((failure as Error).message);
     } finally {
@@ -520,37 +567,64 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
             : run('refresh', () => api.environments()))}
           onPrepareAll={() => void (target
             ? runRemote('all', () => api.remotePrepareEnvironments(target))
-            : run('all', () => api.prepareEnvironments()))}/>}
+            : run('all', () => api.prepareEnvironments()))}
+          onDownloadAll={() => void downloadAllResources()}/>}
       {items.length > 0 && <div className="runtime-grid">
         {ordered.map(item => <EnvironmentCard key={item.name} item={item}
           busy={Boolean(busy)} onAction={act} onOpen={setDetail}/>)}
       </div>}
       <OperationList operations={operations} now={now} onCancel={name => act('cancel', name)}/>
-      {detail && <Modal title={`${detail.title || detail.name}`} onClose={() => setDetail(null)}>
+      {detail && <Modal title={`${detail.title || detail.name}`}
+        onClose={() => { setDetail(null); setView('root'); }}>
         <p className="settings-note">{detail.name} · {t(statusKeys[statusTone(detail.status)])}</p>
-        <section className="runtime-detail-block">
-          <h4>{t('环境依赖')}</h4>
+        {view !== 'root' && <div className="runtime-actions">
+          <button className="subtle-button" onClick={() => setView('root')}>{t('返回')}</button>
+        </div>}
+        {view === 'root' && <div className="resource-unit-grid">
+          <button type="button" className="environment-card resource-unit-card"
+            data-testid="detail-dependencies" onClick={() => setView('deps')}>
+            <header><strong>{t('环境依赖')}</strong>
+              <span className="resource-chip">{(detail.dependencies || []).length}</span></header>
+            <p>{t('逐个安装依赖，也可以在依赖名片右上角全部下载。')}</p>
+          </button>
+          <button type="button" className="environment-card resource-unit-card"
+            data-testid="detail-resources" onClick={() => setView('resources')}>
+            <header><strong>{t('资源')}</strong>
+              <span className="resource-chip">{(detail.resources || []).length}</span></header>
+            <p>{t('逐个下载或链接官方最小维护单元。')}</p>
+          </button>
+        </div>}
+        {view === 'deps' && <section className="runtime-detail-block">
+          <header className="runtime-resources-header">
+            <div><h3>{t('环境依赖')}</h3></div>
+            <div className="runtime-resources-actions">
+              <button type="button" disabled={busy === `prepare:${detail.name}`}
+                onClick={() => act('prepare', detail.name)}>{t('全部下载')}</button>
+              <button type="button" disabled={busy === `cancel:${detail.name}`}
+                onClick={() => act('cancel', detail.name)}>{t('取消')}</button>
+            </div>
+          </header>
           {(detail.dependencies || []).length === 0
-            ? <p className="settings-note">{t('这个环境没有额外依赖。')}</p>
-            : <ul className="runtime-dependency-list">
-              {(detail.dependencies || []).map((entry) => <li key={`${entry.kind}:${entry.name}`}>
-                <code>{entry.name}</code><span>{entry.kind}</span>
-              </li>)}
-            </ul>}
-          <div className="runtime-actions">
-            <button className="subtle-button is-primary" disabled={Boolean(busy)}
-              onClick={() => act('prepare', detail.name)}>{t('安装依赖')}</button>
-            <button className="subtle-button is-danger" disabled={Boolean(busy)}
-              onClick={() => act('cancel', detail.name)}>{t('取消')}</button>
-            <button className="subtle-button" disabled={Boolean(busy)}
-              onClick={() => setDetail(null)}>{t('关闭')}</button>
-          </div>
-        </section>
-        <section className="runtime-detail-block">
-          <h4>{t('资源')}</h4>
-          <LargeResourceSection target={target} targets={remoteTargets} onTarget={chooseTarget}
-            environment={detail.name} compact/>
-        </section>
+            ? <p className="muted">{t('这个环境没有额外依赖。')}</p>
+            : <div className="resource-unit-grid">
+              {(detail.dependencies || []).map((entry) => <article
+                key={`${entry.kind}:${entry.name}`}
+                className="environment-card resource-unit-card"
+                data-testid={`dependency-${entry.name}`}>
+                <header><strong>{entry.name}</strong>
+                  <span className="resource-chip">{entry.kind}</span></header>
+                <div className="resource-row-actions">
+                  <button type="button" disabled={busy === `dependency:${entry.name}`}
+                    onClick={() => void runDependency(detail.name, entry.kind, entry.name)}>
+                    {t('下载')}
+                  </button>
+                </div>
+              </article>)}
+            </div>}
+        </section>}
+        {view === 'resources' && <section className="runtime-detail-block">
+          <LargeResourceSection target={target} environment={detail.name} compact/>
+        </section>}
       </Modal>}
       {log && <LogDrawer name={log.name} text={log.text} pending={logPending} error={log.error}
         onClose={() => setLog(null)} onRefresh={() => void loadLog(log.name)}/>}
@@ -604,7 +678,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
                 {Object.entries(remoteLoaded[remote.profile.id].environments || {}).map(([name, item]) =>
                   <li key={name}>
                     <code>{name}</code>
-                    <span>{item.used_by?.length ? `${item.used_by.length} ${t('个算子')}` : '—'}</span>
+                    <span>{item.operator_count ?? item.used_by?.length ? `${item.operator_count ?? item.used_by?.length} ${t('个算子')}` : '—'}</span>
                     <span>{item.status || '—'}</span>
                   </li>)}
               </ul>}
