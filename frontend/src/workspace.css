@@ -410,6 +410,17 @@
 .runtime-missing ul {margin:6px 0 0; padding-left:16px; display:grid; gap:2px; max-height:180px; overflow:auto;}
 .runtime-missing code {font-size:11.5px; word-break:break-all;}
 .runtime-facts dd code {word-break:break-all;}
+.runtime-detail-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-start;
+  padding: 10px 0 4px;
+  background: inherit;
+  backdrop-filter: blur(2px);
+  z-index: 2;
+}
+
 .runtime-detail-footer {display:flex; justify-content:flex-start; padding:12px 0 0; border-top:1px solid var(--line); margin-top:16px;}
 .runtime-background-note {display:block; margin-top:8px; color:var(--text-muted); font-size:12px;}
 

@@ -250,8 +250,8 @@ export function EnvironmentCard({item, busy = false, onAction, onOpen}: {
     }}>
     <header className="runtime-card-head">
       <div className="runtime-card-title">
-        <h3>{item.title || item.name}</h3>
-        <code>{item.name}</code>
+        <h3>{item.name}</h3>
+        <code>{item.title || item.name}</code>
       </div>
       <div className="runtime-card-tags">
         {queueText(item) && <span className="runtime-queue">{queueText(item)}</span>}
@@ -354,6 +354,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   const [remoteError, setRemoteError] = useState('');
   const [target, setTarget] = useState('');
   const [unitIndex, setUnitIndex] = useState<Record<string, number>>({});
+  const [resourceRows, setResourceRows] = useState<Array<{ id: string; components: number; environments: string[] }>>([]);
   useEffect(() => {
     let alive = true;
     void (async () => {
@@ -366,7 +367,16 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
           if (!id) continue;
           next[id] = Array.isArray(row.components) && row.components.length ? row.components.length : 1;
         }
-        if (alive) setUnitIndex(next);
+        if (alive) {
+          setUnitIndex(next);
+          setResourceRows(rows.map(row => ({
+            id: String(row.id || ''),
+            components: Array.isArray(row.components) && row.components.length ? row.components.length : 1,
+            environments: Array.isArray((row as { environments?: string[] }).environments)
+              ? ((row as { environments?: string[] }).environments as string[])
+              : [],
+          })).filter(row => row.id));
+        }
       } catch {
         /* the panel still renders with the fallback count */
       }
@@ -374,7 +384,10 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     return () => { alive = false; };
   }, [target]);
   const [detail, setDetail] = useState<EnvironmentItem | null>(null);
-  const unitTotal = (detail?.resources || []).reduce((sum, id) => sum + (unitIndex[id] || 1), 0);
+  const detailResources = detail
+    ? resourceRows.filter(row => row.environments.includes(detail.name))
+    : [];
+  const unitTotal = detailResources.reduce((sum, row) => sum + (row.components || (unitIndex[row.id] || 1)), 0);
   const [view, setView] = useState<'root' | 'deps' | 'resources'>('root');
 
   useEffect(() => {
