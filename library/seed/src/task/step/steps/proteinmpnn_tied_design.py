@@ -15,6 +15,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from src.task.step.steps.proteinmpnn_design import MODELS, parse_design_fasta, pdb_chains
 
 _STATISTICS = ("score", "global_score")
@@ -141,7 +142,7 @@ def run_tied_designer(
         raise StepError("proteinmpnn_tied_design: num_seq_per_target must be at least 1")
     if device not in {"cpu", "cuda"}:
         raise StepError("proteinmpnn_tied_design: device must be 'cpu' or 'cuda'")
-    python = str(params.get("python_executable") or "") or sys.executable
+    python = str(params.get("python_executable") or "") or environment_python("proteinmpnn") or sys.executable
 
     out_dir = Path(tempfile.mkdtemp(prefix="operon-mpnn-tied-"))
     payload_path = out_dir / "tied_positions.jsonl"

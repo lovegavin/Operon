@@ -16,6 +16,7 @@ from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.context.base import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 
 from ._esm_common import AA_ORDER
 from .proteinmpnn_design import MODELS, parse_design_fasta
@@ -233,7 +234,7 @@ class ProteinmpnnBiasScanStep(Step):
         repo_value = str(params.get("proteinmpnn_path", "") or "")
         repo = Path(repo_value).expanduser() if repo_value else Path(os.environ.get("OPERON_PROTEINMPNN_PATH", ""))
         weights = str(params.get("weights_path", "") or "")
-        python = str(params.get("python_executable", "") or "") or sys.executable
+        python = str(params.get("python_executable", "") or "") or environment_python("proteinmpnn") or sys.executable
         model_name = str(params.get("model_name", "v_48_020") or "v_48_020")
         chains = str(params.get("chains", "") or "").strip()
         position_dim = str(params.get("position_dim", "position"))

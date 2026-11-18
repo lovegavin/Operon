@@ -16,6 +16,7 @@ from src.core import Form, StepError
 from src.task.context import Context
 from src.reader import read_source
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
 
 
@@ -124,7 +125,7 @@ class LigandmpnnSideChainPackingStep(Step):
                 "ligandmpnn_side_chain_packing: unknown model_type "
                 f"{model_type!r}; use one of the official LigandMPNN model types"
             )
-        python_executable = str(params.get("python_executable", "")).strip() or sys.executable
+        python_executable = str(params.get("python_executable", "")).strip() or environment_python("ligandmpnn") or sys.executable
 
         with tempfile.TemporaryDirectory(prefix="operon_pack_") as tmp:
             out_dir = Path(tmp) / "packed_run"

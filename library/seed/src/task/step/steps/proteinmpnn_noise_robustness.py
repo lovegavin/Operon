@@ -20,6 +20,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from src.task.step.steps.proteinmpnn_design import MODELS, parse_design_fasta
 
 _STATISTICS = (
@@ -162,7 +163,7 @@ def run_replicate(
         raise StepError(
             "proteinmpnn_noise_robustness: device must be 'cpu' or 'cuda'"
         )
-    python = str(params.get("python_executable") or "") or sys.executable
+    python = str(params.get("python_executable") or "") or environment_python("proteinmpnn") or sys.executable
     out_dir = Path(tempfile.mkdtemp(prefix="operon-mpnn-noise-"))
     command = [
         python,

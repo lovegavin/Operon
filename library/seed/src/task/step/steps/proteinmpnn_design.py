@@ -21,6 +21,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from src.task.step.steps._native_results import output_directory, result_file, remember_native
 
 _NUMBER = r"-?(?:\d+(?:\.\d*)?|\.\d+|[nN][aA][nN]|[iI][nN][fF])"
@@ -250,7 +251,7 @@ class ProteinMpnnDesignStep(Step):
                 "proteinmpnn_design: device 'cuda' requested but CUDA is not "
                 "available"
             )
-        command_python = python_executable or sys.executable
+        command_python = python_executable or environment_python("proteinmpnn") or sys.executable
 
         chain_residues = pdb_chains(structure_path)
         design_positions = parse_positions(design_text)

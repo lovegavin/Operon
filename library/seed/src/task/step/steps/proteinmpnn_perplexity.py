@@ -14,6 +14,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 
 AA_ORDER = "ACDEFGHIKLMNPQRSTVWY"
 TOKEN_ALPHABET = AA_ORDER + "X"
@@ -118,7 +119,7 @@ def designer_command(
     fasta: Path,
 ) -> list[str]:
     """Build the official ProteinMPNN conditional-probability command."""
-    python = str(params.get("python_executable") or "") or sys.executable
+    python = str(params.get("python_executable") or "") or environment_python("proteinmpnn") or sys.executable
     command = [
         python,
         "protein_mpnn_run.py",

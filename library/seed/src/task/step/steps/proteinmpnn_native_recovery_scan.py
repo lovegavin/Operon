@@ -16,6 +16,7 @@ from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.context.base import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from .proteinmpnn_design import MODELS
 
 AA_ORDER = "ACDEFGHIKLMNPQRSTVWY"
@@ -163,7 +164,7 @@ class ProteinmpnnNativeRecoveryScanStep(Step):
         weights = Path(str(params.get("weights_path") or repo / "vanilla_model_weights")).expanduser()
         if not weights.is_dir():
             raise StepError(f"proteinmpnn_native_recovery_scan: weights_path '{weights}' is not a directory")
-        python = str(params.get("python_executable") or "") or sys.executable
+        python = str(params.get("python_executable") or "") or environment_python("proteinmpnn") or sys.executable
 
         started = time.time()
         work = Path(tempfile.mkdtemp(prefix="operon-native-recovery-"))

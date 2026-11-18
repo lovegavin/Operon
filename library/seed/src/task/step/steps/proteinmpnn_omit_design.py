@@ -14,6 +14,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 
 from .proteinmpnn_design import MODELS, parse_design_fasta, pdb_chains
 
@@ -54,7 +55,7 @@ def omit_command(
 ) -> list[str]:
     """Build the official ProteinMPNN command with a global omission set."""
 
-    python = str(params.get("python_executable", "")).strip() or sys.executable
+    python = str(params.get("python_executable", "")).strip() or environment_python("proteinmpnn") or sys.executable
     command = [
         python,
         str(repo / "protein_mpnn_run.py"),

@@ -15,6 +15,7 @@ from src.core.errors import StepError
 from src.core.forms import Form
 from src.reader import read_source
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from src.task.step.steps._sequence_common import decode_sequences
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
 
@@ -51,7 +52,7 @@ def openfold_command(
     """Build the official run_pretrained_openfold.py command line."""
 
     command = [
-        python_executable or sys.executable,
+        python_executable or environment_python("openfold") or sys.executable,
         run_script.as_posix(),
         fasta_dir.as_posix(),
         template_dir.as_posix(),

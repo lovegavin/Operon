@@ -15,6 +15,7 @@ from src.core import Form, StepError
 from src.task.context import Context
 from src.reader import read_source
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 
 from .proteinmpnn_design import (
     MODELS,
@@ -105,7 +106,7 @@ def run_bias_designer(
 
     timeout = int(params.get("timeout_seconds", 1800) or 1800)
     device = str(params.get("device", "cpu")).strip() or "cpu"
-    executable = str(params.get("python_executable", "")).strip() or sys.executable
+    executable = str(params.get("python_executable", "")).strip() or environment_python("proteinmpnn") or sys.executable
     with tempfile.TemporaryDirectory(prefix="operon_bias_") as tmp:
         out_dir = Path(tmp) / "designs"
         out_dir.mkdir()

@@ -22,6 +22,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from src.task.step.steps.proteinmpnn_design import MODELS, parse_design_fasta, parse_positions, pdb_chains
 
 _STATISTICS = ("score", "global_score")
@@ -67,7 +68,7 @@ def run_masked_designer(params: dict, structure: Path, chain_text: str, payload:
     if device not in {"cpu", "cuda"}:
         raise StepError("proteinmpnn_masked_design: device must be 'cpu' or 'cuda'")
 
-    python = str(params.get("python_executable") or "") or sys.executable
+    python = str(params.get("python_executable") or "") or environment_python("proteinmpnn") or sys.executable
     out_dir = Path(tempfile.mkdtemp(prefix="operon-mpnn-masked-"))
     fixed_path = out_dir / "fixed_positions.jsonl"
     fixed_path.write_text(json.dumps(payload), encoding="utf-8")

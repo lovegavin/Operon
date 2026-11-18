@@ -16,6 +16,7 @@ from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.context.base import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from src.task.step.steps.proteinmpnn_score import (
     MODELS,
     parse_fasta,
@@ -157,7 +158,7 @@ class ProteinmpnnEnsembleScoreStep(Step):
             )
 
         records = parse_fasta(fasta_path)
-        command_python = python_executable or sys.executable
+        command_python = python_executable or environment_python("proteinmpnn") or sys.executable
         environment = dict(os.environ)
         if device == "cpu":
             environment["CUDA_VISIBLE_DEVICES"] = ""

@@ -15,6 +15,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 
 MODELS = ("v_48_002", "v_48_010", "v_48_020", "v_48_030")
 
@@ -129,7 +130,7 @@ def run_designer(params: dict, structure: Path, chain: str) -> list[str]:
     if device not in {"cpu", "cuda"}:
         raise StepError("proteinmpnn_design_diversity: device must be 'cpu' or 'cuda'")
 
-    python = str(params.get("python_executable") or "") or sys.executable
+    python = str(params.get("python_executable") or "") or environment_python("proteinmpnn") or sys.executable
     out_dir = Path(tempfile.mkdtemp(prefix="operon-mpnn-diversity-"))
     command = [
         python,

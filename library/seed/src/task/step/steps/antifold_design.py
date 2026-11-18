@@ -15,6 +15,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 
 ALPHABET = "ACDEFGHIKLMNPQRSTVWY"
 _HEADER = re.compile(r"score=(-?\d+\.\d+),\s*global_score=(-?\d+\.\d+)")
@@ -129,7 +130,7 @@ def antifold_command(
         from operon.environments import resolve
         resolved = resolve('antifold')
         python_executable = str(resolved) if resolved else ''
-    launcher = python_executable or sys.executable
+    launcher = python_executable or environment_python("antifold") or sys.executable
     entry = [str(runner_path)] if runner_path else ["-m", "antifold.main"]
     command = [
         launcher,

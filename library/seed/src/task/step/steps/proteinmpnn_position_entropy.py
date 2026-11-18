@@ -13,6 +13,7 @@ from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.context.base import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from .proteinmpnn_design import MODELS
 
 AA_ORDER = "ACDEFGHIKLMNPQRSTVWY"
@@ -99,7 +100,7 @@ def designer_command(
     repo: Path, structure: Path, out_dir: Path, params: dict
 ) -> list[str]:
     """Build the official ProteinMPNN command for a sampling run."""
-    executable = params.get("python_executable") or sys.executable
+    executable = params.get("python_executable") or environment_python("proteinmpnn") or sys.executable
     command = [
         executable,
         "protein_mpnn_run.py",

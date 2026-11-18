@@ -14,6 +14,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 
 from src.task.step.steps._protein_common import (
     column_index,
@@ -134,7 +135,7 @@ def summary(scores: np.ndarray, indices: list[int], name: str) -> tuple[float, f
 def score_interface(params, repo: Path, weights: Path, structure: Path) -> tuple[list[float], str, list[str]]:
     """Run the official runner in --conditional_probs_only mode."""
 
-    python = str(params.get("python_executable", "") or "").strip() or sys.executable
+    python = str(params.get("python_executable", "") or "").strip() or environment_python("proteinmpnn") or sys.executable
     timeout = float(params.get("timeout_seconds", 1800.0))
     device = str(params.get("device", "cpu") or "cpu").strip().lower()
     model = str(params.get("model_name", "v_48_020") or "v_48_020").strip()

@@ -15,6 +15,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from src.task.step.steps.proteinmpnn_score import MODELS
 
 AA_ORDER = "ACDEFGHIKLMNPQRSTVWY"
@@ -178,7 +179,7 @@ class ProteinmpnnProbabilityProfileStep(Step):
         started = time.monotonic()
         try:
             command = [
-                python_executable or sys.executable,
+                python_executable or environment_python("proteinmpnn") or sys.executable,
                 runner.as_posix(),
                 "--pdb_path",
                 structure_path.as_posix(),

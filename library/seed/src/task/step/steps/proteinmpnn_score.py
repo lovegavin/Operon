@@ -14,6 +14,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 
 MODELS = ("v_48_002", "v_48_010", "v_48_020", "v_48_030")
 STATISTICS = ("mean_nll", "global_nll", "nll_std", "n_residues")
@@ -192,7 +193,7 @@ class ProteinmpnnScoreStep(Step):
             raise StepError("proteinmpnn_score: device must be 'cpu' or 'cuda'")
 
         records = parse_fasta(fasta_path)
-        command_python = python_executable or sys.executable
+        command_python = python_executable or environment_python("proteinmpnn") or sys.executable
         out_dir = Path(tempfile.mkdtemp(prefix="operon-mpnn-score-"))
         started = time.monotonic()
         try:
