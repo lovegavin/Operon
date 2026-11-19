@@ -432,8 +432,8 @@
       "resources": [
         "alphafold2"
       ],
-      "planned": true,
-      "notes": "Reserved for a local AlphaFold-2 runner. No bundled operator declares this environment yet; the card exists so the afdb parameter and MSA units can be linked or downloaded ahead of the runner."
+      "planned": false,
+      "notes": "Wraps a local AlphaFold-2 checkout: set the runner (run_alphafold.py) and python_executable to the interpreter of that checkout, or export OPERON_ALPHAFOLD2_HOME. The environment itself only provides a Python shell, so it installs without the multi-gigabyte AlphaFold dependencies."
     },
     "genomics": {
       "title": "基因组组装与比对",

@@ -428,3 +428,15 @@
 .runtime-resources-header {display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
 .runtime-resources-actions {display:flex; align-items:center; gap:8px;}
 .runtime-hint {margin:8px 0 0; color:var(--text-muted); font-size:12px;}
+
+.runtime-badge {
+  border: 1px solid var(--studio-border, #d8dbe0);
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 11px;
+  color: var(--studio-muted, #6b7280);
+}
+
+.remote-library-plan {border:1px solid var(--border,#d8d8d8); border-radius:10px; padding:10px 12px; margin-top:10px; background:var(--surface-soft,#fafafa)}
+.remote-library-plan ul {margin:6px 0; padding-left:18px}
+.remote-library-actions {display:flex; gap:8px; align-items:center; margin-top:10px}

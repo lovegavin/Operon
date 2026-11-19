@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema",
+  "title": "AlphaFold-2 MSA 搜索",
+  "description": "用 jackhmmer 或 hhblits 搜索 AlphaFold-2 数据目录中的参考库，输出可复用的 a3m 比对。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "output_dir"
+  ],
+  "properties": {
+    "sequence": {
+      "type": "string",
+      "default": "",
+      "title": "查询序列",
+      "description": "纯氨基酸序列，空白字符会被忽略；与「查询 FASTA」至少给出一个。",
+      "x-ui-group": "basic",
+      "x-ui-order": 10
+    },
+    "fasta_path": {
+      "type": "string",
+      "default": "",
+      "title": "查询 FASTA",
+      "description": "包含查询序列的 FASTA 文件，优先于「查询序列」。",
+      "x-ui-group": "basic",
+      "x-ui-order": 20
+    },
+    "output_dir": {
+      "type": "string",
+      "default": "",
+      "title": "输出目录",
+      "description": "写入 msa.a3m 的目录；jackhmmer 的原始 Stockholm 结果也会留在这里。",
+      "x-ui-group": "basic",
+      "x-ui-order": 30
+    },
+    "data_dir": {
+      "type": "string",
+      "default": "",
+      "title": "数据目录",
+      "description": "参考库所在目录；留空时依次读取 OPERON_ALPHAFOLD2_DATA 和 OPERON_ALPHAFOLD_DATA。",
+      "x-ui-group": "basic",
+      "x-ui-order": 40
+    },
+    "binary": {
+      "type": "string",
+      "enum": [
+        "jackhmmer",
+        "hhblits"
+      ],
+      "default": "jackhmmer",
+      "title": "搜索工具",
+      "description": "首选的比对工具；所选工具不在 PATH 时会回退到另一个，两者都缺失则报错。",
+      "x-ui-group": "basic",
+      "x-ui-order": 50
+    },
+    "threads": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64,
+      "default": 4,
+      "title": "线程数",
+      "description": "传给 --cpu / -cpu 的线程数。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 60
+    },
+    "timeout_seconds": {
+      "type": "number",
+      "minimum": 60,
+      "default": 3600,
+      "title": "超时（秒）",
+      "description": "单次搜索的超时时间。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 70
+    },
+    "output": {
+      "type": "string",
+      "default": "msa",
+      "title": "输出名称",
+      "x-ui-group": "advanced",
+      "x-ui-order": 80
+    }
+  }
+}

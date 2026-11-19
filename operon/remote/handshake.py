@@ -340,7 +340,7 @@ class ManifestHandshake:
                           'engine_capabilities': [item for item in ENGINE_CAPABILITIES
                                                   if item not in ('cluster.controller_fence.v1', 'cluster.invocation.v1',
                                                                   'cluster.same_host_artifacts.v1')],
-                          'library_capabilities': ['library_sync_v1'],
+                          'library_capabilities': ['library_sync_v1', 'library_remove_v1'],
                           'operator_protocol': OPERATOR_PROTOCOL},
             'build': deepcopy(self.build),
             'build_id': self.build.get('build_id', ''),

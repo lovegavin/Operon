@@ -214,6 +214,8 @@ export const api = {
   installRemoteLibrary: (id: string, payload: {packages: string[]; local_revision: string; remote_revision: string}) =>
     request<import('./types').RemoteLibraryOperation>(`/api/remote/${id}/library/install`, payload),
   remoteLibraryStatus: (id: string) => request<import('./types').RemoteLibraryOperation>(`/api/remote/${id}/library/status`),
+  remoteLibraryPlan: (id: string) => request<import('./types').RemoteLibraryPlan>(`/api/remote/${id}/library/plan`),
+  syncRemoteLibrary: (id: string) => request<import('./types').RemoteLibraryOperation>(`/api/remote/${id}/library/sync`, {}),
   remoteSetup: (id: string) => request<{running: boolean; lines: string[]; error: string}>(`/api/remote/${id}/setup`),
   trustRemote: (id: string, fingerprint: string) => request(`/api/remote/${id}/trust`, {fingerprint}),
   disconnectRemote: (id: string) => request(`/api/remote/${id}/disconnect`, {}),

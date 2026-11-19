@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema",
+  "title": "AlphaFold-2 模型排序",
+  "description": "按 pLDDT 对 AlphaFold-2 输出目录中的 PDB 模型排序，选出最优模型并写出 ranking.csv。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "models_dir"
+  ],
+  "properties": {
+    "models_dir": {
+      "type": "string",
+      "default": "",
+      "title": "模型目录",
+      "description": "AlphaFold-2 的输出目录或单个 PDB 文件；目录会递归查找 *.pdb，并跳过已有的 best.pdb。",
+      "x-ui-group": "basic",
+      "x-ui-order": 10
+    },
+    "scores_json": {
+      "type": "string",
+      "default": "",
+      "title": "评分子 JSON",
+      "description": "可选，例如 ranking_debug.json；留空时按 PDB 中 CA 原子的平均 B-factor 计算 pLDDT。",
+      "x-ui-group": "basic",
+      "x-ui-order": 20
+    },
+    "output": {
+      "type": "string",
+      "default": "best",
+      "title": "输出名称",
+      "x-ui-group": "advanced",
+      "x-ui-order": 30
+    }
+  }
+}

@@ -342,6 +342,87 @@ class RemoteManager:
             worker.start()
             return deepcopy(self.library_operations[key])
 
+    def library_plan(self, key):
+        """Return what a forced local-to-remote library sync would change."""
+        from operon.remote.library import inventory, compare, provider_identity  # noqa: F401
+        connection = self.connections.get(key)
+        if not connection or not connection.connected:
+            raise RemoteError('请先连接服务器。', code='remote_disconnected')
+        capabilities = connection.info.get('handshake', {}).get('library_capabilities', [])
+        if 'library_sync_v1' not in capabilities:
+            raise RemoteError('请先升级服务端，再同步算子库。', code='capability_missing')
+        checked = self.check_library(key)
+        install = [p['name'] for p in checked['packages'] if p['selectable']]
+        blocked = [{'name': p['name'], 'reason': p['reason']} for p in checked['packages']
+                   if not p['selectable'] and p['reason']]
+        remove = []
+        if 'library_remove_v1' in capabilities:
+            manifest = connection.call('library_manifest', {})
+            local_names = {provider_identity(p['name']) for p in inventory(self.service.plugins.state())['packages']
+                           if p['enabled']}
+            remove = sorted(p['name'] for p in manifest['packages']
+                            if provider_identity(p['name']) not in local_names)
+        return {'install': install, 'remove': remove, 'blocked': blocked,
+                'local_revision': checked['local_revision'], 'remote_revision': checked['remote_revision'],
+                'supported': True, 'removal_supported': 'library_remove_v1' in capabilities}
+
+    def start_library_sync(self, key):
+        """Force the remote library to match this machine: add missing, drop extras."""
+        with self.lock:
+            self.profile(key)
+            if self.library_operations.get(key, {}).get('status') == 'running':
+                raise RemoteError('算子库正在安装，请等待完成。', code='maintenance_busy')
+            connection = self.connections.get(key)
+            if not connection or not connection.connected:
+                raise RemoteError('请先连接服务器。', code='remote_disconnected')
+            self.library_operations[key] = {'status': 'running', 'phase': 'checking', 'error': None}
+            worker = threading.Thread(target=self._sync_library, args=(key, connection),
+                                      name='operon-library-sync', daemon=True)
+            worker.start()
+            return deepcopy(self.library_operations[key])
+
+    def _sync_library(self, key, connection):
+        def progress(value):
+            with self.lock:
+                operation = self.library_operations.setdefault(key, {})
+                operation.update(value)
+
+        def cancelled():
+            return self.connections.get(key) is not connection or not connection.connected
+
+        try:
+            plan = self.library_plan(key)
+            if plan['install']:
+                self._install_library(key, connection, {'packages': plan['install'],
+                                                        'local_revision': plan['local_revision'],
+                                                        'remote_revision': plan['remote_revision']})
+                state = deepcopy(self.library_operations.get(key) or {})
+                if state.get('status') != 'complete':
+                    return
+            if plan['remove'] and plan['removal_supported']:
+                progress({'status': 'running', 'phase': 'removing', 'total': len(plan['remove']), 'index': 0})
+                for index, name in enumerate(plan['remove']):
+                    if cancelled():
+                        raise RemoteError('连接已断开；重新连接后可再次同步。')
+                    progress({'phase': 'removing', 'package': name, 'index': index + 1})
+                    connection.call('library_remove', {'name': name})
+                progress({'phase': 'refreshing'})
+                connection.call('refresh_registry', {})
+                deadline = time.monotonic() + 900
+                info = connection.call('refresh_status', {})
+                while info.get('registry_refresh', {}).get('running'):
+                    if cancelled() or time.monotonic() > deadline:
+                        raise RemoteError('服务端维护可能仍在继续；重新连接并检查算子库以确认结果。')
+                    time.sleep(.5)
+                    info = connection.call('refresh_status', {})
+                if info.get('registry_refresh', {}).get('error'):
+                    raise RemoteError(info['registry_refresh']['error'])
+            result = self.check_library(key)
+            progress({'status': 'complete', 'phase': 'complete', 'removed': plan['remove'],
+                      'installed': plan['install'], 'blocked': plan['blocked'], 'result': result})
+        except Exception as exc:
+            progress({'status': 'failed', 'error': str(exc)})
+
     def _install_library(self, key, connection, payload):
         from tempfile import TemporaryDirectory
         from operon.remote.library import inventory, export_provider

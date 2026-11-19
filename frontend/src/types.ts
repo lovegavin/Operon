@@ -260,9 +260,11 @@ export type RemoteLibraryCheck = {error?: string; local_revision?: string; remot
   packages?: {name: string; version: string; remote_version: string | null;
     missing: RemoteLibraryEntry[]; disabled: RemoteLibraryEntry[]; changed?: RemoteLibraryEntry[];
     replaces: number; selectable: boolean; reason?: string | null}[]};
+export type RemoteLibraryPlan = {install: string[]; remove: string[]; blocked: {name: string; reason?: string | null}[];
+  supported?: boolean; removal_supported?: boolean};
 export type RemoteLibraryOperation = {status: 'idle' | 'running' | 'complete' | 'failed'; phase?: string;
   package?: string; index?: number; total?: number; bytes_done?: number; bytes_total?: number;
-  error?: string; result?: RemoteLibraryCheck};
+  error?: string; result?: RemoteLibraryCheck; removed?: string[]; installed?: string[]; blocked?: {name: string; reason?: string | null}[]};
 export type RemoteListing = {path: string; parent: string; next_offset: number | null;
   entries: {name: string; path: string; directory: boolean; bytes: number; modified: number}[]};
 export type TargetRef = {kind: 'local'} | {kind: 'ssh'; profile_id: string};

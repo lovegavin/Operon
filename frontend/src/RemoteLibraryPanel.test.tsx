@@ -7,13 +7,15 @@ import type {RemoteLibraryCheck} from './types';
 const hooks = vi.hoisted(() => ({values: [] as unknown[], cursor: 0, effects: [] as (() => unknown)[]}));
 vi.mock('react', async original => ({...await original<typeof import('react')>(),
   useEffect: (fn: () => unknown) => {hooks.effects.push(fn);},
+  useRef: () => ({current: undefined}),
   useState: (initial: unknown) => {
     const index = hooks.cursor++;
     if (!(index in hooks.values)) hooks.values[index] = initial;
     return [hooks.values[index], (next: unknown) => {hooks.values[index] = typeof next === 'function' ? next(hooks.values[index]) : next;}];
   },
 }));
-vi.mock('./api', () => ({api: {checkRemoteLibrary: vi.fn(), installRemoteLibrary: vi.fn(), remoteLibraryStatus: vi.fn()}}));
+vi.mock('./api', () => ({api: {checkRemoteLibrary: vi.fn(), installRemoteLibrary: vi.fn(),
+  remoteLibraryStatus: vi.fn(), remoteLibraryPlan: vi.fn(), syncRemoteLibrary: vi.fn()}}));
 type Element = {type: unknown; props: Record<string, unknown>};
 function elements(node: ReactNode): Element[] {
   if (Array.isArray(node)) return node.flatMap(elements);

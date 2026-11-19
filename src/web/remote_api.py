@@ -67,6 +67,14 @@ def mount_remote(app, service):
     def install_library(key: str, payload: dict):
         return manager.start_library_install(key, payload)
 
+    @app.post('/api/remote/{key}/library/sync')
+    def sync_library(key: str):
+        return manager.start_library_sync(key)
+
+    @app.get('/api/remote/{key}/library/plan')
+    def library_plan(key: str):
+        return manager.library_plan(key)
+
     @app.get('/api/remote/{key}/library/status')
     def library_status(key: str):
         return manager.library_status(key)

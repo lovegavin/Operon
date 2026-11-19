@@ -190,6 +190,46 @@
     "status": "authored"
   },
   {
+    "id": "alphafold2_batch_predict",
+    "kind": "operator",
+    "title": "AlphaFold-2 batch structure prediction",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Run the local AlphaFold-2 run_alphafold.py once per FASTA file of a directory or list, keep every raw output tree in one output directory and report name, status, model path, mean pLDDT and error text in summary.csv.",
+    "doc": "src/task/step/steps/alphafold2_batch_predict.Alphafold2BatchPredictStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "alphafold2_msa_search",
+    "kind": "operator",
+    "title": "AlphaFold-2 MSA search",
+    "category": "Sequence",
+    "version": "1.0.0",
+    "description": "Search the reference databases of an AlphaFold-2 data directory with jackhmmer or hhblits and return the resulting alignment as an a3m file that a local AlphaFold-2 run can reuse.",
+    "doc": "src/task/step/steps/alphafold2_msa_search.Alphafold2MsaSearchStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "alphafold2_predict",
+    "kind": "operator",
+    "title": "AlphaFold-2 structure prediction",
+    "category": "Machine Learning",
+    "version": "1.0.0",
+    "description": "Predict a protein structure from one FASTA file with a local AlphaFold-2 installation by calling its run_alphafold.py entry point, then return the ranked_0 model as a PDB artifact together with the mean pLDDT and pTM that AlphaFold-2 recorded in ranking_debug.json.",
+    "doc": "src/task/step/steps/alphafold2_predict.Alphafold2PredictStep.md",
+    "status": "authored"
+  },
+  {
+    "id": "alphafold2_rank_models",
+    "kind": "operator",
+    "title": "AlphaFold-2 model ranking",
+    "category": "Structure",
+    "version": "1.0.0",
+    "description": "Rank the PDB models of one AlphaFold-2 output directory by pLDDT, copy the best model as best.pdb and report every candidate with rank, name, pLDDT and whether it was selected.",
+    "doc": "src/task/step/steps/alphafold2_rank_models.Alphafold2RankModelsStep.md",
+    "status": "authored"
+  },
+  {
     "id": "alternative_polyadenylation",
     "kind": "operator",
     "title": "Alternative polyadenylation",

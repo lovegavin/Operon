@@ -551,6 +551,12 @@ class RemoteService:
                                       str(payload.get('root') or '') or None,
                                       bool(payload.get('overwrite')),
                                       str(payload.get('unit') or '') or None)
+        if method == 'library_remove':
+            from operon.library_install import uninstall_library
+            name = str((params or {}).get('name') or '')
+            if not name:
+                raise ValueError('library_remove requires a package name')
+            return uninstall_library(self.service.plugins, name)
         if method == 'library_install':
             # JobService wraps _install_many in the shared environment gate.
             # Acquiring it here too would reject our own install as concurrent

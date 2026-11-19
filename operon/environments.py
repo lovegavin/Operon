@@ -250,6 +250,14 @@ def code_root() -> Path:
 
 
 def _write_form(directory: Path, index: int, form) -> dict:
+    from src.core.files import FileArtifact
+    if isinstance(form, FileArtifact):
+        meta = {"kind": "file", "format": form.format,
+                "files": {str(key): str(value) for key, value in form.files.items()},
+                "info": _jsonable(form.info),
+                "fingerprints": {str(key): dict(value) for key, value in form.fingerprints.items()}}
+        (directory / f"input{index}.json").write_text(json.dumps(meta), encoding="utf-8")
+        return meta
     data_path = directory / f"input{index}.npy"
     np.save(data_path, np.asarray(form.data))
     meta = {"dims": list(form.dims), "labels": {k: dict(v) for k, v in form.labels.items()},
@@ -336,9 +344,17 @@ def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(
         raise StepError(message["error"])
     from src.core.forms import Form
     from operon.env_worker import _revive
-    data = np.load(directory / "output.npy", allow_pickle=False)
-    form = Form(data=data, dims=message["dims"], labels=message["labels"],
-                info=_revive(message.get("info", {})), axis_info=message.get("axis_info", {}))
+    if message.get("kind") == "file":
+        from src.core.files import FileArtifact
+        form = FileArtifact(format=message["format"],
+                            files={str(key): str(value) for key, value in message["files"].items()},
+                            info=_revive(message.get("info", {})),
+                            fingerprints={str(key): dict(value)
+                                          for key, value in (message.get("fingerprints") or {}).items()})
+    else:
+        data = np.load(directory / "output.npy", allow_pickle=False)
+        form = Form(data=data, dims=message["dims"], labels=message["labels"],
+                    info=_revive(message.get("info", {})), axis_info=message.get("axis_info", {}))
     return form, _revive(message.get("export", {})), "\n".join((completed.stderr or "").strip().splitlines()[-4:])
 
 

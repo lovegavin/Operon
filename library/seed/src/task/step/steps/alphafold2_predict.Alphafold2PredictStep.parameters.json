@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-2020-12/schema",
+  "title": "AlphaFold-2 结构预测",
+  "description": "用本地 AlphaFold-2 安装对一条序列做结构预测，返回 ranked_0 模型与 pLDDT/pTM。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "fasta_path",
+    "output_dir"
+  ],
+  "properties": {
+    "fasta_path": {
+      "type": "string",
+      "default": "",
+      "title": "输入 FASTA",
+      "description": "含一条氨基酸序列的 FASTA 文件；文件名决定 AlphaFold-2 的输出子目录名。",
+      "x-ui-group": "basic",
+      "x-ui-order": 10
+    },
+    "output_dir": {
+      "type": "string",
+      "default": "",
+      "title": "输出目录",
+      "description": "AlphaFold-2 原始输出目录；ranked_0.pdb 位于其下以 FASTA 名命名的子目录。",
+      "x-ui-group": "basic",
+      "x-ui-order": 20
+    },
+    "data_dir": {
+      "type": "string",
+      "default": "",
+      "title": "数据目录",
+      "description": "params 与 MSA 数据库所在目录；留空时依次读取 OPERON_ALPHAFOLD2_DATA 和 OPERON_ALPHAFOLD_DATA。",
+      "x-ui-group": "basic",
+      "x-ui-order": 30
+    },
+    "runner": {
+      "type": "string",
+      "default": "run_alphafold.py",
+      "title": "运行脚本",
+      "description": "AlphaFold-2 仓库中的 run_alphafold.py；相对文件名先在 OPERON_ALPHAFOLD2_HOME 下查找。",
+      "x-ui-group": "basic",
+      "x-ui-order": 40
+    },
+    "model_preset": {
+      "type": "string",
+      "enum": [
+        "monomer",
+        "monomer_casp14",
+        "monomer_ptm",
+        "multimer"
+      ],
+      "default": "monomer_ptm",
+      "title": "模型预设",
+      "description": "monomer_ptm 提供 pTM 与 PAE；multimer 需要多聚体权重和多序列输入。",
+      "x-ui-group": "basic",
+      "x-ui-order": 50
+    },
+    "max_template_date": {
+      "type": "string",
+      "default": "2022-01-01",
+      "title": "模板截止日期",
+      "description": "YYYY-MM-DD；只使用该日期之前的 PDB 模板。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 60
+    },
+    "use_gpu": {
+      "type": "boolean",
+      "default": false,
+      "title": "使用 GPU",
+      "description": "传给 run_alphafold.py 的 --use_gpu；关闭时清空 CUDA_VISIBLE_DEVICES。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 70
+    },
+    "python_executable": {
+      "type": "string",
+      "default": "",
+      "title": "Python 解释器",
+      "description": "运行该脚本的解释器；留空使用 alphafold2 环境的解释器。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 80
+    },
+    "timeout_seconds": {
+      "type": "number",
+      "minimum": 60,
+      "default": 3600,
+      "title": "超时（秒）",
+      "description": "单次 AlphaFold-2 运行的超时时间。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 90
+    },
+    "output": {
+      "type": "string",
+      "default": "structure",
+      "title": "输出名称",
+      "x-ui-group": "advanced",
+      "x-ui-order": 100
+    }
+  }
+}

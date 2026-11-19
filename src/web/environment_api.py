@@ -193,6 +193,7 @@ def mount_environments(app, service):
         notes = entry.get('notes')
         item['title'] = str(entry.get('title') or name)
         item['notes'] = notes if isinstance(notes, str) else ''
+        item['planned'] = bool(entry.get('planned'))
         item['size_bytes'] = int(size_bytes(item.get('location') or ''))
         item['python_version'] = python_version(item)
         item['updated_at'] = updated_at(name, item)

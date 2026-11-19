@@ -54,7 +54,16 @@ def main():
         module, name = request["entry_point"].split(":", 1)
         cls = getattr(importlib.import_module(module), name)
         inputs = []
+        from src.core.files import FileArtifact
         for index, meta in enumerate(request["inputs"]):
+            if meta.get("kind") == "file":
+                inputs.append(FileArtifact(
+                    format=meta["format"],
+                    files={str(key): str(value) for key, value in meta["files"].items()},
+                    info=_revive(meta.get("info", {})),
+                    fingerprints={str(key): dict(value)
+                                  for key, value in (meta.get("fingerprints") or {}).items()}))
+                continue
             data = np.load(directory / f"input{index}.npy", allow_pickle=False, mmap_mode='c')
             inputs.append(Form(data=data, dims=meta["dims"], labels=meta["labels"],
                                info=_revive(meta.get("info", {})), axis_info=meta.get("axis_info", {})))
@@ -62,11 +71,19 @@ def main():
         step = cls()
         step.run(ctx, inputs)
         form = ctx.values[request["params"]["output"]]
-        np.save(directory / "output.npy", np.asarray(form.data))
         export = step.export(ctx) or {}
-        result = {"dims": list(form.dims), "labels": {k: dict(v) for k, v in form.labels.items()},
-                  "info": _jsonable(form.info), "axis_info": _jsonable(form.axis_info),
-                  "export": _jsonable(export)}
+        if isinstance(form, FileArtifact):
+            result = {"kind": "file", "format": form.format,
+                      "files": {str(key): str(value) for key, value in form.files.items()},
+                      "info": _jsonable(form.info),
+                      "fingerprints": {str(key): dict(value)
+                                        for key, value in form.fingerprints.items()},
+                      "export": _jsonable(export)}
+        else:
+            np.save(directory / "output.npy", np.asarray(form.data))
+            result = {"dims": list(form.dims), "labels": {k: dict(v) for k, v in form.labels.items()},
+                      "info": _jsonable(form.info), "axis_info": _jsonable(form.axis_info),
+                      "export": _jsonable(export)}
     except Exception as exc:  # noqa: BLE001 - returned to the parent process
         traceback.print_exc(file=sys.stderr)
         message = str(exc)

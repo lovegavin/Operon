@@ -15,6 +15,7 @@ export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
   updated_at?: string;
   operator_count?: number;
   operators?: string[];
+  planned?: boolean;
   used_by_count?: number;
   expected_bytes?: number;
   queue_position?: number;
@@ -254,6 +255,7 @@ export function EnvironmentCard({item, busy = false, onAction, onOpen}: {
         <code>{item.title || item.name}</code>
       </div>
       <div className="runtime-card-tags">
+        {item.planned && <span className="runtime-badge">{t('预留')}</span>}
         {queueText(item) && <span className="runtime-queue">{queueText(item)}</span>}
         <span className={`runtime-chip is-${tone}`} data-status={tone}>{t(statusKeys[tone])}</span>
       </div>
@@ -276,7 +278,7 @@ export function EnvironmentCard({item, busy = false, onAction, onOpen}: {
         {usageCount(item) ? <details className="runtime-usedby">
           <summary>{t('{n} 个算子', {n: usageCount(item)})}</summary>
           <ul>{operatorsOf(item).map(name => <li key={name}><code>{name}</code></li>)}</ul>
-        </details> : <dd>{t('无')}</dd>}
+        </details> : <dd>{item.planned ? t('预留环境（无内置算子）') : t('无')}</dd>}
       </div>
     </dl>
     {tone === 'failed' && failureText(item) && <p className="runtime-error" title={failureText(item)}>
@@ -425,7 +427,26 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     String(left.name || '').localeCompare(String(right.name || ''));
   const localItems = Object.values(snapshot?.environments || {}).sort(byName);
   const remoteItems = Object.values(remoteLoaded[target]?.environments || {}).sort(byName);
-  const items = (target ? remoteItems : localItems) as unknown as EnvironmentItem[];
+  const localByName = new Map(localItems.map(item => [String(item.name || ''), item]));
+  const merged = target
+    ? remoteItems.map(raw => {
+        const item = raw as unknown as EnvironmentItem;
+        const meta = localByName.get(String(item.name || ''));
+        if (!meta) return item;
+        return {
+          ...item,
+          title: meta.title || item.title,
+          notes: meta.notes || item.notes,
+          planned: meta.planned ?? item.planned,
+          dependencies: meta.dependencies?.length ? meta.dependencies : item.dependencies,
+          resources: meta.resources?.length ? meta.resources : item.resources,
+          operator_count: meta.operator_count ?? item.operator_count,
+          operators: meta.operators?.length ? meta.operators : item.operators,
+          expected_bytes: item.expected_bytes || meta.expected_bytes,
+        } as EnvironmentItem;
+      })
+    : localItems;
+  const items = merged as unknown as EnvironmentItem[];
   const rank = (item: EnvironmentItem) => {
     const tone = statusTone(item.status);
     return tone === 'installing' ? 0 : tone === 'queued' ? 1 : 2;
