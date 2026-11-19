@@ -199,12 +199,12 @@ Local and remote paths outside Git:
   the working tree; do not copy a worktree's `.git` file without its admin repo.
   Update IDE workspaces, terminal profiles, shortcuts and scripts that point at
   the old directory.
-- The server workdir `/public/home/lihj/biopipe-verify-4x` is not referenced in
-  tracked files. Rename it to `/public/home/lihj/operon-verify-5x` (or create a
+- The server workdir `/home/<user>/biopipe-verify-4x` is not referenced in
+  tracked files. Rename it to `/home/<user>/operon-verify-5x` (or create a
   symlink during the transition) and update SSH configs, job scripts and
   verification notes. The existing naming convention is shown by
   `docs/verification/library-3.0.1-remote.md:3`, which uses
-  `/public/home/lihj/operon-verify-301`.
+  `/home/<user>/operon-verify-301`.
 
 ## 3. CI and release plumbing
 
@@ -495,7 +495,7 @@ Items needed only for a future application release are marked "No (app)".
 | Provider IDs in bundle | `operon-*`; old seed `biopipe-*` | Test replacement vs duplication on 3.0.1 | App maintainer | No |
 | Legacy library archive | Picker accepts, installer does not | Route or remove suffix | App maintainer | No |
 | Windows checkout | `D:\BioPipe-4.x` | Re-clone/move to `D:\Operon-5.x` | Infrastructure | No |
-| Server workdir | `/public/home/lihj/biopipe-verify-4x` | Rename or symlink to `operon-verify-5x` | Infrastructure | No |
+| Server workdir | `/home/<user>/biopipe-verify-4x` | Rename or symlink to `operon-verify-5x` | Infrastructure | No |
 | Seed pin | 2026.11.6.1 in 3.0.1 | Pin explicitly in the next app release | Release manager | No |
 | Installer/package names | Already Operon | Rebuild and re-sign after version decision | Release manager | No |
 | Rename text regressions | Six self-referential statements | Restore BioPipe as the former name | Docs | No |
@@ -518,7 +518,7 @@ grep -rn "lovegavin/BioPipe\|lovegavin/Operon" README.md QUICKSTART.md QUICKSTAR
 The v3.0.1 asset names were confirmed against the published GitHub release; the
 repository has no local copy of those assets. No rename, build, CI run, tag or
 commit was performed. The local paths `D:\BioPipe-4.x` and
-`/public/home/lihj/biopipe-verify-4x` were checked only where they exist on this
+`/home/<user>/biopipe-verify-4x` were checked only where they exist on this
 machine; the server path is not referenced in tracked files, so its rename is a
 manual infrastructure step.
 

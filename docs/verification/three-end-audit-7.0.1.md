@@ -77,7 +77,7 @@ and an srv result (PASS or SKIP with a reason) recorded in
 
 All 196 operators fall under a section that records a WSL run, a Windows run,
 and an srv result or an explicit SKIP. The dominant srv SKIP reason is that
-`ssh srv` did not resolve and `/public/home/lihj` was not mounted on the WSL
+`ssh srv` did not resolve and `/home/<user>` was not mounted on the WSL
 host; the srv work that did run (for example b92/b93 and the 6.0.0
 re-verification) is recorded separately in the same document.
 

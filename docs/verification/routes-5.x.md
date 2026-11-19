@@ -47,7 +47,7 @@ RDKit's documented behavior. That limitation is recorded rather than hidden.
 | --- | --- | --- |
 | WSL (Ubuntu 24.04, bp-numpy21, NumPy 2.1.3) | PASS | 10/10 steps, values above |
 | Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4) | PASS | same five CSV files, MD5 identical to WSL; tree reports library 5.0.0 |
-| srv (`/public/home/lihj/...`) | SKIP | no `srv` host in `~/.ssh/config`, no `/public/home/lihj` mount; host name and credentials unknown |
+| srv (`/home/<user>/...`) | SKIP | no `srv` host in `~/.ssh/config`, no `/home/<user>` mount; host name and credentials unknown |
 
 MD5 agreement: molecular_formula `3d76fd93ef72388721114182249472cf`,
 exact_mass `44fd7b03bda29e91f14a2629b2d38dc2`,
@@ -114,7 +114,7 @@ N 14.007, O 15.999, P 30.974, S 32.06, F 18.998, Cl 35.45, Br 79.904, I 126.904.
 | --- | --- | --- |
 | WSL (Ubuntu 24.04, bp-numpy21, NumPy 2.1.3) | PASS | 12/12 steps, values above |
 | Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4) | PASS | same six CSV files, MD5 identical to WSL |
-| srv (`/public/home/lihj/...`) | SKIP | no `srv` host in `~/.ssh/config`, no `/public/home/lihj` mount |
+| srv (`/home/<user>/...`) | SKIP | no `srv` host in `~/.ssh/config`, no `/home/<user>` mount |
 
 MD5 agreement: adduct_mz `6bfe10d65008e3e8c957d4ced3f3310a`,
 dbe `0a4363e5df89af2aa57741d1a270ddf7`,
@@ -181,7 +181,7 @@ not as functional annotations.
 | --- | --- | --- |
 | WSL (Ubuntu 24.04, bp-numpy21, NumPy 2.1.3) | PASS | 10/10 steps, values above |
 | Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4) | PASS | same five CSV files, MD5 identical to WSL |
-| srv (`/public/home/lihj/...`) | SKIP | no `srv` host in `~/.ssh/config`, no `/public/home/lihj` mount |
+| srv (`/home/<user>/...`) | SKIP | no `srv` host in `~/.ssh/config`, no `/home/<user>` mount |
 
 MD5 agreement: aliphatic_index `adc5c3a215bcdd8f1fd3bd5be94d50d5`,
 kinase_motifs `f752fcbed306456e45fe080579af31ac`,
@@ -252,7 +252,7 @@ All 10 steps report `complete`. Selected values:
 | --- | --- |
 | WSL (bp-numpy21, NumPy 2.1.3) | 10/10 steps, md5 below |
 | Windows 12.10 (`D:\Operon`, NumPy 2.5.4) | 10/10 steps, same md5 |
-| srv (`/public/home/lihj`) | SKIP: `ssh srv` does not resolve and no host is configured |
+| srv (`/home/<user>`) | SKIP: `ssh srv` does not resolve and no host is configured |
 
 | Export | md5 (WSL = Windows) |
 | --- | --- |
@@ -345,7 +345,7 @@ tests pin a hand-computed five-row example for both.
 | --- | --- | --- |
 | WSL (bp-numpy21, NumPy 2.1.3) | PASS | 8/8 steps; md5 below |
 | Windows (D:\Operon, py 3.12.10, NumPy 2.5.4) | PASS | 8/8 steps; md5 below |
-| srv (`/public/home/lihj/...`) | SKIP | `ssh srv` is not resolvable in this environment and no `/public/home/lihj` mount exists |
+| srv (`/home/<user>/...`) | SKIP | `ssh srv` is not resolvable in this environment and no `/home/<user>` mount exists |
 
 CSV md5 (WSL = Windows):
 
@@ -438,7 +438,7 @@ check on the definitions.
 | --- | --- | --- |
 | WSL (bp-numpy21, NumPy 2.1.3) | PASS | 6/6 steps; md5 below |
 | Windows (D:\Operon, py 3.12.10, NumPy 2.5.4) | PASS | 6/6 steps; md5 below |
-| srv (`/public/home/lihj/...`) | SKIP | `ssh srv` unresolved; no `/public/home/lihj` mount |
+| srv (`/home/<user>/...`) | SKIP | `ssh srv` unresolved; no `/home/<user>` mount |
 
 CSV md5 (WSL = Windows):
 
@@ -502,7 +502,7 @@ optimizer). All fitted values agree to < 1e-4 in beta/gamma and < 1.0 in RMSE.
 | --- | --- | --- |
 | WSL (NumPy 2.1.3) | 10/10 complete | growth `f6cea665263959f54744cb67e343fccf`, r0 `88e0c3bb03af3c05b3fd3edfd2d74158`, cfr `759acba3fdcefcc51bbec53fbcba4fea` |
 | Windows 12.10 / NumPy 2.5.4 (D:\Operon) | 10/10 complete | growth, r0, cfr match WSL; SIR `fed6091a...` and SEIR `62543952...` differ in the last printed digits |
-| srv | SKIP | `ssh srv` is not resolvable in this environment; no `/public/home/lihj` mount |
+| srv | SKIP | `ssh srv` is not resolvable in this environment; no `/home/<user>` mount |
 
 The SIR/SEIR CSV md5 differ because `solve_ivp`/`least_squares` land on a
 slightly different point of a flat optimum on the two platforms. Numerically the
@@ -556,7 +556,7 @@ for allele balance; window z uses ddof=1 and the operator's n > 2 rule.
 | --- | --- | --- |
 | WSL (NumPy 2.1.3) | 10/10 complete | fst `e29eff9b8f79229b862f11c02cf8936f`, recomb `6d3e01311bf40a1976e8bb35ab56c663`, qtl `6458d31d9d7876536758ef7641c4fafe`, rrblup `f5c7a5e4383c0030f4ce54d6ca4b2321`, allele `3aaffd6c14b301ec7a13f2936e698331` |
 | Windows 12.10 / NumPy 2.5.4 (D:\Operon) | 10/10 complete | all five md5 match WSL |
-| srv | SKIP | `ssh srv` is not resolvable; no `/public/home/lihj` mount |
+| srv | SKIP | `ssh srv` is not resolvable; no `/home/<user>` mount |
 
 **Limitations.**
 
@@ -611,7 +611,7 @@ Cross-platform: Windows 12.10 / NumPy 2.5.4 produced byte-identical CSVs
 (overlap `e1521be79a76ea0e4c09f7de25099f9d`, density
 `54dec4c9222443cde7c54ed785b8fdb9`, tss
 `d9486ad13b5c3c754e6ae18f3f2d60ab`). srv SKIP: `ssh srv` is not resolvable and
-no `/public/home/lihj` mount exists.
+no `/home/<user>` mount exists.
 
 Limitations: the GFF sample contains 93 gene records after type filtering, so
 TSS distances are a sparse sample rather than a complete annotation; windows
@@ -657,7 +657,7 @@ CheckM `6c1ab7237574801f2e6ff7d6cc10ed30`,
 GTDB `dd5bbed2dc813f3f1e2f3dd08c3dbbef`,
 MLST `dd4b3062dbfab11705b1d5b98dec79bd`,
 pangenome `ffbcab4bab23686a2e947598f5b45bd7`. srv: SKIP, `ssh srv` is not
-resolvable from this host (no matching Host block, no mounted `/public/home/lihj`).
+resolvable from this host (no matching Host block, no mounted `/home/<user>`).
 
 **Limitations.** The fixtures are synthetic and small; ANI is a presence/absence
 k-mer approximation (Mash-like distance), not a genome aligner; CheckM quality
@@ -704,7 +704,7 @@ bracken `58c9462435421ee6f176158cb786a618`,
 humann `2b0774d8933c234208d318f9efc92b36`,
 metaphlan `8425e6ff36007e65873ea393c66c480f`,
 plasmid `0b9f9b184772968375e6ffa02d9cb745`. srv: SKIP, `ssh srv` is not
-resolvable and no `/public/home/lihj` mount exists.
+resolvable and no `/home/<user>` mount exists.
 
 **Limitations.** Synthetic fixtures; Kraken genus fraction includes species
 ranks; Bracken uses genome length rather than effective length; HUMAnN and
@@ -767,7 +767,7 @@ missing-not-at-random structure.
   - domain_summary `141d503ce6707cfccd9f3f4dac66bfda`
   - architecture `fe9a432ade3059d00533553b1d4e3c74`
   - completeness `37c230b3802b91cdf9ce6ca7dcecf5f1`
-- **Remote**: SKIP — `ssh srv` does not resolve on this host and no `/public/home/lihj` tree is mounted.
+- **Remote**: SKIP — `ssh srv` does not resolve on this host and no `/home/<user>` tree is mounted.
 - **Limitations**: overlap check is O(n^2) and intended for small annotation tables; domain coverage is the union of intervals, not the sum of lengths; architecture switches are adjacency changes in start order, not phylogenetically informed.
 
 ## b68 — LC-MS feature, isotope and neutral-mass matching panel
@@ -782,7 +782,7 @@ missing-not-at-random structure.
   - isotopes for `C6H12O6`, z=1: M0 theoretical m/z 181.070666, observed 181.0712, +2.9465 ppm; M+1 theoretical 182.074021, relative abundance 0.064894 (observed isotope ratio 0.062).
   - match: glucose neutral mass 180.0634 gives [M+H]+ 181.070676; the observed 181.0712 feature differs by +2.8913 ppm and is the only database entry inside 50 ppm.
 - **Oracle (6/6 pass, `workdir/b68_oracle.json`)**: an independent NumPy local-maximum scan reproduces the two features exactly; `pyteomics.mass` gives the monoisotopic and M+1 m/z and the M+1/M0 abundance. Comparison tolerances are 5e-6 Da for m/z and 0.1 ppm for the match because pyteomics and the operator use different proton/electron mass conventions (the raw deltas are 1.9e-6 Da, 2.06e-6 Da and 0.066 ppm).
-- **Three-end**: WSL and Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4) both complete 6/6 and produce identical MD5: features `3202b904f52c62945088b2d54cc218bc`, isotopes `a6fee330ff111dd3c4f097f6766c0f49`, matches `23a0c662e1a3542759e1e01059133db1`. Remote srv: SKIP — `ssh srv` does not resolve and no `/public/home/lihj` tree is mounted.
+- **Three-end**: WSL and Windows (`D:\Operon`, Python 3.12.10, NumPy 2.5.4) both complete 6/6 and produce identical MD5: features `3202b904f52c62945088b2d54cc218bc`, isotopes `a6fee330ff111dd3c4f097f6766c0f49`, matches `23a0c662e1a3542759e1e01059133db1`. Remote srv: SKIP — `ssh srv` does not resolve and no `/home/<user>` tree is mounted.
 - **Limitations**: isotope rows can share one observed peak (several isotopologues fall inside the 50 ppm window); the first column of `features.csv` is the ordinal peak label, not a scan id; the isotope model ignores unresolved fine structure and uses nominal integer abundances.
 
 ## b63 - methylation beta / M value / DMR windows (synthetic counts)
@@ -909,7 +909,7 @@ Three-end comparison (same commit):
 | --- | --- |
 | WSL, NumPy 2.1.3 | 10/10, md5 below |
 | Windows, Python 3.12 / NumPy 2.5.4 | 10/10 after installing `igraph==1.0.0` and `leidenalg==0.12.0`; md5 identical |
-| srv | SKIP: `ssh srv` does not resolve and no `/public/home/lihj` mount exists |
+| srv | SKIP: `ssh srv` does not resolve and no `/home/<user>` mount exists |
 
 | Export | md5 |
 | --- | --- |
@@ -951,7 +951,7 @@ Three-end (same commit): WSL and Windows (py 3.12, D:\Operon) 6/6 steps; md5 mat
 - match.csv 31d08e5315b1cde5d2d58398d5a86891
 - annotation.csv 9139ff602e25e2195c36728e705e49df
 - proteins.csv 28a3f98d12be661b8f388e586098bf18
-srv: SKIP (ssh alias srv does not resolve; no /public/home/lihj mount).
+srv: SKIP (ssh alias srv does not resolve; no /home/<user> mount).
 
 Tests: tests/test_proteomics_panel_b66.py 3 passed (library cosine, 12 b/y ions, inferred peptide counts).
 Limitations: library matching compares intensities of matched peaks by nearest m/z within tolerance and does not model fragment charge states; annotation covers singly charged b/y ions only; protein inference reports counts, not parsimonious protein sets.
@@ -1443,7 +1443,7 @@ identical:
 
 The `srv` host could not be reached in this session. From Windows OpenSSH,
 `ssh srv` resolved to 172.22.148.93 but the TCP connection timed out, and ICMP
-echo failed; the `/public/home/lihj` workspace was therefore not available.
+echo failed; the `/home/<user>` workspace was therefore not available.
 This endpoint is recorded as SKIP (network unreachable), not as a passing
 result, and no srv numbers are reported.
 
@@ -1480,12 +1480,12 @@ The srv host became reachable after the earlier SKIP, so the five post-1001 rout
 were re-run there on the same commit as WSL and Windows. All 13 exported tables
 matched byte for byte.
 
-- Host: `srv` (lihj), repository `/public/home/lihj/Operon-verify`
+- Host: `srv` (lihj), repository `/home/<user>/Operon-verify`
 - Commit: `c3d16930` (route inputs tracked after the first srv attempt exposed the
   repository `input/` ignore rule)
-- Python: 3.11.18 in `/public/home/lihj/operon-venv311`; numpy 2.2.6, scipy 1.14.1,
+- Python: 3.11.18 in `/home/<user>/operon-venv311`; numpy 2.2.6, scipy 1.14.1,
   pandas 2.2.3, pydantic 2.14.3
-- Command: `PYTHONPATH=$PWD /public/home/lihj/operon-venv311/bin/python scripts/run.py library/seed/routes/<bundle>` (plus `workdir/b80_route` for the b80 check)
+- Command: `PYTHONPATH=$PWD /home/<user>/operon-venv311/bin/python scripts/run.py library/seed/routes/<bundle>` (plus `workdir/b80_route` for the b80 check)
 - WSL/Windows values are those recorded in the b76-b80 sections above.
 
 | route | export | md5 (srv = WSL = Windows) |
@@ -1519,7 +1519,7 @@ exactly on the three hosts.
 - `noncoding_rna_editing`: back-splice circRNA detection, RNA-editing candidate
   scoring and a motif PWM (operators from the final 1001 batch).
 
-srv used `/public/home/lihj/operon-venv311` (Python 3.11.18) and the same
+srv used `/home/<user>/operon-venv311` (Python 3.11.18) and the same
 `scripts/run.py <bundle>` entry point as WSL and Windows.
 
 | route | export | md5 (WSL = srv = Windows) |
@@ -1603,8 +1603,8 @@ publish workspace, with bare file names and verification JSONs included.
 The published tag and its assets were not modified.
 ## srv re-verification on the 6.0.0 tree (2026-11-08)
 
-After the 6.0.0 release, srv (`/public/home/lihj/Operon-verify`, commit
-`7de81b8`, editable install in `/public/home/lihj/operon-venv311`, Python
+After the 6.0.0 release, srv (`/home/<user>/Operon-verify`, commit
+`7de81b8`, editable install in `/home/<user>/operon-venv311`, Python
 3.11.18, numpy 2.2.6, scipy 1.14.1, pandas 2.2.3, biopython 1.85) ran the six
 bundled routes below. All 19 exported CSV files are byte-identical to the WSL
 run of the same commit:

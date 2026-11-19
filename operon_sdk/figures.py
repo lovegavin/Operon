@@ -5,6 +5,16 @@ import re
 FORMATS = {'png', 'pdf', 'svg', 'jpg', 'jpeg', 'tif', 'tiff', 'webp'}
 
 
+def _figure_output_dir(context) -> Path:
+    run_dir = getattr(getattr(context, "memory", None), "run_dir", None)
+    if run_dir:
+        return Path(run_dir)
+    out_dir = getattr(context, "out_dir", None)
+    if not out_dir:
+        raise ValueError("Figure context is missing an output directory")
+    return Path(out_dir)
+
+
 def register_figure(context, figure_id, files, *, title=None, **metadata):
     """Describe already saved files inside this job; never copy or load pixels.
 
@@ -27,7 +37,7 @@ def register_figure(context, figure_id, files, *, title=None, **metadata):
         raise ValueError('Figure description must be text')
     if title is not None and not isinstance(title, str):
         raise ValueError('Figure title must be text')
-    base = Path(context.out_dir).resolve()
+    base = _figure_output_dir(context).resolve()
     entries = []
     for fmt, value in files.items():
         path = Path(value).resolve()

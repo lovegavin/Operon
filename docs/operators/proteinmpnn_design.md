@@ -57,7 +57,7 @@ Design sequences for a PDB structure with ProteinMPNN.
 | --- | --- | --- |
 | L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
 | L2 单元/oracle | UNIT | tests/test_export_results.py,test_extension110.py,test_extension125.py |
-| L3 真实执行 | EXECUTED_SRV | srv:/public/home/lihj/operon715/cov_mpnn/proteinmpnn_design/output/run_summary.json |
+| L3 真实执行 | EXECUTED_SRV | srv:/home/<user>/operon715/cov_mpnn/proteinmpnn_design/output/run_summary.json |
 | L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
 | L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
 

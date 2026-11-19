@@ -63,7 +63,7 @@ four fields in this order:
    not present yet; `esm2` and `boltz` are hidden because they are already
    present.
 4. `目标绝对位置` - an input whose placeholder is the first allowed link root
-   of the selected resource (`/public/home/lihj/operon-resources`).
+   of the selected resource (`/home/<user>/operon-resources`).
 
 Choosing an environment narrows field 3 to the missing linkable resources of
 that environment (only `openfold`) and moves the selection to the first one. The dialog lists the allowed link roots, states that a link only affects

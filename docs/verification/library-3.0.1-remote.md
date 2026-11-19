@@ -1,6 +1,6 @@
 # Operon Operator Library 3.0.1 - Remote Cluster Verification
 
-Date: 2026-11-06 (Asia/Shanghai). Workdir: /public/home/lihj/operon-verify-301.
+Date: 2026-11-06 (Asia/Shanghai). Workdir: /home/<user>/operon-verify-301.
 Scope: dynamic smoke execution of the full operator catalog plus real-weight ESM runs and
 domain batteries (structure, sequence, omics, MD). Read-only with respect to the repository.
 
@@ -13,11 +13,11 @@ domain batteries (structure, sequence, omics, MD). Read-only with respect to the
 | Registry | 717 operators / 101 Readers / 7 packages / 24 routes, errors [] |
 | Runtime | managed app 1.125.3 (Python 3.11.18, torch 2.6.0+cu124), isolated venv-esm2 |
 | ESM stack | fair-esm 2.0.0 in esm_pkgs, openfold sm75 extension, dm-tree 0.1.10 (py311), torch_geometric 2.8.1, torch_scatter 2.1.2+pt26cu124 |
-| ESM3 | /public/home/lihj/envtest2/esm3 (Python 3.12, esm 3.2.2, CPU) |
+| ESM3 | /home/<user>/envtest2/esm3 (Python 3.12, esm 3.2.2, CPU) |
 | Nodes | master 56c/251G/3090; node78 52c/480G/2080Ti 11G; node79 52c/2x3080; node80 avoided |
 | Tools | tools/bioconda/bin: RNAfold, RNAduplex, mkdssp 4.2.2, prodigal, fpocket, hmmer |
 
-All writes stayed under /public/home/lihj; no deletions were performed.
+All writes stayed under /home/<user>; no deletions were performed.
 
 ## 2. Method
 

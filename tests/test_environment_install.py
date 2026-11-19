@@ -196,3 +196,30 @@ def test_track_line_keeps_download_bytes_ahead_of_disk_usage() -> None:
     assert progress['fetched'] == int(201.4 * 1024 ** 2)
     assert progress['bytes'] == progress['fetched']
     assert progress['stage'] == 'downloading'
+
+
+def test_run_waits_for_the_first_line_before_the_stall_limit(tmp_path, monkeypatch):
+    monkeypatch.setattr(environment_install, 'STARTUP_SECONDS', 10.0)
+    code = 'import time; time.sleep(1.2); print("done")'
+    output = environment_install._run([sys.executable, '-c', code], log=lambda line: None,
+                                      timeout=30, stall=0.4)
+    assert 'done' in output
+
+
+def test_run_aborts_when_the_command_never_starts_talking(tmp_path, monkeypatch):
+    monkeypatch.setattr(environment_install, 'STARTUP_SECONDS', 0.6)
+    code = 'import time; time.sleep(3)'
+    with pytest.raises(RuntimeError, match='printed nothing'):
+        environment_install._run([sys.executable, '-c', code], log=lambda line: None,
+                                 timeout=30, stall=0.4)
+
+
+def test_prepare_keeps_an_unsupported_platform_missing(tmp_path, monkeypatch):
+    monkeypatch.setattr(environment_install, 'PLATFORM', 'windows')
+    source = manifest(tmp_path / 'source', {'gated': {'python': '3.11', 'imports': [],
+                                                     'platforms': ['linux'], 'platform_note': 'linux only'}})
+    root = tmp_path / 'external'
+    with pytest.raises(RuntimeError, match='linux'):
+        environment_install.prepare('gated', root, source)
+    assert environment_install.state('gated', root, source)['status'] == 'missing'
+    assert (root / '.operon-environment-errors' / 'gated.json').is_file()

@@ -51,7 +51,7 @@ Score all single-residue substitutions of a backbone chain with ESM-IF1.
 | --- | --- | --- |
 | L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
 | L2 单元/oracle | UNIT | tests/test_extension139.py,test_extension144.py,test_extension359.py |
-| L3 真实执行 | EXECUTED_SRV | srv:/public/home/lihj/operon715/cov_ml2/esm_if_mutation_scan/output/run_summary.json |
+| L3 真实执行 | EXECUTED_SRV | srv:/home/<user>/operon715/cov_ml2/esm_if_mutation_scan/output/run_summary.json |
 | L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
 | L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
 

@@ -57,10 +57,10 @@ python scripts/studio.py --profile-dir operon-v3-test
 | 端口 | SSH 端口 | 默认 `22` | `22` |
 | 用户名 | Linux 账号 | 必填 | `lihj` |
 | 服务器环境 | 托管=Operon 装独立环境；手动=复用已有环境 | 默认托管 | `已安装的 Operon 服务端` |
-| 安装目录 | 托管模式根目录；换目录即全新环境 | 可选，绝对路径 | `/public/home/lihj/operon-accept` |
+| 安装目录 | 托管模式根目录；换目录即全新环境 | 可选，绝对路径 | `/home/<user>/operon-accept` |
 | Operon 目录 | 手动模式代码根（含 `src/`、`pyproject.toml`） | 手动必填 | `/opt/operon` |
 | Python | 手动模式解释器 | 手动必填，默认 `python3` | `/opt/conda/envs/operon/bin/python` |
-| 运行目录 | 远端任务与产物根 | 手动必填；托管留空自动创建 | `/public/home/lihj/operon-work` |
+| 运行目录 | 远端任务与产物根 | 手动必填；托管留空自动创建 | `/home/<user>/operon-work` |
 | 认证方式 | 密码 / 私钥文件 / SSH Agent | 默认密码 | `私钥文件` |
 | 密码 | 仅本次会话，不落盘 | 密码认证时填 | — |
 | 本机私钥路径 | 运行前端的本机私钥，不是服务器路径 | 私钥认证时填 | `~/.ssh/id_rsa` |
@@ -149,7 +149,7 @@ Agent 应先用 `operon_operator_search`/`operon_operator_describe` 选算子，
 
 数据位置二选一：
 - **本地**：`examples/smoke_real_data/input/vhh_1mel.pdb` 与 `vhh.fasta`（工作区为仓库根）
-- **服务器**：`/public/home/lihj/operon-work/smoke_real_data/vhh_1mel.pdb` 与 `vhh.fasta`
+- **服务器**：`/home/<user>/operon-work/smoke_real_data/vhh_1mel.pdb` 与 `vhh.fasta`
   （先把执行设备切到服务器 profile；agent 会调用 `operon_remote_ensure` 自检连接）
 
 本地任务提示词：
@@ -162,7 +162,7 @@ Agent 应先用 `operon_operator_search`/`operon_operator_describe` 选算子，
 服务器任务提示词：
 
 ```text
-用服务器 licai-srv-node80 上的 /public/home/lihj/operon-work/smoke_real_data 做一条路线，不限方向，
+用服务器 licai-srv-node80 上的 /home/<user>/operon-work/smoke_real_data 做一条路线，不限方向，
 我需要有极具价值的分析。先给我节点、参数和预计产物，我确认后再运行；执行设备切到该服务器。
 ```
 

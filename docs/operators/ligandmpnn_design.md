@@ -59,7 +59,7 @@ Sequence design with the official LigandMPNN runner.
 | --- | --- | --- |
 | L1 契约/清单 | PASS | verification/operator-audit-8.0.1/operator_table.csv |
 | L2 单元/oracle | UNIT | tests/test_extension132.py,test_extension134.py |
-| L3 真实执行 | EXECUTED_SRV | srv:/public/home/lihj/operon715/closure_replay/ligandmpnn_design/output/run_summary.json |
+| L3 真实执行 | EXECUTED_SRV | srv:/home/<user>/operon715/closure_replay/ligandmpnn_design/output/run_summary.json |
 | L4 资源 | ESTIMATE | definition resources.estimate=estimate_memory |
 | L5 应用安装 | INSTALL | 8.0.1 bundle install (3.1.9/4.0.0) |
 

@@ -41,6 +41,10 @@ UNSUPPORTED_HINT = (
 )
 STALL_SECONDS = 60.0
 BUILD_STALL_SECONDS = STALL_SECONDS
+# The first line can take a while: pip resolves a large dependency graph before it
+# prints anything, and micromamba unpacks its payload before the first progress bar.
+# Only the silence *after* the command started talking is limited by ``stall``.
+STARTUP_SECONDS = 300.0
 _CONDA_MISSING = re.compile(r'[\u251c\u2514]\S*\s*([A-Za-z0-9_.+\-]+)\s*=?\s*\S*\s*\*?\s*does not exist')
 
 
@@ -239,7 +243,12 @@ def state(name: str, root=None, source=None) -> dict:
         'location': str(directory),
         'imports': list(entry.get('imports') or []),
     }
-    if python is None:
+    if not platform_supported(entry):
+        # An environment the current platform cannot build is not a failed install:
+        # it is simply not available here, and the reason travels with the note.
+        result['status'] = 'missing'
+        result['error'] = error.get('message') or unsupported_reason(entry)
+    elif python is None:
         result['status'] = 'failed' if error.get('message') else 'missing'
         result['error'] = error.get('message') or ''
     elif recorded.get('spec_sha256') != expected:
@@ -442,7 +451,9 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
     deadline = time.monotonic() + timeout if timeout else None
     chunks: list[str] = []
     last_flush = [time.monotonic()]
-    last_output = [time.monotonic()]
+    started_at = time.monotonic()
+    last_output = [started_at]
+    first_output = [0.0]
 
     def drain():
         buffer = b''
@@ -472,6 +483,8 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
             if buffer:
                 line = buffer.decode('utf-8', 'replace').strip()
                 if line:
+                    if not first_output[0]:
+                        first_output[0] = time.monotonic()
                     chunks.append(line)
         except Exception:
             pass
@@ -492,10 +505,15 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
                 if current != activity:
                     activity = current
                     last_output[0] = time.monotonic()
-            if stall and time.monotonic() - last_output[0] > stall:
+            waited = time.monotonic() - last_output[0]
+            if first_output[0]:
+                limit, what = stall, f'produced no output for {stall:.0f}s'
+            else:
+                limit, what = STARTUP_SECONDS, f'printed nothing in {STARTUP_SECONDS:.0f}s'
+            if limit and waited > limit:
                 process.kill()
                 raise RuntimeError(
-                    f'{" ".join(command[:2])} produced no output for {stall:.0f}s; '
+                    f'{" ".join(command[:2])} {what}; '
                     f'aborted instead of waiting for the {timeout}s limit')
             if deadline is not None and time.monotonic() > deadline:
                 process.kill()
@@ -1068,8 +1086,6 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
         path = _error_path(name, root)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps({'message': message, 'at': _now()}, indent=2), encoding='utf-8')
-        _write_progress(name, root, {'phase': 'failed', 'detail': 'unsupported platform',
-                                     'error': message, 'updated_at': _now()})
         raise RuntimeError(message)
     if entry.get('torch_cuda') and not _gpu_available():
         entry = _cpu_entry(entry)
