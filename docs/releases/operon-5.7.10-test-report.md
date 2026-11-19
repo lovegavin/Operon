@@ -8,11 +8,11 @@ Scope: six-state readiness, durable environment logs, queued dependency installs
 
 | File | Bytes | SHA-256 |
 |---|---|---|
-| Operon-Studio-v5.7.10-Windows-x64.zip | 357678184 | dce993f2545cf1c33ea04889b796fcb0314bc17cd4633518250aad10de89ca50 |
-| Operon_Setup-5.7.10.exe | 429451126 | 9a0b747ebfabec0da492d9013a4b4917f5576f7951ec44365b27c5f90cc3265f |
-| Operon-5.7.10-Server.zip | pending | a5759b943fa6c040dc6743ead851df878d775b366fa87e7c39c7ffc1ccf58661 |
-| operon_studio-5.7.10-py3-none-any.whl | 1008260 | e869bdb75a188c2f4cc34ef8b4da43238bd41f3757e3f9fd25466b179b8e672f |
-| operon_builtin_library-1.1.5-py3-none-any.whl | 5779952 | 7d6a2e194ef4044d66893aaea1ffabd4ed8da428af1cf0f48af256c09d809026 |
+| Operon-Studio-v5.7.10-Windows-x64.zip | 357678420 | b82e3b53a7e062d146a4b5611365c49fc12f6d4deb03d27433f384c0f096124c |
+| Operon_Setup-5.7.10.exe | 429451363 | 758c92beddaa1c797140967b92bbe5a83ce0b501b590e9a5485035f9244f4c90 |
+| Operon-5.7.10-Server.zip | 9872769 | b7e82d72e527fa925616febdf036174fadc78b1d29446fea26072e02fd5f333c |
+| operon_studio-5.7.10-py3-none-any.whl | 1008260 | d38f4dbe9a5cfdb3eac12142fc0536bf3bf63fa132dec82caea7cec58243b5d6 |
+| operon_builtin_library-1.1.5-py3-none-any.whl | 5779952 | 198b69541a2dd64eb43d473e6b3611a46d916f31fb1055729b83a4bf114a7520 |
 | operon-library-main-v1.1.5.operon-library.zip | 7003471 | ff068fb234658019b566f9610b725746ee717468d827a420e66a413e525485b5 |
 | operon-routes-main-v1.1.5.zip | 201330 | fd9d383d3fb0e7965e441d4de1a6f1fa6fd37b1be145248936c4e426af5f1475 |
 
