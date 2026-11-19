@@ -291,7 +291,7 @@
           "required": true
         },
         {
-          "path": "mgnify/mgy_clusters.fa",
+          "path": "mgnify/mgy_clusters_2022_05.fa",
           "required": true
         },
         {
@@ -299,7 +299,7 @@
           "required": true
         },
         {
-          "path": "pdb_seqres/pdb_seqres.txt",
+          "path": "pdb_seqres/pdb_seqres_2022_09_28.fasta",
           "required": true
         },
         {
@@ -327,9 +327,9 @@
             "uniref90/uniref90.fasta",
             "uniref30/uniref30_2302.db.tar.gz",
             "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz",
-            "mgnify/mgy_clusters.fa",
+            "mgnify/mgy_clusters_2022_05.fa",
             "pdb70/pdb70_from_mmcif_200916.tar.gz",
-            "pdb_seqres/pdb_seqres.txt",
+            "pdb_seqres/pdb_seqres_2022_09_28.fasta",
             "uniprot/uniprot_sprot.fasta",
             "pdb_mmcif/mmcif_files"
           ],
@@ -362,7 +362,7 @@
           "unit": "afdb"
         },
         {
-          "path": "mgnify/mgy_clusters.fa",
+          "path": "mgnify/mgy_clusters_2022_05.fa",
           "url": "https://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/current_release/mgy_clusters.fa.gz",
           "archive": "gz",
           "unit": "afdb"
@@ -373,7 +373,7 @@
           "unit": "afdb"
         },
         {
-          "path": "pdb_seqres/pdb_seqres.txt",
+          "path": "pdb_seqres/pdb_seqres_2022_09_28.fasta",
           "url": "https://files.rcsb.org/pub/pdb/derived_data/pdb_seqres.txt.gz",
           "archive": "gz",
           "unit": "afdb"
@@ -384,7 +384,8 @@
           "archive": "gz",
           "unit": "afdb"
         }
-      ]
+      ],
+      "notes": "Database names follow the AlphaFold 2.3.x flag defaults so the official run_alphafold.py finds them: mgnify/mgy_clusters_2022_05.fa, pdb_seqres/pdb_seqres_2022_09_28.fasta, pdb70/pdb70_from_mmcif_200916.tar.gz, uniref90/uniref90.fasta, bfd/bfd_metaclust...sorted_opt.tar.gz, uniprot/uniprot_sprot.fasta. The uniref30 archive is the 2023-02 release (uniref30_2302.db) rather than the 2021-03 snapshot the upstream script names; point --uniref30_database_path at it as usual. pdb_mmcif has no HTTP archive upstream (RCSB publishes it over rsync only), so it can only be linked or downloaded with rsync from rsync.ebi.ac.uk or ftp.pdbj.org."
     },
     {
       "id": "rfdiffusion",
@@ -533,8 +534,14 @@
         "boltz1_conf.ckpt"
       ],
       "downloads": {
-        "ccd.pkl": "https://hf-mirror.com/boltz-community/boltz-1/resolve/main/ccd.pkl",
-        "boltz1_conf.ckpt": "https://hf-mirror.com/boltz-community/boltz-1/resolve/main/boltz1_conf.ckpt"
+        "ccd.pkl": [
+          "https://hf-mirror.com/boltz-community/boltz-1/resolve/main/ccd.pkl",
+          "https://huggingface.co/boltz-community/boltz-1/resolve/main/ccd.pkl"
+        ],
+        "boltz1_conf.ckpt": [
+          "https://hf-mirror.com/boltz-community/boltz-1/resolve/main/boltz1_conf.ckpt",
+          "https://huggingface.co/boltz-community/boltz-1/resolve/main/boltz1_conf.ckpt"
+        ]
       },
       "sha256": {
         "ccd.pkl": "2d3b2f03a3c5665944adba51e33263511e51b21c9cd05d902f9c4b7c1e58d2f4"
@@ -559,7 +566,8 @@
           "files": [],
           "note": ""
         }
-      ]
+      ],
+      "notes": "Boltz weights live on Hugging Face; both the mirror and the upstream host are tried in order. When neither is reachable the dataset is also published as odat1248/boltz-0511 on Kaggle, so the checkpoints can be fetched there and linked instead."
     },
     {
       "id": "rfam",
@@ -730,7 +738,10 @@
       "downloads": [
         {
           "path": "params/finetuning_2.pt",
-          "url": "https://hf-mirror.com/nz/OpenFold/resolve/main/finetuning_2.pt",
+          "url": [
+            "https://hf-mirror.com/nz/OpenFold/resolve/main/finetuning_2.pt",
+            "https://huggingface.co/nz/OpenFold/resolve/main/finetuning_2.pt"
+          ],
           "bytes": 374586533
         }
       ],
@@ -750,7 +761,8 @@
           "files": [],
           "note": ""
         }
-      ]
+      ],
+      "notes": "OpenFold publishes its parameters on Hugging Face only; the mirror is tried first and the upstream host second. If both are unreachable, place finetuning_2.pt (or finetuning_ptm_2.pt) under params/ and link the directory instead."
     },
     {
       "id": "antifold",

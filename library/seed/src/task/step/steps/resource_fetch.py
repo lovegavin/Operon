@@ -78,6 +78,28 @@ def _open_url(url: str, token_env: str = "") -> Any:
     return urllib.request.urlopen(request, timeout=_TIMEOUT)
 
 
+def _candidate_urls(entry: dict[str, Any]) -> list[str]:
+    """Return the https:// mirrors declared for one download entry.
+
+    A single string is the common case; a list is accepted so that a resource
+    whose upstream host is unreachable from one network can fall back to a
+    mirror without editing the library.
+    """
+    value = entry.get("url")
+    if isinstance(value, (list, tuple)):
+        candidates = [str(item).strip() for item in value if str(item).strip()]
+    elif value:
+        candidates = [str(value).strip()]
+    else:
+        candidates = []
+    if not candidates:
+        raise StepError("download entry has no url")
+    for candidate in candidates:
+        if not candidate.startswith("https://"):
+            raise StepError(f"only https:// downloads are allowed: {candidate!r}")
+    return candidates
+
+
 def _download_one(
     entry: dict[str, Any],
     root: Path,
@@ -85,9 +107,7 @@ def _download_one(
     overwrite: bool,
     opener: Any = None,
 ) -> dict[str, Any]:
-    url = str(entry["url"])
-    if not url.startswith("https://"):
-        raise StepError(f"only https:// downloads are allowed: {url!r}")
+    candidates = _candidate_urls(entry)
     relative = str(entry["path"])
     destination = _safe_destination(root, relative)
     expected_bytes = int(entry.get("bytes") or 0)
@@ -113,26 +133,33 @@ def _download_one(
     destination.parent.mkdir(parents=True, exist_ok=True)
     _require_space(destination, expected_bytes)
     partial = destination.with_name(destination.name + ".part")
-    hasher = hashlib.sha256()
-    written = 0
     open_url = opener or _open_url
-    try:
-        with open_url(url, token_env) as response, partial.open("wb") as handle:
-            try:
-                headers = getattr(response, "headers", None)
-                announced = int((headers.get("Content-Length") if headers is not None else 0) or 0)
-            except (TypeError, ValueError):
-                announced = 0
-            _require_space(destination, max(expected_bytes, announced))
-            while True:
-                chunk = response.read(_CHUNK)
-                if not chunk:
-                    break
-                hasher.update(chunk)
-                handle.write(chunk)
-                written += len(chunk)
-    except (urllib.error.URLError, OSError, TimeoutError) as exc:
-        raise StepError(f"download failed for {url}: {exc}") from exc
+    failures: list[str] = []
+    for url in candidates:
+        hasher = hashlib.sha256()
+        written = 0
+        try:
+            with open_url(url, token_env) as response, partial.open("wb") as handle:
+                try:
+                    headers = getattr(response, "headers", None)
+                    announced = int((headers.get("Content-Length") if headers is not None else 0) or 0)
+                except (TypeError, ValueError):
+                    announced = 0
+                _require_space(destination, max(expected_bytes, announced))
+                while True:
+                    chunk = response.read(_CHUNK)
+                    if not chunk:
+                        break
+                    hasher.update(chunk)
+                    handle.write(chunk)
+                    written += len(chunk)
+        except (urllib.error.URLError, OSError, TimeoutError) as exc:
+            failures.append(f"{url}: {exc}")
+            partial.unlink(missing_ok=True)
+            continue
+        break
+    else:
+        raise StepError(f"download failed for {relative}: " + "; ".join(failures))
 
     if expected_bytes and written != expected_bytes:
         raise StepError(

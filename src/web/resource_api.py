@@ -368,9 +368,13 @@ def _sha256(path: Path) -> str:
 def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, opener) -> dict:
     """Stream one file (or one archive member) with progress and integrity checks."""
 
-    url = str(entry["url"])
-    if not url.startswith("https://"):
-        raise ValueError(f"only https:// downloads are allowed: {url!r}")
+    candidates = [str(item).strip() for item in entry["url"]] if isinstance(entry.get("url"), (list, tuple)) else [str(entry.get("url") or "").strip()]
+    candidates = [item for item in candidates if item]
+    if not candidates:
+        raise ValueError("download entry has no url")
+    for candidate_url in candidates:
+        if not candidate_url.startswith("https://"):
+            raise ValueError(f"only https:// downloads are allowed: {candidate_url!r}")
     relative = str(entry["path"])
     candidate = Path(relative)
     if not relative or candidate.is_absolute() or ".." in candidate.parts:
@@ -390,21 +394,33 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
     target.parent.mkdir(parents=True, exist_ok=True)
     partial = target.with_name(target.name + ".part")
     archive = str(entry.get("archive") or "").lower()
-    hasher = hashlib.sha256()
-    written = 0
-    with opener(url, str(entry.get("token_env") or "")) as response, partial.open("wb") as handle:
-        while True:
-            if event.is_set():
-                handle.close()
-                partial.unlink(missing_ok=True)
-                raise _Cancelled("cancelled")
-            chunk = response.read(1024 * 1024)
-            if not chunk:
-                break
-            hasher.update(chunk)
-            handle.write(chunk)
-            written += len(chunk)
-            job["bytes"] = int(job.get("completed_bytes") or 0) + written
+    failures: list[str] = []
+    for url in candidates:
+        hasher = hashlib.sha256()
+        written = 0
+        try:
+            with opener(url, str(entry.get("token_env") or "")) as response, partial.open("wb") as handle:
+                while True:
+                    if event.is_set():
+                        handle.close()
+                        partial.unlink(missing_ok=True)
+                        raise _Cancelled("cancelled")
+                    chunk = response.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    hasher.update(chunk)
+                    handle.write(chunk)
+                    written += len(chunk)
+                    job["bytes"] = int(job.get("completed_bytes") or 0) + written
+        except _Cancelled:
+            raise
+        except Exception as error:
+            failures.append(f"{url}: {error}")
+            partial.unlink(missing_ok=True)
+            continue
+        break
+    else:
+        raise ValueError(f"download failed for {relative}: " + "; ".join(failures))
     digest = hasher.hexdigest()
     if archive in {"gz", "gzip"}:
         decompressed = target.with_name(target.name + ".extract")

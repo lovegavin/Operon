@@ -108,12 +108,22 @@ class Resource:
         for item in items:
             if not isinstance(item, dict):
                 raise StepError(f"resource '{identifier}' has a non-object download entry")
-            url = str(item.get("url") or "").strip()
+            raw_url = item.get("url")
+            if isinstance(raw_url, (list, tuple)):
+                mirrors = [str(entry).strip() for entry in raw_url if str(entry).strip()]
+            elif raw_url:
+                mirrors = [str(raw_url).strip()]
+            else:
+                mirrors = []
+            for mirror in mirrors:
+                if not mirror.startswith("https://"):
+                    raise StepError(
+                        f"resource '{identifier}' download URL must use https://: {mirror!r}"
+                    )
+            url = mirrors[0] if len(mirrors) == 1 else mirrors
+            if not mirrors:
+                raise StepError(f"resource '{identifier}' download entry without a url")
             relative = str(item.get("path") or "").strip()
-            if not url.startswith("https://"):
-                raise StepError(
-                    f"resource '{identifier}' download URL must use https://: {url!r}"
-                )
             candidate = Path(relative)
             if not relative or candidate.is_absolute() or ".." in candidate.parts:
                 raise StepError(
@@ -139,7 +149,9 @@ class Resource:
             str(value).strip() for value in raw_link_roots if str(value).strip()
         )
         expected = tuple(
-            str(name) for name in entry.get("expected_files") or [] if str(name).strip()
+            str(name.get("path") if isinstance(name, dict) else name).strip()
+            for name in entry.get("expected_files") or []
+            if str(name.get("path") if isinstance(name, dict) else name).strip()
         )
         unit = str(entry.get("link_unit") or "tree").strip().lower() or "tree"
         link_root = str(entry.get("link_root") or "").strip()

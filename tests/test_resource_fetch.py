@@ -111,6 +111,33 @@ def test_existing_file_is_skipped_when_metadata_matches(tmp_path: Path):
     assert result["status"] == "existing"
 
 
+def test_manifest_reads_object_expected_files():
+    resource = Resource.from_entry({
+        "id": "demo",
+        "files": ["a/b.fa", "c/d.fa"],
+        "expected_files": [
+            {"path": "a/b.fa", "required": True},
+            {"path": "c/d.fa", "required": False},
+        ],
+    })
+    assert resource.expected_files == ("a/b.fa", "c/d.fa")
+
+
+def test_manifest_accepts_mirror_lists():
+    resource = Resource.from_entry({
+        "id": "demo",
+        "files": ["a.pt"],
+        "downloads": [{
+            "path": "a.pt",
+            "url": ["https://mirror.example.com/a.pt", "https://upstream.example.com/a.pt"],
+        }],
+    })
+    assert resource.downloads[0]["url"] == [
+        "https://mirror.example.com/a.pt",
+        "https://upstream.example.com/a.pt",
+    ]
+
+
 def test_every_resource_declares_its_canonical_download_root():
     # The first declared root may be an upstream cache or an already installed
     # binary directory; every resource still has to expose the canonical root
@@ -148,4 +175,7 @@ def test_manifest_accepts_mapping_downloads():
         "bytes": 3,
         "license": "",
         "requires_token": False,
+        "archive": "",
+        "member": "",
+        "unit": "",
     },)
