@@ -49,3 +49,30 @@ five operator files hot-patched, using representative tables for each contract
   explicitly; this is the documented behaviour of the dependency policy.
 - Contract errors raised by the planning layer can mix Chinese and English
   wording.
+
+## Coverage follow-up
+
+A second pass re-ran the 289 operators that had never produced a result, now
+that the `core` environment was ready on the validation machine. Six
+iterations added the columns and parameter values each operator reported
+missing.
+
+| Bucket | Tried | Passed |
+| --- | --- | ---: |
+| Environment-specific (needed a non-core environment) | 172 | 63 |
+| Missing-column / parameter coverage | 117 | 44 |
+| **Total** | **289** | **107** |
+
+Every one of the 107 passes was a first success for that operator. Cumulative
+coverage is now 515 of 1,074 operators (48.0%).
+
+Remaining failures in this pass: 83 blocked on environments that this platform
+cannot install (hmmer, antismash, genomics, hic, rna), 48 in the general
+bucket, 18 contract mismatches, 14 missing columns, 11 data-quality limits and
+8 parameter ranges.
+
+The pass also surfaced two classes of defect that the operators below fixed in
+5.7.13: report-mode nodes that were executed through the value-returning
+bridge, and operators that indexed label maps without checking the column.
+Both are covered by `tests/test_env_worker_context.py` and the environment
+bridge test.
