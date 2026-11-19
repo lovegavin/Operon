@@ -164,6 +164,7 @@ export const api = {
   checkEnvironment: (graph: Graph) => request<{readiness: Readiness}>('/api/check-environment', graph),
   environments: () => request<EnvironmentSnapshot>('/api/environments'),
   prepareEnvironments: (names?: string[]) => request<EnvironmentSnapshot & {prepared: {name: string; job: string; status: string}[]}>('/api/environments/prepare', names ? {names} : {}),
+  remoteEnvironmentRetry: (key: string, name: string) => request<EnvironmentSnapshot & {job: string}>(`/api/remote/${encodeURIComponent(key)}/environments/${encodeURIComponent(name)}/retry`, {}),
   retryEnvironment: (name: string) => request<EnvironmentSnapshot & {job: string}>(`/api/environments/${encodeURIComponent(name)}/retry`, {}),
   environmentLog: (name: string, limit = 200) => request<{name: string; text: string}>(`/api/environments/${encodeURIComponent(name)}/log?limit=${limit}`),
   cancelEnvironment: (name: string) => request<EnvironmentSnapshot & {cancelled: boolean; job: string}>(`/api/environments/${encodeURIComponent(name)}/cancel`, {}),

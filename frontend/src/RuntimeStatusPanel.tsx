@@ -11,6 +11,7 @@ export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
   title?: string;
   notes?: string;
   size_bytes?: number;
+  interpreter?: string;
   python_version?: string;
   updated_at?: string;
   operator_count?: number;
@@ -68,6 +69,51 @@ const statusKeys: Record<Tone, string> = {
   installing: '安装中',
   failed: '准备失败',
 };
+
+export type Readiness = 'ready' | 'not-ready' | 'missing' | 'failed' | 'queued' | 'installing';
+
+const readinessKeys: Record<Readiness, string> = {
+  ready: '已就绪',
+  'not-ready': '未就绪',
+  missing: '未创建',
+  failed: '安装失败',
+  queued: '准备安装',
+  installing: '正在安装',
+};
+
+const readinessTones: Record<Readiness, Tone> = {
+  ready: 'ready',
+  'not-ready': 'stale',
+  missing: 'missing',
+  failed: 'failed',
+  queued: 'queued',
+  installing: 'installing',
+};
+
+/** Six-state readiness: created, dependencies and resources all count. */
+export function readinessOf(item: EnvironmentItem, gap?: {total: number; ready: number}): Readiness {
+  const tone = statusTone(item.status);
+  if (tone === 'queued') return 'queued';
+  if (tone === 'installing') return 'installing';
+  if (item.error || tone === 'failed') return 'failed';
+  if (tone === 'missing') return item.interpreter ? 'not-ready' : 'missing';
+  if (!item.interpreter) return 'not-ready';
+  const total = Number(item.dependency_total || 0);
+  const installed = Number(item.dependency_installed || 0);
+  if (total > 0 && installed < total) return 'not-ready';
+  if (gap && gap.total > 0 && gap.ready < gap.total) return 'not-ready';
+  return 'ready';
+}
+
+export function readinessLabels() {
+  return readinessKeys;
+}
+
+export function readinessCounts(items: EnvironmentItem[], gaps: Record<string, {total: number; ready: number}> = {}) {
+  const counts: Record<Readiness, number> = {ready: 0, 'not-ready': 0, missing: 0, failed: 0, queued: 0, installing: 0};
+  for (const item of items) counts[readinessOf(item, gaps[item.name])] += 1;
+  return counts;
+}
 
 export function statusLabelKey(status: string) {
   return statusKeys[statusTone(status)];
@@ -203,9 +249,10 @@ function progressText(item: EnvironmentItem) {
   return size === '—' ? label : `${label} · ${size}`;
 }
 
-export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
+export function SummaryStrip({items, gaps = {}, busy, target = '', targets = [], onTarget,
   onPrepareAll, onRefresh}: {
   items: EnvironmentItem[];
+  gaps?: Record<string, {total: number; ready: number}>;
   busy: boolean;
   target?: string;
   targets?: Array<{id: string; name: string}>;
@@ -214,14 +261,15 @@ export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
   onRefresh: () => void;
 }) {
   const counts = summarize(items);
+  const readiness = readinessCounts(items, gaps);
   const pending = counts.missing + counts.stale + counts.failed;
   return <div className="runtime-summary">
     <div className="runtime-summary-counts" aria-live="polite" aria-label={t('环境概况')}>
       <strong>{t('{count} 个环境', {count: counts.total})}</strong>
-      {tones.filter(tone => counts[tone] > 0).map(tone =>
-        <span className="runtime-summary-item" data-status={tone} key={tone}>
+      {(Object.keys(readiness) as Readiness[]).filter(key => readiness[key] > 0).map(key =>
+        <span className="runtime-summary-item" data-readiness={key} key={key}>
           <i className="runtime-dot" aria-hidden="true"/>
-          {t('{count} {label}', {count: counts[tone], label: t(statusKeys[tone])})}
+          {t('{count} {label}', {count: readiness[key], label: t(readinessKeys[key])})}
         </span>)}
     </div>
     <div className="runtime-summary-actions">
@@ -247,6 +295,7 @@ export function EnvironmentCard({item, busy = false, cancelling = false, gap, on
   onOpen?: (item: EnvironmentItem) => void;
 }) {
   const tone = statusTone(item.status);
+  const readiness = readinessOf(item, gap);
   const installing = tone === 'installing';
   const settling = installing && percentDone(item) >= 99;
   const waiting = installing && (item.progress?.bytes || 0) <= 0;
@@ -272,7 +321,7 @@ export function EnvironmentCard({item, busy = false, cancelling = false, gap, on
           {t('当前系统不支持')}
         </span>}
         {queueText(item) && <span className="runtime-queue">{queueText(item)}</span>}
-        <span className={`runtime-chip is-${tone}`} data-status={tone}>{t(statusKeys[tone])}</span>
+        <span className={`runtime-chip is-${readinessTones[readiness]}`} data-status={tone} data-readiness={readiness}>{t(readinessKeys[readiness])}</span>
         {tone === 'ready' && gap && gap.ready < gap.total && <span
           className="runtime-chip is-warning"
           data-testid={`environment-resources-${item.name}`}
@@ -601,7 +650,10 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
       return void runRemote(`remote:${name}`, () => api.remotePrepareEnvironments(target, [name]));
     }
     if (action === 'prepare') return void run(`prepare:${name}`, () => api.prepareEnvironments([name]));
-    if (action === 'repair') return void run(`repair:${name}`, () => api.retryEnvironment(name));
+    if (action === 'repair') {
+      if (target) return void runRemote(`repair:${name}`, () => api.remoteEnvironmentRetry(target, name) as unknown as Promise<RemoteEnvironments>);
+      return void run(`repair:${name}`, () => api.retryEnvironment(name));
+    }
     setCancelling(current => ({...current, [name]: true}));
     void (async () => {
       setBusy(`cancel:${name}`);
@@ -714,7 +766,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
           {!target && <small>{t('算子库未声明需要独立安装的环境。')}</small>}
         </div>}
       {((snapshot && snapshot.manifest.present) || target) && items.length > 0 &&
-        <SummaryStrip items={items} busy={Boolean(busy)} target={target} targets={remoteTargets}
+        <SummaryStrip items={items} gaps={resourceGap} busy={Boolean(busy)} target={target} targets={remoteTargets}
           onTarget={chooseTarget}
           onRefresh={() => void (target
             ? runRemote('refresh', () => api.remoteEnvironments(target))

@@ -129,9 +129,9 @@ describe('summary strip', () => {
     ];
     const html = renderToStaticMarkup(<SummaryStrip items={items} busy={false} onPrepareAll={noop} onRefresh={noop}/>);
     expect(html).toContain('5 个环境');
-    expect(html).toContain('2 已安装');
-    expect(html).toContain('1 未安装');
-    expect(html).toContain('1 安装中');
+    expect(html).toContain('2 已就绪');
+    expect(html).toContain('1 未就绪');
+    expect(html).toContain('1 正在安装');
     expect(html).toContain('1 准备安装');
     expect(html).not.toContain('需要更新');
     expect(html).toContain('全部安装');

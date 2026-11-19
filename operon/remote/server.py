@@ -195,6 +195,19 @@ def environment_cancel(service, payload: dict | None = None) -> dict:
     return {**environment_snapshot(service), 'cancelled': True, 'stopped': stopped}
 
 
+def environment_retry(service, payload: dict | None = None) -> dict:
+    """Cancel a stale preparation and start it again in one round trip."""
+    payload = payload or {}
+    name = str(payload.get('name') or '')
+    if not name:
+        raise ValueError('environments_retry requires an environment name')
+    try:
+        environment_cancel(service, {'name': name})
+    except Exception:
+        pass
+    return environment_prepare(service, {'names': [name]})
+
+
 def environment_prepare(service, payload: dict | None = None) -> dict:
     from operon import environment_install
     payload = payload or {}
@@ -574,6 +587,8 @@ class RemoteService:
             return environment_prepare(self.service, params or {})
         if method == 'environments_cancel':
             return environment_cancel(self.service, params)
+        if method == 'environments_retry':
+            return environment_retry(self.service, params)
         if method == 'environments_dependency':
             return environment_dependency(self.service, params)
         if method == 'environments_log':

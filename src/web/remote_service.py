@@ -536,6 +536,9 @@ class RemoteManager:
     def prepare_environments(self, key: str, names=None, dependencies: bool = False) -> dict:
         return self.call(key, 'environments_prepare', {'names': names, 'dependencies': dependencies})
 
+    def environment_retry(self, key: str, name: str) -> dict:
+        return self.call(key, 'environments_retry', {'name': name})
+
     def environment_log(self, key: str, name: str, limit: int = 200) -> dict:
         return self.call(key, 'environments_log', {'name': name, 'limit': limit})
 

@@ -97,6 +97,10 @@ def mount_remote(app, service):
         return manager.cancel_environment(key, name)
 
     @app.get('/api/remote/{key}/environments/{name}/log')
+    @app.post('/api/remote/{key}/environments/{name}/retry')
+    def remote_environment_retry(key: str, name: str):
+        return manager.environment_retry(key, name)
+
     def remote_environment_log(key: str, name: str, limit: int = 200):
         return manager.environment_log(key, name, limit)
 

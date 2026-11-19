@@ -39,6 +39,7 @@ UNSUPPORTED_HINT = (
     '请在远程 Linux 服务器上准备该环境，或在本机手动安装后把目录链接进资源库。'
 )
 STALL_SECONDS = 60.0
+BUILD_STALL_SECONDS = STALL_SECONDS
 _CONDA_MISSING = re.compile(r'[\u251c\u2514]\S*\s*([A-Za-z0-9_.+\-]+)\s*=?\s*\S*\s*\*?\s*does not exist')
 
 
@@ -80,6 +81,7 @@ def readable_conda_error(text: str) -> str:
         f'当前系统找不到这些 conda 包：{listed}。'
         f'它们通常只有 Linux/macOS 的 bioconda 构建，Windows 没有对应包。{UNSUPPORTED_HINT}'
     )
+LOGS = '.operon-environment-logs'
 ERRORS = '.operon-environment-errors'
 PROGRESS = '.operon-environment-progress'
 MAMBA_MIN_BYTES = 1_000_000
@@ -88,7 +90,24 @@ MAMBA_MIN_BYTES = 1_000_000
 # sibling process is already running, which Windows rejects with
 # ``[WinError 5] access denied``.
 _MAMBA_LOCK = threading.Lock()
-_PREPARE_SLOTS = threading.BoundedSemaphore(1)
+_PREPARE_SLOTS: dict[str, threading.BoundedSemaphore] = {}
+_PREPARE_SLOTS_LOCK = threading.Lock()
+
+
+def _slot_for(root) -> threading.BoundedSemaphore:
+    """Return the installation slot for one environment root.
+
+    Local installs and remote-agent installs run against different roots and
+    must not block each other, so the in-process serialisation is keyed by the
+    resolved root instead of being global.
+    """
+    key = str(base(root))
+    with _PREPARE_SLOTS_LOCK:
+        slot = _PREPARE_SLOTS.get(key)
+        if slot is None:
+            slot = threading.BoundedSemaphore(1)
+            _PREPARE_SLOTS[key] = slot
+        return slot
 
 
 def base(root=None) -> Path:
@@ -116,6 +135,23 @@ def receipt(name: str, root=None) -> dict:
 
 def _error_path(name: str, root=None) -> Path:
     return base(root) / ERRORS / f'{name}.json'
+
+
+def log_path(name: str, root=None) -> Path:
+    """Persistent, append-only log for every operation on one environment."""
+    return base(root) / LOGS / f'{name}.log'
+
+
+def append_log(name: str, line: str, root=None) -> None:
+    """Write one timestamped line; never let logging break an install."""
+    try:
+        target = log_path(name, root)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        stamp = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+        with target.open('a', encoding='utf-8') as handle:
+            handle.write(f'[{stamp}] {line}\n')
+    except OSError:
+        pass
 
 
 def progress_path(name: str, root=None) -> Path:
@@ -378,15 +414,15 @@ def _flush_progress(progress: dict) -> None:
         pass
 
 def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
-         stall=STALL_SECONDS):
+         stall=BUILD_STALL_SECONDS):
     command = [str(part) for part in argv]
     if control is not None:
         control.check()
     _emit(log, '$ ' + ' '.join(command))
     if progress is not None:
         progress.update({'command': ' '.join(command)[:400], 'pid': None, 'updated_at': _now()})
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
-                               encoding='utf-8', errors='replace', env=env)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                               bufsize=0, env=env)
     if progress is not None:
         progress['pid'] = process.pid
         progress['updated_at'] = _now()
@@ -398,15 +434,34 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
     last_output = [time.monotonic()]
 
     def drain():
+        buffer = b''
         try:
-            for line in process.stdout:
-                chunks.append(line.rstrip('\n'))
+            stream = process.stdout
+            while True:
+                block = stream.read(4096)
+                if not block:
+                    break
                 last_output[0] = time.monotonic()
-                if progress is not None:
-                    _track_line(line, progress)
-                    if time.monotonic() - last_flush[0] > 1.5:
-                        last_flush[0] = time.monotonic()
-                        _flush_progress(progress)
+                buffer += block
+                while True:
+                    cut = min((index for index in (buffer.find(b'\r'), buffer.find(b'\n'))
+                               if index >= 0), default=-1)
+                    if cut < 0:
+                        break
+                    raw, buffer = buffer[:cut], buffer[cut + 1:]
+                    line = raw.decode('utf-8', 'replace').strip()
+                    if not line:
+                        continue
+                    chunks.append(line)
+                    if progress is not None:
+                        _track_line(line, progress)
+                        if time.monotonic() - last_flush[0] > 1.5:
+                            last_flush[0] = time.monotonic()
+                            _flush_progress(progress)
+            if buffer:
+                line = buffer.decode('utf-8', 'replace').strip()
+                if line:
+                    chunks.append(line)
         except Exception:
             pass
 
@@ -540,7 +595,8 @@ def _acquire_slot(control, root=None) -> None:
     is also backed by an OS file lock under the environment root: two installs
     can never unpack into the same disk region concurrently.
     """
-    while not _PREPARE_SLOTS.acquire(timeout=0.5):
+    slot = _slot_for(root)
+    while not slot.acquire(timeout=0.5):
         control.check()
     try:
         directory = base(root)
@@ -558,8 +614,9 @@ def _acquire_slot(control, root=None) -> None:
                 control.check()
                 time.sleep(2.0)
         _LOCK_STATE['handle'] = handle
+        _LOCK_STATE['slot'] = slot
     except BaseException:
-        _PREPARE_SLOTS.release()
+        slot.release()
         raise
 
 
@@ -574,7 +631,10 @@ def _release_slot() -> None:
             except OSError:
                 pass
     try:
-        _PREPARE_SLOTS.release()
+        slot = _LOCK_STATE.pop('slot', None)
+        if slot is None:
+            slot = _slot_for(None)
+        slot.release()
     except ValueError:
         pass
 
@@ -748,11 +808,11 @@ def _create(entry: dict, staging: Path, log, root=None, progress=None, control=N
     env = _mamba_env(base(root))
     if entry.get('clone_shared'):
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '--clone', sys.prefix], log=log, env=env,
-             timeout=1800, progress=progress, control=control)
+             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     else:
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, *_conda_flags(entry),
               '--strict-channel-priority', 'python=' + str(entry.get('python', '3.11')), 'pip'],
-             log=log, env=env, timeout=1800, progress=progress, control=control)
+             log=log, env=env, timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
 
 
 def _install(entry: dict, staging: Path, log, root=None, progress=None, control=None):
@@ -765,13 +825,13 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
     # Base build tooling must exist before any source build or `--no-build-isolation` install.
     # `pkg_resources` ships with setuptools below 81; some packages (pdbfixer) still import it.
     _run([*install, *PIP_TRANSFER, '--no-input', *PIP_INDEX,
-          'setuptools>=68,<81', 'wheel'], log=log, timeout=900, progress=progress, control=control)
+          'setuptools>=68,<81', 'wheel'], log=log, timeout=900, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     conda_packages = entry.get('conda_packages') or []
     if conda_packages:
         mamba = _micromamba(base(root), log, control)
         _run([mamba, '--no-rc', 'install', '-y', '-p', staging, *_conda_flags(entry),
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
-             timeout=1800, progress=progress, control=control)
+             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     if entry.get('torch_cpu'):
         _run([*install, *PIP_TRANSFER, 'torch',
               '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
@@ -785,23 +845,23 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
              progress=progress, control=control)
     if direct:
         _run([*install, *PIP_TRANSFER, *PIP_INDEX, *direct], log=log,
-             timeout=1800, progress=progress, control=control)
+             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     wheels = entry.get('pip_wheels') or []
     if wheels:
         _run([*install, *PIP_TRANSFER, '--only-binary=:all:', *PIP_INDEX, *wheels],
-             log=log, timeout=1800, progress=progress, control=control)
+             log=log, timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     requirements = entry.get('requirements') or []
     if requirements:
         _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *requirements],
-             log=log, timeout=5400, progress=progress, control=control)
+             log=log, timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     no_deps = entry.get('no_deps') or []
     if no_deps:
         _run([*install, *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *no_deps], log=log,
-             timeout=5400, progress=progress, control=control)
+             timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     no_build = entry.get('no_build_isolation') or []
     if no_build:
         _run([*install, *PIP_TRANSFER, '--no-build-isolation', *no_build], log=log,
-             timeout=3600, progress=progress, control=control)
+             timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
 
 
 def _probe_environment(python: Path) -> dict[str, str]:
@@ -820,7 +880,7 @@ def _probe(python: Path, entry: dict, log, progress=None, control=None):
         return ''
     script = ';'.join('import ' + module for module in modules)
     _run([python, '-X', 'utf8', '-c', script], log=log, env=_probe_environment(python),
-         timeout=600, progress=progress, control=control)
+         timeout=600, progress=progress, control=control, stall=STALL_SECONDS)
     return script
 
 
@@ -902,7 +962,7 @@ def _install_dependency(name: str, kind: str, requirement: str, root=None, log=N
         mamba = _micromamba(base(root), note, control)
         _run([mamba, '--no-rc', 'install', '-y', '-p', str(final), *_conda_flags([requirement]),
               '--strict-channel-priority', requirement],
-             log=note, env=_mamba_env(base(root)), timeout=3600, control=control)
+             log=note, env=_mamba_env(base(root)), timeout=3600, control=control, stall=BUILD_STALL_SECONDS)
     else:
         python = _python(final)
         prefix = _pip_prefix(final)
@@ -914,7 +974,7 @@ def _install_dependency(name: str, kind: str, requirement: str, root=None, log=N
             extra = ['--only-binary=:all:']
         _run([python, '-X', 'utf8', '-m', 'pip', 'install', *prefix, *PIP_TRANSFER,
               *(flags or []), *(extra or []), *PIP_INDEX, requirement],
-             log=note, timeout=3600, progress=progress, control=control)
+             log=note, timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     progress['phase'] = 'complete'
     progress['detail'] = f'installed {requirement}'
     progress['updated_at'] = _now()
@@ -960,11 +1020,13 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
                 'started_at': now(), 'updated_at': now(),
                 'expected_bytes': estimates.expected(name, entry, base(root))}
     _write_progress(name, root, progress)
+    append_log(name, f'preparing isolated environment {name} at {base(root) / name}', root)
     stop = threading.Event()
 
     def note(line):
         progress['detail'] = str(line)[:400]
         progress['lines'] = progress.get('lines', 0) + 1
+        append_log(name, str(line), root)
         if log is not None:
             log(line)
 

@@ -248,6 +248,13 @@ def create_server(client):
         return client.request('/v1' + suffix, {})
 
     @server.tool()
+    def operon_environment_retry(name: str, profile_id: str | None = None) -> dict:
+        """Cancel a stale preparation and start it again; mirrors the UI repair button."""
+        if profile_id:
+            return client.post(f'/api/remote/{profile_id}/environments/{name}/retry', {})
+        return client.post(f'/api/v1/environments/{name}/retry', {})
+
+    @server.tool()
     def operon_environment_log(name: str, limit: int = 200, profile_id: str | None = None) -> dict:
         """Read the tail of one environment preparation log (at most 2000 lines).
 

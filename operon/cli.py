@@ -611,6 +611,21 @@ def execute(args):
                 profile_id = getattr(args, 'profile', '') or ''
                 path = ('/remote/' + quote(profile_id, safe='') + '/environments') if profile_id else '/v1/environments'
                 return client.request(path)
+            if args.action == 'status':
+                names = list(getattr(args, 'names', []) or [])
+                leading = getattr(args, 'file', None)
+                if leading is not None:
+                    names.insert(0, str(leading))
+                target = names[0] if names else ''
+                profile_id = getattr(args, 'profile', '') or ''
+                root = ('/remote/' + quote(profile_id, safe='') + '/environments') if profile_id else '/v1/environments'
+                if not target:
+                    return client.request('/v1/environment')
+                data = client.request(root)
+                item = (data.get('environments') or {}).get(target)
+                if item is None:
+                    raise ValueError('unknown isolated environment: ' + target)
+                return item
             if args.action in ('install', 'cancel'):
                 names = list(getattr(args, 'names', []) or [])
                 leading = getattr(args, 'file', None)
@@ -638,12 +653,14 @@ def execute(args):
             if args.action == 'log':
                 names = list(getattr(args, 'names', []) or [])
                 name = names[0] if names else ''
+                if not name and getattr(args, 'file', None) is not None:
+                    name = str(args.file)
                 if not name:
                     raise ValueError('usage: operon environment log <name>')
                 profile_id = getattr(args, 'profile', '') or ''
                 suffix = '/environments/' + quote(name, safe='') + '/log'
                 path = ('/remote/' + quote(profile_id, safe='') + suffix) if profile_id else '/v1' + suffix
-                return client.request(path + '?' + urlencode({'limit': args.limit}), {})
+                return client.request(path + '?' + urlencode({'limit': args.limit}), method='GET')
             if args.action == 'status':
                 return client.request('/v1/environment')
             payload = {'graph': graph_value}

@@ -108,3 +108,23 @@ serial queue as environment preparation, writes `.operon-environment-progress/<n
 and its log, and reports through the operation list. Installer steps are supervised by a
 60 second silence watchdog so a stalled download fails with a readable message instead of
 sitting in `installing` for up to 40 minutes.
+
+### CLI parity fixes (5.7.8)
+
+| Control | CLI command | Backend | Notes |
+| --- | --- | --- | --- |
+| Environment log | `operon environment log <name> --limit N` | `GET /api/v1/environments/<name>/log` | Fixed two defects: the name was swallowed by the positional `file` argument, and the request used POST (payload `{}`) against a GET-only route, which returned `405 Method Not Allowed`. |
+| Dependency install | `operon environment dependency <name> <kind> <requirement> [--profile id]` | `POST /api/v1/environments/<name>/dependencies/download` | Queues a job and returns immediately; a missing environment answers 409 with a readable reason. |
+| Resource log | `operon resources log <name>` | `GET /api/v1/large-resources/<name>/log` | Already GET; verified against the installed build. |
+
+## 5.7.9 additions
+
+| Control | Front end | Back end | Local | Remote |
+| --- | --- | --- | --- | --- |
+| environment readiness chip (six states) | RuntimeStatusPanel readinessOf | /api/environments interpreter+error+dependency_total/installed | yes | yes (remote snapshot carries the same fields) |
+| log drawer | loadLog -> api.environmentLog / remoteEnvironmentLog | GET /api/environments/{name}/log, GET /api/remote/{key}/environments/{name}/log | yes | yes |
+| persisted environment log file | n/a | .operon-environment-logs/<name>.log written by prepare and dependency installs | yes | yes |
+| repair button | runRepair | local POST /api/environments/{name}/retry, remote POST /api/remote/{key}/environments/{name}/retry | yes | yes |
+| retry via MCP | n/a | operon_environment_retry(name, profile_id) | yes | yes |
+| retry via CLI | n/a | operon environment retry <name> | yes | yes (--profile) |
+| environment status via CLI | n/a | operon environment status <name> | yes | yes (--profile) |

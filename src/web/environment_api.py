@@ -656,6 +656,13 @@ def mount_environments(app, service):
         except ValueError as exc:
             raise HTTPException(404, str(exc)) from exc
         log = log_path(name)
+        try:
+            from operon import environment_install
+            durable = environment_install.log_path(name)
+        except Exception:
+            durable = None
+        if durable is not None and durable.is_file() and (not log.is_file() or durable.stat().st_size > log.stat().st_size):
+            log = durable
         if not log.is_file():
             return {'name': name, 'text': ''}
         lines = log.read_text(encoding='utf-8', errors='replace').splitlines()

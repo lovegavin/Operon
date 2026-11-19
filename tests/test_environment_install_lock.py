@@ -66,3 +66,21 @@ def test_cancelled_waiter_releases_the_slot(tmp_path, monkeypatch):
     # The slot must be free again: a fresh acquire returns promptly.
     environment_install._acquire_slot(environment_install._Control(), tmp_path)
     environment_install._release_slot()
+
+def test_distinct_roots_do_not_share_the_in_process_slot(tmp_path):
+    from operon import environment_install
+
+    local = tmp_path / 'local'
+    remote = tmp_path / 'remote'
+    environment_install._acquire_slot(environment_install._Control(), local)
+    try:
+        thread = threading.Thread(
+            target=lambda: environment_install._acquire_slot(environment_install._Control(), remote),
+            daemon=True,
+        )
+        thread.start()
+        thread.join(5.0)
+        assert not thread.is_alive(), 'a second root must not wait for the first root slot'
+        environment_install._release_slot()
+    finally:
+        environment_install._release_slot()
