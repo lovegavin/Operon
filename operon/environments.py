@@ -344,6 +344,8 @@ def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(
         raise StepError(message["error"])
     from src.core.forms import Form
     from operon.env_worker import _revive
+    if message.get("kind") == "none":
+        return None, _revive(message.get("export", {})), "\n".join((completed.stderr or "").strip().splitlines()[-4:])
     if message.get("kind") == "file":
         from src.core.files import FileArtifact
         form = FileArtifact(format=message["format"],
@@ -391,7 +393,9 @@ def proxy_step(descriptor: dict, paths=()):
             form, export, tail = run_step(descriptor, inputs, dict(ctx.step_params), python,
                                           timeout=int(ctx.step_params.get("timeout_seconds", 3600)) + 60,
                                           paths=_paths)
-            ctx[ctx.step_params["output"]] = form
+            name = ctx.step_params.get("output")
+            if name and form is not None:
+                ctx[name] = form
             self._export_data = export
             if tail:
                 print(tail, file=sys.stderr)

@@ -38,5 +38,12 @@ def table(dim, values, columns):
 
 def controls(form, spec):
     names = [s.strip() for s in spec.split(",") if s.strip()]
-    cols = [np.asarray(form.data[:, form.labels[form.dims[1]][n]], dtype=float) for n in names]
+    labels = form.labels.get(form.dims[1]) or {}
+    missing = [n for n in names if n not in labels]
+    if missing:
+        available = ", ".join(str(key) for key in labels) or "(none)"
+        raise ValueError(
+            f"missing control column(s) {missing} on dim {form.dims[1]!r}; available: {available}"
+        )
+    cols = [np.asarray(form.data[:, int(labels[n])], dtype=float) for n in names]
     return cols, names

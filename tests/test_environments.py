@@ -133,3 +133,25 @@ def test_openmm81_manifest_uses_bundled_pdbfixer():
     assert "setuptools>=68,<81" in entry["requirements"]
     assert entry.get("venv_shared") is True
     assert entry["python"] == "3.11"
+
+
+def test_bridge_runs_a_report_only_step_without_an_output_parameter(monkeypatch):
+    import sys
+
+    monkeypatch.setattr(environments, 'resolve', lambda name: Path(sys.executable))
+    monkeypatch.setattr(environments, 'code_root', lambda: Path(__file__).resolve().parents[1])
+    monkeypatch.setattr(environments, 'run_step', lambda *args, **kwargs: (None, {'rows': 3}, ''))
+
+    step = environments.proxy_step(_descriptor())()
+    seen = {}
+
+    class Ctx(dict):
+        step_params = {'note': 'report'}
+        metadata = {}
+
+        def __setitem__(self, key, value):
+            seen[key] = value
+
+    step.run(Ctx(), [_form()])
+    assert seen == {}
+    assert step.export(Ctx()) == {'rows': 3}

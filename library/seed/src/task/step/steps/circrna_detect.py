@@ -4,6 +4,17 @@ from src.core import Form
 from src.task.step.base import Step
 
 
+def _column(labels, name, form):
+    """Return the field index for ``name`` with an actionable error message."""
+    try:
+        return int(labels[name])
+    except KeyError:
+        available = ", ".join(str(key) for key in labels) or "(none)"
+        raise ValueError(
+            f"missing column {name!r} on dim {form.dims[1]!r}; available columns: {available}"
+        ) from None
+
+
 class CircrnaDetectStep(Step):
     parameters_file = "circrna_detect.CircrnaDetectStep.parameters.json"
     definition = {'id': 'circrna_detect', 'version': '1.0.0', 'title': 'Circular RNA junction detection', 'description': 'Flags back-spliced junctions and reports circular length.', 'category': 'Transcriptomics', 'icon': 'gene', 'kind': 'operator', 'protocol_version': 3, 'protocol_revision': '3.7', 'inputs_arity': 1, 'output_parameter': 'output', 'outputs': [], 'contracts': {'version': 1, 'inputs': [{'dims': ['row', 'field'], 'schema': {'type': 'object', 'additionalProperties': True}}], 'output': {'mode': 'declare', 'schema': {'type': 'object', 'additionalProperties': True}}}, 'resources': {'memory_modes': ['full'], 'supports_cuda': False, 'estimate': 'estimate_memory'}, 'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form']}], 'outputs': [{'logical_type': 'form', 'representations': ['form']}]}}
@@ -15,7 +26,7 @@ class CircrnaDetectStep(Step):
         enc = ((form.info or {}).get("encoders") or {}).get(field) or {}
 
         def text(name):
-            idx = int(labels[name])
+            idx = _column(labels, name, form)
             v = form.data[:, idx]
             e = enc.get(name)
             if e is not None:
@@ -27,7 +38,7 @@ class CircrnaDetectStep(Step):
             return [str(x) for x in v]
 
         def num(name):
-            return np.asarray(form.data[:, int(labels[name])], dtype=float)
+            return np.asarray(form.data[:, _column(labels, name, form)], dtype=float)
 
         chrom = text("chrom"); donor = num("donor"); acceptor = num("acceptor"); count = num("count")
         mx = float(count.max()) if len(count) else 0.0

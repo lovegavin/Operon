@@ -7,14 +7,24 @@ import sys
 import traceback
 from pathlib import Path
 
+class _Memory:
+    """Minimal stand-in for the host memory object inside the bridge."""
+
+    def __init__(self, run_dir):
+        self.run_dir = run_dir
+        self.data_dir = run_dir
+        self.cache_dir = run_dir
+
+
 class Context:
-    def __init__(self, params):
+    def __init__(self, params, directory=None):
         self.step_params = params
         self.params = {}
         self.manifest = {}
         self.metadata = {}
         self.artifacts = {}
-        self.memory = None
+        self.out_dir = Path(directory) if directory else Path.cwd()
+        self.memory = _Memory(self.out_dir)
         self.values = {}
 
     def __setitem__(self, key, value):
@@ -65,11 +75,16 @@ def main():
             data = np.load(directory / f"input{index}.npy", allow_pickle=False, mmap_mode='c')
             inputs.append(Form(data=data, dims=meta["dims"], labels=meta["labels"],
                                info=_revive(meta.get("info", {})), axis_info=meta.get("axis_info", {})))
-        ctx = Context(request["params"])
+        ctx = Context(request["params"], directory)
         step = cls()
         step.run(ctx, inputs)
-        form = ctx.values[request["params"]["output"]]
         export = step.export(ctx) or {}
+        output_name = request["params"].get("output")
+        form = ctx.values.get(output_name) if output_name else None
+        if form is None:
+            (directory / "result.json").write_text(
+                json.dumps({"kind": "none", "export": _jsonable(export)}), encoding="utf-8")
+            return
         if isinstance(form, FileArtifact):
             result = {"kind": "file", "format": form.format,
                       "files": {str(key): str(value) for key, value in form.files.items()},
