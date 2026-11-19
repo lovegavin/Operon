@@ -353,7 +353,10 @@
         },
         {
           "path": "uniref30/uniref30_2302.db.tar.gz",
-          "url": "https://opendata.mmseqs.org/colabfold/uniref30_2302.db.tar.gz",
+          "url": [
+            "https://opendata.mmseqs.org/colabfold/uniref30_2302.db.tar.gz",
+            "https://mmseqs.com/colabfold/uniref30_2302.db.tar.gz"
+          ],
           "unit": "afdb"
         },
         {
@@ -533,16 +536,26 @@
         "ccd.pkl",
         "boltz1_conf.ckpt"
       ],
-      "downloads": {
-        "ccd.pkl": [
-          "https://hf-mirror.com/boltz-community/boltz-1/resolve/main/ccd.pkl",
-          "https://huggingface.co/boltz-community/boltz-1/resolve/main/ccd.pkl"
-        ],
-        "boltz1_conf.ckpt": [
-          "https://hf-mirror.com/boltz-community/boltz-1/resolve/main/boltz1_conf.ckpt",
-          "https://huggingface.co/boltz-community/boltz-1/resolve/main/boltz1_conf.ckpt"
-        ]
-      },
+      "downloads": [
+        {
+          "unit": "boltz",
+          "path": "ccd.pkl",
+          "bytes": 345859128,
+          "url": [
+            "https://hf-mirror.com/boltz-community/boltz-1/resolve/main/ccd.pkl",
+            "https://huggingface.co/boltz-community/boltz-1/resolve/main/ccd.pkl"
+          ]
+        },
+        {
+          "unit": "boltz",
+          "path": "boltz1_conf.ckpt",
+          "bytes": 3595352714,
+          "url": [
+            "https://hf-mirror.com/boltz-community/boltz-1/resolve/main/boltz1_conf.ckpt",
+            "https://huggingface.co/boltz-community/boltz-1/resolve/main/boltz1_conf.ckpt"
+          ]
+        }
+      ],
       "sha256": {
         "ccd.pkl": "2d3b2f03a3c5665944adba51e33263511e51b21c9cd05d902f9c4b7c1e58d2f4"
       },

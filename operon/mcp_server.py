@@ -1,4 +1,6 @@
 """MCP stdio adapter; no model provider, credentials or chat implementation."""
+import base64
+import binascii
 import json
 from pathlib import Path
 from urllib.parse import quote, urlencode
@@ -51,6 +53,16 @@ def create_server(client):
         if target != root and root not in target.parents:
             raise ValueError('destination escapes the workspace')
         return target
+
+    def _payload(source, content_base64):
+        if content_base64:
+            try:
+                return base64.b64decode(content_base64, validate=True)
+            except (binascii.Error, ValueError) as error:
+                raise ValueError('content_base64 is not valid base64') from error
+        if not source:
+            raise ValueError('provide source (a local file path) or content_base64')
+        return Path(source).read_bytes()
 
     @server.tool()
     def operon_guide(topic: str = 'start', if_sha256: str | None = None) -> dict:
@@ -250,9 +262,10 @@ def create_server(client):
     @server.tool()
     def operon_environment_retry(name: str, profile_id: str | None = None) -> dict:
         """Cancel a stale preparation and start it again; mirrors the UI repair button."""
+        suffix = '/environments/' + quote(name, safe='') + '/retry'
         if profile_id:
-            return client.post(f'/api/remote/{profile_id}/environments/{name}/retry', {})
-        return client.post(f'/api/v1/environments/{name}/retry', {})
+            return client.request('/remote/' + quote(profile_id, safe='') + suffix, {})
+        return client.request('/v1' + suffix, {})
 
     @server.tool()
     def operon_environment_log(name: str, limit: int = 200, profile_id: str | None = None) -> dict:
@@ -918,6 +931,182 @@ def create_server(client):
     def operon_canvas_outcome(request_id: str) -> dict:
         """Read the finished outcome of one canvas execution."""
         return client.request('/v1/canvas-plans/outcome?' + urlencode({'request_id': request_id}))
+
+
+    @server.tool()
+    def operon_preferences() -> dict:
+        """Read the profile's presentation preferences without a desktop session."""
+        return client.request('/v1/preferences')
+
+    @server.tool()
+    def operon_preferences_save(preferences: dict, initialize: bool = False) -> dict:
+        """Persist presentation preferences (language, theme); requires edit scope."""
+        return client.request('/v1/preferences', {'preferences': preferences, 'initialize': initialize})
+
+    @server.tool()
+    def operon_workspace() -> dict:
+        """Read the saved canvas workspace, or null when the profile has none."""
+        return client.request('/v1/workspace')
+
+    @server.tool()
+    def operon_workspace_save(workspace: dict) -> dict:
+        """Persist a complete canvas workspace; requires edit scope."""
+        return client.request('/v1/workspace', workspace)
+
+    @server.tool()
+    def operon_version() -> dict:
+        """Read the product build and version information."""
+        return client.request('/v1/version')
+
+    @server.tool()
+    def operon_routes() -> list:
+        """List registered workflow routes."""
+        return client.request('/v1/routes')
+
+    @server.tool()
+    def operon_routes_register(workflow_ids: list[str]) -> list:
+        """Register saved workflows as routes; requires edit scope."""
+        return client.request('/v1/routes/register', {'workflow_ids': workflow_ids})
+
+    @server.tool()
+    def operon_library_state() -> dict:
+        """Read disabled and hidden operator-library entries."""
+        return client.request('/v1/library/state')
+
+    @server.tool()
+    def operon_library_manage(key: str, action: str) -> dict:
+        """Disable, enable, restore or delete one library entry; requires edit scope."""
+        return client.request('/v1/library/manage', {'key': key, 'action': action})
+
+    @server.tool()
+    def operon_route_collections() -> dict:
+        """List installed route collections."""
+        return client.request('/v1/route-collections')
+
+    @server.tool()
+    def operon_route_collection_remove(slug: str) -> dict:
+        """Uninstall one route collection; requires edit scope."""
+        return client.request('/v1/route-collections/' + quote(slug, safe=''), method='DELETE')
+
+    @server.tool()
+    def operon_routes_import_archive(source: str | None = None, content_base64: str | None = None) -> dict:
+        """Import a route archive ZIP from a local path or base64 content; requires edit scope."""
+        data = _payload(source, content_base64)
+        return client.request('/v1/routes/import-archive', {'content_base64': base64.b64encode(data).decode('ascii')})
+
+    @server.tool()
+    def operon_workflow_import(source: str | None = None, content_base64: str | None = None) -> dict:
+        """Import a workflow bundle ZIP from a local path or base64 content; requires edit scope."""
+        data = _payload(source, content_base64)
+        return client.request('/v1/workflows/import', {'content_base64': base64.b64encode(data).decode('ascii')})
+
+    @server.tool()
+    def operon_workflow_export(graph: dict, destination: str) -> dict:
+        """Export a single-environment workflow ZIP into the workspace; returns path and size."""
+        target = _download_target(destination)
+        return client.download('/v1/workflows/export', target, payload={'graph': graph})
+
+    @server.tool()
+    def operon_contracts(graph: dict) -> dict:
+        """Analyze reader and operator contracts without running or installing anything."""
+        return client.request('/v1/contracts', {'graph': graph})
+
+    @server.tool()
+    def operon_graph_export(graph: dict) -> dict:
+        """Export a workflow as YAML plus execution order; remote graphs use their profile."""
+        return client.request('/v1/graphs/export', {'graph': graph})
+
+    @server.tool()
+    def operon_graph_import(text: str, base_dir: str = '.') -> dict:
+        """Import workflow YAML into a graph; requires edit scope."""
+        return client.request('/v1/graphs/import', {'text': text, 'base_dir': base_dir})
+
+    @server.tool()
+    def operon_execution_plan(graph: dict) -> dict:
+        """Build a multi-environment execution plan without submitting it."""
+        return client.request('/v1/execution/plan', {'graph': graph})
+
+    @server.tool()
+    def operon_execution_resources() -> dict:
+        """Read host resources available for multi-environment execution."""
+        return client.request('/v1/execution/resources')
+
+    @server.tool()
+    def operon_plugins_refresh() -> dict:
+        """Rescan plugin source directories and refresh the catalog; requires plugins scope."""
+        return client.request('/v1/plugins/refresh', {})
+
+    @server.tool()
+    def operon_plugins_dependencies() -> dict:
+        """Check and repair plugin dependencies; requires plugins scope."""
+        return client.request('/v1/plugins/dependencies', {})
+
+    @server.tool()
+    def operon_plugins_remove(name: str) -> dict:
+        """Uninstall one plugin package; requires plugins scope."""
+        return client.request('/v1/plugins/remove', {'name': name})
+
+    @server.tool()
+    def operon_plugins_manage(name: str, action: str) -> dict:
+        """Enable, disable or restore one plugin package; requires plugins scope."""
+        return client.request('/v1/plugins/manage', {'name': name, 'action': action})
+
+    @server.tool()
+    def operon_script_inspect(filename: str, code: str, script: dict | None = None) -> dict:
+        """Validate a script operator source and list parameter candidates without running it."""
+        return client.request('/v1/scripts/inspect', {'filename': filename, 'code': code, 'script': script})
+
+    @server.tool()
+    def operon_script_extract(script: dict, names: list[str]) -> dict:
+        """Extract parameter declarations for named script values."""
+        return client.request('/v1/scripts/extract', {'script': script, 'names': names})
+
+    @server.tool()
+    def operon_script_publish(script: dict, operator_id: str, title: str, category: str = 'data',
+                              version: str = '0.1.0') -> dict:
+        """Package and install one saved script operator; requires plugins scope."""
+        return client.request('/v1/scripts/publish', {'script': script, 'operator_id': operator_id,
+                                                      'title': title, 'category': category, 'version': version})
+
+    @server.tool()
+    def operon_operator_source(identifier: str) -> dict:
+        """Read the exact registered source for one operator when it is available."""
+        return client.request('/v1/operators/' + quote(identifier, safe='') + '/source')
+
+    @server.tool()
+    def operon_job_export(job_id: str, index: int) -> dict:
+        """Read one small step report; large reports return a download message instead."""
+        return client.request('/v1/jobs/' + quote(job_id, safe='') + '/exports/' + str(int(index)))
+
+    @server.tool()
+    def operon_remote_refresh(profile_id: str, verify_all: bool = False) -> dict:
+        """Refresh one remote profile over its authorized SSH channel; requires edit scope."""
+        return client.request('/v1/remotes/' + quote(profile_id, safe='') + '/refresh', {'verify_all': verify_all})
+
+    @server.tool()
+    def operon_remote_disconnect(profile_id: str) -> dict:
+        """Disconnect one saved remote profile; requires edit scope."""
+        return client.request('/v1/remotes/' + quote(profile_id, safe='') + '/disconnect', {})
+
+    @server.tool()
+    def operon_remote_remove(profile_id: str) -> dict:
+        """Remove one saved remote profile; requires edit scope."""
+        return client.request('/v1/remotes/' + quote(profile_id, safe='') + '/remove', {})
+
+    @server.tool()
+    def operon_remote_source(profile_id: str) -> dict:
+        """Read source availability for one remote profile."""
+        return client.request('/v1/remotes/' + quote(profile_id, safe='') + '/source', {})
+
+    @server.tool()
+    def operon_remote_library_check(profile_id: str) -> dict:
+        """Check the remote library state for one profile."""
+        return client.request('/v1/remotes/' + quote(profile_id, safe='') + '/library/check', {})
+
+    @server.tool()
+    def operon_remote_library_install(profile_id: str, request: dict | None = None) -> dict:
+        """Start a remote library install for one profile; requires plugins scope."""
+        return client.request('/v1/remotes/' + quote(profile_id, safe='') + '/library/install', request or {})
 
     @server.resource("operon://selection")
     def current_selection() -> str:
