@@ -222,11 +222,15 @@ def parser():
     workflow.add_argument('--template', choices=['csv-pca'], default='csv-pca')
     workflow.add_argument('--runtime-dir', type=Path, help='Prepared relocatable runtime for portable export')
     environment = commands.add_parser('environment', help='Inspect environments, their resources and check/prepare routes')
-    environment.add_argument('action', choices=['status', 'check', 'prepare', 'list', 'install', 'cancel'])
+    environment.add_argument('action', choices=['status', 'check', 'prepare', 'list', 'install', 'cancel',
+                                         'dependency', 'log'])
     environment.add_argument('file', nargs='?', type=Path, help='YAML, graph JSON or workflow ZIP for check/prepare')
     environment.add_argument('names', nargs='*', help='Environment names for install/cancel')
     environment.add_argument('--profile', default='', help='Configured server id; empty means this host')
     environment.add_argument('--require-files', action='store_true', help='Also verify input files during check')
+    environment.add_argument('--kind', default='', help='Dependency kind for the dependency action')
+    environment.add_argument('--requirement', default='', help='Declared dependency entry to install')
+    environment.add_argument('--limit', type=int, default=400, help='Log line limit for the log action')
     resource = commands.add_parser('resources', help='Inspect and manage large resources and their official units')
     resource.add_argument('action', choices=['list', 'download', 'link', 'unlink', 'cancel', 'log'])
     resource.add_argument('name', nargs='?', help='Resource id')
@@ -619,6 +623,27 @@ def execute(args):
                     path = ('/remote/' + quote(profile_id, safe='') + '/environments/prepare') if profile_id else '/v1/environments/prepare'
                     return client.request(path, {'names': names})
                 return client.request('/v1/environments/' + quote(names[0], safe='') + '/cancel', {})
+            if args.action == 'dependency':
+                names = list(getattr(args, 'names', []) or [])
+                name = names[0] if names else ''
+                kind = args.kind or (names[1] if len(names) > 1 else '')
+                requirement = args.requirement or (names[2] if len(names) > 2 else '')
+                if not (name and kind and requirement):
+                    raise ValueError(
+                        'usage: operon environment dependency <name> <kind> <requirement>')
+                profile_id = getattr(args, 'profile', '') or ''
+                suffix = ('/environments/' + quote(name, safe='') + '/dependencies/download')
+                path = ('/remote/' + quote(profile_id, safe='') + suffix) if profile_id else '/v1' + suffix
+                return client.request(path, {'kind': kind, 'name': requirement})
+            if args.action == 'log':
+                names = list(getattr(args, 'names', []) or [])
+                name = names[0] if names else ''
+                if not name:
+                    raise ValueError('usage: operon environment log <name>')
+                profile_id = getattr(args, 'profile', '') or ''
+                suffix = '/environments/' + quote(name, safe='') + '/log'
+                path = ('/remote/' + quote(profile_id, safe='') + suffix) if profile_id else '/v1' + suffix
+                return client.request(path + '?' + urlencode({'limit': args.limit}), {})
             if args.action == 'status':
                 return client.request('/v1/environment')
             payload = {'graph': graph_value}

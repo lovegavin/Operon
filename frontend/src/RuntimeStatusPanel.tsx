@@ -238,10 +238,11 @@ export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
   </div>;
 }
 
-export function EnvironmentCard({item, busy = false, cancelling = false, onAction, onOpen}: {
+export function EnvironmentCard({item, busy = false, cancelling = false, gap, onAction, onOpen}: {
   item: EnvironmentItem;
   busy?: boolean;
   cancelling?: boolean;
+  gap?: {total: number; ready: number; missing: string[]};
   onAction?: (action: Action, name: string) => void;
   onOpen?: (item: EnvironmentItem) => void;
 }) {
@@ -272,6 +273,12 @@ export function EnvironmentCard({item, busy = false, cancelling = false, onActio
         </span>}
         {queueText(item) && <span className="runtime-queue">{queueText(item)}</span>}
         <span className={`runtime-chip is-${tone}`} data-status={tone}>{t(statusKeys[tone])}</span>
+        {tone === 'ready' && gap && gap.ready < gap.total && <span
+          className="runtime-chip is-warning"
+          data-testid={`environment-resources-${item.name}`}
+          title={`${t('缺失资源：')}${gap.missing.join('、')}`}>
+          {t('资源 {ready}/{total}', {ready: gap.ready, total: gap.total})}
+        </span>}
       </div>
     </header>
     <p className="runtime-purpose" title={item.notes || undefined}>
@@ -389,7 +396,21 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     }
   }, [target]);
   const [unitIndex, setUnitIndex] = useState<Record<string, number>>({});
-  const [resourceRows, setResourceRows] = useState<Array<{ id: string; components: number; environments: string[] }>>([]);
+  const [resourceRows, setResourceRows] = useState<Array<{ id: string; components: number; environments: string[]; ready: boolean }>>([]);
+  const resourceGap = (() => {
+    const result: Record<string, {total: number; ready: number; missing: string[]}> = {};
+    for (const row of resourceRows) {
+      const owners = row.environments.length ? row.environments : [row.id];
+      for (const owner of owners) {
+        const entry = result[owner] || {total: 0, ready: 0, missing: []};
+        entry.total += 1;
+        if (row.ready) entry.ready += 1;
+        else entry.missing.push(row.id);
+        result[owner] = entry;
+      }
+    }
+    return result;
+  })();
   useEffect(() => {
     let alive = true;
     void (async () => {
@@ -404,13 +425,17 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
         }
         if (alive) {
           setUnitIndex(next);
-          setResourceRows(rows.map(row => ({
-            id: String(row.id || ''),
-            components: Array.isArray(row.components) && row.components.length ? row.components.length : 1,
-            environments: Array.isArray((row as { environments?: string[] }).environments)
-              ? ((row as { environments?: string[] }).environments as string[])
-              : [],
-          })).filter(row => row.id));
+          setResourceRows(rows.map(row => {
+            const entry = row as { id?: string; state?: string; present?: boolean; environments?: string[] };
+            const state = String(entry.state || '');
+            const ready = Boolean(entry.present) || ['present', 'linked', 'downloaded'].includes(state);
+            return {
+              id: String(entry.id || ''),
+              components: Array.isArray(row.components) && row.components.length ? row.components.length : 1,
+              environments: Array.isArray(entry.environments) ? (entry.environments as string[]) : [],
+              ready,
+            };
+          }).filter(row => row.id));
         }
       } catch {
         /* the panel still renders with the fallback count */
@@ -540,6 +565,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
       } else {
         await api.environmentDependencyDownload(name, kind, requirement);
       }
+      setNotice(t('依赖安装已加入队列，正在后台执行，可点「查看日志」跟踪进度。'));
       setSnapshot(await api.environments() as unknown as EnvironmentView);
     } catch (failure) {
       setError((failure as Error).message);
@@ -714,6 +740,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
       })()}
       {items.length > 0 && <div className="runtime-grid">
         {ordered.map(item => <EnvironmentCard key={item.name} item={item}
+          gap={resourceGap[item.name]}
           busy={Boolean(busy)} cancelling={Boolean(cancelling[item.name])}
           onAction={act} onOpen={setDetail}/>)}
       </div>}

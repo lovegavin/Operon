@@ -38,6 +38,7 @@ UNSUPPORTED_HINT = (
     '该环境依赖的命令行工具只有 Linux/macOS 构建（bioconda 与 conda-forge 都没有 win-64 包）。'
     '请在远程 Linux 服务器上准备该环境，或在本机手动安装后把目录链接进资源库。'
 )
+STALL_SECONDS = 60.0
 _CONDA_MISSING = re.compile(r'[\u251c\u2514]\S*\s*([A-Za-z0-9_.+\-]+)\s*=?\s*\S*\s*\*?\s*does not exist')
 
 
@@ -376,7 +377,8 @@ def _flush_progress(progress: dict) -> None:
     except OSError:
         pass
 
-def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None):
+def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
+         stall=STALL_SECONDS):
     command = [str(part) for part in argv]
     if control is not None:
         control.check()
@@ -393,11 +395,13 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None):
     deadline = time.monotonic() + timeout if timeout else None
     chunks: list[str] = []
     last_flush = [time.monotonic()]
+    last_output = [time.monotonic()]
 
     def drain():
         try:
             for line in process.stdout:
                 chunks.append(line.rstrip('\n'))
+                last_output[0] = time.monotonic()
                 if progress is not None:
                     _track_line(line, progress)
                     if time.monotonic() - last_flush[0] > 1.5:
@@ -413,6 +417,11 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None):
             if control is not None and control.stopped:
                 process.kill()
                 raise Cancelled(f'preparation was cancelled during {" ".join(command[:2])}')
+            if stall and time.monotonic() - last_output[0] > stall:
+                process.kill()
+                raise RuntimeError(
+                    f'{" ".join(command[:2])} produced no output for {stall:.0f}s; '
+                    f'aborted instead of waiting for the {timeout}s limit')
             if deadline is not None and time.monotonic() > deadline:
                 process.kill()
                 raise RuntimeError(f'{" ".join(command[:3])} timed out after {timeout}s')
@@ -489,10 +498,85 @@ def _mamba_usable(path: Path) -> bool:
         return False
 
 
-def _acquire_slot(control) -> None:
-    """Hold one of the two preparation slots, staying responsive to cancellation."""
+_INSTALL_LOCK = '.operon-install.lock'
+_LOCK_STATE: dict[str, object] = {'handle': None}
+
+
+def _lock_handle(handle) -> None:
+    if os.name == 'nt':
+        import msvcrt
+
+        handle.seek(0)
+        msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+    else:
+        import fcntl
+
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+
+def _unlock_handle(handle) -> None:
+    if os.name == 'nt':
+        import msvcrt
+
+        handle.seek(0)
+        try:
+            msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+        except OSError:
+            pass
+    else:
+        import fcntl
+
+        try:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        except OSError:
+            pass
+
+
+def _acquire_slot(control, root=None) -> None:
+    """Hold the single installation slot shared by every process.
+
+    Environments are created by several processes at once (desktop API, remote
+    agent, CLI). A threading semaphore only serialises one process, so the slot
+    is also backed by an OS file lock under the environment root: two installs
+    can never unpack into the same disk region concurrently.
+    """
     while not _PREPARE_SLOTS.acquire(timeout=0.5):
         control.check()
+    try:
+        directory = base(root)
+        directory.mkdir(parents=True, exist_ok=True)
+        handle = (directory / _INSTALL_LOCK).open('a+b')
+        waited = False
+        while True:
+            try:
+                _lock_handle(handle)
+                break
+            except OSError:
+                if not waited:
+                    waited = True
+                    control.check()
+                control.check()
+                time.sleep(2.0)
+        _LOCK_STATE['handle'] = handle
+    except BaseException:
+        _PREPARE_SLOTS.release()
+        raise
+
+
+def _release_slot() -> None:
+    handle = _LOCK_STATE.pop('handle', None)
+    if handle is not None:
+        try:
+            _unlock_handle(handle)
+        finally:
+            try:
+                handle.close()
+            except OSError:
+                pass
+    try:
+        _PREPARE_SLOTS.release()
+    except ValueError:
+        pass
 
 
 def _download(url: str, destination: Path, log, control=None, *, timeout: float = 45.0,
@@ -709,11 +793,11 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
     requirements = entry.get('requirements') or []
     if requirements:
         _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *requirements],
-             log=log, timeout=2400, progress=progress, control=control)
+             log=log, timeout=5400, progress=progress, control=control)
     no_deps = entry.get('no_deps') or []
     if no_deps:
         _run([*install, *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *no_deps], log=log,
-             timeout=2400, progress=progress, control=control)
+             timeout=5400, progress=progress, control=control)
     no_build = entry.get('no_build_isolation') or []
     if no_build:
         _run([*install, *PIP_TRANSFER, '--no-build-isolation', *no_build], log=log,
@@ -768,6 +852,17 @@ def _remove_tree(path, *, attempts=6, delay=0.3) -> bool:
 
 def install_dependency(name: str, kind: str, requirement: str, root=None, log=None,
                        control=None, source=None) -> dict:
+    """Install a single declared dependency, waiting for the installation slot."""
+    control = control or _Control()
+    _acquire_slot(control, root)
+    try:
+        return _install_dependency(name, kind, requirement, root, log, control, source)
+    finally:
+        _release_slot()
+
+
+def _install_dependency(name: str, kind: str, requirement: str, root=None, log=None,
+                        control=None, source=None) -> dict:
     """Install a single declared dependency into one environment."""
     control = control or _Control()
     entry = environments.describe(name, source)
@@ -887,7 +982,7 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
     threading.Thread(target=watch, name=f'environment-progress-{name}', daemon=True).start()
     slot = False
     try:
-        _acquire_slot(control)
+        _acquire_slot(control, root)
         slot = True
         progress['phase'] = 'creating'
         _write_progress(name, root, progress)
@@ -949,7 +1044,7 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
     finally:
         stop.set()
         if slot:
-            _PREPARE_SLOTS.release()
+            _release_slot()
         try:
             size, files = _usage(target(name, root), base(root) / 'packages')
             progress.update({'bytes': size, 'files': files, 'updated_at': _now()})

@@ -1088,5 +1088,7 @@
   "没有正在进行的准备任务。": "No preparation is running right now.",
   "{done}/{total} 已安装": "{done}/{total} installed",
   "重新安装": "Reinstall",
-  "该环境还没有日志输出。": "This environment has not written any log output yet."
+  "该环境还没有日志输出。": "This environment has not written any log output yet.",
+  "资源 {ready}/{total}": "Resources {ready}/{total}",
+  "缺失资源：": "Missing resources: "
 }

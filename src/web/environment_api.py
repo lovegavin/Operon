@@ -460,6 +460,56 @@ def mount_environments(app, service):
         ensure_drainer()
         return job
 
+    def start_dependency(name, kind, requirement):
+        """Queue one declared dependency install and return the tracked job."""
+        environments.describe(name, source_root())
+        entry = described().get(name) or {}
+        status = str(entry.get('status') or '')
+        if status != 'ready':
+            raise ValueError(
+                f'环境 {name} 还没有准备好（当前：{status or "missing"}）。'
+                '请先点击「准备」把环境装好，再安装这条依赖。')
+        key = uuid.uuid4().hex
+        job = {'id': key, 'name': name, 'status': 'queued', 'error': None,
+               'started_at': _now(), 'finished_at': None,
+               'kind': 'dependency', 'dependency': requirement}
+        jobs[key] = job
+        current[name] = key
+        control = environment_install._Control()
+        controls[key] = control
+        log = log_path(name)
+
+        def emit(line):
+            with log.open('a', encoding='utf-8') as stream:
+                stream.write(str(line) + '\n')
+                stream.flush()
+
+        def work():
+            try:
+                emit(f'$ install dependency {kind}:{requirement} into {name}')
+                environment_install.install_dependency(
+                    name, kind, requirement, None, emit,
+                    control=control, source=source_root())
+                job['status'] = 'complete'
+                emit(f'OK {name} dependency {requirement}')
+            except environment_install.Cancelled:
+                job['status'] = 'cancelled'
+                emit(f'CANCELLED {name} dependency {requirement}')
+            except BaseException as exc:  # one bad package must not stop the queue
+                job['status'] = 'failed'
+                job['error'] = str(exc)
+                emit(f'FAIL {name} dependency {requirement}: {exc}')
+            finally:
+                if key in cancelled or control.stopped:
+                    job['status'] = 'cancelled'
+                controls.pop(key, None)
+                job['finished_at'] = _now()
+
+        with queue_lock:
+            pending.append((name, key, work, control))
+        ensure_drainer()
+        return job
+
     def signal_stop(name):
         """Best-effort termination of the installer process; prepare() reports the failure."""
         try:
@@ -490,8 +540,9 @@ def mount_environments(app, service):
     def download_dependency(name: str, payload: dict | None = None):
         body = payload or {}
         try:
-            return environment_install.install_dependency(
+            job = start_dependency(
                 name, str(body.get('kind') or ''), str(body.get('name') or ''))
+            return {'status': job.get('status'), 'job': job.get('id'), 'name': name}
         except KeyError as exc:
             raise HTTPException(404, f"unknown environment: {name}") from exc
         except (ValueError, FileNotFoundError) as exc:

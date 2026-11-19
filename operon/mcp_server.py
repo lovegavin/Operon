@@ -248,6 +248,19 @@ def create_server(client):
         return client.request('/v1' + suffix, {})
 
     @server.tool()
+    def operon_environment_log(name: str, limit: int = 200, profile_id: str | None = None) -> dict:
+        """Read the tail of one environment preparation log (at most 2000 lines).
+
+        Read-only. Works for a running or finished preparation and reports the same lines the
+        desktop log drawer shows. Pass profile_id to read the log kept on that remote server.
+        """
+        suffix = ('/environments/' + quote(name, safe='') + '/log?limit=' +
+                  str(max(1, min(int(limit), 2000))))
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + suffix)
+        return client.request('/v1' + suffix)
+
+    @server.tool()
     def operon_environment_dependency_install(name: str, kind: str, requirement: str,
                                               profile_id: str | None = None) -> dict:
         """Install one declared operator dependency into an isolated environment.

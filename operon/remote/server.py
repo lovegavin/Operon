@@ -155,10 +155,18 @@ def environment_dependency(service, payload: dict | None = None) -> dict:
         raise ValueError('environments_dependency requires an environment name')
     kind = str(payload.get('kind') or '').strip()
     requirement = str(payload.get('requirement') or '').strip()
-    environment_install.install_dependency(name, kind, requirement,
-                                           root=environments.root())
+    def work():
+        try:
+            environment_install.install_dependency(name, kind, requirement,
+                                                   root=environments.root())
+        except Exception:
+            # The queue records the failure in the environment log; the caller
+            # already has its acknowledgement and must not block on pip.
+            pass
+
+    threading.Thread(target=work, name=f'remote-dependency-{name}', daemon=True).start()
     return {**environment_snapshot(service),
-            'installed': {'kind': kind, 'name': requirement}}
+            'queued': {'kind': kind, 'name': requirement}}
 
 
 def environment_cancel(service, payload: dict | None = None) -> dict:
