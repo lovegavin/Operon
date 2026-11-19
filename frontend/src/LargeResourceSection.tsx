@@ -269,7 +269,6 @@ export function LargeResourceSection({ target = '', environment, compact }: {
       {error ? <p className="runtime-error">{error}</p> : null}
       {message ? <p className="runtime-error">{message}</p> : null}
       {loading ? <p>{t('正在读取大型资源…')}</p> : null}
-      {!loading && !total ? <p className="runtime-hint">{t('当前环境没有登记资源。')}</p> : null}
       {total ? <div className="resource-unit-grid">
         {units.map(({ resource, component }) => (
           <UnitCard

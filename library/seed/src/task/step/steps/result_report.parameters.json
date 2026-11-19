@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ResultReport parameters",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "title": {
+      "type": "string",
+      "default": "result report",
+      "description": "Report title."
+    },
+    "format": {
+      "type": "string",
+      "enum": [
+        "csv",
+        "json",
+        "markdown"
+      ],
+      "default": "csv",
+      "description": "Report file format."
+    },
+    "output": {
+      "type": "string",
+      "default": "output",
+      "description": "Output port name."
+    }
+  }
+}

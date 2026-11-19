@@ -223,7 +223,7 @@ def parser():
     workflow.add_argument('--runtime-dir', type=Path, help='Prepared relocatable runtime for portable export')
     environment = commands.add_parser('environment', help='Inspect environments, their resources and check/prepare routes')
     environment.add_argument('action', choices=['status', 'check', 'prepare', 'list', 'install', 'cancel',
-                                         'dependency', 'log'])
+                                         'dependency', 'log', 'retry'])
     environment.add_argument('file', nargs='?', type=Path, help='YAML, graph JSON or workflow ZIP for check/prepare')
     environment.add_argument('names', nargs='*', help='Environment names for install/cancel')
     environment.add_argument('--profile', default='', help='Configured server id; empty means this host')
@@ -232,7 +232,7 @@ def parser():
     environment.add_argument('--requirement', default='', help='Declared dependency entry to install')
     environment.add_argument('--limit', type=int, default=400, help='Log line limit for the log action')
     resource = commands.add_parser('resources', help='Inspect and manage large resources and their official units')
-    resource.add_argument('action', choices=['list', 'download', 'link', 'unlink', 'cancel', 'log'])
+    resource.add_argument('action', choices=['list', 'download', 'link', 'unlink', 'cancel', 'log', 'limits'])
     resource.add_argument('name', nargs='?', help='Resource id')
     resource.add_argument('--source', default='', help='Existing absolute path for link')
     resource.add_argument('--unit', default='', help='Official unit name; empty means the whole resource')
@@ -289,7 +289,7 @@ def parser():
     run.add_argument("--document")
     run.add_argument("--expected-revision", type=int)
     jobs = commands.add_parser("jobs")
-    jobs.add_argument("action", choices=["list", "get", "cancel", 'logs', 'wait'])
+    jobs.add_argument("action", choices=["list", "get", "cancel", 'logs', 'wait', 'parameters'])
     jobs.add_argument("id", nargs='?')
     jobs.add_argument('--offset', type=int, default=0)
     jobs.add_argument('--limit', type=int, default=4096)
@@ -314,12 +314,12 @@ def parser():
     viewers.add_argument('--refresh', action='store_true')
     viewers.add_argument('--viewer', help='Default desktop viewer ID; omit to restore automatic selection')
     servers = commands.add_parser('servers')
-    servers.add_argument('action', choices=['list', 'save', 'connect', 'trust'])
+    servers.add_argument('action', choices=['list', 'save', 'connect', 'trust', 'install', 'setup'])
     servers.add_argument('value', nargs='?')
     servers.add_argument('--credentials-stdin', action='store_true', help='Read password/passphrase JSON from stdin; never command arguments')
     servers.add_argument('--fingerprint')
     storage = commands.add_parser('storage', help='Inspect explicitly configured storage without starting remote compute')
-    storage.add_argument('action', choices=['browse', 'stat', 'preview', 'status'])
+    storage.add_argument('action', choices=['browse', 'stat', 'preview', 'status', 'roots', 'close'])
     storage.add_argument('storage_id', nargs='?')
     storage.add_argument('path', nargs='?', default='.')
     storage.add_argument('--page-size', type=int)
@@ -364,10 +364,23 @@ def parser():
     routes.add_argument("path")
     schema = commands.add_parser("schema")
     schema.add_argument("name", choices=["operator", "package", "graph", "workspace", "workflow"])
+    browse = commands.add_parser('browse', help='List a directory so an agent can pick a path')
+    browse.add_argument('--path', help='Directory to list; defaults to the file system roots')
+    browse.add_argument('--no-files', dest='files', action='store_false',
+                        help='Return only directories')
     mcp = commands.add_parser("mcp")
     mcp.add_argument("--allow-run", action="store_true")
     mcp.add_argument("--read-only", action="store_true")
     mcp.add_argument("--allow-plugins", action="store_true")
+    commands.add_parser('capabilities', help='Describe the service capabilities, versions and permission scopes')
+    canvas = commands.add_parser('canvas', help='Prepare, inspect and run canvas plans through the shared host pool')
+    canvas.add_argument('action', choices=['prepare', 'status', 'cancel', 'execute', 'history', 'outcome'])
+    canvas.add_argument('value', nargs='?', help='Request id, or the workflow file for prepare')
+    canvas.add_argument('--file', type=Path, help='Workflow YAML, graph JSON or bundle ZIP for prepare')
+    canvas.add_argument('--request-id', help='Stable key for the same canvas preparation or execution')
+    canvas.add_argument('--preparation-id', help='Preparation id returned by canvas prepare')
+    canvas.add_argument('--intent', default='run', help='Execution intent handed to the canvas runner')
+    canvas.add_argument('--output', help='Output the intent should produce')
     return root
 
 
@@ -488,7 +501,7 @@ def execute(args):
         from .storage import BrowseRequest, PreviewRequest, reference
         if not 1 <= args.pages <= 20:
             raise ValueError('storage --pages must be between 1 and 20')
-        if args.action != 'status':
+        if args.action not in ('status', 'roots', 'close'):
             if not args.storage_id:
                 raise ValueError('storage browse/stat/preview requires a configured storage ID')
             base = {'storage_id': args.storage_id, 'relative_path': args.path}
@@ -511,7 +524,7 @@ def execute(args):
     if args.command == 'library':
         scopes.append('plugins')
     if (args.command == 'resources' and args.action in ('download', 'link', 'unlink', 'cancel')
-            or args.command == 'environment' and args.action in ('install', 'cancel')):
+            or args.command == 'environment' and args.action in ('install', 'cancel', 'retry')):
         scopes.append('plugins')
     if (args.command == 'workflow' and args.action == 'prepare-environment'
             or args.command == 'environment' and args.action == 'prepare'):
@@ -521,7 +534,9 @@ def execute(args):
     if (args.command == 'viewers' and args.action in ('configure', 'default')
             or args.command == 'artifacts' and args.action in ('open', 'prepare-viewer')):
         scopes.append('run')
-    if args.command == 'run' or args.command == 'jobs' and args.action == 'cancel' or args.command == 'service' and args.action == 'stop' or args.command == 'servers' and args.action == 'connect':
+    if args.command == 'run' or args.command == 'jobs' and args.action == 'cancel' or args.command == 'service' and args.action == 'stop' or args.command == 'servers' and args.action in ('connect', 'install'):
+        scopes.append("run")
+    if args.command == 'canvas' and args.action in ('prepare', 'cancel', 'execute'):
         scopes.append("run")
     directory = data_directory(args.profile_dir, args.workspace, args.data_dir)
     from src.web.profile import resolve_profile
@@ -532,7 +547,7 @@ def execute(args):
         return {'instances': [{k: v for k, v in instance.items() if k != 'secret'} for instance in instances(directory)]}
     client = Client(directory, instance=args.instance, name="Operon CLI", scopes=scopes,
                     auto_start=not (args.command == 'service' and args.action == 'stop'), workspace=profile.workspace,
-                    require_api=1 if args.command in ('operators', 'workflow', 'environment', 'engine', 'jobs', 'artifacts', 'servers', 'service', 'viewers', 'routes', 'library', 'storage', 'plan') or args.command == 'run' and (args.file or args.workflow) else 0)
+                    require_api=1 if args.command in ('operators', 'workflow', 'environment', 'engine', 'jobs', 'artifacts', 'servers', 'service', 'viewers', 'routes', 'library', 'storage', 'plan', 'capabilities', 'canvas', 'browse') or args.command == 'run' and (args.file or args.workflow) else 0)
     try:
         if args.command == 'plan':
             if args.action == 'export':
@@ -564,6 +579,10 @@ def execute(args):
                 return client.request(path + '/' + args.action + '?' + urlencode(query.model_dump()))
             return client.request(path + '/cancel', {}) if args.action == 'cancel' else client.request(path)
         if args.command == 'storage':
+            if args.action == 'roots':
+                return client.request('/v1/storage/roots')
+            if args.action == 'close':
+                return client.request('/v1/storage/browse/close', {})
             if args.action == 'status':
                 return client.request('/v1/storage/status')
             if args.action != 'browse':
@@ -640,6 +659,8 @@ def execute(args):
                 return client.request('/v1/environments/' + quote(names[0], safe='') + '/cancel', {})
             if args.action == 'dependency':
                 names = list(getattr(args, 'names', []) or [])
+                if getattr(args, 'file', None) is not None:
+                    names = [str(args.file)] + names
                 name = names[0] if names else ''
                 kind = args.kind or (names[1] if len(names) > 1 else '')
                 requirement = args.requirement or (names[2] if len(names) > 2 else '')
@@ -650,6 +671,17 @@ def execute(args):
                 suffix = ('/environments/' + quote(name, safe='') + '/dependencies/download')
                 path = ('/remote/' + quote(profile_id, safe='') + suffix) if profile_id else '/v1' + suffix
                 return client.request(path, {'kind': kind, 'name': requirement})
+            if args.action == 'retry':
+                names = list(getattr(args, 'names', []) or [])
+                name = names[0] if names else ''
+                if not name and getattr(args, 'file', None) is not None:
+                    name = str(args.file)
+                if not name:
+                    raise ValueError('usage: operon environment retry <name>')
+                profile_id = getattr(args, 'profile', '') or ''
+                suffix = '/environments/' + quote(name, safe='') + '/retry'
+                path = ('/remote/' + quote(profile_id, safe='') + suffix) if profile_id else '/v1' + suffix
+                return client.request(path, {})
             if args.action == 'log':
                 names = list(getattr(args, 'names', []) or [])
                 name = names[0] if names else ''
@@ -670,6 +702,8 @@ def execute(args):
                 return client.request('/v1/workflows/check-environment', {'graph': graph_value})
             return client.request('/v1/workflows/' + ('validate' if args.action == 'check' else 'prepare-environment'), payload)
         if args.command == 'resources':
+            if args.action == 'limits':
+                return client.request('/v1/resources')
             profile_id = getattr(args, 'profile', '') or ''
             prefix = ('/remote/' + quote(profile_id, safe='') + '/resources') if profile_id else '/v1/large-resources'
             if args.action == 'list':
@@ -699,6 +733,42 @@ def execute(args):
             return client.request(f'/v1/engine/events?after={int(args.after)}&limit={int(args.limit)}')
         if args.command == 'service':
             return client.request('/v1/service/stop', {}) if args.action == 'stop' else client.request('/v1/service')
+        if args.command == 'browse':
+            body = {'files': bool(args.files)}
+            if args.path:
+                body['path'] = args.path
+            return client.request('/browse', body)
+
+        if args.command == 'capabilities':
+            return client.request('/v1/capabilities')
+        if args.command == 'canvas':
+            if args.action == 'history':
+                return client.request('/v1/canvas-plans/history')
+            if args.action == 'prepare':
+                request_id = args.request_id
+                if not request_id:
+                    raise ValueError('canvas prepare requires --request-id')
+                target = args.file or args.value
+                if not target:
+                    raise ValueError('canvas prepare requires a workflow file')
+                return client.request('/v1/canvas-plans/prepare',
+                                      {'graph': read_graph_file(target), 'request_id': request_id})
+            if args.action == 'execute':
+                if not args.preparation_id:
+                    raise ValueError('canvas execute requires --preparation-id')
+                if not args.request_id:
+                    raise ValueError('canvas execute requires --request-id')
+                return client.request('/v1/canvas-plans/execute',
+                                      {'preparation_id': args.preparation_id,
+                                       'request_id': args.request_id,
+                                       'action': args.intent, 'output': args.output})
+            request_id = args.request_id or args.value
+            if not request_id:
+                raise ValueError('A canvas request id is required')
+            if args.action == 'cancel':
+                return client.request('/v1/canvas-plans/cancel', {'request_id': request_id})
+            return client.request('/v1/canvas-plans/' + args.action + '?' +
+                                  urlencode({'request_id': request_id}))
         if args.command == 'workflow':
             if args.action == 'list':
                 return client.request('/v1/workflows')
@@ -791,6 +861,9 @@ def execute(args):
                 return client.request('/v1/remotes')
             if args.action == 'save':
                 return client.request('/v1/remotes', json.loads(Path(args.value).read_text(encoding='utf-8')))
+            if args.action in ('install', 'setup'):
+                target = '/remote/' + quote(args.value or '', safe='') + '/' + args.action
+                return client.request(target) if args.action == 'setup' else client.request(target, {})
             payload = {'fingerprint': args.fingerprint} if args.action == 'trust' else (json.load(sys.stdin) if args.credentials_stdin else {})
             return client.request('/v1/remotes/' + quote(args.value or '', safe='') + '/' + args.action, payload)
         if args.command == "sessions":
@@ -820,6 +893,8 @@ def execute(args):
             if not args.id:
                 raise ValueError('A job ID is required')
             path = '/v1/jobs/' + quote(args.id, safe='')
+            if args.action == 'parameters':
+                return client.request(path + '/parameters')
             if args.action == 'logs':
                 cursor = args.offset
                 while True:

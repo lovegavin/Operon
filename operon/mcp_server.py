@@ -755,6 +755,170 @@ def create_server(client):
         """Import a route collection whose exact pins match the installed library."""
         return client.request('/v1/routes/import-collection', {'path': path})
 
+    @server.tool()
+    def operon_capabilities() -> dict:
+        """Describe the service: API and protocol versions, capabilities and permission scopes."""
+        return client.request('/v1/capabilities')
+
+    @server.tool()
+    def operon_service_status() -> dict:
+        """Report the running service instance, headless mode and active jobs."""
+        return client.request('/v1/service')
+
+    @server.tool()
+    def operon_service_stop() -> dict:
+        """Stop a headless service once it has no active job. Requires --allow-run."""
+        return client.request('/v1/service/stop', {})
+
+    @server.tool()
+    def operon_engine_status() -> dict:
+        """Read engine queues, capacity and managed memory for this workspace."""
+        return client.request('/v1/engine')
+
+    @server.tool()
+    def operon_engine_events(after: int = 0, limit: int = 200) -> dict:
+        """Read resumable engine events after a cursor; pass the returned offset as ``after``."""
+        return client.request('/v1/engine/events?' +
+                              urlencode({'after': int(after), 'limit': int(limit)}))
+
+    @server.tool()
+    def operon_environment_status() -> dict:
+        """Read the resolved operator environment without preparing it."""
+        return client.request('/v1/environment')
+
+    @server.tool()
+    def operon_resource_limits() -> dict:
+        """Report the CPU, memory and disk limits available to execution slots."""
+        return client.request('/v1/resources')
+
+    @server.tool()
+    def operon_job_parameters(job_id: str) -> dict:
+        """Read the exact parameters, execution settings and plugin lock of a submitted job."""
+        return client.request('/v1/jobs/' + quote(job_id, safe='') + '/parameters')
+
+    @server.tool()
+    def operon_viewers(refresh: bool = False) -> dict:
+        """List desktop result viewers and the formats they claim."""
+        return client.request('/v1/viewers' + ('?refresh=true' if refresh else ''))
+
+    @server.tool()
+    def operon_viewer_configure(viewer: str, executable: str | None = None) -> dict:
+        """Point one desktop viewer at an executable, or clear it. Requires --allow-run."""
+        return client.request('/v1/viewers/' + quote(viewer, safe='') + '/configure',
+                              {'executable': executable})
+
+    @server.tool()
+    def operon_viewer_default(extension: str, viewer: str | None = None) -> dict:
+        """Choose the default viewer for one extension; omit the viewer to restore automatic selection."""
+        return client.request('/v1/viewers/default', {'extension': extension, 'viewer': viewer})
+
+    @server.tool()
+    def operon_viewer_prepare(job_id: str, artifact_id: str, role: str) -> dict:
+        """Materialise one retained artifact file so a desktop viewer can open it."""
+        return client.request('/v1/jobs/' + quote(job_id, safe='') + '/artifacts/' +
+                              quote(artifact_id, safe='') + '/prepare-viewer', {'role': role})
+
+    @server.tool()
+    def operon_storage_roots() -> dict:
+        """List the storage roots explicitly configured for this profile."""
+        return client.request('/v1/storage/roots')
+
+    @server.tool()
+    def operon_storage_browse(storage_id: str, path: str = '.', page_size: int | None = None,
+                              cursor: str | None = None, hidden: bool = False) -> dict:
+        """Browse one storage root a page at a time; pass the returned ``next_cursor`` as ``cursor``."""
+        payload = {'storage_id': storage_id, 'relative_path': path, 'hidden': bool(hidden)}
+        if page_size is not None:
+            payload['page_size'] = int(page_size)
+        if cursor:
+            payload['cursor'] = cursor
+        return client.request('/v1/storage/browse', payload)
+
+    @server.tool()
+    def operon_storage_stat(storage_id: str, path: str) -> dict:
+        """Read one storage entry's kind, size, digest and modified time without opening it."""
+        return client.request('/v1/storage/stat',
+                              {'storage_id': storage_id, 'relative_path': path})
+
+    @server.tool()
+    def operon_storage_preview(storage_id: str, path: str, byte_limit: int | None = None,
+                               row_limit: int | None = None) -> dict:
+        """Read a bounded preview of a stored text or table file."""
+        payload = {'storage_id': storage_id, 'relative_path': path}
+        if byte_limit is not None:
+            payload['byte_limit'] = int(byte_limit)
+        if row_limit is not None:
+            payload['row_limit'] = int(row_limit)
+        return client.request('/v1/storage/preview', payload)
+
+    @server.tool()
+    def operon_storage_close() -> dict:
+        """Close every storage browse cursor this connection still holds."""
+        return client.request('/v1/storage/browse/close', {})
+
+    @server.tool()
+    def operon_storage_status() -> dict:
+        """Report storage roots, open browse cursors and handle usage."""
+        return client.request('/v1/storage/status')
+
+    @server.tool()
+    def operon_plugins() -> dict:
+        """List installed plugins and their declared dependency state."""
+        return client.request('/plugins')
+
+    @server.tool()
+    def operon_remote_save(profile: dict) -> dict:
+        """Create or update one configured server profile."""
+        return client.request('/v1/remotes', profile)
+
+    @server.tool()
+    def operon_remote_connect(profile_id: str, password: str | None = None,
+                              passphrase: str | None = None) -> dict:
+        """Connect to a configured server; secrets are forwarded for this call, never stored."""
+        payload = {name: value for name, value in
+                   (('password', password), ('passphrase', passphrase)) if value}
+        return client.request('/v1/remotes/' + quote(profile_id, safe='') + '/connect', payload)
+
+    @server.tool()
+    def operon_remote_trust(profile_id: str, fingerprint: str | None = None) -> dict:
+        """Trust a server host key, optionally pinning the exact fingerprint."""
+        return client.request('/v1/remotes/' + quote(profile_id, safe='') + '/trust',
+                              {'fingerprint': fingerprint})
+
+    @server.tool()
+    def operon_canvas_prepare(graph: dict, request_id: str) -> dict:
+        """Prepare canvas edits for execution or export and return a preparation id."""
+        return client.request('/v1/canvas-plans/prepare',
+                              {'graph': graph, 'request_id': request_id})
+
+    @server.tool()
+    def operon_canvas_status(request_id: str) -> dict:
+        """Read the progress of one canvas preparation."""
+        return client.request('/v1/canvas-plans/status?' + urlencode({'request_id': request_id}))
+
+    @server.tool()
+    def operon_canvas_cancel(request_id: str) -> dict:
+        """Cancel a pending canvas preparation. Requires --allow-run."""
+        return client.request('/v1/canvas-plans/cancel', {'request_id': request_id})
+
+    @server.tool()
+    def operon_canvas_execute(preparation_id: str, request_id: str, action: str,
+                              output: str | None = None) -> dict:
+        """Run or export one prepared canvas plan. Requires --allow-run."""
+        return client.request('/v1/canvas-plans/execute',
+                              {'preparation_id': preparation_id, 'request_id': request_id,
+                               'action': action, 'output': output})
+
+    @server.tool()
+    def operon_canvas_history() -> dict:
+        """List recent canvas preparations for this workspace."""
+        return client.request('/v1/canvas-plans/history')
+
+    @server.tool()
+    def operon_canvas_outcome(request_id: str) -> dict:
+        """Read the finished outcome of one canvas execution."""
+        return client.request('/v1/canvas-plans/outcome?' + urlencode({'request_id': request_id}))
+
     @server.resource("operon://selection")
     def current_selection() -> str:
         return json.dumps(client.context(), ensure_ascii=False)

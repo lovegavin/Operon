@@ -814,7 +814,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
             </header>
             <p className="runtime-purpose">{t('逐个安装依赖，也可以在依赖名片右上角全部安装。')}</p>
           </button>
-          <button type="button" className="runtime-card resource-entry-card"
+          {unitTotal > 0 && <button type="button" className="runtime-card resource-entry-card"
             data-testid="detail-resources" onClick={() => setView('resources')}>
             <header className="runtime-card-head">
               <div className="runtime-card-title">
@@ -823,7 +823,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
               </div>
             </header>
             <p className="runtime-purpose">{t('逐个下载或链接官方最小维护单元。')}</p>
-          </button>
+          </button>}
         </div>}
         {view === 'deps' && <section className="runtime-detail-block">
           <header className="runtime-resources-header">

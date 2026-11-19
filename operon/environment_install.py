@@ -27,8 +27,9 @@ from pathlib import Path
 from . import environment_estimates as estimates
 from . import environments
 
-PIP_TRANSFER = ['--disable-pip-version-check', '--no-input', '--timeout', '120', '--retries', '3']
-PIP_INDEX = ['--index-url', 'https://pypi.org/simple']
+PIP_TRANSFER = ['--disable-pip-version-check', '--no-input', '--timeout', '120', '--retries', '3', '--progress-bar', 'raw']
+PIP_INDEX = ['--index-url', os.environ.get('OPERON_PIP_INDEX') or 'https://pypi.org/simple']
+PIP_TRUSTED = ['--trusted-host', os.environ['OPERON_PIP_TRUSTED_HOST']] if os.environ.get('OPERON_PIP_TRUSTED_HOST') else []
 CONDA_FORGE = 'conda-forge'
 CONDA_BIOCONDA = 'bioconda'
 BIOCONDA_MARKERS = ('hmmer', 'infernal', 'prodigal', 'amrfinder', 'antismash')
@@ -413,8 +414,18 @@ def _flush_progress(progress: dict) -> None:
     except OSError:
         pass
 
+def _activity_signature(paths):
+    signature = []
+    for path in paths:
+        try:
+            signature.append((str(path), len(os.listdir(path))))
+        except OSError:
+            signature.append((str(path), -1))
+    return tuple(signature)
+
+
 def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
-         stall=BUILD_STALL_SECONDS):
+         stall=BUILD_STALL_SECONDS, watch=None, deadline=None):
     command = [str(part) for part in argv]
     if control is not None:
         control.check()
@@ -467,11 +478,20 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
 
     reader = threading.Thread(target=drain, name='operon-run-reader', daemon=True)
     reader.start()
+    watched = [Path(item) for item in (watch or ()) if item]
+    activity = _activity_signature(watched)
+    sampled = time.monotonic()
     try:
         while process.poll() is None:
             if control is not None and control.stopped:
                 process.kill()
                 raise Cancelled(f'preparation was cancelled during {" ".join(command[:2])}')
+            if watched and time.monotonic() - sampled > 5.0:
+                sampled = time.monotonic()
+                current = _activity_signature(watched)
+                if current != activity:
+                    activity = current
+                    last_output[0] = time.monotonic()
             if stall and time.monotonic() - last_output[0] > stall:
                 process.kill()
                 raise RuntimeError(
@@ -751,6 +771,49 @@ def _mamba_env(directory: Path) -> dict:
     return env
 
 
+def _rewrite_shebangs(root: Path, stale: Path | None = None) -> int:
+    """Point entry-point scripts at the promoted tree instead of the staging copy."""
+
+    if stale is None:
+        return 0
+    needle = str(stale).replace('\\', '/')
+    replacement = str(root).replace('\\', '/')
+    if needle == replacement:
+        return 0
+    changed = 0
+    for folder in ('Scripts', 'bin'):
+        directory = root / folder
+        if not directory.is_dir():
+            continue
+        for script in directory.iterdir():
+            if not script.is_file():
+                continue
+            try:
+                with script.open('rb') as handle:
+                    head = handle.readline(512)
+            except OSError:
+                continue
+            if not head.startswith(b'#!') or needle.encode('utf-8') not in head:
+                continue
+            try:
+                data = script.read_bytes()
+            except OSError:
+                continue
+            first, separator, rest = data.partition(b'\n')
+            text = first.decode('utf-8', 'replace')
+            if needle not in text:
+                continue
+            updated = text.replace(needle, replacement)
+            if updated == text:
+                continue
+            try:
+                script.write_bytes(updated.encode('utf-8') + separator + rest)
+                changed += 1
+            except OSError:
+                continue
+    return changed
+
+
 def _commit(name: str, staging: Path, final: Path) -> None:
     """Swap a finished staging tree into place without losing the working copy.
 
@@ -778,6 +841,7 @@ def _commit(name: str, staging: Path, final: Path) -> None:
         raise RuntimeError(
             f'could not commit environment {name}: its directory is still in use '
             f'by a running probe or task; stop the task and retry ({error})') from error
+    _rewrite_shebangs(final, staging)
     if previous is not None:
         shutil.rmtree(previous, ignore_errors=True)
 
@@ -808,11 +872,13 @@ def _create(entry: dict, staging: Path, log, root=None, progress=None, control=N
     env = _mamba_env(base(root))
     if entry.get('clone_shared'):
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '--clone', sys.prefix], log=log, env=env,
-             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
+             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             watch=[base(root), staging])
     else:
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, *_conda_flags(entry),
               '--strict-channel-priority', 'python=' + str(entry.get('python', '3.11')), 'pip'],
-             log=log, env=env, timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
+             log=log, env=env, timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             watch=[base(root), staging])
 
 
 def _install(entry: dict, staging: Path, log, root=None, progress=None, control=None):
@@ -824,14 +890,15 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
     direct = entry.get('pip_pypi') or []
     # Base build tooling must exist before any source build or `--no-build-isolation` install.
     # `pkg_resources` ships with setuptools below 81; some packages (pdbfixer) still import it.
-    _run([*install, *PIP_TRANSFER, '--no-input', *PIP_INDEX,
+    _run([*install, *PIP_TRANSFER, '--no-input', *PIP_INDEX, *PIP_TRUSTED,
           'setuptools>=68,<81', 'wheel'], log=log, timeout=900, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     conda_packages = entry.get('conda_packages') or []
     if conda_packages:
         mamba = _micromamba(base(root), log, control)
         _run([mamba, '--no-rc', 'install', '-y', '-p', staging, *_conda_flags(entry),
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
-             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
+             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             watch=[base(root), staging])
     if entry.get('torch_cpu'):
         _run([*install, *PIP_TRANSFER, 'torch',
               '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
@@ -844,19 +911,21 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
         _run([*install, *PIP_TRANSFER, *extra, target], log=log, timeout=3600,
              progress=progress, control=control)
     if direct:
-        _run([*install, *PIP_TRANSFER, *PIP_INDEX, *direct], log=log,
-             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
+        _run([*install, *PIP_TRANSFER, *PIP_INDEX, *PIP_TRUSTED, *direct], log=log,
+             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             watch=[base(root), staging])
     wheels = entry.get('pip_wheels') or []
     if wheels:
-        _run([*install, *PIP_TRANSFER, '--only-binary=:all:', *PIP_INDEX, *wheels],
-             log=log, timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
+        _run([*install, *PIP_TRANSFER, '--only-binary=:all:', *PIP_INDEX, *PIP_TRUSTED, *wheels],
+             log=log, timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             watch=[base(root), staging])
     requirements = entry.get('requirements') or []
     if requirements:
-        _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *requirements],
+        _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *PIP_TRUSTED, *requirements],
              log=log, timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     no_deps = entry.get('no_deps') or []
     if no_deps:
-        _run([*install, *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *no_deps], log=log,
+        _run([*install, *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *PIP_TRUSTED, *no_deps], log=log,
              timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     no_build = entry.get('no_build_isolation') or []
     if no_build:
@@ -962,7 +1031,8 @@ def _install_dependency(name: str, kind: str, requirement: str, root=None, log=N
         mamba = _micromamba(base(root), note, control)
         _run([mamba, '--no-rc', 'install', '-y', '-p', str(final), *_conda_flags([requirement]),
               '--strict-channel-priority', requirement],
-             log=note, env=_mamba_env(base(root)), timeout=3600, control=control, stall=BUILD_STALL_SECONDS)
+             log=note, env=_mamba_env(base(root)), timeout=3600, control=control, stall=BUILD_STALL_SECONDS,
+             watch=[base(root), final])
     else:
         python = _python(final)
         prefix = _pip_prefix(final)
@@ -973,7 +1043,7 @@ def _install_dependency(name: str, kind: str, requirement: str, root=None, log=N
         if kind == 'pip_wheels':
             extra = ['--only-binary=:all:']
         _run([python, '-X', 'utf8', '-m', 'pip', 'install', *prefix, *PIP_TRANSFER,
-              *(flags or []), *(extra or []), *PIP_INDEX, requirement],
+              *(flags or []), *(extra or []), *PIP_INDEX, *PIP_TRUSTED, requirement],
              log=note, timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     progress['phase'] = 'complete'
     progress['detail'] = f'installed {requirement}'

@@ -370,6 +370,38 @@ def mount_environments(app, service):
             data = {**data, 'environments': environments_data}
         return {**data, 'operations': operations}
 
+    def _synthetic_log(name: str) -> str:
+        """Render whatever the run left behind when no log file exists yet."""
+        lines: list[str] = []
+        progress = {}
+        try:
+            from operon import environment_install
+            progress = environment_install.read_progress(name, source_root()) or {}
+        except Exception:
+            progress = {}
+        if progress:
+            stamp = str(progress.get('updated_at') or '')
+            lines.append(f'[{stamp}] phase={progress.get("phase")} detail={progress.get("detail") or ""}')
+            command = progress.get('command')
+            if command:
+                lines.append(f'[{stamp}] $ {command}')
+            if progress.get('expected_bytes'):
+                lines.append(f'[{stamp}] bytes={progress.get("bytes") or 0}/{progress.get("expected_bytes")}')
+            if progress.get('error'):
+                lines.append(f'[{stamp}] error: {progress["error"]}')
+        try:
+            from operon import environment_install
+            error_file = environment_install._error_path(name, source_root())
+            if error_file.is_file():
+                import json
+                payload = json.loads(error_file.read_text(encoding='utf-8'))
+                lines.append(f'[{payload.get("at")}] failed: {payload.get("message")}')
+        except Exception:
+            pass
+        if not lines:
+            lines.append('该环境还没有运行记录。执行「准备」「安装依赖」或「下载资源」后会在这里留下完整日志。')
+        return '\n'.join(lines) + '\n'
+
     def log_path(name):
         logs.mkdir(parents=True, exist_ok=True)
         return logs / f'{name}.log'
@@ -664,7 +696,10 @@ def mount_environments(app, service):
         if durable is not None and durable.is_file() and (not log.is_file() or durable.stat().st_size > log.stat().st_size):
             log = durable
         if not log.is_file():
-            return {'name': name, 'text': ''}
-        lines = log.read_text(encoding='utf-8', errors='replace').splitlines()
+            return {'name': name, 'text': _synthetic_log(name)}
+        text = log.read_text(encoding='utf-8', errors='replace')
+        if not text.strip():
+            text = _synthetic_log(name)
+        lines = text.splitlines()
         limit = max(1, min(int(limit), 2000))
         return {'name': name, 'text': '\n'.join(lines[-limit:])}

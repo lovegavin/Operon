@@ -128,3 +128,85 @@ sitting in `installing` for up to 40 minutes.
 | retry via MCP | n/a | operon_environment_retry(name, profile_id) | yes | yes |
 | retry via CLI | n/a | operon environment retry <name> | yes | yes (--profile) |
 | environment status via CLI | n/a | operon environment status <name> | yes | yes (--profile) |
+
+## MCP and CLI parity (audited 2026-11-20)
+
+Rule: a control that reads or mutates data must reach the shared service over HTTP and
+must be exposed by both the MCP adapter and the CLI. Method: enumerated the 107
+`@server.tool()` functions in `operon/mcp_server.py`, the 32 CLI commands in
+`operon/cli.py`, 242 route decorators in `src/web/*.py`, `operon/*_api.py` and
+`operon/bridge.py`, and every member of the `api` object in `frontend/src/api.ts`.
+Theme, panel width and other cosmetic state were excluded.
+
+`operon/client.py` rewrites adapter paths: `'/v1/...'` becomes `/api/v1/...` and any
+other path becomes `/api/agent/...`. An adapter can therefore only reach `/api/v1/*`
+or `/api/agent/*`, so a browser-only route needs an agent twin before a wrapper can
+exist; that rule produced most of the gaps below.
+
+### Closed in this pass
+
+| UI control | HTTP route | MCP tool | CLI verb |
+| --- | --- | --- | --- |
+| capabilities / status panel | `GET /api/v1/capabilities` | `operon_capabilities` | `operon capabilities` |
+| service status, stop service | `GET /api/v1/service`, `POST /api/v1/service/stop` | `operon_service_status`, `operon_service_stop` | `operon service status\|stop` |
+| engine badge, event drawer | `GET /api/v1/engine`, `GET /api/v1/engine/events` | `operon_engine_status`, `operon_engine_events` | `operon engine status\|events` |
+| environment summary | `GET /api/v1/environment` | `operon_environment_status` | `operon environment status` |
+| execution settings of a job | `GET /api/v1/jobs/{id}/parameters` | `operon_job_parameters` | `operon jobs parameters` |
+| resource limits | `GET /api/v1/resources` | `operon_resource_limits` | `operon resources limits` |
+| viewer settings | `GET /api/v1/viewers`, `POST /api/v1/viewers/default`, `POST /api/v1/viewers/{id}/configure` | `operon_viewers`, `operon_viewer_default`, `operon_viewer_configure` | `operon viewers list\|configure\|default` |
+| prepare viewer | `POST /api/v1/jobs/{j}/artifacts/{a}/prepare-viewer` | `operon_viewer_prepare` | `operon artifacts prepare-viewer` |
+| storage picker | `GET /api/v1/storage/roots`, `POST /api/v1/storage/{stat,browse,preview}`, `POST /api/v1/storage/browse/close`, `GET /api/v1/storage/status` | `operon_storage_roots`, `_stat`, `_browse`, `_preview`, `_close`, `_status` | `operon storage roots\|stat\|browse\|preview\|close\|status` |
+| directory picker (local + remote) | `POST /api/agent/browse`, `POST /api/agent/remote/{key}/browse` | `operon_browse` | `operon browse --path` |
+| remote profile save/connect/trust | `POST /api/v1/remotes`, `/api/v1/remotes/{key}/connect`, `/api/v1/remotes/{key}/trust` | `operon_remote_save`, `operon_remote_connect`, `operon_remote_trust` | `operon servers save\|connect\|trust` |
+| remote install, setup status | `POST /api/agent/remote/{key}/install`, `GET /api/agent/remote/{key}/setup` | `operon_remote_install`, `operon_remote_install_status` | `operon servers install\|setup` |
+| remote library plan/status/sync | `GET /api/agent/remote/{key}/library/{plan,status}`, `POST /api/agent/remote/{key}/library/sync` | `operon_remote_library_plan`, `_status`, `_sync` | not exposed (see gaps) |
+| remote environment retry/cancel/dependency | `POST /api/agent/remote/{key}/environments/{name}/{retry,cancel,dependencies/download}` | `operon_environment_retry`, `operon_environments_cancel`, `operon_environment_dependency_install` | `operon environment retry\|cancel\|dependency --profile` |
+| remote resource download | `POST /api/agent/remote/{key}/resources/{name}/download` | `operon_resource_download` (`profile_id`) | `operon resources download --profile` |
+| plugin list | `GET /api/agent/plugins` | `operon_plugins` | `operon plugin list` (reads the library from disk, not HTTP) |
+| canvas plan prepare/execute/cancel/status/history/outcome | `POST /api/v1/canvas-plans/{prepare,execute,cancel}`, `GET /api/v1/canvas-plans/{status,history,outcome}` | `operon_canvas_prepare`, `_execute`, `_cancel`, `_status`, `_history`, `_outcome` | `operon canvas prepare\|execute\|cancel\|status\|history\|outcome` |
+
+Scope decisions follow the HTTP routes they mirror: `canvas prepare\|cancel\|execute`,
+`servers install` and `resources download` ask for `run`, environment install, retry,
+cancel and dependency install ask for `plugins`, and everything read-only uses
+`context` (`edit` remains the default for the rest).
+
+### Adapter defects fixed
+
+- `operon_browse` and no CLI verb: the tool targeted `/api/agent/browse`, which did not
+  exist (404), and sent `show_files` while the shared helper reads `files`. Added both
+  agent browse routes, a `browse` CLI command, and a payload that carries both keys.
+- `operon_remote_library_plan/status/sync`: pointed at
+  `/api/agent/remote/{key}/library/*`, which had no routes. Added the three routes.
+- remote environment retry, cancel and dependency install: the `/api/remote/...` forms
+  exist but had no agent twin, so `--profile` variants of those CLI verbs and the
+  `profile_id` argument of the MCP tools returned 404. Added three agent routes.
+- remote resource download: same defect, `profile_id` variants 404. Added the route.
+- `operon environment dependency` (local): the environment name was captured by the
+  positional `file` argument, the same defect 5.7.8 fixed for `environment log`, so
+  `operon environment dependency web pip numpy` installed into `pip`. Fixed.
+
+### Gaps that remain
+
+| Control | HTTP route | Why it is not a thin wrapper |
+| --- | --- | --- |
+| language, theme | `GET/POST /api/preferences` | desktop profile file with no `/v1` twin; headless preference storage needs a product decision |
+| plugin refresh/enable/disable/remove/declarations/open-folder/dependencies | `/api/plugins/*` | the agent gateway exposes list and install only; the rest mutate the installed library or open OS windows |
+| route collections list/delete | `GET /api/route-collections`, `DELETE /api/route-collections/{slug}` | only import has a `/v1` twin |
+| library state / manage | `GET /api/library/state`, `POST /api/library/manage` | desktop library enable/disable/restore |
+| workflow import (zip), route archive import | `/api/workflows/import`, `/api/routes/import-archive` | multipart zip uploads; agents import by path over `/v1` instead |
+| workflow export (yaml, zip) | `/api/workflows/export`, `/api/workflows/export-yaml` | CLI has `workflow export`; the MCP tool is still missing |
+| script inspect/extract/publish | `/api/scripts/*` | canvas authoring, no agent route |
+| asset upload and batches | `/api/assets*` | browser streaming uploads; agents write through `/v1/workspace/files` |
+| execution pre-flight | `/api/execution/plan`, `/api/execution/resources` | desktop-only preview; `/v1/resources` covers the limits half |
+| workspace read | `GET /api/workspace` | agents can write but not read the workspace tree |
+| contracts, bundle export/import | `/api/contracts`, `/api/export`, `/api/import` | desktop YAML bundle exchange |
+| remote refresh/build/source/disconnect/remove, library check/install | `/api/remote/{key}/*` | not exposed on the agent gateway |
+| remote resource cancel/log | none | the remote agent protocol only implements resources list/link/unlink/download, so `operon resources cancel\|log --profile` cannot be a wrapper |
+| remote library via CLI | `GET/POST /api/agent/remote/{key}/library/*` | routes exist for MCP; a `servers library plan\|status\|sync` verb is not added yet |
+
+`tests/test_parity_control_plane.py` pins these forwards: one parametrised case per MCP
+tool and per CLI verb asserts the exact `(path, payload)` pair reaching the client, and
+a source guard keeps the agent routes that the adapters depend on. The focused suite
+(`test_parity_control_plane`, `test_server_cli`, `test_pool_cli`, `test_result_viewers`,
+`test_mcp_installation_guard`, `test_operon_branding`, `test_agent_transports`) reports
+98 passed.

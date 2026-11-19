@@ -17,6 +17,7 @@ from operon.documents import CommandError, DocumentHub
 from src.web.storage import atomic_json
 from src.web.models import Graph
 from src.web.graph import compile_graph
+from src.web.resource_api import browse
 
 
 class Bridge:
@@ -175,6 +176,21 @@ class Bridge:
             self.actor(request, "context")
             return service.remotes.setup_status(key)
 
+        @app.get("/api/agent/remote/{key}/library/plan")
+        def remote_library_plan(key: str, request: Request):
+            self.actor(request, "context")
+            return service.remotes.library_plan(key)
+
+        @app.get("/api/agent/remote/{key}/library/status")
+        def remote_library_status(key: str, request: Request):
+            self.actor(request, "context")
+            return service.remotes.library_status(key)
+
+        @app.post("/api/agent/remote/{key}/library/sync")
+        def remote_library_sync(key: str, request: Request, payload: dict | None = None):
+            self.actor(request, "run")
+            return service.remotes.start_library_sync(key)
+
         @app.get("/api/agent/remote/{key}/pool")
         def remote_pool(key: str, request: Request):
             self.actor(request, "context")
@@ -202,6 +218,22 @@ class Bridge:
             self.actor(request, "context")
             return service.remotes.environment_log(key, name, limit=limit)
 
+        @app.post("/api/agent/remote/{key}/environments/{name}/retry")
+        def remote_environment_retry(key: str, name: str, request: Request, payload: dict | None = None):
+            self.actor(request, "plugins")
+            return service.remotes.environment_retry(key, name)
+
+        @app.post("/api/agent/remote/{key}/environments/{name}/cancel")
+        def remote_environment_cancel(key: str, name: str, request: Request, payload: dict | None = None):
+            self.actor(request, "plugins")
+            return service.remotes.cancel_environment(key, name)
+
+        @app.post("/api/agent/remote/{key}/environments/{name}/dependencies/download")
+        def remote_dependency_download(key: str, name: str, request: Request,
+                                       payload: dict | None = None):
+            self.actor(request, "plugins")
+            return service.remotes.install_dependency(key, name, payload or {})
+
         @app.get("/api/agent/remote/{key}/resources")
         def remote_resources(key: str, request: Request):
             self.actor(request, "context")
@@ -220,6 +252,32 @@ class Bridge:
         def remote_resources_unlink(key: str, name: str, request: Request, unit: str | None = None):
             self.actor(request, "run")
             return service.remotes.call(key, "resources_unlink", {"name": name, "unit": unit or ""})
+
+        @app.post("/api/agent/remote/{key}/resources/{name}/download")
+        def remote_resources_download(key: str, name: str, request: Request,
+                                      payload: dict | None = None):
+            self.actor(request, "run")
+            body = payload or {}
+            return service.remotes.call(key, "resources_download",
+                                        {"name": name,
+                                         "unit": str(body.get("unit") or ""),
+                                         "root": str(body.get("root") or ""),
+                                         "overwrite": bool(body.get("overwrite"))})
+
+        @app.post("/api/agent/browse")
+        def browse_directory(request: Request, payload: dict | None = None):
+            self.actor(request, "context")
+            body = payload or {}
+            try:
+                return browse(body.get("path"), bool(body.get("files", body.get("show_files", True))))
+            except ValueError as error:
+                raise CommandError("invalid_request", str(error)) from error
+
+        @app.post("/api/agent/remote/{key}/browse")
+        def remote_browse(key: str, request: Request, payload: dict | None = None):
+            self.actor(request, "context")
+            body = payload or {}
+            return service.remotes.call(key, "browse", body)
 
         @app.get("/api/agent/sessions")
         def sessions(request: Request):

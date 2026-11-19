@@ -38,6 +38,25 @@ inputs and emergency spill behavior; full-mode operators still require their
 declared working set. This generated reference has not been independently
 scientifically reviewed.
 
+## Scientific limitations
+
+This operator is a single-point MM/GBSA estimate. It does not include entropy,
+ensemble averaging or calibration, so `delta_delta_kj` must not be reported as a
+binding affinity or used alone to rank hotspots. Prefer replicated runs or an
+ensemble, and treat one structure and one protocol as a screen rather than a
+measurement.
+
+Glycine-to-alanine substitutions are flagged with `flag="gly_to_ala"` and
+`excluded_from_ranking=true`: glycine has no side chain, so the mutation adds a
+methyl group and is not a comparable alanine substitution at a packed
+interface. Those rows remain in the output for inspection but should be kept out
+of rankings and CDR/interface shares.
+
+When the same residue numbering appears in several chains, `copy_replicates`
+reports pairwise Spearman correlation and sign-conflict fraction. Low agreement
+means the copy-level ranking is not reproducible; do not report hotspots from
+that run.
+
 ## Examples
 
 Use the registry to discover compatible Readers and validate a complete workflow
