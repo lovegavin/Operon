@@ -398,6 +398,11 @@ def mount_environments(app, service):
     @app.post('/api/environments/prepare')
     def prepare(payload: dict):
         names = payload.get('names')
+        if names is None and isinstance(payload.get('environments'), list):
+            names = payload['environments']
+        extra = sorted(set(payload) - {'names', 'environments'})
+        if extra:
+            raise HTTPException(422, f"不认识的字段：{', '.join(extra)}。请用 names 指定要准备的环境。")
         entries = declared()
         if names is None:
             entries_by_name = entries

@@ -636,7 +636,9 @@ def execute(args):
             if not name:
                 raise ValueError('A resource name is required')
             if args.action == 'download':
-                return client.request(prefix + '/' + quote(name, safe='') + '/download', {'root': args.root or None})
+                payload = {'root': args.root or None, 'overwrite': bool(args.replace),
+                           'unit': args.unit or None}
+                return client.request(prefix + '/' + quote(name, safe='') + '/download', payload)
             if args.action == 'link':
                 if not args.source:
                     raise ValueError('--source is required for link')

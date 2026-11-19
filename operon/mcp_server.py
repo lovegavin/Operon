@@ -425,6 +425,30 @@ def create_server(client):
         return client.request('/remote/' + quote(profile_id, safe='') + '/setup')
 
     @server.tool()
+    def operon_remote_library_plan(profile_id: str) -> dict:
+        """Compare the local operator library with a remote server's library.
+
+        Returns the packages that the next synchronisation would install, the
+        packages it would remove because the initiating machine does not have
+        them, and the packages it cannot reconcile.
+        """
+        return client.request('/remote/' + quote(profile_id, safe='') + '/library/plan')
+
+    @server.tool()
+    def operon_remote_library_sync(profile_id: str) -> dict:
+        """Force a remote server's operator library to match this machine.
+
+        Installs missing or differing packages and removes packages that only
+        exist on the remote side. Poll operon_remote_library_status.
+        """
+        return client.request('/remote/' + quote(profile_id, safe='') + '/library/sync', {})
+
+    @server.tool()
+    def operon_remote_library_status(profile_id: str) -> dict:
+        """Read the background operator-library synchronisation status."""
+        return client.request('/remote/' + quote(profile_id, safe='') + '/library/status')
+
+    @server.tool()
     def operon_pool_status() -> dict:
         """Show the local shared pool: version, owner, workspaces and active tasks."""
         return client.request('/pool')
@@ -583,14 +607,24 @@ def create_server(client):
 
     @server.tool()
     def operon_resource_download(name: str, root: str | None = None,
-                                 overwrite: bool = False) -> dict:
+                                 overwrite: bool = False, unit: str | None = None,
+                                 profile_id: str | None = None) -> dict:
         """Start one declared resource download; returns the durable operation id.
 
-        Poll operon_resources or operon_job(operation id). Requires --allow-plugins.
+        ``unit`` selects one official maintenance unit (for example ``afdb``) and
+        downloads only the files of that unit that are still missing; existing
+        files are kept. Pass profile_id to download on a configured remote
+        server. Poll operon_resources or operon_job(operation id).
+        Requires --allow-plugins.
         """
-        payload = {'overwrite': bool(overwrite)}
+        payload: dict = {'overwrite': bool(overwrite)}
         if root:
             payload['root'] = root
+        if unit:
+            payload['unit'] = unit
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/resources/' +
+                                  quote(name, safe='') + '/download', payload)
         return client.request('/v1/large-resources/' + quote(name, safe='') + '/download', payload)
 
     @server.tool()

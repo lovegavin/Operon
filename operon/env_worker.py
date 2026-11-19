@@ -7,9 +7,6 @@ import sys
 import traceback
 from pathlib import Path
 
-import numpy as np
-
-
 class Context:
     def __init__(self, params):
         self.step_params = params
@@ -64,6 +61,7 @@ def main():
                     fingerprints={str(key): dict(value)
                                   for key, value in (meta.get("fingerprints") or {}).items()}))
                 continue
+            import numpy as np
             data = np.load(directory / f"input{index}.npy", allow_pickle=False, mmap_mode='c')
             inputs.append(Form(data=data, dims=meta["dims"], labels=meta["labels"],
                                info=_revive(meta.get("info", {})), axis_info=meta.get("axis_info", {})))
@@ -80,6 +78,7 @@ def main():
                                         for key, value in form.fingerprints.items()},
                       "export": _jsonable(export)}
         else:
+            import numpy as np
             np.save(directory / "output.npy", np.asarray(form.data))
             result = {"dims": list(form.dims), "labels": {k: dict(v) for k, v in form.labels.items()},
                       "info": _jsonable(form.info), "axis_info": _jsonable(form.axis_info),

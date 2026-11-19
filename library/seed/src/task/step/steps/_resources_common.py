@@ -125,6 +125,9 @@ class Resource:
                     "bytes": int(item.get("bytes") or 0),
                     "license": str(item.get("license") or ""),
                     "requires_token": bool(item.get("requires_token") or False),
+                    "archive": str(item.get("archive") or "").strip().lower(),
+                    "member": str(item.get("member") or ""),
+                    "unit": str(item.get("unit") or ""),
                 }
             )
         raw_link_roots = entry.get("link_roots") or []

@@ -276,6 +276,7 @@
   "安装目录 · 可选": "Installation directory · optional",
   "安装目录下自动创建": "Created automatically in the installation directory",
   "安装算子、Reader 及其声明环境。": "Installs operators, Readers, and their declared environments.",
+  "收尾中": "Finishing",
   "安装进度": "Install progress",
   "完成": "Done",
   "完整内存配置 JSON": "Full memory configuration JSON",
@@ -1075,5 +1076,6 @@
   "正在打包本地算子包…": "Packaging local operator packages…",
   "正在上传并安装到服务器…": "Uploading and installing on the server…",
   "正在删除服务器上多余的算子包…": "Removing extra server packages…",
-  "正在刷新服务端算子目录…": "Refreshing the server catalog…"
+  "正在刷新服务端算子目录…": "Refreshing the server catalog…",
+  "取消中…": "Cancelling…"
 }

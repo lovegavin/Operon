@@ -379,7 +379,7 @@ def test_environment_metadata_lists_the_alphafold2_family():
     )
     card = environments["environments"]["alphafold2"]
     assert card["planned"] is False
-    assert card["requirements"] == ["alphafold==2.3.2"]
+    assert card["requirements"] == ["numpy"]
     assert card["imports"] == []
     assert "afdb" in card["notes"]
 

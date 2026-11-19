@@ -194,10 +194,13 @@
 .runtime-chip.is-failed {color:var(--tone-failed); background:var(--tone-failed-soft); border-color:var(--tone-failed);}
 .runtime-purpose {margin:0; min-height:2.6em; font-size:12px; line-height:1.6; color:var(--text-muted);
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
-.runtime-progress {position:relative; height:18px; border-radius:6px; overflow:hidden; background:var(--tone-installing-soft);}
-.runtime-progress-fill {position:absolute; inset:0 auto 0 0; width:0; border-radius:6px; background:var(--tone-installing); transition:width .35s ease;}
-.runtime-progress small {position:absolute; inset:0; display:grid; place-items:center; font-size:9px; font-weight:500;
-  color:var(--tone-installing); letter-spacing:.1px;}
+.runtime-progress-block {display:grid; gap:4px; margin:2px 0 4px;}
+.runtime-progress {position:relative; height:8px; border-radius:999px; overflow:hidden;
+  background:#e7ecf5; box-shadow:inset 0 0 0 1px #cdd7e6;}
+.runtime-progress-fill {position:absolute; inset:0 auto 0 0; width:0; border-radius:999px;
+  background:#2f6fed; transition:width .35s ease;}
+.runtime-progress-label {font-size:10px; font-weight:600; color:var(--text-secondary); letter-spacing:.1px;
+  font-variant-numeric:tabular-nums;}
 .runtime-facts {display:grid; gap:5px; margin:0; font-size:11px;}
 .runtime-facts>div {display:flex; align-items:baseline; justify-content:space-between; gap:10px;}
 .runtime-facts dt {color:var(--text-muted); flex-shrink:0;}

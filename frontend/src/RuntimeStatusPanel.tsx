@@ -143,7 +143,10 @@ export function percentDone(item: EnvironmentItem) {
   const expected = item.expected_bytes || 0;
   const received = item.progress?.bytes || 0;
   if (!expected || received <= 0) return 0;
-  return Math.max(1, Math.min(100, Math.round((received / expected) * 100)));
+  const raw = Math.round((received / expected) * 100);
+  // Stay below 100% until the environment is actually ready: installation keeps
+  // running after the download finishes, so a full bar would look stuck.
+  return Math.max(1, Math.min(raw >= 99 ? 99 : raw, 99));
 }
 
 export function formatElapsed(start?: string | null, now: number = Date.now()) {
@@ -230,9 +233,10 @@ export function SummaryStrip({items, busy, target = '', targets = [], onTarget,
   </div>;
 }
 
-export function EnvironmentCard({item, busy = false, onAction, onOpen}: {
+export function EnvironmentCard({item, busy = false, cancelling = false, onAction, onOpen}: {
   item: EnvironmentItem;
   busy?: boolean;
+  cancelling?: boolean;
   onAction?: (action: Action, name: string) => void;
   onOpen?: (item: EnvironmentItem) => void;
 }) {
@@ -263,11 +267,13 @@ export function EnvironmentCard({item, busy = false, onAction, onOpen}: {
     <p className="runtime-purpose" title={item.notes || undefined}>
       {purposeOf(item) || t('暂无说明')}
     </p>
-    {installing && <div className="runtime-progress" role="progressbar" aria-label={t('安装进度')}
-      aria-valuetext={progressText(item)} aria-valuemin={0} aria-valuemax={100}
-      aria-valuenow={item.expected_bytes ? percentDone(item) : undefined}>
-      <span className="runtime-progress-fill" style={{width: `${percentDone(item)}%`}}/>
-      <small>{item.expected_bytes
+    {installing && <div className="runtime-progress-block">
+      <div className="runtime-progress" role="progressbar" aria-label={t('安装进度')}
+        aria-valuetext={progressText(item)} aria-valuemin={0} aria-valuemax={100}
+        aria-valuenow={item.expected_bytes ? percentDone(item) : undefined}>
+        <span className="runtime-progress-fill" style={{width: `${percentDone(item)}%`}}/>
+      </div>
+      <small className="runtime-progress-label">{item.expected_bytes
         ? `${percentDone(item)}% · ${progressText(item)}`
         : progressText(item)}</small>
     </div>}
@@ -288,9 +294,9 @@ export function EnvironmentCard({item, busy = false, onAction, onOpen}: {
       {availableActions(item.status).map(action =>
         <button key={action}
           className={`subtle-button${action === 'prepare' || action === 'repair' ? ' is-primary' : ''}${action === 'cancel' ? ' is-danger' : ''}`}
-          disabled={busy}
+          disabled={busy || (action === 'cancel' && cancelling)}
           onClick={() => onAction?.(action, item.name)}>
-          {actionLabel(action)}
+          {action === 'cancel' && cancelling ? t('取消中…') : actionLabel(action)}
         </button>)}
     </footer>
   </article>;
@@ -391,6 +397,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     : [];
   const unitTotal = detailResources.reduce((sum, row) => sum + (row.components || (unitIndex[row.id] || 1)), 0);
   const [view, setView] = useState<'root' | 'deps' | 'resources'>('root');
+  const [cancelling, setCancelling] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     let active = true;
@@ -509,7 +516,10 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     }
     if (action === 'prepare') return void run(`prepare:${name}`, () => api.prepareEnvironments([name]));
     if (action === 'repair') return void run(`repair:${name}`, () => api.retryEnvironment(name));
-    return void run(`cancel:${name}`, () => api.cancelEnvironment(name));
+    setCancelling(current => ({...current, [name]: true}));
+    void run(`cancel:${name}`, () => api.cancelEnvironment(name))
+      .finally(() => setCancelling(current => ({...current, [name]: false})));
+    return;
   }
 
   async function runRemote(label: string, work: () => Promise<RemoteEnvironments>) {
@@ -623,7 +633,8 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
       })()}
       {items.length > 0 && <div className="runtime-grid">
         {ordered.map(item => <EnvironmentCard key={item.name} item={item}
-          busy={Boolean(busy)} onAction={act} onOpen={setDetail}/>)}
+          busy={Boolean(busy)} cancelling={Boolean(cancelling[item.name])}
+          onAction={act} onOpen={setDetail}/>)}
       </div>}
       <OperationList operations={operations} now={now} onCancel={name => act('cancel', name)}/>
       {detail && <Modal title={`${detail.title || detail.name}`}

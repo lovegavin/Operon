@@ -428,12 +428,14 @@
       "title": "AlphaFold2 数据",
       "python": "3.11",
       "imports": [],
-      "requirements": [],
+      "requirements": [
+        "numpy"
+      ],
       "resources": [
         "alphafold2"
       ],
       "planned": false,
-      "notes": "Wraps a local AlphaFold-2 checkout: set the runner (run_alphafold.py) and python_executable to the interpreter of that checkout, or export OPERON_ALPHAFOLD2_HOME. The environment itself only provides a Python shell, so it installs without the multi-gigabyte AlphaFold dependencies."
+      "notes": "Wraps a local AlphaFold-2 checkout: link the afdb directory (params and MSA databases) from the resource card, then set the runner (run_alphafold.py) and python_executable to the interpreter of that checkout, or export OPERON_ALPHAFOLD2_HOME. The environment itself only provides a Python shell, so it installs without the multi-gigabyte AlphaFold dependencies."
     },
     "genomics": {
       "title": "基因组组装与比对",

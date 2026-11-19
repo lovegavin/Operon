@@ -292,7 +292,7 @@ def _sha256(path: Path) -> str:
 
 
 def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, opener) -> dict:
-    """Stream one file with cancellation, progress and integrity checks."""
+    """Stream one file (or one archive member) with progress and integrity checks."""
 
     url = str(entry["url"])
     if not url.startswith("https://"):
@@ -315,6 +315,7 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
         return {"path": relative, "status": "existing", "bytes": actual}
     target.parent.mkdir(parents=True, exist_ok=True)
     partial = target.with_name(target.name + ".part")
+    archive = str(entry.get("archive") or "").lower()
     hasher = hashlib.sha256()
     written = 0
     with opener(url, str(entry.get("token_env") or "")) as response, partial.open("wb") as handle:
@@ -330,15 +331,53 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
             handle.write(chunk)
             written += len(chunk)
             job["bytes"] = int(job.get("completed_bytes") or 0) + written
+    digest = hasher.hexdigest()
+    if archive in {"tar", "tar.gz", "tgz"}:
+        extracted = _extract_member(partial, target, str(entry.get("member") or ""), event, job)
+        partial.unlink(missing_ok=True)
+        if expected_bytes and extracted != expected_bytes:
+            target.unlink(missing_ok=True)
+            raise ValueError(
+                f"extracted size mismatch for {relative}: got {extracted}, expected {expected_bytes}"
+            )
+        return {"path": relative, "status": "extracted", "bytes": extracted, "archive_bytes": written}
     if expected_bytes and written != expected_bytes:
         partial.unlink(missing_ok=True)
         raise ValueError(f"download size mismatch for {relative}: got {written}, expected {expected_bytes}")
-    digest = hasher.hexdigest()
     if expected_sha and digest != expected_sha:
         partial.unlink(missing_ok=True)
         raise ValueError(f"download sha256 mismatch for {relative}: got {digest}, expected {expected_sha}")
     os.replace(partial, target)
     return {"path": relative, "status": "downloaded", "bytes": written, "sha256": digest}
+
+
+def _extract_member(bundle: Path, target: Path, member: str, event, job: dict) -> int:
+    """Extract a single member of a tar archive to the target path."""
+
+    import tarfile
+
+    if not member:
+        raise ValueError("an archive download needs a member path")
+    extracted = target.with_name(target.name + ".extract")
+    with tarfile.open(bundle, "r:*") as archive:
+        info = archive.getmember(member)
+        source = archive.extractfile(info)
+        if source is None:
+            raise ValueError(f"archive member is not a regular file: {member!r}")
+        written = 0
+        with source, extracted.open("wb") as handle:
+            while True:
+                if event.is_set():
+                    handle.close()
+                    extracted.unlink(missing_ok=True)
+                    raise _Cancelled("cancelled")
+                chunk = source.read(1024 * 1024)
+                if not chunk:
+                    break
+                handle.write(chunk)
+                written += len(chunk)
+    os.replace(extracted, target)
+    return written
 
 
 # Large databases and weight trees are meant to be linked from a shared cache;
@@ -369,8 +408,17 @@ def unit_downloads(name: str, resource, unit: str | None) -> tuple[list[dict], s
     downloads = list(resource.downloads or ())
     if downloads:
         return downloads, allowed
-    if selected.get('url'):
-        return [{'path': str(selected.get('name') or ''), 'url': str(selected['url'])}], None
+    page = str(selected.get('url') or '').strip()
+    if page:
+        tail = page.rsplit('/', 1)[-1].lower()
+        suffixes = ('.tar', '.tar.gz', '.tgz', '.zip', '.gz', '.pt', '.pth', '.bin',
+                    '.npz', '.pdb', '.h5', '.ckpt', '.safetensors', '.fasta', '.fa', '.csv', '.json')
+        if not any(tail.endswith(suffix) for suffix in suffixes):
+            raise ValueError(
+                f"resource '{name}' unit {unit!r} only documents a project page ({page}); "
+                'link an existing directory or declare per-file download sources instead'
+            )
+        return [{'path': str(selected.get('name') or ''), 'url': page}], None
     raise ValueError(f"resource '{name}' has no downloadable files")
 
 

@@ -277,6 +277,16 @@
           ],
           "note": ""
         }
+      ],
+      "downloads": [
+        {
+          "path": "params/params_model_1_ptm.npz",
+          "url": "https://storage.googleapis.com/alphafold/alphafold_params_2022-12-06.tar",
+          "archive": "tar",
+          "member": "params/params_model_1_ptm.npz",
+          "bytes": 373103340,
+          "unit": "afdb"
+        }
       ]
     },
     {

@@ -140,6 +140,32 @@ def test_unknown_name_rejects_the_whole_prepare(tmp_path, monkeypatch):
     assert http.get('/api/environments').json()['operations'] == []
 
 
+def test_prepare_accepts_the_environments_alias(tmp_path, monkeypatch):
+    """The singular payload key must not silently queue every environment."""
+    from operon import environment_install
+
+    calls = []
+
+    def fake_prepare(name, root=None, source=None, log=None, control=None):
+        calls.append(name)
+        return {'name': name, 'status': 'ready', 'error': ''}
+
+    monkeypatch.setattr(environment_install, 'prepare', fake_prepare)
+    _, http = client(tmp_path)
+    response = http.post('/api/environments/prepare', json={'environments': ['openmm81']})
+    assert response.status_code == 200, response.text
+    assert [item['name'] for item in response.json()['prepared']] == ['openmm81']
+
+
+def test_prepare_rejects_unknown_fields(tmp_path):
+    """A typo in the payload must fail loudly instead of installing everything."""
+    _, http = client(tmp_path)
+    response = http.post('/api/environments/prepare', json={'names': ['openmm81'], 'enviroments': ['openmm81']})
+    assert response.status_code == 422
+    assert 'enviroments' in response.text
+    assert http.get('/api/environments').json()['operations'] == []
+
+
 def test_cancel_stops_a_running_installation(tmp_path, monkeypatch):
     """cancel() must reach the installer, not just relabel the operation."""
     from operon import environment_install
