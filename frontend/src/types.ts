@@ -294,6 +294,7 @@ export type LargeResourceComponent = {
   name: string; path?: string; mode?: string; kind?: string; bytes?: number;
   url?: string | null; note?: string; state?: string; linked?: boolean;
   files?: LargeResourceFileEntry[]; missing?: string[]; size_mb?: number;
+  downloadable?: string[]; undownloadable?: string[]; download_supported?: boolean;
 };
 export type LargeResource = {
   id: string; title?: string; kind?: string; env?: string | null; root?: string | null;

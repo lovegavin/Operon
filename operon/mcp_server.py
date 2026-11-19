@@ -248,6 +248,34 @@ def create_server(client):
         return client.request('/v1' + suffix, {})
 
     @server.tool()
+    def operon_environment_dependency_install(name: str, kind: str, requirement: str,
+                                              profile_id: str | None = None) -> dict:
+        """Install one declared operator dependency into an isolated environment.
+
+        kind is one of requirements, pip_wheels, pip_pypi, conda_packages, binaries or imports;
+        requirement is the exact declared entry such as ``alphafold==2.3.2``. Requires
+        --allow-plugins and explicit user intent. Pass profile_id to install on that remote.
+        """
+        payload = {'kind': str(kind or ''), 'name': str(requirement or '')}
+        suffix = '/environments/' + quote(name, safe='') + '/dependencies/download'
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + suffix, payload)
+        return client.request('/v1' + suffix, payload)
+
+    @server.tool()
+    def operon_browse(path: str | None = None, show_files: bool = True,
+                      profile_id: str | None = None) -> dict:
+        """List drives or one directory so the link picker can walk the file system.
+
+        Read-only. Returns the resolved path, its parent, the drive roots and up to 500 entries.
+        Pass profile_id to browse the file system of that configured remote server.
+        """
+        payload = {'path': path, 'show_files': bool(show_files)}
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/browse', payload)
+        return client.request('/browse', payload)
+
+    @server.tool()
     def operon_submit(request_id: str, graph: dict | None = None, workflow_id: str | None = None,
                        expected_version: int | None = None, view: str = 'brief') -> dict:
         """Submit a workflow without a canvas; requires --allow-run. Exactly one graph or workflow_id.

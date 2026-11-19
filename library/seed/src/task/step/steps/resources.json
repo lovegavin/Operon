@@ -37,8 +37,23 @@
           "kind": "code+weights",
           "bytes": 0,
           "url": "https://github.com/dauparas/ProteinMPNN",
-          "files": [],
+          "files": [
+            "ProteinMPNN/vanilla_model_weights/v_48_020.pt"
+          ],
           "note": ""
+        }
+      ],
+      "expected_files": [
+        {
+          "path": "ProteinMPNN/vanilla_model_weights/v_48_020.pt",
+          "required": true
+        }
+      ],
+      "downloads": [
+        {
+          "path": "ProteinMPNN/vanilla_model_weights/v_48_020.pt",
+          "url": "https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/vanilla_model_weights/v_48_020.pt",
+          "unit": "ProteinMPNN"
         }
       ]
     },
@@ -71,6 +86,14 @@
           "url": "https://github.com/dauparas/LigandMPNN",
           "files": [],
           "note": ""
+        }
+      ],
+      "downloads": [
+        {
+          "path": "LigandMPNN",
+          "url": "https://codeload.github.com/dauparas/LigandMPNN/zip/refs/heads/main",
+          "archive": "zip",
+          "unit": "LigandMPNN"
         }
       ]
     },
@@ -225,6 +248,14 @@
           "files": [],
           "note": ""
         }
+      ],
+      "downloads": [
+        {
+          "path": "colabfold",
+          "url": "https://codeload.github.com/sokrypton/ColabFold/zip/refs/heads/main",
+          "archive": "zip",
+          "unit": "colabfold"
+        }
       ]
     },
     {
@@ -243,15 +274,42 @@
       "link_unit": "tree",
       "link_root": "afdb",
       "expected_files": [
-        "params/params_model_1_ptm.npz",
-        "uniref90/uniref90.fasta",
-        "uniref30/UniRef30_2021_03_a3m.ffdata",
-        "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_a3m.ffdata",
-        "mgnify/mgy_clusters_2022_05.fa",
-        "pdb70/pdb70_a3m.ffdata",
-        "pdb_mmcif/mmcif_files",
-        "pdb_seqres/pdb_seqres.txt",
-        "uniprot/uniprot.fasta"
+        {
+          "path": "params/params_model_1_ptm.npz",
+          "required": true
+        },
+        {
+          "path": "uniref90/uniref90.fasta",
+          "required": true
+        },
+        {
+          "path": "uniref30/uniref30_2302.db.tar.gz",
+          "required": true
+        },
+        {
+          "path": "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz",
+          "required": true
+        },
+        {
+          "path": "mgnify/mgy_clusters.fa",
+          "required": true
+        },
+        {
+          "path": "pdb70/pdb70_from_mmcif_200916.tar.gz",
+          "required": true
+        },
+        {
+          "path": "pdb_seqres/pdb_seqres.txt",
+          "required": true
+        },
+        {
+          "path": "uniprot/uniprot_sprot.fasta",
+          "required": true
+        },
+        {
+          "path": "pdb_mmcif/mmcif_files",
+          "required": true
+        }
       ],
       "envs": [
         "alphafold2"
@@ -267,13 +325,13 @@
           "files": [
             "params/params_model_1_ptm.npz",
             "uniref90/uniref90.fasta",
-            "uniref30/UniRef30_2021_03_a3m.ffdata",
-            "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_a3m.ffdata",
-            "mgnify/mgy_clusters_2022_05.fa",
-            "pdb70/pdb70_a3m.ffdata",
-            "pdb_mmcif/mmcif_files",
+            "uniref30/uniref30_2302.db.tar.gz",
+            "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz",
+            "mgnify/mgy_clusters.fa",
+            "pdb70/pdb70_from_mmcif_200916.tar.gz",
             "pdb_seqres/pdb_seqres.txt",
-            "uniprot/uniprot.fasta"
+            "uniprot/uniprot_sprot.fasta",
+            "pdb_mmcif/mmcif_files"
           ],
           "note": ""
         }
@@ -285,6 +343,45 @@
           "archive": "tar",
           "member": "params/params_model_1_ptm.npz",
           "bytes": 373103340,
+          "unit": "afdb"
+        },
+        {
+          "path": "uniref90/uniref90.fasta",
+          "url": "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/uniref/uniref90/uniref90.fasta.gz",
+          "archive": "gz",
+          "unit": "afdb"
+        },
+        {
+          "path": "uniref30/uniref30_2302.db.tar.gz",
+          "url": "https://opendata.mmseqs.org/colabfold/uniref30_2302.db.tar.gz",
+          "unit": "afdb"
+        },
+        {
+          "path": "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz",
+          "url": "https://storage.googleapis.com/alphafold-databases/casp14_versions/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz",
+          "unit": "afdb"
+        },
+        {
+          "path": "mgnify/mgy_clusters.fa",
+          "url": "https://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/current_release/mgy_clusters.fa.gz",
+          "archive": "gz",
+          "unit": "afdb"
+        },
+        {
+          "path": "pdb70/pdb70_from_mmcif_200916.tar.gz",
+          "url": "https://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/old-releases/pdb70_from_mmcif_200916.tar.gz",
+          "unit": "afdb"
+        },
+        {
+          "path": "pdb_seqres/pdb_seqres.txt",
+          "url": "https://files.rcsb.org/pub/pdb/derived_data/pdb_seqres.txt.gz",
+          "archive": "gz",
+          "unit": "afdb"
+        },
+        {
+          "path": "uniprot/uniprot_sprot.fasta",
+          "url": "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
+          "archive": "gz",
           "unit": "afdb"
         }
       ]
@@ -364,6 +461,14 @@
           "files": [],
           "note": ""
         }
+      ],
+      "downloads": [
+        {
+          "path": "prodigal",
+          "url": "https://codeload.github.com/hyattpd/Prodigal/zip/refs/heads/master",
+          "archive": "zip",
+          "unit": "prodigal"
+        }
       ]
     },
     {
@@ -392,8 +497,24 @@
           "kind": "database",
           "bytes": 0,
           "url": "https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz",
-          "files": [],
+          "files": [
+            "Pfam-A.hmm"
+          ],
           "note": ""
+        }
+      ],
+      "expected_files": [
+        {
+          "path": "Pfam-A.hmm",
+          "required": true
+        }
+      ],
+      "downloads": [
+        {
+          "path": "Pfam-A.hmm",
+          "url": "https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz",
+          "unit": "Pfam-A.hmm",
+          "archive": "gz"
         }
       ]
     },
@@ -470,8 +591,24 @@
           "kind": "database",
           "bytes": 0,
           "url": "https://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/Rfam.cm.gz",
-          "files": [],
+          "files": [
+            "Rfam.cm"
+          ],
           "note": ""
+        }
+      ],
+      "expected_files": [
+        {
+          "path": "Rfam.cm",
+          "required": true
+        }
+      ],
+      "downloads": [
+        {
+          "path": "Rfam.cm",
+          "url": "https://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/Rfam.cm.gz",
+          "unit": "Rfam.cm",
+          "archive": "gz"
         }
       ]
     },
@@ -505,8 +642,33 @@
           "kind": "database",
           "bytes": 0,
           "url": "https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/",
-          "files": [],
+          "files": [
+            "AMRProt.fa",
+            "AMR.LIB"
+          ],
           "note": ""
+        }
+      ],
+      "expected_files": [
+        {
+          "path": "AMRProt.fa",
+          "required": true
+        },
+        {
+          "path": "AMR.LIB",
+          "required": true
+        }
+      ],
+      "downloads": [
+        {
+          "path": "AMRProt.fa",
+          "url": "https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/AMRProt.fa",
+          "unit": "amrfinder"
+        },
+        {
+          "path": "AMR.LIB",
+          "url": "https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/AMR.LIB",
+          "unit": "amrfinder"
         }
       ]
     },
@@ -540,6 +702,14 @@
           "url": "https://dl.secondarymetabolites.org/releases/",
           "files": [],
           "note": ""
+        }
+      ],
+      "downloads": [
+        {
+          "path": "antismash",
+          "url": "https://codeload.github.com/antismash/antismash/zip/refs/heads/master",
+          "archive": "zip",
+          "unit": "antismash"
         }
       ]
     },

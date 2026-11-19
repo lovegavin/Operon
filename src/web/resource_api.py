@@ -10,6 +10,7 @@ adapter.
 """
 from __future__ import annotations
 
+import gzip
 import hashlib
 import importlib
 import os
@@ -80,14 +81,19 @@ def _resource(service, name: str):
 
 def _expected_files(common, resource) -> list[str]:
     """Expected relative file names, tolerating a library without the helper."""
+    def normalise(entry) -> str:
+        if isinstance(entry, dict):
+            return str(entry.get('path') or '')
+        return str(entry)
+
     getter = getattr(common, 'expected_files', None)
     if callable(getter):
         try:
-            return [str(name) for name in getter(resource)]
+            return [normalise(name) for name in getter(resource) if normalise(name)]
         except Exception:  # noqa: BLE001 - a broken helper must not break listing
             pass
     declared = getattr(resource, 'expected_files', ()) or getattr(resource, 'files', ())
-    return [str(name) for name in declared or ()]
+    return [normalise(name) for name in declared or () if normalise(name)]
 
 
 def _link_roots(common) -> list[str]:
@@ -207,6 +213,51 @@ def operation(job_id: str) -> dict | None:
     return dict(job) if job else None
 
 
+
+def unit_coverage(resource, unit: str | None) -> tuple[list[str], list[str]]:
+    """Return the unit files that have a download source and the ones that do not."""
+    names: list[str] = []
+    for component in getattr(resource, 'components', ()) or ():
+        if str(component.get('name')) == unit:
+            names = [str(entry) for entry in component.get('files') or ()]
+            break
+    if not names:
+        declared = getattr(resource, 'expected_files', ()) or getattr(resource, 'files', ())
+        names = [str(entry.get('path') if isinstance(entry, dict) else entry)
+                 for entry in declared or ()]
+        names = [name for name in names if name]
+    sources = [(str(entry.get('path') or ''), str(entry.get('member') or ''))
+               for entry in getattr(resource, 'downloads', ()) or ()]
+    if not names and any(path and path == unit for path, _member in sources):
+        return [str(unit or 'archive')], []
+    covered: list[str] = []
+    missing: list[str] = []
+    def base(value: str) -> str:
+        return value.replace('\\', '/').rsplit('/', 1)[-1]
+
+    for name in names:
+        text = str(name)
+        if text.strip().startswith('{'):
+            try:
+                import ast
+
+                parsed = ast.literal_eval(text)
+            except (ValueError, SyntaxError):
+                parsed = None
+            if isinstance(parsed, dict):
+                text = str(parsed.get('path') or '')
+        if not text:
+            continue
+        matched = any(
+            text == source
+            or (source and base(source) == base(text))
+            or (member and (text == member or base(member) == base(text)))
+            for source, member in sources
+        )
+        (covered if matched else missing).append(text)
+    return covered, missing
+
+
 def snapshot(service) -> dict:
     root, common, _fetch, _link = _modules(service)
     resources = common.load_resources(_manifest(root))
@@ -245,13 +296,36 @@ def snapshot(service) -> dict:
         item['link_unit'] = item.get('link_unit') or 'tree'
         item['official_root'] = str(getattr(resource, 'link_root', '') or item['id'])
         item['link_target'] = state.get('root_target') or item.get('root_target') or ''
+        manifest_units = {str(unit.get('name')): dict(unit)
+                          for unit in getattr(resource, 'components', ()) or ()}
         units = {unit['name']: dict(unit) for unit in state.get('units') or []}
+        if len(manifest_units) == 1:
+            only = next(iter(manifest_units))
+            rows = item.get('units') or []
+            for unit in rows:
+                name = str(unit.get('name') or '')
+                if name in manifest_units:
+                    continue
+                if name == str(item.get('link_unit') or 'tree') or len(rows) == 1:
+                    unit['name'] = only
+                    known = units.pop(name, None)
+                    if known is not None and only not in units:
+                        units[only] = known
         for unit in item.get('units') or []:
+            unit.update({key: value for key, value in manifest_units.get(str(unit.get('name')), {}).items()
+                         if key in {'files', 'bytes', 'mode', 'title', 'note', 'kind', 'path', 'url'}})
             known = units.get(unit.get('name')) or {}
             unit['state'] = known.get('state') or unit.get('state') or 'missing'
             unit['source'] = known.get('source') or ''
             unit['receipt'] = bool(known.get('receipt'))
         item['units'] = list(item.get('units') or [])
+        for unit in item['units']:
+            covered, missing = unit_coverage(resource, str(unit.get('name') or ''))
+            unit['downloadable'] = covered
+            unit['undownloadable'] = missing
+            unit['download_supported'] = bool(covered) or any(
+                str(entry.get('unit') or '') == str(unit.get('name') or '')
+                for entry in getattr(resource, 'downloads', ()) or ())
         item['size_bytes'] = _size_bytes(item.get('root'), names)
         items.append(item)
     return {
@@ -332,6 +406,29 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
             written += len(chunk)
             job["bytes"] = int(job.get("completed_bytes") or 0) + written
     digest = hasher.hexdigest()
+    if archive in {"gz", "gzip"}:
+        decompressed = target.with_name(target.name + ".extract")
+        with gzip.open(partial, "rb") as source, decompressed.open("wb") as handle:
+            while True:
+                if event.is_set():
+                    handle.close()
+                    decompressed.unlink(missing_ok=True)
+                    raise _Cancelled("cancelled")
+                chunk = source.read(1024 * 1024)
+                if not chunk:
+                    break
+                handle.write(chunk)
+        partial.unlink(missing_ok=True)
+        os.replace(decompressed, target)
+        return {"path": relative, "status": "extracted", "bytes": target.stat().st_size,
+                "archive_bytes": written}
+    if archive == "zip":
+        import zipfile
+
+        extracted = _extract_zip(partial, target, str(entry.get("member") or ""), event, job)
+        partial.unlink(missing_ok=True)
+        return {"path": relative, "status": "extracted", "bytes": extracted,
+                "archive_bytes": written}
     if archive in {"tar", "tar.gz", "tgz"}:
         extracted = _extract_member(partial, target, str(entry.get("member") or ""), event, job)
         partial.unlink(missing_ok=True)
@@ -349,6 +446,38 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
         raise ValueError(f"download sha256 mismatch for {relative}: got {digest}, expected {expected_sha}")
     os.replace(partial, target)
     return {"path": relative, "status": "downloaded", "bytes": written, "sha256": digest}
+
+
+def _extract_zip(bundle: Path, target: Path, member: str, event, job: dict) -> int:
+    """Extract one member (or the whole archive) of a zip file to the target path."""
+
+    import zipfile
+
+    with zipfile.ZipFile(bundle) as archive:
+        if not member:
+            archive.extractall(target.parent)
+            total = 0
+            for name in archive.namelist():
+                candidate = target.parent / name
+                if candidate.is_file():
+                    total += candidate.stat().st_size
+            return total
+        extracted = target.with_name(target.name + ".extract")
+        written = 0
+        with archive.open(member) as source, extracted.open("wb") as handle:
+            while True:
+                if event.is_set():
+                    handle.close()
+                    extracted.unlink(missing_ok=True)
+                    raise _Cancelled("cancelled")
+                chunk = source.read(1024 * 1024)
+                if not chunk:
+                    break
+                handle.write(chunk)
+                written += len(chunk)
+                job["bytes"] = int(job.get("completed_bytes") or 0) + written
+    os.replace(extracted, target)
+    return written
 
 
 def _extract_member(bundle: Path, target: Path, member: str, event, job: dict) -> int:
@@ -431,9 +560,14 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
         if active and _jobs.get(active, {}).get('status') == 'running':
             return dict(_jobs[active])
         key = uuid.uuid4().hex
+        planned = [entry for entry in downloads
+                   if allowed is None or str(entry.get('path') or '') in allowed]
+        covered, missing = unit_coverage(resource, unit)
         job = {'id': key, 'name': name, 'status': 'running', 'error': None,
                'started_at': _now(), 'finished_at': None, 'bytes': 0, 'files': 0,
-               'completed_bytes': 0, 'phase': 'starting', 'current': ''}
+               'completed_bytes': 0, 'phase': 'starting', 'current': '',
+               'planned': len(planned), 'unit': unit, 'downloadable': covered,
+               'undownloadable': missing}
         _jobs[key] = job
         _running[name] = key
         event = threading.Event()
@@ -476,6 +610,9 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
                 emit(f'OK {entry.get("path")} {result.get("status")} {result.get("bytes", 0)}')
             if event.is_set():
                 raise RuntimeError('cancelled')
+            if job['files'] == 0:
+                raise RuntimeError('no declared download source covers the missing files '
+                                   'of this unit; link an existing directory instead')
             job['status'] = 'succeeded'
             job['phase'] = 'complete'
         except Exception as exc:  # noqa: BLE001 - surfaced in the job and log

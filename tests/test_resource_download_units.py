@@ -87,3 +87,16 @@ def test_download_keeps_an_existing_file(tmp_path):
         opener=lambda url, token: pytest.fail('an existing file must not be downloaded again'),
     )
     assert result['status'] == 'existing'
+
+def test_unit_coverage_splits_files_with_and_without_sources():
+    entry = {
+        'path': 'params/model.npz',
+        'url': 'https://example.invalid/models.tar',
+        'member': 'params/model.npz',
+    }
+    resource = _resource(downloads=(entry,), components=(
+        {'name': 'bundle', 'files': ['params/model.npz', 'uniref90/uniref90.fasta']},
+    ))
+    covered, missing = resource_api.unit_coverage(resource, 'bundle')
+    assert covered == ['params/model.npz']
+    assert missing == ['uniref90/uniref90.fasta']

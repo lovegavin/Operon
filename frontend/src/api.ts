@@ -14,7 +14,7 @@ export type StudioVersion = {version: string; build: string; display: string};
 export type RouteCollectionImport = {count: number; names: string[]; failed: {name: string; error: string}[]};
 export type RouteCollectionSummary = {name: string; slug: string; imported_at: string; count: number};
 
-export type EnvironmentProgress = {phase?: string; bytes?: number; files?: number; updated_at?: number;
+export type EnvironmentProgress = {phase?: string; bytes?: number; files?: number; updated_at?: number; started_at?: string;
   error?: string; expected_bytes?: number; queue_position?: number};
 export type EnvironmentStatus = {
   name: string; python: string; spec_sha256: string; interpreter: string; location: string;

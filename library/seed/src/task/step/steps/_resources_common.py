@@ -15,6 +15,8 @@ from a downloaded one.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 import json
 import os
 import stat
@@ -269,7 +271,16 @@ def link_roots(
 def expected_files(resource: Resource) -> tuple[str, ...]:
     """Files used to verify a resource link; ``files`` when none are declared."""
 
-    return resource.expected_files or resource.files
+    declared = resource.expected_files or resource.files or ()
+    names: list[str] = []
+    for entry in declared:
+        if isinstance(entry, Mapping):
+            name = str(entry.get("path") or "").strip()
+        else:
+            name = str(entry).strip()
+        if name and name not in names:
+            names.append(name)
+    return tuple(names)
 
 
 def link_unit_of(resource: Resource) -> str:

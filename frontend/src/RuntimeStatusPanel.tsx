@@ -144,9 +144,10 @@ export function percentDone(item: EnvironmentItem) {
   const received = item.progress?.bytes || 0;
   if (!expected || received <= 0) return 0;
   const raw = Math.round((received / expected) * 100);
-  // Stay below 100% until the environment is actually ready: installation keeps
-  // running after the download finishes, so a full bar would look stuck.
-  return Math.max(1, Math.min(raw >= 99 ? 99 : raw, 99));
+  // The byte counter only covers downloads; dependency installation continues
+  // afterwards. Keep the real number: a settled download renders as an
+  // indeterminate bar with the phase label instead of a fake 99%.
+  return Math.max(1, Math.min(raw, 100));
 }
 
 export function formatElapsed(start?: string | null, now: number = Date.now()) {
@@ -242,6 +243,7 @@ export function EnvironmentCard({item, busy = false, cancelling = false, onActio
 }) {
   const tone = statusTone(item.status);
   const installing = tone === 'installing';
+  const settling = installing && percentDone(item) >= 99;
   return <article className="runtime-card is-openable" data-status={tone} data-testid={`environment-${item.name}`}
     role="button" tabIndex={0}
     onClick={(event) => {
@@ -268,14 +270,14 @@ export function EnvironmentCard({item, busy = false, cancelling = false, onActio
       {purposeOf(item) || t('暂无说明')}
     </p>
     {installing && <div className="runtime-progress-block">
-      <div className="runtime-progress" role="progressbar" aria-label={t('安装进度')}
-        aria-valuetext={progressText(item)} aria-valuemin={0} aria-valuemax={100}
-        aria-valuenow={item.expected_bytes ? percentDone(item) : undefined}>
-        <span className="runtime-progress-fill" style={{width: `${percentDone(item)}%`}}/>
+      <div className={`runtime-progress${settling ? ' is-indeterminate' : ''}`} role="progressbar"
+        aria-label={t('安装进度')} aria-valuetext={progressText(item)} aria-valuemin={0}
+        aria-valuemax={100} aria-valuenow={settling ? undefined : percentDone(item)}>
+        <span className="runtime-progress-fill" style={{width: settling ? '100%' : `${percentDone(item)}%`}}/>
       </div>
-      <small className="runtime-progress-label">{item.expected_bytes
-        ? `${percentDone(item)}% · ${progressText(item)}`
-        : progressText(item)}</small>
+      <small className="runtime-progress-label">{settling
+        ? `${progressText(item)} · ${t('已用 {time}', { time: formatElapsed(item.progress?.started_at) })}`
+        : item.expected_bytes ? `${percentDone(item)}% · ${progressText(item)}` : progressText(item)}</small>
     </div>}
     <dl className="runtime-facts">
       <div><dt>{t('Python 版本')}</dt><dd>{item.python_version || item.python || '—'}</dd></div>

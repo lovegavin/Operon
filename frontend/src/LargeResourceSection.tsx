@@ -102,14 +102,28 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
           </ul>
         </details>
         : null}
+      {!linked && (component.undownloadable?.length || 0) > 0
+        ? <p className="runtime-note">{t('{n} 个文件没有 HTTP 下载源，只能链接已有目录。',
+            { n: component.undownloadable?.length || 0 })}</p>
+        : null}
       <footer className="runtime-actions">
         {linked ? (
           <button type="button" className="subtle-button" disabled={busy}
             onClick={() => onUnlink(resource, component)}>{t('解除链接')}</button>
         ) : (
           <>
-            <button type="button" className="subtle-button" disabled={busy}
-              onClick={() => onDownload(resource, component)}>{t('下载')}</button>
+            <button type="button" className="subtle-button"
+              disabled={busy || !(component.downloadable?.length)}
+              title={component.downloadable?.length
+                ? t('只下载尚缺且尚未链接的文件')
+                : t('该单元没有可用的下载源，请链接已有目录')}
+              onClick={() => onDownload(resource, component)}>
+              {component.downloadable?.length
+                ? t('下载可用文件（{have}/{total}）', {
+                    have: component.downloadable.length,
+                    total: (component.files || []).length || component.downloadable.length})
+                : t('无下载源')}
+            </button>
             <button type="button" className="subtle-button is-primary" disabled={busy}
               onClick={() => onLink(resource, component)}>{t('链接')}</button>
           </>
