@@ -177,3 +177,22 @@ def test_cpu_fallback_drops_cuda_torch_pins() -> None:
     assert updated['requirements'] == ['esm==3.2.0']
     assert updated['pip_wheels'] == []
     assert entry['requirements'][0] == 'torch==2.6.0'
+
+
+def test_mark_cancelled_reports_terminal_state(tmp_path: Path) -> None:
+    environment_install._write_progress('core', tmp_path, {'phase': 'ready', 'detail': 'done', 'bytes': 10})
+    assert environment_install.mark_cancelled('core', tmp_path) is False
+    assert environment_install.read_progress('core', tmp_path)['phase'] == 'ready'
+
+    environment_install._write_progress('core', tmp_path, {'phase': 'installing', 'detail': 'pip'})
+    assert environment_install.mark_cancelled('core', tmp_path) is True
+    assert environment_install.read_progress('core', tmp_path)['phase'] == 'cancelled'
+
+
+def test_track_line_keeps_download_bytes_ahead_of_disk_usage() -> None:
+    progress: dict = {}
+    environment_install._track_line(
+        'Downloading torch-2.15.0+cpu-cp311-cp311-win_amd64.whl (201.4 MB)', progress)
+    assert progress['fetched'] == int(201.4 * 1024 ** 2)
+    assert progress['bytes'] == progress['fetched']
+    assert progress['stage'] == 'downloading'

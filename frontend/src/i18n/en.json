@@ -1083,5 +1083,10 @@
   "默认环境": "Default environment",
   "默认运行环境": "Default execution environment",
   "（可提交运行）；只读场景移除该参数并添加": "(allows task submission); for read-only access, remove it and add",
-  "，已有算子实例保持原版本。": ". Existing operator instances keep their original version."
+  "，已有算子实例保持原版本。": ". Existing operator instances keep their original version.",
+  "该环境已完成安装，取消无效。": "This environment finished installing, so cancelling had no effect.",
+  "没有正在进行的准备任务。": "No preparation is running right now.",
+  "{done}/{total} 已安装": "{done}/{total} installed",
+  "重新安装": "Reinstall",
+  "该环境还没有日志输出。": "This environment has not written any log output yet."
 }

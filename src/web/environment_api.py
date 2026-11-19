@@ -187,6 +187,86 @@ def mount_environments(app, service):
             rows.append({'kind': 'import', 'name': str(value)})
         return rows
 
+    _INSTALLED_TTL = 20.0
+    installed_cache: dict[str, tuple[float, dict, set, set]] = {}
+
+    def _site_packages(location: str) -> Path | None:
+        base = Path(location)
+        candidates = [base / 'Lib' / 'site-packages']
+        candidates.extend(sorted(base.glob('lib/python*/site-packages')))
+        for candidate in candidates:
+            if candidate.is_dir():
+                return candidate
+        return None
+
+    def _normalise(name: str) -> str:
+        return str(name).strip().lower().replace('_', '-').replace(' ', '-')
+
+    def _requirement_name(value: str) -> str:
+        head = str(value).split(';')[0].strip()
+        for marker in ('[', '=', '<', '>', '!', '~', ' '):
+            head = head.split(marker)[0]
+        return _normalise(head)
+
+    def installed_index(location: str) -> tuple[dict, set, set]:
+        """Return package versions, conda package names and importable names for one environment."""
+        if not location:
+            return {}, set(), set()
+        stamp = time.monotonic()
+        cached = installed_cache.get(location)
+        if cached and stamp - cached[0] < _INSTALLED_TTL:
+            return cached[1], cached[2], cached[3]
+        versions: dict[str, str] = {}
+        packages: set[str] = set()
+        imports: set[str] = set()
+        base = Path(location)
+        site = _site_packages(location)
+        if site is not None:
+            for entry in site.iterdir():
+                name = entry.name
+                if name.endswith('.dist-info') or name.endswith('.egg-info'):
+                    stem = name.rsplit('.', 2)[0]
+                    parts = stem.replace('-', '_').split('_')
+                    if parts:
+                        versions[_normalise(parts[0])] = parts[1] if len(parts) > 1 else ''
+                imports.add(_normalise(name.split('.')[0].lower()))
+                if name.endswith('.py'):
+                    imports.add(_normalise(name[:-3]))
+                elif name.endswith('.pyc'):
+                    imports.add(_normalise(name[:-4]))
+        meta = base / 'conda-meta'
+        if meta.is_dir():
+            for entry in meta.glob('*.json'):
+                stem = entry.stem
+                chunk = stem.rsplit('-', 2)
+                if len(chunk) >= 2:
+                    packages.add(_normalise(chunk[0]))
+                    versions.setdefault(_normalise(chunk[0]), chunk[1])
+        installed_cache[location] = (stamp, versions, packages, imports)
+        return versions, packages, imports
+
+    def dependency_installed(row: dict, location: str) -> bool:
+        versions, packages, imports = installed_index(location)
+        kind = str(row.get('kind') or '')
+        name = str(row.get('name') or '')
+        if kind in ('requirements', 'pypi', 'wheel'):
+            return _requirement_name(name) in versions
+        if kind == 'conda':
+            return _requirement_name(name) in packages or _requirement_name(name) in versions
+        if kind == 'import':
+            return _normalise(name.split('.')[0].lower()) in imports
+        if kind == 'binary':
+            base = Path(location) if location else None
+            if base is None:
+                return False
+            executable = name.split(' ')[0]
+            for folder in ('Scripts', 'bin', ''):
+                candidate = (base / folder / executable) if folder else (base / executable)
+                if candidate.exists():
+                    return True
+            return False
+        return False
+
     def augment(name, item, entry=None, used_by=None):
         """Add the panel-facing facts without dropping any planner key."""
         entry = entry if isinstance(entry, dict) else {}
@@ -206,7 +286,15 @@ def mount_environments(app, service):
         item['expected_bytes'] = environment_install.estimates.expected(
             name, entry, environments.root())
         item['resources'] = [str(value) for value in entry.get('resources') or []]
-        item['dependencies'] = dependencies(entry)
+        rows = dependencies(entry)
+        location = str(item.get('location') or '')
+        for row in rows:
+            row['installed'] = dependency_installed(row, location)
+        item['dependencies'] = rows
+        item['dependency_total'] = len(rows)
+        item['dependency_installed'] = sum(1 for row in rows if row.get('installed'))
+        item['supported'] = environment_install.platform_supported(entry)
+        item['platform_note'] = environment_install.unsupported_reason(entry)
         item['shared'] = bool(entry.get('shared'))
         item['managed'] = not bool(entry.get('shared'))
         with queue_lock:
@@ -254,6 +342,7 @@ def mount_environments(app, service):
         return item
 
     def snapshot():
+        recover_queue()
         application = getattr(service, 'application', None)
         data = None
         if application is not None:
@@ -297,7 +386,12 @@ def mount_environments(app, service):
                 job.update({'status': 'cancelled', 'error': None, 'finished_at': _now()})
                 continue
             job['status'] = 'running'
-            work()
+            try:
+                work()
+            except BaseException as error:  # a broken job must never stop the queue
+                job['status'] = 'failed'
+                job['error'] = str(error)
+                job['finished_at'] = _now()
 
     def ensure_drainer():
         with queue_lock:
@@ -308,6 +402,16 @@ def mount_environments(app, service):
             drainer['thread'] = thread
             app.state.environment_tasks.add(thread)
             thread.start()
+
+    def recover_queue():
+        """Restart the drainer when items wait but no worker thread survives."""
+        with queue_lock:
+            if not pending:
+                return
+            thread = drainer['thread']
+            if thread is not None and thread.is_alive():
+                return
+        ensure_drainer()
 
     def start(name):
         environments.describe(name, source_root())
@@ -469,13 +573,29 @@ def mount_environments(app, service):
                     cancelled.add(str(job['id']))
                 job_id = job_id or job.get('id')
         if job_id is None:
-            raise HTTPException(404, '没有正在进行的准备任务。')
+            reaped = environment_install.reap_stale(name)
+            items = (snapshot().get('environments') or {})
+            item = items.get(name) or {}
+            finished = str(item.get('status') or '') == 'ready'
+            if reaped:
+                reason = reaped
+            elif finished:
+                reason = '该环境已完成安装，取消无效。'
+            else:
+                reason = '没有正在进行的准备任务。'
+            return {
+                **snapshot(),
+                'cancelled': bool(reaped),
+                'job': None,
+                'completed': finished and not reaped,
+                'reason': reason,
+            }
         handle = controls.get(str(job_id)) if job_id is not None else None
         if handle is not None:
             handle.stop()
         signal_stop(name)
-        environment_install.mark_cancelled(name)
-        return {**snapshot(), 'cancelled': True, 'job': job_id}
+        marked = environment_install.mark_cancelled(name)
+        return {**snapshot(), 'cancelled': True, 'job': job_id, 'completed': not marked}
 
     @app.get('/api/environments/{name}/log')
     @app.get('/api/v1/environments/{name}/log')

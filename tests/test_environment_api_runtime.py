@@ -61,11 +61,14 @@ def test_used_by_lists_every_operator_up_to_the_payload_cap(tmp_path):
     assert len(item['used_by']) >= 12
 
 
-def test_cancel_without_a_running_job_is_rejected(tmp_path):
+def test_cancel_without_a_running_job_reports_no_work(tmp_path):
     _, http = client(tmp_path)
     response = http.post('/api/environments/openmm81/cancel')
-    assert response.status_code == 404
-    assert '没有正在进行的准备任务' in response.json()['detail']
+    assert response.status_code == 200
+    body = response.json()
+    assert body['cancelled'] is False
+    assert body['completed'] is False
+    assert '没有正在进行的准备任务' in body['reason']
 
 
 def test_cancel_marks_a_running_operation(tmp_path):

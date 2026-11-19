@@ -21,6 +21,7 @@ import threading
 import time
 import urllib.request
 import uuid
+from datetime import datetime, timezone
 from pathlib import Path
 
 from . import environment_estimates as estimates
@@ -31,6 +32,53 @@ PIP_INDEX = ['--index-url', 'https://pypi.org/simple']
 CONDA_FORGE = 'conda-forge'
 CONDA_BIOCONDA = 'bioconda'
 BIOCONDA_MARKERS = ('hmmer', 'infernal', 'prodigal', 'amrfinder', 'antismash')
+
+PLATFORM = 'windows' if os.name == 'nt' else ('darwin' if sys.platform == 'darwin' else 'linux')
+UNSUPPORTED_HINT = (
+    '该环境依赖的命令行工具只有 Linux/macOS 构建（bioconda 与 conda-forge 都没有 win-64 包）。'
+    '请在远程 Linux 服务器上准备该环境，或在本机手动安装后把目录链接进资源库。'
+)
+_CONDA_MISSING = re.compile(r'[\u251c\u2514]\S*\s*([A-Za-z0-9_.+\-]+)\s*=?\s*\S*\s*\*?\s*does not exist')
+
+
+def platform_supported(entry) -> bool:
+    """Return False when the manifest restricts an environment to other systems."""
+    if not isinstance(entry, dict):
+        return True
+    platforms = entry.get('platforms') or ()
+    if not platforms:
+        return True
+    return PLATFORM in {str(item).strip().lower() for item in platforms}
+
+
+def unsupported_reason(entry) -> str:
+    """Readable explanation for an environment that cannot run on this system."""
+    if platform_supported(entry):
+        return ''
+    platforms = ', '.join(str(item) for item in (entry.get('platforms') or ()))
+    title = str(entry.get('title') or 'this environment')
+    return f'{title} 仅支持 {platforms}，当前系统为 {PLATFORM}。{UNSUPPORTED_HINT}'
+
+
+def readable_conda_error(text: str) -> str:
+    """Turn micromamba's solver dump into a short, actionable message."""
+    value = str(text or '')
+    if 'does not exist' not in value:
+        return value
+    missing: list[str] = []
+    for line in value.splitlines():
+        match = _CONDA_MISSING.search(line)
+        if match:
+            name = match.group(1).strip()
+            if name and name not in missing and 'critical' not in name:
+                missing.append(name)
+    if not missing:
+        return value
+    listed = '、'.join(missing)
+    return (
+        f'当前系统找不到这些 conda 包：{listed}。'
+        f'它们通常只有 Linux/macOS 的 bioconda 构建，Windows 没有对应包。{UNSUPPORTED_HINT}'
+    )
 ERRORS = '.operon-environment-errors'
 PROGRESS = '.operon-environment-progress'
 MAMBA_MIN_BYTES = 1_000_000
@@ -84,6 +132,11 @@ def _write_progress(name: str, root, value: dict) -> None:
         # A cancellation recorded by the request thread must not be replayed as a
         # failure by the worker that was stopped halfway.
         return
+    if value.get('phase') in ('ready', 'failed', 'cancelled'):
+        # Transient download bookkeeping must not outlive the run: a ready
+        # environment that still advertises "stage: downloading" confuses the panel.
+        value = {key: item for key, item in value.items()
+                 if key not in ('stage', 'fetched', 'pid', 'command')}
     temporary = path.with_name(
         f'.{path.name}.{os.getpid()}-{threading.get_ident()}-{uuid.uuid4().hex[:6]}.tmp'
     )
@@ -111,14 +164,20 @@ def _usage(*directories) -> tuple[int, int]:
     return size, files
 
 
-def mark_cancelled(name: str, root=None) -> None:
-    """Report a cancelled preparation immediately instead of waiting for the worker."""
+def mark_cancelled(name: str, root=None) -> bool:
+    """Report a cancelled preparation immediately instead of waiting for the worker.
+
+    Returns ``False`` when the environment already finished, so callers can tell the
+    difference between a cancelled preparation and one that was committed first.
+    """
     progress = read_progress(name, root)
     phase = str(progress.get('phase') or '')
-    if phase in {'queued', 'creating', 'installing', 'probing', 'committing'}:
-        progress.update({'phase': 'cancelled', 'detail': 'cancelled by user', 'error': '',
-                         'updated_at': _now()})
-        _write_progress(name, root, progress)
+    if phase not in {'queued', 'creating', 'installing', 'probing', 'committing'}:
+        return False
+    progress.update({'phase': 'cancelled', 'detail': 'cancelled by user', 'error': '',
+                     'updated_at': _now()})
+    _write_progress(name, root, progress)
+    return True
 
 
 def state(name: str, root=None, source=None) -> dict:
@@ -152,6 +211,7 @@ def state(name: str, root=None, source=None) -> dict:
         result['status'] = 'ready'
         result['error'] = ''
     result['used_by'] = []
+    reap_stale(name, root)
     progress = read_progress(name, root)
     result['progress'] = progress
     if progress.get('phase') == 'queued':
@@ -180,6 +240,41 @@ def plan(root=None, descriptors=None, source=None) -> dict:
 
 def _now() -> str:
     return time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
+
+
+_ACTIVE_PHASES = frozenset({'queued', 'creating', 'installing', 'probing', 'committing'})
+_STALE_AFTER = 180.0
+
+
+def _age_seconds(stamp) -> float:
+    """Seconds since an ``updated_at`` marker; unknown stamps count as stale."""
+    try:
+        moment = datetime.strptime(str(stamp), '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=timezone.utc)
+    except (TypeError, ValueError):
+        return float('inf')
+    return (datetime.now(timezone.utc) - moment).total_seconds()
+
+
+def progress_stale(progress: dict, stale_after: float = _STALE_AFTER) -> bool:
+    """True when an active phase was last touched too long ago to still be running."""
+    if str(progress.get('phase') or '') not in _ACTIVE_PHASES:
+        return False
+    return _age_seconds(progress.get('updated_at')) > stale_after
+
+
+def reap_stale(name: str, root=None) -> str:
+    """Turn an orphaned active phase into a readable failure; return its message."""
+    progress = read_progress(name, root)
+    if not progress_stale(progress):
+        return ''
+    message = '上次安装已中断（安装进程已退出），请重新准备该环境。'
+    base(root).mkdir(parents=True, exist_ok=True)
+    path = _error_path(name, root)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({'message': message, 'at': _now()}, indent=2), encoding='utf-8')
+    _write_progress(name, root, {**progress, 'phase': 'failed', 'detail': 'interrupted',
+                                 'error': message, 'updated_at': _now()})
+    return message
 
 
 def _emit(log, message):
@@ -219,7 +314,7 @@ class _Control:
 
 
 
-_PIP_BYTES = re.compile(r'\((\d+(?:\.\d+)?)\s*([kKmMgG]i?[bB])\)')
+_PIP_BYTES = re.compile(r'\(\s*(\d+(?:\.\d+)?)(?:\s*/\s*\d+(?:\.\d+)?)?\s*([kKmMgG]i?[bB])\s*\)')
 
 
 def _gpu_available() -> bool:
@@ -257,7 +352,10 @@ def _track_line(line: str, progress: dict) -> None:
         scale = {'kb': 1024.0, 'kib': 1024.0, 'mb': 1024.0 ** 2, 'mib': 1024.0 ** 2,
                  'gb': 1024.0 ** 3, 'gib': 1024.0 ** 3}.get(match.group(2).lower())
         if scale:
-            progress['bytes'] = int(progress.get('bytes') or 0) + int(float(match.group(1)) * scale)
+            fetched = int(progress.get('fetched') or 0) + int(float(match.group(1)) * scale)
+            progress['fetched'] = fetched
+            progress['bytes'] = max(int(progress.get('bytes') or 0), fetched)
+            progress['stage'] = 'downloading'
             progress['files'] = int(progress.get('files') or 0) + 1
             progress['detail'] = text[:200]
             progress['updated_at'] = _now()
@@ -335,6 +433,9 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None):
         _emit(log, '  ' + line)
     if process.returncode:
         detail = " | ".join(line for line in tail.splitlines() if line.strip())[-600:]
+        readable = readable_conda_error(detail)
+        if readable != detail:
+            raise RuntimeError(readable)
         raise RuntimeError(f'{" ".join(command[:2])} exited with {process.returncode}: {detail}')
     return tail
 
@@ -420,11 +521,15 @@ def _download(url: str, destination: Path, log, control=None, *, timeout: float 
 
 
 def _conda_channels(environment) -> list[str]:
-    """HMMER-family tooling is published on bioconda, not on conda-forge."""
+    """Conda builds of the CLI tools (hmmer, samtools, viennarna, minimap2…) live on bioconda.
+
+    bioconda can only add resolution candidates, and strict channel priority keeps
+    conda-forge ahead of it, so it is enabled whenever the environment installs any
+    conda package at all instead of guessing from the package names.
+    """
     packages = environment.get('conda_packages', ()) if isinstance(environment, dict) else environment or ()
-    names = [str(item).split('=')[0].split('>')[0].split('<')[0].strip().lower() for item in packages]
     channels = [CONDA_FORGE]
-    if any(any(marker in name for marker in BIOCONDA_MARKERS) for name in names):
+    if packages:
         channels.append(CONDA_BIOCONDA)
     return channels
 
@@ -533,6 +638,23 @@ def _commit(name: str, staging: Path, final: Path) -> None:
         shutil.rmtree(previous, ignore_errors=True)
 
 
+def _pip_prefix(staging: Path) -> list[str]:
+    """Return the pip ``--prefix`` flags for one staging environment.
+
+    pip appends relative segments such as ``../../Scripts/<name>`` to the
+    prefix; Windows rejects that join with Errno 22 when the prefix carries the
+    extended ``\\\\?\\`` form, so prefer the plain path unless the location is
+    long enough to need the extended form.
+    """
+    if os.name != "nt":
+        return []
+    plain = str(staging)
+    if len(plain) <= 200:
+        return ["--prefix", plain]
+    from .bytecode import filesystem_path
+    return ["--prefix", filesystem_path(staging)]
+
+
 def _create(entry: dict, staging: Path, log, root=None, progress=None, control=None):
     if entry.get('venv_shared'):
         _run([sys.executable, '-m', 'venv', '--system-site-packages', staging], log=log, timeout=900,
@@ -553,8 +675,7 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
     python = _python(staging)
     # Use the extended prefix only for pip filesystem writes. Keep the actual
     # interpreter and DLL lookup paths native (the retained 5.1.9 loader fix).
-    from .bytecode import filesystem_path
-    prefix = ['--prefix', filesystem_path(staging)] if os.name == 'nt' else []
+    prefix = _pip_prefix(staging)
     install = [python, '-X', 'utf8', '-m', 'pip', 'install', *prefix]
     direct = entry.get('pip_pypi') or []
     # Base build tooling must exist before any source build or `--no-build-isolation` install.
@@ -570,6 +691,13 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
     if entry.get('torch_cpu'):
         _run([*install, *PIP_TRANSFER, 'torch',
               '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
+             progress=progress, control=control)
+    if entry.get('torch_cuda'):
+        version = str(entry.get('torch_version') or '').strip()
+        target = f'torch=={version}' if version else 'torch'
+        index = str(entry.get('torch_index_url') or '').strip()
+        extra = ['--index-url', index] if index else []
+        _run([*install, *PIP_TRANSFER, *extra, target], log=log, timeout=3600,
              progress=progress, control=control)
     if direct:
         _run([*install, *PIP_TRANSFER, *PIP_INDEX, *direct], log=log,
@@ -682,8 +810,7 @@ def install_dependency(name: str, kind: str, requirement: str, root=None, log=No
              log=note, env=_mamba_env(base(root)), timeout=3600, control=control)
     else:
         python = _python(final)
-        from .bytecode import filesystem_path
-        prefix = ['--prefix', filesystem_path(final)] if os.name == 'nt' else []
+        prefix = _pip_prefix(final)
         flags = ['--no-deps'] if kind == 'no_deps' else []
         if kind == 'no_build_isolation':
             flags = ['--no-build-isolation']
@@ -710,6 +837,15 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
             f"Operator library does not declare isolated environments: {manifest}")
     entry = environments.describe(name, source)
     _validate(entry)
+    if not platform_supported(entry):
+        message = unsupported_reason(entry)
+        base(root).mkdir(parents=True, exist_ok=True)
+        path = _error_path(name, root)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({'message': message, 'at': _now()}, indent=2), encoding='utf-8')
+        _write_progress(name, root, {'phase': 'failed', 'detail': 'unsupported platform',
+                                     'error': message, 'updated_at': _now()})
+        raise RuntimeError(message)
     if entry.get('torch_cuda') and not _gpu_available():
         entry = _cpu_entry(entry)
     base(root).mkdir(parents=True, exist_ok=True)
@@ -743,7 +879,9 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
                 size, files = _usage(staging, base(root) / 'packages')
             except OSError:
                 continue
-            progress.update({'bytes': size, 'files': files, 'updated_at': _now()})
+            progress['bytes'] = max(int(progress.get('bytes') or 0), int(size))
+            progress.update({'files': max(int(progress.get('files') or 0), files),
+                             'updated_at': _now()})
             _write_progress(name, root, progress)
 
     threading.Thread(target=watch, name=f'environment-progress-{name}', daemon=True).start()

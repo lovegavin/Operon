@@ -106,13 +106,12 @@
         "colabfold[alphafold]==1.5.5",
         "pydantic==2.14.3",
         "jsonschema==4.26.0",
-        "pandas==1.5.3",
-        "dm-haiku==0.0.13"
+        "pandas==1.5.3"
       ],
       "conda_packages": [],
       "torch_cpu": true,
       "wired": true,
-      "notes": "colabfold 1.5.5 requires pandas<2, so this environment pins pandas 1.5.3; dm-haiku 0.0.13 is required because jax 0.4.38 removed jax.linear_util that haiku 0.0.10 used. colabfold_batch lives in the environment bin directory; the MMseqs2/UniRef databases remain external (resources.json colabfold).",
+      "notes": "colabfold 1.5.5 requires pandas<2 and dm-haiku==0.0.10, so this environment pins pandas 1.5.3 and lets the colabfold extra choose dm-haiku; colabfold_batch lives in the environment bin directory and the MMseqs2/UniRef databases remain external (resources.json colabfold).",
       "torch_version": "2.3.1",
       "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
       "resources": [
@@ -371,7 +370,11 @@
         "pfam",
         "rfam"
       ],
-      "notes": "HMMER and Infernal profiles for Pfam and Rfam scans."
+      "notes": "HMMER and Infernal profiles for Pfam and Rfam scans.",
+      "platforms": [
+        "linux",
+        "darwin"
+      ]
     },
     "antismash": {
       "title": "antiSMASH 基因簇",
@@ -379,10 +382,9 @@
       "imports": [
         "antismash"
       ],
-      "requirements": [
-        "antismash==7.1.0"
-      ],
+      "requirements": [],
       "conda_packages": [
+        "antismash=7.1.0",
         "hmmer=3.4",
         "prodigal=2.6.3",
         "ncbi-amrfinderplus=3.12"
@@ -398,7 +400,11 @@
         "prodigal"
       ],
       "experimental": true,
-      "notes": "antiSMASH needs its own databases in addition to the binaries; the AntismashDB and AMRFinderPlus databases are resources. Experimental until a full cluster run is verified."
+      "notes": "antiSMASH needs its own databases in addition to the binaries; the AntismashDB and AMRFinderPlus databases are resources. Experimental until a full cluster run is verified.",
+      "platforms": [
+        "linux",
+        "darwin"
+      ]
     },
     "esm2": {
       "title": "ESM-2 蛋白语言模型",
@@ -445,7 +451,6 @@
         "samtools=1.20",
         "bwa=0.7.18",
         "quast=5.3.0",
-        "flye=2.9.3",
         "minced=0.4.2",
         "tRNAscan-SE=2.0.12",
         "foldseek=9.427df8a"
@@ -461,7 +466,11 @@
         "foldseek"
       ],
       "resources": [],
-      "notes": "Command line tools for genome alignment, assembly and annotation operators."
+      "notes": "flye is not pinned: every flye 2.9.3 build requires Python 3.10 or older, which conflicts with the Python 3.11 runtime shared by the other command line tools.",
+      "platforms": [
+        "linux",
+        "darwin"
+      ]
     },
     "hic": {
       "title": "Hi-C 分析",
@@ -472,7 +481,6 @@
       "requirements": [
         "pairtools==1.1.0",
         "cooler==0.9.3",
-        "cooltools==0.6.1",
         "numpy==1.26.4",
         "pandas==2.2.2"
       ],
@@ -481,7 +489,11 @@
         "samtools"
       ],
       "resources": [],
-      "notes": "Hi-C pairing, matrix building and contact analysis."
+      "notes": "cooltools is not pinned: version 0.6.1 has no binary wheel and building it from source needs a C toolchain that the isolated environment does not provide. cooler and pairtools cover the Hi-C matrix work.",
+      "platforms": [
+        "linux",
+        "darwin"
+      ]
     },
     "rna": {
       "title": "RNA 结构分析",
@@ -493,7 +505,11 @@
         "RNAfold"
       ],
       "resources": [],
-      "notes": "ViennaRNA folding and structure comparison."
+      "notes": "ViennaRNA folding and structure comparison.",
+      "platforms": [
+        "linux",
+        "darwin"
+      ]
     }
   }
 }

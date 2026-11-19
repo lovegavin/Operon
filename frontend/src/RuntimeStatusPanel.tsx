@@ -21,7 +21,11 @@ export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
   queue_position?: number;
   error?: string;
   resources?: string[];
-  dependencies?: Array<{kind: string; name: string}>;
+  dependencies?: Array<{kind: string; name: string; installed?: boolean; version?: string}>;
+  dependency_total?: number;
+  supported?: boolean;
+  platform_note?: string;
+  dependency_installed?: number;
   shared?: boolean;
   managed?: boolean;
 };
@@ -244,6 +248,7 @@ export function EnvironmentCard({item, busy = false, cancelling = false, onActio
   const tone = statusTone(item.status);
   const installing = tone === 'installing';
   const settling = installing && percentDone(item) >= 99;
+  const waiting = installing && (item.progress?.bytes || 0) <= 0;
   return <article className="runtime-card is-openable" data-status={tone} data-testid={`environment-${item.name}`}
     role="button" tabIndex={0}
     onClick={(event) => {
@@ -262,6 +267,9 @@ export function EnvironmentCard({item, busy = false, cancelling = false, onActio
       </div>
       <div className="runtime-card-tags">
         {item.planned && <span className="runtime-badge">{t('预留')}</span>}
+        {item.supported === false && <span className="runtime-chip is-warning" title={item.platform_note}>
+          {t('当前系统不支持')}
+        </span>}
         {queueText(item) && <span className="runtime-queue">{queueText(item)}</span>}
         <span className={`runtime-chip is-${tone}`} data-status={tone}>{t(statusKeys[tone])}</span>
       </div>
@@ -270,13 +278,14 @@ export function EnvironmentCard({item, busy = false, cancelling = false, onActio
       {purposeOf(item) || t('暂无说明')}
     </p>
     {installing && <div className="runtime-progress-block">
-      <div className={`runtime-progress${settling ? ' is-indeterminate' : ''}`} role="progressbar"
+      <div className={`runtime-progress${settling || waiting ? ' is-indeterminate' : ''}`} role="progressbar"
         aria-label={t('安装进度')} aria-valuetext={progressText(item)} aria-valuemin={0}
-        aria-valuemax={100} aria-valuenow={settling ? undefined : percentDone(item)}>
-        <span className="runtime-progress-fill" style={{width: settling ? '100%' : `${percentDone(item)}%`}}/>
+        aria-valuemax={100} aria-valuenow={settling || waiting ? undefined : percentDone(item)}>
+        <span className="runtime-progress-fill" style={{width: settling || waiting ? '100%' : `${percentDone(item)}%`}}/>
       </div>
       <small className="runtime-progress-label">{settling
         ? `${progressText(item)} · ${t('已用 {time}', { time: formatElapsed(item.progress?.started_at) })}`
+        : waiting ? `${progressText(item)} · ${t('已用 {time}', { time: formatElapsed(item.progress?.started_at) })}`
         : item.expected_bytes ? `${percentDone(item)}% · ${progressText(item)}` : progressText(item)}</small>
     </div>}
     <dl className="runtime-facts">
@@ -296,7 +305,9 @@ export function EnvironmentCard({item, busy = false, cancelling = false, onActio
       {availableActions(item.status).map(action =>
         <button key={action}
           className={`subtle-button${action === 'prepare' || action === 'repair' ? ' is-primary' : ''}${action === 'cancel' ? ' is-danger' : ''}`}
-          disabled={busy || (action === 'cancel' && cancelling)}
+          disabled={busy || (action === 'cancel' && cancelling)
+            || (item.supported === false && (action === 'prepare' || action === 'repair'))}
+          title={item.supported === false && (action === 'prepare' || action === 'repair') ? item.platform_note : undefined}
           onClick={() => onAction?.(action, item.name)}>
           {action === 'cancel' && cancelling ? t('取消中…') : actionLabel(action)}
         </button>)}
@@ -362,7 +373,21 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   const [remoteLoaded, setRemoteLoaded] = useState<Record<string, RemoteEnvironments>>({});
   const [remoteBusy, setRemoteBusy] = useState('');
   const [remoteError, setRemoteError] = useState('');
-  const [target, setTarget] = useState('');
+  const [target, setTarget] = useState<string>(() => {
+    try {
+      return window.localStorage.getItem('operon.runtime-target') || '';
+    } catch {
+      return '';
+    }
+  });
+  useEffect(() => {
+    try {
+      if (target) window.localStorage.setItem('operon.runtime-target', target);
+      else window.localStorage.removeItem('operon.runtime-target');
+    } catch {
+      /* storage may be unavailable in hardened browsers */
+    }
+  }, [target]);
   const [unitIndex, setUnitIndex] = useState<Record<string, number>>({});
   const [resourceRows, setResourceRows] = useState<Array<{ id: string; components: number; environments: string[] }>>([]);
   useEffect(() => {
@@ -397,9 +422,12 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   const detailResources = detail
     ? resourceRows.filter(row => row.environments.includes(detail.name))
     : [];
+  const dependencyTotal = (detail?.dependencies || []).length;
+  const dependencyInstalled = (detail?.dependencies || []).filter(entry => entry.installed).length;
   const unitTotal = detailResources.reduce((sum, row) => sum + (row.components || (unitIndex[row.id] || 1)), 0);
   const [view, setView] = useState<'root' | 'deps' | 'resources'>('root');
   const [cancelling, setCancelling] = useState<Record<string, boolean>>({});
+  const [notice, setNotice] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -431,6 +459,25 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!target) return;
+    let active = true;
+    async function loadRemote() {
+      try {
+        const value = await api.remoteEnvironments(target as string);
+        if (active) setRemoteLoaded(current => ({...current, [target as string]: value}));
+      } catch (failure) {
+        if (active) setRemoteError((failure as Error).message);
+      }
+    }
+    void loadRemote();
+    const timer = window.setInterval(loadRemote, 3000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [target]);
 
   const byName = (left: {name?: string}, right: {name?: string}) =>
     String(left.name || '').localeCompare(String(right.name || ''));
@@ -508,7 +555,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
       const value = target
         ? await api.remoteEnvironmentLog(target, name, 400)
         : await api.environmentLog(name, 400);
-      setLog({name, text: value.text, error: ''});
+      setLog({name, text: value.text || t('该环境还没有日志输出。'), error: ''});
     } catch (failure) {
       setLog({name, text: '', error: (failure as Error).message});
     } finally {
@@ -530,8 +577,29 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     if (action === 'prepare') return void run(`prepare:${name}`, () => api.prepareEnvironments([name]));
     if (action === 'repair') return void run(`repair:${name}`, () => api.retryEnvironment(name));
     setCancelling(current => ({...current, [name]: true}));
-    void run(`cancel:${name}`, () => api.cancelEnvironment(name))
-      .finally(() => setCancelling(current => ({...current, [name]: false})));
+    void (async () => {
+      setBusy(`cancel:${name}`);
+      setError('');
+      setNotice('');
+      try {
+        const value = await api.cancelEnvironment(name) as unknown as {
+          completed?: boolean;
+          cancelled?: boolean;
+          reason?: string;
+        };
+        if (value && value.completed) {
+          setNotice(t('该环境已完成安装，取消无效。'));
+        } else if (value && value.cancelled === false && value.reason) {
+          setNotice(t(value.reason));
+        }
+        setSnapshot(await api.environments() as unknown as EnvironmentView);
+      } catch (failure) {
+        setError((failure as Error).message);
+      } finally {
+        setBusy('');
+        setCancelling(current => ({...current, [name]: false}));
+      }
+    })();
     return;
   }
 
@@ -659,8 +727,11 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
             <header className="runtime-card-head">
               <div className="runtime-card-title">
                 <h3>{t('环境依赖')}</h3>
-                <code>{t('{n} 项', {n: (detail.dependencies || []).length})}</code>
+                <code>{t('{n} 项', {n: dependencyTotal})}</code>
               </div>
+              <span className={`runtime-chip is-${dependencyInstalled === dependencyTotal && dependencyTotal > 0 ? 'ready' : 'missing'}`}>
+                {t('{done}/{total} 已安装', {done: dependencyInstalled, total: dependencyTotal})}
+              </span>
             </header>
             <p className="runtime-purpose">{t('逐个安装依赖，也可以在依赖名片右上角全部安装。')}</p>
           </button>
@@ -695,12 +766,16 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
                     <h3>{entry.name}</h3>
                     <code>{entry.kind}</code>
                   </div>
+                  <span className={`runtime-chip is-${entry.installed ? 'ready' : 'missing'}`}
+                    data-testid={`dependency-state-${entry.name}`}>
+                    {entry.installed ? t('已安装') : t('未安装')}
+                  </span>
                 </header>
                 <footer className="runtime-actions">
                   <button type="button" className="subtle-button is-primary"
                     disabled={busy === `dependency:${entry.name}`}
                     onClick={() => void runDependency(detail.name, entry.kind, entry.name)}>
-                    {t('安装')}
+                    {entry.installed ? t('重新安装') : t('安装')}
                   </button>
                 </footer>
               </article>)}
@@ -772,6 +847,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
               </ul>}
           </div>)}
           {remoteError && <p className="runtime-warning">{remoteError}</p>}
+          {notice && <p className="runtime-warning">{notice}</p>}
         </section>
       </details>
     </div>

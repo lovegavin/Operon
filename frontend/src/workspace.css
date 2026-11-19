@@ -220,6 +220,15 @@
 .runtime-log-drawer header {display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;}
 .runtime-log-drawer h3 {margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 .runtime-log-drawer .environment-log {max-height:240px; min-height:52px; margin:0;}
+
+/* The log drawer is an overlay: without this it renders at the bottom of a long
+   card list and looks like the button did nothing. */
+.runtime-log-drawer {
+  position: fixed; right: 24px; bottom: 24px; z-index: 40;
+  width: min(680px, calc(100vw - 48px)); max-height: min(64vh, 560px); overflow: auto;
+  box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+}
+.runtime-log-drawer .environment-log {max-height:44vh;}
 .runtime-advanced {border-top:1px solid var(--separator); padding-top:12px; display:flex; flex-direction:column; gap:14px;}
 .runtime-advanced>summary {cursor:pointer; font-size:12px; color:var(--text-muted); list-style:none;}
 .runtime-advanced>summary::-webkit-details-marker {display:none;}
