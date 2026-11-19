@@ -488,7 +488,11 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     setBusy(label);
     setError('');
     try {
-      await api.environmentDependencyDownload(name, kind, requirement);
+      if (target) {
+        await api.remoteEnvironmentDependencyDownload(target, name, kind, requirement);
+      } else {
+        await api.environmentDependencyDownload(name, kind, requirement);
+      }
       setSnapshot(await api.environments() as unknown as EnvironmentView);
     } catch (failure) {
       setError((failure as Error).message);
@@ -501,7 +505,9 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     setLog({name, text: '', error: ''});
     setLogPending(true);
     try {
-      const value = await api.environmentLog(name, 400);
+      const value = target
+        ? await api.remoteEnvironmentLog(target, name, 400)
+        : await api.environmentLog(name, 400);
       setLog({name, text: value.text, error: ''});
     } catch (failure) {
       setLog({name, text: '', error: (failure as Error).message});
@@ -513,7 +519,12 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   function act(action: Action, name: string) {
     if (action === 'log') return void loadLog(name);
     if (target) {
-      if (action === 'cancel') return;
+      if (action === 'cancel') {
+        setCancelling(current => ({...current, [name]: true}));
+        void runRemote(`cancel:${name}`, () => api.remoteCancelEnvironment(target, name))
+          .finally(() => setCancelling(current => ({...current, [name]: false})));
+        return;
+      }
       return void runRemote(`remote:${name}`, () => api.remotePrepareEnvironments(target, [name]));
     }
     if (action === 'prepare') return void run(`prepare:${name}`, () => api.prepareEnvironments([name]));

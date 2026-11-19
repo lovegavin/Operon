@@ -88,6 +88,14 @@ def mount_remote(app, service):
         payload = payload or {}
         return manager.prepare_environments(key, payload.get('names'), bool(payload.get('dependencies')))
 
+    @app.post('/api/remote/{key}/environments/{name}/dependencies/download')
+    def remote_dependency_download(key: str, name: str, payload: dict | None = None):
+        return manager.install_dependency(key, name, payload or {})
+
+    @app.post('/api/remote/{key}/environments/{name}/cancel')
+    def remote_cancel_environment(key: str, name: str):
+        return manager.cancel_environment(key, name)
+
     @app.get('/api/remote/{key}/environments/{name}/log')
     def remote_environment_log(key: str, name: str, limit: int = 200):
         return manager.environment_log(key, name, limit)

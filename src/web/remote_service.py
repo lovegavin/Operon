@@ -519,6 +519,17 @@ class RemoteManager:
             (self.directory/(key+'.catalog.json')).unlink(missing_ok=True)
             self.persist()
 
+    def install_dependency(self, key: str, name: str, payload: dict) -> dict:
+        return self.call(key, 'environments_dependency', {
+            'name': name,
+            'kind': str(payload.get('kind') or ''),
+            'requirement': str(payload.get('name') or ''),
+        })
+
+    def cancel_environment(self, key: str, name: str) -> dict:
+        """Cancel one environment preparation on the remote agent."""
+        return self.call(key, 'environments_cancel', {'name': name})
+
     def environments(self, key: str) -> dict:
         return self.call(key, 'environments')
 

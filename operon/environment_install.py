@@ -6,6 +6,7 @@ versions or reads an external manifest. Creation is staged, locked per environme
 and committed by receipt, so a failed attempt never replaces a working runtime.
 """
 from __future__ import annotations
+import re
 
 import hashlib
 import json
@@ -217,6 +218,66 @@ class _Control:
                 pass
 
 
+
+_PIP_BYTES = re.compile(r'\((\d+(?:\.\d+)?)\s*([kKmMgG]i?[bB])\)')
+
+
+def _gpu_available() -> bool:
+    """True when a CUDA device is visible on this machine."""
+    if shutil.which('nvidia-smi') is None:
+        return False
+    try:
+        probe = subprocess.run(['nvidia-smi', '-L'], capture_output=True, text=True, timeout=20)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return probe.returncode == 0 and 'GPU' in (probe.stdout or '')
+
+
+def _cpu_entry(entry: dict) -> dict:
+    """Drop CUDA torch pins and let the installer fetch the CPU wheel instead."""
+    def wanted(value: str) -> bool:
+        return not re.match(r'^\s*torch[a-z]*([=<>!~ ]|$)', str(value), re.IGNORECASE)
+
+    updated = dict(entry)
+    for key in ('requirements', 'pip_wheels', 'pip_pypi', 'no_deps'):
+        values = entry.get(key)
+        if isinstance(values, list):
+            updated[key] = [item for item in values if wanted(item)]
+    updated['torch_cpu'] = True
+    updated['torch_cuda'] = False
+    return updated
+
+
+def _track_line(line: str, progress: dict) -> None:
+    text = line.strip()
+    if not text:
+        return
+    match = _PIP_BYTES.search(text)
+    if match and 'ownloading' in text:
+        scale = {'kb': 1024.0, 'kib': 1024.0, 'mb': 1024.0 ** 2, 'mib': 1024.0 ** 2,
+                 'gb': 1024.0 ** 3, 'gib': 1024.0 ** 3}.get(match.group(2).lower())
+        if scale:
+            progress['bytes'] = int(progress.get('bytes') or 0) + int(float(match.group(1)) * scale)
+            progress['files'] = int(progress.get('files') or 0) + 1
+            progress['detail'] = text[:200]
+            progress['updated_at'] = _now()
+        return
+    if text.startswith('Collecting ') or text.startswith('Requirement already satisfied'):
+        progress['files'] = int(progress.get('files') or 0) + 1
+        progress['updated_at'] = _now()
+
+
+def _flush_progress(progress: dict) -> None:
+    name = progress.get('name')
+    root = progress.get('root')
+    if not name or not root:
+        return
+    payload = {key: value for key, value in progress.items() if key != 'root'}
+    try:
+        _write_progress(name, root, payload)
+    except OSError:
+        pass
+
 def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None):
     command = [str(part) for part in argv]
     if control is not None:
@@ -232,26 +293,41 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None):
     if control is not None:
         control.process = process
     deadline = time.monotonic() + timeout if timeout else None
+    chunks: list[str] = []
+    last_flush = [time.monotonic()]
+
+    def drain():
+        try:
+            for line in process.stdout:
+                chunks.append(line.rstrip('\n'))
+                if progress is not None:
+                    _track_line(line, progress)
+                    if time.monotonic() - last_flush[0] > 1.5:
+                        last_flush[0] = time.monotonic()
+                        _flush_progress(progress)
+        except Exception:
+            pass
+
+    reader = threading.Thread(target=drain, name='operon-run-reader', daemon=True)
+    reader.start()
     try:
-        while True:
-            try:
-                output, _ = process.communicate(timeout=0.5)
-                break
-            except subprocess.TimeoutExpired:
-                if control is not None and control.stopped:
-                    process.kill()
-                    try:
-                        process.communicate()
-                    except Exception:
-                        pass
-                    raise Cancelled(f'preparation was cancelled during {" ".join(command[:2])}')
-                if deadline is not None and time.monotonic() > deadline:
-                    process.kill()
-                    output, _ = process.communicate()
-                    raise RuntimeError(f'{" ".join(command[:3])} timed out after {timeout}s')
+        while process.poll() is None:
+            if control is not None and control.stopped:
+                process.kill()
+                raise Cancelled(f'preparation was cancelled during {" ".join(command[:2])}')
+            if deadline is not None and time.monotonic() > deadline:
+                process.kill()
+                raise RuntimeError(f'{" ".join(command[:3])} timed out after {timeout}s')
+            if progress is not None:
+                progress['updated_at'] = _now()
+            time.sleep(0.4)
     finally:
         if control is not None:
             control.process = None
+    reader.join(timeout=10)
+    output = '\n'.join(chunks)
+    if progress is not None:
+        _flush_progress(progress)
     if control is not None and control.stopped:
         raise Cancelled(f'preparation was cancelled during {" ".join(command[:2])}')
     tail = output or ''
@@ -620,6 +696,7 @@ def install_dependency(name: str, kind: str, requirement: str, root=None, log=No
     progress['phase'] = 'complete'
     progress['detail'] = f'installed {requirement}'
     progress['updated_at'] = _now()
+    progress['root'] = str(base(root))
     _write_progress(name, root, progress)
     return {'environment': name, 'kind': kind, 'requirement': requirement, 'status': 'installed'}
 
@@ -633,6 +710,8 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
             f"Operator library does not declare isolated environments: {manifest}")
     entry = environments.describe(name, source)
     _validate(entry)
+    if entry.get('torch_cuda') and not _gpu_available():
+        entry = _cpu_entry(entry)
     base(root).mkdir(parents=True, exist_ok=True)
     require_space(root, estimates.expected(name, entry, base(root)),
                   what=f'environment {name}')

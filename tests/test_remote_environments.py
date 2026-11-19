@@ -145,3 +145,42 @@ def test_manager_wrappers_route_remote_methods():
     assert [item[1] for item in seen] == ['environments', 'environments_prepare', 'environments_log']
     assert seen[1][2] == {'names': ['demo'], 'dependencies': True}
     assert seen[2][2] == {'name': 'demo', 'limit': 5}
+
+
+def test_remote_manager_forwards_environment_cancel() -> None:
+    from src.web.remote_service import RemoteManager
+
+    calls = []
+
+    class Connection:
+        connected = True
+
+        def call(self, method, params=None):
+            calls.append((method, params))
+            return {'cancelled': True}
+
+    manager = RemoteManager.__new__(RemoteManager)
+    manager.state = {'profiles': {'srv': {}}}
+    manager.connections = {'srv': Connection()}
+    result = manager.cancel_environment('srv', 'esm3')
+    assert result == {'cancelled': True}
+    assert calls == [('environments_cancel', {'name': 'esm3'})]
+
+
+def test_remote_manager_forwards_dependency_install() -> None:
+    from src.web.remote_service import RemoteManager
+
+    calls = []
+
+    class Connection:
+        connected = True
+
+        def call(self, method, params=None):
+            calls.append((method, params))
+            return {'installed': {}}
+
+    manager = RemoteManager.__new__(RemoteManager)
+    manager.state = {'profiles': {'srv': {}}}
+    manager.connections = {'srv': Connection()}
+    assert manager.install_dependency('srv', 'esm3', {'kind': 'import', 'name': 'torch'}) == {'installed': {}}
+    assert calls == [('environments_dependency', {'name': 'esm3', 'kind': 'import', 'requirement': 'torch'})]

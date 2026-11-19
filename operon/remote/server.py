@@ -148,6 +148,45 @@ def environment_log(service, name: str, limit: int = 200) -> dict:
     return {'name': name, 'text': '\n'.join(lines), 'path': str(path)}
 
 
+def environment_dependency(service, payload: dict | None = None) -> dict:
+    payload = payload or {}
+    name = str(payload.get('name') or '').strip()
+    if not name:
+        raise ValueError('environments_dependency requires an environment name')
+    kind = str(payload.get('kind') or '').strip()
+    requirement = str(payload.get('requirement') or '').strip()
+    environment_install.install_dependency(name, kind, requirement,
+                                           root=environments.root())
+    return {**environment_snapshot(service),
+            'installed': {'kind': kind, 'name': requirement}}
+
+
+def environment_cancel(service, payload: dict | None = None) -> dict:
+    """Stop one environment preparation started through the remote agent."""
+    import os
+    import signal
+    from operon import environment_install
+    payload = payload or {}
+    name = str(payload.get('name') or '')
+    if not name:
+        raise ValueError('environments_cancel requires an environment name')
+    snapshot = environment_snapshot(service)
+    root = snapshot.get('root')
+    progress = environment_install.read_progress(name, root) or {}
+    pid = progress.get('pid')
+    stopped = False
+    if isinstance(pid, int) and pid > 1:
+        try:
+            os.kill(pid, signal.SIGTERM)
+            stopped = True
+        except OSError:
+            stopped = False
+    with _ENVIRONMENT_LOCK:
+        _ENVIRONMENT_JOBS.pop(name, None)
+    environment_install.mark_cancelled(name, root)
+    return {**environment_snapshot(service), 'cancelled': True, 'stopped': stopped}
+
+
 def environment_prepare(service, payload: dict | None = None) -> dict:
     from operon import environment_install
     payload = payload or {}
@@ -525,6 +564,10 @@ class RemoteService:
             return environment_snapshot(self.service)
         if method == 'environments_prepare':
             return environment_prepare(self.service, params or {})
+        if method == 'environments_cancel':
+            return environment_cancel(self.service, params)
+        if method == 'environments_dependency':
+            return environment_dependency(self.service, params)
         if method == 'environments_log':
             return environment_log(self.service, str((params or {}).get('name') or ''),
                                    (params or {}).get('limit') or 200)

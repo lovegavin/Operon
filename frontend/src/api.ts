@@ -179,6 +179,15 @@ export const api = {
   remotePrepareEnvironments: (id: string, names?: string[], dependencies = false) =>
     request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments/prepare`,
       {names, dependencies}),
+  remoteEnvironmentDependencyDownload: (id: string, name: string, kind: string, requirement: string) =>
+    request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments/${encodeURIComponent(name)}/dependencies/download`,
+      {kind, name: requirement}),
+  remoteCancelEnvironment: (id: string, name: string) =>
+    request<RemoteEnvironments & {cancelled?: boolean; stopped?: boolean}>(
+      `/api/remote/${encodeURIComponent(id)}/environments/${encodeURIComponent(name)}/cancel`, {}),
+  remoteEnvironmentLog: (id: string, name: string, limit = 400) =>
+    request<{name: string; text: string}>(
+      `/api/remote/${encodeURIComponent(id)}/environments/${encodeURIComponent(name)}/log?limit=${limit}`),
   remoteResources: (id: string) =>
     request<import('./types').LargeResourceSnapshot>(`/api/remote/${encodeURIComponent(id)}/resources`),
   remoteLinkResource: (id: string, name: string, source: string, replace = false, unit = '') =>

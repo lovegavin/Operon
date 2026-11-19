@@ -164,3 +164,16 @@ def test_a_worker_failure_does_not_overwrite_a_recorded_cancellation(tmp_path, m
     environment_install.mark_cancelled('openfold', None)
     environment_install._write_progress('openfold', None, {'name': 'openfold', 'phase': 'failed', 'error': 'boom'})
     assert environment_install.read_progress('openfold', None)['phase'] == 'cancelled'
+
+
+def test_cpu_fallback_drops_cuda_torch_pins() -> None:
+    from operon.environment_install import _cpu_entry
+
+    entry = {'requirements': ['torch==2.6.0', 'esm==3.2.0', 'torchvision==0.21.0'],
+             'pip_wheels': ['torchaudio==2.6.0'], 'torch_cuda': True}
+    updated = _cpu_entry(entry)
+    assert updated['torch_cpu'] is True
+    assert updated['torch_cuda'] is False
+    assert updated['requirements'] == ['esm==3.2.0']
+    assert updated['pip_wheels'] == []
+    assert entry['requirements'][0] == 'torch==2.6.0'
