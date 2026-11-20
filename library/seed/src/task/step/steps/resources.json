@@ -53,15 +53,24 @@
       "downloads": [
         {
           "path": "ProteinMPNN/vanilla_model_weights/v_48_020.pt",
-          "url": "https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/vanilla_model_weights/v_48_020.pt",
-          "unit": "ProteinMPNN"
+          "url": [
+            "https://cdn.jsdelivr.net/gh/dauparas/ProteinMPNN@main/vanilla_model_weights/v_48_020.pt",
+            "https://ghproxy.net/https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/vanilla_model_weights/v_48_020.pt",
+            "https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/vanilla_model_weights/v_48_020.pt"
+          ],
+          "unit": "ProteinMPNN",
+          "note": "verified 2026-11-21: jsdelivr and ghproxy reachable from the compute host"
         },
         {
           "path": "protein_mpnn_run.py",
-          "url": "https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/protein_mpnn_run.py",
+          "url": [
+            "https://cdn.jsdelivr.net/gh/dauparas/ProteinMPNN@main/protein_mpnn_run.py",
+            "https://ghproxy.net/https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/protein_mpnn_run.py",
+            "https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/protein_mpnn_run.py"
+          ],
           "bytes": 29312,
           "unit": "ProteinMPNN",
-          "note": "verified 2026-11-20 HEAD 200, Content-Length 29312 (the file itself is also in the git repo)",
+          "note": "verified 2026-11-21: cdn.jsdelivr.net and ghproxy.net return 206; raw.githubusercontent.com timed out from the compute host",
           "sha256": "61f2c519a7f73fa12da9eb90da97b97ec2f8d5f31d42605639c7600cbd321cbe"
         }
       ],
@@ -293,7 +302,9 @@
       "expected_files": [
         "colabfold/batch.py"
       ],
-      "notes": "colabfold_batch is created by the ColabFold installer (pip console script declared in pyproject.toml as colabfold_batch = 'colabfold.batch:main'); it is not shipped as a file. The git entry downloads the source tree the binary runs from. Database provisioning stays with setup_databases.sh / the ColabFold docs."
+      "notes": "colabfold_batch is created by the ColabFold installer (pip console script declared in pyproject.toml as colabfold_batch = 'colabfold.batch:main'); it is not shipped as a file. The git entry downloads the source tree the binary runs from. Database provisioning stays with setup_databases.sh / the ColabFold docs.",
+      "root": "/public/home/lihj/operon-resources/colabfold",
+      "note": "root is a writable data directory; colabfold_batch itself is provided by the pip entry point"
     },
     {
       "id": "alphafold2",
