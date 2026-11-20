@@ -997,6 +997,111 @@ def _remove_tree(path, *, attempts=6, delay=0.3) -> bool:
     return not path.exists()
 
 
+_DEPENDENCY_TTL = 20.0
+_dependency_cache: dict[str, tuple[float, dict, set, set]] = {}
+
+
+def _normalise_package(name: str) -> str:
+    return str(name).strip().lower().replace('_', '-').replace(' ', '-')
+
+
+def _requirement_name(value: str) -> str:
+    head = str(value).split(';')[0].strip()
+    for marker in ('[', '=', '<', '>', '!', '~', ' '):
+        head = head.split(marker)[0]
+    return _normalise_package(head)
+
+
+def _site_packages(location: str):
+    base = Path(location)
+    candidates = [base / 'Lib' / 'site-packages']
+    candidates.extend(sorted(base.glob('lib/python*/site-packages')))
+    for candidate in candidates:
+        if candidate.is_dir():
+            return candidate
+    return None
+
+
+def installed_index(location: str):
+    if not location:
+        return {}, set(), set()
+    stamp = time.monotonic()
+    cached = _dependency_cache.get(location)
+    if cached and stamp - cached[0] < _DEPENDENCY_TTL:
+        return cached[1], cached[2], cached[3]
+    versions: dict[str, str] = {}
+    packages: set[str] = set()
+    imports: set[str] = set()
+    base = Path(location)
+    site = _site_packages(location)
+    if site is not None:
+        for entry in site.iterdir():
+            name = entry.name
+            if name.endswith('.dist-info') or name.endswith('.egg-info'):
+                stem = name.rsplit('.', 2)[0]
+                parts = stem.replace('-', '_').split('_')
+                if parts:
+                    versions[_normalise_package(parts[0])] = parts[1] if len(parts) > 1 else ''
+            imports.add(_normalise_package(name.split('.')[0].lower()))
+            if name.endswith('.py'):
+                imports.add(_normalise_package(name[:-3]))
+            elif name.endswith('.pyc'):
+                imports.add(_normalise_package(name[:-4]))
+    meta = base / 'conda-meta'
+    if meta.is_dir():
+        for entry in meta.glob('*.json'):
+            chunk = entry.stem.rsplit('-', 2)
+            if len(chunk) >= 2:
+                packages.add(_normalise_package(chunk[0]))
+                versions.setdefault(_normalise_package(chunk[0]), chunk[1])
+    _dependency_cache[location] = (stamp, versions, packages, imports)
+    return versions, packages, imports
+
+
+def dependency_rows(entry) -> list:
+    rows = []
+    entry = entry if isinstance(entry, dict) else {}
+    for key, kind in (('requirements', 'requirements'), ('pip_wheels', 'wheel'),
+                      ('pip_pypi', 'pypi'), ('conda_packages', 'conda'),
+                      ('binaries', 'binary')):
+        for value in entry.get(key) or []:
+            rows.append({'kind': kind, 'name': str(value)})
+    for value in entry.get('imports') or []:
+        rows.append({'kind': 'import', 'name': str(value)})
+    return rows
+
+
+def dependency_installed(row: dict, location: str) -> bool:
+    versions, packages, imports = installed_index(location)
+    kind = str(row.get('kind') or '')
+    name = str(row.get('name') or '')
+    if kind in ('requirements', 'pypi', 'wheel'):
+        return _requirement_name(name) in versions
+    if kind == 'conda':
+        return _requirement_name(name) in packages or _requirement_name(name) in versions
+    if kind == 'import':
+        return _normalise_package(name.split('.')[0].lower()) in imports
+    if kind == 'binary':
+        if not location:
+            return False
+        base = Path(location)
+        executable = name.split(' ')[0]
+        for folder in ('Scripts', 'bin', ''):
+            base_dir = (base / folder) if folder else base
+            for suffix in ('', '.exe', '.cmd', '.bat'):
+                if (base_dir / f'{executable}{suffix}').exists():
+                    return True
+        return False
+    return False
+
+
+def dependency_status(entry, location: str):
+    rows = dependency_rows(entry)
+    flags = [{**row, 'installed': bool(location) and dependency_installed(row, location)} for row in rows]
+    installed = sum(1 for flag in flags if flag['installed'])
+    return installed, len(rows), flags
+
+
 def install_dependency(name: str, kind: str, requirement: str, root=None, log=None,
                        control=None, source=None) -> dict:
     """Install a single declared dependency, waiting for the installation slot."""

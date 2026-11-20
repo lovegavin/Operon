@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import importlib
 import json
+import os
 import sys
 import traceback
 from pathlib import Path
@@ -26,6 +27,12 @@ class Context:
         self.out_dir = Path(directory) if directory else Path.cwd()
         self.memory = _Memory(self.out_dir)
         self.values = {}
+
+    def artifact_path(self, relative: str) -> Path:
+        """Resolve a path inside this run's output directory, creating parents."""
+        target = self.out_dir / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        return target
 
     def __setitem__(self, key, value):
         self.values[key] = value
@@ -53,7 +60,22 @@ def _revive(value):
     return value
 
 
+def _prepend_environment_path() -> None:
+    """Expose the executing environment's executables to child processes."""
+    executable = Path(sys.executable).resolve()
+    directories = [executable.parent]
+    scripts = executable.parent / "Scripts"
+    if scripts.is_dir():
+        directories.append(scripts)
+    current = os.environ.get("PATH", "")
+    parts = [str(item) for item in directories]
+    if current:
+        parts.append(current)
+    os.environ["PATH"] = os.pathsep.join(parts)
+
+
 def main():
+    _prepend_environment_path()
     directory = Path(sys.argv[1])
     request = json.loads((directory / "request.json").read_text(encoding="utf-8"))
     try:

@@ -131,6 +131,20 @@ def environment_snapshot(service) -> dict:
     except Exception as exc:
         return {'root': None, 'source': None, 'environments': {}, 'running': {},
                 'error': f'{type(exc).__name__}: {exc}'}
+    from operon import environment_install, environments
+    try:
+        entries = environments.load()
+    except Exception:
+        entries = {}
+    for name, item in (plan or {}).items():
+        if not isinstance(item, dict):
+            continue
+        location = str(item.get('location') or '')
+        entry = entries.get(name) if isinstance(entries, dict) else None
+        installed, total, rows = environment_install.dependency_status(entry or {}, location)
+        item['dependency_installed'] = installed
+        item['dependency_total'] = total
+        item['dependencies'] = rows
     with _ENVIRONMENT_LOCK:
         running = {name: dict(value) for name, value in _ENVIRONMENT_JOBS.items()}
     return {'root': str(root), 'source': str(source), 'environments': plan, 'running': running}
