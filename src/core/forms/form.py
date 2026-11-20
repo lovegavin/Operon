@@ -240,4 +240,7 @@ class Form:
                 raise ValidationError("Form", f"invalid encoder dimension {dim}")
             for key in fields:
                 if key not in self.labels[dim] and key not in self.axis_info.get(dim, []):
-                    raise ValidationError("Form", f"orphan encoder {dim}.{key}")
+                    raise ValidationError(
+                        "Form",
+                        f"column {key!r} on dim {dim!r} has no values: the file did not provide it and no default was declared; add the column or pass labels",
+                    )

@@ -7,6 +7,11 @@ from __future__ import annotations
 class OperonError(Exception):
     """Base class for all Operon errors."""
 
+    def __str__(self) -> str:
+        if len(self.args) > 1:
+            return ": ".join(str(part) for part in self.args if part)
+        return super().__str__()
+
 
 class ValidationError(OperonError):
     """A Form fails its structural check."""
