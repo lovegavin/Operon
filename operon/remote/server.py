@@ -140,6 +140,12 @@ def environment_snapshot(service) -> dict:
         if not isinstance(item, dict):
             continue
         location = str(item.get('location') or '')
+        if not location:
+            try:
+                from operon import environments as _environments
+                location = str(_environments.root() / name)
+            except Exception:
+                location = ''
         entry = entries.get(name) if isinstance(entries, dict) else None
         installed, total, rows = environment_install.dependency_status(entry or {}, location)
         item['dependency_installed'] = installed

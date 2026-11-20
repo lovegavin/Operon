@@ -701,8 +701,15 @@ class ArtifactService:
         job = self.app.jobs.details(job_id)
         artifacts = []
         for item in (job.get('report') or {}).get('artifacts', []):
-            artifacts.append({**item, 'job_id': job_id, 'available': bool(item.get('disk_uri')),
-                              'href': f'/api/v1/jobs/{job_id}/artifacts/{item["artifact_id"]}/file'})
+            artifact_id = item.get('artifact_id') or item.get('id')
+            if not artifact_id:
+                # Legacy reports can carry a bare descriptor; listing must stay
+                # readable instead of failing the whole index with a KeyError.
+                artifacts.append({**item, 'job_id': job_id, 'available': False, 'href': ''})
+                continue
+            artifacts.append({**item, 'artifact_id': artifact_id, 'job_id': job_id,
+                              'available': bool(item.get('disk_uri')),
+                              'href': f'/api/v1/jobs/{job_id}/artifacts/{artifact_id}/file'})
         reports, figures = [], []
         for index, step in enumerate((job.get('summary') or {}).get('steps', [])):
             if not step.get('export_path'):

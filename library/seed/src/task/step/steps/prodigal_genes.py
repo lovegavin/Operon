@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -13,6 +14,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps._envpython import environment_python
 from src.task.step.steps._sequence_common import decode_sequences
 
 _STATISTICS = ("start", "end", "strand", "length", "partial_code")
@@ -99,6 +101,41 @@ def parse_proteins(text: str) -> list[str]:
     return sequences
 
 
+def _environment_binary() -> Path:
+    """The ``prodigal`` of the ``genomics`` environment, else the PATH command."""
+
+    python = environment_python("genomics")
+    if python:
+        # Prodigal is installed in the same ``bin`` directory as that Python.
+        sibling = shutil.which("prodigal", path=str(Path(python).parent))
+        if sibling:
+            return Path(sibling)
+    return Path("prodigal")
+
+
+def _launchable(binary: Path) -> Path:
+    """Reject a configured path that cannot be executed before running it.
+
+    A missing path or a bare command name passes through untouched so that
+    :func:`subprocess.run` reports its usual "was not found on PATH" error; an
+    existing file must be executable, or a ``.py`` script run by
+    :data:`sys.executable`.
+    """
+
+    path = Path(str(binary)).expanduser()
+    if not path.exists():
+        return path
+    if path.is_file() and (
+        str(path).lower().endswith(".py") or os.access(path, os.X_OK)
+    ):
+        return path
+    raise StepError(
+        f"prodigal_genes: prodigal_path '{path}' is not an executable file; "
+        "leave prodigal_path empty to use the prodigal of the genomics "
+        "environment or PATH"
+    )
+
+
 def run_prodigal(
     binary: Path,
     sequences: list[str],
@@ -112,6 +149,7 @@ def run_prodigal(
         raise StepError(
             f"prodigal_genes: mode must be one of {', '.join(_MODES)}"
         )
+    binary = _launchable(binary)
     with tempfile.TemporaryDirectory(prefix="prodigal_") as tmp:
         folder = Path(tmp)
         fasta = folder / "contigs.fna"
@@ -264,7 +302,12 @@ class ProdigalGenesStep(Step):
         binary_text = str(params.get("prodigal_path", "") or "").strip() or os.environ.get(
             "OPERON_PRODIGAL_PATH", ""
         )
-        binary = Path(binary_text).expanduser() if binary_text else Path("prodigal")
+        # An empty path falls back to the genomics environment tool (the same
+        # lookup the other subprocess operators use); an explicit path must name
+        # a launchable file, or subprocess raises "[Errno 13] Permission denied".
+        binary = _launchable(
+            Path(binary_text).expanduser() if binary_text else _environment_binary()
+        )
         genes, proteins = run_prodigal(
             binary,
             sequences,

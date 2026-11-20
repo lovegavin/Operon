@@ -13,7 +13,33 @@ command the agent can execute and verify.
 
 - 进度看缓存增长：`du -sh ~/.cache/pip`（目标环境 `site-packages` 在下载阶段
   结束后才快速增长）。
-- 不要清理 `~/.cache/pip` 或 `managed-v1/mamba-cache`，否则重装会从头下载。
+- ### Removing superseded server installs
+
+Every time a server installation is replaced, delete the old copies instead of
+leaving them behind. Keep exactly one current snapshot pair per installation
+root:
+
+```bash
+managed=~/Operon/managed-v1
+python3 - <<'PY'
+import json, pathlib
+root = pathlib.Path.home() / 'Operon' / 'managed-v1'
+state = json.loads((pathlib.Path.home() / 'Operon' / 'server.json').read_text())
+keep = {pathlib.Path(state['app_dir']).name, pathlib.Path(state['python']).parent.parent.name}
+for entry in root.iterdir():
+    if entry.is_dir() and (entry.name.startswith('code-') or entry.name.startswith('env-')):
+        if entry.name not in keep:
+            print('remove', entry)
+PY
+```
+
+Then remove the stale `setup-*.log` files, temporary workspaces, admission
+directories and any process still running from a deleted directory. Leftover
+snapshots keep answering on old ports with an old version, which makes the
+desktop report a version that does not match the current install.
+
+
+不要清理 `~/.cache/pip` 或 `managed-v1/mamba-cache`，否则重装会从头下载。
 - 需要更快时，可在桌面端用离线方式预置 wheel 目录（`--from-dir`），或让服务器
   管理员提供内网 PyPI 镜像，然后在安装器里替换 `-i` 索引地址。
 - 安装完成后 `env-*/` 约 6–9 GB（含 CUDA 版 PyTorch）。

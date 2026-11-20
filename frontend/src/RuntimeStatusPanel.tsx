@@ -565,22 +565,25 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   const localItems = Object.values(snapshot?.environments || {}).sort(byName);
   const remoteItems = Object.values(remoteLoaded[target]?.environments || {}).sort(byName);
   const localByName = new Map(localItems.map(item => [String(item.name || ''), item]));
+  // Strict machine isolation: a remote target is rendered from the remote
+  // snapshot alone. Only static catalogue labels are attached afterwards, and
+  // never any field that describes local runtime state (dependencies, resource
+  // units, interpreter, location, progress, size).
+  const CATALOGUE_FIELDS = ['title', 'notes', 'planned', 'operator_count', 'operators', 'expected_bytes'] as const;
   const merged = target
     ? remoteItems.map(raw => {
         const item = raw as unknown as EnvironmentItem;
-        const meta = localByName.get(String(item.name || ''));
+        const meta = localByName.get(String(item.name || '')) as Record<string, unknown> | undefined;
         if (!meta) return item;
-        return {
-          ...item,
-          title: meta.title || item.title,
-          notes: meta.notes || item.notes,
-          planned: meta.planned ?? item.planned,
-          dependencies: meta.dependencies?.length ? meta.dependencies : item.dependencies,
-          resources: meta.resources?.length ? meta.resources : item.resources,
-          operator_count: meta.operator_count ?? item.operator_count,
-          operators: meta.operators?.length ? meta.operators : item.operators,
-          expected_bytes: item.expected_bytes || meta.expected_bytes,
-        } as EnvironmentItem;
+        const copy: Record<string, unknown> = {...(item as unknown as Record<string, unknown>)};
+        for (const field of CATALOGUE_FIELDS) {
+          const value = meta[field];
+          if (value === undefined || value === null) continue;
+          if (typeof value === 'string' && value.trim() === '') continue;
+          if (Array.isArray(value) && value.length === 0) continue;
+          if (copy[field] === undefined || copy[field] === null || copy[field] === '') copy[field] = value;
+        }
+        return copy as unknown as EnvironmentItem;
       })
     : localItems;
   const items = merged as unknown as EnvironmentItem[];
@@ -868,9 +871,9 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
                     <h3>{entry.name}</h3>
                     <code>{entry.kind}</code>
                   </div>
-                  <span className={`runtime-chip is-${entry.installed ? 'ready' : 'missing'}`}
+                  <span className={`runtime-chip is-${entry.installed === true ? 'ready' : entry.installed === false ? 'missing' : 'unknown'}`}
                     data-testid={`dependency-state-${entry.name}`}>
-                    {entry.installed ? t('已安装') : t('未安装')}
+                    {entry.installed === true ? t('已安装') : entry.installed === false ? t('未安装') : t('状态未知')}
                   </span>
                 </header>
                 <footer className="runtime-actions">

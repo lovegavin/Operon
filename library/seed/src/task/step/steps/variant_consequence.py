@@ -131,7 +131,24 @@ class VariantConsequenceStep(Step):
                     for alt in alt_text.split(","):
                         if alt in (".", "*"):
                             continue
-                        result = annotate_variant(chrom, pos, ref, alt, bins, genes, genome)
+                        try:
+                            result = annotate_variant(
+                                chrom, pos, ref, alt, bins, genes, genome
+                            )
+                        except KeyError as error:
+                            missing = str(error.args[0]) if error.args else "<unknown>"
+                            names = sorted(str(name) for name in genome)
+                            available = ", ".join(names[:10]) or "<none>"
+                            if len(names) > 10:
+                                available += f", ... ({len(names)} total)"
+                            raise StepError(
+                                f"variant_consequence: column '{missing}' is not "
+                                "present in the reference FASTA "
+                                f"(needed by {chrom}:{pos}); available columns "
+                                f"(FASTA sequence names): {available}. The FASTA "
+                                "headers must match the VCF CHROM and the GFF3 "
+                                "seqid values"
+                            ) from None
                         if result[0] == "intergenic":
                             continue
                         rank = SEVERITY_RANK.get(result[0], 99)

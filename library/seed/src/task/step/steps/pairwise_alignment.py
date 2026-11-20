@@ -234,12 +234,21 @@ class PairwiseAlignmentStep(Step):
 
         sequences = decode_sequences(first, sequence_dim, position_dim)
         others = decode_sequences(second, sequence_dim, position_dim)
-        if len(sequences) != 1 or len(others) != 1:
+        # The contract is one sequence per input.  Wiring the same two-record
+        # sequence Form into both inputs also names a pair unambiguously (the
+        # first row targets the second), which is what a FASTA reader holding
+        # two records produces.
+        if sequences == others and len(sequences) == 2:
+            target, query = sequences
+        elif len(sequences) == 1 and len(others) == 1:
+            target, query = sequences[0], others[0]
+        else:
             raise StepError(
-                "pairwise_alignment: exactly two sequences are required, "
-                f"got {len(sequences)} and {len(others)}"
+                "pairwise_alignment: exactly two sequences are required, but "
+                f"input 1 holds {len(sequences)} and input 2 holds {len(others)} "
+                f"rows on dims '{sequence_dim}' x '{position_dim}'; pass one "
+                "sequence per input, or the same two-sequence input on both"
             )
-        target, query = sequences[0], others[0]
         if (len(target) + 1) * (len(query) + 1) > max_cells:
             raise StepError(
                 "pairwise_alignment: alignment matrix is too large "

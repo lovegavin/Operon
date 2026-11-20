@@ -321,6 +321,16 @@ def snapshot(service) -> dict:
         item['units'] = list(item.get('units') or [])
         for unit in item['units']:
             covered, missing = unit_coverage(resource, str(unit.get('name') or ''))
+            if not covered:
+                # A unit and its resource may disagree on how a file is keyed
+                # (tree units often store the bare name while downloads store
+                # the path). Fall back to an explicit path match so a unit that
+                # declares downloadable files never renders as having no source.
+                declared = {str(entry.get('path') or entry) for entry in unit.get('files') or []}
+                covered = [dict(entry) for entry in getattr(resource, 'downloads', ()) or ()
+                           if str(entry.get('path') or '') in declared]
+                if covered:
+                    missing = [name for name in missing if name not in declared]
             unit['downloadable'] = covered
             unit['undownloadable'] = missing
             unit['download_supported'] = bool(covered) or any(

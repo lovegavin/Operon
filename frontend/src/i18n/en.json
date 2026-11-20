@@ -590,6 +590,7 @@
   "未分类": "Uncategorized",
   "未命名路线": "Untitled workflow",
   "未声明环境": "Undeclared environment",
+  "状态未知": "Unknown",
   "未安装": "Not installed",
   "未找到 Operon 服务端，请先安装服务端。": "Operon server not found. Install it first.",
   "未找到 Operon 服务端，请检查 Operon 目录与 Python 路径。": "Operon server not found. Check the Operon directory and Python path.",
