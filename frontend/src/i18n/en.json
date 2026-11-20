@@ -175,7 +175,6 @@
   "内存预算": "Memory budget",
   "准备": "Prepare",
   "准备中": "Preparing",
-  "准备失败": "Preparation failed",
   "准备安装": "Queued",
   "准备环境…": "Preparing environment…",
   "准备目标": "Preparation target",
@@ -1092,7 +1091,13 @@
   "资源 {ready}/{total}": "Resources {ready}/{total}",
   "缺失资源：": "Missing resources: ",
   "未就绪": "Not ready",
-  "未创建": "Not created",
-  "安装失败": "Install failed",
-  "正在安装": "Installing"
+  "安装失败": "Installation failed",
+  "正在安装": "Installing",
+  "已开始安装「{name}」，可在卡片上查看进度或点「查看日志」。": "Installation of \"{name}\" started; follow the progress on the card or open the log.",
+  "已请求重新安装「{name}」。": "Reinstall of \"{name}\" requested.",
+  "已请求服务器重新安装「{name}」。": "Reinstall of \"{name}\" requested on the server.",
+  "已请求取消「{name}」。": "Cancellation of \"{name}\" requested.",
+  "已请求服务器取消「{name}」。": "Cancellation of \"{name}\" requested on the server.",
+  "已向服务器提交安装「{name}」。": "Installation of \"{name}\" submitted to the server.",
+  "已开始安装「{name}」的依赖 {requirement}；若环境尚未创建会先创建环境，可点「查看日志」跟踪进度。": "Installing {requirement} for \"{name}\"; the environment is created first when missing. Open the log for progress."
 }

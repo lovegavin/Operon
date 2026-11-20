@@ -341,6 +341,56 @@ def mount_environments(app, service):
         item.pop('cancelled', None)
         return item
 
+    def resource_counts() -> dict:
+        """Per environment: how many of the resources it declares are in place.
+
+        Only the environment manifest decides what belongs to an environment
+        (``environments.json`` -> ``resources``).  A resource can additionally be
+        shared by several environments; those are reported separately so that a
+        shared model never makes a lean environment look incomplete.
+        """
+        counts: dict = {}
+        declared: dict = {}
+        try:
+            from . import resource_api as _resource_api
+            payload = _resource_api.snapshot(service) or {}
+            library = environment_install.environments.load() or {}
+        except Exception:
+            return counts
+        for entry in library.get('environments') or []:
+            if not isinstance(entry, dict):
+                continue
+            name = str(entry.get('id') or entry.get('name') or '')
+            if name:
+                declared[name] = {str(item) for item in (entry.get('resources') or [])}
+        rows = payload.get('resources')
+        if isinstance(rows, dict):
+            rows = list(rows.values())
+        for item in rows or []:
+            if not isinstance(item, dict):
+                continue
+            rid = str(item.get('id') or '')
+            if not rid:
+                continue
+            good = str(item.get('state') or '') in {'present', 'downloaded', 'linked', 'ok'}
+            for environment in item.get('environments') or []:
+                environment = str(environment)
+                bucket = counts.setdefault(environment, {
+                    'total': 0, 'ready': 0, 'missing': [],
+                    'shared_total': 0, 'shared_ready': 0,
+                })
+                if rid in declared.get(environment, set()):
+                    bucket['total'] += 1
+                    if good:
+                        bucket['ready'] += 1
+                    else:
+                        bucket['missing'].append(rid)
+                else:
+                    bucket['shared_total'] += 1
+                    if good:
+                        bucket['shared_ready'] += 1
+        return counts
+
     def snapshot():
         recover_queue()
         application = getattr(service, 'application', None)
@@ -368,6 +418,19 @@ def mount_environments(app, service):
                 if isinstance(item, dict):
                     augment(name, item, entries.get(name), owned.get(name) or item.get('used_by') or [])
             data = {**data, 'environments': environments_data}
+        counts = resource_counts()
+        for name, item in (data.get('environments') or {}).items():
+            if not isinstance(item, dict):
+                continue
+            bucket = counts.get(str(name)) or {
+                'total': 0, 'ready': 0, 'missing': [],
+                'shared_total': 0, 'shared_ready': 0,
+            }
+            item['resources_total'] = int(bucket['total'])
+            item['resources_ready'] = int(bucket['ready'])
+            item['resources_missing'] = list(bucket['missing'][:8])
+            item['shared_resources_total'] = int(bucket.get('shared_total', 0))
+            item['shared_resources_ready'] = int(bucket.get('shared_ready', 0))
         return {**data, 'operations': operations}
 
     def _synthetic_log(name: str) -> str:
@@ -497,10 +560,14 @@ def mount_environments(app, service):
         environments.describe(name, source_root())
         entry = described().get(name) or {}
         status = str(entry.get('status') or '')
-        if status != 'ready':
-            raise ValueError(
-                f'环境 {name} 还没有准备好（当前：{status or "missing"}）。'
-                '请先点击「准备」把环境装好，再安装这条依赖。')
+        if status not in {'ready', 'incomplete'}:
+            # There is one install action: installing a dependency on an environment
+            # that was never created first creates it and installs its declared
+            # dependencies, then keeps the requested requirement in the same job.
+            job = start(name)
+            job['dependency'] = requirement
+            job['kind'] = 'install'
+            return job
         key = uuid.uuid4().hex
         job = {'id': key, 'name': name, 'status': 'queued', 'error': None,
                'started_at': _now(), 'finished_at': None,

@@ -222,6 +222,23 @@ def mark_cancelled(name: str, root=None) -> bool:
     return True
 
 
+def _dependency_fields(result: dict, entry: dict, directory: Path) -> None:
+    """Attach declared-dependency counts even when the environment is not built yet.
+
+    A brand new install has no interpreter, so the card used to hide "0 of 19"
+    and the only visible state was "not installed" with no hint about what an
+    install would bring.  Reporting the counts here keeps every state honest.
+    """
+    try:
+        installed, total, rows = dependency_status(entry, directory)
+    except Exception:
+        return
+    result['dependencies'] = rows
+    result['dependency_total'] = total
+    result['dependency_installed'] = installed
+    result['missing_dependencies'] = [str(row.get('name')) for row in rows if not row.get('installed')][:8]
+
+
 def state(name: str, root=None, source=None) -> dict:
     """Report one environment without creating or probing anything."""
     entry = environments.describe(name, source)
@@ -248,15 +265,35 @@ def state(name: str, root=None, source=None) -> dict:
         # it is simply not available here, and the reason travels with the note.
         result['status'] = 'missing'
         result['error'] = error.get('message') or unsupported_reason(entry)
+        _dependency_fields(result, entry, directory)
     elif python is None:
         result['status'] = 'failed' if error.get('message') else 'missing'
         result['error'] = error.get('message') or ''
+        _dependency_fields(result, entry, directory)
     elif recorded.get('spec_sha256') != expected:
         result['status'] = 'stale'
         result['error'] = ''
     else:
-        result['status'] = 'ready'
-        result['error'] = ''
+        # Being installed is not the same as being usable: an environment whose
+        # declared dependencies are missing still reports a working interpreter,
+        # which used to surface as "ready" next to "0 of 19 installed" and then
+        # failed every operator at run time.
+        installed, total, rows = dependency_status(entry, directory)
+        result['dependencies'] = rows
+        result['dependency_total'] = total
+        result['dependency_installed'] = installed
+        missing = [str(row.get('name')) for row in rows if not row.get('installed')]
+        result['missing_dependencies'] = missing[:8]
+        if total and installed < total:
+            detail = ', '.join(missing[:5])
+            if len(missing) > 5:
+                detail += f' (+{len(missing) - 5} more)'
+            result['status'] = 'incomplete'
+            result['error'] = (f'{installed} of {total} declared dependencies are installed; '
+                               f'missing: {detail}')
+        else:
+            result['status'] = 'ready'
+            result['error'] = error.get('message') or ''
     result['used_by'] = []
     reap_stale(name, root)
     progress = read_progress(name, root)

@@ -40,7 +40,7 @@ export function CanvasPlanDialog({graph, intent, onClose, onEnvironment, onAdvan
       const next = await request<Preparation>(`${endpoint}/status?request_id=${encodeURIComponent(preparationId.current)}`, undefined, {signal});
       if (signal.aborted) return false;
       setPrepared(next);
-      if (['failed', 'cancelled'].includes(next.status)) setError(next.error || t('准备失败'));
+      if (['failed', 'cancelled'].includes(next.status)) setError(next.error || t('安装失败'));
       return next.status === 'preparing';
     }, e => setError((e as Error).message));
   }, [intent, retry]);

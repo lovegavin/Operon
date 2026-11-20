@@ -23,7 +23,7 @@ from packaging.requirements import Requirement
 from operon.bytecode import io_path
 
 
-def find_tool(name):
+def find_tool(name, environment=None):
     """Resolve an external tool from PATH or any managed environment bin directory."""
     packed = os.environ.get('OPERON_PACKED_TOOLS')
     if packed is not None:
@@ -38,6 +38,12 @@ def find_tool(name):
     managed = Path(sys.prefix).resolve().parent
     roots.extend(sorted(managed.glob('env-*/bin')))
     roots.extend(sorted(managed.glob('env-*/Scripts')))
+    if environment:
+        from operon import environments as _environments
+        for candidate_root in (_environments.root(), managed / 'environments'):
+            base = Path(candidate_root) / str(environment)
+            roots.extend([base, base / 'bin', base / 'Scripts'])
+            roots.extend(sorted(base.glob('envs/*/bin')))
     for root in roots:
         candidate = root / name
         if candidate.is_file():
@@ -95,6 +101,11 @@ def probe_environment(entry_id, environment, imports):
                     'error': f'isolated environment {environment!r} is still being installed; '
                              'wait for it to become ready before checking this operator',
                     'environment': str(python)}
+        if installation.get('status') == 'incomplete':
+            return {'status': 'failed',
+                    'error': f'isolated environment {environment!r} is incomplete: '
+                             f'{installation.get("error") or "declared dependencies are missing"}',
+                    'environment': str(python)}
     if python is None:
         return {'status': 'failed',
                 'error': f'isolated environment {environment!r} is not installed; '
@@ -124,9 +135,19 @@ def probe_environment(entry_id, environment, imports):
 def probe(entries):
     results = {}
     for entry in entries:
-        tools = (entry.get('resources') or {}).get('external_tools') or []
+        resources = entry.get('resources') or {}
+        tools = resources.get('external_tools') or []
         if tools:
-            missing = [name for name in tools if find_tool(name) is None]
+            environment = resources.get('environment')
+            missing = [name for name in tools if find_tool(name, environment) is None]
+            if environment:
+                from operon.environments import resolve as _resolve
+                if _resolve(environment) is None:
+                    results[entry['id']] = {
+                        'status': 'failed',
+                        'error': f'isolated environment {environment!r} is not installed; '
+                                 'prepare it before running this operator'}
+                    continue
             results[entry['id']] = {'status': 'failed' if missing else 'passed',
                                     'error': ', '.join(f'{name}: not on PATH' for name in missing)}
             continue

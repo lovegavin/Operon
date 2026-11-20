@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -211,6 +212,7 @@ import json
 import subprocess
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 
 import numpy as np
@@ -282,10 +284,49 @@ def _jsonable(value):
     return value
 
 
-def run_step(descriptor: dict, inputs, params: dict, python: Path, *, timeout: int = 3600, paths=()):
+def _artifacts_root() -> Path:
+    """Where files produced by an isolated step live after the bridge exits."""
+    configured = os.environ.get('OPERON_ARTIFACTS_DIR', '').strip()
+    if configured:
+        return Path(configured).expanduser()
+    return Path.cwd() / '.operon-artifacts'
+
+
+def _relocate_files(files, directory, outputs=None):
+    """Copy files written inside the throw-away bridge directory somewhere stable."""
+    if not files:
+        return files
+    try:
+        root = Path(directory).resolve()
+    except OSError:
+        return files
+    target = None
+    moved = {}
+    for role, value in files.items():
+        try:
+            path = Path(value).resolve()
+        except OSError:
+            moved[role] = value
+            continue
+        if not path.is_file() or root not in path.parents:
+            moved[role] = str(path)
+            continue
+        if target is None:
+            base = Path(outputs) if outputs else _artifacts_root()
+            target = base / uuid.uuid4().hex
+            target.mkdir(parents=True, exist_ok=True)
+        destination = target / str(role) / path.name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, destination)
+        moved[role] = str(destination)
+    return moved
+
+
+def run_step(descriptor: dict, inputs, params: dict, python: Path, *, timeout: int = 3600, paths=(), outputs=None):
     """Execute one step in ``python`` and return (form, export, console tail)."""
     with tempfile.TemporaryDirectory(prefix="envbridge-") as temporary:
-        return _run_step(Path(temporary), descriptor, inputs, params, python, timeout=timeout, paths=paths)
+        return _run_step(Path(temporary), descriptor, inputs, params, python, timeout=timeout, paths=paths,
+                         outputs=outputs)
 
 
 def worker_environment(python: Path, paths=()) -> dict[str, str]:
@@ -310,7 +351,7 @@ def worker_environment(python: Path, paths=()) -> dict[str, str]:
     return env
 
 
-def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=()):
+def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None):
     from src.core.errors import StepError
     request = {"entry_point": descriptor["entry_point"], "params": params, "inputs": []}
     for index, form in enumerate(inputs):
@@ -348,11 +389,10 @@ def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(
         return None, _revive(message.get("export", {})), "\n".join((completed.stderr or "").strip().splitlines()[-4:])
     if message.get("kind") == "file":
         from src.core.files import FileArtifact
-        form = FileArtifact(format=message["format"],
-                            files={str(key): str(value) for key, value in message["files"].items()},
-                            info=_revive(message.get("info", {})),
-                            fingerprints={str(key): dict(value)
-                                          for key, value in (message.get("fingerprints") or {}).items()})
+        placed = _relocate_files({str(key): str(value) for key, value in message["files"].items()},
+                                 directory, outputs)
+        form = FileArtifact(format=message["format"], files=placed,
+                            info=_revive(message.get("info", {})), fingerprints={})
     else:
         data = np.load(directory / "output.npy", allow_pickle=False)
         form = Form(data=data, dims=message["dims"], labels=message["labels"],

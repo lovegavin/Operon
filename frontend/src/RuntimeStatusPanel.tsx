@@ -24,6 +24,10 @@ export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
   resources?: string[];
   dependencies?: Array<{kind: string; name: string; installed?: boolean; version?: string}>;
   dependency_total?: number;
+  resources_total?: number;
+  resources_ready?: number;
+  resources_missing?: string[];
+  missing_dependencies?: string[];
   supported?: boolean;
   platform_note?: string;
   dependency_installed?: number;
@@ -62,12 +66,12 @@ export function statusTone(status: string): Tone {
 }
 
 const statusKeys: Record<Tone, string> = {
-  ready: '已安装',
-  missing: '未安装',
+  ready: '已就绪',
+  missing: '未就绪',
   queued: '准备安装',
-  stale: '需要更新',
-  installing: '安装中',
-  failed: '准备失败',
+  stale: '未就绪',
+  installing: '正在安装',
+  failed: '安装失败',
 };
 
 export type Readiness = 'ready' | 'not-ready' | 'missing' | 'failed' | 'queued' | 'installing';
@@ -75,7 +79,7 @@ export type Readiness = 'ready' | 'not-ready' | 'missing' | 'failed' | 'queued' 
 const readinessKeys: Record<Readiness, string> = {
   ready: '已就绪',
   'not-ready': '未就绪',
-  missing: '未创建',
+  missing: '未就绪',
   failed: '安装失败',
   queued: '准备安装',
   installing: '正在安装',
@@ -102,6 +106,9 @@ export function readinessOf(item: EnvironmentItem, gap?: {total: number; ready: 
   const installed = Number(item.dependency_installed || 0);
   if (total > 0 && installed < total) return 'not-ready';
   if (gap && gap.total > 0 && gap.ready < gap.total) return 'not-ready';
+  const resources = Number(item.resources_total || 0);
+  const present = Number(item.resources_ready || 0);
+  if (resources > 0 && present < resources) return 'not-ready';
   return 'ready';
 }
 
@@ -126,7 +133,7 @@ const phaseKeys: Record<string, string> = {
   probing: '校验导入',
   committing: '提交环境',
   ready: '已就绪',
-  failed: '准备失败',
+  failed: '安装失败',
 };
 
 export function phaseLabel(phase?: string) {
@@ -355,7 +362,7 @@ export function EnvironmentCard({item, busy = false, cancelling = false, gap, on
       </div>
     </dl>
     {tone === 'failed' && failureText(item) && <p className="runtime-error" title={failureText(item)}>
-      {t('准备失败')}：{failureText(item)}
+      {t('安装失败')}：{failureText(item)}
     </p>}
     <footer className="runtime-actions">
       {availableActions(item.status).map(action =>
@@ -591,11 +598,13 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   const remoteTargets = (pool?.remotes || []).filter(remote => remote.connected)
     .map(remote => ({id: remote.profile.id, name: remote.profile.name}));
 
-  async function run(label: string, work: () => Promise<EnvironmentSnapshot>) {
+  async function run(label: string, work: () => Promise<EnvironmentSnapshot>, done = '') {
     setBusy(label);
     setError('');
+    setNotice('');
     try {
       setSnapshot(await work() as unknown as EnvironmentView);
+      if (done) setNotice(done);
     } catch (failure) {
       setError((failure as Error).message);
     } finally {
@@ -614,7 +623,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
       } else {
         await api.environmentDependencyDownload(name, kind, requirement);
       }
-      setNotice(t('依赖安装已加入队列，正在后台执行，可点「查看日志」跟踪进度。'));
+      setNotice(t('已开始安装「{name}」的依赖 {requirement}；若环境尚未创建会先创建环境，可点「查看日志」跟踪进度。', {name, requirement}));
       setSnapshot(await api.environments() as unknown as EnvironmentView);
     } catch (failure) {
       setError((failure as Error).message);
@@ -643,16 +652,26 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     if (target) {
       if (action === 'cancel') {
         setCancelling(current => ({...current, [name]: true}));
-        void runRemote(`cancel:${name}`, () => api.remoteCancelEnvironment(target, name))
+        void runRemote(`cancel:${name}`, () => api.remoteCancelEnvironment(target, name),
+          t('已请求服务器取消「{name}」。', {name}))
           .finally(() => setCancelling(current => ({...current, [name]: false})));
         return;
       }
-      return void runRemote(`remote:${name}`, () => api.remotePrepareEnvironments(target, [name]));
+      return void runRemote(`remote:${name}`, () => api.remotePrepareEnvironments(target, [name]),
+        t('已向服务器提交安装「{name}」。', {name}));
     }
-    if (action === 'prepare') return void run(`prepare:${name}`, () => api.prepareEnvironments([name]));
+    if (action === 'prepare') {
+      return void run(`prepare:${name}`, () => api.prepareEnvironments([name]),
+        t('已开始安装「{name}」，可在卡片上查看进度或点「查看日志」。', {name}));
+    }
     if (action === 'repair') {
-      if (target) return void runRemote(`repair:${name}`, () => api.remoteEnvironmentRetry(target, name) as unknown as Promise<RemoteEnvironments>);
-      return void run(`repair:${name}`, () => api.retryEnvironment(name));
+      if (target) {
+        return void runRemote(`repair:${name}`,
+          () => api.remoteEnvironmentRetry(target, name) as unknown as Promise<RemoteEnvironments>,
+          t('已请求服务器重新安装「{name}」。', {name}));
+      }
+      return void run(`repair:${name}`, () => api.retryEnvironment(name),
+        t('已请求重新安装「{name}」。', {name}));
     }
     setCancelling(current => ({...current, [name]: true}));
     void (async () => {
@@ -669,6 +688,8 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
           setNotice(t('该环境已完成安装，取消无效。'));
         } else if (value && value.cancelled === false && value.reason) {
           setNotice(t(value.reason));
+        } else {
+          setNotice(t('已请求取消「{name}」。', {name}));
         }
         setSnapshot(await api.environments() as unknown as EnvironmentView);
       } catch (failure) {
@@ -681,13 +702,15 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     return;
   }
 
-  async function runRemote(label: string, work: () => Promise<RemoteEnvironments>) {
+  async function runRemote(label: string, work: () => Promise<RemoteEnvironments>, done = '') {
     setBusy(label);
     setError('');
     setRemoteError('');
+    setNotice('');
     try {
       const value = await work();
       setRemoteLoaded(current => ({...current, [target]: value}));
+      if (done) setNotice(done);
     } catch (failure) {
       setRemoteError((failure as Error).message);
     } finally {

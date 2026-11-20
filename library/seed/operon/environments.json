@@ -287,7 +287,8 @@
         "matplotlib>=3.9",
         "seaborn>=0.13",
         "h5py>=3.11",
-        "openpyxl>=3.1"
+        "openpyxl>=3.1",
+        "biopython>=1.84"
       ],
       "resources": [],
       "notes": "The shared application runtime. It ships with Operon Studio; operators routed to this environment rely on its scientific stack (numerical, tabular, statistical and plotting libraries) in addition to the web service dependencies."
@@ -490,7 +491,8 @@
         "pairtools==1.1.0",
         "cooler==0.9.3",
         "numpy==1.26.4",
-        "pandas==2.2.2"
+        "pandas==2.2.2",
+        "psutil>=5.9"
       ],
       "binaries": [
         "pairtools",
