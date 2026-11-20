@@ -1141,6 +1141,59 @@ def _site_packages(location: str):
     return None
 
 
+def _inherited_site_packages(location: str):
+    """Return the base interpreter's site-packages for a ``--system-site-packages`` venv.
+
+    A venv created with system site packages only stores the packages installed
+    into it; everything it inherits (``wheel``, ``setuptools``, ...) lives in the
+    base interpreter.  Reporting those as missing made a finished environment look
+    incomplete and kept it out of the ready set forever.
+    """
+    try:
+        text = (Path(location) / 'pyvenv.cfg').read_text(encoding='utf-8', errors='replace')
+    except OSError:
+        return None
+    inherited = False
+    home = ''
+    for line in text.splitlines():
+        key, _, value = line.partition('=')
+        key = key.strip().lower()
+        value = value.strip()
+        if key == 'include-system-site-packages':
+            inherited = value.lower() == 'true'
+        elif key == 'home':
+            home = value
+    if not inherited or not home:
+        return None
+    prefix = Path(home).parent
+    candidates = [prefix / 'Lib' / 'site-packages']
+    candidates.extend(sorted(prefix.glob('lib/python*/site-packages')))
+    for candidate in candidates:
+        if candidate.is_dir():
+            return candidate
+    return None
+
+
+def _scan_site_packages(site, versions: dict, imports: set) -> None:
+    if site is None:
+        return
+    try:
+        entries = list(site.iterdir())
+    except OSError:
+        return
+    for entry in entries:
+        name = entry.name
+        if name.endswith('.dist-info') or name.endswith('.egg-info'):
+            project, version = metadata_name(name)
+            if project:
+                versions.setdefault(_normalise_package(project), version)
+        imports.add(_normalise_package(name.split('.')[0].lower()))
+        if name.endswith('.py'):
+            imports.add(_normalise_package(name[:-3]))
+        elif name.endswith('.pyc'):
+            imports.add(_normalise_package(name[:-4]))
+
+
 def installed_index(location: str):
     if not location:
         return {}, set(), set()
@@ -1152,19 +1205,8 @@ def installed_index(location: str):
     packages: set[str] = set()
     imports: set[str] = set()
     base = Path(location)
-    site = _site_packages(location)
-    if site is not None:
-        for entry in site.iterdir():
-            name = entry.name
-            if name.endswith('.dist-info') or name.endswith('.egg-info'):
-                project, version = metadata_name(name)
-                if project:
-                    versions[_normalise_package(project)] = version
-            imports.add(_normalise_package(name.split('.')[0].lower()))
-            if name.endswith('.py'):
-                imports.add(_normalise_package(name[:-3]))
-            elif name.endswith('.pyc'):
-                imports.add(_normalise_package(name[:-4]))
+    _scan_site_packages(_site_packages(location), versions, imports)
+    _scan_site_packages(_inherited_site_packages(location), versions, imports)
     meta = base / 'conda-meta'
     if meta.is_dir():
         for entry in meta.glob('*.json'):
@@ -1177,15 +1219,37 @@ def installed_index(location: str):
 
 
 def dependency_rows(entry) -> list:
+    """Flatten one environment declaration into the rows the UI reports.
+
+    The same project can be declared twice (``wheel`` sits in both
+    ``requirements`` and ``pip_wheels`` because the bootstrap wheel is also a
+    runtime dependency).  Counting it twice inflated the total and repeated the
+    name in "missing:", so installable declarations are de-duplicated by project
+    name while ``imports`` and ``binaries`` stay separate checks.
+    """
     rows = []
     entry = entry if isinstance(entry, dict) else {}
+    declared: set[str] = set()
     for key, kind in (('requirements', 'requirements'), ('pip_wheels', 'wheel'),
-                      ('pip_pypi', 'pypi'), ('conda_packages', 'conda'),
-                      ('binaries', 'binary')):
+                      ('pip_pypi', 'pypi'), ('conda_packages', 'conda')):
         for value in entry.get(key) or []:
-            rows.append({'kind': kind, 'name': str(value)})
+            name = str(value)
+            marker = _requirement_name(name)
+            if marker and marker in declared:
+                continue
+            if marker:
+                declared.add(marker)
+            rows.append({'kind': kind, 'name': name})
+    seen_imports: set[str] = set()
     for value in entry.get('imports') or []:
-        rows.append({'kind': 'import', 'name': str(value)})
+        name = str(value)
+        marker = _normalise_package(name.split('.')[0].lower())
+        if marker in seen_imports:
+            continue
+        seen_imports.add(marker)
+        rows.append({'kind': 'import', 'name': name})
+    for value in entry.get('binaries') or []:
+        rows.append({'kind': 'binary', 'name': str(value)})
     return rows
 
 
