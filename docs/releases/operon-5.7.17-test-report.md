@@ -77,6 +77,56 @@ release documents, and records `source_commit=e55354d30cab2cdf2c6ab79806077c2a61
 All nine assets were re-verified on disk and match the SHA256 sums
 (`mismatch=0`), and the checksum files validate with `sha256sum -c`.
 
+## Coverage follow-up (fixture-driven round)
+
+A contract-aware fixture pass re-ran 172 operators that had never completed
+(they accounted for 170 recorded failures plus two duplicates on the server
+side). 63 of them completed for the first time, which lifts the measured total
+from 419 to **482 of 1,074 operators (44.9%)**.
+
+What changed in the fixtures, not in the product: protein operators now receive
+protein alphabets, single-sequence operators receive one record, MSA inputs are
+equal length, CDS inputs are valid and in frame, tabular inputs use the column
+names the contracts request, and numeric/enumerated/boolean parameters follow
+their schema. Those four classes alone accounted for roughly 57 of the previous
+failures.
+
+Remaining 109 failures in this round, by cause:
+
+| Group | Count |
+| --- | ---: |
+| Environment reported not ready (submit 409) | 26 |
+| Missing Python dependency in the target environment | 9 |
+| External tool missing or not executable | 9 |
+| Fixture: table shape | 3 |
+| Fixture: parameter values | 14 |
+| Fixture: sequence count, length or window | 5 |
+| Fixture: sequence content or thresholds | 2 |
+| Fixture: column names or labels | 14 |
+| Fixture: data content, samples or grouping | 18 |
+| Fixture: fixture file missing (sam, bam, cool) | 4 |
+| Fixture or contract (multi-input, representation conversion) | 2 |
+| Suspected product defect | 3 |
+
+Suspected product defects found by this round:
+
+1. A batch of operators submits with `environment_not_ready` while the same
+   environment reports ready in `/api/environments`; `crispr_array_detect`
+   completed in the same round, so the readiness fingerprint and the actual
+   environment disagree for at least 26 operators.
+2. Target environments lack base dependencies (`Bio`, `numpy`, `econml`,
+   `torch`) even though their operators import them.
+3. External tools are either absent or unusable from the declared environment:
+   `run_alphafold.py`, `jackhmmer`, `hhblits`, `antismash`, `tRNAscan-SE`
+   (missing Perl library), `QUAST`, `AMRFinderPlus`, `colabfold_batch`, and a
+   ProteinMPNN path check that rejects a data file with an unrelated message.
+4. `pairwise_alignment` rejects both three and two sequences per side with the
+   same assertion, so the contract cannot be satisfied.
+5. `variant_consequence` raises a bare `KeyError` (`'chr1'`) without wrapping
+   the message or normalising chromosome names.
+6. `prodigal_genes` executes the value of `prodigal_path` without checking that
+   it is executable, surfacing `[Errno 13] Permission denied` for a data file.
+
 ## Known limitations
 
 - Operators that need `torch`, `biotite` or a GPU runtime still have to be run
