@@ -45,6 +45,9 @@ BUILD_STALL_SECONDS = STALL_SECONDS
 # prints anything, and micromamba unpacks its payload before the first progress bar.
 # Only the silence *after* the command started talking is limited by ``stall``.
 STARTUP_SECONDS = 300.0
+# micromamba writes nothing to a pipe while it resolves and unpacks packages,
+# so conda steps get a longer silent start-up window than pip steps.
+CONDA_STARTUP_SECONDS = 1800.0
 _CONDA_MISSING = re.compile(r'[\u251c\u2514]\S*\s*([A-Za-z0-9_.+\-]+)\s*=?\s*\S*\s*\*?\s*does not exist')
 
 
@@ -460,6 +463,25 @@ def _flush_progress(progress: dict) -> None:
     except OSError:
         pass
 
+def _mamba_cache(root) -> Path | None:
+    """Return the micromamba package cache when it lives outside the environment root."""
+
+    override = os.environ.get('OPERON_MAMBA_CACHE') or os.environ.get('MAMBA_ROOT_PREFIX')
+    candidates = []
+    if override:
+        candidates.append(Path(override).expanduser() / 'pkgs')
+    try:
+        candidates.append(base(root).parent / 'mamba-cache' / 'pkgs')
+    except Exception:
+        pass
+    for candidate in candidates:
+        try:
+            if candidate.is_dir():
+                return candidate
+        except OSError:
+            continue
+    return None
+
 def _activity_signature(paths):
     signature = []
     for path in paths:
@@ -471,7 +493,7 @@ def _activity_signature(paths):
 
 
 def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
-         stall=BUILD_STALL_SECONDS, watch=None, deadline=None):
+         stall=BUILD_STALL_SECONDS, watch=None, deadline=None, startup=None):
     command = [str(part) for part in argv]
     if control is not None:
         control.check()
@@ -546,7 +568,8 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
             if first_output[0]:
                 limit, what = stall, f'produced no output for {stall:.0f}s'
             else:
-                limit, what = STARTUP_SECONDS, f'printed nothing in {STARTUP_SECONDS:.0f}s'
+                grace = STARTUP_SECONDS if startup is None else startup
+                limit, what = grace, f'printed nothing in {grace:.0f}s'
             if limit and waited > limit:
                 process.kill()
                 raise RuntimeError(
@@ -755,7 +778,14 @@ def _conda_channels(environment) -> list[str]:
 
 def _conda_flags(environment) -> list[str]:
     """Channel flags for one environment's conda packages."""
-    channels = _conda_channels(environment)
+
+    # Operators on restricted networks can point conda at a mirror without
+    # editing the library manifest: OPERON_CONDA_CHANNELS=https://mirror/conda-forge
+    override = os.environ.get('OPERON_CONDA_CHANNELS')
+    if override:
+        channels = [item.strip() for item in override.split(',') if item.strip()]
+    else:
+        channels = _conda_channels(environment)
     flags: list[str] = []
     for channel in channels:
         flags.extend(['-c', channel])
@@ -949,12 +979,12 @@ def _create(entry: dict, staging: Path, log, root=None, progress=None, control=N
     if entry.get('clone_shared'):
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '--clone', sys.prefix], log=log, env=env,
              timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
-             watch=[base(root), staging])
+             startup=CONDA_STARTUP_SECONDS, watch=[base(root), staging, _mamba_cache(root)])
     else:
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, *_conda_flags(entry),
               '--strict-channel-priority', 'python=' + str(entry.get('python', '3.11')), 'pip'],
              log=log, env=env, timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
-             watch=[base(root), staging])
+             startup=CONDA_STARTUP_SECONDS, watch=[base(root), staging, _mamba_cache(root)])
 
 
 def _install(entry: dict, staging: Path, log, root=None, progress=None, control=None):
@@ -974,7 +1004,7 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
         _run([mamba, '--no-rc', 'install', '-y', '-p', staging, *_conda_flags(entry),
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
              timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
-             watch=[base(root), staging])
+             startup=CONDA_STARTUP_SECONDS, watch=[base(root), staging, _mamba_cache(root)])
     if entry.get('torch_cpu'):
         _run([*install, *PIP_TRANSFER, 'torch',
               '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
@@ -1213,7 +1243,7 @@ def _install_dependency(name: str, kind: str, requirement: str, root=None, log=N
         _run([mamba, '--no-rc', 'install', '-y', '-p', str(final), *_conda_flags([requirement]),
               '--strict-channel-priority', requirement],
              log=note, env=_mamba_env(base(root)), timeout=3600, control=control, stall=BUILD_STALL_SECONDS,
-             watch=[base(root), final])
+             startup=CONDA_STARTUP_SECONDS, watch=[base(root), final, _mamba_cache(root)])
     else:
         python = _python(final)
         prefix = _pip_prefix(final)

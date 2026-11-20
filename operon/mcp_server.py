@@ -297,15 +297,19 @@ def create_server(client):
 
     @server.tool()
     def operon_browse(path: str | None = None, show_files: bool = True,
-                      profile_id: str | None = None) -> dict:
+                      profile_id: str | None = None, offset: int = 0,
+                      hidden: bool = False) -> dict:
         """List drives or one directory so the link picker can walk the file system.
 
         Read-only. Returns the resolved path, its parent, the drive roots and up to 500 entries.
-        Pass profile_id to browse the file system of that configured remote server.
+        Pass profile_id to browse the file system of that configured remote server; its
+        listing pages 200 entries at a time, so keep the returned next_offset as offset and
+        set hidden=True to include dotfiles.
         """
         payload = {'path': path, 'show_files': bool(show_files)}
         if profile_id:
-            return client.request('/remote/' + quote(profile_id, safe='') + '/browse', payload)
+            remote = dict(payload, offset=max(0, int(offset)), hidden=bool(hidden))
+            return client.request('/remote/' + quote(profile_id, safe='') + '/browse', remote)
         return client.request('/browse', payload)
 
     @server.tool()
@@ -461,9 +465,13 @@ def create_server(client):
                               {'path': path, 'content': content_base64, 'overwrite': overwrite})
 
     @server.tool()
-    def operon_remote_status() -> dict:
-        """List SSH execution profiles with their connected state."""
-        return client.request('/remote/summary')
+    def operon_remote_status(brief: bool = True) -> dict:
+        """List SSH execution profiles with their connected state.
+
+        brief=True returns the compact summary the desktop list uses; brief=False returns the
+        full per-profile status, including the routes and libraries each server advertises.
+        """
+        return client.request('/remote/summary' if brief else '/remote')
 
     @server.tool()
     def operon_remote_ensure(profile_id: str) -> dict:
@@ -471,14 +479,20 @@ def create_server(client):
         return client.request('/remote/' + quote(profile_id, safe='') + '/ensure', {})
 
     @server.tool()
-    def operon_remote_install(profile_id: str, force: bool = False) -> dict:
+    def operon_remote_install(profile_id: str, force: bool = False,
+                              password: str | None = None,
+                              passphrase: str | None = None) -> dict:
         """Start installing or upgrading the Operon server on a configured SSH profile.
 
         force=True lets the remote retire busy tasks and previous installations.
+        password/passphrase are forwarded for this install only and never stored, matching
+        the desktop install form; omit them when the profile uses a key or an ssh agent.
         Poll operon_remote_install_status for progress.
         """
+        secret = {name: value for name, value in
+                  (('password', password), ('passphrase', passphrase)) if value}
         return client.request('/remote/' + quote(profile_id, safe='') + '/install',
-                              {'force': force})
+                              dict(secret, force=force))
 
     @server.tool()
     def operon_remote_install_status(profile_id: str) -> dict:
@@ -1095,7 +1109,12 @@ def create_server(client):
 
     @server.tool()
     def operon_remote_source(profile_id: str) -> dict:
-        """Read source availability for one remote profile."""
+        """Read source availability for one remote profile.
+
+        Known limitation: the desktop route POSTs {'path': ..., 'reader': ...} to import one
+        source file, but the /v1 route this tool reaches ignores the body, so the tool can
+        only report availability. See docs/design/mcp_http_parity.md.
+        """
         return client.request('/v1/remotes/' + quote(profile_id, safe='') + '/source', {})
 
     @server.tool()
