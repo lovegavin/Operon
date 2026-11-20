@@ -386,6 +386,12 @@
           "url": "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
           "archive": "gz",
           "unit": "afdb"
+        },
+        {
+          "path": "pdb_mmcif/mmcif_files",
+          "rsync": "rsync://rsync.ebi.ac.uk/pdb/data/structures/divided/mmCIF/",
+          "note": "PDB mmCIF archive; upstream publishes only an rsync module.",
+          "unit": "afdb"
         }
       ],
       "notes": "Database names follow the AlphaFold 2.3.x flag defaults so the official run_alphafold.py finds them: mgnify/mgy_clusters_2022_05.fa, pdb_seqres/pdb_seqres_2022_09_28.fasta, pdb70/pdb70_from_mmcif_200916.tar.gz, uniref90/uniref90.fasta, bfd/bfd_metaclust...sorted_opt.tar.gz, uniprot/uniprot_sprot.fasta. The uniref30 archive is the 2023-02 release (uniref30_2302.db) rather than the 2021-03 snapshot the upstream script names; point --uniref30_database_path at it as usual. pdb_mmcif has no HTTP archive upstream (RCSB publishes it over rsync only), so it can only be linked or downloaded with rsync from rsync.ebi.ac.uk or ftp.pdbj.org."

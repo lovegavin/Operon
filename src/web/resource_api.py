@@ -15,6 +15,8 @@ import hashlib
 import importlib
 import os
 import pathlib
+import shutil
+import subprocess
 import sys
 import threading
 import time
@@ -333,9 +335,11 @@ def snapshot(service) -> dict:
                     missing = [name for name in missing if name not in declared]
             unit['downloadable'] = covered
             unit['undownloadable'] = missing
-            unit['download_supported'] = bool(covered) or any(
+            unit['rsync'] = getattr(resource, 'rsync', None)
+            unit['download_supported'] = bool(covered) or bool(unit.get('rsync')) or any(
                 str(entry.get('unit') or '') == str(unit.get('name') or '')
                 for entry in getattr(resource, 'downloads', ()) or ())
+        item['rsync'] = getattr(resource, 'rsync', None)
         item['size_bytes'] = _size_bytes(item.get('root'), names)
         items.append(item)
     return {
@@ -547,6 +551,9 @@ def unit_downloads(name: str, resource, unit: str | None) -> tuple[list[dict], s
     if not unit:
         downloads = list(resource.downloads or ())
         if not downloads:
+            spec = getattr(resource, 'rsync', None)
+            if isinstance(spec, dict) and str(spec.get('url') or '').strip():
+                return [{'path': '', 'rsync': dict(spec)}], None
             raise ValueError(f"resource '{name}' has no downloadable files")
         return downloads, None
     selected = None
@@ -563,6 +570,10 @@ def unit_downloads(name: str, resource, unit: str | None) -> tuple[list[dict], s
     downloads = list(resource.downloads or ())
     if downloads:
         return downloads, allowed
+    spec = getattr(resource, 'rsync', None)
+    if isinstance(spec, dict) and str(spec.get('url') or '').strip():
+        entry = {'path': str(selected.get('name') or ''), 'rsync': dict(spec)}
+        return [entry], allowed
     page = str(selected.get('url') or '').strip()
     if page:
         tail = page.rsplit('/', 1)[-1].lower()
@@ -628,8 +639,14 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
                 if event.is_set():
                     raise RuntimeError('cancelled')
                 job['current'] = str(entry.get('path') or '')
-                emit(f'GET {entry.get("url")} -> {entry.get("path")}')
-                result = _download(entry, target, overwrite=overwrite, event=event, job=job, opener=fetch._open_url)
+                spec = entry.get('rsync')
+                if isinstance(spec, dict):
+                    emit(f'RSYNC {spec.get("url")} -> {target}')
+                    result = _rsync_fetch(spec, target, event=event, job=job, emit=emit)
+                else:
+                    emit(f'GET {entry.get("url")} -> {entry.get("path")}')
+                    result = _download(entry, target, overwrite=overwrite, event=event, job=job,
+                                       opener=fetch._open_url)
                 job['files'] += 1
                 job['completed_bytes'] = int(job.get('completed_bytes') or 0) + int(result.get('bytes') or 0)
                 job['bytes'] = int(job.get('completed_bytes') or 0)
@@ -657,6 +674,47 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
     threading.Thread(target=watch, name=f'resource-watch-{name}', daemon=True).start()
     threading.Thread(target=run, name=f'resource-{name}', daemon=True).start()
     return dict(job)
+
+
+def _rsync_fetch(spec: dict, target: Path, *, event: threading.Event,
+                 job: dict, emit) -> dict:
+    """Fetch a resource directory through the rsync protocol.
+
+    Some archives (the PDB mmCIF mirror, for instance) only publish their data
+    through rsync, so there is no HTTP archive to stream.  This runs the system
+    rsync client and reports its progress in the resource log.
+    """
+    url = str(spec.get('url') or '').strip()
+    if not url:
+        raise RuntimeError('rsync 源为空：清单里没有给出 rsync 地址')
+    binary = os.environ.get('OPERON_RSYNC') or shutil.which('rsync')
+    if not binary:
+        raise RuntimeError(
+            'rsync 不可用：这台机器没有找到 rsync 可执行文件。可以链接已有目录，'
+            '或安装 rsync（Windows 上可用 cwRsync）后重试。')
+    target.mkdir(parents=True, exist_ok=True)
+    command = [binary, '--archive', '--partial', '--info=progress2', url, str(target)]
+    emit('RSYNC ' + ' '.join(command))
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                               text=True, bufsize=1)
+    try:
+        for line in process.stdout:  # type: ignore[union-attr]
+            if event.is_set():
+                process.terminate()
+                raise RuntimeError('cancelled')
+            clean = line.strip()
+            if clean:
+                emit(clean)
+                job['current'] = clean[:120]
+        code = process.wait()
+    finally:
+        if process.poll() is None:
+            process.kill()
+    if event.is_set():
+        raise RuntimeError('cancelled')
+    if code != 0:
+        raise RuntimeError(f'rsync 失败（退出码 {code}）：{url}')
+    return {'status': 'fetched', 'bytes': 0}
 
 
 def cancel(service, name: str) -> dict:

@@ -104,7 +104,7 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
         : null}
       {!linked && (component.undownloadable?.length || 0) > 0
         ? <p className="runtime-note">{t('{n} 个文件没有 HTTP 下载源，只能链接已有目录。',
-            { n: component.undownloadable?.length || 0 })}</p>
+            { n: (component.undownloadable || []).length })}</p>
         : null}
       <footer className="runtime-actions">
         {linked ? (
@@ -113,16 +113,20 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
         ) : (
           <>
             <button type="button" className="subtle-button"
-              disabled={busy || !(component.downloadable?.length)}
-              title={component.downloadable?.length
-                ? t('只下载尚缺且尚未链接的文件')
-                : t('该单元没有可用的下载源，请链接已有目录')}
+              disabled={busy || (component.download_supported === false && !component.rsync)}
+              title={component.download_supported === false
+                ? component.rsync
+                  ? t('该单元只提供 rsync 源，点按后用 rsync 拉取到资源根目录')
+                  : t('该单元没有可用的下载源，请链接已有目录')
+                : t('只下载尚缺且尚未链接的文件')}
               onClick={() => onDownload(resource, component)}>
-              {component.downloadable?.length
-                ? t('下载可用文件（{have}/{total}）', {
-                    have: component.downloadable.length,
-                    total: (component.files || []).length || component.downloadable.length})
-                : t('无下载源')}
+              {component.download_supported === false
+                ? component.rsync
+                  ? t('rsync 拉取')
+                  : t('无下载源')
+                : t('下载可用文件（{have}/{total}）', {
+                    have: (component.downloadable || []).length,
+                    total: (component.files || []).length || (component.downloadable || []).length})}
             </button>
             <button type="button" className="subtle-button is-primary" disabled={busy}
               onClick={() => onLink(resource, component)}>{t('链接')}</button>

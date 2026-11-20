@@ -43,6 +43,7 @@ class Resource:
     roots: tuple[str, ...]
     files: tuple[str, ...]
     downloads: tuple[dict[str, Any], ...] = ()
+    rsync: dict[str, Any] | None = None
     link_roots: tuple[str, ...] = ()
     expected_files: tuple[str, ...] = ()
     link_unit: str = "tree"
@@ -82,6 +83,13 @@ class Resource:
                 }
             )
         downloads: list[dict[str, Any]] = []
+        raw_rsync = entry.get('rsync') or entry.get('rsync_source')
+        rsync: dict[str, Any] | None = None
+        if isinstance(raw_rsync, dict) and raw_rsync.get('url'):
+            rsync = {str(key): value for key, value in raw_rsync.items()}
+        elif isinstance(raw_rsync, str) and raw_rsync.strip():
+            rsync = {'url': raw_rsync.strip()}
+
         raw_downloads = entry.get("downloads") or []
         items: list[dict[str, Any]] = []
         if isinstance(raw_downloads, dict):
@@ -121,7 +129,18 @@ class Resource:
                         f"resource '{identifier}' download URL must use https://: {mirror!r}"
                     )
             url = mirrors[0] if len(mirrors) == 1 else mirrors
-            if not mirrors:
+            rsync = item.get("rsync") or item.get("rsync_source") or ""
+            if isinstance(rsync, dict):
+                rsync_url = str(rsync.get("url") or "").strip()
+                rsync_spec = {"url": rsync_url, "note": str(rsync.get("note") or "")}
+            else:
+                rsync_url = str(rsync or "").strip()
+                rsync_spec = {"url": rsync_url, "note": str(item.get("rsync_note") or "")}
+            if rsync_url and not rsync_url.startswith("rsync://"):
+                raise StepError(
+                    f"resource '{identifier}' rsync URL must use rsync://: {rsync_url!r}"
+                )
+            if not mirrors and not rsync_url:
                 raise StepError(f"resource '{identifier}' download entry without a url")
             relative = str(item.get("path") or "").strip()
             candidate = Path(relative)
@@ -140,6 +159,7 @@ class Resource:
                     "archive": str(item.get("archive") or "").strip().lower(),
                     "member": str(item.get("member") or ""),
                     "unit": str(item.get("unit") or ""),
+                    "rsync": rsync_spec if rsync_url else None,
                 }
             )
         raw_link_roots = entry.get("link_roots") or []
@@ -175,6 +195,7 @@ class Resource:
             roots=roots,
             files=files,
             downloads=tuple(downloads),
+            rsync=rsync,
             link_roots=resource_link_roots,
             expected_files=expected,
             link_unit=unit,

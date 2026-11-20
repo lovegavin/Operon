@@ -125,7 +125,70 @@ def _environment_plan(service):
     return root, source, environment_install.plan(root, descriptors, source=str(source))
 
 
+_RESOURCE_CACHE: dict[str, object] = {'at': 0.0, 'items': {}}
+_RESOURCE_TTL = 15.0
+
+
+def _resource_catalogue(service) -> dict:
+    """Return the resource catalogue keyed by id, cached briefly."""
+    import time
+    now = time.monotonic()
+    cached = _RESOURCE_CACHE.get('items') or {}
+    if cached and now - float(_RESOURCE_CACHE.get('at') or 0.0) < _RESOURCE_TTL:
+        return cached  # type: ignore[return-value]
+    try:
+        from src.web import resource_api
+        payload = resource_api.snapshot(service)
+    except Exception:
+        return cached  # type: ignore[return-value]
+    items = {str(item.get('id') or ''): item for item in payload.get('resources') or []
+             if isinstance(item, dict)}
+    _RESOURCE_CACHE['items'] = items
+    _RESOURCE_CACHE['at'] = now
+    return items
+
+
+def resource_readiness(names: list[str]) -> tuple[int, int, list[str]]:
+    """Return (ready units, total units, missing resource names) for one environment."""
+    service = _SNAPSHOT_SERVICE.get('service')
+    if service is None or not names:
+        return 0, 0, []
+    catalogue = _resource_catalogue(service)
+    ready = 0
+    total = 0
+    missing: list[str] = []
+    for name in names:
+        item = catalogue.get(name)
+        if not isinstance(item, dict):
+            continue
+        units = [unit for unit in item.get('units') or [] if isinstance(unit, dict)]
+        if not units:
+            total += 1
+            if str(item.get('state') or '') in {'downloaded', 'linked'}:
+                ready += 1
+            else:
+                missing.append(str(item.get('official_root') or name))
+            continue
+        for unit in units:
+            total += 1
+            files = [entry for entry in unit.get('files') or [] if isinstance(entry, dict)]
+            if files:
+                if all(entry.get('present') for entry in files):
+                    ready += 1
+                else:
+                    missing.append(str(unit.get('name') or name))
+            elif str(unit.get('state') or '') in {'downloaded', 'linked'}:
+                ready += 1
+            else:
+                missing.append(str(unit.get('name') or name))
+    return ready, total, missing
+
+
+_SNAPSHOT_SERVICE: dict[str, object] = {}
+
+
 def environment_snapshot(service) -> dict:
+    _SNAPSHOT_SERVICE['service'] = service
     try:
         root, source, plan = _environment_plan(service)
     except Exception as exc:
@@ -151,6 +214,19 @@ def environment_snapshot(service) -> dict:
         item['dependency_installed'] = installed
         item['dependency_total'] = total
         item['dependencies'] = rows
+        entry_map = entry if isinstance(entry, dict) else {}
+        declared = [str(value) for value in (entry_map.get('resources') or []) if value]
+        ready_units, all_units, missing_names = resource_readiness(declared)
+        item['resources_total'] = all_units
+        item['resources_ready'] = ready_units
+        item['resources_missing'] = missing_names
+        if all_units and ready_units < all_units and str(item.get('status') or '') == 'ready':
+            item['status'] = 'incomplete'
+            reason = f'资源未齐备（{ready_units}/{all_units}）'
+            if missing_names:
+                reason = f'{reason}：' + '、'.join(missing_names[:3])
+            if not item.get('error'):
+                item['error'] = reason
     with _ENVIRONMENT_LOCK:
         running = {name: dict(value) for name, value in _ENVIRONMENT_JOBS.items()}
     return {'root': str(root), 'source': str(source), 'environments': plan, 'running': running}

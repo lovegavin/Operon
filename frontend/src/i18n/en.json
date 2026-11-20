@@ -1100,5 +1100,7 @@
   "已请求取消「{name}」。": "Cancellation of \"{name}\" requested.",
   "已请求服务器取消「{name}」。": "Cancellation of \"{name}\" requested on the server.",
   "已向服务器提交安装「{name}」。": "Installation of \"{name}\" submitted to the server.",
-  "已开始安装「{name}」的依赖 {requirement}；若环境尚未创建会先创建环境，可点「查看日志」跟踪进度。": "Installing {requirement} for \"{name}\"; the environment is created first when missing. Open the log for progress."
+  "已开始安装「{name}」的依赖 {requirement}；若环境尚未创建会先创建环境，可点「查看日志」跟踪进度。": "Installing {requirement} for \"{name}\"; the environment is created first when missing. Open the log for progress.",
+  "rsync 拉取": "Fetch with rsync",
+  "该单元只提供 rsync 源，点按后用 rsync 拉取到资源根目录": "This unit is published through rsync only; press to fetch it into the resource root."
 }
