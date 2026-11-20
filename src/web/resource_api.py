@@ -651,6 +651,9 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
     target.parent.mkdir(parents=True, exist_ok=True)
     partial = target.with_name(target.name + ".part")
     archive = str(entry.get("archive") or "").lower()
+    whole_archive = archive in {"tar", "tar.gz", "tgz", "zip"} and not str(entry.get("member") or "")
+    if whole_archive and target.is_dir() and any(target.iterdir()) and not overwrite:
+        return {"path": relative, "status": "existing", "bytes": 0}
     failures: list[str] = []
     for url in candidates:
         hasher = hashlib.sha256()
@@ -753,13 +756,61 @@ def _extract_zip(bundle: Path, target: Path, member: str, event, job: dict) -> i
     return written
 
 
+def _extract_tree(bundle: Path, target: Path, event, job: dict) -> int:
+    """Extract every regular file of a tar archive below ``target``."""
+
+    import tarfile
+
+    written = 0
+    target.mkdir(parents=True, exist_ok=True)
+    root = target.resolve()
+    with tarfile.open(bundle, "r:*") as archive:
+        for info in archive.getmembers():
+            if not info.isfile():
+                continue
+            name = info.name
+            while name.startswith("./"):
+                name = name[2:]
+            if not name or name.startswith("/") or ".." in pathlib.PurePosixPath(name).parts:
+                raise ValueError(f"archive member escapes the target: {info.name!r}")
+            destination = (root / name).resolve()
+            if root not in destination.parents and destination != root:
+                raise ValueError(f"archive member escapes the target: {info.name!r}")
+            source = archive.extractfile(info)
+            if source is None:
+                continue
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            partial = destination.with_name(destination.name + ".extract")
+            with source, partial.open("wb") as handle:
+                while True:
+                    if event.is_set():
+                        handle.close()
+                        partial.unlink(missing_ok=True)
+                        raise _Cancelled("cancelled")
+                    chunk = source.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    handle.write(chunk)
+                    written += len(chunk)
+            os.replace(partial, destination)
+            job["files"] = int(job.get("files") or 0) + 1
+            job["bytes"] = int(job.get("completed_bytes") or 0) + written
+    return written
+
+
 def _extract_member(bundle: Path, target: Path, member: str, event, job: dict) -> int:
-    """Extract a single member of a tar archive to the target path."""
+    """Extract one member, or the whole archive, of a tar file.
+
+    AlphaFold publishes its reference databases as archives that stand for a
+    directory tree (``bfd/*.ffdata`` and friends).  Those entries declare the
+    directory as their path and leave ``member`` empty, so an empty member now
+    means "unpack everything below the target directory".
+    """
 
     import tarfile
 
     if not member:
-        raise ValueError("an archive download needs a member path")
+        return _extract_tree(bundle, target, event, job)
     extracted = target.with_name(target.name + ".extract")
     with tarfile.open(bundle, "r:*") as archive:
         info = archive.getmember(member)

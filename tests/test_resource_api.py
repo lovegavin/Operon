@@ -360,3 +360,41 @@ def test_git_fetch_refreshes_a_read_only_file(tmp_path: Path) -> None:
     assert result["status"] == "cloned"
     assert stale.read_bytes() == b"new"
     assert os.access(stale, os.W_OK)
+
+
+def _make_tarball(path: Path, files: dict[str, bytes]) -> Path:
+    import io
+    import tarfile
+
+    with tarfile.open(path, "w:gz") as archive:
+        for name, payload in files.items():
+            info = tarfile.TarInfo(name)
+            info.size = len(payload)
+            archive.addfile(info, io.BytesIO(payload))
+    return path
+
+
+def test_extract_member_unpacks_a_whole_archive_below_the_target(tmp_path: Path) -> None:
+    bundle = _make_tarball(tmp_path / "bfd.tar.gz", {
+        "bfd/bfd_a3m.ffdata": b"a3m",
+        "bfd/bfd_a3m.ffindex": b"index",
+        "pdb70/pdb70_clu.tsv": b"cluster",
+    })
+    target = tmp_path / "tree"
+    job: dict = {}
+
+    written = resource_api._extract_member(bundle, target, "", threading.Event(), job)
+
+    assert written == 3 + 5 + 7
+    assert (target / "bfd" / "bfd_a3m.ffdata").read_bytes() == b"a3m"
+    assert (target / "bfd" / "bfd_a3m.ffindex").read_bytes() == b"index"
+    assert (target / "pdb70" / "pdb70_clu.tsv").read_bytes() == b"cluster"
+    assert job["files"] == 3
+
+
+def test_extract_member_rejects_a_member_that_escapes_the_target(tmp_path: Path) -> None:
+    bundle = _make_tarball(tmp_path / "evil.tar.gz", {"../escape.txt": b"nope"})
+
+    with pytest.raises(ValueError, match="escapes the target"):
+        resource_api._extract_member(bundle, tmp_path / "tree", "", threading.Event(), {})
+    assert not (tmp_path / "escape.txt").exists()
