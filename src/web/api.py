@@ -411,8 +411,24 @@ def create_app(settings=None):
         return application.jobs.launch(graph)
 
     @app.get("/api/jobs/{key}")
-    def details(key: str):
-        return application.jobs.details(key)
+    def details(key: str, request: Request):
+        try:
+            return application.jobs.details(key)
+        except Exception:
+            pass
+        # Environment installs (prepare / dependency) have their own queue and
+        # job ids; mount_environments publishes that dict on the app state so the
+        # desktop can poll this route for both kinds of work.
+        jobs = getattr(request.app.state, 'environment_jobs', None) or {}
+        job = jobs.get(key)
+        if job is not None:
+            keep = ('id', 'name', 'kind', 'status', 'error', 'message',
+                    'progress', 'started_at', 'finished_at', 'created_at')
+            return {field: job.get(field) for field in keep if field in job}
+        raise HTTPException(status_code=404, detail={
+            "code": "unknown_job",
+            "message": f"unknown job or resource operation: {key}",
+        })
 
     @app.post("/api/jobs/{key}/cancel")
     def cancel(key: str):

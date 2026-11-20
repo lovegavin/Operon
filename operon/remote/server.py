@@ -171,6 +171,13 @@ def resource_readiness(names: list[str]) -> tuple[int, int, list[str]]:
             continue
         for unit in units:
             total += 1
+            gaps = unit.get('files_missing')
+            if isinstance(gaps, list) and unit.get('files'):
+                if gaps:
+                    missing.append(str(unit.get('name') or name))
+                else:
+                    ready += 1
+                continue
             files = [entry for entry in unit.get('files') or [] if isinstance(entry, dict)]
             if files:
                 if all(entry.get('present') for entry in files):

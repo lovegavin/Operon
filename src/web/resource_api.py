@@ -334,6 +334,27 @@ def snapshot(service) -> dict:
                 if covered:
                     missing = [name for name in missing if name not in declared]
             unit['downloadable'] = covered
+            base = None
+            if unit.get('state') == 'linked' and item.get('link_target'):
+                base = Path(str(item['link_target']).replace('\\?\\', ''))
+            elif item.get('root'):
+                base = Path(str(item['root']).replace('\\?\\', ''))
+            missing_files: list[str] = []
+            present_files: list[str] = []
+            if base is not None:
+                for entry in unit.get('files') or []:
+                    relative = entry if isinstance(entry, str) else str(
+                        entry.get('path') or entry.get('name') or '')
+                    if not relative:
+                        continue
+                    if (base / relative).exists():
+                        present_files.append(relative)
+                    else:
+                        missing_files.append(relative)
+            unit['files_present'] = present_files
+            unit['files_missing'] = missing_files
+            if missing_files and unit.get('state') in {'linked', 'downloaded', 'present', 'ready'}:
+                unit['state'] = 'partial'
             unit['undownloadable'] = missing
             unit['rsync'] = getattr(resource, 'rsync', None)
             unit['download_supported'] = bool(covered) or bool(unit.get('rsync')) or any(

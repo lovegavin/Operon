@@ -1100,6 +1100,29 @@ def _requirement_name(value: str) -> str:
     return _normalise_package(head)
 
 
+def metadata_name(filename: str) -> tuple[str, str]:
+    """Split a ``.dist-info``/``.egg-info`` directory name into project and version.
+
+    pip replaces runs of ``-``, ``.`` and ``_`` in the project name with ``_``
+    before it names the ``.dist-info`` directory, so there the first hyphen
+    separates project from version (``torch_geometric-2.4.0.dist-info``).
+    Legacy ``.egg-info`` directories keep their hyphens, so the version starts
+    at the first segment that begins with a digit.
+    """
+    for suffix in ('.dist-info', '.egg-info'):
+        if not filename.endswith(suffix):
+            continue
+        stem = filename[:-len(suffix)]
+        if suffix == '.dist-info':
+            project, _, version = stem.partition('-')
+            return project, version
+        project, _, version = stem.rpartition('-')
+        while project and not version[:1].isdigit():
+            project, _, version = project.rpartition('-')
+        return (project, version) if project else (stem, '')
+    return '', ''
+
+
 def _site_packages(location: str):
     base = Path(location)
     candidates = [base / 'Lib' / 'site-packages']
@@ -1126,10 +1149,9 @@ def installed_index(location: str):
         for entry in site.iterdir():
             name = entry.name
             if name.endswith('.dist-info') or name.endswith('.egg-info'):
-                stem = name.rsplit('.', 2)[0]
-                parts = stem.replace('-', '_').split('_')
-                if parts:
-                    versions[_normalise_package(parts[0])] = parts[1] if len(parts) > 1 else ''
+                project, version = metadata_name(name)
+                if project:
+                    versions[_normalise_package(project)] = version
             imports.add(_normalise_package(name.split('.')[0].lower()))
             if name.endswith('.py'):
                 imports.add(_normalise_package(name[:-3]))
@@ -1190,6 +1212,16 @@ def dependency_status(entry, location: str):
     return installed, len(rows), flags
 
 
+# The panel labels dependency rows with display kinds; the manifest buckets that
+# actually carry installable requirements have their own names.  /api/v1 accepts
+# both shapes, so resolve the display kinds before validating.
+_KIND_ALIASES = {
+    'wheel': 'pip_wheels',
+    'pypi': 'pip_pypi',
+    'conda': 'conda_packages',
+}
+
+
 def install_dependency(name: str, kind: str, requirement: str, root=None, log=None,
                        control=None, source=None) -> dict:
     """Install a single declared dependency, waiting for the installation slot."""
@@ -1217,6 +1249,7 @@ def _install_dependency(name: str, kind: str, requirement: str, root=None, log=N
         'no_deps': entry.get('no_deps') or [],
         'no_build_isolation': entry.get('no_build_isolation') or [],
     }
+    kind = _KIND_ALIASES.get(kind, kind)
     if kind not in declared:
         raise ValueError(f"dependency kind {kind!r} cannot be installed one by one")
     if requirement not in [str(item) for item in declared[kind]]:

@@ -72,6 +72,9 @@ def mount_environments(app, service):
 
     app.state.environment_tasks = set()
     jobs = {}
+    # /api/jobs/{id} lives in src/web/api.py and must resolve the ids this queue
+    # hands to the panel, so publish the dict instead of keeping it closure-local.
+    app.state.environment_jobs = jobs
     current = {}
     cancelled = set()
     controls = {}
@@ -246,10 +249,9 @@ def mount_environments(app, service):
             for entry in site.iterdir():
                 name = entry.name
                 if name.endswith('.dist-info') or name.endswith('.egg-info'):
-                    stem = name.rsplit('.', 2)[0]
-                    parts = stem.replace('-', '_').split('_')
-                    if parts:
-                        versions[_normalise(parts[0])] = parts[1] if len(parts) > 1 else ''
+                    project, version = environment_install.metadata_name(name)
+                    if project:
+                        versions[_normalise(project)] = version
                 imports.add(_normalise(name.split('.')[0].lower()))
                 if name.endswith('.py'):
                     imports.add(_normalise(name[:-3]))
@@ -390,7 +392,10 @@ def mount_environments(app, service):
             rid = str(item.get('id') or '')
             if not rid:
                 continue
-            good = str(item.get('state') or '') in {'present', 'downloaded', 'linked', 'ok'}
+            units = [unit for unit in item.get('units') or [] if isinstance(unit, dict)]
+            gaps = [unit for unit in units if unit.get('files_missing')]
+            good = (str(item.get('state') or '') in {'present', 'downloaded', 'linked', 'ok'}
+                    and not gaps)
             for environment in item.get('environments') or []:
                 environment = str(environment)
                 bucket = counts.setdefault(environment, {
@@ -596,6 +601,19 @@ def mount_environments(app, service):
             job['dependency'] = requirement
             job['kind'] = 'install'
             return job
+        requirement = str(requirement or '')
+        kind = str(kind or '')
+        if not requirement:
+            raise ValueError('missing dependency name')
+        if not kind:
+            wanted = requirement.split('==')[0].split('>=')[0].split('=')[0].strip()
+            for row in entry.get('dependencies') or []:
+                name_value = str(row.get('name') or '')
+                bare = name_value.split('==')[0].split('>=')[0].split('=')[0].strip()
+                if bare and wanted and bare == wanted:
+                    kind = str(row.get('kind') or '')
+                    break
+            kind = kind or 'requirements'
         key = uuid.uuid4().hex
         job = {'id': key, 'name': name, 'status': 'queued', 'error': None,
                'started_at': _now(), 'finished_at': None,

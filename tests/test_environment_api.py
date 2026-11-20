@@ -38,6 +38,14 @@ def test_environment_retry_rejects_unknown_name(tmp_path):
         assert response.status_code == 404
 
 
+def test_unknown_job_id_reports_unknown_job(tmp_path):
+    with TestClient(studio(tmp_path)) as client:
+        client.headers['X-Studio-Token'] = client.get('/api/bootstrap').json()['token']
+        response = client.get('/api/jobs/not-a-real-job')
+        assert response.status_code == 404
+        assert response.json()['detail']['code'] == 'unknown_job'
+
+
 def test_pool_status_endpoint_reports_local_state(tmp_path):
     with TestClient(studio(tmp_path)) as client:
         client.headers['X-Studio-Token'] = client.get('/api/bootstrap').json()['token']
