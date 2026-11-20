@@ -83,6 +83,39 @@ panel picks one action per state instead of disabling everything.
   the retired `未检查` / `Not checked` and `无缺失文件` / `No missing files` were
   removed.
 
+## Added
+
+- **Resource sources beyond HTTP.** A declared download may now be `https`,
+  `http`, `ftp`, `rsync` or `git`. A git source is fetched with
+  `git clone --depth 1` (optional `branch` and `subdir`); the checkout is copied
+  into the resource root without its `.git` metadata, keeps executable bits and
+  is rewritten when it already exists, so a read-only pack file can no longer
+  block the next refresh. When the declared root is not writable the download
+  falls back to `~/.local/share/operon/resources/<resource>` and logs
+  `ROOT … is not writable; downloading into …` instead of failing.
+- **Whole-tree archives.** A download whose `archive` is `tar`, `tar.gz`, `tgz`
+  or `zip` and that declares no `member` now unpacks the entire archive below
+  its target directory, file by file, with `.extract` staging, a traversal guard
+  and a no-op when the target already holds data. This is what lets a host keep
+  the released (unpacked) AlphaFold DB layout.
+- **Dependency accounting follows the interpreter.** When a virtual environment
+  sets `include-system-site-packages = true`, packages inherited from the base
+  interpreter are counted, and a project declared in both `requirements` and
+  `pip_wheels` is counted once. `openmm81` no longer reports `wheel` twice and
+  no longer judges an inherited `wheel 0.48.0` missing.
+- **CLI and MCP parity.** `operon environment install` without a name installs
+  every declared environment, `operon resource unlink` reaches the DELETE route,
+  and `operon environment repair` drives
+  `POST /api/v1/environments/{name}/repair`. MCP now exposes 142 tools: the new
+  `operon_environment_repair`, local `prepare` forwards `dependencies`, and the
+  remote surface gained jobs, job status, cancel, pool status, resource cancel
+  and resource log.
+- **Library 1.1.14** ships with this release: writable-first roots for ColabFold
+  and Prodigal, reachable ProteinMPNN mirrors (jsdelivr, then ghproxy, then the
+  upstream URL), `flye=2.9.5=py311*` for genomics, the `econml==0.16.0` and
+  `lightgbm==3.3.5` pins for glibc 2.17 hosts, and the AlphaFold DB declared in
+  its released layout.
+
 ## Verification
 
 - Repository tests, this tree: `pytest -q tests/test_resource_api.py
@@ -108,11 +141,11 @@ panel picks one action per state instead of disabling everything.
 - The library manifest still decides presence with `Path.is_file()`, so a
   declared directory such as `pdb_mmcif/mmcif_files` is reported missing by the
   library layer. The application layer overrides that verdict with an existence
-  check and does not modify `library/seed/`; the library wheel stays at 1.1.13.
+  check; the library wheel shipped with this release is 1.1.14.
 - A resource whose manifest declares no files keeps `state=unknown`. It is shown
-  as `未声明文件清单` and still does not count toward readiness; the ten audited
-  resources in that state need their official file lists before they can be
-  verified.
+  as `未声明文件清单` and still does not count toward readiness. Every resource
+  shipped with library 1.1.14 declares its files, so the audited host has no
+  resource in that state.
 - `/api/remote/{key}/resources` proxies the remote server's own snapshot, so a
   host below 5.7.23 keeps returning the old payload and its panel keeps the old
   disabled buttons.
