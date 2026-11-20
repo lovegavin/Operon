@@ -253,6 +253,11 @@ The release page records the validation completed for this exact build.
     except (OSError, subprocess.CalledProcessError):
         commit = os.environ.get('OPERON_SOURCE_COMMIT', 'unknown')
         dirty = True
+    declared = os.environ.get('OPERON_SOURCE_DIRTY')
+    if declared is not None and commit != 'unknown':
+        # A release assembled from a git-less mirror cannot inspect the tree;
+        # the caller passes the state of the real checkout instead.
+        dirty = declared.strip() not in {'', '0', 'false', 'False'}
     runtime_mode = 'external' if args.lite else json.loads((args.runtime / 'operon-runtime.json').read_text(encoding='utf-8')).get('mode', 'bundled')
     manifest = {'product': 'operon', 'version': version, 'runtime_mode': runtime_mode, 'source_commit': commit,
                 'source_dirty': dirty, 'python_bundled': not args.lite, 'files': []}
