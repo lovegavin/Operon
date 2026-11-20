@@ -16,7 +16,7 @@ export function resourceStateLabel(state: string): string {
     case 'partial':
       return t('部分就位');
     case 'unknown':
-      return t('未检查');
+      return t('未声明文件清单');
     default:
       return t('缺失');
   }
@@ -44,14 +44,105 @@ export function componentStateLabel(component: LargeResourceComponent): string {
   return resourceStateLabel(String(component.state || 'missing'));
 }
 
+// 缺失清单只认 component.missing；后端没有该字段时退回 files 里的 present===false，
+// 再退回后端按 unit 清单算好的 files_missing。
+// 三处都取不到就当作空，绝不把 downloadable 整个当成待下载。
 export function missingFiles(component: LargeResourceComponent): string[] {
+  if (Array.isArray(component.missing)) {
+    return component.missing.map((name) => String(name || '')).filter(Boolean);
+  }
   const files = Array.isArray(component.files) ? component.files : [];
-  return files.filter((file) => file && file.present === false).map((file) => String(file.name || ''));
+  const derived = files.filter((file) => file && file.present === false)
+    .map((file) => String(file.name || '')).filter(Boolean);
+  if (derived.length) return derived;
+  if (Array.isArray(component.files_missing)) {
+    return component.files_missing.map((name) => String(name || '')).filter(Boolean);
+  }
+  return [];
+}
+
+// 待下载 = downloadable ∩ missing；missing 为空时结果必为空。
+export function pendingDownloads(component: LargeResourceComponent): string[] {
+  const missing = missingFiles(component);
+  if (!missing.length) return [];
+  const downloadable = Array.isArray(component.downloadable) ? component.downloadable : [];
+  return downloadable.map((name) => String(name || ''))
+    .filter((name) => name && missing.includes(name));
+}
+
+// 已登记应校验的文件：files / files_present / files_missing / missing 的并集，
+// 用于「已声明 {count} 项」；后端只在 unit 级保留清单时也能数出条目。
+export function declaredFiles(component: LargeResourceComponent): string[] {
+  const files = Array.isArray(component.files) ? component.files : [];
+  const names = files.map((file) => String(file && file.name ? file.name : '')).filter(Boolean);
+  const groups = [component.files_present, component.files_missing, missingFiles(component)];
+  for (const group of groups) {
+    if (!Array.isArray(group)) continue;
+    for (const entry of group) {
+      const name = String(entry || '');
+      if (name && !names.includes(name)) names.push(name);
+    }
+  }
+  return names;
 }
 
 export function isReady(component: LargeResourceComponent): boolean {
   const state = String(component.state || '').toLowerCase();
   return state === 'present' || state === 'linked';
+}
+
+// 单元卡的动作判定：固定五分支，顺序不可变；取不到的字段一律当作空/未声明。
+export function unitAction(component: LargeResourceComponent): {
+  text: string; enabled: boolean; reason: string;
+} {
+  const missing = missingFiles(component);
+  const pending = pendingDownloads(component);
+  // 1) 有可下载的缺失文件：走 HTTP 下载。
+  if (pending.length) {
+    return {
+      text: t('下载缺失文件（{n}）', { n: pending.length }),
+      enabled: true,
+      reason: t('只下载缺失的 {n} 个文件，已就绪的文件不会重复下载', { n: pending.length }),
+    };
+  }
+  // 2) 没有可下载的缺失文件，但该单元提供 rsync 源。
+  if (component.rsync) {
+    return {
+      text: t('rsync 拉取'),
+      enabled: true,
+      reason: t('该单元只提供 rsync 源，点按后用 rsync 拉取到资源根目录'),
+    };
+  }
+  // 3) 后端明确说过该单元没有下载源。
+  if (component.download_supported === false) {
+    return {
+      text: t('无下载源'),
+      enabled: false,
+      reason: t('该单元没有可用的下载源，请链接已有目录'),
+    };
+  }
+  // 4) 后端没登记应校验的文件：不参与就绪判定，也不能说成「已全部就绪」。
+  if (!declaredFiles(component).length) {
+    return {
+      text: t('未声明文件清单'),
+      enabled: false,
+      reason: t('该资源没有登记应校验的文件，因此不参与就绪判定'),
+    };
+  }
+  // 5) 没有缺失文件。
+  if (!missing.length) {
+    return {
+      text: t('已全部就绪'),
+      enabled: false,
+      reason: t('该单元声明的文件都已就位'),
+    };
+  }
+  // 6) 有缺失，但没有 HTTP/rsync 源。
+  return {
+    text: t('缺 {count} 个文件，没有 HTTP/rsync 源', { count: missing.length }),
+    enabled: false,
+    reason: t('{n} 个文件没有 HTTP 下载源，只能链接已有目录。', { n: missing.length }),
+  };
 }
 
 function megabytes(value?: number): string {
@@ -74,6 +165,11 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
   const state = String(component.state || 'missing').toLowerCase();
   const linked = state === 'linked';
   const missing = missingFiles(component);
+  const pendingDownload = pendingDownloads(component);
+  const declared = declaredFiles(component);
+  const action = unitAction(component);
+  // 后端没登记应校验的文件：卡片只说明它不参与就绪判定。
+  const undeclared = declared.length === 0;
   return (
     <article
       className="runtime-card resource-unit-card"
@@ -106,6 +202,15 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
         ? <p className="runtime-note">{t('{n} 个文件没有 HTTP 下载源，只能链接已有目录。',
             { n: (component.undownloadable || []).length })}</p>
         : null}
+      {!linked && undeclared
+        ? <>
+          <p className="runtime-note">{t('该资源没有登记应校验的文件，因此不参与就绪判定')}</p>
+          <details className="runtime-missing">
+            <summary>{t('待补清单')}</summary>
+            <p className="runtime-note">{t('已声明 {count} 项', { count: declared.length })}</p>
+          </details>
+        </>
+        : null}
       <footer className="runtime-actions">
         {linked ? (
           <button type="button" className="subtle-button" disabled={busy}
@@ -113,20 +218,12 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
         ) : (
           <>
             <button type="button" className="subtle-button"
-              disabled={busy || (component.download_supported === false && !component.rsync)}
-              title={component.download_supported === false
-                ? component.rsync
-                  ? t('该单元只提供 rsync 源，点按后用 rsync 拉取到资源根目录')
-                  : t('该单元没有可用的下载源，请链接已有目录')
-                : t('只下载尚缺且尚未链接的文件')}
+              disabled={busy || !action.enabled}
+              data-action={action.enabled ? (pendingDownload.length ? 'download' : 'rsync') : 'blocked'}
+              data-pending={pendingDownload.length}
+              title={action.reason}
               onClick={() => onDownload(resource, component)}>
-              {component.download_supported === false
-                ? component.rsync
-                  ? t('rsync 拉取')
-                  : t('无下载源')
-                : t('下载可用文件（{have}/{total}）', {
-                    have: (component.downloadable || []).length,
-                    total: (component.files || []).length || (component.downloadable || []).length})}
+              {action.text}
             </button>
             <button type="button" className="subtle-button is-primary" disabled={busy}
               onClick={() => onLink(resource, component)}>{t('链接')}</button>

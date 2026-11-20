@@ -5,6 +5,8 @@ import time
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from operon import environment_install, environments
 from operon.remote import server
 
@@ -184,3 +186,57 @@ def test_remote_manager_forwards_dependency_install() -> None:
     manager.connections = {'srv': Connection()}
     assert manager.install_dependency('srv', 'esm3', {'kind': 'import', 'name': 'torch'}) == {'installed': {}}
     assert calls == [('environments_dependency', {'name': 'esm3', 'kind': 'import', 'requirement': 'torch'})]
+
+
+def test_remote_manager_forwards_environment_repair() -> None:
+    from src.web.remote_service import RemoteManager
+
+    calls = []
+
+    class Connection:
+        connected = True
+
+        def call(self, method, params=None):
+            calls.append((method, params))
+            return {'repair': {'name': 'demo', 'rewritten': 0}}
+
+    manager = RemoteManager.__new__(RemoteManager)
+    manager.state = {'profiles': {'srv': {}}}
+    manager.connections = {'srv': Connection()}
+    assert manager.environment_repair('srv', 'demo') == {
+        'repair': {'name': 'demo', 'rewritten': 0}}
+    assert calls == [('environments_repair', {'name': 'demo'})]
+
+
+def test_server_environment_repair_requires_an_installed_environment(tmp_path, monkeypatch):
+    from operon.documents import CommandError
+
+    fake, external = make_service(tmp_path, monkeypatch)
+    with pytest.raises(CommandError) as failure:
+        server.environment_repair(fake, {'name': 'demo'})
+    assert failure.value.code == 'unknown_environment'
+    (external / 'demo').mkdir(parents=True, exist_ok=True)
+    result = server.environment_repair(fake, {'name': 'demo'})
+    assert result['repair'] == {'name': 'demo',
+                                'directory': str(external / 'demo'), 'rewritten': 0}
+
+
+def test_prepare_uses_needs_preparation_for_incomplete_status(tmp_path, monkeypatch):
+    """An environment whose resources are incomplete must still be prepared."""
+    fake, external = make_service(tmp_path, monkeypatch)
+    monkeypatch.setattr(environment_install, 'plan', lambda *a, **k: {
+        'demo': {'status': 'incomplete', 'used_by': ['alpha'],
+                 'location': str(external / 'demo')}})
+    started, release = [], threading.Event()
+
+    def fake_prepare(name, root, source=None):
+        started.append(name)
+        release.wait(5)
+
+    monkeypatch.setattr(environment_install, 'prepare', fake_prepare)
+    result = server.environment_prepare(fake, {'names': ['demo']})
+    assert result['started'] == ['demo']
+    release.set()
+    deadline = time.time() + 5
+    while 'demo' in server.environment_snapshot(fake)['running'] and time.time() < deadline:
+        time.sleep(0.01)

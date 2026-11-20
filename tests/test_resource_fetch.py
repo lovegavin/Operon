@@ -20,13 +20,42 @@ class _Response(io.BytesIO):
         return False
 
 
-def test_manifest_rejects_plain_http():
-    with pytest.raises(StepError, match="https"):
+def test_manifest_accepts_plain_http():
+    resource = Resource.from_entry({
+        "id": "demo",
+        "files": ["x.pt"],
+        "downloads": [
+            {"url": "http://example.com/x.pt", "path": "x.pt"},
+            {"url": "ftp://example.com/x.pt", "path": "x.pt"},
+        ],
+    })
+    assert resource.downloads[0]["url"] == "http://example.com/x.pt"
+    assert resource.downloads[1]["url"] == "ftp://example.com/x.pt"
+
+
+def test_manifest_rejects_an_unknown_scheme():
+    with pytest.raises(StepError, match="ftp://"):
         Resource.from_entry({
             "id": "demo",
             "files": ["x.pt"],
-            "downloads": [{"url": "http://example.com/x.pt", "path": "x.pt"}],
+            "downloads": [{"url": "s3://example.com/x.pt", "path": "x.pt"}],
         })
+
+
+def test_manifest_accepts_a_git_only_entry():
+    resource = Resource.from_entry({
+        "id": "demo",
+        "files": ["x.pt"],
+        "downloads": [
+            {"path": "weights", "git": {"url": "git+https://example.com/repo.git", "subdir": "weights"}},
+        ],
+    })
+    assert resource.downloads[0]["git"] == {
+        "url": "https://example.com/repo.git",
+        "branch": "",
+        "subdir": "weights",
+        "note": "",
+    }
 
 
 def test_manifest_rejects_unsafe_path():
@@ -178,4 +207,6 @@ def test_manifest_accepts_mapping_downloads():
         "archive": "",
         "member": "",
         "unit": "",
+        "rsync": None,
+        "git": None,
     },)

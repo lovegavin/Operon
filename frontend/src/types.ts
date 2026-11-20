@@ -295,6 +295,7 @@ export type LargeResourceComponent = {
   url?: string | null; note?: string; state?: string; linked?: boolean;
   files?: LargeResourceFileEntry[]; missing?: string[]; size_mb?: number;
   downloadable?: string[]; undownloadable?: string[]; download_supported?: boolean;
+  files_present?: string[]; files_missing?: string[]; source?: string;
   rsync?: { url?: string; note?: string; target?: string } | null;
 };
 export type LargeResource = {

@@ -221,11 +221,11 @@ def parser():
     workflow.add_argument('--format', choices=['bundle', 'yaml', 'portable'], default='bundle')
     workflow.add_argument('--template', choices=['csv-pca'], default='csv-pca')
     workflow.add_argument('--runtime-dir', type=Path, help='Prepared relocatable runtime for portable export')
-    environment = commands.add_parser('environment', help='Inspect environments, their resources and check/prepare routes')
+    environment = commands.add_parser('environment', help='Inspect, prepare, repair and cancel isolated environments')
     environment.add_argument('action', choices=['status', 'check', 'prepare', 'list', 'install', 'cancel',
-                                         'dependency', 'log', 'retry'])
-    environment.add_argument('file', nargs='?', type=Path, help='YAML, graph JSON or workflow ZIP for check/prepare')
-    environment.add_argument('names', nargs='*', help='Environment names for install/cancel')
+                                         'dependency', 'log', 'retry', 'repair'])
+    environment.add_argument('file', nargs='?', type=Path, help='YAML, graph JSON or workflow ZIP for check/prepare, or a name for install/cancel')
+    environment.add_argument('names', nargs='*', help='Environment names; install without names prepares every environment that needs it')
     environment.add_argument('--profile', default='', help='Configured server id; empty means this host')
     environment.add_argument('--require-files', action='store_true', help='Also verify input files during check')
     environment.add_argument('--kind', default='', help='Dependency kind for the dependency action')
@@ -239,6 +239,7 @@ def parser():
     resource.add_argument('--replace', action='store_true', help='Replace an existing link')
     resource.add_argument('--root', default='', help='Destination root for download')
     resource.add_argument('--profile', default='', help='Configured server id; empty means this host')
+    resource.add_argument('--limit', type=int, default=200, help='Log line limit for the log action')
     engine = commands.add_parser('engine', help='Inspect the durable backend engine and its resumable events')
     engine.add_argument('action', choices=['status', 'events'])
     engine.add_argument('--after', type=int, default=0, help='Resume after this durable event cursor')
@@ -523,9 +524,15 @@ def execute(args):
         scopes.append('run')
     if args.command == 'library':
         scopes.append('plugins')
-    if (args.command == 'resources' and args.action in ('download', 'link', 'unlink', 'cancel')
-            or args.command == 'environment' and args.action in ('install', 'cancel', 'retry')):
+    is_remote = bool(getattr(args, 'profile', '') or '')
+    if args.command == 'resources' and args.action in ('download', 'link', 'unlink'):
+        scopes.append('run' if is_remote else 'plugins')
+    elif args.command == 'resources' and args.action == 'cancel':
+        scopes.append('run')
+    if args.command == 'environment' and args.action in ('install', 'retry', 'repair'):
         scopes.append('plugins')
+    elif args.command == 'environment' and args.action == 'cancel':
+        scopes.extend(['plugins', 'run'])
     if (args.command == 'workflow' and args.action == 'prepare-environment'
             or args.command == 'environment' and args.action == 'prepare'):
         if graph_value is None:
@@ -645,18 +652,20 @@ def execute(args):
                 if item is None:
                     raise ValueError('unknown isolated environment: ' + target)
                 return item
-            if args.action in ('install', 'cancel'):
+            if args.action in ('install', 'cancel', 'repair'):
                 names = list(getattr(args, 'names', []) or [])
                 leading = getattr(args, 'file', None)
                 if leading is not None:
                     names.insert(0, Path(leading).name if isinstance(leading, Path) else str(leading))
-                if not names:
+                if not names and args.action != 'install':
                     raise ValueError('At least one environment name is required')
                 profile_id = getattr(args, 'profile', '') or ''
+                prefix = ('/remote/' + quote(profile_id, safe='')) if profile_id else '/v1'
                 if args.action == 'install':
-                    path = ('/remote/' + quote(profile_id, safe='') + '/environments/prepare') if profile_id else '/v1/environments/prepare'
-                    return client.request(path, {'names': names})
-                return client.request('/v1/environments/' + quote(names[0], safe='') + '/cancel', {})
+                    return client.request(prefix + '/environments/prepare',
+                                          {'names': names} if names else {})
+                suffix = '/environments/' + quote(names[0], safe='')
+                return client.request(prefix + suffix + ('/repair' if args.action == 'repair' else '/cancel'), {})
             if args.action == 'dependency':
                 names = list(getattr(args, 'names', []) or [])
                 if getattr(args, 'file', None) is not None:
@@ -723,10 +732,12 @@ def execute(args):
                                        'unit': args.unit or None})
             if args.action == 'unlink':
                 return client.request(prefix + '/' + quote(name, safe='') + '/link?' +
-                                      urlencode({'unit': args.unit or 'tree'}), {})
+                                      urlencode({'unit': args.unit or 'tree'}), {},
+                                      method='DELETE')
             if args.action == 'cancel':
                 return client.request(prefix + '/' + quote(name, safe='') + '/cancel', {})
-            return client.request(prefix + '/' + quote(name, safe='') + '/log?' + urlencode({'limit': 200}))
+            return client.request(prefix + '/' + quote(name, safe='') + '/log?' +
+                                  urlencode({'limit': int(args.limit)}))
         if args.command == 'engine':
             if args.action == 'status':
                 return client.request('/v1/engine')

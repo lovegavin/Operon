@@ -38,6 +38,7 @@
           "bytes": 0,
           "url": "https://github.com/dauparas/ProteinMPNN",
           "files": [
+            "protein_mpnn_run.py",
             "ProteinMPNN/vanilla_model_weights/v_48_020.pt"
           ],
           "note": ""
@@ -54,8 +55,17 @@
           "path": "ProteinMPNN/vanilla_model_weights/v_48_020.pt",
           "url": "https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/vanilla_model_weights/v_48_020.pt",
           "unit": "ProteinMPNN"
+        },
+        {
+          "path": "protein_mpnn_run.py",
+          "url": "https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/protein_mpnn_run.py",
+          "bytes": 29312,
+          "unit": "ProteinMPNN",
+          "note": "verified 2026-11-20 HEAD 200, Content-Length 29312 (the file itself is also in the git repo)",
+          "sha256": "61f2c519a7f73fa12da9eb90da97b97ec2f8d5f31d42605639c7600cbd321cbe"
         }
-      ]
+      ],
+      "notes": "The CLI entry point protein_mpnn_run.py is fetched from raw.githubusercontent.com and the v_48_020 weights from raw.githubusercontent.com/dauparas/ProteinMPNN (6,681,301 bytes, verified 2026-11-20). Both files also live in the upstream git repository, so a clone works as well."
     },
     {
       "id": "ligandmpnn",
@@ -84,18 +94,34 @@
           "kind": "code+weights",
           "bytes": 0,
           "url": "https://github.com/dauparas/LigandMPNN",
-          "files": [],
-          "note": ""
+          "files": [
+            "run.py",
+            "model_params/ligandmpnn_v_32_010_25.pt"
+          ],
+          "note": "Weights are not in the git repository; get_model_params.sh downloads them from files.ipd.uw.edu."
         }
       ],
       "downloads": [
         {
-          "path": "LigandMPNN",
-          "url": "https://codeload.github.com/dauparas/LigandMPNN/zip/refs/heads/main",
-          "archive": "zip",
-          "unit": "LigandMPNN"
+          "git": {
+            "url": "https://github.com/dauparas/LigandMPNN",
+            "branch": "main",
+            "subdir": "",
+            "note": "source tree; the repository does not contain model weights (model_params/ is absent)"
+          },
+          "path": "run.py",
+          "unit": "LigandMPNN",
+          "note": "verified 2026-11-20: raw.githubusercontent.com/.../main/run.py HEAD 200, 38,831 bytes"
+        },
+        {
+          "path": "model_params/ligandmpnn_v_32_010_25.pt",
+          "url": "https://files.ipd.uw.edu/pub/ligandmpnn/ligandmpnn_v_32_010_25.pt",
+          "bytes": 10541943,
+          "unit": "LigandMPNN",
+          "note": "verified 2026-11-20: HTTP 200, PK zip payload, 10,541,943 bytes; upstream README get_model_params.sh pulls from this host"
         }
-      ]
+      ],
+      "notes": "Repository contents verified with api.github.com on 2026-11-20: run.py exists, model_params/ returns 404, so the weights are a separate download from files.ipd.uw.edu (verified 200, 10,541,943 bytes)."
     },
     {
       "id": "esm2",
@@ -230,7 +256,7 @@
         "~/.local/share/operon/resources/colabfold"
       ],
       "files": [
-        "colabfold_batch"
+        "colabfold/batch.py"
       ],
       "link_unit": "items",
       "link_root": "colabfold",
@@ -245,18 +271,29 @@
           "kind": "binary+databases",
           "bytes": 0,
           "url": "https://github.com/sokrypton/ColabFold",
-          "files": [],
-          "note": ""
+          "files": [
+            "colabfold/batch.py"
+          ],
+          "note": "colabfold_batch is a pip console script (pyproject.toml, [tool.poetry.scripts] colabfold_batch = 'colabfold.batch:main'), not a file; install it with pip install \"colabfold[alphafold]\"."
         }
       ],
       "downloads": [
         {
+          "git": {
+            "url": "https://github.com/sokrypton/ColabFold",
+            "branch": "main",
+            "subdir": "",
+            "note": "ColabFold 1.6.3 source tree, including colabfold/batch.py"
+          },
           "path": "colabfold",
-          "url": "https://codeload.github.com/sokrypton/ColabFold/zip/refs/heads/main",
-          "archive": "zip",
-          "unit": "colabfold"
+          "unit": "colabfold",
+          "note": "verified 2026-11-20: api.github.com repository listing 200; pyproject.toml version 1.6.3"
         }
-      ]
+      ],
+      "expected_files": [
+        "colabfold/batch.py"
+      ],
+      "notes": "colabfold_batch is created by the ColabFold installer (pip console script declared in pyproject.toml as colabfold_batch = 'colabfold.batch:main'); it is not shipped as a file. The git entry downloads the source tree the binary runs from. Database provisioning stays with setup_databases.sh / the ColabFold docs."
     },
     {
       "id": "alphafold2",
@@ -357,7 +394,8 @@
             "https://opendata.mmseqs.org/colabfold/uniref30_2302.db.tar.gz",
             "https://mmseqs.com/colabfold/uniref30_2302.db.tar.gz"
           ],
-          "unit": "afdb"
+          "unit": "afdb",
+          "note": "HTTP 429 (17-byte rate-limit page) from opendata.mmseqs.org on 2026-11-20; mmseqs.com now 302-redirects to github.com HTML, so no working mirror is known. AlphaFold's own download_uniref30.sh currently pins https://storage.googleapis.com/alphafold-databases/v2.3/UniRef30_2021_03.tar.gz (different release name); it is not substituted here because the manifest declares the 2023-02 database."
         },
         {
           "path": "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz",
@@ -389,12 +427,12 @@
         },
         {
           "path": "pdb_mmcif/mmcif_files",
-          "rsync": "rsync://rsync.ebi.ac.uk/pdb/data/structures/divided/mmCIF/",
-          "note": "PDB mmCIF archive; upstream publishes only an rsync module.",
+          "rsync": "rsync://rsync.wwpdb.org:33444/ftp/data/structures/divided/mmCIF/",
+          "note": "rsync://rsync.ebi.ac.uk/pdb/... answers '@ERROR: Unknown module pdb' (verified 2026-11-20); RCSB serves the same tree via rsync on port 33444. Fallback browse URL: https://files.rcsb.org/pub/pdb/data/structures/divided/mmCIF/ (HTTP 200).",
           "unit": "afdb"
         }
       ],
-      "notes": "Database names follow the AlphaFold 2.3.x flag defaults so the official run_alphafold.py finds them: mgnify/mgy_clusters_2022_05.fa, pdb_seqres/pdb_seqres_2022_09_28.fasta, pdb70/pdb70_from_mmcif_200916.tar.gz, uniref90/uniref90.fasta, bfd/bfd_metaclust...sorted_opt.tar.gz, uniprot/uniprot_sprot.fasta. The uniref30 archive is the 2023-02 release (uniref30_2302.db) rather than the 2021-03 snapshot the upstream script names; point --uniref30_database_path at it as usual. pdb_mmcif has no HTTP archive upstream (RCSB publishes it over rsync only), so it can only be linked or downloaded with rsync from rsync.ebi.ac.uk or ftp.pdbj.org."
+      "notes": "Database names follow the AlphaFold 2.3.x flag defaults so the official run_alphafold.py finds them: mgnify/mgy_clusters_2022_05.fa, pdb_seqres/pdb_seqres_2022_09_28.fasta, pdb70/pdb70_from_mmcif_200916.tar.gz, uniref90/uniref90.fasta, bfd/bfd_metaclust...sorted_opt.tar.gz, uniprot/uniprot_sprot.fasta. The uniref30 archive is the 2023-02 release (uniref30_2302.db) rather than the 2021-03 snapshot the upstream script names; point --uniref30_database_path at it as usual. pdb_mmcif has no HTTP archive upstream (RCSB publishes it over rsync only), so it can only be linked, or downloaded with rsync from rsync.wwpdb.org on port 33444 (see that download's note). Verified 2026-11-20: params tar 5,587,968,000 bytes (member 373,103,340), uniref90 32,692,271,968, bfd 291,649,557,441, mgnify 168,161,316,715, pdb70 21,671,479,453, pdb_seqres 68,464,969, uniprot 93,867,502. uniref30: HTTP 429, no working mirror. pdb_mmcif: EBI module gone, use rsync.wwpdb.org:33444 (see that download's note)."
     },
     {
       "id": "rfdiffusion",
@@ -411,6 +449,17 @@
         "models/Complex_beta_ckpt.pt"
       ],
       "downloads": [
+        {
+          "git": {
+            "url": "https://github.com/RosettaCommons/RFdiffusion",
+            "branch": "main",
+            "subdir": "",
+            "note": "inference scripts and hydra configs"
+          },
+          "path": "scripts/run_inference.py",
+          "unit": "RFdiffusion",
+          "note": "verified 2026-11-20: raw.githubusercontent.com/.../main/scripts/run_inference.py HEAD 200, 6,469 bytes"
+        },
         {
           "path": "models/Base_ckpt.pt",
           "url": "https://files.ipd.uw.edu/pub/RFdiffusion/6f5902ac237024bdd0c176cb93063dc4/Base_ckpt.pt",
@@ -435,10 +484,14 @@
           "kind": "code+weights",
           "bytes": 966996724,
           "url": "https://github.com/RosettaCommons/RFdiffusion",
-          "files": [],
+          "files": [
+            "scripts/run_inference.py",
+            "models/Complex_beta_ckpt.pt"
+          ],
           "note": ""
         }
-      ]
+      ],
+      "notes": "Code comes from the official git repository (scripts/run_inference.py verified 200, 6,469 bytes); weights stay at files.ipd.uw.edu (Base_ckpt.pt 483,616,107 bytes; Complex_beta_ckpt.pt 483,380,617 bytes; both verified 2026-11-20)."
     },
     {
       "id": "prodigal",
@@ -469,17 +522,23 @@
           "bytes": 0,
           "url": "https://github.com/hyattpd/Prodigal",
           "files": [],
-          "note": ""
+          "note": "prodigal is produced by building the downloaded source (make); the release also ships a prebuilt prodigal.linux, but that asset could not be fetched from this host."
         }
       ],
       "downloads": [
         {
-          "path": "prodigal",
-          "url": "https://codeload.github.com/hyattpd/Prodigal/zip/refs/heads/master",
-          "archive": "zip",
-          "unit": "prodigal"
+          "git": {
+            "url": "https://github.com/hyattpd/Prodigal",
+            "branch": "master",
+            "subdir": "",
+            "note": "v2.6.3 C sources (Makefile, main.c, ...); build the binary with make"
+          },
+          "path": "Makefile",
+          "unit": "prodigal",
+          "note": "verified 2026-11-20: codeload zip of master is 631,098 bytes and contains the sources and Makefile"
         }
-      ]
+      ],
+      "notes": "The binary is a build product: git checkout of hyattpd/Prodigal (master, 631,098-byte zip) plus 'make' produces 'prodigal'. The v2.6.3 release asset prodigal.linux is listed by the GitHub API as 13,599,280 bytes but HEAD/GET from this host timed out on 2026-11-20, so it is not declared as a download. The previous zip entry with path 'prodigal' was removed: it contained sources only and falsely advertised the binary."
     },
     {
       "id": "pfam",
@@ -526,7 +585,8 @@
           "unit": "Pfam-A.hmm",
           "archive": "gz"
         }
-      ]
+      ],
+      "notes": "Verified 2026-11-20: https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz HTTP 200, 658,389,433 bytes; gunzip then 'hmmpress Pfam-A.hmm' creates the .h3* indexes locally."
     },
     {
       "id": "boltz",
@@ -586,13 +646,13 @@
           "note": ""
         }
       ],
-      "notes": "Boltz weights live on Hugging Face; both the mirror and the upstream host are tried in order. When neither is reachable the dataset is also published as odat1248/boltz-0511 on Kaggle, so the checkpoints can be fetched there and linked instead."
+      "notes": "Boltz weights live on Hugging Face; both the mirror and the upstream host are tried in order. When neither is reachable the dataset is also published as odat1248/boltz-0511 on Kaggle, so the checkpoints can be fetched there and linked instead. Verified 2026-11-20: hf-mirror.com serves ccd.pkl (345,859,128 bytes) and boltz1_conf.ckpt (3,595,352,714 bytes); huggingface.co refused TCP connections from this host, so the mirror stays first in every entry."
     },
     {
       "id": "rfam",
       "title": "Rfam covariance models",
       "kind": "database",
-      "url": "https://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/Rfam.cm.gz",
+      "url": "https://ftp.ebi.ac.uk/pub/databases/Rfam/",
       "install": "download Rfam.cm.gz, gunzip it, then run 'cmpress Rfam.cm' in the same directory",
       "env": "OPERON_RFAM_DB",
       "roots": [
@@ -621,7 +681,7 @@
           "files": [
             "Rfam.cm"
           ],
-          "note": ""
+          "note": "Rfam.cm.i1f/.i1i/.i1m/.i1p are created by 'cmpress Rfam.cm' (HMMER 3) after the download; they are generated locally, not downloaded."
         }
       ],
       "expected_files": [
@@ -633,11 +693,14 @@
       "downloads": [
         {
           "path": "Rfam.cm",
-          "url": "https://ftp.ebi.ac.uk/pub/databases/Rfam/CURRENT/Rfam.cm.gz",
+          "url": "https://ftp.ebi.ac.uk/pub/databases/Rfam/15.1/Rfam.cm.gz",
           "unit": "Rfam.cm",
-          "archive": "gz"
+          "archive": "gz",
+          "bytes": 45753387,
+          "note": "verified 2026-11-20: HTTP 200, 45,753,387 bytes (15.1 is the release CURRENT points at)"
         }
-      ]
+      ],
+      "notes": "Download Rfam.cm.gz (15.1: 45,753,387 bytes, verified 200 on 2026-11-20), gunzip it and run 'cmpress Rfam.cm'. The four .i1* files are cmpress output and therefore have no download source."
     },
     {
       "id": "amrfinder",
@@ -671,7 +734,10 @@
           "url": "https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/",
           "files": [
             "AMRProt.fa",
-            "AMR.LIB"
+            "AMR.LIB",
+            "AMRProt-mutation.tsv",
+            "AMR_CDS.fa",
+            "version.txt"
           ],
           "note": ""
         }
@@ -690,14 +756,40 @@
         {
           "path": "AMRProt.fa",
           "url": "https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/AMRProt.fa",
-          "unit": "amrfinder"
+          "bytes": 4732322,
+          "unit": "amrfinder",
+          "note": "verified 2026-11-20: HTTP 200, Content-Length 4732322 bytes"
         },
         {
           "path": "AMR.LIB",
           "url": "https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/AMR.LIB",
-          "unit": "amrfinder"
+          "bytes": 109693661,
+          "unit": "amrfinder",
+          "note": "verified 2026-11-20: HTTP 200, Content-Length 109693661 bytes"
+        },
+        {
+          "path": "AMRProt-mutation.tsv",
+          "url": "https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/AMRProt-mutation.tsv",
+          "bytes": 207256,
+          "unit": "amrfinder",
+          "note": "verified 2026-11-20: HTTP 200, Content-Length 207256 bytes"
+        },
+        {
+          "path": "AMR_CDS.fa",
+          "url": "https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/AMR_CDS.fa",
+          "bytes": 11229150,
+          "unit": "amrfinder",
+          "note": "verified 2026-11-20: HTTP 200, Content-Length 11229150 bytes"
+        },
+        {
+          "path": "version.txt",
+          "url": "https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/version.txt",
+          "bytes": 13,
+          "unit": "amrfinder",
+          "note": "verified 2026-11-20: HTTP 200, Content-Length 13 bytes"
         }
-      ]
+      ],
+      "notes": "All five files come from the NCBI AMRFinderPlus 'latest' directory (verified 2026-11-20: AMRProt.fa 4,732,322 bytes, AMR.LIB 109,693,661, AMRProt-mutation.tsv 207,256, AMR_CDS.fa 11,229,150, version.txt 13). AMRProt.fa and AMR.LIB remain the required files; the other three are optional payload used by amrfinder_update."
     },
     {
       "id": "antismash",
@@ -727,18 +819,41 @@
           "kind": "database",
           "bytes": 0,
           "url": "https://dl.secondarymetabolites.org/releases/",
-          "files": [],
+          "files": [
+            "mite/1.3/metadata.json",
+            "resfam/Resfams.hmm",
+            "tigrfam/TIGRFam.hmm"
+          ],
           "note": ""
         }
       ],
       "downloads": [
         {
-          "path": "antismash",
-          "url": "https://codeload.github.com/antismash/antismash/zip/refs/heads/master",
-          "archive": "zip",
-          "unit": "antismash"
+          "path": "mite/1.3/metadata.json",
+          "url": "https://dl.secondarymetabolites.org/releases/mite/mite_1.3.tar.xz",
+          "archive": "tar",
+          "member": "1.3/metadata.json",
+          "bytes": 28300,
+          "unit": "antismash",
+          "note": "verified 2026-11-20: tar.xz archive is 40,648 bytes; extracted member 1.3/metadata.json is 28,300 bytes (bytes field is the extracted size, as the downloader checks it after extraction)",
+          "sha256": "4a83153df89ae754533ad7701c7407fc5d4b50fd09fae3654e52cc14e43aa202"
+        },
+        {
+          "path": "resfam/Resfams.hmm",
+          "url": "https://dl.secondarymetabolites.org/releases/resfams/Resfams.hmm.gz",
+          "archive": "gz",
+          "unit": "antismash",
+          "note": "verified 2026-11-20: HTTP 200, 2,437,717-byte gzip (archive size; decompressed size not recorded because the downloader ignores bytes for gz); URL taken from antismash/download_databases.py"
+        },
+        {
+          "path": "tigrfam/TIGRFam.hmm",
+          "url": "https://dl.secondarymetabolites.org/releases/tigrfam/TIGRFam.hmm.gz",
+          "archive": "gz",
+          "unit": "antismash",
+          "note": "verified 2026-11-20: HTTP 200, 112,512,178-byte gzip (archive size; decompressed size not recorded because the downloader ignores bytes for gz); URL taken from antismash/download_databases.py"
         }
-      ]
+      ],
+      "notes": "Database URLs mirror antismash/download_databases.py (MITE_URL, RESFAM_URL, TIGRFAM_URL) and were verified 2026-11-20 (40,648 / 2,437,717 / 112,512,178 bytes). The whole-database tarballs output/antismash-7-*.tar.gz and dl.secondarymetabolites.org/databases/ answer 404, so they are not declared. The previously listed source zip contained no databases and was removed."
     },
     {
       "id": "openfold",
@@ -755,6 +870,17 @@
         "params/finetuning_2.pt"
       ],
       "downloads": [
+        {
+          "git": {
+            "url": "https://github.com/aqlaboratory/openfold",
+            "branch": "main",
+            "subdir": "",
+            "note": "openfold package sources (openfold/config.py etc.)"
+          },
+          "path": "openfold",
+          "unit": "openfold",
+          "note": "verified 2026-11-20: api.github.com lists the openfold/ package directory (default branch main)"
+        },
         {
           "path": "params/finetuning_2.pt",
           "url": [
@@ -777,11 +903,14 @@
           "kind": "code+weights",
           "bytes": 0,
           "url": "https://github.com/aqlaboratory/openfold",
-          "files": [],
+          "files": [
+            "openfold",
+            "params/finetuning_2.pt"
+          ],
           "note": ""
         }
       ],
-      "notes": "OpenFold publishes its parameters on Hugging Face only; the mirror is tried first and the upstream host second. If both are unreachable, place finetuning_2.pt (or finetuning_ptm_2.pt) under params/ and link the directory instead."
+      "notes": "OpenFold publishes its parameters on Hugging Face only; the mirror is tried first and the upstream host second. If both are unreachable, place finetuning_2.pt (or finetuning_ptm_2.pt) under params/ and link the directory instead. Code is fetched from the official git repository (openfold package present on main, verified 2026-11-20); only the checkpoints live on Hugging Face, where hf-mirror.com is reachable while huggingface.co refused TCP connections from this host."
     },
     {
       "id": "antifold",

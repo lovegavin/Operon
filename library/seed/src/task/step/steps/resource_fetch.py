@@ -95,8 +95,10 @@ def _candidate_urls(entry: dict[str, Any]) -> list[str]:
     if not candidates:
         raise StepError("download entry has no url")
     for candidate in candidates:
-        if not candidate.startswith("https://"):
-            raise StepError(f"only https:// downloads are allowed: {candidate!r}")
+        if not candidate.startswith(("https://", "http://", "ftp://")):
+            raise StepError(
+                f"download URL must use https://, http:// or ftp://: {candidate!r}"
+            )
     return candidates
 
 

@@ -100,6 +100,10 @@ def mount_remote(app, service):
     def remote_environment_retry(key: str, name: str):
         return manager.environment_retry(key, name)
 
+    @app.post('/api/remote/{key}/environments/{name}/repair')
+    def remote_environment_repair(key: str, name: str):
+        return manager.environment_repair(key, name)
+
     @app.get('/api/remote/{key}/environments/{name}/log')
     def remote_environment_log(key: str, name: str, limit: int = 200):
         return manager.environment_log(key, name, limit)
@@ -128,6 +132,14 @@ def mount_remote(app, service):
     @app.delete('/api/remote/{key}/resources/{name}/link')
     def remote_resource_unlink(key: str, name: str, unit: str | None = None):
         return manager.call(key, 'resources_unlink', {'name': name, 'unit': unit or ''})
+
+    @app.post('/api/remote/{key}/resources/{name}/cancel')
+    def remote_resource_cancel(key: str, name: str):
+        return manager.call(key, 'resources_cancel', {'name': name})
+
+    @app.get('/api/remote/{key}/resources/{name}/log')
+    def remote_resource_log(key: str, name: str, limit: int = 200):
+        return manager.call(key, 'resources_log', {'name': name, 'limit': limit})
 
     @app.get('/api/remote/{key}/pool')
     def remote_pool(key: str):

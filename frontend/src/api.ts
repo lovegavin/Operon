@@ -18,7 +18,10 @@ export type EnvironmentProgress = {phase?: string; bytes?: number; files?: numbe
   error?: string; expected_bytes?: number; queue_position?: number};
 export type EnvironmentStatus = {
   name: string; python: string; spec_sha256: string; interpreter: string; location: string;
-  imports: string[]; status: 'missing' | 'queued' | 'stale' | 'ready' | 'failed' | 'installing'; error: string; used_by: string[];
+  imports: string[];
+  status: 'missing' | 'queued' | 'stale' | 'ready' | 'incomplete' | 'failed'
+    | 'installing' | 'cancelled';
+  error: string; used_by: string[];
   title?: string; notes?: string; size_bytes?: number; python_version?: string; updated_at?: string;
   used_by_count?: number;
   progress?: EnvironmentProgress | null;

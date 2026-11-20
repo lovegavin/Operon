@@ -201,6 +201,22 @@ class Bridge:
             self.actor(request, "run")
             return service.remotes.pool_stop(key, force=bool((payload or {}).get("force")))
 
+        @app.get("/api/agent/remote/{key}/jobs")
+        def remote_jobs(key: str, request: Request):
+            self.actor(request, "context")
+            return {"items": service.remotes.call(key, "history")}
+
+        @app.get("/api/agent/remote/{key}/jobs/{job_id}")
+        def remote_job(key: str, job_id: str, request: Request):
+            self.actor(request, "context")
+            return service.remotes.call(key, "job", {"job_id": job_id})
+
+        @app.post("/api/agent/remote/{key}/jobs/{job_id}/cancel")
+        def remote_job_cancel(key: str, job_id: str, request: Request,
+                             payload: dict | None = None):
+            self.actor(request, "run")
+            return service.remotes.call(key, "cancel", {"job_id": job_id})
+
         @app.get("/api/agent/remote/{key}/environments")
         def remote_environments(key: str, request: Request):
             self.actor(request, "context")
@@ -234,6 +250,12 @@ class Bridge:
             self.actor(request, "plugins")
             return service.remotes.install_dependency(key, name, payload or {})
 
+        @app.post("/api/agent/remote/{key}/environments/{name}/repair")
+        def remote_environment_repair(key: str, name: str, request: Request,
+                                      payload: dict | None = None):
+            self.actor(request, "plugins")
+            return service.remotes.environment_repair(key, name)
+
         @app.get("/api/agent/remote/{key}/resources")
         def remote_resources(key: str, request: Request):
             self.actor(request, "context")
@@ -263,6 +285,17 @@ class Bridge:
                                          "unit": str(body.get("unit") or ""),
                                          "root": str(body.get("root") or ""),
                                          "overwrite": bool(body.get("overwrite"))})
+
+        @app.post("/api/agent/remote/{key}/resources/{name}/cancel")
+        def remote_resources_cancel(key: str, name: str, request: Request,
+                                    payload: dict | None = None):
+            self.actor(request, "run")
+            return service.remotes.call(key, "resources_cancel", {"name": name})
+
+        @app.get("/api/agent/remote/{key}/resources/{name}/log")
+        def remote_resources_log(key: str, name: str, request: Request, limit: int = 200):
+            self.actor(request, "context")
+            return service.remotes.call(key, "resources_log", {"name": name, "limit": limit})
 
         @app.post("/api/agent/browse")
         def browse_directory(request: Request, payload: dict | None = None):

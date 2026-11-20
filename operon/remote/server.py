@@ -148,50 +148,55 @@ def _resource_catalogue(service) -> dict:
     return items
 
 
-def resource_readiness(names: list[str]) -> tuple[int, int, list[str]]:
-    """Return (ready units, total units, missing resource names) for one environment."""
+_SNAPSHOT_SERVICE: dict[str, object] = {}
+
+
+def resource_readiness(names: list[str], environment: str = '') -> tuple[int, int, list[str]]:
+    """Return (ready cards, total cards, missing names) for one environment.
+
+    Cards are the serialized units the panel renders and the verdict is
+    ``resource_api.card_ready``, so a remote badge matches the local one.
+    ``names`` stays authoritative for the manifest; ``environment`` additionally
+    picks up resources that only reach it through an operator's environment,
+    exactly like ``item['environments']``.
+    """
     service = _SNAPSHOT_SERVICE.get('service')
-    if service is None or not names:
+    if service is None:
         return 0, 0, []
+    from src.web import resource_api
+
     catalogue = _resource_catalogue(service)
+    wanted: list[str] = []
+    for name in names or ():
+        text = str(name)
+        if text and text not in wanted:
+            wanted.append(text)
+    if environment:
+        for name, item in catalogue.items():
+            if not isinstance(item, dict):
+                continue
+            owners = {str(value) for value in item.get('environments') or ()}
+            if environment in owners and name not in wanted:
+                wanted.append(name)
     ready = 0
     total = 0
     missing: list[str] = []
-    for name in names:
+    for name in wanted:
         item = catalogue.get(name)
         if not isinstance(item, dict):
             continue
-        units = [unit for unit in item.get('units') or [] if isinstance(unit, dict)]
-        if not units:
+        cards = [card for card in item.get('components') or [] if isinstance(card, dict)]
+        if not cards:
+            cards = [card for card in item.get('units') or [] if isinstance(card, dict)] or [item]
+        for card in cards:
             total += 1
-            if str(item.get('state') or '') in {'downloaded', 'linked'}:
+            if resource_api.card_ready(card):
                 ready += 1
             else:
-                missing.append(str(item.get('official_root') or name))
-            continue
-        for unit in units:
-            total += 1
-            gaps = unit.get('files_missing')
-            if isinstance(gaps, list) and unit.get('files'):
-                if gaps:
-                    missing.append(str(unit.get('name') or name))
-                else:
-                    ready += 1
-                continue
-            files = [entry for entry in unit.get('files') or [] if isinstance(entry, dict)]
-            if files:
-                if all(entry.get('present') for entry in files):
-                    ready += 1
-                else:
-                    missing.append(str(unit.get('name') or name))
-            elif str(unit.get('state') or '') in {'downloaded', 'linked'}:
-                ready += 1
-            else:
-                missing.append(str(unit.get('name') or name))
+                label = str(card.get('name') or item.get('official_root') or name)
+                if label not in missing:
+                    missing.append(label)
     return ready, total, missing
-
-
-_SNAPSHOT_SERVICE: dict[str, object] = {}
 
 
 def environment_snapshot(service) -> dict:
@@ -223,7 +228,7 @@ def environment_snapshot(service) -> dict:
         item['dependencies'] = rows
         entry_map = entry if isinstance(entry, dict) else {}
         declared = [str(value) for value in (entry_map.get('resources') or []) if value]
-        ready_units, all_units, missing_names = resource_readiness(declared)
+        ready_units, all_units, missing_names = resource_readiness(declared, name)
         item['resources_total'] = all_units
         item['resources_ready'] = ready_units
         item['resources_missing'] = missing_names
@@ -249,6 +254,20 @@ def environment_log(service, name: str, limit: int = 200) -> dict:
         size = 200
     lines = path.read_text(encoding='utf-8', errors='replace').splitlines()[-size:]
     return {'name': name, 'text': '\n'.join(lines), 'path': str(path)}
+
+
+def environment_repair(service, payload: dict | None = None) -> dict:
+    from operon import environment_install
+    from operon.documents import CommandError
+    name = str((payload or {}).get('name') or '').strip()
+    if not name:
+        raise CommandError('unknown_environment', 'environment repair requires a name')
+    snapshot = environment_snapshot(service)
+    try:
+        result = environment_install.repair(name, root=snapshot.get('root'))
+    except ValueError as error:
+        raise CommandError('unknown_environment', str(error)) from error
+    return {**snapshot, 'repair': result}
 
 
 def environment_dependency(service, payload: dict | None = None) -> dict:
@@ -324,7 +343,7 @@ def environment_prepare(service, payload: dict | None = None) -> dict:
         for name, entry in (snapshot.get('environments') or {}).items():
             if names is not None and name not in names:
                 continue
-            if (entry or {}).get('status') not in ('missing', 'stale', 'failed'):
+            if not environment_install.needs_preparation((entry or {}).get('status') or ''):
                 continue
             if name in _ENVIRONMENT_JOBS:
                 continue
@@ -697,6 +716,8 @@ class RemoteService:
         if method == 'environments_log':
             return environment_log(self.service, str((params or {}).get('name') or ''),
                                    (params or {}).get('limit') or 200)
+        if method == 'environments_repair':
+            return environment_repair(self.service, params)
         if method == 'resources':
             from src.web import resource_api
             return resource_api.snapshot(self.service)
@@ -720,6 +741,19 @@ class RemoteService:
                                       str(payload.get('root') or '') or None,
                                       bool(payload.get('overwrite')),
                                       str(payload.get('unit') or '') or None)
+        if method == 'resources_cancel':
+            from src.web import resource_api
+            name = str((params or {}).get('name') or '')
+            try:
+                return resource_api.cancel(self.service, name)
+            except KeyError as error:
+                raise CommandError('no_running_download',
+                                   f'no running download: {name}') from error
+        if method == 'resources_log':
+            from src.web import resource_api
+            payload = params or {}
+            return resource_api.read_log(self.service, str(payload.get('name') or ''),
+                                         payload.get('limit') or 200)
         if method == 'library_remove':
             from operon.library_install import uninstall_library
             name = str((params or {}).get('name') or '')

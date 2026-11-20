@@ -246,7 +246,8 @@ def create_server(client):
         if profile_id:
             return client.request('/remote/' + quote(profile_id, safe='') + '/environments/prepare',
                                   {'names': names, 'dependencies': dependencies})
-        return client.request('/v1/environments/prepare', {'names': names})
+        return client.request('/v1/environments/prepare',
+                              {'names': names, 'dependencies': bool(dependencies)})
 
     @server.tool()
     def operon_environments_cancel(name: str, profile_id: str | None = None) -> dict:
@@ -263,6 +264,17 @@ def create_server(client):
     def operon_environment_retry(name: str, profile_id: str | None = None) -> dict:
         """Cancel a stale preparation and start it again; mirrors the UI repair button."""
         suffix = '/environments/' + quote(name, safe='') + '/retry'
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + suffix, {})
+        return client.request('/v1' + suffix, {})
+
+    @server.tool()
+    def operon_environment_repair(name: str, profile_id: str | None = None) -> dict:
+        """Rewrite stale staging shebangs in an environment that is already installed.
+
+        Requires --allow-plugins. Pass profile_id to repair that configured remote server.
+        """
+        suffix = '/environments/' + quote(name, safe='') + '/repair'
         if profile_id:
             return client.request('/remote/' + quote(profile_id, safe='') + suffix, {})
         return client.request('/v1' + suffix, {})
@@ -330,8 +342,13 @@ def create_server(client):
         return job_view(client.request('/v1/jobs', payload), view)
 
     @server.tool()
-    def operon_jobs() -> dict:
-        """List durable task status independently of open windows."""
+    def operon_jobs(profile_id: str | None = None) -> dict:
+        """List durable task status independently of open windows.
+
+        Pass profile_id to list the jobs known to that configured remote server.
+        """
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/jobs')
         return {'items': client.request('/v1/jobs')}
 
     @server.tool()
@@ -524,8 +541,13 @@ def create_server(client):
         return client.request('/remote/' + quote(profile_id, safe='') + '/library/status')
 
     @server.tool()
-    def operon_pool_status() -> dict:
-        """Show the local shared pool: version, owner, workspaces and active tasks."""
+    def operon_pool_status(profile_id: str | None = None) -> dict:
+        """Show the shared pool: version, owner, workspaces and active tasks.
+
+        Pass profile_id to read that configured remote server's pool.
+        """
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/pool')
         return client.request('/pool')
 
     @server.tool()
@@ -632,7 +654,7 @@ def create_server(client):
 
     @server.tool()
     def operon_job(job_id: str | None = None, view: str = 'brief', wait_seconds: float = 0,
-                   id: str | None = None) -> dict:
+                   id: str | None = None, profile_id: str | None = None) -> dict:
         """Read brief status, or wait internally up to 120 seconds; a closed window returns running with wait_timed_out, never a failure."""
         import math
         from .agent_views import job_view, wait_job
@@ -642,6 +664,21 @@ def create_server(client):
         if not math.isfinite(wait_seconds) or not 0 <= wait_seconds <= 120:
             raise ValueError('wait_seconds must be between 0 and 120')
         job_view({}, view)
+        if profile_id:
+            import time
+            from .agent_views import ACTIVE
+            path = ('/remote/' + quote(profile_id, safe='') + '/jobs/' +
+                    quote(job_id, safe=''))
+            job = client.request(path)
+            if wait_seconds:
+                deadline = time.monotonic() + wait_seconds
+                while job.get('status') in ACTIVE:
+                    remaining = deadline - time.monotonic()
+                    if remaining <= 0:
+                        return job_view({**job, 'wait_timed_out': True}, view)
+                    time.sleep(min(0.5, remaining))
+                    job = client.request(path)
+            return job_view(job, view)
         try:
             job = client.request('/v1/jobs/' + quote(job_id, safe='') + '?view=' + view)
         except ClientError as error:
@@ -656,8 +693,14 @@ def create_server(client):
         return wait_job(client, job, wait_seconds, view=view) if wait_seconds else job
 
     @server.tool()
-    def operon_cancel(job_id: str) -> dict:
-        """Cancel a running job. Requires --allow-run."""
+    def operon_cancel(job_id: str, profile_id: str | None = None) -> dict:
+        """Cancel a running job locally or on a configured remote server.
+
+        Requires --allow-run. Pass profile_id to cancel a job on that remote server.
+        """
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/jobs/'
+                                  + quote(job_id, safe='') + '/cancel', {})
         return client.request('/v1/jobs/' + quote(job_id, safe='') + '/cancel', {})
 
     @server.tool()
@@ -739,13 +782,26 @@ def create_server(client):
                               method='DELETE')
 
     @server.tool()
-    def operon_resource_cancel(name: str) -> dict:
-        """Cancel the active download of one resource. Requires --allow-run."""
+    def operon_resource_cancel(name: str, profile_id: str | None = None) -> dict:
+        """Cancel the active download of one resource. Requires --allow-run.
+
+        Pass profile_id to cancel a download on that configured remote server.
+        """
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + '/resources/' +
+                                  quote(name, safe='') + '/cancel', {})
         return client.request('/v1/large-resources/' + quote(name, safe='') + '/cancel', {})
 
     @server.tool()
-    def operon_resource_log(name: str, limit: int = 200) -> dict:
-        """Read the tail of one resource download log (at most 2000 lines)."""
+    def operon_resource_log(name: str, limit: int = 200, profile_id: str | None = None) -> dict:
+        """Read the tail of one resource download log (at most 2000 lines).
+
+        Pass profile_id to read the log kept on that configured remote server.
+        """
+        suffix = ('/resources/' + quote(name, safe='') + '/log?limit=' +
+                  str(max(1, min(int(limit), 2000))))
+        if profile_id:
+            return client.request('/remote/' + quote(profile_id, safe='') + suffix)
         return client.request('/v1/large-resources/' + quote(name, safe='') + '/log?limit=' +
                               str(max(1, min(int(limit), 2000))))
 

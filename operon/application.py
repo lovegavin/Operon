@@ -185,7 +185,7 @@ class Application:
         descriptors = self.service.plugins.state().get('descriptors') or []
         plan = environment_install.plan(root(), descriptors, source=source)
         wanted = list(names) if names else [name for name, item in plan.items()
-                                            if item['status'] in ('missing', 'stale')]
+                                            if environment_install.needs_preparation(item['status'])]
         if graph is not None:
             used = {getattr(node, 'operator', None) for node in graph.nodes}
             wanted = [name for name in wanted if used.intersection(plan.get(name, {}).get('used_by') or [])]
@@ -198,7 +198,7 @@ class Application:
                 prepared.append({'name': name, 'status': 'failed', 'error': str(exc)})
         return prepared
 
-    def start_isolated_environments(self, names=None, *, graph=None):
+    def start_isolated_environments(self, names=None, *, graph=None, dependencies=False):
         """Start installation in the background and return immediately."""
         import threading
         import time
@@ -209,7 +209,7 @@ class Application:
         descriptors = self.service.plugins.state().get('descriptors') or []
         plan = environment_install.plan(root(), descriptors, source=source)
         wanted = list(names) if names else [name for name, item in plan.items()
-                                            if item['status'] in ('missing', 'stale')]
+                                            if environment_install.needs_preparation(item['status'])]
         if graph is not None:
             used = {getattr(node, 'operator', None) for node in graph.nodes}
             wanted = [name for name in wanted if used.intersection(plan.get(name, {}).get('used_by') or [])]
@@ -218,6 +218,18 @@ class Application:
             jobs = self._environment_jobs = {}
         running = {job['name'] for job in jobs.values() if job['status'] == 'running'}
         started = []
+        if dependencies:
+            ids = sorted({str(item) for name in wanted
+                          for item in (plan.get(name, {}).get('used_by') or [])})
+            if ids:
+                def repair(ids=ids):
+                    try:
+                        self.service.dependencies.check(
+                            repair=True, repair_r=True, ids=ids)
+                    except Exception:
+                        pass
+                threading.Thread(target=repair, name='dependency-repair',
+                                 daemon=True).start()
         for name in wanted:
             if name in running:
                 continue

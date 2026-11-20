@@ -242,6 +242,14 @@ def _dependency_fields(result: dict, entry: dict, directory: Path) -> None:
     result['missing_dependencies'] = [str(row.get('name')) for row in rows if not row.get('installed')][:8]
 
 
+PREPARABLE_STATUSES = frozenset({'missing', 'failed', 'stale', 'incomplete'})
+
+
+def needs_preparation(status: str) -> bool:
+    """Return True when an environment in ``status`` should be prepared."""
+    return status in PREPARABLE_STATUSES
+
+
 def state(name: str, root=None, source=None) -> dict:
     """Report one environment without creating or probing anything."""
     entry = environments.describe(name, source)

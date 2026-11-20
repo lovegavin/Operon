@@ -230,6 +230,12 @@ def unit_coverage(resource, unit: str | None) -> tuple[list[str], list[str]]:
         names = [name for name in names if name]
     sources = [(str(entry.get('path') or ''), str(entry.get('member') or ''))
                for entry in getattr(resource, 'downloads', ()) or ()]
+    # A git entry fills a directory from a repository instead of streaming one
+    # file, so it covers the declared names below its path (an empty path means
+    # the whole resource comes from the checkout).
+    git_paths = [str(entry.get('path') or '').strip().replace('\\', '/').strip('/')
+                 for entry in getattr(resource, 'downloads', ()) or ()
+                 if isinstance(entry.get('git'), dict)]
     if not names and any(path and path == unit for path, _member in sources):
         return [str(unit or 'archive')], []
     covered: list[str] = []
@@ -250,14 +256,201 @@ def unit_coverage(resource, unit: str | None) -> tuple[list[str], list[str]]:
                 text = str(parsed.get('path') or '')
         if not text:
             continue
+        normalised = text.replace('\\', '/').strip('/')
         matched = any(
             text == source
             or (source and base(source) == base(text))
             or (member and (text == member or base(member) == base(text)))
             for source, member in sources
+        ) or any(
+            not prefix
+            or normalised == prefix
+            or normalised.startswith(prefix + '/')
+            for prefix in git_paths
         )
         (covered if matched else missing).append(text)
+    if not covered:
+        # A unit that ships one archive (declared under the unit name, no
+        # member) is the HTTP source for every file it declares, even though no
+        # per-file path equals the archive path.
+        for source, member in sources:
+            if source and source == str(unit or '') and not member:
+                return list(names), []
     return covered, missing
+
+
+def _declared_names(entries) -> list[str]:
+    """Normalise a manifest file list into plain relative names."""
+    names: list[str] = []
+    for entry in entries or ():
+        if isinstance(entry, dict):
+            text = str(entry.get('path') or entry.get('name') or '')
+        else:
+            text = str(entry or '')
+        text = text.strip()
+        if text and text not in names:
+            names.append(text)
+    return names
+
+
+def unit_declared_files(resource, unit: str) -> list[str]:
+    """Return the file names one unit must have on disk.
+
+    The manifest may leave ``units[].files`` empty and declare the payload only
+    at resource level (``expected_files`` / ``files``).  With a single unit that
+    list unambiguously belongs to it, so the card stays checkable instead of
+    being reported as never inspected; a multi-unit resource never guesses.
+    """
+    units = [entry for entry in getattr(resource, 'components', ()) or ()
+             if isinstance(entry, dict)]
+    files: list[str] = []
+    for entry in units:
+        if str(entry.get('name') or '') == unit:
+            files = _declared_names(entry.get('files'))
+            break
+    if files or len(units) > 1:
+        return files
+    return _declared_names(getattr(resource, 'expected_files', ())
+                           or getattr(resource, 'files', ()))
+
+
+def _split_presence(base, declared) -> tuple[list[str], list[str]]:
+    """Split declared names into the ones present under ``base`` and the rest.
+
+    ``base`` is the only directory those files can live in; without it nothing is
+    on disk, which must read as "all missing" rather than "nothing declared".
+    """
+    present: list[str] = []
+    missing: list[str] = []
+    for name in declared:
+        if base is not None and (base / name).exists():
+            present.append(name)
+        else:
+            missing.append(name)
+    return present, missing
+
+
+def _card_state(present, missing, linked: bool) -> str:
+    """One vocabulary for unit/component state, derived from disk presence."""
+    if not present and not missing:
+        return 'unknown'
+    if not missing:
+        return 'linked' if linked else 'present'
+    if present:
+        return 'partial'
+    return 'missing'
+
+
+def card_ready(card) -> bool:
+    """Whether one serialized unit card is fully in place.
+
+    Shared by the local and the remote environment counters so a badge can never
+    disagree with the cards the panel draws from the same payload.
+    """
+    if not isinstance(card, dict):
+        return False
+    if card.get('files_missing'):
+        return False
+    files = [entry for entry in card.get('files') or () if isinstance(entry, dict)]
+    if files:
+        return all(bool(entry.get('present')) for entry in files)
+    return str(card.get('state') or '') in {'present', 'linked', 'downloaded'}
+
+
+def _merge_missing(units, current, components=None) -> list[str]:
+    """Union of the per-card missing names, ignoring stale resource-level entries.
+
+    ``missing`` on the payload now has one source: the cards.  The library's
+    resource-level list can still disagree (it treats a directory as absent), so
+    it is only used when no card published a verdict at all.
+    """
+    cards = [card for card in list(units or ()) + list(components or ())
+             if isinstance(card, dict) and 'files_missing' in card]
+    if not cards:
+        return [str(name) for name in current or () if str(name)]
+    merged: list[str] = []
+    for card in cards:
+        for name in card.get('files_missing') or ():
+            text = str(name)
+            if text and text not in merged:
+                merged.append(text)
+    return merged
+
+
+def _component_name(entry) -> str:
+    return str(entry.get('name') or entry.get('path') or '') if isinstance(entry, dict) else ''
+
+
+def _mirror_components(components, units, rsync=None, downloads=None) -> None:
+    """Copy the unit verdict onto the matching component.
+
+    The panel renders components, so every component publishes the same fields
+    and both views agree: ``missing`` comes from ``files_missing`` and
+    ``files[].present`` is rewritten from it.  A component without a matching
+    unit still gets the fields, derived from its own manifest entries, so the
+    frontend never reads an absent key.
+    """
+    rows = [unit for unit in units or () if isinstance(unit, dict)]
+    by_name = {str(unit.get('name') or ''): unit for unit in rows}
+    single = rows[0] if len(rows) == 1 and len(components or ()) == 1 else None
+    sources = set()
+    for entry in downloads or ():
+        if isinstance(entry, dict):
+            for key in ('path', 'member'):
+                text = str(entry.get(key) or '')
+                if text:
+                    sources.add(text)
+    for component in components or ():
+        if not isinstance(component, dict):
+            continue
+        entries = [entry for entry in component.get('files') or ()
+                   if isinstance(entry, dict)]
+        declared = [_component_name(entry) for entry in entries]
+        absent = [_component_name(entry) for entry in entries
+                  if not entry.get('present')]
+        present = [name for name in declared if name not in set(absent)]
+        component.setdefault('downloadable',
+                             [name for name in declared if name in sources])
+        component.setdefault('undownloadable', [])
+        component.setdefault('files_present', present)
+        component.setdefault('files_missing', absent)
+        component.setdefault('missing', list(component['files_missing']))
+        component.setdefault('download_supported',
+                             bool(component['downloadable']) or bool(rsync))
+        component.setdefault('state', 'unknown' if not declared else
+                             ('partial' if absent and len(absent) < len(declared)
+                              else ('missing' if absent else 'present')))
+        component.setdefault('source', '')
+        if 'rsync' not in component:
+            component['rsync'] = rsync
+        unit = by_name.get(str(component.get('name') or '')) or single
+        if unit is None:
+            continue
+        for field in ('downloadable', 'undownloadable', 'download_supported',
+                      'files_present', 'files_missing', 'rsync', 'state', 'source'):
+            if field in unit:
+                component[field] = unit[field]
+        if rsync is not None:
+            component.setdefault('rsync', rsync)
+        if 'files_missing' not in unit:
+            continue
+        missing = [str(name) for name in unit.get('files_missing') or ()]
+        present = {str(name) for name in unit.get('files_present') or ()}
+        component['missing'] = missing
+        missing_names = set(missing)
+        files = []
+        for entry in component.get('files') or ():
+            if not isinstance(entry, dict):
+                files.append(entry)
+                continue
+            copy = dict(entry)
+            relative = str(copy.get('name') or copy.get('path') or '')
+            if relative in missing_names:
+                copy['present'] = False
+            elif relative in present:
+                copy['present'] = True
+            files.append(copy)
+        component['files'] = files
 
 
 def snapshot(service) -> dict:
@@ -322,44 +515,46 @@ def snapshot(service) -> dict:
             unit['receipt'] = bool(known.get('receipt'))
         item['units'] = list(item.get('units') or [])
         for unit in item['units']:
-            covered, missing = unit_coverage(resource, str(unit.get('name') or ''))
+            unit_name = str(unit.get('name') or '')
+            covered, missing = unit_coverage(resource, unit_name)
             if not covered:
                 # A unit and its resource may disagree on how a file is keyed
                 # (tree units often store the bare name while downloads store
                 # the path). Fall back to an explicit path match so a unit that
                 # declares downloadable files never renders as having no source.
-                declared = {str(entry.get('path') or entry) for entry in unit.get('files') or []}
-                covered = [dict(entry) for entry in getattr(resource, 'downloads', ()) or ()
-                           if str(entry.get('path') or '') in declared]
+                declared_paths = set()
+                for entry in unit.get('files') or ():
+                    text = (str(entry.get('path') or '') if isinstance(entry, dict)
+                            else str(entry or ''))
+                    if text:
+                        declared_paths.add(text)
+                covered = [str(entry.get('path') or '')
+                           for entry in getattr(resource, 'downloads', ()) or ()
+                           if str(entry.get('path') or '') in declared_paths]
                 if covered:
-                    missing = [name for name in missing if name not in declared]
+                    missing = [name for name in missing if name not in declared_paths]
             unit['downloadable'] = covered
             base = None
             if unit.get('state') == 'linked' and item.get('link_target'):
                 base = Path(str(item['link_target']).replace('\\?\\', ''))
             elif item.get('root'):
                 base = Path(str(item['root']).replace('\\?\\', ''))
-            missing_files: list[str] = []
-            present_files: list[str] = []
-            if base is not None:
-                for entry in unit.get('files') or []:
-                    relative = entry if isinstance(entry, str) else str(
-                        entry.get('path') or entry.get('name') or '')
-                    if not relative:
-                        continue
-                    if (base / relative).exists():
-                        present_files.append(relative)
-                    else:
-                        missing_files.append(relative)
+            present_files, missing_files = _split_presence(
+                base, unit_declared_files(resource, unit_name))
             unit['files_present'] = present_files
             unit['files_missing'] = missing_files
-            if missing_files and unit.get('state') in {'linked', 'downloaded', 'present', 'ready'}:
-                unit['state'] = 'partial'
+            unit['state'] = _card_state(present_files, missing_files,
+                                        str(unit.get('state') or '') == 'linked')
             unit['undownloadable'] = missing
             unit['rsync'] = getattr(resource, 'rsync', None)
             unit['download_supported'] = bool(covered) or bool(unit.get('rsync')) or any(
-                str(entry.get('unit') or '') == str(unit.get('name') or '')
+                str(entry.get('unit') or '') == unit_name
                 for entry in getattr(resource, 'downloads', ()) or ())
+        _mirror_components(item['components'], item['units'],
+                          getattr(resource, 'rsync', None),
+                          getattr(resource, 'downloads', ()))
+        item['missing'] = _merge_missing(item['units'], item.get('missing'),
+                                         item['components'])
         item['rsync'] = getattr(resource, 'rsync', None)
         item['size_bytes'] = _size_bytes(item.get('root'), names)
         items.append(item)
@@ -408,8 +603,11 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
     if not candidates:
         raise ValueError("download entry has no url")
     for candidate_url in candidates:
-        if not candidate_url.startswith("https://"):
-            raise ValueError(f"only https:// downloads are allowed: {candidate_url!r}")
+        if not candidate_url.startswith(("https://", "http://", "ftp://")):
+            raise ValueError(
+                "unsupported download scheme: "
+                f"{candidate_url!r}; declare https://, http://, ftp://, "
+                "rsync:// or a git entry")
     relative = str(entry["path"])
     candidate = Path(relative)
     if not relative or candidate.is_absolute() or ".." in candidate.parts:
@@ -578,18 +776,26 @@ def unit_downloads(name: str, resource, unit: str | None) -> tuple[list[dict], s
             raise ValueError(f"resource '{name}' has no downloadable files")
         return downloads, None
     selected = None
-    allowed = None
     for component in getattr(resource, 'components', ()) or ():
         if str(component.get('name')) == unit:
             selected = component
-            files = component.get('files') or []
-            if files:
-                allowed = {str(item) for item in files}
             break
     if selected is None:
         raise ValueError(f"resource '{name}' has no unit named {unit!r}")
+    allowed = None
     downloads = list(resource.downloads or ())
     if downloads:
+        # The allowed set is the same coverage the panel counts as downloadable.
+        # A unit that ships one archive is addressed by the unit name rather than
+        # by the files inside it, and a unit whose manifest only lists its files
+        # at resource level must not filter every entry away.
+        covered = {str(entry) for entry in unit_coverage(resource, unit)[0]}
+        if covered:
+            for entry in downloads:
+                if str(entry.get('path') or '') == unit and not str(entry.get('member') or ''):
+                    covered.add(str(unit))
+            if any(str(entry.get('path') or '') in covered for entry in downloads):
+                allowed = covered
         return downloads, allowed
     spec = getattr(resource, 'rsync', None)
     if isinstance(spec, dict) and str(spec.get('url') or '').strip():
@@ -660,8 +866,15 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
                 if event.is_set():
                     raise RuntimeError('cancelled')
                 job['current'] = str(entry.get('path') or '')
+                url_value = str(entry.get('url') or '')
+                git = entry.get('git')
+                if not isinstance(git, dict) and url_value.startswith(('git+', 'git://')):
+                    git = {'url': url_value[4:] if url_value.startswith('git+') else url_value}
                 spec = entry.get('rsync')
-                if isinstance(spec, dict):
+                if isinstance(git, dict) and str(git.get('url') or '').strip():
+                    emit(f'GIT {git.get("url")} -> {target}')
+                    result = _git_fetch(git, target, event=event, job=job, emit=emit)
+                elif isinstance(spec, dict):
                     emit(f'RSYNC {spec.get("url")} -> {target}')
                     result = _rsync_fetch(spec, target, event=event, job=job, emit=emit)
                 else:
@@ -736,6 +949,80 @@ def _rsync_fetch(spec: dict, target: Path, *, event: threading.Event,
     if code != 0:
         raise RuntimeError(f'rsync 失败（退出码 {code}）：{url}')
     return {'status': 'fetched', 'bytes': 0}
+
+
+def _git_fetch(spec: dict, target: Path, *, event: threading.Event,
+               job: dict, emit) -> dict:
+    """Clone one repository (or one subdirectory of it) into the target.
+
+    Several upstreams publish only sources: the OpenFold checkout, the
+    AntiSMASH web assets, the RFdiffusion scripts.  A git entry either fills a
+    directory or copies a subdirectory out of the checkout, so the resource
+    keeps the same declared file layout as an archive download.
+    """
+    import tempfile
+
+    url = str(spec.get('url') or '').strip()
+    if url.startswith('git+'):
+        url = url[4:]
+    if not url:
+        raise RuntimeError('git 源为空：清单里没有给出仓库地址')
+    binary = os.environ.get('OPERON_GIT') or shutil.which('git')
+    if not binary:
+        raise RuntimeError(
+            'git 不可用：这台机器没有找到 git 可执行文件。可以链接已有目录，'
+            '或安装 git 后重试。')
+    ref = str(spec.get('ref') or spec.get('branch') or spec.get('tag') or '').strip()
+    subdir = str(spec.get('subdir') or '').strip().strip('/')
+    target.mkdir(parents=True, exist_ok=True)
+    scratch = Path(tempfile.mkdtemp(prefix='operon-git-', dir=str(target.parent)))
+    checkout = scratch / 'checkout'
+    command = [binary, 'clone', '--depth', '1', '--no-tags']
+    if ref:
+        command += ['--branch', ref]
+    command += [url, str(checkout)]
+    emit('GIT ' + ' '.join(command))
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                               text=True, bufsize=1)
+    try:
+        for line in process.stdout:  # type: ignore[union-attr]
+            if event.is_set():
+                process.terminate()
+                raise RuntimeError('cancelled')
+            clean = line.strip()
+            if clean:
+                emit(clean)
+                job['current'] = clean[:120]
+        code = process.wait()
+    finally:
+        if process.poll() is None:
+            process.kill()
+    if event.is_set():
+        shutil.rmtree(scratch, ignore_errors=True)
+        raise RuntimeError('cancelled')
+    if code != 0:
+        shutil.rmtree(scratch, ignore_errors=True)
+        raise RuntimeError(f'git 失败（退出码 {code}）：{url}')
+    origin = checkout / subdir if subdir else checkout
+    if not origin.is_dir():
+        shutil.rmtree(scratch, ignore_errors=True)
+        raise RuntimeError(f'git 检出后找不到子目录 {subdir!r}：{url}')
+    copied = 0
+    try:
+        for item in origin.rglob('*'):
+            if event.is_set():
+                raise RuntimeError('cancelled')
+            if not item.is_file():
+                continue
+            relative = item.relative_to(origin)
+            destination = target / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(item, destination)
+            copied += item.stat().st_size
+    finally:
+        shutil.rmtree(scratch, ignore_errors=True)
+    emit(f'GIT OK {url} {copied} bytes')
+    return {'status': 'cloned', 'bytes': copied}
 
 
 def cancel(service, name: str) -> dict:

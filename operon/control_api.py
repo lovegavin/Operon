@@ -47,6 +47,7 @@ class SubmissionRequest(BaseModel):
 class EnvironmentRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     names: list[str] | None = Field(default=None, max_length=20)
+    dependencies: bool = False
 
 
 class TaskRequest(BaseModel):
@@ -161,7 +162,19 @@ def mount_control(app, application, bridge):
     def prepare_environments(request: Request, payload: EnvironmentRequest):
         authorize(request, 'plugins')
         return {**application.isolated_environments(),
-                'prepared': application.start_isolated_environments(payload.names)}
+                'dependencies': payload.dependencies,
+                'prepared': application.start_isolated_environments(
+                    payload.names, dependencies=payload.dependencies)}
+
+    @app.post('/api/v1/environments/{name}/repair')
+    def repair_environment(request: Request, name: str):
+        authorize(request, 'plugins')
+        from . import environment_install
+        try:
+            result = environment_install.repair(name)
+        except ValueError as error:
+            raise CommandError('unknown_environment', str(error)) from error
+        return {**application.isolated_environments(), 'repair': result}
 
     @app.get('/api/v1/large-resources')
     def large_resources(request: Request):

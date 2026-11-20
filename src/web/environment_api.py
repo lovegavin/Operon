@@ -365,24 +365,21 @@ def mount_environments(app, service):
         return item
 
     def resource_counts() -> dict:
-        """Per environment: how many of the resources it declares are in place.
+        """Per environment: the maintenance cards its panel section renders.
 
-        Only the environment manifest decides what belongs to an environment
-        (``environments.json`` -> ``resources``).  A resource can additionally be
-        shared by several environments; those are reported separately so that a
-        shared model never makes a lean environment look incomplete.
+        One count per serialized component - exactly the cards
+        ``RuntimeStatusPanel`` draws from ``large-resources`` - so a header can
+        never disagree with the list below it.  Every resource that names the
+        environment is counted (declared in ``environments.json`` or reached
+        through an operator's environment); counting only declared ids left
+        environments such as ``core`` at 0/0 while five cards were on screen.
         """
         counts: dict = {}
-        declared: dict = {}
         try:
             from . import resource_api as _resource_api
             payload = _resource_api.snapshot(service) or {}
-            library = environment_install.environments.load() or {}
         except Exception:
             return counts
-        for name, entry in _declared_resources(library):
-            if name:
-                declared[name] = {str(item) for item in (entry.get('resources') or [])}
         rows = payload.get('resources')
         if isinstance(rows, dict):
             rows = list(rows.values())
@@ -392,26 +389,18 @@ def mount_environments(app, service):
             rid = str(item.get('id') or '')
             if not rid:
                 continue
-            units = [unit for unit in item.get('units') or [] if isinstance(unit, dict)]
-            gaps = [unit for unit in units if unit.get('files_missing')]
-            good = (str(item.get('state') or '') in {'present', 'downloaded', 'linked', 'ok'}
-                    and not gaps)
+            cards = [card for card in item.get('components') or [] if isinstance(card, dict)]
+            if not cards:
+                cards = [card for card in item.get('units') or [] if isinstance(card, dict)] or [item]
             for environment in item.get('environments') or []:
                 environment = str(environment)
-                bucket = counts.setdefault(environment, {
-                    'total': 0, 'ready': 0, 'missing': [],
-                    'shared_total': 0, 'shared_ready': 0,
-                })
-                if rid in declared.get(environment, set()):
+                bucket = counts.setdefault(environment, {'total': 0, 'ready': 0, 'missing': []})
+                for card in cards:
                     bucket['total'] += 1
-                    if good:
+                    if _resource_api.card_ready(card):
                         bucket['ready'] += 1
-                    else:
+                    elif rid not in bucket['missing']:
                         bucket['missing'].append(rid)
-                else:
-                    bucket['shared_total'] += 1
-                    if good:
-                        bucket['shared_ready'] += 1
         return counts
 
     def snapshot():
@@ -708,7 +697,7 @@ def mount_environments(app, service):
             entries_by_name = entries
             names = sorted(
                 (name for name, item in plan().items()
-                 if item['status'] not in {'ready', 'queued', 'installing'}),
+                 if environment_install.needs_preparation(item['status'])),
                 key=lambda name: environment_install.estimates.expected(
                     name, entries_by_name.get(name), environments.root()) or 0)
         if not isinstance(names, list) or not all(isinstance(name, str) for name in names):
@@ -734,7 +723,6 @@ def mount_environments(app, service):
         return {**snapshot(), 'job': job['id']}
 
     @app.post('/api/environments/{name}/repair')
-    @app.post('/api/v1/environments/{name}/repair')
     def repair_environment(name: str):
         try:
             result = environment_install.repair(name)

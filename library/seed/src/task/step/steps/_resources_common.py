@@ -123,10 +123,23 @@ class Resource:
                 mirrors = [str(raw_url).strip()]
             else:
                 mirrors = []
+            raw_git = item.get("git")
+            git_spec: dict[str, Any] | None = None
+            if isinstance(raw_git, dict) and str(raw_git.get("url") or "").strip():
+                git_url = str(raw_git.get("url")).strip()
+                if git_url.startswith("git+"):
+                    git_url = git_url[4:]
+                git_spec = {
+                    "url": git_url,
+                    "branch": str(raw_git.get("branch") or raw_git.get("ref") or ""),
+                    "subdir": str(raw_git.get("subdir") or ""),
+                    "note": str(raw_git.get("note") or ""),
+                }
             for mirror in mirrors:
-                if not mirror.startswith("https://"):
+                if not mirror.startswith(("https://", "http://", "ftp://")):
                     raise StepError(
-                        f"resource '{identifier}' download URL must use https://: {mirror!r}"
+                        f"resource '{identifier}' download URL must use https://, http:// "
+                        f"or ftp://: {mirror!r}"
                     )
             url = mirrors[0] if len(mirrors) == 1 else mirrors
             rsync = item.get("rsync") or item.get("rsync_source") or ""
@@ -140,7 +153,7 @@ class Resource:
                 raise StepError(
                     f"resource '{identifier}' rsync URL must use rsync://: {rsync_url!r}"
                 )
-            if not mirrors and not rsync_url:
+            if not mirrors and not rsync_url and git_spec is None:
                 raise StepError(f"resource '{identifier}' download entry without a url")
             relative = str(item.get("path") or "").strip()
             candidate = Path(relative)
@@ -160,6 +173,7 @@ class Resource:
                     "member": str(item.get("member") or ""),
                     "unit": str(item.get("unit") or ""),
                     "rsync": rsync_spec if rsync_url else None,
+                    "git": git_spec,
                 }
             )
         raw_link_roots = entry.get("link_roots") or []

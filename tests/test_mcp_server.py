@@ -92,6 +92,8 @@ NEW_FORWARDS = {
     'operon_remote_library_install': (
         {'profile_id': 'profile 1', 'request': {'version': '1.0'}},
         ('/v1/remotes/profile%201/library/install', {'version': '1.0'})),
+    'operon_environment_repair': (
+        {'name': 'web'}, ('/v1/environments/web/repair', {})),
 }
 
 NEW_TOOLS = set(NEW_FORWARDS) | {'operon_workflow_export', 'operon_route_collection_remove'}
@@ -119,7 +121,7 @@ def test_new_mcp_surface_is_complete():
     server = create_server(SimpleNamespace(request=lambda *args, **kwargs: {}))
     names = {tool.name for tool in asyncio.run(server.list_tools())}
     assert NEW_TOOLS <= names
-    assert len(names) == 141
+    assert len(names) == 142
 
 
 def test_route_collection_remove_uses_delete():
@@ -157,6 +159,26 @@ def test_environment_retry_uses_the_client_request_transport():
                                  {'name': 'web', 'profile_id': 'box'}))
     assert calls == [(('/v1/environments/web/retry', {}), {}),
                      (('/remote/box/environments/web/retry', {}), {})]
+
+
+def test_remote_job_tools_use_the_bridge():
+    assert call('operon_jobs', {'profile_id': 'box'}) == [(('/remote/box/jobs',), {})]
+    assert call('operon_pool_status', {'profile_id': 'box'}) == [(('/remote/box/pool',), {})]
+    assert call('operon_job', {'job_id': 'j 1', 'profile_id': 'box'}) == [
+        (('/remote/box/jobs/j%201',), {})]
+    assert call('operon_cancel', {'job_id': 'j 1', 'profile_id': 'box'}) == [
+        (('/remote/box/jobs/j%201/cancel', {}), {})]
+    assert call('operon_resource_cancel', {'name': 'esm2', 'profile_id': 'box'}) == [
+        (('/remote/box/resources/esm2/cancel', {}), {})]
+    assert call('operon_resource_log',
+                {'name': 'esm2', 'limit': 100, 'profile_id': 'box'}) == [
+        (('/remote/box/resources/esm2/log?limit=100',), {})]
+
+
+def test_local_prepare_forwards_dependencies():
+    assert call('operon_environments_prepare',
+                {'names': ['web'], 'dependencies': True}) == [
+        (('/v1/environments/prepare', {'names': ['web'], 'dependencies': True}), {})]
 
 
 def _route_scopes():
@@ -217,6 +239,7 @@ EXPECTED_SCOPES = {
     ('POST', '/api/v1/remotes/{key}/source'): 'context',
     ('POST', '/api/v1/remotes/{key}/library/check'): 'context',
     ('POST', '/api/v1/remotes/{key}/library/install'): 'plugins',
+    ('POST', '/api/v1/environments/{name}/repair'): 'plugins',
 }
 
 

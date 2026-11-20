@@ -169,6 +169,7 @@ they tested; they are historical evidence, not current installation instructions
 - [Operon Studio 5.7.20 test report](releases/operon-5.7.20-test-report.md)
 - [Operon Studio 5.7.21 release](releases/operon-5.7.21.md)
 - [Operon Studio 5.7.21 test report](releases/operon-5.7.21-test-report.md)
+- [Operon Studio 5.7.23 release](releases/operon-5.7.23.md)
 - [Interactive control audit](verification/interaction-audit.md)
 - [Operon Studio 5.7.3 release](releases/operon-5.7.3.md)
 - [Operator library 1.1.2](releases/library-v1.1.3.md)

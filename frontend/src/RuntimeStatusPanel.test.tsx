@@ -11,6 +11,10 @@ import {
   formatElapsed,
   phaseLabel,
   purposeOf,
+  readinessLabels,
+  readinessOf,
+  reasonText,
+  resourceProgress,
   shortId,
   statusTone,
   summarize,
@@ -59,6 +63,7 @@ describe('status mapping', () => {
     expect(statusTone('ready')).toBe('ready');
     expect(statusTone('complete')).toBe('ready');
     expect(statusTone('stale')).toBe('stale');
+    expect(statusTone('incomplete')).toBe('stale');
     expect(statusTone('installing')).toBe('installing');
     expect(statusTone('running')).toBe('installing');
     expect(statusTone('failed')).toBe('failed');
@@ -90,6 +95,7 @@ describe('action availability', () => {
   it('offers repair for stale and failed environments', () => {
     expect(availableActions('stale')).toEqual(['repair', 'log']);
     expect(availableActions('failed')).toEqual(['repair', 'log']);
+    expect(availableActions('incomplete')).toEqual(['repair', 'log']);
   });
 
   it('allows cancel only while installing and keeps logs reachable', () => {
@@ -130,7 +136,7 @@ describe('summary strip', () => {
     const html = renderToStaticMarkup(<SummaryStrip items={items} busy={false} onPrepareAll={noop} onRefresh={noop}/>);
     expect(html).toContain('5 个环境');
     expect(html).toContain('2 已就绪');
-    expect(html).toContain('1 未就绪');
+    expect(html).toContain('1 未安装');
     expect(html).toContain('1 正在安装');
     expect(html).toContain('1 准备安装');
     expect(html).not.toContain('需要更新');
@@ -144,6 +150,70 @@ describe('summary strip', () => {
     expect(idle.match(/disabled=""/g)?.length).toBe(1);
     const busy = renderToStaticMarkup(<SummaryStrip items={[item({status: 'missing'})]} busy={true} onPrepareAll={noop} onRefresh={noop}/>);
     expect(busy.match(/disabled=""/g)?.length).toBe(2);
+  });
+});
+
+describe('readiness groups', () => {
+  it('maps each stored status onto one label and never reuses a label', () => {
+    const labels = Object.values(readinessLabels());
+    expect(new Set(labels).size).toBe(labels.length);
+    expect(readinessOf(item({status: 'ready'}))).toBe('ready');
+    expect(readinessOf(item({status: 'incomplete', dependency_total: 8, dependency_installed: 8})))
+      .toBe('resource-gap');
+    expect(readinessOf(item({status: 'incomplete', dependency_total: 15, dependency_installed: 14})))
+      .toBe('dependency-gap');
+    expect(readinessOf(item({status: 'stale', progress: {phase: 'failed'}}))).toBe('interrupted');
+    expect(readinessOf(item({status: 'stale'}))).toBe('stale');
+    expect(readinessOf(item({status: 'cancelled'}))).toBe('stale');
+    expect(readinessOf(item({status: 'missing'}))).toBe('missing');
+  });
+
+  it('shows one summary line per distinguishable reason', () => {
+    const items = [
+      item({name: 'a', status: 'stale', progress: {phase: 'failed'}}),
+      item({name: 'b', status: 'stale'}),
+      item({name: 'c', status: 'missing'}),
+      item({name: 'd', status: 'incomplete', dependency_total: 8, dependency_installed: 8}),
+      item({name: 'e', status: 'incomplete', dependency_total: 2, dependency_installed: 1}),
+    ];
+    const html = renderToStaticMarkup(<SummaryStrip items={items} busy={false} onPrepareAll={noop} onRefresh={noop}/>);
+    expect(html).toContain('1 安装已中断');
+    expect(html).toContain('1 需重新准备');
+    expect(html).toContain('1 未安装');
+    expect(html).toContain('1 资源未齐备');
+    expect(html).toContain('1 依赖缺失');
+    expect(html).not.toContain('未就绪');
+  });
+
+  it('counts maintenance units like the resource panel and falls back to the counters', () => {
+    expect(resourceProgress(item({resources_total: 0, shared_resources_total: 5, shared_resources_ready: 1})))
+      .toEqual({total: 5, ready: 1});
+    expect(resourceProgress(item({resources_total: 3, resources_ready: 1}), {total: 3, ready: 0}))
+      .toEqual({total: 3, ready: 0});
+    expect(resourceProgress(item({resources_total: 2, resources_ready: 5}))).toEqual({total: 2, ready: 2});
+  });
+
+  it('gives a stale or missing card a definite reason', () => {
+    expect(reasonText(item({status: 'stale'}), 'stale')).toBe('该环境未安装或安装记录已失效，请重新准备');
+    expect(reasonText(item({status: 'missing'}), 'missing')).toBe('该环境未安装或安装记录已失效，请重新准备');
+    const stale = card({status: 'stale'});
+    expect(stale).toContain('data-testid="environment-reason-openmm81"');
+    expect(stale).toContain('该环境未安装或安装记录已失效，请重新准备');
+    expect(card({status: 'stale', progress: {phase: 'failed'}})).toContain('安装已中断');
+    expect(card({status: 'stale', error: '上次安装已中断（安装进程已退出），请重新准备该环境。'}))
+      .toContain('上次安装已中断（安装进程已退出），请重新准备该环境。');
+  });
+
+  it('shows the resource shortfall on an incomplete card', () => {
+    const html = renderToStaticMarkup(<EnvironmentCard
+      item={item({status: 'incomplete', dependency_total: 3, dependency_installed: 3})}
+      gap={{total: 3, ready: 1, missing: ['antismash', 'antismash']}}/>);
+    expect(html).toContain('data-status="stale"');
+    expect(html).toContain('data-readiness="resource-gap"');
+    expect(html).toContain('资源 1/3');
+    expect(html).toContain('资源未齐备');
+    expect(html).toContain('title="缺失资源：antismash"');
+    expect(html).not.toContain('安装失败');
   });
 });
 

@@ -542,6 +542,9 @@ class RemoteManager:
     def environment_log(self, key: str, name: str, limit: int = 200) -> dict:
         return self.call(key, 'environments_log', {'name': name, 'limit': limit})
 
+    def environment_repair(self, key: str, name: str) -> dict:
+        return self.call(key, 'environments_repair', {'name': name})
+
     def call(self, key, method, params=None):
         self.profile(key)
         connection = self.connections.get(key)

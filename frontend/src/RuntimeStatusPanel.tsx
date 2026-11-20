@@ -2,10 +2,11 @@ import {useEffect, useState} from 'react';
 import {Modal} from './RouteDialogs';
 import {t} from './i18n';
 import {api} from './api';
-import {LargeResourceSection} from './LargeResourceSection';
+import {isReady, LargeResourceSection, resourceComponents} from './LargeResourceSection';
 import type {
   EnvironmentJob, EnvironmentSnapshot, PoolStatus, RemoteEnvironments, StudioVersion,
 } from './api';
+import type {LargeResource} from './types';
 
 export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
   title?: string;
@@ -27,6 +28,8 @@ export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
   resources_total?: number;
   resources_ready?: number;
   resources_missing?: string[];
+  shared_resources_total?: number;
+  shared_resources_ready?: number;
   missing_dependencies?: string[];
   supported?: boolean;
   platform_note?: string;
@@ -53,6 +56,7 @@ export function statusTone(status: string): Tone {
       return 'ready';
     case 'queued':
       return 'queued';
+    case 'incomplete':
     case 'stale':
       return 'stale';
     case 'installing':
@@ -65,21 +69,37 @@ export function statusTone(status: string): Tone {
   }
 }
 
-const statusKeys: Record<Tone, string> = {
+/**
+ * Status labels keyed by the stored status, never by the colour tone: one tone
+ * covers several statuses, and a colour is not a reason.
+ */
+const statusKeys: Record<string, string> = {
   ready: '已就绪',
-  missing: '未就绪',
-  queued: '准备安装',
-  stale: '未就绪',
-  installing: '正在安装',
+  complete: '已就绪',
+  incomplete: '资源未齐备',
+  stale: '需重新准备',
+  missing: '未安装',
   failed: '安装失败',
+  queued: '准备安装',
+  installing: '正在安装',
+  running: '正在安装',
 };
 
-export type Readiness = 'ready' | 'not-ready' | 'missing' | 'failed' | 'queued' | 'installing';
+/**
+ * Readiness groups. Each group owns one label and no two groups may share it:
+ * the summary strip and the card chip are read as the same text, so a reused
+ * label would merge two different reasons into one line.
+ */
+export type Readiness = 'ready' | 'resource-gap' | 'dependency-gap' | 'interrupted'
+  | 'stale' | 'missing' | 'failed' | 'queued' | 'installing';
 
 const readinessKeys: Record<Readiness, string> = {
   ready: '已就绪',
-  'not-ready': '未就绪',
-  missing: '未就绪',
+  'resource-gap': '资源未齐备',
+  'dependency-gap': '依赖缺失',
+  interrupted: '安装已中断',
+  stale: '需重新准备',
+  missing: '未安装',
   failed: '安装失败',
   queued: '准备安装',
   installing: '正在安装',
@@ -87,28 +107,59 @@ const readinessKeys: Record<Readiness, string> = {
 
 const readinessTones: Record<Readiness, Tone> = {
   ready: 'ready',
-  'not-ready': 'stale',
+  'resource-gap': 'stale',
+  'dependency-gap': 'failed',
+  interrupted: 'failed',
+  stale: 'stale',
   missing: 'missing',
   failed: 'failed',
   queued: 'queued',
   installing: 'installing',
 };
 
-/** Six-state readiness: created, dependencies and resources all count. */
+/**
+ * Maintenance units of one environment, counted the way the resource panel
+ * counts its cards: one per component, ready only when present or linked.
+ * `gap` comes from the same /resources payload the panel renders, so the unit
+ * count and "ready/total" cannot disagree with the cards. The backend counters
+ * are a fallback for snapshots that arrive without that payload (older remote
+ * servers, or a failed fetch); `shared_resources_*` covers an environment whose
+ * units are declared outside the manifest, where `resources_total` stays 0.
+ */
+export function resourceProgress(item: EnvironmentItem, gap?: {total: number; ready: number}) {
+  if (gap && gap.total > 0) return {total: gap.total, ready: Math.min(gap.ready, gap.total)};
+  const declared = Number(item.resources_total || 0);
+  const total = declared || Number(item.shared_resources_total || 0);
+  const ready = declared ? Number(item.resources_ready || 0)
+    : Number(item.shared_resources_ready || 0);
+  return {total, ready: Math.min(ready, total)};
+}
+
+/**
+ * Readiness is decided by the stored status first and by measured dependencies
+ * and resources second. `error` is deliberately not part of the test: a
+ * resource shortfall also writes `error` (environment_api.snapshot), and keying
+ * on it turned every incomplete environment into "安装失败".
+ */
 export function readinessOf(item: EnvironmentItem, gap?: {total: number; ready: number}): Readiness {
-  const tone = statusTone(item.status);
+  const status = String(item.status || '').toLowerCase();
+  const tone = statusTone(status);
   if (tone === 'queued') return 'queued';
   if (tone === 'installing') return 'installing';
-  if (item.error || tone === 'failed') return 'failed';
-  if (tone === 'missing') return item.interpreter ? 'not-ready' : 'missing';
-  if (!item.interpreter) return 'not-ready';
+  if (status === 'missing') return 'missing';
+  if (status === 'failed' || tone === 'failed') return 'failed';
+  if (status === 'cancelled') return 'stale';
+  if (status === 'stale') {
+    return String(item.progress?.phase || '').toLowerCase() === 'failed' ? 'interrupted' : 'stale';
+  }
   const total = Number(item.dependency_total || 0);
   const installed = Number(item.dependency_installed || 0);
-  if (total > 0 && installed < total) return 'not-ready';
-  if (gap && gap.total > 0 && gap.ready < gap.total) return 'not-ready';
-  const resources = Number(item.resources_total || 0);
-  const present = Number(item.resources_ready || 0);
-  if (resources > 0 && present < resources) return 'not-ready';
+  const missingDependencies = total > 0 && installed < total;
+  if (status === 'incomplete') return missingDependencies ? 'dependency-gap' : 'resource-gap';
+  if (missingDependencies) return 'dependency-gap';
+  const progress = resourceProgress(item, gap);
+  if (progress.total > 0 && progress.ready < progress.total) return 'resource-gap';
+  if (!item.interpreter) return 'stale';
   return 'ready';
 }
 
@@ -117,13 +168,16 @@ export function readinessLabels() {
 }
 
 export function readinessCounts(items: EnvironmentItem[], gaps: Record<string, {total: number; ready: number}> = {}) {
-  const counts: Record<Readiness, number> = {ready: 0, 'not-ready': 0, missing: 0, failed: 0, queued: 0, installing: 0};
+  const counts: Record<Readiness, number> = {
+    ready: 0, 'resource-gap': 0, 'dependency-gap': 0, interrupted: 0,
+    stale: 0, missing: 0, failed: 0, queued: 0, installing: 0,
+  };
   for (const item of items) counts[readinessOf(item, gaps[item.name])] += 1;
   return counts;
 }
 
 export function statusLabelKey(status: string) {
-  return statusKeys[statusTone(status)];
+  return statusKeys[String(status || '').toLowerCase()] || readinessKeys.missing;
 }
 
 const phaseKeys: Record<string, string> = {
@@ -144,7 +198,7 @@ export function phaseLabel(phase?: string) {
 export function availableActions(status: string): Action[] {
   const actions: Action[] = [];
   if (status === 'missing' || status === 'cancelled') actions.push('prepare');
-  if (status === 'stale' || status === 'failed') actions.push('repair');
+  if (status === 'stale' || status === 'failed' || status === 'incomplete') actions.push('repair');
   actions.push('log');
   if (statusTone(status) === 'installing' || statusTone(status) === 'queued') actions.push('cancel');
   return actions;
@@ -194,6 +248,27 @@ export function failureText(item: EnvironmentItem) {
   const reason = (item.error || item.progress?.error || '').trim();
   if (!reason) return '';
   return reason.length > 180 ? `${reason.slice(0, 177)}…` : reason;
+}
+
+/**
+ * A definite reason for the card. Stale and missing environments carry an empty
+ * `error` on the wire (environment_install.state clears it for stale, and an
+ * uninstalled environment never had one), so every branch ends in a sentence
+ * instead of a blank line.
+ */
+export function reasonText(item: EnvironmentItem, readiness?: Readiness): string {
+  const explicit = failureText(item);
+  if (explicit) return explicit;
+  const status = String(item.status || '').toLowerCase();
+  if (item.planned && status === 'missing') return '';
+  if (readiness === 'interrupted') return t('安装已中断');
+  if (readiness === 'dependency-gap') return t('该环境的依赖安装未完成');
+  if (readiness === 'resource-gap') return t('资源未齐备');
+  if (readiness === 'stale' || readiness === 'missing') {
+    if (item.supported === false) return item.platform_note || t('当前系统不支持');
+    return t('该环境未安装或安装记录已失效，请重新准备');
+  }
+  return '';
 }
 
 export function percentDone(item: EnvironmentItem) {
@@ -303,6 +378,8 @@ export function EnvironmentCard({item, busy = false, cancelling = false, gap, on
 }) {
   const tone = statusTone(item.status);
   const readiness = readinessOf(item, gap);
+  const progress = resourceProgress(item, gap);
+  const reason = reasonText(item, readiness);
   const installing = tone === 'installing';
   const settling = installing && percentDone(item) >= 99;
   const waiting = installing && (item.progress?.bytes || 0) <= 0;
@@ -329,11 +406,11 @@ export function EnvironmentCard({item, busy = false, cancelling = false, gap, on
         </span>}
         {queueText(item) && <span className="runtime-queue">{queueText(item)}</span>}
         <span className={`runtime-chip is-${readinessTones[readiness]}`} data-status={tone} data-readiness={readiness}>{t(readinessKeys[readiness])}</span>
-        {tone === 'ready' && gap && gap.ready < gap.total && <span
+        {readiness === 'resource-gap' && progress.total > 0 && <span
           className="runtime-chip is-warning"
           data-testid={`environment-resources-${item.name}`}
-          title={`${t('缺失资源：')}${gap.missing.join('、')}`}>
-          {t('资源 {ready}/{total}', {ready: gap.ready, total: gap.total})}
+          title={`${t('缺失资源：')}${[...new Set(gap?.missing || [])].join('、')}`}>
+          {t('资源 {ready}/{total}', {ready: progress.ready, total: progress.total})}
         </span>}
       </div>
     </header>
@@ -361,8 +438,8 @@ export function EnvironmentCard({item, busy = false, cancelling = false, gap, on
         </details> : <dd>{item.planned ? t('预留环境（无内置算子）') : t('无')}</dd>}
       </div>
     </dl>
-    {tone === 'failed' && failureText(item) && <p className="runtime-error" title={failureText(item)}>
-      {t('安装失败')}：{failureText(item)}
+    {reason && <p className="runtime-error" title={reason} data-testid={`environment-reason-${item.name}`}>
+      {readiness === 'failed' ? `${t('安装失败')}：` : ''}{reason}
     </p>}
     <footer className="runtime-actions">
       {availableActions(item.status).map(action =>
@@ -451,61 +528,58 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
       /* storage may be unavailable in hardened browsers */
     }
   }, [target]);
-  const [unitIndex, setUnitIndex] = useState<Record<string, number>>({});
-  const [resourceRows, setResourceRows] = useState<Array<{ id: string; components: number; environments: string[]; ready: boolean }>>([]);
-  const resourceGap = (() => {
-    const result: Record<string, {total: number; ready: number; missing: string[]}> = {};
-    for (const row of resourceRows) {
-      const owners = row.environments.length ? row.environments : [row.id];
-      for (const owner of owners) {
-        const entry = result[owner] || {total: 0, ready: 0, missing: []};
-        entry.total += 1;
-        if (row.ready) entry.ready += 1;
-        else entry.missing.push(row.id);
-        result[owner] = entry;
-      }
-    }
-    return result;
-  })();
+  const [resourceList, setResourceList] = useState<LargeResource[]>([]);
   useEffect(() => {
     let alive = true;
     void (async () => {
       try {
         const answer = target ? await api.remoteResources(target) : await api.largeResources();
-        const rows = ((answer as unknown as { resources?: Array<{ id?: string; components?: unknown[] }> }).resources) || [];
-        const next: Record<string, number> = {};
-        for (const row of rows) {
-          const id = String(row.id || '');
-          if (!id) continue;
-          next[id] = Array.isArray(row.components) && row.components.length ? row.components.length : 1;
-        }
-        if (alive) {
-          setUnitIndex(next);
-          setResourceRows(rows.map(row => {
-            const entry = row as { id?: string; state?: string; present?: boolean; environments?: string[] };
-            const state = String(entry.state || '');
-            const ready = Boolean(entry.present) || ['present', 'linked', 'downloaded'].includes(state);
-            return {
-              id: String(entry.id || ''),
-              components: Array.isArray(row.components) && row.components.length ? row.components.length : 1,
-              environments: Array.isArray(entry.environments) ? (entry.environments as string[]) : [],
-              ready,
-            };
-          }).filter(row => row.id));
-        }
+        const rows = ((answer as unknown as { resources?: LargeResource[] }).resources) || [];
+        if (alive) setResourceList(rows.filter(row => Boolean(row && row.id)));
       } catch {
-        /* the panel still renders with the fallback count */
+        /* readiness falls back to the backend counters below */
       }
     })();
     return () => { alive = false; };
   }, [target]);
+  // Counted exactly like the resource panel counts its cards (one per component,
+  // ready = present or linked), so badge, detail entry card and panel header can
+  // never report different numbers for the same environment.
+  const resourceGap = (() => {
+    const result: Record<string, {total: number; ready: number; missing: string[]}> = {};
+    for (const resource of resourceList) {
+      const owners = Array.isArray(resource.environments) ? resource.environments : [];
+      if (!owners.length) continue;
+      const components = resourceComponents(resource);
+      const ready = components.filter(isReady).length;
+      for (const owner of owners) {
+        const entry = result[owner] || {total: 0, ready: 0, missing: []};
+        entry.total += components.length;
+        entry.ready += ready;
+        if (ready < components.length && !entry.missing.includes(resource.id)) entry.missing.push(resource.id);
+        result[owner] = entry;
+      }
+    }
+    return result;
+  })();
   const [detail, setDetail] = useState<EnvironmentItem | null>(null);
-  const detailResources = detail
-    ? resourceRows.filter(row => row.environments.includes(detail.name))
-    : [];
-  const dependencyTotal = (detail?.dependencies || []).length;
-  const dependencyInstalled = (detail?.dependencies || []).filter(entry => entry.installed).length;
-  const unitTotal = detailResources.reduce((sum, row) => sum + (row.components || (unitIndex[row.id] || 1)), 0);
+  // One row per dependency name: the wire list can carry the same name twice
+  // (openmm81 declares "wheel" twice), which used to render two identical cards
+  // and two identical keys.
+  const dependencyRows = (() => {
+    const seen = new Set<string>();
+    return (detail?.dependencies || []).filter(entry => {
+      const name = String(entry.name || '').trim();
+      const key = name.toLowerCase();
+      if (!name || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  })();
+  const dependencyTotal = dependencyRows.length;
+  const dependencyInstalled = dependencyRows.filter(entry => entry.installed).length;
+  const detailUnits = detail ? resourceProgress(detail, resourceGap[detail.name]) : {total: 0, ready: 0};
+  const unitTotal = detailUnits.total;
   const [view, setView] = useState<'root' | 'deps' | 'resources'>('root');
   const [cancelling, setCancelling] = useState<Record<string, boolean>>({});
   const [notice, setNotice] = useState('');
@@ -825,7 +899,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
       <OperationList operations={operations} now={now} onCancel={name => act('cancel', name)}/>
       {detail && <Modal title={`${detail.title || detail.name}`}
         onClose={() => { setDetail(null); setView('root'); }}>
-        <p className="settings-note">{detail.name} · {t(statusKeys[statusTone(detail.status)])}</p>
+        <p className="settings-note">{detail.name} · {t(readinessKeys[readinessOf(detail, resourceGap[detail.name])])}</p>
         {view === 'root' && <div className="resource-unit-grid">
           <button type="button" className="runtime-card resource-entry-card"
             data-testid="detail-dependencies" onClick={() => setView('deps')}>
@@ -847,6 +921,10 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
                 <h3>{t('资源')}</h3>
                 <code>{t('{n} 个维护单元', {n: unitTotal})}</code>
               </div>
+              <span className={`runtime-chip is-${detailUnits.ready === unitTotal ? 'ready' : 'warning'}`}
+                data-testid="detail-resources-ready">
+                {t('资源 {ready}/{total}', {ready: detailUnits.ready, total: unitTotal})}
+              </span>
             </header>
             <p className="runtime-purpose">{t('逐个下载或链接官方最小维护单元。')}</p>
           </button>}
@@ -859,10 +937,10 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
                 onClick={() => act('prepare', detail.name)}>{t('全部安装')}</button>
             </div>
           </header>
-          {(detail.dependencies || []).length === 0
+          {dependencyRows.length === 0
             ? <p className="muted">{t('这个环境没有额外依赖。')}</p>
             : <div className="resource-unit-grid">
-              {(detail.dependencies || []).map((entry) => <article
+              {dependencyRows.map((entry) => <article
                 key={`${entry.kind}:${entry.name}`}
                 className="runtime-card resource-unit-card"
                 data-testid={`dependency-${entry.name}`}>
