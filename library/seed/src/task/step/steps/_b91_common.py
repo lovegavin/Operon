@@ -54,12 +54,34 @@ def table(names, values, columns):
     return Form(data, dims=["entry", "statistic"], labels={"entry": {str(i): i for i in range(data.shape[0])}, "statistic": labels})
 
 
-def resolve_weights(path=""):
-    cand = path or os.environ.get("OPERON_NT_WEIGHTS", "")
-    base = Path(cand).expanduser() if cand else Path("~/.cache/operon-weights/NTv2-50M").expanduser()
-    if not (base / "config.json").is_file():
+def resolve_weights(path="", operator="nucleotide_transformer"):
+    """Return the weights directory, or explain exactly where the loader looked."""
+    configured = str(path or "").strip()
+    if configured:
+        base = Path(configured).expanduser()
+        where = "model_path is %r" % configured
+    else:
+        configured = str(os.environ.get("OPERON_NT_WEIGHTS", "")).strip()
+        if configured:
+            base = Path(configured).expanduser()
+            where = "OPERON_NT_WEIGHTS is %r" % configured
+        else:
+            base = Path("~/.cache/operon-weights/NTv2-50M").expanduser()
+            where = (
+                "neither model_path nor OPERON_NT_WEIGHTS is set, so the default cache %r was used"
+                % str(base)
+            )
+    config = base / "config.json"
+    if not config.is_file():
+        detail = ""
+        if base.is_file():
+            detail = "; %s is a file, not a weights directory" % base.resolve()
         raise ValueError(
-            "Nucleotide Transformer weights not found at %s; set OPERON_NT_WEIGHTS or model_path" % base
+            "%s: Nucleotide Transformer weights not found. %s, so the loader looked for %r "
+            "under %r%s. Set model_path (or the OPERON_NT_WEIGHTS environment variable) to the "
+            "directory that holds the model's config.json, for example '/data/weights/NTv2-50M'; "
+            "that is a weights directory, not a structure, sequence or alignment input path."
+            % (operator, where, str(config), str(base.resolve()), detail)
         )
     return str(base)
 
@@ -81,7 +103,8 @@ def load_nt(path):
     return tokenizer, model
 
 
-def embed(sequences, path="", max_length=512, batch_size=8):
+def embed(sequences, path="", max_length=512, batch_size=8, operator="nucleotide_transformer"):
+    resolve_weights(path, operator)
     import torch
 
     tokenizer, model = load_nt(path)

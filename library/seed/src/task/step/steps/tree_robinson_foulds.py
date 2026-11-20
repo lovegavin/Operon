@@ -59,8 +59,8 @@ class TreeRobinsonFouldsStep(Step):
     def run(self, ctx, inputs):
         params = ctx.step_params
         out_name = str(params.get("output", "rf"))
-        tree_a = parse_newick(strings(inputs[0], "newick")[0])
-        tree_b = parse_newick(strings(inputs[1], "newick")[0])
+        tree_a = parse_newick(strings(inputs[0], "newick")[0], "tree_robinson_foulds")
+        tree_b = parse_newick(strings(inputs[1], "newick")[0], "tree_robinson_foulds")
         taxa_a = {tip.name for tip in tips(tree_a)}
         taxa_b = {tip.name for tip in tips(tree_b)}
         if taxa_a != taxa_b:
@@ -79,8 +79,8 @@ class TreeRobinsonFouldsStep(Step):
     def run(self, ctx, inputs):
         params = ctx.step_params
         out_name = str(params.get("output", "rf"))
-        tree_a = parse_newick(strings(inputs[0], "newick")[0])
-        tree_b = parse_newick(strings(inputs[1], "newick")[0])
+        tree_a = parse_newick(strings(inputs[0], "newick")[0], "tree_robinson_foulds")
+        tree_b = parse_newick(strings(inputs[1], "newick")[0], "tree_robinson_foulds")
         taxa_a = {tip.name for tip in tips(tree_a)}
         taxa_b = {tip.name for tip in tips(tree_b)}
         if taxa_a != taxa_b:

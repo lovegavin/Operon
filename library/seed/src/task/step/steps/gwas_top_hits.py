@@ -13,6 +13,24 @@ from ._gwas_utils import association_rows, clump
 DEFAULTS = {'threshold': 5e-08, 'clump_distance': 1000000, 'max_hits': 0, 'variant_dim': 'variant', 'statistic_dim': 'statistic', 'output': 'hits'}
 
 
+def variant_position(label, operator: str = "gwas_top_hits") -> tuple:
+    """Split a ``chrom:position`` variant label, raising a readable ValueError."""
+    chromosome, _, remainder = str(label).strip().partition(":")
+    position_text = remainder.partition(":")[0].strip()
+    try:
+        position = int(position_text)
+    except (TypeError, ValueError):
+        position = None
+    if not chromosome.strip() or position is None:
+        raise ValueError(
+            f"{operator}: variant label {label!r} does not name a chromosome and a position; "
+            "the top-hit clumping step needs both for every variant. Label each variant "
+            "'<chrom>:<position>[:<ref>:<alt>]' such as '22:16050075:A:G', or start from an "
+            "association table whose variant labels already include them."
+        )
+    return chromosome.strip(), position
+
+
 class GwasTopHitsStep(Step):
     parameters_file = "gwas_top_hits.parameters.json"
 
@@ -71,9 +89,7 @@ class GwasTopHitsStep(Step):
             inputs[0], params["variant_dim"], params["statistic_dim"], "gwas_top_hits"
         )
         for row in rows:
-            chrom, pos = row["variant"].split(":")[:2]
-            row["chrom"] = chrom
-            row["pos"] = int(pos)
+            row["chrom"], row["pos"] = variant_position(row["variant"])
         hits = clump(
             rows,
             float(params["threshold"]),

@@ -4,9 +4,41 @@ from __future__ import annotations
 
 import gzip
 import math
+from pathlib import Path
 from typing import Dict, Iterable, List, Sequence, Set, Tuple
 
 ASPECTS = {"P": "biological_process", "F": "molecular_function", "C": "cellular_component"}
+
+_ONTOLOGY_INPUTS = {
+    "obo_path": ("Gene Ontology OBO file", "/data/go/go-basic.obo"),
+    "gaf_path": ("gene annotation (GAF) file", "/data/go/goa_human.gaf.gz"),
+}
+
+
+def require_ontology_inputs(obo_path, gaf_path, operator: str) -> Tuple[str, str]:
+    """Validate the required OBO and GAF paths before they reach ``open``."""
+    resolved = []
+    for name, value in (("obo_path", obo_path), ("gaf_path", gaf_path)):
+        text = "" if value is None else str(value).strip()
+        label, example = _ONTOLOGY_INPUTS[name]
+        if not text:
+            raise ValueError(
+                "%s: parameter %r is empty; provide the absolute path to the %s used by this run, "
+                "for example %r" % (operator, name, label, example)
+            )
+        candidate = Path(text).expanduser()
+        if not candidate.is_absolute():
+            raise ValueError(
+                "%s: parameter %r must be an absolute path to the %s, got %r; pass the full path, "
+                "for example %r" % (operator, name, label, text, example)
+            )
+        if not candidate.is_file():
+            raise ValueError(
+                "%s: parameter %r points at %r, which is not a readable %s; provide the absolute "
+                "path to the local file used by this run" % (operator, name, text, label)
+            )
+        resolved.append(str(candidate))
+    return resolved[0], resolved[1]
 
 
 def parse_obo(path: str) -> Dict[str, dict]:

@@ -9,7 +9,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
-from src.task.step.steps._protein_common import decode_column, heavy_atom_mask
+from src.task.step.steps._protein_common import decode_column, heavy_atom_mask, require_columns
 
 STATISTICS = (
     "n_atoms",
@@ -33,6 +33,12 @@ def _rdkit():
 def ligand_block(form: Form, atom_dim: str, field_dim: str, resnames: set[str], *, protein_only: bool = False) -> tuple[str, list[int], np.ndarray]:
     """Select ligand (or protein) atoms and render them as a PDB block."""
 
+    require_columns(
+        form,
+        field_dim,
+        ("resname", "element", "atom_name", "chain", "residue_number", "x", "y", "z"),
+        "structure_ligand_geometry_qc",
+    )
     names = decode_column(form, field_dim, "resname")
     keep = np.asarray([str(name).strip().upper() in resnames for name in names])
     if protein_only:

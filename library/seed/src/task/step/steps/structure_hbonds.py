@@ -11,6 +11,8 @@ from src.task.context.base import Context
 from src.core.errors import StepError
 from src.task.step.base import Step
 
+from ._protein_common import require_columns
+
 #: Kabsch-Sander electrostatic factor, 0.084 * 332 (kcal/mol per Angstrom).
 ENERGY_FACTOR = 0.084 * 332.0
 
@@ -57,6 +59,12 @@ def _coordinates(form: Form, atom_dim: str, field_dim: str, labels: dict, index:
 def _residues(form: Form, atom_dim: str, field_dim: str) -> list[dict]:
     """Group atoms into residues that carry a complete N, C, O backbone."""
     labels = _field_labels(form, field_dim)
+    require_columns(
+        form,
+        field_dim,
+        ("chain", "resname", "residue_number", "atom_name", "x", "y", "z"),
+        "structure_hbonds",
+    )
     chain = _text_column(form, field_dim, labels, "chain")
     resname = _text_column(form, field_dim, labels, "resname")
     number = _column(form, field_dim, labels, "residue_number")

@@ -102,7 +102,7 @@ class PhylogeneticsJc69LikelihoodStep(Step):
             for name, value in zip(names, values):
                 sequences.setdefault(name, "")
                 sequences[name] += value
-        root = parse_newick(newick)
+        root = parse_newick(newick, "phylogenetics_jc69_likelihood")
         logl, n_taxa, n_sites = log_likelihood(root, sequences)
         labels = {"entry": {"log_likelihood": 0}, "statistic": {"value": 0}}
         data = np.asarray([[round(logl, 9)]], dtype=np.float64)

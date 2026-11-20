@@ -81,7 +81,7 @@ class TreeOutgroupRootStep(Step):
         if not outgroup:
             raise StepError("outgroup name is required")
         newick = decode(form, "newick")[0]
-        root = parse_newick(newick)
+        root = parse_newick(newick, "tree_outgroup_root")
         rooted = reroot_at_tip(root, outgroup)
         names = [tip.name for tip in tips(rooted)]
         rows = [[float(len(names)), float(len(rooted.children)), float(rooted.children[0].length or 0.0)]]

@@ -18,7 +18,7 @@ from src.task.step.steps._phylo_common import load_tree
 def load_comparative(tree_form, trait_form, node_dim, field_dim, sample_dim,
                      statistic_dim, value_field, operator):
     """Return (tree, tip_values) after aligning trait samples with tree tips."""
-    tree = load_tree(tree_form, node_dim=node_dim, field_dim=field_dim)
+    tree = load_tree(tree_form, node_dim=node_dim, field_dim=field_dim, label=operator)
     if trait_form.data.ndim != 2:
         raise StepError(f"{operator}: trait table must be 2-D")
     if sample_dim not in trait_form.dims or statistic_dim not in trait_form.dims:

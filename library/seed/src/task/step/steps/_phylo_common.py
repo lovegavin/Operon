@@ -42,6 +42,14 @@ class Tree:
         return order
 
 
+def _sample_labels(names, limit: int = 8) -> str:
+    """Render the first *limit* node labels for a validation message."""
+    shown = ", ".join(repr(name) for name in names[:limit])
+    if len(names) > limit:
+        shown += ", ..."
+    return shown
+
+
 def load_tree(form, node_dim: str = "node", field_dim: str = "field", label: str = "tree") -> Tree:
     """Validate a tree table and return its parent/child structure."""
     if form.data.ndim != 2:
@@ -82,13 +90,22 @@ def load_tree(form, node_dim: str = "node", field_dim: str = "field", label: str
     for index, parent_name in enumerate(parent_names):
         if parent_name is None or parent_name in ("None", "null", ""):
             continue
-        if parent_name not in positions:
-            raise StepError(
-                f"{label}: parent {parent_name!r} of {names[index]!r} is not a node in this tree"
+        if parent_name in positions:
+            resolved = positions[parent_name]
+        elif parent_name.strip() == "-1":
+            continue
+        elif parent_name.lstrip("+-").isdigit() and 0 <= int(parent_name) < n:
+            resolved = int(parent_name)
+        else:
+            raise ValueError(
+                f"{label}: parent {parent_name!r} of node {names[index]!r} is not a node "
+                f"in this tree; the parent field must hold either one of the {n} labels "
+                f"of the {node_dim!r} dimension ({_sample_labels(names)}), a 0-based node "
+                f"index between 0 and {n - 1}, or None/-1 for the root"
             )
-        parent[index] = positions[parent_name]
+        parent[index] = resolved
         if parent[index] == index:
-            raise StepError(f"{label}: node {names[index]!r} is its own parent")
+            raise ValueError(f"{label}: node {names[index]!r} is its own parent")
     roots = np.flatnonzero(parent < 0)
     if roots.size != 1:
         raise StepError(f"{label}: expected exactly one root, found {int(roots.size)}")
@@ -267,8 +284,21 @@ class Node:
         self.children = children or []
 
 
-def parse_newick(text):
-    text = str(text).strip().rstrip(";")
+NEWICK_GRAMMAR = (
+    "expected one Newick tree such as '((A:0.1,B:0.2):0.3,C:0.4);': a '(' group with "
+    "an optional name and ':length', commas between its subtrees, and an optional "
+    "terminating ';'"
+)
+
+
+def parse_newick(text, label="newick"):
+    """Parse one Newick string, naming *label* (the operator) in validation errors."""
+    text = str(text).strip().rstrip(";").strip()
+    if not text:
+        raise ValueError(
+            f"{label}: the Newick text is empty; provide a tree such as "
+            f"'((A:0.1,B:0.2):0.3,C:0.4);'"
+        )
     pos = 0
     n = len(text)
 
@@ -277,17 +307,32 @@ def parse_newick(text):
         children = []
         name = ""
         length = None
+        if pos >= n:
+            raise ValueError(
+                f"{label}: unexpected end of the Newick text at position {pos}; a "
+                f"subtree is missing after the comma; {NEWICK_GRAMMAR}"
+            )
         if text[pos] == "(":
+            opening = pos
             pos += 1
             while True:
                 children.append(parse_node())
+                if pos >= n:
+                    raise ValueError(
+                        f"{label}: unexpected end of the Newick text at position {pos}; "
+                        f"the group opened at position {opening} is never closed with "
+                        f"')'; {NEWICK_GRAMMAR}"
+                    )
                 if text[pos] == ",":
                     pos += 1
                     continue
                 if text[pos] == ")":
                     pos += 1
                     break
-                raise ValueError("malformed newick near %r" % text[pos:pos + 20])
+                raise ValueError(
+                    f"{label}: malformed Newick text at position {pos} "
+                    f"({text[pos:pos + 20]!r}); expected ',' or ')'; {NEWICK_GRAMMAR}"
+                )
         start = pos
         while pos < n and text[pos] not in ",():;":
             pos += 1
@@ -297,12 +342,25 @@ def parse_newick(text):
             start = pos
             while pos < n and text[pos] not in ",():;":
                 pos += 1
-            length = float(text[start:pos])
+            try:
+                length = float(text[start:pos])
+            except ValueError:
+                raise ValueError(
+                    f"{label}: branch length {text[start:pos]!r} at position {start} "
+                    f"is not a number; {NEWICK_GRAMMAR}"
+                ) from None
         return Node(name, length, children)
 
     root = parse_node()
+    # Tolerate redundant closers/semicolons after a complete tree, e.g. "(A,B));".
+    while pos < n and text[pos] in ");":
+        pos += 1
     if pos != n:
-        raise ValueError("trailing newick text %r" % text[pos:])
+        raise ValueError(
+            f"{label}: trailing Newick text {text[pos:pos + 20]!r} at position {pos} "
+            f"after a complete tree; {NEWICK_GRAMMAR}. Provide exactly one tree per "
+            f"input row"
+        )
     return root
 
 

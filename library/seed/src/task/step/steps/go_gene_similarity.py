@@ -8,7 +8,15 @@ from src.core.errors import StepError
 from src.task.context import Context
 from src.task.step.base import Step
 
-from ._go_utils import alt_map, expanded_counts, information_content, parse_obo, read_gaf, term_similarity
+from ._go_utils import (
+    alt_map,
+    expanded_counts,
+    information_content,
+    parse_obo,
+    read_gaf,
+    require_ontology_inputs,
+    term_similarity,
+)
 
 
 def _column(form, field_dim: str, name: str, operator: str) -> list:
@@ -69,6 +77,7 @@ class GoGeneSimilarityStep(Step):
         gaf_path = params.get("gaf_path", "")
         aspect = params.get("aspect", "P")
         out_name = params.get("output", "go_gene_similarity")
+        obo_path, gaf_path = require_ontology_inputs(obo_path, gaf_path, "go_gene_similarity")
         terms = parse_obo(obo_path)
         alias = alt_map(terms)
         annotations, total = read_gaf(gaf_path, aspect, alias, terms)

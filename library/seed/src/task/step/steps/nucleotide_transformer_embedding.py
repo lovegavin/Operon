@@ -18,7 +18,13 @@ class NucleotideTransformerEmbeddingStep(Step):
         params = ctx.step_params
         form = inputs[0]
         seqs = strings(form, form.dims[1], params["sequence_column"])
-        mat = embed(seqs, params.get("model_path", ""), int(params.get("max_length", 512)), int(params.get("batch_size", 8)))
+        mat = embed(
+            seqs,
+            params.get("model_path", ""),
+            int(params.get("max_length", 512)),
+            int(params.get("batch_size", 8)),
+            operator="nucleotide_transformer_embedding",
+        )
         mat = np.round(mat, 3)
         dim0 = form.dims[0]
         labels = {

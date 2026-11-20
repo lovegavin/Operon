@@ -53,6 +53,34 @@ def decode_column(form: Form, field_dim: str, name: str) -> np.ndarray | None:
     return np.array([_format_number(v) for v in values], dtype=object)
 
 
+def _format_column_list(names) -> str:
+    items = [repr(str(name)) for name in names]
+    if len(items) == 1:
+        return items[0]
+    return ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def _structure_columns_hint() -> str:
+    return (
+        "load the structure with the PDB reader so the field dimension carries named "
+        "columns (chain, resname, residue_number, atom_name, element, x, y and z)"
+    )
+
+
+def require_columns(form: Form, field_dim: str, names, operator: str) -> None:
+    """Raise a readable ValueError when a required structural column is absent."""
+    missing = [name for name in names if not has_column(form, field_dim, name)]
+    if missing:
+        present = [name for name in names if name not in missing]
+        found = f" (it found {_format_column_list(present)})" if present else ""
+        raise ValueError(
+            f"{operator}: the structure input has no {_format_column_list(missing)} "
+            f"{'column' if len(missing) == 1 else 'columns'} on the "
+            f"{field_dim!r} dimension; the operator needs {_format_column_list(names)}{found}, "
+            f"so {_structure_columns_hint()}"
+        )
+
+
 def _clean(value: str) -> str:
     text = str(value).strip()
     return "_" if text == "" else text

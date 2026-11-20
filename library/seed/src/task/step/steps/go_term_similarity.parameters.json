@@ -6,11 +6,13 @@
   "properties": {
     "obo_path": {
       "type": "string",
-      "default": "workdir/b40_route/input/go-basic.obo"
+      "default": "",
+      "description": "Required: absolute path to the local OBO file for this run."
     },
     "gaf_path": {
       "type": "string",
-      "default": "workdir/b40_route/input/ecocyc.gaf.gz"
+      "default": "",
+      "description": "Required: absolute path to the local GAF file for this run."
     },
     "aspect": {
       "type": "string",

@@ -10,8 +10,8 @@ from src.core.forms.form import Form
 from src.task.context.base import Context
 from src.task.step.base import Step
 
-from ._protein_common import decode_column, heavy_atom_mask, residue_labels
-from ._structure_common import atom_coords, field_columns
+from ._protein_common import decode_column, heavy_atom_mask, require_columns, residue_labels
+from ._structure_common import atom_coords
 
 
 def residue_graph(
@@ -149,7 +149,12 @@ class StructureContactsStep(Step):
                 f"structure_contacts: a PDB form with dims [{atom_dim}, {field_dim}] is "
                 f"required, got {list(form.dims)}"
             )
-        field_columns(form, field_dim, ("x", "y", "z"))
+        require_columns(
+            form,
+            field_dim,
+            ("x", "y", "z", "resname", "chain", "residue_number"),
+            "structure_contacts",
+        )
         if form.data.shape[0] == 0:
             raise StepError("structure_contacts: the PDB form has no atoms")
 

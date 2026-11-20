@@ -10,7 +10,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
-from src.task.step.steps._protein_common import decode_column
+from src.task.step.steps._protein_common import column_index, decode_column, require_columns
 
 _WATER = {"HOH", "WAT", "DOD"}
 
@@ -18,6 +18,13 @@ _WATER = {"HOH", "WAT", "DOD"}
 def split_complex(form: Form, field_dim: str, ligand_resname: str) -> tuple[str, str]:
     """Return the PDB text for the protein and for the ligand."""
 
+    require_columns(
+        form,
+        field_dim,
+        ("resname", "chain", "residue_number", "atom_name", "element", "x", "y", "z"),
+        "structure_ligand_pose_qc",
+    )
+    axes = tuple(column_index(form, field_dim, name) for name in ("x", "y", "z"))
     resnames = decode_column(form, field_dim, "resname")
     chains = decode_column(form, field_dim, "chain")
     numbers = decode_column(form, field_dim, "residue_number")
@@ -30,7 +37,7 @@ def split_complex(form: Form, field_dim: str, ligand_resname: str) -> tuple[str,
         resname = str(resnames[row])
         if resname in _WATER:
             continue
-        x, y, z = (float(value) for value in form.data[row, :3])
+        x, y, z = (float(value) for value in form.data[row, list(axes)])
         record = "HETATM" if resname == ligand_resname else "ATOM  "
         line = (
             f"{record}{len(protein) + len(ligand) + 1:5d} {str(atom_names[row])[:4]:<4s} {resname[:3]:>3s} "
