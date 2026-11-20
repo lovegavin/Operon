@@ -458,13 +458,34 @@ def test_single_file_probe_reports_the_linked_file_name(tmp_path):
     unlink(resource)
 
 
-def test_replace_refuses_to_delete_an_unmanaged_directory(tmp_path):
+def test_replace_merges_missing_files_into_an_unmanaged_directory(tmp_path):
     source = _source(tmp_path)
     root = tmp_path / "resources" / "esm2"
     root.mkdir(parents=True)
     (root / "keep.txt").write_text("user data", encoding="utf-8")
 
-    with pytest.raises(ValueError, match="holds existing data"):
+    result = link(
+        _resource(root),
+        source,
+        replace=True,
+        allowed_roots=[str(tmp_path / "external")],
+    )
+
+    assert result["status"] == "merged"
+    assert result["linked_files"] == [EXPECTED]
+    assert (root / "keep.txt").read_text(encoding="utf-8") == "user data"
+    assert (root / EXPECTED).is_file()
+
+
+def test_replace_refuses_when_the_source_cannot_fill_the_target(tmp_path):
+    source = tmp_path / "external" / "esm2"
+    source.mkdir(parents=True)
+    (source / "other-file.bin").write_bytes(b"weights")
+    root = tmp_path / "resources" / "esm2"
+    root.mkdir(parents=True)
+    (root / "keep.txt").write_text("user data", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="none of the declared files are missing"):
         link(
             _resource(root),
             source,
@@ -473,6 +494,21 @@ def test_replace_refuses_to_delete_an_unmanaged_directory(tmp_path):
         )
 
     assert (root / "keep.txt").read_text(encoding="utf-8") == "user data"
+
+
+def test_replace_still_removes_a_managed_link(tmp_path):
+    source = _source(tmp_path)
+    root = tmp_path / "resources" / "esm2"
+    link(_resource(root), source, replace=True, allowed_roots=[str(tmp_path / "external")])
+    assert root.is_symlink()
+
+    other = tmp_path / "external" / "esm2-other"
+    other.mkdir(parents=True)
+    (other / EXPECTED).write_bytes(b"other")
+
+    result = link(_resource(root), other, replace=True, allowed_roots=[str(tmp_path / "external")])
+    assert result["status"] == "linked"
+    assert root.is_symlink()
 
 def test_junction_detection_without_path_is_junction(monkeypatch):
     """Python 3.11 ships no ``Path.is_junction``; the lstat fallback must work."""

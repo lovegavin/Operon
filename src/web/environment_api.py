@@ -687,6 +687,15 @@ def mount_environments(app, service):
             raise HTTPException(404, str(exc)) from exc
         return {**snapshot(), 'job': job['id']}
 
+    @app.post('/api/environments/{name}/repair')
+    @app.post('/api/v1/environments/{name}/repair')
+    def repair_environment(name: str):
+        try:
+            result = environment_install.repair(name)
+        except ValueError as exc:
+            raise HTTPException(404, str(exc)) from exc
+        return {**snapshot(), 'repair': result}
+
     @app.post('/api/environments/{name}/cancel')
     @app.post('/api/v1/environments/{name}/cancel')
     def cancel(name: str):

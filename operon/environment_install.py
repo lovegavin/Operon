@@ -27,7 +27,7 @@ from pathlib import Path
 from . import environment_estimates as estimates
 from . import environments
 
-PIP_TRANSFER = ['--disable-pip-version-check', '--no-input', '--timeout', '120', '--retries', '3', '--progress-bar', 'raw']
+PIP_TRANSFER = ['--disable-pip-version-check', '--no-input', '--timeout', '120', '--retries', '3', '--progress-bar', 'on']
 PIP_INDEX = ['--index-url', os.environ.get('OPERON_PIP_INDEX') or 'https://pypi.org/simple']
 PIP_TRUSTED = ['--trusted-host', os.environ['OPERON_PIP_TRUSTED_HOST']] if os.environ.get('OPERON_PIP_TRUSTED_HOST') else []
 CONDA_FORGE = 'conda-forge'
@@ -829,18 +829,16 @@ def _mamba_env(directory: Path) -> dict:
 def _rewrite_shebangs(root: Path, stale: Path | None = None) -> int:
     """Point entry-point scripts at the promoted tree instead of the staging copy."""
 
-    if stale is None:
-        return 0
-    needle = str(stale).replace('\\', '/')
     replacement = str(root).replace('\\', '/')
-    if needle == replacement:
+    needle = str(stale).replace('\\', '/') if stale is not None else ''
+    if needle and needle == replacement:
         return 0
     changed = 0
     for folder in ('Scripts', 'bin'):
         directory = root / folder
         if not directory.is_dir():
             continue
-        for script in directory.iterdir():
+        for script in directory.rglob('*'):
             if not script.is_file():
                 continue
             try:
@@ -848,18 +846,31 @@ def _rewrite_shebangs(root: Path, stale: Path | None = None) -> int:
                     head = handle.readline(512)
             except OSError:
                 continue
-            if not head.startswith(b'#!') or needle.encode('utf-8') not in head:
+            if not head.startswith(b'#!'):
                 continue
+            first, separator, rest = b'', b'', b''
             try:
                 data = script.read_bytes()
+                first, separator, rest = data.partition(b'\n')
             except OSError:
                 continue
-            first, separator, rest = data.partition(b'\n')
-            text = first.decode('utf-8', 'replace')
-            if needle not in text:
-                continue
-            updated = text.replace(needle, replacement)
-            if updated == text:
+            original = first.decode('utf-8', 'replace')
+            if needle:
+                if needle not in original:
+                    continue
+                updated = original.replace(needle, replacement)
+            else:
+                marker = '.staging-'
+                index = original.find(marker)
+                if index < 0:
+                    continue
+                tail = original.find('/', index)
+                if tail < 0:
+                    continue
+                if not original.startswith('#!'):
+                    continue
+                updated = original[:2] + replacement + original[tail:]
+            if updated == original:
                 continue
             try:
                 script.write_bytes(updated.encode('utf-8') + separator + rest)
@@ -867,6 +878,16 @@ def _rewrite_shebangs(root: Path, stale: Path | None = None) -> int:
             except OSError:
                 continue
     return changed
+
+
+def repair(name: str, root=None) -> dict:
+    """Rewrite stale staging shebangs in an environment that is already installed."""
+
+    directory = base(root) / name
+    if not directory.is_dir():
+        raise ValueError(f'environment {name!r} is not installed')
+    changed = _rewrite_shebangs(directory)
+    return {'name': name, 'directory': str(directory), 'rewritten': changed}
 
 
 def _commit(name: str, staging: Path, final: Path) -> None:

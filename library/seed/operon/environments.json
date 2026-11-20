@@ -288,7 +288,13 @@
         "seaborn>=0.13",
         "h5py>=3.11",
         "openpyxl>=3.1",
-        "biopython>=1.84"
+        "biopython>=1.84",
+        "networkx>=3.2",
+        "rdkit>=2023.9",
+        "lifelines>=0.29",
+        "anndata>=0.10",
+        "arch>=7.0",
+        "econml>=0.15"
       ],
       "resources": [],
       "notes": "The shared application runtime. It ships with Operon Studio; operators routed to this environment rely on its scientific stack (numerical, tabular, statistical and plotting libraries) in addition to the web service dependencies."

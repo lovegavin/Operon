@@ -346,6 +346,26 @@ def _drop_receipt(resource: common.Resource, file: Path | None = None) -> None:
         pass
 
 
+def _merge_links(source: Path, target: Path, expected: list[str]) -> list[str]:
+    """Link only the declared files that are missing from a populated target."""
+
+    linked: list[str] = []
+    for relative in expected:
+        destination = target / relative
+        if destination.exists() or destination.is_symlink() or _is_junction(destination):
+            continue
+        candidate = source / relative
+        if not candidate.exists():
+            continue
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if candidate.is_dir():
+            _link_directory(candidate, destination)
+        else:
+            _link_file(candidate, destination)
+        linked.append(relative)
+    return linked
+
+
 def link(
     resource: common.Resource,
     source: str | Path,
@@ -423,24 +443,40 @@ def link(
             "mode": "hardlink",
             "files": _present_files(resource, src),
         }
+    merged: list[str] = []
+    receipt_now = common.read_receipt(resource) or {}
     if target.exists() or _is_link(target):
         if not replace:
             raise ValueError(f"target already exists: {target}")
-        _replace_target(target, common.read_receipt(resource) or {})
-
-    target.parent.mkdir(parents=True, exist_ok=True)
-    created = False
-    try:
-        if src.is_dir():
-            mode = _link_directory(src, target)
+        managed = bool(receipt_now) and str(receipt_now.get("target") or "") == str(target)
+        if not managed and key == 'tree' and src.is_dir() and expected:
+            merged = _merge_links(src, target, expected)
+            if not merged:
+                listed = ', '.join(expected) or '(none declared)'
+                raise ValueError(
+                    "target holds existing data and none of the declared files are missing: "
+                    f"{target}; declared: {listed}"
+                )
         else:
-            mode = _link_file(src, target)
-        created = True
+            _replace_target(target, receipt_now)
+
+    created = False
+    if merged:
+        mode = 'merge'
         probe, probe_bytes = _probe(resource, src, target)
-    except Exception:
-        if created:
-            _remove_target(target)
-        raise
+    else:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            if src.is_dir():
+                mode = _link_directory(src, target)
+            else:
+                mode = _link_file(src, target)
+            created = True
+            probe, probe_bytes = _probe(resource, src, target)
+        except Exception:
+            if created:
+                _remove_target(target)
+            raise
 
     created_at = (
         datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
@@ -454,6 +490,7 @@ def link(
         "created_at": created_at,
         "probe": probe,
         "probe_bytes": probe_bytes,
+        "linked_files": list(merged),
     }
     receipt.update(
         {
@@ -473,9 +510,10 @@ def link(
     )
     common.write_receipt(resource, receipt)
     return {
-        "status": "linked",
+        "status": "merged" if merged else "linked",
         "name": resource.id,
         "unit": key,
+        "linked_files": list(merged),
         "target": str(target),
         "root": str(root),
         "source": str(src),

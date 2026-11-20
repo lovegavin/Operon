@@ -28,7 +28,7 @@ def test_plan_marks_missing_and_used_by(tmp_path):
     assert plan['demo']['error'] == ''
 
 
-def test_state_ready_and_stale_from_receipt(tmp_path):
+def test_state_ready_and_stale_from_receipt(tmp_path, monkeypatch):
     source = manifest(tmp_path / 'source', {'demo': {'python': '3.11', 'imports': ['json']}})
     root = tmp_path / 'external'
     entry = environments.load(source)['demo']
@@ -39,6 +39,7 @@ def test_state_ready_and_stale_from_receipt(tmp_path):
     assert environment_install.state('demo', root, source)['status'] == 'stale'
     (root / 'demo' / 'receipt.json').write_text(
         json.dumps({'spec_sha256': environment_install.spec_sha256(entry)}), encoding='utf-8')
+    monkeypatch.setattr(environment_install, 'dependency_status', lambda entry, location: (1, 1, []))
     ready = environment_install.state('demo', root, source)
     assert ready['status'] == 'ready'
     assert ready['interpreter'] == str(python)
@@ -223,3 +224,37 @@ def test_prepare_keeps_an_unsupported_platform_missing(tmp_path, monkeypatch):
         environment_install.prepare('gated', root, source)
     assert environment_install.state('gated', root, source)['status'] == 'missing'
     assert (root / '.operon-environment-errors' / 'gated.json').is_file()
+
+def test_repair_rewrites_stale_staging_shebangs(tmp_path, monkeypatch):
+    from operon import environment_install
+
+    root = tmp_path / 'environments'
+    target = root / 'demo'
+    nested = target / 'bin' / 'nested'
+    nested.mkdir(parents=True)
+    top = target / 'bin' / 'tool'
+    deep = nested / 'deep_tool'
+    top.write_text('#!/tmp/.staging-demo-abcd1234/bin/python\nprint(1)\n', encoding='utf-8')
+    deep.write_text('#!/tmp/.staging-demo-abcd1234/bin/python3\nprint(2)\n', encoding='utf-8')
+
+    monkeypatch.setattr(environment_install.environments, 'root', lambda: root)
+    result = environment_install.repair('demo')
+
+    assert result['rewritten'] == 2
+    expected = f'#!{target}/bin/python'
+    assert top.read_text(encoding='utf-8').splitlines()[0] == expected
+    assert deep.read_text(encoding='utf-8').splitlines()[0] == f'#!{target}/bin/python3'
+    # a second run is a no-op
+    assert environment_install.repair('demo')['rewritten'] == 0
+
+
+def test_repair_rejects_an_unknown_environment(tmp_path, monkeypatch):
+    from operon import environment_install
+
+    monkeypatch.setattr(environment_install.environments, 'root', lambda: tmp_path)
+    try:
+        environment_install.repair('missing')
+    except ValueError as error:
+        assert 'not installed' in str(error)
+    else:  # pragma: no cover - defensive
+        raise AssertionError('repair should reject an unknown environment')
