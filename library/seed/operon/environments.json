@@ -294,10 +294,10 @@
         "lifelines>=0.29",
         "anndata>=0.10",
         "arch>=7.0",
-        "econml>=0.15"
+        "econml==0.16.0"
       ],
       "resources": [],
-      "notes": "The shared application runtime. It ships with Operon Studio; operators routed to this environment rely on its scientific stack (numerical, tabular, statistical and plotting libraries) in addition to the web service dependencies."
+      "notes": "econml is pinned to 0.16.0 because 0.17 requires lightgbm>=4.5.0, whose x86_64 wheels need glibc 2.28; hosts on manylinux2014 (glibc 2.17) can only build the sdist, which fails. econml 0.16.0 accepts the lightgbm 3.3.5 manylinux1 wheel."
     },
     "proteinmpnn": {
       "title": "ProteinMPNN 蛋白设计",
@@ -468,7 +468,8 @@
         "quast=5.3.0",
         "minced=0.4.2",
         "tRNAscan-SE=2.0.12",
-        "foldseek=9.427df8a"
+        "foldseek=9.427df8a",
+        "flye=2.9.5=py311*"
       ],
       "binaries": [
         "minimap2",
@@ -481,7 +482,7 @@
         "foldseek"
       ],
       "resources": [],
-      "notes": "flye is not pinned: every flye 2.9.3 build requires Python 3.10 or older, which conflicts with the Python 3.11 runtime shared by the other command line tools.",
+      "notes": "flye 2.9.5 ships a cp311 build on bioconda, so the assembler is pinned to the same Python 3.11 runtime as the other command line tools.",
       "platforms": [
         "linux",
         "darwin"

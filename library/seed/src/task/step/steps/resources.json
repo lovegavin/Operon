@@ -261,8 +261,8 @@
       "install": "pip install \"colabfold[alphafold]\" && download the MMseqs2/UniRef databases as described in docs/large_resources.md",
       "env": "OPERON_COLABFOLD_PATH",
       "roots": [
-        "/usr/local/bin",
-        "~/.local/share/operon/resources/colabfold"
+        "~/.local/share/operon/resources/colabfold",
+        "/usr/local/bin"
       ],
       "files": [
         "colabfold/batch.py"
@@ -302,9 +302,7 @@
       "expected_files": [
         "colabfold/batch.py"
       ],
-      "notes": "colabfold_batch is created by the ColabFold installer (pip console script declared in pyproject.toml as colabfold_batch = 'colabfold.batch:main'); it is not shipped as a file. The git entry downloads the source tree the binary runs from. Database provisioning stays with setup_databases.sh / the ColabFold docs.",
-      "root": "/public/home/lihj/operon-resources/colabfold",
-      "note": "root is a writable data directory; colabfold_batch itself is provided by the pip entry point"
+      "notes": "colabfold_batch is created by the ColabFold installer (pip console script declared in pyproject.toml as colabfold_batch = 'colabfold.batch:main'); it is not shipped as a file. The git entry downloads the source tree the binary runs from. Database provisioning stays with setup_databases.sh / the ColabFold docs."
     },
     {
       "id": "alphafold2",
