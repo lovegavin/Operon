@@ -65,6 +65,7 @@ def test_git_fetch_copies_one_subdirectory(tmp_path: Path) -> None:
     assert result["status"] == "cloned"
     assert (target / "weights.bin").read_bytes() == b"w" * 8
     assert not (target / "README").exists()
+    assert not (target / ".git").exists()
     assert any(line.startswith("GIT ") for line in lines)
 
 
@@ -339,3 +340,23 @@ def test_card_ready_matches_the_card_fields() -> None:
     assert resource_api.card_ready({'state': 'present',
                                     'files': [{'name': 'a', 'present': True}]})
     assert not resource_api.card_ready({'state': 'unknown', 'files': []})
+
+def test_git_fetch_refreshes_a_read_only_file(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    (repo / "weights.bin").write_bytes(b"new")
+    subprocess.run(["git", "init", "-q", str(repo)], check=True)
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-qm", "init")
+    target = tmp_path / "target"
+    target.mkdir()
+    stale = target / "weights.bin"
+    stale.write_bytes(b"old")
+    stale.chmod(0o444)
+
+    result = resource_api._git_fetch({"url": repo.as_uri()}, target,
+                                     event=threading.Event(), job={}, emit=lambda line: None)
+
+    assert result["status"] == "cloned"
+    assert stale.read_bytes() == b"new"
+    assert os.access(stale, os.W_OK)

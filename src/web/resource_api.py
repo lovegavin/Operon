@@ -1039,9 +1039,17 @@ def _git_fetch(spec: dict, target: Path, *, event: threading.Event,
             if not item.is_file():
                 continue
             relative = item.relative_to(origin)
+            if '.git' in relative.parts:
+                # Repository metadata is not part of the resource, and git keeps
+                # its pack files read-only: copying them turned the next attempt
+                # into "Permission denied" instead of a plain refresh.
+                continue
             destination = target / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(item, destination)
+            if destination.exists() and not os.access(destination, os.W_OK):
+                destination.chmod(0o644)
+            shutil.copyfile(item, destination)
+            os.chmod(destination, (item.stat().st_mode & 0o777) | 0o200)
             copied += item.stat().st_size
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
