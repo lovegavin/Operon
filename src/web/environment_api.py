@@ -46,6 +46,27 @@ def _usage(directory):
     return size, files
 
 
+def _declared_resources(library):
+    """Return ``(name, entry)`` pairs from either environment manifest shape.
+
+    ``environment_install.environments.load()`` hands back ``{name: entry}``,
+    while a manifest file may nest the same rows under an ``environments`` key.
+    The rows themselves carry no id, so the mapping key is the environment name.
+    """
+    if not isinstance(library, dict):
+        return []
+    rows = library.get('environments')
+    if isinstance(rows, dict):
+        pairs = list(rows.items())
+    elif isinstance(rows, list):
+        pairs = [(str(entry.get('id') or entry.get('name') or ''), entry)
+                 for entry in rows if isinstance(entry, dict)]
+    else:
+        pairs = [(key, value) for key, value in library.items() if key != 'schema_version']
+    return [(str(name), entry) for name, entry in pairs
+            if str(name or '') and isinstance(entry, dict)]
+
+
 def mount_environments(app, service):
     from operon import environment_install, environments
 
@@ -357,10 +378,7 @@ def mount_environments(app, service):
             library = environment_install.environments.load() or {}
         except Exception:
             return counts
-        for entry in library.get('environments') or []:
-            if not isinstance(entry, dict):
-                continue
-            name = str(entry.get('id') or entry.get('name') or '')
+        for name, entry in _declared_resources(library):
             if name:
                 declared[name] = {str(item) for item in (entry.get('resources') or [])}
         rows = payload.get('resources')
@@ -431,6 +449,16 @@ def mount_environments(app, service):
             item['resources_missing'] = list(bucket['missing'][:8])
             item['shared_resources_total'] = int(bucket.get('shared_total', 0))
             item['shared_resources_ready'] = int(bucket.get('shared_ready', 0))
+            total, ready = int(bucket['total']), int(bucket['ready'])
+            if total and ready < total:
+                missing_names = [str(name) for name in bucket['missing'][:3]]
+                reason = '资源未齐备（%d/%d）' % (ready, total)
+                if missing_names:
+                    reason += '：' + '、'.join(missing_names)
+                if not item.get('error'):
+                    item['error'] = reason
+                if str(item.get('status') or '') == 'ready':
+                    item['status'] = 'incomplete'
         return {**data, 'operations': operations}
 
     def _synthetic_log(name: str) -> str:
