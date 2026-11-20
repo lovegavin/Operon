@@ -294,10 +294,11 @@
         "lifelines>=0.29",
         "anndata>=0.10",
         "arch>=7.0",
-        "econml==0.16.0"
+        "econml==0.16.0",
+        "lightgbm==3.3.5"
       ],
       "resources": [],
-      "notes": "econml is pinned to 0.16.0 because 0.17 requires lightgbm>=4.5.0, whose x86_64 wheels need glibc 2.28; hosts on manylinux2014 (glibc 2.17) can only build the sdist, which fails. econml 0.16.0 accepts the lightgbm 3.3.5 manylinux1 wheel."
+      "notes": "econml is pinned to 0.16.0 because 0.17 requires lightgbm>=4.5.0, whose x86_64 wheels need glibc 2.28; hosts on manylinux2014 (glibc 2.17) can only build the sdist, which fails. lightgbm 3.3.5 is the newest build that still ships a manylinux1 wheel, so it is pinned explicitly."
     },
     "proteinmpnn": {
       "title": "ProteinMPNN 蛋白设计",
