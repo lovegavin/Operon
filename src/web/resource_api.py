@@ -566,6 +566,30 @@ def snapshot(service) -> dict:
     }
 
 
+def _writable_root(fetch, resource, root, emit) -> Path:
+    """Pick a target the current user can write into.
+
+    Some manifests declare system directories (``/usr/local/bin``) because the
+    unit is normally *linked* there.  A download must never fail with EACCES:
+    fall back to the per-user resource directory and record why.
+    """
+
+    declared = _target_root(fetch, resource, root)
+    try:
+        declared.mkdir(parents=True, exist_ok=True)
+        if os.access(str(declared), os.W_OK):
+            return declared
+    except PermissionError:
+        pass
+    except OSError:
+        pass
+    fallback = (Path.home() / '.local' / 'share' / 'operon' / 'resources'
+                / str(getattr(resource, 'id', 'resource')))
+    fallback.mkdir(parents=True, exist_ok=True)
+    emit(f'ROOT {declared} is not writable; downloading into {fallback}')
+    return fallback
+
+
 def _target_root(fetch, resource, root):
     return fetch._target_root(resource, root)
 
@@ -845,7 +869,7 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
             stream.write(str(line) + '\n')
             stream.flush()
 
-    target = _target_root(fetch, resource, root)
+    target = _writable_root(fetch, resource, root, emit)
 
     def watch() -> None:
         while job['status'] == 'running':
@@ -975,9 +999,9 @@ def _git_fetch(spec: dict, target: Path, *, event: threading.Event,
     ref = str(spec.get('ref') or spec.get('branch') or spec.get('tag') or '').strip()
     subdir = str(spec.get('subdir') or '').strip().strip('/')
     target.mkdir(parents=True, exist_ok=True)
-    scratch = Path(tempfile.mkdtemp(prefix='operon-git-', dir=str(target.parent)))
+    scratch = Path(tempfile.mkdtemp(prefix='operon-git-'))
     checkout = scratch / 'checkout'
-    command = [binary, 'clone', '--depth', '1', '--no-tags']
+    command = [binary, 'clone', '--depth', '1']
     if ref:
         command += ['--branch', ref]
     command += [url, str(checkout)]

@@ -7,6 +7,7 @@ accounting and the operation registry.
 from __future__ import annotations
 
 import os
+import pathlib
 import subprocess
 import threading
 from pathlib import Path
@@ -65,6 +66,37 @@ def test_git_fetch_copies_one_subdirectory(tmp_path: Path) -> None:
     assert (target / "weights.bin").read_bytes() == b"w" * 8
     assert not (target / "README").exists()
     assert any(line.startswith("GIT ") for line in lines)
+
+
+class _StubFetch:
+    def __init__(self, declared: pathlib.Path) -> None:
+        self.declared = declared
+
+    def _target_root(self, resource, root):
+        return self.declared
+
+
+def test_writable_root_keeps_a_writable_declaration(tmp_path: pathlib.Path) -> None:
+    declared = tmp_path / "declared"
+    seen: list[str] = []
+    root = resource_api._writable_root(_StubFetch(declared), Resource([]), None, seen.append)
+    assert root == declared
+    assert seen == []
+
+
+def test_writable_root_falls_back_when_the_declaration_is_read_only(
+        monkeypatch, tmp_path: pathlib.Path) -> None:
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setattr(pathlib.Path, "home", classmethod(lambda cls: home))
+    seen: list[str] = []
+    resource = Resource([])
+    resource.id = "esm2"
+    root = resource_api._writable_root(
+        _StubFetch(pathlib.Path("/proc/definitely-not-writable")), resource, None, seen.append)
+    assert root == home / ".local" / "share" / "operon" / "resources" / "esm2"
+    assert root.is_dir()
+    assert seen and seen[0].startswith("ROOT ")
 
 
 def test_git_fetch_reports_a_missing_git(monkeypatch, tmp_path: Path) -> None:
