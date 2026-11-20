@@ -239,7 +239,9 @@
         "scipy",
         "pandas",
         "tree",
-        "modelcif"
+        "modelcif",
+        "pdbfixer",
+        "openmm"
       ],
       "requirements": [
         "numpy==1.26.4",
@@ -255,12 +257,17 @@
         "jsonschema==4.26.0"
       ],
       "wired": true,
-      "notes": "OpenFold inference environment. The checkout and the AlphaFold-2 weights are external: pass openfold_path (contains run_pretrained_openfold.py) and params_path. Alignment is a single-sequence A3M because no local mmseqs2 search is bundled; supply alignment_dir with precomputed MSAs to run the full AlphaFold-2 pipeline.",
+      "notes": "OpenFold's relaxation path imports pdbfixer and openmm at module scope, so the vendored run_pretrained_openfold.py cannot start without them. Neither ships a cp311 wheel on PyPI (pdbfixer is absent, openmm only reaches 8.1.1), therefore both come from conda-forge; numpy=1.26 keeps the conda solve aligned with the pinned numpy==1.26.4 that torch 2.3.1 was installed against.",
       "torch_version": "2.3.1",
       "torch_cuda": true,
       "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
       "resources": [
         "openfold"
+      ],
+      "conda_packages": [
+        "openmm=8.2",
+        "pdbfixer=1.11",
+        "numpy=1.26"
       ]
     },
     "core": {
