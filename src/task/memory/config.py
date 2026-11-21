@@ -83,6 +83,8 @@ class MemoryConfig:
         if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v) for v in (target, spill)) or not 0 < target < spill <= 1:
             raise ManifestError("Require 0 < target_fraction < spill_fraction <= 1")
         keep = raw.get("keep", [])
+        if isinstance(keep, (list, tuple)):
+            keep = list(keep)
         if not isinstance(keep, list) or any(not isinstance(n, str) for n in keep):
             raise ManifestError(f"runtime.memory.keep must be a list of form names, got {keep!r}")
         profiles = raw.get("profiles", {})
