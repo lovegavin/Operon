@@ -106,7 +106,8 @@
         "colabfold[alphafold]==1.5.5",
         "pydantic==2.14.3",
         "jsonschema==4.26.0",
-        "pandas==1.5.3"
+        "pandas==1.5.3",
+        "numpy==1.26.4"
       ],
       "conda_packages": [],
       "torch_cpu": true,
@@ -273,7 +274,31 @@
     "core": {
       "title": "基础运行时",
       "python": "3.11",
-      "imports": [],
+      "imports": [
+        "Bio",
+        "RNA",
+        "anndata",
+        "arch",
+        "h5py",
+        "lifelines",
+        "matplotlib",
+        "networkx",
+        "numpy",
+        "pandas",
+        "patsy",
+        "pdb2pqr",
+        "posebusters",
+        "pydeseq2",
+        "rdkit",
+        "scanpy",
+        "scipy",
+        "sklearn",
+        "statsmodels",
+        "torch",
+        "transformers",
+        "umap",
+        "vina"
+      ],
       "shared": true,
       "managed": false,
       "requirements": [
@@ -302,10 +327,28 @@
         "anndata>=0.10",
         "arch>=7.0",
         "econml==0.16.0",
-        "lightgbm==3.3.5"
+        "lightgbm==3.3.5",
+        "ViennaRNA==2.6.4",
+        "pdb2pqr==3.6.1",
+        "posebusters==0.3.1",
+        "pydeseq2==0.4.12",
+        "scanpy==1.10.3",
+        "transformers==4.46.3",
+        "umap-learn==0.5.6",
+        "vina==1.2.5",
+        "patsy>=0.5"
       ],
       "resources": [],
-      "notes": "econml is pinned to 0.16.0 because 0.17 requires lightgbm>=4.5.0, whose x86_64 wheels need glibc 2.28; hosts on manylinux2014 (glibc 2.17) can only build the sdist, which fails. lightgbm 3.3.5 is the newest build that still ships a manylinux1 wheel, so it is pinned explicitly."
+      "notes": "Operators bound to this environment import beyond the analysis stack: torch, transformers, scanpy, pydeseq2, pdb2pqr, posebusters, vina, umap-learn and ViennaRNA (the RNA module) are all reachable from core operators, so the declaration has to carry them or a ready environment still fails at run time. The binary genetics readers additionally need pyarrow, pysam, pyBigWig, bed-reader, bgen-reader and pgenlib; two of them only build with a modern C++ toolchain, so they are declared as best-effort and reported per environment.",
+      "torch_cpu": true,
+      "best_effort": [
+        "pyarrow>=15",
+        "pysam>=0.22",
+        "pyBigWig>=0.3.22",
+        "bed-reader>=1.0.0",
+        "bgen-reader>=4.0.8",
+        "pgenlib>=0.90"
+      ]
     },
     "proteinmpnn": {
       "title": "ProteinMPNN 蛋白设计",
@@ -433,7 +476,7 @@
       ]
     },
     "dssp": {
-      "title": "DSSP \u4e8c\u7ea7\u7ed3\u6784\u6307\u6d3e",
+      "title": "DSSP 二级结构指派",
       "python": "3.11",
       "conda_packages": [
         "dssp=4.4.11",
@@ -455,14 +498,18 @@
       "title": "ESM-2 蛋白语言模型",
       "python": "3.11",
       "imports": [
+        "biotite",
         "esm",
-        "torch"
+        "torch",
+        "torch_geometric"
       ],
       "requirements": [
         "torch==2.3.1",
         "numpy==1.26.4",
         "scipy==1.13.1",
-        "biopython==1.83"
+        "biopython==1.83",
+        "biotite==0.41.2",
+        "torch-geometric==2.6.1"
       ],
       "pip_pypi": [
         "fair-esm==2.0.0"
@@ -473,7 +520,7 @@
       ],
       "torch_version": "2.3.1",
       "torch_cuda": true,
-      "notes": "fair-esm provides both the ESM-2 checkpoints and the ESM-IF1 inverse-folding model; the checkpoints themselves are resources."
+      "notes": "esm.inverse_folding pulls torch_geometric and biotite at import time; without them the esm_if_* operators fail inside the environment."
     },
     "alphafold2": {
       "title": "AlphaFold2 数据",

@@ -293,9 +293,13 @@ def state(name: str, root=None, source=None) -> dict:
         result['dependencies'] = rows
         result['dependency_total'] = total
         result['dependency_installed'] = installed
-        missing = [str(row.get('name')) for row in rows if not row.get('installed')]
+        missing = [str(row.get('name')) for row in rows
+                   if not row.get('installed') and not row.get('optional')]
+        optional = [str(row.get('name')) for row in rows
+                    if not row.get('installed') and row.get('optional')]
         result['missing_dependencies'] = missing[:8]
-        if total and installed < total:
+        result['optional_missing'] = optional[:8]
+        if missing:
             detail = ', '.join(missing[:5])
             if len(missing) > 5:
                 detail += f' (+{len(missing) - 5} more)'
@@ -1084,6 +1088,16 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
         _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *PIP_TRUSTED, *requirements],
              log=log, timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
              env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
+    best_effort = entry.get('best_effort') or []
+    if best_effort:
+        # Declared, attempted, and reported, but never fatal: these are the
+        # modules that need a compiler the host may not have.
+        try:
+            _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *PIP_TRUSTED,
+                  *best_effort], log=log, timeout=5400, progress=progress, control=control,
+                 stall=BUILD_STALL_SECONDS, env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
+        except Exception as exc:  # noqa: BLE001 - best effort by contract
+            log(f'best-effort dependencies were skipped: {exc}')
     no_deps = entry.get('no_deps') or []
     if no_deps:
         _run([*install, *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *PIP_TRUSTED, *no_deps], log=log,
@@ -1297,6 +1311,14 @@ def dependency_rows(entry) -> list:
             if marker:
                 declared.add(marker)
             rows.append({'kind': kind, 'name': name})
+    for value in entry.get('best_effort') or []:
+        name = str(value)
+        marker = _requirement_name(name)
+        if marker and marker in declared:
+            continue
+        if marker:
+            declared.add(marker)
+        rows.append({'kind': 'best_effort', 'name': name, 'optional': True})
     seen_imports: set[str] = set()
     for value in entry.get('imports') or []:
         name = str(value)
@@ -1316,6 +1338,9 @@ def dependency_installed(row: dict, location: str) -> bool:
     name = str(row.get('name') or '')
     if kind in ('requirements', 'pypi', 'wheel'):
         return _requirement_name(name) in versions
+    if kind == 'best_effort':
+        marker = _requirement_name(name)
+        return marker in versions or marker in imports
     if kind == 'conda':
         return _requirement_name(name) in packages or _requirement_name(name) in versions
     if kind == 'import':
