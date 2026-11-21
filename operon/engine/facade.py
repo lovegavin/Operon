@@ -96,6 +96,16 @@ def _boot() -> str:
         return 'boot:unknown'
 
 
+def management_reserve(ceiling: int) -> int:
+    """Bytes the pool keeps outside the schedulable ceiling.
+
+    Admission and the engine must agree on this number: a reservation larger
+    than ``ceiling - management_reserve`` can never be granted.
+    """
+    reserve = min(max(64 * MIB, ceiling // 20), max(1, ceiling // 4))
+    return int(min(reserve, max(0, ceiling - 1)))
+
+
 def pool_from_host(*, root, admission=None, mode='legacy', principal=None,
                    ceiling_bytes=None, cpu_threads=None, scratch_bytes=None,
                    scope=None) -> PoolSpec:
@@ -122,8 +132,15 @@ def pool_from_host(*, root, admission=None, mode='legacy', principal=None,
         else:
             from src.web.admission import cpu_capacity
             cpu_threads = cpu_capacity()
-    reserve = min(max(64 * MIB, ceiling_bytes // 20), max(1, ceiling_bytes // 4))
-    reserve = min(reserve, max(0, ceiling_bytes - 1))
+    if admission is not None:
+        # Admission already froze a safety-margined ceiling (90% of the host
+        # snapshot) and reserves up to that number for a single slot.  Carving
+        # a management reserve out of it made a one-slot job un-grantable: its
+        # reservation was larger than the schedulable ceiling, so every unit
+        # failed with "The unit minimum exceeds the frozen pool ceiling".
+        reserve = 0
+    else:
+        reserve = management_reserve(int(ceiling_bytes))
     transport = min(max(1 * MIB, ceiling_bytes // 50), max(1, ceiling_bytes // 8))
     return PoolSpec(pool_id=pool_id(scope=scope), principal=owner,
                     capacity_domain=capacity_domain(), ceiling_bytes=int(ceiling_bytes),
