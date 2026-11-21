@@ -405,7 +405,10 @@
       "imports": [
         "antismash"
       ],
-      "requirements": [],
+      "requirements": [
+        "pydantic>=2.7",
+        "numpy"
+      ],
       "conda_packages": [
         "antismash=7.1.0",
         "hmmer=3.4",
