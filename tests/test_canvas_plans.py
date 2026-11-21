@@ -35,6 +35,25 @@ def test_collector_includes_provider_data_without_import_and_rejects_code_drift(
         collect_canvas_code(plan, tmp_path / 'changed', application_root=ROOT, roots=[ROOT, root])
 
 
+def test_provider_src_imports_join_the_frozen_kernel(tmp_path):
+    from operon.export.automatic import local_import_modules, provider_kernel_modules
+    app = tmp_path / 'app'
+    (app / 'src/core').mkdir(parents=True)
+    (app / 'src/core/__init__.py').write_text('', encoding='utf-8')
+    (app / 'src/core/numeric.py').write_text(
+        'def compact_numeric(data):\n    return data\n', encoding='utf-8')
+    provider_root = tmp_path / 'provider'
+    (provider_root / 'readers').mkdir(parents=True)
+    (provider_root / 'readers/__init__.py').write_text('', encoding='utf-8')
+    demo = provider_root / 'readers/demo.py'
+    demo.write_text('from src.core.numeric import compact_numeric\n', encoding='utf-8')
+    assert local_import_modules([demo], app) == {'src.core.numeric'}
+    plan = SimpleNamespace(implementations={'Demo': {}},
+                           diagnostics={'native_descriptor_audit': {
+                               'Demo': {'entry_point': 'provider.readers.demo:Demo'}}})
+    assert provider_kernel_modules(plan, [tmp_path], app) == {'src.core.numeric'}
+
+
 def minimal_app(tmp_path):
     service = SimpleNamespace(root=tmp_path, directory=tmp_path / '.studio')
     service.directory.mkdir()
