@@ -1044,6 +1044,23 @@ def _create(entry: dict, staging: Path, log, root=None, progress=None, control=N
              startup=CONDA_STARTUP_SECONDS, watch=[base(root), staging, _mamba_cache(root)])
 
 
+def _attempt_best_effort(items, attempt, log):
+    """Install each optional requirement on its own and report what failed.
+
+    A single source-only binding (vina needs SWIG) used to fail the whole batch,
+    which silently left the other optional imports, including the binary reader
+    dependencies, uninstalled.
+    """
+    skipped = []
+    for item in items or []:
+        try:
+            attempt(item)
+        except Exception as exc:  # noqa: BLE001 - best effort by contract
+            skipped.append(item)
+            log(f'best-effort dependency {item} was skipped: {exc}')
+    return skipped
+
+
 def _install(entry: dict, staging: Path, log, root=None, progress=None, control=None):
     python = _python(staging)
     # Use the extended prefix only for pip filesystem writes. Keep the actual
@@ -1092,12 +1109,13 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
     if best_effort:
         # Declared, attempted, and reported, but never fatal: these are the
         # modules that need a compiler the host may not have.
-        try:
-            _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *PIP_TRUSTED,
-                  *best_effort], log=log, timeout=5400, progress=progress, control=control,
-                 stall=BUILD_STALL_SECONDS, env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
-        except Exception as exc:  # noqa: BLE001 - best effort by contract
-            log(f'best-effort dependencies were skipped: {exc}')
+        _attempt_best_effort(
+            best_effort,
+            lambda requirement: _run(
+                [*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *PIP_TRUSTED, requirement],
+                log=log, timeout=5400, progress=progress, control=control,
+                stall=BUILD_STALL_SECONDS, env=_pip_env(python), startup=PIP_STARTUP_SECONDS),
+            log)
     no_deps = entry.get('no_deps') or []
     if no_deps:
         _run([*install, *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *PIP_TRUSTED, *no_deps], log=log,

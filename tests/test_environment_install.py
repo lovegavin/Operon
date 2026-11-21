@@ -319,3 +319,22 @@ def test_repair_rejects_an_unknown_environment(tmp_path, monkeypatch):
         assert 'not installed' in str(error)
     else:  # pragma: no cover - defensive
         raise AssertionError('repair should reject an unknown environment')
+def test_one_optional_binding_does_not_stop_the_best_effort_batch():
+    """vina has no cp311 wheel, and a batch install let it cancel pyarrow too."""
+
+    from operon import environment_install
+
+    attempted = []
+    logged = []
+
+    def attempt(item):
+        attempted.append(item)
+        if item.startswith('vina'):
+            raise RuntimeError('Failed building wheel for vina')
+
+    skipped = environment_install._attempt_best_effort(
+        ['vina==1.2.5', 'pyarrow>=15', 'pysam>=0.22'], attempt, logged.append)
+
+    assert attempted == ['vina==1.2.5', 'pyarrow>=15', 'pysam>=0.22']
+    assert skipped == ['vina==1.2.5']
+    assert any('vina==1.2.5' in line for line in logged)
