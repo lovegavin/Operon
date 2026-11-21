@@ -110,7 +110,7 @@ describe('large resource unit actions', () => {
     expect(action.reason.length).toBeGreaterThan(0);
   });
 
-  it('branch 5: reports missing files without any HTTP or rsync source', () => {
+  it('branch 5: reports missing files without any download source', () => {
     const component = {
       name: 'pfam',
       state: 'partial',
@@ -124,7 +124,7 @@ describe('large resource unit actions', () => {
       download_supported: true,
     };
     const action = unitAction(component);
-    expect(action.text).toBe('缺 3 个文件，没有 HTTP/rsync 源');
+    expect(action.text).toBe('缺 3 个文件，没有下载源');
     expect(action.enabled).toBe(false);
     expect(action.reason.length).toBeGreaterThan(0);
   });
