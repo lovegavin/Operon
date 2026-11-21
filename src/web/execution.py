@@ -139,9 +139,10 @@ class ExecutionService:
     def infos(self, *, connected=True, graph=None, include_resources=True):
         catalog = self.service.catalog
         names = {tool for spec in catalog['operators'] + catalog['readers'] for tool in spec.get('resources', {}).get('external_tools', [])}
+        from operon.dependencies import find_tool
         system = platform.system().lower().replace('darwin', 'macos')
         result = [{'target': LOCAL, 'name': '本机', 'system': system, 'catalog': catalog,
-                   'tools': {name: bool(shutil.which(name)) for name in names},
+                   'tools': {name: bool(find_tool(name)) for name in names},
                    'resources': self.service.resources() if include_resources else {},
                    'dependencies': self.service.dependencies.snapshot()}]
         for item in self.service.remotes.status() if self.service.remotes else []:

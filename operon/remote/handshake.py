@@ -319,7 +319,7 @@ class ManifestHandshake:
     def _response(self, params, *, legacy, history=None, resources=None):
         self.sync()
         from operon import __version__
-        tools = {}
+        tools = self.tool_snapshot()
         dependencies = self.persist()
         value = {
             'protocol_version': VERSION, 'version': __version__, 'system': platform.system().lower(),
@@ -328,6 +328,7 @@ class ManifestHandshake:
             'history': history if history is not None else self.service.history(),
             'demo': self.service.demo,
             'dependencies': dependencies,
+            'tools': tools,
             'resources': resources if resources is not None else self.service.resources(), **self.memory,
             'registry_refresh': deepcopy(self.maintenance),
             'handshake': {'version': HANDSHAKE_VERSION, 'server_id': self.server_id,

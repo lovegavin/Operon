@@ -38,6 +38,9 @@ def find_tool(name, environment=None):
     managed = Path(sys.prefix).resolve().parent
     roots.extend(sorted(managed.glob('env-*/bin')))
     roots.extend(sorted(managed.glob('env-*/Scripts')))
+    # Named environments live in <managed>/environments/<name>/bin.
+    roots.extend(sorted(managed.glob('environments/*/bin')))
+    roots.extend(sorted(managed.glob('environments/*/Scripts')))
     if environment:
         from operon import environments as _environments
         for candidate_root in (_environments.root(), managed / 'environments'):

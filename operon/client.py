@@ -1,6 +1,7 @@
 """Shared transport client for the CLI and MCP adapter."""
 from pathlib import Path
 import json
+import os
 import time
 from urllib.parse import urlsplit
 
@@ -112,7 +113,14 @@ class Client:
     def request(self, path, payload=None, *, method=None):
         route = '/api' + path if path.startswith('/v1/') else '/api/agent' + path
         preparation = path in ('/v1/workflows/prepare-environment', '/v1/environments/prepare')
-        timeout = None if preparation else 660 if path == '/plugins/install' else 120
+        # Submitting a plan is a durable hand-off: a large or cold workflow can
+        # take minutes before the service accepts it, and a short client window
+        # reports a timeout for a job that is already running. Keep ordinary
+        # calls short and let submission wait, configurably for slow hosts.
+        submitted = path in ('/v1/jobs', '/v1/plans/submit')
+        timeout = None if preparation else 660 if path == '/plugins/install' else (
+            float(os.environ.get('OPERON_SUBMIT_TIMEOUT', '900')) if submitted
+            else float(os.environ.get('OPERON_CLIENT_TIMEOUT', '120')))
         verb = method or ('GET' if payload is None else 'POST')
         response = self.http.request(verb, route, json=payload, timeout=timeout)
         # Preparation is an explicit mutation. Do not transparently replay it;

@@ -98,17 +98,17 @@ def test_changing_environment_invalidates_cached_pass(tmp_path):
 def test_probe_routes_external_tools_through_find_tool(monkeypatch):
     seen = []
 
-    def missing(name):
-        seen.append(name)
+    def missing(name, environment=None):
+        seen.append((name, environment))
         return None
 
     monkeypatch.setattr(module, 'find_tool', missing)
     result = probe([descriptor('tool_op', external_tools=['ghosttool'])])
     assert result['tool_op']['status'] == 'failed'
     assert 'ghosttool: not on PATH' in result['tool_op']['error']
-    assert seen == ['ghosttool']
+    assert [name for name, _ in seen] == ['ghosttool']
 
-    monkeypatch.setattr(module, 'find_tool', lambda name: '/opt/bin/' + name)
+    monkeypatch.setattr(module, 'find_tool', lambda name, environment=None: '/opt/bin/' + name)
     result = probe([descriptor('tool_op', external_tools=['ghosttool'])])
     assert result['tool_op']['status'] == 'passed'
 
