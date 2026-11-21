@@ -14,11 +14,11 @@ from operon.engine.fs import FileLock, atomic_json
 from operon.plugins import run_process
 
 
-def tooling(root, module, version):
+def tooling(root, module, version, extra=()):
     directory = Path(root) / 'export-tools' / (module + '-' + version)
     receipt = directory / '.ready.json'
     with FileLock(directory.with_suffix('.lock'), timeout=1200):
-        identity = {'module': module, 'version': version}
+        identity = {'module': module, 'version': version, 'extra': list(extra)}
         ready = (receipt.is_file() and json.loads(receipt.read_text()) == identity
                  and (directory / module).is_dir())
         if not ready:
@@ -29,7 +29,8 @@ def tooling(root, module, version):
                 shutil.rmtree(directory)
             directory.mkdir(parents=True, exist_ok=True)
             run_process([sys.executable, '-m', 'pip', 'install', '--disable-pip-version-check',
-                         '--no-compile', '--target', str(directory), module.replace('_', '-') + '==' + version],
+                         '--no-compile', '--target', str(directory), module.replace('_', '-') + '==' + version,
+                         *extra],
                         timeout=900)
             run_process([sys.executable, '-I', '-c',
                          'import sys,importlib;sys.path.insert(0,sys.argv[1]);importlib.import_module(sys.argv[2])',
@@ -90,7 +91,8 @@ def standalone_python(root, details):
 
 def pack_conda(prefix, output, root):
     """conda-pack owns prefix relocation; editable/missing files are NOT ignored."""
-    module = tooling(root, 'conda_pack', '0.8.1')
+    # conda-pack 0.8.1 imports pkg_resources, which setuptools 81 dropped.
+    module = tooling(root, 'conda_pack', '0.8.1', extra=('setuptools<81',))
     code = ('import sys; sys.path.insert(0,sys.argv[1]); import conda_pack; '
             'conda_pack.pack(prefix=sys.argv[2],output=sys.argv[3],format="tar",verbose=False)')
     run_process([sys.executable, '-I', '-c', code, str(module), str(prefix), str(output)], timeout=1800)
