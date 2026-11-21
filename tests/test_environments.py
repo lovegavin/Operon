@@ -47,11 +47,28 @@ def _form():
     )
 
 
+def _host_worker_environment(monkeypatch):
+    """The host interpreter keeps numpy in the user site; the bridge hides it."""
+    import os
+    import site
+
+    real = environments.worker_environment
+
+    def wrapper(python, paths=(), tools=None):
+        env = real(python, paths, tools)
+        user = site.getusersitepackages()
+        env['PYTHONPATH'] = os.pathsep.join([env.get('PYTHONPATH', ''), user])
+        return env
+
+    monkeypatch.setattr(environments, 'worker_environment', wrapper)
+
+
 def test_bridge_runs_a_step_in_the_environment_interpreter(monkeypatch, tmp_path):
     import sys
 
     monkeypatch.setattr(environments, "resolve", lambda name: Path(sys.executable))
     monkeypatch.setattr(environments, "code_root", lambda: Path(__file__).resolve().parents[1])
+    _host_worker_environment(monkeypatch)
 
     step = environments.proxy_step(_descriptor())()
 
@@ -84,6 +101,7 @@ def test_bridge_reports_a_missing_environment():
 def test_bridge_preserves_axis_metadata_missing_values_and_cleans_files(monkeypatch, tmp_path):
     import sys
     from src.core.forms import Form
+    _host_worker_environment(monkeypatch)
     monkeypatch.setattr(environments.tempfile, 'tempdir', str(tmp_path))
     form = Form(data=np.array([[3.0, np.nan]]), dims=['sample', 'feature'],
                 labels={'sample': {'s': 0}, 'feature': {'a': 0, 'b': 1}},
@@ -176,7 +194,7 @@ def test_bridge_publishes_the_plugin_lock_for_worker(monkeypatch, tmp_path):
     monkeypatch.setattr(environments.subprocess, 'run', fake_run)
     import operon.bytecode
     monkeypatch.setattr(operon.bytecode, 'executable_path', lambda value: value)
-    monkeypatch.setattr(environments, 'worker_environment', lambda python, paths=(): {})
+    monkeypatch.setattr(environments, 'worker_environment', lambda python, paths=(), tools=None: {})
 
     lock = {'protocol_version': 3, 'packages': [], 'descriptors': [{'id': 'PdbReader'}]}
     environments._run_step(tmp_path, {'entry_point': 'x:Y'}, [], {}, Path('python'),
@@ -200,7 +218,7 @@ def test_bridge_omits_the_lock_when_the_caller_has_none(monkeypatch, tmp_path):
     monkeypatch.setattr(environments.subprocess, 'run', fake_run)
     import operon.bytecode
     monkeypatch.setattr(operon.bytecode, 'executable_path', lambda value: value)
-    monkeypatch.setattr(environments, 'worker_environment', lambda python, paths=(): {})
+    monkeypatch.setattr(environments, 'worker_environment', lambda python, paths=(), tools=None: {})
 
     environments._run_step(tmp_path, {'entry_point': 'x:Y'}, [], {}, Path('python'), timeout=30)
 
@@ -212,7 +230,7 @@ def test_proxy_step_forwards_the_lock_to_run_step(monkeypatch):
 
     seen = {}
 
-    def fake_run_step(descriptor, inputs, params, python, *, timeout, paths, outputs=None, lock=None):
+    def fake_run_step(descriptor, inputs, params, python, *, timeout, paths, outputs=None, lock=None, tools=None):
         seen['lock'] = lock
         seen['paths'] = paths
         return None, {}, ''
@@ -247,3 +265,14 @@ def test_revive_uses_the_label_encoder_the_library_ships():
     encoder = revived['encoders']['field']['atom_name']
     assert isinstance(encoder, LabelEncoder)
     assert encoder.inverse_transform([1.0]) == ['CA']
+
+
+def test_worker_environment_publishes_resolved_tools(monkeypatch, tmp_path):
+    from operon import environments
+
+    monkeypatch.delenv('OPERON_PACKED_TOOLS', raising=False)
+    monkeypatch.setattr(environments, 'code_root', lambda: tmp_path)
+    env = environments.worker_environment(Path('python'), (), {'mkdssp': '/opt/dssp/bin/mkdssp', 'gone': None})
+    assert json.loads(env['OPERON_PACKED_TOOLS']) == {'mkdssp': '/opt/dssp/bin/mkdssp'}
+    env = environments.worker_environment(Path('python'), (), None)
+    assert 'OPERON_PACKED_TOOLS' not in env

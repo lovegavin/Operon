@@ -323,14 +323,14 @@ def _relocate_files(files, directory, outputs=None):
 
 
 def run_step(descriptor: dict, inputs, params: dict, python: Path, *, timeout: int = 3600, paths=(),
-             outputs=None, lock=None):
+             outputs=None, lock=None, tools=None):
     """Execute one step in ``python`` and return (form, export, console tail)."""
     with tempfile.TemporaryDirectory(prefix="envbridge-") as temporary:
         return _run_step(Path(temporary), descriptor, inputs, params, python, timeout=timeout, paths=paths,
-                         outputs=outputs, lock=lock)
+                         outputs=outputs, lock=lock, tools=tools)
 
 
-def worker_environment(python: Path, paths=()) -> dict[str, str]:
+def worker_environment(python: Path, paths=(), tools=None) -> dict[str, str]:
     """Keep OS/DLL/download settings while isolating Python module resolution."""
     env = os.environ.copy()
     env.pop('PYTHONHOME', None)
@@ -349,10 +349,15 @@ def worker_environment(python: Path, paths=()) -> dict[str, str]:
         env['LD_LIBRARY_PATH'] = os.pathsep.join(
             [*(str(p) for p in libs), *([previous] if previous else [])]
         )
+    bindings = {str(name): str(value) for name, value in (tools or {}).items() if value}
+    if bindings:
+        # The bridge resolves tools from the server's managed environments; the
+        # worker interpreter lives inside one of them and cannot see the others.
+        env['OPERON_PACKED_TOOLS'] = json.dumps(bindings)
     return env
 
 
-def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None, lock=None):
+def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None, lock=None, tools=None):
     from src.core.errors import StepError
     request = {"entry_point": descriptor["entry_point"], "params": params, "inputs": []}
     for index, form in enumerate(inputs):
@@ -366,7 +371,7 @@ def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(
     from .bytecode import executable_path
     completed = subprocess.run(command, capture_output=True, text=True, encoding='utf-8',
                                executable=executable_path(python), errors='replace', timeout=timeout,
-                               env=worker_environment(python, paths), cwd=executable_path(directory))
+                               env=worker_environment(python, paths, tools), cwd=executable_path(directory))
     if completed.returncode:
         tail = (completed.stderr or completed.stdout).strip().splitlines()[-6:]
         raise StepError("environment bridge failed with exit code " + str(completed.returncode) + ": " + " | ".join(tail))
@@ -409,8 +414,10 @@ def proxy_step(descriptor: dict, paths=(), lock=None):
     """Build a Step-compatible proxy that executes in the environment interpreter."""
     from src.task.step.base import Step
     from src.core.errors import StepError
+    from .dependencies import find_tool
     _paths = tuple(paths)
     _lock = lock
+    _tools = {name: find_tool(name) for name in ((descriptor.get("resources") or {}).get("external_tools") or [])}
 
     class EnvironmentStep(Step):
         name = descriptor["id"]
@@ -438,7 +445,7 @@ def proxy_step(descriptor: dict, paths=(), lock=None):
                 raise StepError(f"{descriptor['id']}: isolated environment {self._environment!r} is not installed")
             form, export, tail = run_step(descriptor, inputs, dict(ctx.step_params), python,
                                           timeout=int(ctx.step_params.get("timeout_seconds", 3600)) + 60,
-                                          paths=_paths, lock=_lock)
+                                          paths=_paths, lock=_lock, tools=_tools)
             name = ctx.step_params.get("output")
             if name and form is not None:
                 ctx[name] = form
