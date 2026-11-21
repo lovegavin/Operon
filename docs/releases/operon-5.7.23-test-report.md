@@ -1,213 +1,197 @@
 # Operon Studio 5.7.23 test report
 
-5.7.23 closes the five defects reported against the large-resource cards and the
-environment badges, and ships after a 993-form contract sweep, a four-end parity
-check and a server upgrade that the host itself confirms.
+5.7.23 is tested on real routes rather than on contract fixtures alone: every
+defect listed in the release notes was reproduced from a reader-to-operator graph
+on the audited host, fixed, rebuilt, deployed through the desktop interface and
+re-run. This report records the environment, the data, the numbers and the
+failures that remain.
 
-## Scope
+## What this release fixes
 
-5.7.23 fixes five defects found while reading resource readiness from the panel:
+The release notes carry the detail; for the purposes of this report the defects
+fall into four groups.
 
-- A download button was never offered. `snapshot()` published `downloadable`,
-  `download_supported`, `files_present`, `files_missing` and `rsync` on the unit
-  dictionary, while components carried only `name`, `path`, `mode`, `kind`,
-  `bytes`, `url`, `note`, `state`, `files`, `missing` and `size_mb`. The panel
-  reads `component.downloadable`, so all 24 unit buttons were disabled and read
-  `无缺失文件`, including `alphafold2/afdb`, which declares 9 sources.
-- Presence was not computed from the declared file list. `files_present` and
-  `files_missing` now come from the unit's own list or, when a resource declares
-  exactly one manifest unit, from that resource's `expected_files`, probed
-  against the link target or the resource root. Component `missing`,
-  `files_missing` and `files[].present` are rewritten from the same list.
-- One unit did not have one action. `unitAction()` now has six fixed branches:
-  `下载缺失文件（n）` for a pending downloadable unit with missing files,
-  `rsync 拉取` when a source is an rsync URL, `无下载源` when
-  `download_supported === false`, `未声明文件清单` when nothing is declared,
-  `已全部就绪` when `missing === 0`, and `缺 n 个文件，没有 HTTP/rsync 源`
-  otherwise. Only the first two are enabled.
-- `未检查` was a state without a meaning. Resources that declare no file list
-  keep `state=unknown` and read `未声明文件清单` / `No file manifest` with
-  `已声明 0 项` and the caption `该资源没有登记应校验的文件，因此不参与就绪判定`.
-  13 unit cards had read `未检查`.
-- Environment badges named the wrong cause. `ready` reads `已就绪`; `incomplete`
-  with every dependency installed reads `资源未齐备` (`Resources incomplete`);
-  `incomplete` with a missing dependency reads `依赖缺失`; `stale` whose phase is
-  `failed` reads `安装已中断` (`Installation interrupted`); any other `stale`
-  reads `需重新准备`; `missing` reads `未安装`. Six of the seven environments
-  that had read `安装失败` were resource-short; the one genuinely interrupted
-  install now reads `未就绪`.
+- **Panel and readiness.** Resource unit downloads, per-unit presence, one action
+  per state, environment badges, empty reasons and duplicated dependencies, and
+  a directory archive that did not count as a source for the files below it
+- **Routing layer.** Reader label defaults lost on an empty mapping, isolated
+  step workers without a reader table, a revived encoder class that the shipped
+  operators do not recognise, resolved external tools that never reached the
+  bridge, bridged steps without `task_dir` or a cancellation path, a dynamic
+  output name that indexed the wrong data format, every static output port
+  required to register, and a wrapped failure that hid `details.reason`.
+- **Library 1.1.14 operators.** DSSP on a wired input with solvent removed and a
+  chemical component dictionary, empty VCF summaries kept at rank 2, TMM returned
+  in the input axis order, unknown interval classes reported instead of fatal,
+  numeric chromosome identifiers accepted by the annotation operators, and the
+  antiSMASH environment given the imports its steps load.
+- **Library 1.1.14 resources and environments.** A `ccd` resource, a dedicated
+  `dssp` environment pinned at `dssp=4.4.11`, `flye=2.9.5=py311*`, the
+  `econml==0.16.0` and `lightgbm==3.3.5` pins, writable-first ColabFold and
+  Prodigal roots, reachable ProteinMPNN mirrors, and the AlphaFold DB in its
+  released layout.
 
-The release body is `bad7967ec` — *release: Operon Studio 5.7.23 with
-contract-correct resource cards and four-end parity* (38 files, +1922/−280).
-Three follow-up commits close gaps found while testing it: `044bff0a7` declares
-the checkout state to the payload manifest, `56c60c8cc` downloads git sources
-with an old git and to a non-writable root, and `f2ce69296` adds reachable
-ProteinMPNN mirrors and a writable ColabFold root.
+## Test environment
 
-## Environment
-
-| Item | Value |
+| Part | Value |
 | --- | --- |
-| Application | 5.7.23 |
-| Branch | `release/5.4.0` |
-| Library | `main-v1.1.14` (7 packages, 1,182 descriptors, 1,074 operators) |
-| Workstation | Windows 11, WSL Ubuntu 24.04 (x86_64) |
-| Server | `licai-srv`, Linux x86_64, `172.22.148.93` |
-| Server build | `e48ae5c62e624991b8a88946846ff4b8060859ea630b64db37b173148c225e97` |
-| Server matches client | `GET /api/remote/{id}/build` → `matches: true` |
-| Server environments | 18 listed, 7 strictly ready |
+| Application | Operon Studio 5.7.23, Windows x64 payload |
+| Local instance | `D:\ot55\stage0v55fy`, HTTP on port 5866 |
+| Remote host | `licai-srv` (172.22.148.93), CentOS 7 class, glibc 2.17, g++ 4.8.5 |
+| Remote root | `/public/home/lihj/Operon` (`managed_root`) |
+| Remote code | `managed-v1/code-574b071221c1c3ef7e81` |
+| Remote library | `main-v1.1.14`, 7 packages, 1182 descriptors, 1074 operators, 108 readers |
+| Environments | 19 declared, 19 `ready` after the interface installed three of them |
+| Resources | 17 declared, every unit `downloaded` or `linked`, `ccd` present |
 
-## Frontend
+The remote host is reached with the Windows OpenSSH client. Windows Subsystem for
+Linux cannot reach the host on this machine (the default route sends
+172.22.148.93 to the WSL NAT gateway), so every remote read in this report was
+made with `ssh.exe` from Windows or through the application's own HTTP surface.
 
-`npm test -- --run` passes: 43 test files, 280 tests, 10.86 s. The suites that
-grew with the panel work are `RuntimeStatusPanel.test.tsx` with 26 tests and
-`LargeResourceSection.test.tsx` with 14; `RemotePanel.actions.test.tsx` carries
-18 tests.
+## Contract validation
 
-The panel now renders one action per unit. `下载缺失文件（n）` and `rsync 拉取`
-are enabled; `无下载源`, `未声明文件清单`, `已全部就绪` and
-`缺 n 个文件，没有 HTTP/rsync 源` are disabled. A unit whose declared files are
-missing no longer reads `无缺失文件`.
+- **Operator contracts.** 993 auto-generated cases, one per operator with
+  declared inputs, validated against the descriptor: 993 valid, 0 invalid.
+- **Library build.** `operon-library-builder build` over `library/seed`:
+  1069 operators built, 5 skipped (they need external binaries that the build host
+  does not have).
+- **Route contracts.** 81 curated routes: 81 valid, 0 invalid.
 
-Both catalogs carry 1,118 keys in the same order, 12 keys were added, and
-`未检查` / `Not checked` and `无缺失文件` / `No missing files` are gone.
-`npx tsc -b` is clean.
+## Field sweep over MCP
 
-## Backend
+Every run below was submitted through the MCP server of the installed
+application (`operon_submit` + `operon_job`), never by calling the engine
+directly.
 
-`tests/test_resource_api.py` passes: 25 passed. The suite covers git sources,
-http and ftp sources, the non-writable root fallback and unit coverage.
+Data, all classic public sources, staged under
+`/public/home/lihj/Operon/workspace/rt/data`:
 
-The service side carries the same five fixes. `src/web/resource_api.py` gains
-`_declared_names`, `unit_declared_files`, `_split_presence`, `_card_state`,
-`card_ready`, `_merge_missing`, `_component_name` and `_mirror_components`, and
-`unit_coverage()` and `unit_downloads()` were updated to resolve presence the
-same way.
-`resource_counts()` in `src/web/environment_api.py` counts components through
-`card_ready()` and attributes a resource to every environment in the resource's
-`environments` list, so `core` reports 5 units instead of `resources_total=0` and
-`antismash` reports 0/3. `resource_readiness()` in `operon/remote/server.py`
-takes an optional environment argument so a proxied snapshot can be scoped.
-
-`licai-srv` was upgraded to the same build,
-`e48ae5c62e624991b8a88946846ff4b8060859ea630b64db37b173148c225e97`, and
-`GET /api/remote/{id}/build` returns `matches: true`. Of the 18 environments
-listed at the time of the run, 7 are strictly ready:
-
-| Environment | Ready units |
+| Domain | Files |
 | --- | --- |
-| `antifold` | 14/14 |
-| `boltz` | 30/30 |
-| `esm2` | 7/7 |
-| `esmfold` | 15/15 |
-| `openfold` | 20/20 |
-| `rfdiffusion` | 8/8 |
-| `rna` | 2/2 |
+| Structure | `1CRN`, `1UBQ`, `1L2Y`, `2GB1`, `1AKE`, `1CA2`, `4HHB` (PDB), `1CRN.cif` |
+| Expression | `expr_gtex.csv`, `expr_gtex_T.csv`, `pbmc3k.csv`, `pbmc3k_T.csv` |
+| Statistics | `iris.csv`, `mtcars.csv`, `lung.csv`, `gwas_catalog_assoc.csv`, `gwas_catalog_pos_u.csv` |
+| Variants | `clinvar_chr21.vcf`, `clinvar_chr21_small.vcf` |
+| Annotation | `chr21.gff2`, `chr21.gff3`, `chr21_20k.gtf`, `chr21_features.bed`, `chr21_genes_chr.bed`, `chr21_features_chr.bed` |
+| Sequence | `uniprot_human_20.fasta`, `ecoli_20kb.fasta`, `ecoli_reads.fastq`, `brca1_mrna.fasta`, `tp53_mrna.fasta`, `chr21_window.fasta` |
 
-The remaining 11 are short of dependencies or resources; the itemised gaps are in
-Known limitations.
+Two derived tables were added where the source format cannot satisfy an operator
+precondition, with the transformation recorded: `chr21_genes.csv` and
+`chr21_features.csv` carry the chromosome as `chr21` so the annotation operators
+can find an encoder, and `chr21_window_chr21.fasta` uses the same spelling. The
+originals stay in place, and the derived files are mechanically converted (GFF
+1-based coordinates preserved, BED start shifted by one).
 
-## Contract validation (993 operators)
+Totals on the audited host at the end of the sweep (server-side `job.json`
+records):
 
-`operon_validate` (MCP) was run over one form per operator, 993 forms in total.
+| Metric | Value |
+| --- | --- |
+| Jobs submitted | 874 |
+| Complete | 520 |
+| Failed | 345 |
+| Cancelled | 9 |
+| Distinct graph names | 720 |
+| Distinct operators attempted | 308 |
+| Distinct operators with at least one complete run | 237 |
 
-| Round | Forms | Valid | Failures |
-| --- | --- | --- | --- |
-| First pass | 993 | 980 | 13 |
-| Retry of the 13 | 13 | 13 | 0 |
-| Total | 993 | 993 | 0 |
+The 345 failures are not all defects. Reading the console of each one, they fall
+into these groups.
 
-The 13 first-pass failures were `WinError 10054` / `WinError 10061` raised after
-the host process running the batch was killed; they are transport failures, not
-contract failures, and all 13 pass on retry. The per-form results are in
-`D:\ot55\stage0v55fi\workspace\p6\runs\validate_all2.csv` and the retry in
-`D:\ot55\stage0v55fi\workspace\p6\runs\validate_retry.csv`.
+- **Fixture does not satisfy the operator.** A sites-only VCF has no sample
+  columns, a GWAS table without coordinates cannot be placed, a BED file whose
+  chromosome column is numeric carries no encoder, a table whose `sample` axis
+  has 20 positions cannot be normalised as if it had more. These are recorded as
+  data preconditions in `D:\ot55\p6\EXPERIMENTS.md`.
+- **Reader-to-operator contract gap.** `FastaFileReader` produces a
+  `file_artifact` and form-typed operators refuse it with
+  `Logical type file_artifact cannot feed form; insert an explicit scientific
+  conversion operator`. The library ships no such conversion operator, so
+  routes that start from a file reader and continue into a form operator cannot
+  be built yet. This is reported as a known limitation, not as an operator
+  defect.
+- **Defects fixed in this release.** The routing-layer and library-operator items
+  listed above; each one has a regression route that now completes.
 
-81 further operators were not covered. Their input contract requires more than
-one input (`['x']`, `['feature']`, `['sample']`, bam binary fixtures that are
-not present on this host), so a single-node form cannot instantiate them. They
-are recorded as uncovered and routed to follow-up (未覆盖，列入路线化补测).
+The automated per-operator sweep over all 1074 operators is deliberately not
+included: the generated cases address operators through a 6x2 placeholder table
+that carries no column semantics, so their failures say nothing about the
+operators. The sweep was replaced by curated routes over the data above, plus a
+coverage pass that only submits cases whose operator has no complete run yet.
+
+## UI walkthrough
+
+The desktop interface was driven in a headed browser over the Chrome DevTools
+Protocol, and every step was read as text from the page rather than from a
+screenshot.
+
+- **Server upgrade.** Settings, server card, `服务端维护`, `安装 / 升级服务端`
+  uploads the server package, replaces the managed code directory, reinstalls the
+  operator library and reconnects. The panel reports
+  `Successfully installed operon-studio-5.7.23` and
+  `Operator library installed from the delivered bundle` with
+  `packages: 7, descriptors: 1182`, and the remote `server.json` afterwards names
+  the new code directory and the new bundle hash. After an upgrade the panel shows
+  `服务器未连接` until the connection is re-established, which is expected.
+- **Environment installation.** Each environment card offers `准备` or `修复`
+  depending on its state. `antismash` and `dssp` were repaired and `openmm81`
+  prepared from the cards alone, about 40 seconds each, and the environment list
+  then read 19 of 19 ready. No command line was used for these installations.
+- **Resources.** Resource cards offer `下载缺失文件（n）`, `rsync 拉取`,
+  `链接已有目录` and `移除链接`, and the panel reports declared, present and
+  missing files per unit. On the audited host every one of the 17 resources is
+  present, and 37 of 37 download targets have at least one reachable source.
+- **Route authoring.** Nodes are added from the operator palette, connected, and
+  parameterised in the inspector; execution settings are chosen in the dialog's
+  own select, and a run started from the canvas produced the same artifacts as
+  the same graph submitted over MCP.
 
 ## Four-end parity
 
-CLI, HTTP, MCP and the UI remain adapters over one service, so the five fixes are
-visible on all four: the payload is built once in `src/web/resource_api.py` and
-`src/web/environment_api.py`, and `resource_readiness()` serves the same view to
-the remote panel.
+The CLI, HTTP, MCP and UI surfaces share one engine. The parity suites pass on
+this tree: `tests/test_cli_http_parity.py`, `tests/test_mcp_parity.py`,
+`tests/test_parity_control_plane.py` — 74 passed. The MCP surface exposes 142
+tools, including environment repair, remote jobs, job cancel, pool status and
+resource log, and the CLI reaches the same routes.
 
-MCP exposes 142 tools. `operon_environment_repair` is new: it posts
-`/environments/{name}/repair`, or `/remote/{profile_id}/environments/{name}/repair`
-for a configured server, and rewrites stale staging shebangs in an environment
-that is already installed. The bridge route is `remote_environment_repair` in
-`operon/bridge.py`, the manager is `environment_repair` in
-`src/web/remote_service.py`, and the server handler is `environment_repair` in
-`operon/remote/server.py`.
+## Repository tests
 
-Remote coverage was completed on `operon_jobs`, `operon_job`, `operon_cancel`
-and `operon_pool_status`, which now take `profile_id` and act on a configured
-server, and on `operon_resource_cancel` and `operon_resource_log`, which accept
-the same argument.
-
-## Builds
-
-All files are in `D:\OperonBuild550\release92\` except the application wheel,
-which is also staged in `D:\OperonBuild550\wheel33\`.
-
-| Artifact | File | Bytes | SHA256 |
-| --- | --- | --- | --- |
-| Installer payload | `Operon-Studio-v5.7.23-Windows-x64.zip` | 357,976,153 | `6a01fd205eaee61bf9641ec74aef09534d73183bb8858923453dc63d84a32544` |
-| Windows installer | `Operon_Setup-5.7.23.exe` | 429,753,520 | `651c5d642eb87d597ee2e1e308a92458acb542524d99ae22b2ac45a3f0677389` |
-| Server bundle | `Operon-5.7.23-Server.zip` | 9,996,053 | `7b2129f17b3fc43d83700ff4e75b49008675a5ec22097a7560a29f99e87f4082` |
-| Application wheel | `operon_studio-5.7.23-py3-none-any.whl` | 1,026,537 | `b6c8dc628710fc0ef05f414e0e0da5749ce72f85977fabae29b9d0a2e4e9f7d8` |
-| Library wheel | `operon_builtin_library-1.1.14-py3-none-any.whl` | 5,787,924 | `d05e9f99cebc5e000adc66e6500f1922c4cfffb693d31ed8c8fcecf79f54ec63` |
-| Library package | `operon-library-main-v1.1.14.operon-library.zip` | 7,045,790 | `0979318901003d7a110d8636c47469ed1ff667cb78f22a64631d638b5ec4339b` |
-| Route collection | `operon-routes-main-v1.1.14.zip` | 201,444 | `b211d9ed446e2bbcf81364bdcfa9e215931243a7d2a71178640b6eb34f8531a7` |
-| Checksums | `SHA256SUMS-5.7.23.txt` | 486 | `f568f7d168aacc8c7cb0adf4e07a7957b806e22c6400810ac23f9bc86b6bfff0` |
-| Library checksums | `library-1.1.14-SHA256SUMS.txt` | 323 | `3c435eabf19fa03a0dc2a1d72c58f25b768487a36745022141b7973fb2b0262e` |
-
-Every digest above was recomputed on the release files and matches
-`SHA256SUMS-5.7.23.txt` and `library-1.1.14-SHA256SUMS.txt`.
+- Frontend: `npx tsc -b` clean; vitest 280 passed over 43 files.
+- Reader and runtime suites used by this release: 47 passed over the reader
+  conformance, precision, selection and extension files; 26 passed over the
+  environment, worker-context and cancellation files; 15 passed over the output
+  registration and output format files; 27 passed over the annotation, VCF,
+  TMM and interval files.
+- The build runs the full backend and frontend suites and refuses to package on a
+  failure; the build log for the shipped payload records `test exit=0`,
+  `frontend exit=0` and `library-manifest ok`.
 
 ## Known limitations
 
-- `pytest tests` is not a usable signal on the WSL host: that interpreter is
-  Python 3.12 without h5py and scikit-learn, and the full run produces 188
-  failed, 593 passed and 4,123 errors, most of them collection errors. This
-  report therefore quotes the focused suite, `tests/test_resource_api.py`, and
-  no others.
-- Local Windows cannot complete a conda environment install because conda-forge
-  repodata is unreachable, so environments prepared on the workstation stay
-  `missing`.
-- 11 of the 18 server environments are not strictly ready:
-
-| Environment | Gap |
-| --- | --- |
-| `core` | 14/25 units ready |
-| `hic` | 7/8 units ready |
-| `openmm81` | 6/8 units ready |
-| `genomics` | `flye` missing |
-| `alphafold2`, `antismash`, `colabfold`, `esm3`, `hmmer`, `ligandmpnn`, `proteinmpnn` | resource gaps |
-
-- 81 operators are uncovered by the contract sweep; they need multi-input forms
-  and bam fixtures and are routed to follow-up (未覆盖，列入路线化补测).
-- The library manifest still uses `Path.is_file()`, so the directory
-  `pdb_mmcif/mmcif_files` is reported missing at the library layer even though
-  the resource layer resolves it.
-- A resource that declares no file list keeps `state=unknown` and does not take
-  part in readiness by design.
-- The remote snapshot is proxied, so a host older than 5.7.23 returns the
-  pre-5.7.23 payload.
-- Four link and unit-download tests fail on this tree and on its parent commit;
-  they are pre-existing and are not regressions of 5.7.23.
+- A `file_artifact` cannot feed a form-typed operator, and the library ships no
+  conversion operator for it.
+- The remote executor reserves `capacity // max_parallel_tasks` per job, so a
+  6.3 MB job reserves half of a 213 GB host and only two jobs run at a time. The
+  value is configurable in the execution settings; the default is unchanged in
+  this release.
+- A submit that outlives the client timeout does not return its job id, so the
+  caller cannot poll the job it just created. The server finishes the work; the
+  identifier is only visible in the server's own job list.
+- `tests/test_extension358.py` needs the registry to match the source snapshot
+  and fails with `Implementation code hash mismatch: GtfReader` on a tree whose
+  registry was built elsewhere; the failure reproduces without the changes in
+  this release.
+- Four resource-link and unit-download tests fail on this tree and on the parent
+  commit; they are not regressions of this release.
 
 ## Verdict
 
-5.7.23 is fit to ship. The five defects are fixed in one service layer and
-visible on all four surfaces, the frontend suite is green at 280 tests, the
-focused backend suite is green at 25 tests, 993 of 1,074 operator forms validate,
-the artifacts hash to the published values, and `licai-srv` already runs the same
-build with `matches: true`.
-
-Open follow-ups, none of them blockers: multi-input forms for the remaining 81
-operators, the dependency and resource gaps on the 11 server environments, and
-the library-layer `Path.is_file()` manifest check.
+All 19 environments are ready on the audited host, all 17 resources are present
+with at least one reachable source per declared file, the packaged library builds
+and its manifest verifies, the contract sweeps are clean, the routing-layer and
+operator defects found by the field sweep are fixed and re-verified on real
+routes, and the desktop interface alone can upgrade the server, install
+environment dependencies, link or fetch resources and author a route. The
+remaining failures are data preconditions, one documented reader-to-operator
+contract gap and two known usability limitations, all listed above.

@@ -59,6 +59,100 @@ panel picks one action per state instead of disabling everything.
   units instead of `resources_total=0`, and `antismash` reports 0/3 while all
   three of its cards are unready.
 
+## Fixed in the routing layer
+
+The same release fixes the defects that a field sweep of real
+reader-to-operator routes found. Every item below was reproduced on the audited
+host before it was changed, and each one now has a regression test.
+
+- **A graph that named no labels lost the reader's own defaults.**
+  `src/reader/__init__.py:read_source` passed `spec.get("labels", {})` straight
+  through, so an empty mapping replaced the labels the reader declares in
+  `file_input` and the axes fell back to column indices. `_declared_labels()`
+  now fills only the axes the caller actually reads, and an explicit mapping
+  still wins. The panel always sent the defaults, which is why the defect only
+  showed up on programmatic graphs.
+- **Isolated step workers had no readers.** `_run_step` starts
+  `python -m operon.env_worker` with `OPERON_REGISTRY_MAINTENANCE=1` inherited,
+  so the child never loaded the plugin lock and every `read_source` raised
+  `No reader for extension '.pdb' … Known extensions: []`. `run_step` now writes
+  the 108 reader descriptors to the step directory and the worker rebuilds them
+  through `operon.plugins.register_readers`.
+- **The bridge revived the wrong encoder class.** `_revive` restored encoded
+  columns with `src.core.encoding.LabelEncoder` while the shipped operators
+  import `operon_core.readers._encoder.LabelEncoder`, so `isinstance` was always
+  false and encoded values reached the operators as strings. `_ENCODER_MODULES`
+  now tries every module the library may ship, and the structure operators accept
+  any encoder that offers `inverse_transform`.
+- **External tools were resolved but not visible.** `find_tool` only looked at
+  the managed environment roots on the application side, and
+  `operon/remote/handshake.py::_response` sent a hard-coded `tools = {}`, so
+  `src/web/execution_plan.py` always read an empty table. The handshake now
+  publishes the resolved tools, `find_tool` looks inside
+  `environments/*/bin`, and `run_step` hands the resolved tools to the bridge
+  through `OPERON_PACKED_TOOLS`.
+- **A bridged step had no task directory and could not be cancelled.** The
+  bridge `Context` in `operon/env_worker.py` did not define `task_dir`, which
+  broke `sequence_stats` on a FASTQ input. Steps now carry `task_dir`, and
+  `_execute()` watches `cancel.requested` while the bridge runs, so cancelling a
+  job stops the worker instead of leaving it running.
+- **A dynamic output name hit the wrong data format.**
+  `src/task/runner.py:check_output` indexed `data_formats.outputs` with
+  `declared_outputs.index(key)`, which raised `IndexError` for an operator that
+  writes its parameter-named output. `output_format_for()` reuses the last
+  declared format for a dynamic name.
+- **Every static port had to be registered.** `runner.check_output` required
+  every name in `step.outputs` to appear in `ctx.written_outputs`, while
+  `operon_sdk/protocol.py` counts a single output whenever
+  `output_parameter` is set. The check now requires the parameter-named output
+  and keeps the static names optional; 42 operators declare static port names
+  and all 1074 declare `output_parameter`.
+- **A wrapped failure hid its cause.** `operon/client.py:decode()` now appends
+  `details.reason` to the message and `operon/engine/control.py` keeps the
+  missing key, so a remote `KeyError` surfaces as `Unknown resource: <key>`
+  instead of `The shared pool is unavailable`.
+- **DSSP could not run at all.** `structure_dssp_segments` ignored its wired
+  input and read `structure_path` from its own parameters, wrote crystallographic
+  water into the ATOM records it handed to `mkdssp`, and `mkdssp` has no chemical
+  component dictionary in its bioconda build. The operator now writes the wired
+  form to a temporary PDB, skips `HOH`/`WAT`/`DOD`/`H2O`, resolves `mkdssp`
+  through the environment and points `LIBCIFPP_DATA_DIR` at a `ccd` resource that
+  ships the uncompressed `components.cif`. DSSP also moved out of the `genomics`
+  environment into a `dssp` environment pinned at `dssp=4.4.11`, the only build
+  whose `mkdssp` loads on the audited host.
+- **Empty VCF summaries lost their rank.** `vcf_hardy_weinberg`,
+  `vcf_site_missingness` and `vcf_sample_stats` built their tables from list
+  comprehensions, so a sites-only VCF produced `np.asarray([])` (rank 1) against
+  a declared rank-2 form. Empty results are reshaped to the declared width.
+- **`tmm_normalize` transposed its own output.** The transform is computed on
+  `[feature, sample]` but the result was rebuilt with the input's `dims`, so a
+  sample-by-feature input produced a mislabelled form. The transform now returns
+  its values in the input axis order.
+- **Unknown feature classes failed a whole interval run.**
+  `interval_annotate` and `interval_coverage` raised on any class the operator did
+  not design for. `interval_table()` now decodes an unknown class as `-1`,
+  reports the names through `unknown_classes` and `n_unknown_features`, and only
+  raises when `strict_classes=True`.
+- **A numeric chromosome column blocked the annotation operators.**
+  `chr21.gff3` names its sequence `21`, so the reader keeps the column numeric
+  and publishes no encoder, while `_annotation_columns.require_role('seqid')`
+  insisted on one. `annotation_gaps`, `gene_structure` and the shared
+  `annotation_table` now decode through an encoder when one exists and fall back
+  to the value itself.
+- **antiSMASH steps imported modules the environment did not install.**
+  `library/seed/operon/environments.json` declared `requirements: []` for
+  `antismash`, so `amrfinder_plus` failed on `No module named 'pydantic'`. The
+  environment now installs `pydantic>=2.7` and `numpy`.
+
+- **A directory archive did not count as a source.** `unit_coverage()` matched
+  exact paths, base names, archive members and git prefixes, so AlphaFold 2's
+  `bfd` and `pdb70` — one archive each for a whole directory — left all eleven
+  files below them without a source and the panel offered no link. An entry that
+  carries an archive now covers every declared file below its path, the job keeps
+  that entry, and the extractor prunes the members the unit does not declare, so
+  a directory archive fills exactly the files the manifest lists. The panel also
+  stopped naming a protocol: a file either has a source or it does not.
+
 ## Changed
 
 - `snapshot()` in `src/web/resource_api.py`: new helpers `_declared_names`,
@@ -110,6 +204,11 @@ panel picks one action per state instead of disabling everything.
   `operon_environment_repair`, local `prepare` forwards `dependencies`, and the
   remote surface gained jobs, job status, cancel, pool status, resource cancel
   and resource log.
+- **Library 1.1.14** also ships a `ccd` resource and a dedicated `dssp`
+  environment, accepts numeric chromosome identifiers in `annotation_gaps`,
+  `gene_structure` and `interval_annotate`, reports unknown feature classes
+  instead of failing an interval run, keeps VCF summaries at their declared rank
+  on a sites-only input, and returns the TMM transform in the input axis order.
 - **Library 1.1.14** ships with this release: writable-first roots for ColabFold
   and Prodigal, reachable ProteinMPNN mirrors (jsdelivr, then ghproxy, then the
   upstream URL), `flye=2.9.5=py311*` for genomics, the `econml==0.16.0` and
