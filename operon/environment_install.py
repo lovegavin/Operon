@@ -1062,8 +1062,16 @@ def _probe(python: Path, entry: dict, log, progress=None, control=None):
     if not modules:
         return ''
     script = ';'.join('import ' + module for module in modules)
-    _run([python, '-X', 'utf8', '-c', script], log=log, env=_probe_environment(python),
-         timeout=600, progress=progress, control=control, stall=STALL_SECONDS)
+    # The probe prints nothing on success, so a slow import chain (jax alone can
+    # take minutes on a shared filesystem) looked like a stalled command and was
+    # killed by the startup grace.  Announce every module first so the reader
+    # keeps seeing output and the log names the slow import.
+    narrated = ';'.join(
+        ['import sys'] + [part for module in modules
+                          for part in ('sys.stdout.write("import %s\\n");sys.stdout.flush()' % module,
+                                       'import ' + module)])
+    _run([python, '-X', 'utf8', '-c', narrated], log=log, env=_probe_environment(python),
+         timeout=600, startup=600, progress=progress, control=control, stall=STALL_SECONDS)
     return script
 
 

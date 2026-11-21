@@ -215,6 +215,33 @@ def test_run_aborts_when_the_command_never_starts_talking(tmp_path, monkeypatch)
                                  timeout=30, stall=0.4)
 
 
+def test_probe_announces_each_import_and_gets_the_full_timeout_as_grace(tmp_path, monkeypatch):
+    from operon import environment_install
+
+    calls = []
+
+    def fake_run(argv, **kwargs):
+        calls.append((argv, kwargs))
+        return ''
+
+    monkeypatch.setattr(environment_install, '_run', fake_run)
+    monkeypatch.setattr(environment_install, '_probe_environment', lambda python: {'PATH': ''})
+    python = tmp_path / 'bin' / 'python'
+    python.parent.mkdir(parents=True)
+    python.write_text('', encoding='utf-8')
+
+    script = environment_install._probe(
+        python, {'imports': ['json', 'math']}, lambda line: None)
+
+    assert script == 'import json;import math'
+    argv, kwargs = calls[0]
+    code = argv[-1]
+    assert code.count('sys.stdout.write') == 2
+    assert code.index('sys.stdout.write("import json') < code.index('import json')
+    assert code.index('sys.stdout.write("import math') < code.index('import math')
+    assert kwargs['startup'] == kwargs['timeout'] == 600
+
+
 def test_prepare_keeps_an_unsupported_platform_missing(tmp_path, monkeypatch):
     monkeypatch.setattr(environment_install, 'PLATFORM', 'windows')
     source = manifest(tmp_path / 'source', {'gated': {'python': '3.11', 'imports': [],
