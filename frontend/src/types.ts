@@ -312,7 +312,7 @@ export type LargeResource = {
 };
 export type LargeResourceOperation = {id: string; name?: string; kind?: string; status: string;
   error?: string | null; started_at?: string; finished_at?: string | null; mode?: string | null;
-  root?: string | null; source?: string | null};
+  root?: string | null; source?: string | null; completed_bytes?: number; planned_bytes?: number};
 export type LargeResourceSnapshot = {library?: {version?: string; tag?: string; release?: string};
   library_root?: string; resources: LargeResource[]; operations: LargeResourceOperation[]};
 export type LargeResourceLinkResult = {id: string; status: string; mode?: string; source?: string;

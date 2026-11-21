@@ -55,3 +55,48 @@ def test_pool_status_endpoint_reports_local_state(tmp_path):
         assert {'location', 'instance', 'workspaces', 'active', 'remotes'} <= set(body)
         assert isinstance(body['active'], list)
         assert 'closing' in body['instance']
+
+
+def test_environment_resources_list_matches_its_counts(tmp_path, monkeypatch):
+    rows = [
+        {'id': f'unit{i}', 'components': [{'state': 'downloaded'}], 'environments': ['core']}
+        for i in range(5)
+    ]
+    monkeypatch.setattr('src.web.resource_api.snapshot', lambda service: {'resources': rows})
+    with TestClient(studio(tmp_path)) as client:
+        client.headers['X-Studio-Token'] = client.get('/api/bootstrap').json()['token']
+        response = client.get('/api/environments')
+        assert response.status_code == 200
+        item = response.json()['environments']['core']
+        assert item['resources_total'] == 5
+        assert len(item['resources']) == item['resources_total']
+        assert set(item['resources']) == {f'unit{i}' for i in range(5)}
+        assert item['resources_ready'] == 5
+        assert item['shared_resources_total'] <= item['resources_total']
+
+
+def test_cancel_reports_not_cancelled_and_completed_for_an_idle_environment(tmp_path):
+    with TestClient(studio(tmp_path)) as client:
+        client.headers['X-Studio-Token'] = client.get('/api/bootstrap').json()['token']
+        response = client.post('/api/environments/openmm81/cancel')
+        assert response.status_code == 200
+        body = response.json()
+        assert body['cancelled'] is False
+        assert body['completed'] is True
+        assert body['job'] is None
+        assert body['reason']
+
+
+def test_cancel_reports_cancelled_for_a_running_job(tmp_path):
+    app = studio(tmp_path)
+    with TestClient(app) as client:
+        client.headers['X-Studio-Token'] = client.get('/api/bootstrap').json()['token']
+        app.state.environment_jobs['job-1'] = {
+            'id': 'job-1', 'name': 'openmm81', 'status': 'running',
+        }
+        response = client.post('/api/environments/openmm81/cancel')
+        assert response.status_code == 200
+        body = response.json()
+        assert body['cancelled'] is True
+        assert body['completed'] is False
+        assert body['job'] == 'job-1'

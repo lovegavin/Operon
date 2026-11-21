@@ -365,24 +365,43 @@ def mount_environments(app, service):
         return item
 
     def resource_counts() -> dict:
-        """Per environment: the maintenance cards its panel section renders.
+        """Per environment: the maintenance resources its panel section shows.
 
-        One count per serialized component - exactly the cards
-        ``RuntimeStatusPanel`` draws from ``large-resources`` - so a header can
-        never disagree with the list below it.  Every resource that names the
-        environment is counted (declared in ``environments.json`` or reached
-        through an operator's environment); counting only declared ids left
-        environments such as ``core`` at 0/0 while five cards were on screen.
+        ``names`` is the canonical list: the same source feeds the serialized
+        ``resources`` array and ``resources_total``/``resources_ready``, so a
+        header can never disagree with the list below it.  A resource counts
+        once per environment and is ready only when every serialized component
+        is ready.  Every resource that names the environment is counted
+        (declared in ``environments.json`` or reached through an operator's
+        environment); counting only declared ids left environments such as
+        ``core`` at 0/0 while five cards were on screen.
         """
         counts: dict = {}
         try:
             from . import resource_api as _resource_api
+        except Exception:
+            return counts
+        # Seed from the manifest so a resource the snapshot cannot enumerate is
+        # still named, counted, and reported missing instead of silently
+        # disappearing from the list while its count stayed behind.
+        for environment, entry in _declared_resources(declared()):
+            names: list[str] = []
+            for value in entry.get('resources') or []:
+                rid = str(value)
+                if rid and rid not in names:
+                    names.append(rid)
+            counts[environment] = {
+                'total': len(names), 'ready': 0,
+                'missing': list(names), 'names': names,
+            }
+        try:
             payload = _resource_api.snapshot(service) or {}
         except Exception:
             return counts
         rows = payload.get('resources')
         if isinstance(rows, dict):
             rows = list(rows.values())
+        seen: set[tuple[str, str]] = set()
         for item in rows or []:
             if not isinstance(item, dict):
                 continue
@@ -394,13 +413,22 @@ def mount_environments(app, service):
                 cards = [card for card in item.get('units') or [] if isinstance(card, dict)] or [item]
             for environment in item.get('environments') or []:
                 environment = str(environment)
-                bucket = counts.setdefault(environment, {'total': 0, 'ready': 0, 'missing': []})
-                for card in cards:
+                bucket = counts.setdefault(
+                    environment,
+                    {'total': 0, 'ready': 0, 'missing': [], 'names': []},
+                )
+                key = (environment, rid)
+                if key in seen:
+                    continue
+                seen.add(key)
+                if rid not in bucket['names']:
+                    bucket['names'].append(rid)
                     bucket['total'] += 1
-                    if _resource_api.card_ready(card):
-                        bucket['ready'] += 1
-                    elif rid not in bucket['missing']:
-                        bucket['missing'].append(rid)
+                    bucket['missing'].append(rid)
+                if all(_resource_api.card_ready(card) for card in cards):
+                    bucket['ready'] += 1
+                    if rid in bucket['missing']:
+                        bucket['missing'].remove(rid)
         return counts
 
     def snapshot():
@@ -438,6 +466,7 @@ def mount_environments(app, service):
                 'total': 0, 'ready': 0, 'missing': [],
                 'shared_total': 0, 'shared_ready': 0,
             }
+            item['resources'] = list(bucket.get('names') or [])
             item['resources_total'] = int(bucket['total'])
             item['resources_ready'] = int(bucket['ready'])
             item['resources_missing'] = list(bucket['missing'][:8])
@@ -778,17 +807,17 @@ def mount_environments(app, service):
                 reason = '没有正在进行的准备任务。'
             return {
                 **snapshot(),
-                'cancelled': bool(reaped),
+                'cancelled': False,
                 'job': None,
-                'completed': finished and not reaped,
+                'completed': True,
                 'reason': reason,
             }
         handle = controls.get(str(job_id)) if job_id is not None else None
         if handle is not None:
             handle.stop()
         signal_stop(name)
-        marked = environment_install.mark_cancelled(name)
-        return {**snapshot(), 'cancelled': True, 'job': job_id, 'completed': not marked}
+        environment_install.mark_cancelled(name)
+        return {**snapshot(), 'cancelled': True, 'job': job_id, 'completed': False}
 
     @app.get('/api/environments/{name}/log')
     @app.get('/api/v1/environments/{name}/log')

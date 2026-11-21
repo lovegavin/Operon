@@ -1,9 +1,9 @@
 import {describe, expect, it} from 'vitest';
 import {
-  componentStateLabel, declaredFiles, isReady, missingFiles, officialRoot, pendingDownloads,
-  resourceComponents, resourcesOf, unitAction,
+  componentStateLabel, declaredFiles, downloadButtonLabel, downloadPercent, downloadStartedMessage,
+  isReady, missingFiles, officialRoot, pendingDownloads, resourceComponents, resourcesOf, unitAction,
 } from './LargeResourceSection';
-import type {LargeResource} from './types';
+import type {LargeResource, LargeResourceOperation} from './types';
 
 const resource: LargeResource = {
   id: 'alphafold2',
@@ -199,5 +199,33 @@ describe('large resource unit actions', () => {
     };
     expect(declaredFiles(component)).toEqual(['prodigal']);
     expect(unitAction(component).text).toBe('下载缺失文件（1）');
+  });
+});
+
+describe('large resource download feedback', () => {
+  it('announces the started unit and its file count immediately', () => {
+    expect(downloadStartedMessage('afdb', 3)).toBe('已开始下载 afdb（3 个文件）');
+  });
+
+  it('turns declared byte progress into a percentage', () => {
+    expect(downloadPercent({id: 'job', status: 'running', completed_bytes: 25, planned_bytes: 200}))
+      .toBe(12);
+    expect(downloadPercent({id: 'job', status: 'running', completed_bytes: 400, planned_bytes: 200}))
+      .toBe(100);
+    expect(downloadPercent({id: 'job', status: 'running'})).toBe(0);
+  });
+
+  it('labels the button while running, after success and after failure', () => {
+    const running: LargeResourceOperation = {
+      id: 'job', status: 'running', completed_bytes: 50, planned_bytes: 200,
+    };
+    expect(downloadButtonLabel(running, '下载缺失文件（2）')).toBe('下载中 25%');
+    expect(downloadButtonLabel({id: 'job', status: 'running'}, '下载缺失文件（2）'))
+      .toBe('下载中…');
+    expect(downloadButtonLabel({id: 'job', status: 'succeeded'}, '下载缺失文件（2）'))
+      .toBe('下载完成');
+    expect(downloadButtonLabel({id: 'job', status: 'failed', error: '磁盘已满'}, '下载缺失文件（2）'))
+      .toBe('磁盘已满');
+    expect(downloadButtonLabel(undefined, '下载缺失文件（2）')).toBe('下载缺失文件（2）');
   });
 });

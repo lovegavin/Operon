@@ -454,9 +454,18 @@ def _mirror_components(components, units, rsync=None, downloads=None) -> None:
 
 
 def snapshot(service) -> dict:
-    root, common, _fetch, _link = _modules(service)
-    resources = common.load_resources(_manifest(root))
     release = service.plugins.state().get('library_release') or {}
+    try:
+        root, common, _fetch, _link = _modules(service)
+        resources = common.load_resources(_manifest(root))
+    except ValueError as exc:
+        # A server that has not imported a library yet must still answer the
+        # handshake and the resources route: the panel renders the reason
+        # instead of the whole call failing with a bare ValueError.
+        return {'library': release,
+                'library_root': str(Path(service.plugins.directory)),
+                'resources': [], 'operations': list(_jobs.values())[-20:],
+                'available': False, 'error': str(exc)}
     probes = sorted({probe for resource in resources.values()
                     for probe in (resource.env, resource.id) if probe})
     used_by = _used_by_map(root, release, [probe for probe in probes if probe])
@@ -890,6 +899,15 @@ def unit_downloads(name: str, resource, unit: str | None) -> tuple[list[dict], s
     raise ValueError(f"resource '{name}' has no downloadable files")
 
 
+def _planned_bytes(planned: list[dict]) -> int:
+    """Total declared size, only when every planned file publishes one."""
+
+    sizes = [int(entry.get("bytes") or 0) for entry in planned]
+    if not sizes or any(size <= 0 for size in sizes):
+        return 0
+    return sum(sizes)
+
+
 def start(service, name: str, root: str | None = None, overwrite: bool = False,
           unit: str | None = None) -> dict:
     _root_path, _common, fetch, _link_module, resource = _resource(service, name)
@@ -904,9 +922,9 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
         covered, missing = unit_coverage(resource, unit)
         job = {'id': key, 'name': name, 'status': 'running', 'error': None,
                'started_at': _now(), 'finished_at': None, 'bytes': 0, 'files': 0,
-               'completed_bytes': 0, 'phase': 'starting', 'current': '',
-               'planned': len(planned), 'unit': unit, 'downloadable': covered,
-               'undownloadable': missing}
+               'completed_bytes': 0, 'planned_bytes': _planned_bytes(planned),
+               'phase': 'starting', 'current': '', 'planned': len(planned),
+               'unit': unit, 'downloadable': covered, 'undownloadable': missing}
         _jobs[key] = job
         _running[name] = key
         event = threading.Event()

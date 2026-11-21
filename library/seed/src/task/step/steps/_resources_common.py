@@ -316,9 +316,21 @@ def link_roots(
 
 
 def expected_files(resource: Resource) -> tuple[str, ...]:
-    """Files used to verify a resource link; ``files`` when none are declared."""
+    """Files used to verify a resource link.
 
-    declared = resource.expected_files or resource.files or ()
+    A resource that publishes units verifies their released layout: the unit
+    files are the only list that travels with the download entries, so they win
+    over a resource-level ``expected_files`` that may still describe the old
+    layout.  Resources without unit files keep the declared list.
+    """
+
+    declared: tuple[Any, ...] = ()
+    for component in getattr(resource, "components", ()) or ():
+        files = component.get("files") if isinstance(component, Mapping) else ()
+        if files:
+            declared = declared + tuple(files)
+    if not declared:
+        declared = resource.expected_files or resource.files or ()
     names: list[str] = []
     for entry in declared:
         if isinstance(entry, Mapping):

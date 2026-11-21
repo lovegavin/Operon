@@ -398,3 +398,44 @@ def test_extract_member_rejects_a_member_that_escapes_the_target(tmp_path: Path)
     with pytest.raises(ValueError, match="escapes the target"):
         resource_api._extract_member(bundle, tmp_path / "tree", "", threading.Event(), {})
     assert not (tmp_path / "escape.txt").exists()
+
+
+def test_expected_files_follow_the_released_unit_layout() -> None:
+    from src.task.step.steps import _resources_common as common
+
+    resource = common.load_resources()["alphafold2"]
+    names = common.expected_files(resource)
+    assert len(names) == 18
+    assert "pdb_seqres/pdb_seqres.txt" in names
+    assert "pdb_seqres/pdb_seqres_2022_09_28.fasta" not in names
+    assert set(common.check_resource(resource)["files"]) == set(names)
+
+
+def test_expected_files_prefer_unit_files_over_the_legacy_declaration() -> None:
+    from src.task.step.steps import _resources_common as common
+
+    entry = {
+        "id": "demo", "title": "demo", "files": ["old.bin"],
+        "expected_files": ["old.bin"],
+        "units": [{"name": "demo", "files": ["new/a.bin", "new/b.bin"]}],
+    }
+    assert common.expected_files(common.Resource.from_entry(entry)) == (
+        "new/a.bin", "new/b.bin",
+    )
+
+
+def test_expected_files_fall_back_when_units_declare_no_files() -> None:
+    from src.task.step.steps import _resources_common as common
+
+    entry = {
+        "id": "demo", "title": "demo", "files": ["old.bin"],
+        "expected_files": ["declared.bin"],
+        "units": [{"name": "demo", "files": []}],
+    }
+    assert common.expected_files(common.Resource.from_entry(entry)) == ("declared.bin",)
+
+
+def test_planned_bytes_requires_a_size_for_every_file() -> None:
+    assert resource_api._planned_bytes([{"bytes": 10}, {"bytes": 5}]) == 15
+    assert resource_api._planned_bytes([{"bytes": 10}, {"bytes": 0}]) == 0
+    assert resource_api._planned_bytes([]) == 0

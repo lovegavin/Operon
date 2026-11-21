@@ -21,6 +21,7 @@ from src.task.step.steps.alphafold2_batch_predict import Alphafold2BatchPredictS
 from src.task.step.steps.alphafold2_msa_search import Alphafold2MsaSearchStep
 from src.task.step.steps.alphafold2_predict import Alphafold2PredictStep
 from src.task.step.steps.alphafold2_rank_models import Alphafold2RankModelsStep
+from src.task.step.steps import _resources_common as common
 
 ROOT = Path(__file__).resolve().parents[1]
 OPERATOR_ROOT = ROOT / "library" / "seed"
@@ -389,5 +390,6 @@ def test_environment_metadata_lists_the_alphafold2_family():
     record = next(item for item in resources["resources"] if item["id"] == "alphafold2")
     assert record["env"] == "OPERON_ALPHAFOLD_DATA"
     assert len(record["units"]) == 1
-    assert len(record["units"][0]["files"]) == 9
-    assert len(record["expected_files"]) == 9
+    assert len(record["units"][0]["files"]) == 18
+    resource = common.load_resources(OPERATOR_DIR / "resources.json")["alphafold2"]
+    assert len(common.expected_files(resource)) == 18

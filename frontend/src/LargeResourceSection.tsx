@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api } from './api';
 import { Modal } from './RouteDialogs';
 import { t } from './i18n';
-import type { LargeResource, LargeResourceComponent } from './types';
+import type { LargeResource, LargeResourceComponent, LargeResourceOperation } from './types';
 
 export function resourceState(resource: LargeResource): string {
   return String(resource.state || '').toLowerCase();
@@ -154,10 +154,45 @@ function megabytes(value?: number): string {
   return `${bytes} B`;
 }
 
-function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
+export type DownloadProgress = { job: string; unit: string; operation: LargeResourceOperation };
+
+export function downloadStartedMessage(unit: string, files: number): string {
+  return t('已开始下载 {unit}（{n} 个文件）', { unit, n: files });
+}
+
+export function downloadPercent(operation?: LargeResourceOperation): number {
+  const planned = Number(operation?.planned_bytes || 0);
+  if (planned <= 0) return 0;
+  const completed = Number(operation?.completed_bytes || 0);
+  return Math.max(0, Math.min(100, Math.floor((completed / planned) * 100)));
+}
+
+export function downloadButtonLabel(operation: LargeResourceOperation | undefined,
+                                    fallback: string): string {
+  if (!operation) return fallback;
+  const status = String(operation.status || '').toLowerCase();
+  if (status === 'succeeded') return t('下载完成');
+  if (status === 'failed') return String(operation.error || t('下载失败'));
+  if (status === 'cancelled') return String(operation.error || t('下载已取消'));
+  if (status === 'running' || status === 'queued') {
+    if (Number(operation.planned_bytes || 0) > 0) {
+      return t('下载中 {percent}%', { percent: downloadPercent(operation) });
+    }
+    return t('下载中…');
+  }
+  return fallback;
+}
+
+function operationActive(operation?: LargeResourceOperation): boolean {
+  const status = String(operation?.status || '').toLowerCase();
+  return status === 'running' || status === 'queued';
+}
+
+function UnitCard({ resource, component, busy, download, onLink, onUnlink, onDownload }: {
   resource: LargeResource;
   component: LargeResourceComponent;
   busy?: boolean;
+  download?: LargeResourceOperation;
   onLink: (resource: LargeResource, component: LargeResourceComponent) => void;
   onUnlink: (resource: LargeResource, component: LargeResourceComponent) => void;
   onDownload: (resource: LargeResource, component: LargeResourceComponent) => void;
@@ -168,6 +203,8 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
   const pendingDownload = pendingDownloads(component);
   const declared = declaredFiles(component);
   const action = unitAction(component);
+  const downloading = operationActive(download);
+  const buttonText = download ? downloadButtonLabel(download, action.text) : action.text;
   // 后端没登记应校验的文件：卡片只说明它不参与就绪判定。
   const undeclared = declared.length === 0;
   return (
@@ -218,12 +255,12 @@ function UnitCard({ resource, component, busy, onLink, onUnlink, onDownload }: {
         ) : (
           <>
             <button type="button" className="subtle-button"
-              disabled={busy || !action.enabled}
+              disabled={busy || downloading || !action.enabled}
               data-action={action.enabled ? (pendingDownload.length ? 'download' : 'rsync') : 'blocked'}
               data-pending={pendingDownload.length}
-              title={action.reason}
+              title={download?.error || action.reason}
               onClick={() => onDownload(resource, component)}>
-              {action.text}
+              {buttonText}
             </button>
             <button type="button" className="subtle-button is-primary" disabled={busy}
               onClick={() => onLink(resource, component)}>{t('链接')}</button>
@@ -246,6 +283,8 @@ export function LargeResourceSection({ target = '', environment, compact }: {
   const [link, setLink] = useState<{ resource: LargeResource; component: LargeResourceComponent } | null>(null);
   const [source, setSource] = useState('');
   const [message, setMessage] = useState('');
+  const [downloads, setDownloads] = useState<Record<string, DownloadProgress>>({});
+  const downloadsRef = useRef(downloads);
   const [picker, setPicker] = useState<{ open: boolean; path: string; parent: string;
     roots: string[]; entries: Array<{ name: string; path: string; directory: boolean }>;
     error: string }>({ open: false, path: '', parent: '', roots: [], entries: [], error: '' });
@@ -280,9 +319,12 @@ export function LargeResourceSection({ target = '', environment, compact }: {
   const total = units.length;
   const ready = units.filter((row) => isReady(row.component)).length;
 
-  const act = async (key: string, work: () => Promise<unknown>) => {
+  useEffect(() => { downloadsRef.current = downloads; }, [downloads]);
+  useEffect(() => { setDownloads({}); }, [target, environment]);
+
+  const act = async (key: string, work: () => Promise<unknown>, note = '') => {
     setBusy(key);
-    setMessage('');
+    setMessage(note);
     try {
       await work();
       await load();
@@ -293,12 +335,108 @@ export function LargeResourceSection({ target = '', environment, compact }: {
     }
   };
 
-  const download = (resource: LargeResource, component: LargeResourceComponent) => {
-    void act(`download:${component.name}`, async () => {
-      if (target) await api.remoteResourceDownload(target, resource.id, '', false, component.name);
-      else await api.largeResourceDownload(resource.id, '', false, component.name);
+  const beginDownload = async (resource: LargeResource, component: LargeResourceComponent,
+                               announce = true) => {
+    const key = component.name;
+    const count = pendingDownloads(component).length || missingFiles(component).length || 1;
+    setDownloads((previous) => ({
+      ...previous,
+      [key]: { job: '', unit: component.name, operation: { id: '', status: 'running' } },
+    }));
+    if (announce) setMessage(downloadStartedMessage(component.name, count));
+    const forget = () => setDownloads((previous) => {
+      if (!previous[key]) return previous;
+      const next = { ...previous };
+      delete next[key];
+      return next;
     });
+    let answer: { id?: string } | undefined;
+    try {
+      answer = target
+        ? await api.remoteResourceDownload(target, resource.id, '', false, component.name)
+        : await api.largeResourceDownload(resource.id, '', false, component.name);
+    } catch (err) {
+      forget();
+      throw err;
+    }
+    const job = String(answer?.id || '');
+    if (!job) {
+      forget();
+      throw new Error(t('下载任务没有返回标识'));
+    }
+    setDownloads((previous) => previous[key]
+      ? { ...previous, [key]: { ...previous[key], job,
+        operation: { ...previous[key].operation, id: job } } }
+      : previous);
+    return job;
   };
+
+  const download = (resource: LargeResource, component: LargeResourceComponent) => {
+    const count = pendingDownloads(component).length || missingFiles(component).length || 1;
+    void act(`download:${component.name}`, () => beginDownload(resource, component),
+      downloadStartedMessage(component.name, count));
+  };
+
+  const runningJobs = useMemo(() => Object.values(downloads)
+    .filter((entry) => entry.job && operationActive(entry.operation))
+    .map((entry) => entry.job).sort().join(','), [downloads]);
+
+  useEffect(() => {
+    if (!runningJobs) return;
+    let alive = true;
+    const timer = window.setInterval(() => {
+      void (async () => {
+        try {
+          const answer = target ? await api.remoteResources(target) : await api.largeResources();
+          if (!alive || Array.isArray(answer)) return;
+          const operations = new Map<string, LargeResourceOperation>();
+          for (const operation of (answer as { operations?: LargeResourceOperation[] }).operations || []) {
+            operations.set(String(operation.id), operation);
+          }
+          const terminal = Object.entries(downloadsRef.current).flatMap(([key, entry]) => {
+            const operation = entry.job ? operations.get(entry.job) : undefined;
+            return entry.job && operationActive(entry.operation)
+              && operation && !operationActive(operation) ? [{ key, operation }] : [];
+          });
+          if (terminal.length) {
+            if (!alive) return;
+            setDownloads((previous) => {
+              const next = { ...previous };
+              for (const row of terminal) {
+                if (next[row.key]) next[row.key] = { ...next[row.key], operation: row.operation };
+              }
+              return next;
+            });
+            await load();
+            if (!alive) return;
+            const failed = terminal.find((row) =>
+              String(row.operation.status || '').toLowerCase() === 'failed');
+            if (failed) setMessage(String(failed.operation.error || t('下载失败')));
+            else setMessage(t('下载完成'));
+            return;
+          }
+          setDownloads((previous) => {
+            let changed = false;
+            const next = { ...previous };
+            for (const [key, entry] of Object.entries(previous)) {
+              if (!entry.job || !operationActive(entry.operation)) continue;
+              const operation = operations.get(entry.job);
+              if (!operation) continue;
+              next[key] = { ...entry, operation };
+              changed = true;
+            }
+            return changed ? next : previous;
+          });
+        } catch {
+          // 一次快照失败不清掉进度，下一轮继续轮询。
+        }
+      })();
+    }, 1500);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+    };
+  }, [runningJobs, target, load]);
 
   const unlink = (resource: LargeResource, component: LargeResourceComponent) => {
     void act(`unlink:${component.name}`, async () => {
@@ -308,13 +446,11 @@ export function LargeResourceSection({ target = '', environment, compact }: {
   };
 
   const downloadAll = () => {
+    const rows = units.filter((row) => !isReady(row.component));
+    if (!rows.length) return;
     void act('download-all', async () => {
-      for (const row of units) {
-        if (isReady(row.component)) continue;
-        if (target) await api.remoteResourceDownload(target, row.resource.id, '', false, row.component.name);
-        else await api.largeResourceDownload(row.resource.id, '', false, row.component.name);
-      }
-    });
+      for (const row of rows) await beginDownload(row.resource, row.component, false);
+    }, t('已开始下载 {n} 个单元', { n: rows.length }));
   };
 
   const loadPicker = async (path: string) => {
@@ -376,6 +512,7 @@ export function LargeResourceSection({ target = '', environment, compact }: {
             key={`${resource.id}:${component.name}`}
             resource={resource}
             component={component}
+            download={downloads[component.name]?.operation}
             busy={busy === `download:${component.name}` || busy === `unlink:${component.name}` || busy === 'download-all'}
             onLink={(item, part) => { setLink({ resource: item, component: part }); setSource(''); }}
             onUnlink={unlink}
