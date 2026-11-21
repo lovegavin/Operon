@@ -134,6 +134,22 @@ def _decompressed(path: Path):
         yield tmp_path
 
 
+def _declared_labels(reader, dims) -> dict:
+    """Reader-declared label defaults for the dimensions being read.
+
+    A workflow that names dimensions but omits ``labels`` (or supplies an
+    empty mapping) used to lose the reader's own default and silently fall
+    back to positional labels.  Only dimensions present in ``dims`` are
+    filled so a reader never receives a label rule for an axis it is not
+    reading.
+    """
+    template = getattr(reader, "file_input", None) or {}
+    declared = template.get("labels")
+    if not isinstance(declared, dict):
+        return {}
+    return {dim: declared[dim] for dim in dims if dim in declared}
+
+
 def read_source(
     path: Path,
     dims: list,
@@ -154,6 +170,9 @@ def read_source(
         raise ReaderError("Protocol v3 requires a Reader parameter schema; migrate the declaration first")
     from operon_sdk.protocol import validate_parameters
     args = validate_parameters(reader.parameters_schema, args)
+    missing = _declared_labels(reader, dims)
+    if missing:
+        labels = {**missing, **(labels or {})}
 
     if reader.handles_compression:
         form = reader.read(path, dims, labels, **args)
