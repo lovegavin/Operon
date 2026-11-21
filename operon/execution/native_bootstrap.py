@@ -133,6 +133,20 @@ def _bind_legacy_namespace(entry, root):
             setattr(owner, child, namespace)
 
 
+def environment_binding(descriptor):
+    """Return the declared environment binding, but only for operators.
+
+    A reader that declares an environment still has to answer ``read``/``probe``
+    on the frozen code root: the environment names the dependencies the
+    preparation step verified, it does not replace the Reader interface.  Only
+    an operator can be swapped for the environment bridge, which exposes
+    ``run``/``export`` instead.
+    """
+    if descriptor.get('kind') != 'operator':
+        return None
+    return (descriptor.get('resources') or {}).get('environment')
+
+
 def register_native_runtime(snapshot, manifest, *, code_roots=None):
     snapshot = NativeRuntimeSnapshot.model_validate(snapshot)
     if snapshot.format != 'operon.native-runtime' or snapshot.schema_version != 1:
@@ -167,9 +181,10 @@ def register_native_runtime(snapshot, manifest, *, code_roots=None):
         root = _module_root(descriptor.get('entry_point'), code_roots)
         _bind_legacy_namespace(descriptor['entry_point'], root)
         def factory(d=descriptor, r=root, audit=deepcopy(wire['audit_descriptors'][key])):
-            if d.get('resources', {}).get('environment'):
+            binding = environment_binding(d)
+            if binding:
                 from operon.environments import proxy_step
-                name = d['resources']['environment']
+                name = binding
                 if not os.environ.get('OPERON_ENV_' + name.upper()):
                     raise ContractError('Declared environment binding missing', code='environment_unverified')
                 return proxy_step(audit, paths=code_roots)

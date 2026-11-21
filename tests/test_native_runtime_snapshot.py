@@ -112,6 +112,18 @@ def test_frozen_script_plan_uses_json_wire_validation_without_mutation():
                          'dependencies': 'numpy'})
 
 
+def test_only_an_operator_is_wrapped_for_a_declared_environment():
+    from operon.execution.native_bootstrap import environment_binding
+    reader = {'kind': 'reader', 'id': 'CsvReader',
+              'resources': {'environment': 'core', 'memory_modes': ['full']}}
+    operator = {'kind': 'operator', 'id': 'pca', 'resources': {'environment': 'core'}}
+    shared = {'kind': 'operator', 'id': 'filter_min', 'resources': {'memory_modes': ['full']}}
+    # A reader must keep read/probe, so its environment is not a proxy binding.
+    assert environment_binding(reader) is None
+    assert environment_binding(operator) == 'core'
+    assert environment_binding(shared) is None
+
+
 def test_compiler_snapshot_is_lazy_and_default_only_drift_keeps_plan_identity(provider):
     root, catalog = provider
     compiler = WorkflowCompiler()
