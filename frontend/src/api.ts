@@ -78,6 +78,35 @@ const base =
   (import.meta as ImportMeta & { env: { VITE_API_BASE?: string } }).env
     .VITE_API_BASE || "";
 let token = "";
+let tokenRefresh: Promise<boolean> | null = null;
+/**
+ * A desktop restart rotates the session token, so an already open page keeps sending the old one
+ * and every write answers 403 `本地会话已更新，请刷新页面。`. Re-read bootstrap once and retry so a
+ * restart no longer looks like a dead button.
+ */
+async function refreshSessionToken(): Promise<boolean> {
+  if (!tokenRefresh) {
+    tokenRefresh = (async (): Promise<boolean> => {
+      try {
+        const response = await fetch(base + "/api/bootstrap");
+        if (!response.ok) return false;
+        const value = (await response.json()) as {token?: unknown};
+        if (typeof value.token !== "string" || !value.token) return false;
+        token = value.token;
+        return true;
+      } catch {
+        return false;
+      }
+    })().then(result => {
+      tokenRefresh = null;
+      return result;
+    }, () => {
+      tokenRefresh = null;
+      return false;
+    });
+  }
+  return tokenRefresh;
+}
 let workspaceWrite: Promise<unknown> = Promise.resolve();
 let preferencesWrite: Promise<unknown> = Promise.resolve();
 /** FastAPI error payloads use either `detail` or `message`; validation details may be a list. */
@@ -104,7 +133,7 @@ export class ApiError extends Error {
 }
 export async function request<T>(path: string, body?: unknown,
   options: {signal?: AbortSignal; storageSession?: string; timeoutMs?: number; method?: 'GET' | 'POST' | 'DELETE'} = {}): Promise<T> {
-  const response = await fetch(base + path, {
+  const send = () => fetch(base + path, {
     method: options.method ?? (body === undefined ? "GET" : "POST"),
     headers: {
       ...(token ? { "X-Studio-Token": token } : {}),
@@ -114,6 +143,11 @@ export async function request<T>(path: string, body?: unknown,
     body: body === undefined ? undefined : JSON.stringify(body),
     signal: options.signal ?? (options.timeoutMs ? AbortSignal.timeout(options.timeoutMs) : undefined),
   });
+  let response = await send();
+  // A rotated session token is the one transport failure worth retrying transparently.
+  if ((response.status === 401 || response.status === 403) && await refreshSessionToken()) {
+    response = await send();
+  }
   let value;
   try {
     value = await response.json();
