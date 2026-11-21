@@ -83,8 +83,14 @@ class Client:
         except ValueError:
             raise ClientError("Operon returned an invalid response")
         if not response.is_success:
-            raise ClientError(value.get("message") or str(value.get("detail", response.status_code)),
-                              value.get("code", "request_failed"), value.get("details"))
+            message = value.get("message") or str(value.get("detail", response.status_code))
+            details = value.get("details")
+            # The engine wraps failures in one friendly sentence; the cause only
+            # survives in details.reason and headless callers cannot read it.
+            reason = details.get("reason") if isinstance(details, dict) else None
+            if reason and str(reason) not in message:
+                message = f"{message}: {reason}"
+            raise ClientError(message, value.get("code", "request_failed"), details)
         return value
 
     def status(self):

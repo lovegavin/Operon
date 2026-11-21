@@ -270,7 +270,7 @@ class ControlLoop:
         values = {'ok': False, 'error': message, 'code': code, 'id': request_id}
         details = getattr(exc, 'details', None)
         if isinstance(exc, KeyError):
-            values.update(error='Unknown resource', code='not_found')
+            values.update(error=f'Unknown resource: {exc}', code='not_found')
             details = None
         elif isinstance(exc, (ValueError, TypeError)) and code in ('remote_error', 'engine_error'):
             values['code'] = 'invalid_request'
