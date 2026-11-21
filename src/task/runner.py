@@ -122,8 +122,14 @@ def run(ctx: Context, steps: list[dict]) -> None:
                         schemas.append(describe_form(form))
                 expected = infer_output(cls.output_contract, schemas, ctx.step_params)
                 declared_outputs = list(step.outputs)
+                required_outputs = list(declared_outputs)
                 if cls.output_parameter:
-                    declared_outputs.append(str(ctx.step_params.get(cls.output_parameter, name)))
+                    dynamic = str(ctx.step_params.get(cls.output_parameter, name))
+                    if dynamic not in declared_outputs:
+                        declared_outputs.append(dynamic)
+                    # ``outputs`` may describe static ports while the parameter
+                    # names the only output this run registers.
+                    required_outputs = [dynamic]
                 ctx.written_outputs.clear()
                 def check_output(key, form):
                     if cls.output_contract and cls.output_contract.get("mode") in {"report", "none"}:
@@ -145,7 +151,7 @@ def run(ctx: Context, steps: list[dict]) -> None:
                 else:
                     step.run(ctx, forms)
                 elapsed = time.perf_counter() - start
-                for output in declared_outputs:
+                for output in required_outputs:
                     if output not in ctx.written_outputs:
                         raise StepError(f"Step '{name}' declared output '{output}' but did not register it")
                 content = step.export(ctx)
