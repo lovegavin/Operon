@@ -425,3 +425,20 @@ def test_readiness_capability_keeps_old_clients_but_rejects_old_servers(remote):
     with pytest.raises(HandshakeError, match='workflow_readiness') as error:
         validate_daemon_response({'ok': True, 'value': response})
     assert error.value.code == 'capability_missing'
+
+
+def test_tool_snapshot_rechecks_a_cached_miss(remote, monkeypatch):
+    """An installed tool must surface without forcing a full maintenance refresh."""
+    from operon.remote import handshake as module
+
+    remote.service.catalog = {'operators': [{'resources': {'external_tools': ['late-tool']}}], 'readers': []}
+    installed = []
+
+    def find_tool(name):
+        return '/public/home/lihj/Operon/managed-v1/environments/genomics/bin/' + name if installed else None
+
+    monkeypatch.setattr('operon.dependencies.find_tool', find_tool)
+    assert remote.handshake.tool_snapshot() == {'late-tool': False}
+    installed.append(True)
+    assert remote.handshake.tool_snapshot() == {'late-tool': True}
+    assert module is not None

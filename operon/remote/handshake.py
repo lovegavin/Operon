@@ -281,7 +281,9 @@ class ManifestHandshake:
                         for name in spec.get('resources', {}).get('external_tools', [])})
         from operon.dependencies import find_tool
         for name in names:
-            if refresh or name not in self.tools:
+            # A cached miss is not evidence that the tool is still absent: an
+            # environment preparation may have installed it after the snapshot.
+            if refresh or name not in self.tools or self.tools.get(name) is None:
                 self.tools[name] = find_tool(name)
         return {name: bool(self.tools[name]) for name in names}
 
