@@ -69,10 +69,12 @@ def test_tmm_normalization_accepts_a_sample_by_feature_input():
                  {"sample": _labels([f"s{i}" for i in range(3)]),
                   "feature": _labels([f"g{i}" for i in range(4)])})
     out, info = _run(TmmNormalizeStep(), {}, [form])
-    assert out.dims == ["feature", "sample"]
-    assert out.data.shape == (4, 3)
-    assert list(out.labels["feature"]) == [f"g{i}" for i in range(4)]
+    # A transform output keeps the input axis order; the counts are reordered
+    # internally and transposed back before the Form is built.
+    assert out.dims == ["sample", "feature"]
+    assert out.data.shape == (3, 4)
     assert list(out.labels["sample"]) == [f"s{i}" for i in range(3)]
+    assert list(out.labels["feature"]) == [f"g{i}" for i in range(4)]
     assert np.isclose(np.exp(np.mean(np.log(list(info["norm_factors"].values())))), 1.0)
 
 
