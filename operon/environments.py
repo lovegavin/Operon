@@ -6,6 +6,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 
@@ -323,11 +324,42 @@ def _relocate_files(files, directory, outputs=None):
 
 
 def run_step(descriptor: dict, inputs, params: dict, python: Path, *, timeout: int = 3600, paths=(),
-             outputs=None, lock=None, tools=None):
+             outputs=None, lock=None, tools=None, cancel=None):
     """Execute one step in ``python`` and return (form, export, console tail)."""
     with tempfile.TemporaryDirectory(prefix="envbridge-") as temporary:
         return _run_step(Path(temporary), descriptor, inputs, params, python, timeout=timeout, paths=paths,
-                         outputs=outputs, lock=lock, tools=tools)
+                         outputs=outputs, lock=lock, tools=tools, cancel=cancel)
+
+
+def _execute(command, directory, python, paths, *, timeout, tools=None, cancel=None):
+    """Run the bridge process, honouring a cancellation callback while it runs."""
+    from types import SimpleNamespace
+    from src.core.errors import StepError
+    from .bytecode import executable_path
+    env = worker_environment(python, paths, tools)
+    cwd = executable_path(directory)
+    executable = executable_path(python)
+    if cancel is None:
+        return subprocess.run(command, capture_output=True, text=True, encoding='utf-8',
+                              executable=executable, errors='replace', timeout=timeout,
+                              env=env, cwd=cwd)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               text=True, encoding='utf-8', errors='replace',
+                               env=env, cwd=cwd, executable=executable)
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            out, err = process.communicate(timeout=0.5)
+            return SimpleNamespace(returncode=process.returncode, stdout=out, stderr=err)
+        except subprocess.TimeoutExpired:
+            if cancel():
+                process.kill()
+                process.communicate()
+                raise StepError("Run cancelled by user")
+            if time.monotonic() > deadline:
+                process.kill()
+                process.communicate()
+                raise StepError(f"environment bridge timed out after {timeout}s")
 
 
 def worker_environment(python: Path, paths=(), tools=None) -> dict[str, str]:
@@ -357,7 +389,7 @@ def worker_environment(python: Path, paths=(), tools=None) -> dict[str, str]:
     return env
 
 
-def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None, lock=None, tools=None):
+def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None, lock=None, tools=None, cancel=None):
     from src.core.errors import StepError
     request = {"entry_point": descriptor["entry_point"], "params": params, "inputs": []}
     for index, form in enumerate(inputs):
@@ -368,10 +400,7 @@ def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(
         # travel with the request. Otherwise src.reader.pick_reader sees an empty registry.
         (directory / "readers.json").write_text(json.dumps(lock), encoding="utf-8")
     command = [str(python), "-m", "operon.env_worker", str(directory)]
-    from .bytecode import executable_path
-    completed = subprocess.run(command, capture_output=True, text=True, encoding='utf-8',
-                               executable=executable_path(python), errors='replace', timeout=timeout,
-                               env=worker_environment(python, paths, tools), cwd=executable_path(directory))
+    completed = _execute(command, directory, python, paths, timeout=timeout, tools=tools, cancel=cancel)
     if completed.returncode:
         tail = (completed.stderr or completed.stdout).strip().splitlines()[-6:]
         raise StepError("environment bridge failed with exit code " + str(completed.returncode) + ": " + " | ".join(tail))
@@ -443,9 +472,16 @@ def proxy_step(descriptor: dict, paths=(), lock=None):
             python = resolve(self._environment)
             if python is None:
                 raise StepError(f"{descriptor['id']}: isolated environment {self._environment!r} is not installed")
+            task_dir = getattr(ctx, "task_dir", None)
+            cancel = None
+            if task_dir is not None:
+                marker = Path(task_dir) / "cancel.requested"
+
+                def cancel(marker=marker):
+                    return marker.exists()
             form, export, tail = run_step(descriptor, inputs, dict(ctx.step_params), python,
                                           timeout=int(ctx.step_params.get("timeout_seconds", 3600)) + 60,
-                                          paths=_paths, lock=_lock, tools=_tools)
+                                          paths=_paths, lock=_lock, tools=_tools, cancel=cancel)
             name = ctx.step_params.get("output")
             if name and form is not None:
                 ctx[name] = form

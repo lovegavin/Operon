@@ -25,6 +25,10 @@ class Context:
         self.metadata = {}
         self.artifacts = {}
         self.out_dir = Path(directory) if directory else Path.cwd()
+        # Steps use ``ctx.task_dir`` to look for the cancellation marker, exactly as they do
+        # under the in-process worker where the task directory is the job directory.  Inside
+        # the bridge the only directory that exists for the step is its run directory.
+        self.task_dir = self.out_dir
         self.memory = _Memory(self.out_dir)
         self.values = {}
 

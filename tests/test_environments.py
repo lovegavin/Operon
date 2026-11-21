@@ -230,7 +230,8 @@ def test_proxy_step_forwards_the_lock_to_run_step(monkeypatch):
 
     seen = {}
 
-    def fake_run_step(descriptor, inputs, params, python, *, timeout, paths, outputs=None, lock=None, tools=None):
+    def fake_run_step(descriptor, inputs, params, python, *, timeout, paths, outputs=None, lock=None,
+                      tools=None, cancel=None):
         seen['lock'] = lock
         seen['paths'] = paths
         return None, {}, ''
