@@ -68,6 +68,8 @@ class VcfHardyWeinbergStep(Step):
             ],
             dtype=float,
         )
+        if data.size == 0:
+            data = data.reshape(0, len(STATISTICS))
         labels = {row["site"]: index for index, row in enumerate(rows)}
         from src.core import Form
 

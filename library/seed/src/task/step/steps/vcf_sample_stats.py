@@ -105,6 +105,10 @@ class VcfSampleStatsStep(Step):
     def _form(self, data, sample_labels, result):
         from src.core import Form
 
+        data = np.asarray(data, dtype=float)
+        if data.ndim == 1 and data.size == 0:
+            # A sites-only VCF yields no sample rows; keep the declared 2-D shape.
+            data = data.reshape(0, len(STATISTICS))
         return Form(
             data,
             dims=["sample", "statistic"],

@@ -64,6 +64,8 @@ class VcfSiteMissingnessStep(Step):
         data = np.asarray(
             [[row["n_called"], row["n_missing"], row["call_rate"]] for row in rows], dtype=float
         )
+        if data.size == 0:
+            data = data.reshape(0, len(STATISTICS))
         labels = {row["site"]: index for index, row in enumerate(rows)}
         from src.core import Form
 

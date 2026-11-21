@@ -114,3 +114,38 @@ def test_rejects_missing_file(tmp_path):
     ctx = Ctx()
     with pytest.raises(Exception):
         step.run(ctx, [artifact(str(tmp_path / "nope.vcf"))])
+
+SITES_ONLY_VCF = """##fileformat=VCFv4.2
+##contig=<ID=chr21,length=46709983>
+#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO
+chr21\t100\t.\tT\tC\t.\tPASS\t.
+chr21\t200\t.\tA\tG\t.\tPASS\t.
+"""
+
+
+@pytest.fixture()
+def sites_only_path(tmp_path):
+    path = tmp_path / "sites_only.vcf"
+    path.write_text(SITES_ONLY_VCF, encoding="utf-8")
+    return str(path)
+
+
+def test_empty_vcf_summaries_keep_their_declared_rank(sites_only_path):
+    """No genotype calls -> no rows, but the output must stay 2-D."""
+    hwe_ctx = Ctx({"output": "hwe"})
+    vcf_hardy_weinberg.VcfHardyWeinbergStep().run(hwe_ctx, [artifact(sites_only_path)])
+    hwe = hwe_ctx["hwe"]
+    assert hwe.data.ndim == 2
+    assert hwe.data.shape == (0, len(vcf_hardy_weinberg.STATISTICS))
+
+    missing_ctx = Ctx({"output": "site_missingness"})
+    vcf_site_missingness.VcfSiteMissingnessStep().run(missing_ctx, [artifact(sites_only_path)])
+    missing = missing_ctx["site_missingness"]
+    assert missing.data.ndim == 2
+    assert missing.data.shape == (0, len(vcf_site_missingness.STATISTICS))
+
+    stats_ctx = Ctx({"output": "sample_stats"})
+    vcf_sample_stats.VcfSampleStatsStep().run(stats_ctx, [artifact(sites_only_path)])
+    stats = stats_ctx["sample_stats"]
+    assert stats.data.ndim == 2
+    assert stats.data.shape == (0, len(vcf_sample_stats.STATISTICS))

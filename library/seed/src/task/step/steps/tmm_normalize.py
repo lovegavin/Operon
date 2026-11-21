@@ -104,10 +104,14 @@ class TmmNormalizeStep(Step):
         pos = {name: i for i, name in enumerate(samples)}
         info = dict(form.info)
         info.update(missing_code=np.nan, representation="tmm_normalize")
+        # ``normalized`` follows reorder(form, feature_dim, sample_dim), so the output axes
+        # must follow that order too; keeping the input order paired the feature count with
+        # the sample labels and made Form validation fail on transposed inputs.
         ctx[out_name] = Form(
             data=normalized.astype(np.float32),
-            dims=list(form.dims),
-            labels={k: dict(v) for k, v in form.labels.items()},
+            dims=[feature_dim, sample_dim],
+            labels={feature_dim: dict(form.labels[feature_dim]),
+                    sample_dim: dict(form.labels[sample_dim])},
             info=info,
             axis_info={k: dict(v) for k, v in form.axis_info.items()},
         )

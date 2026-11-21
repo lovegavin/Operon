@@ -59,6 +59,23 @@ def test_tmm_normalization_scales_to_target_and_exports_factors():
     assert set(info["effective_library_sizes"]) == {"s0", "s1", "s2"}
 
 
+def test_tmm_normalization_accepts_a_sample_by_feature_input():
+    counts = np.array([
+        [100, 200, 300, 50],
+        [200, 400, 600, 60],
+        [300, 100, 200, 70],
+    ], dtype=np.float32)  # 3 samples x 4 features
+    form = _form(counts, ["sample", "feature"],
+                 {"sample": _labels([f"s{i}" for i in range(3)]),
+                  "feature": _labels([f"g{i}" for i in range(4)])})
+    out, info = _run(TmmNormalizeStep(), {}, [form])
+    assert out.dims == ["feature", "sample"]
+    assert out.data.shape == (4, 3)
+    assert list(out.labels["feature"]) == [f"g{i}" for i in range(4)]
+    assert list(out.labels["sample"]) == [f"s{i}" for i in range(3)]
+    assert np.isclose(np.exp(np.mean(np.log(list(info["norm_factors"].values())))), 1.0)
+
+
 def test_remove_batch_effect_aligns_batch_means():
     # feature x sample; batches A and B have a +10 offset.
     data = np.array([
