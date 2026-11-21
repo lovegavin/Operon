@@ -136,15 +136,40 @@ class ExecutionService:
     def console_path(self, key):
         return self.path(key) / 'console.log'
 
+    def _ensure_target(self, graph):
+        """Reconnect an explicitly targeted key profile that lost its session."""
+        remotes = getattr(self.service, 'remotes', None)
+        if graph is None or remotes is None:
+            return
+        execution = graph.runtime.get('execution') or {}
+        if not isinstance(execution, dict):
+            return
+        try:
+            preferred = target(execution.get('target') or execution)
+        except Exception:  # noqa: BLE001 - malformed settings report later
+            return
+        if preferred.get('kind') != 'ssh':
+            return
+        key = preferred.get('profile_id')
+        current = {item['profile']['id']: item for item in remotes.status()}
+        if (current.get(key) or {}).get('connected'):
+            return
+        try:
+            remotes.ensure(key)
+        except Exception:  # noqa: BLE001 - password profiles stay manual
+            return
+
     def infos(self, *, connected=True, graph=None, include_resources=True):
         catalog = self.service.catalog
         names = {tool for spec in catalog['operators'] + catalog['readers'] for tool in spec.get('resources', {}).get('external_tools', [])}
         from operon.dependencies import find_tool
         system = platform.system().lower().replace('darwin', 'macos')
+
         result = [{'target': LOCAL, 'name': '本机', 'system': system, 'catalog': catalog,
                    'tools': {name: bool(find_tool(name)) for name in names},
                    'resources': self.service.resources() if include_resources else {},
                    'dependencies': self.service.dependencies.snapshot()}]
+        self._ensure_target(graph)
         for item in self.service.remotes.status() if self.service.remotes else []:
             if not item.get('info') or (connected and not item['connected']):
                 continue
