@@ -82,6 +82,12 @@
       "title": "Class priority",
       "description": "Comma-separated priority order used to choose one class per interval."
     },
+    "strict_classes": {
+      "type": "boolean",
+      "default": false,
+      "title": "Strict feature classes",
+      "description": "Fail when a feature carries a class name outside the class list instead of reporting it."
+    },
     "output": {
       "type": "string",
       "default": "annotation",

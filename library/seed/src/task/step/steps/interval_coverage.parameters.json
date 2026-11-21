@@ -76,6 +76,12 @@
       "title": "Class names",
       "description": "Comma-separated class names in output order."
     },
+    "strict_classes": {
+      "type": "boolean",
+      "default": false,
+      "title": "Strict feature classes",
+      "description": "Fail when a feature carries a class name outside the class list instead of reporting it."
+    },
     "output": {
       "type": "string",
       "default": "coverage",
