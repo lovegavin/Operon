@@ -260,6 +260,9 @@ def test_pip_runs_unbuffered_so_a_quiet_resolve_is_not_a_stall(tmp_path, monkeyp
         assert 'pip' in argv
         assert kwargs['env']['PYTHONUNBUFFERED'] == '1'
         assert kwargs['env']['PIP_PROGRESS_BAR'] == 'off'
+        # The flag wins over the environment variable, so it must say off too.
+        if '--progress-bar' in argv:
+            assert argv[argv.index('--progress-bar') + 1] == 'off'
         assert kwargs['startup'] == environment_install.PIP_STARTUP_SECONDS
 
 def test_prepare_keeps_an_unsupported_platform_missing(tmp_path, monkeypatch):

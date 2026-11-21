@@ -27,7 +27,7 @@ from pathlib import Path
 from . import environment_estimates as estimates
 from . import environments
 
-PIP_TRANSFER = ['--disable-pip-version-check', '--no-input', '--timeout', '120', '--retries', '3', '--progress-bar', 'on']
+PIP_TRANSFER = ['--disable-pip-version-check', '--no-input', '--timeout', '120', '--retries', '3', '--progress-bar', 'off']
 PIP_INDEX = ['--index-url', os.environ.get('OPERON_PIP_INDEX') or 'https://pypi.org/simple']
 PIP_TRUSTED = ['--trusted-host', os.environ['OPERON_PIP_TRUSTED_HOST']] if os.environ.get('OPERON_PIP_TRUSTED_HOST') else []
 CONDA_FORGE = 'conda-forge'
