@@ -39,7 +39,14 @@ def tooling(root, module, version):
 
 
 def standalone_python(root, details):
-    """Acquire the exact CPython patch/architecture; never silently change ABI."""
+    """Acquire a CPython of the selected minor; never silently change ABI.
+
+    Host interpreters move to fresh patch releases before the portable builds
+    that uv ships catch up, so the exact patch is not always downloadable. A
+    different patch of the same minor keeps the ABI, and the interpreter that
+    was actually installed is what the caller records. A different minor would
+    not, so it is rejected after the probe.
+    """
     uv = shutil.which('uv')
     if not uv:
         folder = tooling(root, 'uv', '0.9.11')
@@ -51,18 +58,32 @@ def standalone_python(root, details):
         raise ContractError('Portable Python acquisition tool is unavailable', code='environment_preparation_required')
     directory = Path(root) / 'portable-python'
     directory.mkdir(parents=True, exist_ok=True)
-    request = '.'.join(map(str, details['version']))
+    wanted = tuple(details['version'])
+    request = '.'.join(map(str, wanted))
+    minor = '.'.join(map(str, wanted[:2]))
     env = {**os.environ, 'UV_PYTHON_INSTALL_DIR': str(directory), 'UV_PYTHON_BIN': '0',
            'UV_CACHE_DIR': str(Path(root) / 'acquisition-cache')}
+
+    def acquire(name):
+        try:
+            run_process([uv, '--no-config', 'python', 'install', '--no-bin', name], env=env, timeout=1200)
+        except Exception:  # noqa: BLE001 - an undownloadable patch falls back below
+            return None
+        return run_process([uv, '--no-config', 'python', 'find', '--managed-python', name],
+                           env=env, timeout=60).strip() or None
+
     with FileLock(directory / (request + '.lock'), timeout=1800):
-        run_process([uv, '--no-config', 'python', 'install', '--no-bin', request], env=env, timeout=1200)
-        selected = run_process([uv, '--no-config', 'python', 'find', '--managed-python', request],
-                               env=env, timeout=60).strip()
+        selected = acquire(request)
+        if selected is None and minor != request:
+            selected = acquire(minor)
+    if selected is None:
+        raise ContractError(f'No portable CPython {request} is downloadable',
+                            code='environment_preparation_required')
     if not Path(selected).resolve().is_relative_to(directory.resolve()):
         raise ContractError('Acquired Python escaped its managed directory', code='environment_unverified')
     from .canvas import PROBE
     actual = json.loads(run_process([selected, '-I', '-c', PROBE], timeout=45))
-    if (actual['version'], actual['os'], actual['arch']) != (details['version'], details['os'], details['arch']):
+    if (list(actual['version'][:2]), actual['os'], actual['arch']) != (list(wanted[:2]), details['os'], details['arch']):
         raise ContractError('Acquired Python does not match the selected interpreter', code='environment_unverified')
     return actual
 
