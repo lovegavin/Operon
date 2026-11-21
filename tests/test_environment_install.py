@@ -242,6 +242,25 @@ def test_probe_announces_each_import_and_gets_the_full_timeout_as_grace(tmp_path
     assert kwargs['startup'] == kwargs['timeout'] == 600
 
 
+def test_pip_runs_unbuffered_so_a_quiet_resolve_is_not_a_stall(tmp_path, monkeypatch):
+    calls = []
+
+    def fake_run(argv, **kwargs):
+        calls.append((argv, kwargs))
+        return ''
+
+    monkeypatch.setattr(environment_install, '_run', fake_run)
+    monkeypatch.setattr(environment_install, '_python', lambda staging: Path(sys.executable))
+    monkeypatch.setattr(environment_install, '_pip_prefix', lambda staging: [])
+    environment_install._install({'requirements': ['demo==1']}, tmp_path / 'staging',
+                                 lambda line: None)
+
+    assert calls
+    for argv, kwargs in calls:
+        assert 'pip' in argv
+        assert kwargs['env']['PYTHONUNBUFFERED'] == '1'
+        assert kwargs['startup'] == environment_install.PIP_STARTUP_SECONDS
+
 def test_prepare_keeps_an_unsupported_platform_missing(tmp_path, monkeypatch):
     monkeypatch.setattr(environment_install, 'PLATFORM', 'windows')
     source = manifest(tmp_path / 'source', {'gated': {'python': '3.11', 'imports': [],

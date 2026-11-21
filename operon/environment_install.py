@@ -960,6 +960,23 @@ def _commit(name: str, staging: Path, final: Path) -> None:
         shutil.rmtree(previous, ignore_errors=True)
 
 
+PIP_STARTUP_SECONDS = 900.0
+
+
+def _pip_env(python: Path) -> dict[str, str]:
+    """Return the environment for one pip run.
+
+    pip's progress bar writes carriage returns and only flushes when its buffer
+    fills, so over a pipe a long resolve or download can look silent long enough
+    to trip the launch grace even though work is progressing. Unbuffered output
+    keeps the log alive so the grace only fires on a real stall.
+    """
+    env = _probe_environment(python)
+    env['PYTHONUNBUFFERED'] = '1'
+    env['PIP_PROGRESS_BAR'] = 'on'
+    return env
+
+
 def _pip_prefix(staging: Path) -> list[str]:
     """Return the pip ``--prefix`` flags for one staging environment.
 
@@ -1005,7 +1022,8 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
     # Base build tooling must exist before any source build or `--no-build-isolation` install.
     # `pkg_resources` ships with setuptools below 81; some packages (pdbfixer) still import it.
     _run([*install, *PIP_TRANSFER, '--no-input', *PIP_INDEX, *PIP_TRUSTED,
-          'setuptools>=68,<81', 'wheel'], log=log, timeout=900, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
+          'setuptools>=68,<81', 'wheel'], log=log, timeout=900, env=_pip_env(python),
+         startup=PIP_STARTUP_SECONDS, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
     conda_packages = entry.get('conda_packages') or []
     if conda_packages:
         mamba = _micromamba(base(root), log, control)
@@ -1016,35 +1034,38 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
     if entry.get('torch_cpu'):
         _run([*install, *PIP_TRANSFER, 'torch',
               '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
-             progress=progress, control=control)
+             env=_pip_env(python), startup=PIP_STARTUP_SECONDS, progress=progress, control=control)
     if entry.get('torch_cuda'):
         version = str(entry.get('torch_version') or '').strip()
         target = f'torch=={version}' if version else 'torch'
         index = str(entry.get('torch_index_url') or '').strip()
         extra = ['--index-url', index] if index else []
         _run([*install, *PIP_TRANSFER, *extra, target], log=log, timeout=3600,
-             progress=progress, control=control)
+             env=_pip_env(python), startup=PIP_STARTUP_SECONDS, progress=progress, control=control)
     if direct:
         _run([*install, *PIP_TRANSFER, *PIP_INDEX, *PIP_TRUSTED, *direct], log=log,
              timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
-             watch=[base(root), staging])
+             env=_pip_env(python), startup=PIP_STARTUP_SECONDS, watch=[base(root), staging])
     wheels = entry.get('pip_wheels') or []
     if wheels:
         _run([*install, *PIP_TRANSFER, '--only-binary=:all:', *PIP_INDEX, *PIP_TRUSTED, *wheels],
              log=log, timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
-             watch=[base(root), staging])
+             env=_pip_env(python), startup=PIP_STARTUP_SECONDS, watch=[base(root), staging])
     requirements = entry.get('requirements') or []
     if requirements:
         _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *PIP_TRUSTED, *requirements],
-             log=log, timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
+             log=log, timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
     no_deps = entry.get('no_deps') or []
     if no_deps:
         _run([*install, *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *PIP_TRUSTED, *no_deps], log=log,
-             timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
+             timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
     no_build = entry.get('no_build_isolation') or []
     if no_build:
         _run([*install, *PIP_TRANSFER, '--no-build-isolation', *no_build], log=log,
-             timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
+             timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
 
 
 def _probe_environment(python: Path) -> dict[str, str]:
@@ -1368,7 +1389,8 @@ def _install_dependency(name: str, kind: str, requirement: str, root=None, log=N
             extra = ['--only-binary=:all:']
         _run([python, '-X', 'utf8', '-m', 'pip', 'install', *prefix, *PIP_TRANSFER,
               *(flags or []), *(extra or []), *PIP_INDEX, *PIP_TRUSTED, requirement],
-             log=note, timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS)
+             log=note, timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
     progress['phase'] = 'complete'
     progress['detail'] = f'installed {requirement}'
     progress['updated_at'] = _now()
