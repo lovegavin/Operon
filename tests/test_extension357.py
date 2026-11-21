@@ -390,3 +390,77 @@ def test_assembly_launcher_uses_interpreter_on_windows(tmp_path) -> None:
     script = tmp_path / "quast.py"
     script.write_text("print('ok')\n", encoding="utf-8")
     assert _launcher(str(script), platform_name="nt") == [sys.executable, str(script)]
+
+DSSP_TEXT = """  #  RESIDUE AA STRUCTURE BP1 BP2  ACC     N-H-->O    O-->H-N    N-H-->O    O-->H-N    TCO  KAPPA ALPHA  PHI   PSI    X-CA   Y-CA   Z-CA
+    1    1 A M              0   0  110      0, 0.0     0, 0.0     0, 0.0     0, 0.0   0.000 360.0 360.0 360.0  360.0    0.0    0.0    0.0
+    2    2 A E              0   0  110      0, 0.0     0, 0.0     0, 0.0     0, 0.0   0.000 360.0 360.0 360.0  360.0    0.0    0.0    0.0
+"""
+
+
+
+def _dssp_context(tmp_path, **params):
+    from src.task.context import Context
+
+    ctx = Context(tmp_path, {"params": params})
+    ctx.step_params = dict(params)
+    return ctx
+
+def _dssp_rows():
+    letters = ("M", "E")
+    return [
+        (float(index), 0.0, 0.0, index + 1, "ALA", "A", "CA", "C")
+        for index in range(2)
+    ] + [
+        (float(index), 0.0, 0.0, 1, "ALA", "A", "N", "N")
+        for index in range(2)
+    ]
+
+
+def test_dssp_operator_consumes_the_wired_structure_form(tmp_path, monkeypatch) -> None:
+    import src.task.step.steps.structure_dssp_segments as module
+
+    form = _pdb_form(_dssp_rows())
+    seen = {}
+
+    def fake_run_dssp(binary, structure, workdir, timeout=300):
+        seen["binary"] = binary
+        seen["text"] = Path(structure).read_text(encoding="ascii")
+        return DSSP_TEXT
+
+    monkeypatch.setattr(module, "run_dssp", fake_run_dssp)
+    ctx = _dssp_context(tmp_path, output="segments", mkdssp_path="mkdssp")
+    module.StructureDsspSegmentsStep().run(ctx, [form])
+    segments = ctx["segments"]
+    assert list(segments.dims) == ["segment", "statistic"]
+    assert seen["text"].count("ATOM") == 4
+    assert "ALA A   1" in seen["text"]
+    assert segments.info["n_segments"] >= 1
+
+
+def test_dssp_operator_requires_input_or_structure_path(tmp_path) -> None:
+    import src.task.step.steps.structure_dssp_segments as module
+
+    ctx = _dssp_context(tmp_path, output="segments")
+    with pytest.raises(StepError, match="connect a structure form or set structure_path"):
+        module.StructureDsspSegmentsStep().run(ctx, [])
+    missing = tmp_path / "absent.pdb"
+    ctx = _dssp_context(tmp_path, output="segments", structure_path=str(missing))
+    with pytest.raises(StepError, match="connect a structure form or set structure_path"):
+        module.StructureDsspSegmentsStep().run(ctx, [])
+
+
+def test_dssp_operator_keeps_a_file_path_fallback(tmp_path, monkeypatch) -> None:
+    import src.task.step.steps.structure_dssp_segments as module
+
+    structure = tmp_path / "given.pdb"
+    structure.write_text("ATOM      1  CA  ALA A   1       0.000   0.000   0.000  1.00  0.00           C\nEND\n", encoding="ascii")
+    used = {}
+
+    def fake_run_dssp(binary, path, workdir, timeout=300):
+        used["path"] = Path(path)
+        return DSSP_TEXT
+
+    monkeypatch.setattr(module, "run_dssp", fake_run_dssp)
+    ctx = _dssp_context(tmp_path, output="segments", structure_path=str(structure))
+    module.StructureDsspSegmentsStep().run(ctx, [])
+    assert used["path"] == structure

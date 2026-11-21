@@ -70,6 +70,92 @@ def segment_rows(records: list[dict]) -> list[dict]:
     return segments
 
 
+def _write_pdb(form, atom_dim: str, field_dim: str, target: Path) -> Path:
+    """Write one PDB file from an atom x field form.
+
+    DSSP only reads structure files, while the operator contract receives the
+    structure as a form.  Re-emitting the coordinates keeps a wired route
+    working without asking callers for a second copy of the same file.
+    """
+    from . import _protein_common
+
+    data = np.asarray(form.data, dtype=float)
+    if data.ndim != 2 or list(form.dims) != [atom_dim, field_dim]:
+        raise StepError(
+            "structure_dssp_segments: expected a form with dims "
+            f"['{atom_dim}', '{field_dim}'], got {list(form.dims)}"
+        )
+    columns = {}
+    for name in ("x", "y", "z", "occupancy", "bfactor", "residue_number"):
+        index = _protein_common.column_index(form, field_dim, name)
+        if index >= 0:
+            columns[name] = data[:, index]
+    for required in ("x", "y", "z", "residue_number"):
+        if required not in columns:
+            raise StepError(
+                "structure_dssp_segments: the structure form is missing the "
+                f"'{required}' column; {_protein_common._structure_columns_hint()}"
+            )
+    texts = {
+        name: _protein_common.decode_column(form, field_dim, name)
+        for name in ("atom_name", "resname", "chain", "element", "altloc", "insertion_code")
+    }
+    lines = []
+    for index in range(data.shape[0]):
+        def text(name, default):
+            column = texts.get(name)
+            if column is None:
+                return default
+            value = str(column[index]).strip()
+            return value or default
+
+        name = text("atom_name", "")[:4]
+        resname = text("resname", "UNK")[:3].rjust(3)
+        chain = text("chain", " ")[:1] or " "
+        element = text("element", "")[:2].rjust(2)
+        number = int(round(float(columns["residue_number"][index])))
+        occupancy = float(columns["occupancy"][index]) if "occupancy" in columns else 1.0
+        bfactor = float(columns["bfactor"][index]) if "bfactor" in columns else 0.0
+        lines.append(
+            "ATOM  {serial:>5} {name:<4}{alt:>1}{res:>3} {chain:>1}{number:>4}{icode:>1}   "
+            "{x:>8.3f}{y:>8.3f}{z:>8.3f}{occupancy:>6.2f}{bfactor:>6.2f}          {element:>2}".format(
+                serial=(index % 100000) + 1,
+                name=name,
+                alt=text("altloc", " ")[:1] or " ",
+                res=resname,
+                chain=chain,
+                number=number,
+                icode=text("insertion_code", " ")[:1] or " ",
+                x=float(columns["x"][index]),
+                y=float(columns["y"][index]),
+                z=float(columns["z"][index]),
+                occupancy=occupancy,
+                bfactor=bfactor,
+                element=element or "  ",
+            )
+        )
+    lines.append("END")
+    target.write_text("\n".join(lines) + "\n", encoding="ascii", errors="replace")
+    return target
+
+
+def resolve_binary(name: str) -> str:
+    """Resolve a DSSP binary through PATH, then through the managed environments."""
+    import shutil
+
+    found = shutil.which(name)
+    if found:
+        return found
+    try:
+        from operon.dependencies import find_tool
+    except Exception:  # pragma: no cover - the application package is optional
+        return name
+    try:
+        return find_tool(name) or name
+    except Exception:  # pragma: no cover - a broken install must not mask DSSP errors
+        return name
+
+
 def _pdb_to_mmcif(structure: Path, target: Path) -> None:
     """Convert a PDB file to mmCIF for DSSP versions that only read mmCIF."""
     from Bio.PDB import MMCIFIO, PDBParser
@@ -135,17 +221,32 @@ class StructureDsspSegmentsStep(Step):
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
             "outputs": [],
         },
-        "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
+        "resources": {"memory_modes": ["full"], "estimate": "estimate_memory",
+                      "external_tools": ["mkdssp"]},
         "inputs_arity": 1,
         "output_parameter": "output",
     }
 
     def run(self, ctx, inputs):
         params = ctx.step_params
-        structure = Path(str(params["structure_path"])).expanduser()
-        if not structure.is_file():
-            raise StepError(f"structure_dssp_segments: structure_path {structure} is not a file")
-        text = run_dssp(str(params.get("mkdssp_path") or "mkdssp"), structure, Path(tempfile.mkdtemp()), timeout=int(params.get("timeout_seconds", 300)))
+        workdir = Path(tempfile.mkdtemp())
+        atom_dim = str(params.get("atom_dim", "atom"))
+        field_dim = str(params.get("field_dim", "field"))
+        structure = None
+        if inputs:
+            structure = _write_pdb(inputs[0], atom_dim, field_dim, workdir / "structure.pdb")
+        else:
+            candidate = str(params.get("structure_path") or "").strip()
+            if candidate:
+                candidate_path = Path(candidate).expanduser()
+                if candidate_path.is_file():
+                    structure = candidate_path
+        if structure is None:
+            raise StepError(
+                "structure_dssp_segments: connect a structure form or set structure_path to a file"
+            )
+        binary = resolve_binary(str(params.get("mkdssp_path") or "mkdssp"))
+        text = run_dssp(binary, structure, workdir, timeout=int(params.get("timeout_seconds", 300)))
         segments = segment_rows(parse_dssp(text))
         data = np.array([[s["length"]] for s in segments], dtype=np.float32)
         labels = {f"{s['chain']}:{s['state']}[{s['start']}-{s['end']}]": i for i, s in enumerate(segments)}
@@ -155,7 +256,7 @@ class StructureDsspSegmentsStep(Step):
             data=data,
             dims=["segment", "statistic"],
             labels={"segment": labels, "statistic": {"length": 0}},
-            info={"missing_code": np.nan, "n_segments": len(segments), "n_residues": total, "fractions": fractions, "segments": [{k: s[k] for k in ("chain", "state", "start", "end", "length", "codes")} for s in segments], "mkdssp": str(params.get("mkdssp_path") or "mkdssp")},
+            info={"missing_code": np.nan, "n_segments": len(segments), "n_residues": total, "fractions": fractions, "segments": [{k: s[k] for k in ("chain", "state", "start", "end", "length", "codes")} for s in segments], "mkdssp": binary},
         )
         self._export_data = {"n_segments": len(segments), "n_residues": total}
 

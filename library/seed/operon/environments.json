@@ -477,7 +477,8 @@
         "minced=0.4.2",
         "tRNAscan-SE=2.0.12",
         "foldseek=9.427df8a",
-        "flye=2.9.5=py311*"
+        "flye=2.9.5=py311*",
+        "dssp=4.4.0"
       ],
       "binaries": [
         "minimap2",
@@ -487,10 +488,11 @@
         "flye",
         "minced",
         "tRNAscan-SE",
-        "foldseek"
+        "foldseek",
+        "mkdssp"
       ],
       "resources": [],
-      "notes": "flye 2.9.5 ships a cp311 build on bioconda, so the assembler is pinned to the same Python 3.11 runtime as the other command line tools.",
+      "notes": "flye 2.9.5 ships a cp311 build on bioconda, so the assembler is pinned to the same Python 3.11 runtime as the other command line tools. DSSP (mkdssp) ships as a bioconda binary so secondary structure assignment does not depend on a system-wide install.",
       "platforms": [
         "linux",
         "darwin"
