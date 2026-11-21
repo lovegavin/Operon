@@ -6,7 +6,6 @@ import numpy as np
 
 from src.core.errors import StepError
 from src.core.forms.form import Form
-from src.reader.readers._encoder import LabelEncoder
 from src.task.step.base import Step
 
 from .structure_helix_helix_angle import _column, _text_column

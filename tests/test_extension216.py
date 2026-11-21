@@ -79,6 +79,39 @@ def _helix(chain: str, origin=(0.0, 0.0, 0.0), count: int = 8, bend_deg: float =
     return rows
 
 
+
+class ForeignEncoder:
+    """Stands in for the reader package's own LabelEncoder class.
+
+    Reader packages ship their copy (operon_core.readers._encoder), so the step
+    must not depend on class identity when decoding wire encoders.
+    """
+
+    def __init__(self, mapping):
+        self.mapping = dict(mapping)
+        self.inverse = {code: label for label, code in self.mapping.items()}
+
+    def fit_transform(self, values):
+        self.mapping = {label: float(index) for index, label in enumerate(values)}
+        self.inverse = {code: label for label, code in self.mapping.items()}
+        return [self.mapping[value] for value in values]
+
+    def inverse_transform(self, values):
+        return [self.inverse[float(value)] for value in values]
+
+
+def test_foreign_encoder_class_still_decodes_labels() -> None:
+    form = _form(_helix("A", count=8))
+    table = form.info["encoders"]["field"]
+    for name, encoder in list(table.items()):
+        table[name] = ForeignEncoder(encoder.mapping)
+    ctx = Ctx({"output": "bends"})
+    StructureHelixBendStep().run(ctx, [form])
+    out = ctx["bends"]
+    assert list(out.dims) == ["helix", "statistic"]
+    assert out.data[0, 0] == 8.0
+
+
 def test_direction_vectors_and_bend_row() -> None:
     straight = np.array([[0.0, 0.0, 1.5 * index] for index in range(6)])
     directions = direction_vectors(straight, 4)

@@ -44,19 +44,34 @@ class Context:
         pass
 
 
-def _encoder_class():
-    """The label encoder type the installed library hands to steps.
+_ENCODER_MODULES = (
+    "operon_core.readers._encoder",
+    "src.reader.readers._encoder",
+    "src.core.encoding",
+)
 
-    Readers are shipped separately from the application, so ``src.core.encoding``
-    and ``src.reader.readers._encoder`` define two distinct classes with the same
-    shape.  Steps guard on the reader class, so reviving with the core copy would
-    silently fall back to numeric labels.
+
+def _encoder_class():
+    """Return the label-encoder class the running library actually ships.
+
+    Reader packages import ``LabelEncoder`` from their own distribution
+    (``operon_core.readers._encoder``), which is a different class object from
+    the copies in ``src.reader.readers`` and ``src.core.encoding``.  Reviving a
+    wire encoder with the wrong class makes ``isinstance`` checks in the steps
+    fail and silently degrades labels to numbers, so prefer the library copy.
     """
-    try:
-        from src.reader.readers._encoder import LabelEncoder
-    except Exception:
-        from src.core.encoding import LabelEncoder
-    return LabelEncoder
+    failures = []
+    for module_name in _ENCODER_MODULES:
+        try:
+            module = __import__(module_name, fromlist=["LabelEncoder"])
+        except Exception as exc:  # noqa: BLE001 - first import that works wins
+            failures.append("%s: %s" % (module_name, exc))
+            continue
+        classifier = getattr(module, "LabelEncoder", None)
+        if classifier is not None:
+            return classifier
+        failures.append("%s: no LabelEncoder" % module_name)
+    raise ImportError("no LabelEncoder available (%s)" % "; ".join(failures))
 
 
 def _revive(value):

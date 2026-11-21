@@ -6,7 +6,6 @@ import numpy as np
 
 from src.core.errors import StepError
 from src.core.forms.form import Form
-from src.reader.readers._encoder import LabelEncoder
 from src.task.step.base import Step
 
 
@@ -22,7 +21,7 @@ def _text_column(form: Form, dim: str, name: str) -> np.ndarray:
     encoders = (form.info or {}).get("encoders") or {}
     table = encoders.get(dim) or {}
     encoder = table.get(name)
-    if isinstance(encoder, LabelEncoder):
+    if encoder is not None and hasattr(encoder, "inverse_transform"):
         return np.array(encoder.inverse_transform(values), dtype=object)
     return np.array([f"{value:g}" for value in values], dtype=object)
 
