@@ -416,13 +416,24 @@ def _dssp_rows():
     ]
 
 
+def _use_ccd(tmp_path, monkeypatch):
+    """Give the operator a CCD dictionary so it does not stop before DSSP."""
+    ccd = tmp_path / "ccd"
+    ccd.mkdir(exist_ok=True)
+    (ccd / "components.cif").write_text("data_comp_list\n", encoding="ascii")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("LIBCIFPP_DATA_DIR", str(ccd))
+    return ccd
+
+
 def test_dssp_operator_consumes_the_wired_structure_form(tmp_path, monkeypatch) -> None:
     import src.task.step.steps.structure_dssp_segments as module
+    _use_ccd(tmp_path, monkeypatch)
 
     form = _pdb_form(_dssp_rows())
     seen = {}
 
-    def fake_run_dssp(binary, structure, workdir, timeout=300):
+    def fake_run_dssp(binary, structure, workdir, timeout=300, data_dir=""):
         seen["binary"] = binary
         seen["text"] = Path(structure).read_text(encoding="ascii")
         return DSSP_TEXT
@@ -451,12 +462,13 @@ def test_dssp_operator_requires_input_or_structure_path(tmp_path) -> None:
 
 def test_dssp_operator_keeps_a_file_path_fallback(tmp_path, monkeypatch) -> None:
     import src.task.step.steps.structure_dssp_segments as module
+    _use_ccd(tmp_path, monkeypatch)
 
     structure = tmp_path / "given.pdb"
     structure.write_text("ATOM      1  CA  ALA A   1       0.000   0.000   0.000  1.00  0.00           C\nEND\n", encoding="ascii")
     used = {}
 
-    def fake_run_dssp(binary, path, workdir, timeout=300):
+    def fake_run_dssp(binary, path, workdir, timeout=300, data_dir=""):
         used["path"] = Path(path)
         return DSSP_TEXT
 
@@ -464,3 +476,63 @@ def test_dssp_operator_keeps_a_file_path_fallback(tmp_path, monkeypatch) -> None
     ctx = _dssp_context(tmp_path, output="segments", structure_path=str(structure))
     module.StructureDsspSegmentsStep().run(ctx, [])
     assert used["path"] == structure
+
+def test_dssp_operator_drops_solvent_atoms_before_running(tmp_path, monkeypatch) -> None:
+    import src.task.step.steps.structure_dssp_segments as module
+    _use_ccd(tmp_path, monkeypatch)
+
+    rows = _dssp_rows() + [
+        (9.0, 0.0, 0.0, 1, "HOH", "A", "O", "O"),
+        (9.5, 0.0, 0.0, 2, "HOH", "A", "O", "O"),
+    ]
+    seen = {}
+
+    def fake_run_dssp(binary, structure, workdir, timeout=300, data_dir=""):
+        seen["text"] = Path(structure).read_text(encoding="ascii")
+        return DSSP_TEXT
+
+    monkeypatch.setattr(module, "run_dssp", fake_run_dssp)
+    ctx = _dssp_context(tmp_path, output="segments")
+    module.StructureDsspSegmentsStep().run(ctx, [_pdb_form(rows)])
+    assert "HOH" not in seen["text"]
+    assert seen["text"].count("ATOM") == 4
+
+
+def test_dssp_operator_rejects_a_form_without_protein_atoms(tmp_path, monkeypatch) -> None:
+    import src.task.step.steps.structure_dssp_segments as module
+
+    rows = [(0.0, 0.0, 0.0, 1, "HOH", "A", "O", "O")]
+    monkeypatch.setattr(module, "run_dssp", lambda *args, **kwargs: DSSP_TEXT)
+    ctx = _dssp_context(tmp_path, output="segments")
+    with pytest.raises(StepError, match="holds no protein atoms"):
+        module.StructureDsspSegmentsStep().run(ctx, [_pdb_form(rows)])
+
+def test_dssp_operator_points_libcifpp_at_the_ccd_resource(tmp_path, monkeypatch) -> None:
+    import src.task.step.steps.structure_dssp_segments as module
+
+    ccd = tmp_path / "ccd"
+    ccd.mkdir()
+    (ccd / "components.cif").write_text("data_comp_list\n", encoding="ascii")
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("LIBCIFPP_DATA_DIR", str(ccd))
+    seen = {}
+
+    def fake_run_dssp(binary, structure, workdir, timeout=300, data_dir=""):
+        seen["data_dir"] = data_dir
+        return DSSP_TEXT
+
+    monkeypatch.setattr(module, "run_dssp", fake_run_dssp)
+    ctx = _dssp_context(tmp_path, output="segments", mkdssp_path="mkdssp")
+    module.StructureDsspSegmentsStep().run(ctx, [_pdb_form(_dssp_rows())])
+    assert seen["data_dir"] == str(ccd)
+
+
+def test_dssp_operator_reports_a_missing_ccd_dictionary(tmp_path, monkeypatch) -> None:
+    import src.task.step.steps.structure_dssp_segments as module
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.delenv("LIBCIFPP_DATA_DIR", raising=False)
+    ctx = _dssp_context(tmp_path, output="segments", mkdssp_path=str(tmp_path / "mkdssp"))
+    with pytest.raises(StepError, match="chemical component dictionary"):
+        module.StructureDsspSegmentsStep().run(ctx, [_pdb_form(_dssp_rows())])
+

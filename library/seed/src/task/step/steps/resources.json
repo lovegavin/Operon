@@ -971,6 +971,49 @@
           "note": ""
         }
       ]
+    },
+    {
+      "id": "ccd",
+      "title": "PDB chemical component dictionary",
+      "kind": "database",
+      "url": "https://files.wwpdb.org/pub/pdb/data/monomers/components.cif",
+      "install": "download components.cif (527 MB) into the resource root; mkdssp reads it through LIBCIFPP_DATA_DIR",
+      "env": "LIBCIFPP_DATA_DIR",
+      "roots": [
+        "~/.local/share/operon/resources/ccd"
+      ],
+      "files": [
+        "components.cif"
+      ],
+      "downloads": [
+        {
+          "path": "components.cif",
+          "url": "https://files.wwpdb.org/pub/pdb/data/monomers/components.cif",
+          "bytes": 527378519,
+          "unit": "components.cif",
+          "note": "verified 2026-11-21: HTTP 200, Content-Length 527,378,519 bytes. The .gz form (121,031,032 bytes) is not enough: mkdssp 4.4.11 only resolves compounds from the uncompressed file."
+        }
+      ],
+      "link_unit": "items",
+      "link_root": "ccd",
+      "envs": [
+        "dssp"
+      ],
+      "units": [
+        {
+          "name": "components.cif",
+          "path": "",
+          "mode": "file",
+          "kind": "database",
+          "bytes": 527378519,
+          "url": "https://files.wwpdb.org/pub/pdb/data/monomers/components.cif",
+          "files": [
+            "components.cif"
+          ],
+          "note": ""
+        }
+      ],
+      "notes": "mkdssp 4.x reads residue chemistry from components.cif, but the bioconda dssp package only ships the mmCIF dictionaries. Download the uncompressed components.cif (527,378,519 bytes, verified 2026-11-21) into ~/.local/share/operon/resources/ccd; structure_dssp_segments points LIBCIFPP_DATA_DIR at that directory."
     }
   ],
   "version": 2

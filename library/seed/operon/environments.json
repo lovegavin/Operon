@@ -439,7 +439,9 @@
       "binaries": [
         "mkdssp"
       ],
-      "resources": [],
+      "resources": [
+        "ccd"
+      ],
       "notes": "DSSP ships as the bioconda mkdssp binary; the operator reads the structure form itself, so this environment only needs the executable and NumPy.",
       "platforms": [
         "linux",

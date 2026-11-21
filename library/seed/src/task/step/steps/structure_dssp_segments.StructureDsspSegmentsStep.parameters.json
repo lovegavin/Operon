@@ -31,12 +31,19 @@
       "x-ui-group": "依赖",
       "x-ui-order": 1
     },
+    "ccd_dir": {
+      "title": "CCD 目录",
+      "type": "string",
+      "default": "",
+      "x-ui-group": "依赖",
+      "x-ui-order": 2
+    },
     "timeout_seconds": {
       "title": "超时 (s)",
       "type": "integer",
       "default": 300,
       "x-ui-group": "依赖",
-      "x-ui-order": 2,
+      "x-ui-order": 3,
       "minimum": 10,
       "maximum": 3600
     },

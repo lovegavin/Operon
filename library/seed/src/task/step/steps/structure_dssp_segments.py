@@ -9,9 +9,12 @@ from src.core.forms import Form
 from src.task.step.base import Step
 
 
+import os
 import subprocess
 import tempfile
 from pathlib import Path
+
+_SOLVENT_RESIDUES = {"HOH", "WAT", "DOD", "H2O"}
 
 _SS_CODES = {"H": "helix", "G": "helix", "I": "helix", "E": "strand", "B": "strand", "T": "turn", "S": "bend", "-": "coil", " ": "coil", "P": "coil"}
 
@@ -110,7 +113,12 @@ def _write_pdb(form, atom_dim: str, field_dim: str, target: Path) -> Path:
             return value or default
 
         name = text("atom_name", "")[:4]
-        resname = text("resname", "UNK")[:3].rjust(3)
+        residue_name = text("resname", "").strip().upper()
+        if not name.strip():
+            continue
+        if residue_name in _SOLVENT_RESIDUES:
+            continue
+        resname = (residue_name or "UNK")[:3].rjust(3)
         chain = text("chain", " ")[:1] or " "
         element = text("element", "")[:2].rjust(2)
         number = int(round(float(columns["residue_number"][index])))
@@ -133,6 +141,10 @@ def _write_pdb(form, atom_dim: str, field_dim: str, target: Path) -> Path:
                 bfactor=bfactor,
                 element=element or "  ",
             )
+        )
+    if not lines:
+        raise StepError(
+            "structure_dssp_segments: the structure form holds no protein atoms to hand to DSSP"
         )
     lines.append("END")
     target.write_text("\n".join(lines) + "\n", encoding="ascii", errors="replace")
@@ -167,11 +179,42 @@ def _pdb_to_mmcif(structure: Path, target: Path) -> None:
     writer.save(str(target))
 
 
-def _invoke_dssp(binary: str, structure: Path, output: Path, timeout: int):
+def ccd_directory(binary: str, override: str = "") -> str:
+    """Locate the CCD directory mkdssp 4.x needs for compound information.
+
+    mkdssp 4.x resolves residue chemistry from ``components.cif``; the bioconda
+    package ships the dictionaries but not the compound file, so the library
+    declares a ``ccd`` resource and the operator points libcifpp at it.
+    """
+    candidates = []
+    if override:
+        candidates.append(Path(override).expanduser())
+    from_env = os.environ.get("LIBCIFPP_DATA_DIR", "").strip()
+    if from_env:
+        candidates.append(Path(from_env).expanduser())
+    try:
+        candidates.append(Path(binary).resolve().parent.parent / "share" / "libcifpp")
+    except OSError:  # pragma: no cover - a bare name has no parent
+        pass
+    candidates.append(Path.home() / ".local" / "share" / "operon" / "resources" / "ccd")
+    candidates.append(Path.home() / ".local" / "share" / "operon" / "external" / "ccd")
+    for candidate in candidates:
+        if (candidate / "components.cif").is_file():
+            return str(candidate)
+    raise StepError(
+        "structure_dssp_segments: DSSP needs the PDB chemical component dictionary; "
+        "link or download the 'ccd' resource (uncompressed components.cif) or set ccd_dir"
+    )
+
+
+def _invoke_dssp(binary: str, structure: Path, output: Path, timeout: int, data_dir: str = ""):
     command = [binary, "--output-format", "dssp", str(structure), str(output)]
+    env = dict(os.environ)
+    if data_dir:
+        env["LIBCIFPP_DATA_DIR"] = data_dir
     try:
         return subprocess.run(
-            command, capture_output=True, text=True, timeout=timeout
+            command, capture_output=True, text=True, timeout=timeout, env=env
         )
     except FileNotFoundError:
         raise StepError(f"structure_dssp_segments: DSSP executable '{binary}' was not found on PATH; install mkdssp") from None
@@ -179,9 +222,9 @@ def _invoke_dssp(binary: str, structure: Path, output: Path, timeout: int):
         raise StepError(f"structure_dssp_segments: DSSP timed out after {timeout} s") from None
 
 
-def run_dssp(binary: str, structure: Path, workdir: Path, *, timeout: int = 300) -> str:
+def run_dssp(binary: str, structure: Path, workdir: Path, *, timeout: int = 300, data_dir: str = "") -> str:
     output = workdir / "structure.dssp"
-    completed = _invoke_dssp(binary, structure, output, timeout)
+    completed = _invoke_dssp(binary, structure, output, timeout, data_dir)
     if completed.returncode != 0 and structure.suffix.lower() in (".pdb", ".ent"):
         # mkdssp 4.6 rejects some valid PDB files (REMARK/refine records) with
         # an mmCIF parse error.  Convert once and retry before giving up.
@@ -191,7 +234,7 @@ def run_dssp(binary: str, structure: Path, workdir: Path, *, timeout: int = 300)
         except Exception:
             converted = None
         if converted is not None and converted.is_file():
-            completed = _invoke_dssp(binary, converted, output, timeout)
+            completed = _invoke_dssp(binary, converted, output, timeout, data_dir)
     if completed.returncode != 0:
         tail = ((completed.stderr or completed.stdout).strip().splitlines() or [""])[-1]
         raise StepError(f"structure_dssp_segments: DSSP failed with exit code {completed.returncode}: {tail}")
@@ -246,7 +289,14 @@ class StructureDsspSegmentsStep(Step):
                 "structure_dssp_segments: connect a structure form or set structure_path to a file"
             )
         binary = resolve_binary(str(params.get("mkdssp_path") or "mkdssp"))
-        text = run_dssp(binary, structure, workdir, timeout=int(params.get("timeout_seconds", 300)))
+        data_dir = ccd_directory(binary, str(params.get("ccd_dir") or ""))
+        text = run_dssp(
+            binary,
+            structure,
+            workdir,
+            timeout=int(params.get("timeout_seconds", 300)),
+            data_dir=data_dir,
+        )
         segments = segment_rows(parse_dssp(text))
         data = np.array([[s["length"]] for s in segments], dtype=np.float32)
         labels = {f"{s['chain']}:{s['state']}[{s['start']}-{s['end']}]": i for i, s in enumerate(segments)}
@@ -256,7 +306,7 @@ class StructureDsspSegmentsStep(Step):
             data=data,
             dims=["segment", "statistic"],
             labels={"segment": labels, "statistic": {"length": 0}},
-            info={"missing_code": np.nan, "n_segments": len(segments), "n_residues": total, "fractions": fractions, "segments": [{k: s[k] for k in ("chain", "state", "start", "end", "length", "codes")} for s in segments], "mkdssp": binary},
+            info={"missing_code": np.nan, "n_segments": len(segments), "n_residues": total, "fractions": fractions, "segments": [{k: s[k] for k in ("chain", "state", "start", "end", "length", "codes")} for s in segments], "mkdssp": binary, "written_pdb": str(structure), "ccd": data_dir},
         )
         self._export_data = {"n_segments": len(segments), "n_residues": total}
 
