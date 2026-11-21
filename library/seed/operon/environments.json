@@ -429,6 +429,23 @@
         "darwin"
       ]
     },
+    "dssp": {
+      "title": "DSSP \u4e8c\u7ea7\u7ed3\u6784\u6307\u6d3e",
+      "python": "3.11",
+      "conda_packages": [
+        "dssp=4.4.11",
+        "numpy"
+      ],
+      "binaries": [
+        "mkdssp"
+      ],
+      "resources": [],
+      "notes": "DSSP ships as the bioconda mkdssp binary; the operator reads the structure form itself, so this environment only needs the executable and NumPy.",
+      "platforms": [
+        "linux",
+        "darwin"
+      ]
+    },
     "esm2": {
       "title": "ESM-2 蛋白语言模型",
       "python": "3.11",
@@ -477,8 +494,7 @@
         "minced=0.4.2",
         "tRNAscan-SE=2.0.12",
         "foldseek=9.427df8a",
-        "flye=2.9.5=py311*",
-        "dssp=4.4.0"
+        "flye=2.9.5=py311*"
       ],
       "binaries": [
         "minimap2",
@@ -488,11 +504,10 @@
         "flye",
         "minced",
         "tRNAscan-SE",
-        "foldseek",
-        "mkdssp"
+        "foldseek"
       ],
       "resources": [],
-      "notes": "flye 2.9.5 ships a cp311 build on bioconda, so the assembler is pinned to the same Python 3.11 runtime as the other command line tools. DSSP (mkdssp) ships as a bioconda binary so secondary structure assignment does not depend on a system-wide install.",
+      "notes": "flye 2.9.5 ships a cp311 build on bioconda, so the assembler is pinned to the same Python 3.11 runtime as the other command line tools.",
       "platforms": [
         "linux",
         "darwin"

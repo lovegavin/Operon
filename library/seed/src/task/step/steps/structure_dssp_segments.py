@@ -221,7 +221,7 @@ class StructureDsspSegmentsStep(Step):
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
             "outputs": [],
         },
-        "resources": {"memory_modes": ["full"], "estimate": "estimate_memory",
+        "resources": {"environment": "dssp", "memory_modes": ["full"], "estimate": "estimate_memory",
                       "external_tools": ["mkdssp"]},
         "inputs_arity": 1,
         "output_parameter": "output",
