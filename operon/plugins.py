@@ -97,7 +97,7 @@ def _runtime_class(descriptor, lock):
         relatives = [*lock.get('code_paths', []),
                      *((descriptor.get('execution') or {}).get('paths') or [])]
         paths = [str(base / value) for value in relatives if value] if base else []
-        return proxy_step(descriptor, paths)
+        return proxy_step(descriptor, paths, lock=lock)
     if descriptor.get('execution', {}).get('mode') == 'isolated':
         from operon.isolation import proxy_step, proxy_reader
         return (proxy_step if descriptor['kind'] == 'operator' else proxy_reader)(descriptor, lock)
@@ -116,6 +116,18 @@ def _bind_library_source(lock):
         path = Path(base) / path
     if (path / "operon/environments.json").is_file():
         os.environ["OPERON_LIBRARY_SOURCE"] = str(path)
+
+
+def register_readers(lock):
+    """Populate the reader table from a frozen lock without the pipeline runtime."""
+    from src.reader import READERS
+    from operon.lazy import reader_proxy
+    READERS.clear()
+    for descriptor in active_descriptors(lock):
+        if descriptor.get('kind') != 'reader':
+            continue
+        factory = lambda d=descriptor: _runtime_class(d, lock)
+        READERS.append(reader_proxy(descriptor, factory))
 
 
 def load_runtime(lock, manifest=None):

@@ -155,3 +155,81 @@ def test_bridge_runs_a_report_only_step_without_an_output_parameter(monkeypatch)
     step.run(Ctx(), [_form()])
     assert seen == {}
     assert step.export(Ctx()) == {'rows': 3}
+"""Wiring tests: the plugin lock has to reach the isolated step worker."""
+import json
+from pathlib import Path
+from types import SimpleNamespace
+
+
+def test_bridge_publishes_the_plugin_lock_for_worker(monkeypatch, tmp_path):
+    from operon import environments
+
+    seen = {}
+
+    def fake_run(command, **kwargs):
+        directory = Path(kwargs['cwd'])
+        seen['command'] = command
+        seen['readers'] = json.loads((directory / 'readers.json').read_text(encoding='utf-8'))
+        (directory / 'result.json').write_text(json.dumps({'kind': 'none', 'export': {}}), encoding='utf-8')
+        return SimpleNamespace(returncode=0, stdout='', stderr='')
+
+    monkeypatch.setattr(environments.subprocess, 'run', fake_run)
+    import operon.bytecode
+    monkeypatch.setattr(operon.bytecode, 'executable_path', lambda value: value)
+    monkeypatch.setattr(environments, 'worker_environment', lambda python, paths=(): {})
+
+    lock = {'protocol_version': 3, 'packages': [], 'descriptors': [{'id': 'PdbReader'}]}
+    environments._run_step(tmp_path, {'entry_point': 'x:Y'}, [], {}, Path('python'),
+                           timeout=30, lock=lock)
+
+    assert seen['command'][1:] == ['-m', 'operon.env_worker', str(tmp_path)]
+    assert seen['readers'] == lock
+
+
+def test_bridge_omits_the_lock_when_the_caller_has_none(monkeypatch, tmp_path):
+    from operon import environments
+
+    seen = {}
+
+    def fake_run(command, **kwargs):
+        directory = Path(kwargs['cwd'])
+        seen['readers'] = (directory / 'readers.json').exists()
+        (directory / 'result.json').write_text(json.dumps({'kind': 'none', 'export': {}}), encoding='utf-8')
+        return SimpleNamespace(returncode=0, stdout='', stderr='')
+
+    monkeypatch.setattr(environments.subprocess, 'run', fake_run)
+    import operon.bytecode
+    monkeypatch.setattr(operon.bytecode, 'executable_path', lambda value: value)
+    monkeypatch.setattr(environments, 'worker_environment', lambda python, paths=(): {})
+
+    environments._run_step(tmp_path, {'entry_point': 'x:Y'}, [], {}, Path('python'), timeout=30)
+
+    assert seen['readers'] is False
+
+
+def test_proxy_step_forwards_the_lock_to_run_step(monkeypatch):
+    from operon import environments
+
+    seen = {}
+
+    def fake_run_step(descriptor, inputs, params, python, *, timeout, paths, outputs=None, lock=None):
+        seen['lock'] = lock
+        seen['paths'] = paths
+        return None, {}, ''
+
+    monkeypatch.setattr(environments, 'run_step', fake_run_step)
+    monkeypatch.setattr(environments, 'resolve', lambda environment: Path('python'))
+
+    descriptor = {'id': 'demo', 'entry_point': 'x:Y', 'version': '1.0.0', 'inputs_arity': 0,
+                  'outputs': [], 'contracts': {'inputs': [], 'output': {}},
+                  'resources': {'environment': 'demo'}}
+    lock = {'protocol_version': 3}
+    step = environments.proxy_step(descriptor, [], lock=lock)()
+
+    class Ctx(dict):
+        step_params = {}
+        metadata = {}
+
+    step.run(Ctx(), [])
+
+    assert seen['lock'] == lock

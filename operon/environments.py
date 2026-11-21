@@ -322,11 +322,12 @@ def _relocate_files(files, directory, outputs=None):
     return moved
 
 
-def run_step(descriptor: dict, inputs, params: dict, python: Path, *, timeout: int = 3600, paths=(), outputs=None):
+def run_step(descriptor: dict, inputs, params: dict, python: Path, *, timeout: int = 3600, paths=(),
+             outputs=None, lock=None):
     """Execute one step in ``python`` and return (form, export, console tail)."""
     with tempfile.TemporaryDirectory(prefix="envbridge-") as temporary:
         return _run_step(Path(temporary), descriptor, inputs, params, python, timeout=timeout, paths=paths,
-                         outputs=outputs)
+                         outputs=outputs, lock=lock)
 
 
 def worker_environment(python: Path, paths=()) -> dict[str, str]:
@@ -351,12 +352,16 @@ def worker_environment(python: Path, paths=()) -> dict[str, str]:
     return env
 
 
-def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None):
+def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None, lock=None):
     from src.core.errors import StepError
     request = {"entry_point": descriptor["entry_point"], "params": params, "inputs": []}
     for index, form in enumerate(inputs):
         request["inputs"].append(_write_form(directory, index, form))
     (directory / "request.json").write_text(json.dumps(request), encoding="utf-8")
+    if lock:
+        # The worker process never imports the pipeline runtime, so the reader table has to
+        # travel with the request. Otherwise src.reader.pick_reader sees an empty registry.
+        (directory / "readers.json").write_text(json.dumps(lock), encoding="utf-8")
     command = [str(python), "-m", "operon.env_worker", str(directory)]
     from .bytecode import executable_path
     completed = subprocess.run(command, capture_output=True, text=True, encoding='utf-8',
@@ -400,11 +405,12 @@ def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(
     return form, _revive(message.get("export", {})), "\n".join((completed.stderr or "").strip().splitlines()[-4:])
 
 
-def proxy_step(descriptor: dict, paths=()):
+def proxy_step(descriptor: dict, paths=(), lock=None):
     """Build a Step-compatible proxy that executes in the environment interpreter."""
     from src.task.step.base import Step
     from src.core.errors import StepError
     _paths = tuple(paths)
+    _lock = lock
 
     class EnvironmentStep(Step):
         name = descriptor["id"]
@@ -432,7 +438,7 @@ def proxy_step(descriptor: dict, paths=()):
                 raise StepError(f"{descriptor['id']}: isolated environment {self._environment!r} is not installed")
             form, export, tail = run_step(descriptor, inputs, dict(ctx.step_params), python,
                                           timeout=int(ctx.step_params.get("timeout_seconds", 3600)) + 60,
-                                          paths=_paths)
+                                          paths=_paths, lock=_lock)
             name = ctx.step_params.get("output")
             if name and form is not None:
                 ctx[name] = form

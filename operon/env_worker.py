@@ -74,11 +74,21 @@ def _prepend_environment_path() -> None:
     os.environ["PATH"] = os.pathsep.join(parts)
 
 
+def _register_readers(directory) -> None:
+    """Restore the reader table the parent pipeline published for this step."""
+    published = directory / "readers.json"
+    if not published.is_file():
+        return
+    from operon.plugins import register_readers
+    register_readers(json.loads(published.read_text(encoding="utf-8")))
+
+
 def main():
     _prepend_environment_path()
     directory = Path(sys.argv[1])
     request = json.loads((directory / "request.json").read_text(encoding="utf-8"))
     try:
+        _register_readers(directory)
         from src.core.forms import Form
         module, name = request["entry_point"].split(":", 1)
         cls = getattr(importlib.import_module(module), name)
