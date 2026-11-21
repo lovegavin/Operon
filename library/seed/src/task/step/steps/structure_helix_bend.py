@@ -110,7 +110,7 @@ class StructureHelixBendStep(Step):
         if isinstance(min_residues, bool) or not isinstance(min_residues, int) or min_residues < 4:
             raise StepError("structure_helix_bend: min_residues must be an integer of at least 4")
 
-        labels, ca = ca_atoms(form, atom_dim, field_dim)
+        labels, ca = ca_atoms(form, atom_dim, field_dim, owner='structure_helix_bend')
         chains = [label.split(":")[0] for label in labels]
         runs = helix_runs(ca, chains, min_residues=min_residues)
         if not runs:

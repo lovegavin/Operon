@@ -143,3 +143,11 @@ def test_no_helix_found() -> None:
     ]
     with pytest.raises(StepError, match="no helical run"):
         StructureHelixBendStep().run(Ctx({}), [_form(rows)])
+
+def test_shared_ca_helper_names_the_calling_operator() -> None:
+    rows = [
+        (float(index) * 3.8, 0.0, 0.0, index + 1, "ALA", "A", "CA", "C")
+        for index in range(2)
+    ]
+    with pytest.raises(StepError, match="structure_helix_bend: at least four CA atoms"):
+        StructureHelixBendStep().run(Ctx({}), [_form(rows)])

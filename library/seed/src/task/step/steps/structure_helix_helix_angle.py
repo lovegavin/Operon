@@ -27,7 +27,8 @@ def _text_column(form: Form, dim: str, name: str) -> np.ndarray:
     return np.array([f"{value:g}" for value in values], dtype=object)
 
 
-def ca_atoms(form: Form, atom_dim: str, field_dim: str) -> tuple[list[str], np.ndarray]:
+def ca_atoms(form: Form, atom_dim: str, field_dim: str, *,
+             owner: str = "structure_helix_helix_angle") -> tuple[list[str], np.ndarray]:
     atom_names = _text_column(form, field_dim, "atom_name")
     chains = _text_column(form, field_dim, "chain")
     resnames = _text_column(form, field_dim, "resname")
@@ -41,7 +42,7 @@ def ca_atoms(form: Form, atom_dim: str, field_dim: str) -> tuple[list[str], np.n
         if key not in seen:
             seen[key] = coords[index]
     if len(seen) < 4:
-        raise StepError("structure_helix_helix_angle: at least four CA atoms are required")
+        raise StepError(f"{owner}: at least four CA atoms are required")
     labels = list(seen)
     return labels, np.asarray([seen[label] for label in labels], dtype=np.float64)
 
