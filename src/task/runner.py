@@ -14,6 +14,20 @@ from src.core.contracts import (compatible, describe_form, describe_metadata, in
                                 resolve, validate_form, validate_output, validate_values)
 
 
+def output_format_for(declared_outputs: list[str], format_outputs: list[dict], key: str) -> dict | None:
+    """Return the declared data format that governs a registered output.
+
+    A step may declare a port list in ``outputs`` and additionally name a
+    dynamic output through ``output_parameter``; that dynamic name is appended
+    to ``declared_outputs`` and has no format entry of its own, so the last
+    declared format covers it instead of raising ``IndexError``.
+    """
+    if not format_outputs:
+        return None
+    index = declared_outputs.index(key) if key in declared_outputs else 0
+    return format_outputs[min(index, len(format_outputs) - 1)]
+
+
 def run(ctx: Context, steps: list[dict]) -> None:
     exports = ctx.artifacts["exports"] = []
     ctx._run_status = "running"
@@ -120,7 +134,8 @@ def run(ctx: Context, steps: list[dict]) -> None:
                     format_outputs = (declaration.get('data_formats') or {}).get('outputs', [])
                     if format_outputs and key in declared_outputs:
                         from operon_sdk.native_array import reader_output
-                        reader_output(form, {'data_formats': {'outputs': [format_outputs[declared_outputs.index(key)]]}})
+                        spec = output_format_for(declared_outputs, format_outputs, key)
+                        reader_output(form, {'data_formats': {'outputs': [spec]}})
                     if cls.output_contract:
                         validate_output(form, expected, f"{name} output {key}")
                 ctx.output_validator = check_output
