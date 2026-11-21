@@ -334,10 +334,11 @@
         "scanpy==1.10.3",
         "transformers==4.46.3",
         "umap-learn==0.5.6",
-        "patsy>=0.5"
+        "patsy>=0.5",
+        "coverage>=7.4"
       ],
       "resources": [],
-      "notes": "Most operators run here. Heavy optional stacks (scanpy/torch/transformers) are declared explicitly; the AutoDock Vina binding has no wheel on PyPI so it is built with the conda-provided SWIG toolchain and, like the binary readers (pyarrow/pysam/pyBigWig/bed-reader/bgen-reader/pgenlib), does not block readiness.",
+      "notes": "Most operators run here. Heavy optional stacks (scanpy/torch/transformers) are declared explicitly; the AutoDock Vina binding has no wheel on PyPI so it is built with the conda-provided SWIG toolchain and, like the binary readers (pyarrow/pysam/pyBigWig/bed-reader/bgen-reader/pgenlib), does not block readiness. coverage is required because numba imports numba.misc.coverage_support at import time; libdeflate is the shared library pysam links against.",
       "torch_cpu": true,
       "best_effort": [
         "vina==1.2.5",
@@ -350,7 +351,8 @@
       ],
       "conda_packages": [
         "swig>=4.1",
-        "boost>=1.82"
+        "boost>=1.82",
+        "libdeflate>=1.19"
       ]
     },
     "proteinmpnn": {
