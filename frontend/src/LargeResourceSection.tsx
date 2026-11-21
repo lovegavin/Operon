@@ -139,9 +139,9 @@ export function unitAction(component: LargeResourceComponent): {
   }
   // 6) 有缺失，但没有 HTTP/rsync 源。
   return {
-    text: t('缺 {count} 个文件，没有 HTTP/rsync 源', { count: missing.length }),
+    text: t('缺 {count} 个文件，没有下载源', { count: missing.length }),
     enabled: false,
-    reason: t('{n} 个文件没有 HTTP 下载源，只能链接已有目录。', { n: missing.length }),
+    reason: t('{n} 个文件没有下载源，只能链接已有目录。', { n: missing.length }),
   };
 }
 
@@ -236,7 +236,7 @@ function UnitCard({ resource, component, busy, download, onLink, onUnlink, onDow
         </details>
         : null}
       {!linked && (component.undownloadable?.length || 0) > 0
-        ? <p className="runtime-note">{t('{n} 个文件没有 HTTP 下载源，只能链接已有目录。',
+        ? <p className="runtime-note">{t('{n} 个文件没有下载源，只能链接已有目录。',
             { n: (component.undownloadable || []).length })}</p>
         : null}
       {!linked && undeclared

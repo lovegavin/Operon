@@ -114,3 +114,34 @@ def test_unit_coverage_accepts_a_whole_archive_for_its_directory():
     covered, missing = resource_api.unit_coverage(resource, 'bundle')
     assert covered == ['bfd/bfd_metaclust.ffdata', 'bfd/bfd_metaclust.ffindex']
     assert missing == ['pdb70/pdb70_a3m.ffdata']
+
+
+def test_unit_downloads_keeps_the_archive_that_names_the_unit_directory():
+    entry = {
+        'path': 'bfd',
+        'url': 'https://example.invalid/bfd.tar.gz',
+        'archive': 'tar.gz',
+    }
+    resource = _resource(downloads=(entry,), components=(
+        {'name': 'bundle', 'files': ['bfd/bfd_metaclust.ffdata', 'bfd/bfd_metaclust.ffindex']},
+    ))
+    downloads, allowed = resource_api.unit_downloads('payloads', resource, 'bundle')
+    assert downloads == [entry]
+    assert allowed == {'bfd/bfd_metaclust.ffdata', 'bfd/bfd_metaclust.ffindex'}
+
+
+def test_prune_tree_drops_archive_members_the_unit_does_not_declare(tmp_path):
+    target = tmp_path / 'bfd'
+    target.mkdir()
+    for name in ('bfd_metaclust.ffdata', 'bfd_metaclust.ffindex', 'unused_readme'):
+        (target / name).write_bytes(b'x')
+    lines: list[str] = []
+    resource_api._prune_tree(
+        target,
+        {'bfd/bfd_metaclust.ffdata', 'bfd/bfd_metaclust.ffindex'},
+        threading.Event(),
+        lines.append,
+    )
+    assert sorted(item.name for item in target.iterdir()) == [
+        'bfd_metaclust.ffdata', 'bfd_metaclust.ffindex']
+    assert lines and lines[0].startswith('PRUNE')

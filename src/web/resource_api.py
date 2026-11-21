@@ -850,6 +850,55 @@ def _extract_member(bundle: Path, target: Path, member: str, event, job: dict) -
 
 # Large databases and weight trees are meant to be linked from a shared cache;
 # the panel disables their download button and the service refuses the request.
+def _entry_covers(path: str, allowed: set[str] | None) -> bool:
+    """Whether one download entry provides any file the caller asked for.
+
+    An archive published for a whole directory (``bfd``, ``pdb70``) names that
+    directory instead of each file inside it, so equality alone would drop the
+    only entry able to fill those files.
+    """
+
+    if allowed is None:
+        return True
+    candidate = str(path or '').strip().strip('/')
+    if not candidate:
+        return False
+    if candidate in allowed:
+        return True
+    prefix = candidate + '/'
+    return any(name.startswith(prefix) for name in allowed)
+
+
+def _selected_downloads(downloads: list[dict], allowed: set[str] | None) -> list[dict]:
+    """The download entries that provide at least one of the allowed files."""
+
+    return [entry for entry in downloads
+            if _entry_covers(str(entry.get('path') or ''), allowed)]
+
+
+def _prune_tree(root: Path, allowed: set[str] | None, event, emit) -> None:
+    """Delete files a directory archive brought in but the unit does not declare."""
+
+    if allowed is None or not root.is_dir():
+        return
+    removed = 0
+    for path in sorted(root.rglob('*'), key=lambda item: len(item.parts), reverse=True):
+        if event.is_set():
+            return
+        if path.is_file():
+            relative = path.relative_to(root.parent).as_posix()
+            if relative not in allowed:
+                path.unlink(missing_ok=True)
+                removed += 1
+        elif path.is_dir() and path != root:
+            try:
+                path.rmdir()
+            except OSError:
+                pass
+    if removed:
+        emit(f'PRUNE {root.name}: removed {removed} undeclared file(s)')
+
+
 def unit_downloads(name: str, resource, unit: str | None) -> tuple[list[dict], set[str] | None]:
     """Resolve the download entries and the allowed paths for one unit.
 
@@ -884,7 +933,7 @@ def unit_downloads(name: str, resource, unit: str | None) -> tuple[list[dict], s
             for entry in downloads:
                 if str(entry.get('path') or '') == unit and not str(entry.get('member') or ''):
                     covered.add(str(unit))
-            if any(str(entry.get('path') or '') in covered for entry in downloads):
+            if _selected_downloads(downloads, covered):
                 allowed = covered
         return downloads, allowed
     spec = getattr(resource, 'rsync', None)
@@ -923,8 +972,7 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
         if active and _jobs.get(active, {}).get('status') == 'running':
             return dict(_jobs[active])
         key = uuid.uuid4().hex
-        planned = [entry for entry in downloads
-                   if allowed is None or str(entry.get('path') or '') in allowed]
+        planned = _selected_downloads(downloads, allowed)
         covered, missing = unit_coverage(resource, unit)
         job = {'id': key, 'name': name, 'status': 'running', 'error': None,
                'started_at': _now(), 'finished_at': None, 'bytes': 0, 'files': 0,
@@ -960,7 +1008,7 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
             emit(f'START {name} -> {target}')
             job['phase'] = 'downloading'
             for entry in downloads:
-                if allowed is not None and str(entry.get('path') or '') not in allowed:
+                if not _entry_covers(str(entry.get('path') or ''), allowed):
                     continue
                 if event.is_set():
                     raise RuntimeError('cancelled')
@@ -984,6 +1032,9 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
                 job['completed_bytes'] = int(job.get('completed_bytes') or 0) + int(result.get('bytes') or 0)
                 job['bytes'] = int(job.get('completed_bytes') or 0)
                 emit(f'OK {entry.get("path")} {result.get("status")} {result.get("bytes", 0)}')
+                if entry.get('archive') and allowed is not None:
+                    _prune_tree(target / str(entry.get('path') or ''), allowed,
+                                event, emit)
             if event.is_set():
                 raise RuntimeError('cancelled')
             if job['files'] == 0:
