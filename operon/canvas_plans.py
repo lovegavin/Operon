@@ -7,6 +7,7 @@ from copy import deepcopy
 import json
 import os
 from pathlib import Path
+from types import SimpleNamespace
 import shutil
 import threading
 import uuid
@@ -205,12 +206,16 @@ class CanvasPlans:
                 source['path'] = 'input:' + key
         progress('code')
         app_root = self.app.service.settings.code_root or Path(__file__).resolve().parents[1]
-        from .export.collector import kernel_files
-        kernel = kernel_files(app_root)
+        from .export.automatic import provider_kernel_modules
+        from .export.collector import KERNEL_MODULES, kernel_files
+        roots = provider_roots(manager, state, app_root)
+        probe = SimpleNamespace(implementations=data.get('implementations') or {},
+                                diagnostics=data.get('diagnostics') or {})
+        extra = sorted(provider_kernel_modules(probe, roots, app_root))
+        kernel = kernel_files(app_root, modules=(*KERNEL_MODULES, *extra))
         data['execution_policy']['kernel_digest'] = sha256_hex(kernel)
         plan = RunPlan.model_validate(data).with_identity()
         package = self.directory / 'code' / plan.plan_id
-        roots = provider_roots(manager, state, app_root)
         # Atomic complete-code publication. Failed preparations do not publish a
         # usable package or replace code referenced by an accepted run.
         with FileLock(package.with_suffix('.lock'), timeout=600):
