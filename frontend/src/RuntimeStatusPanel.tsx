@@ -31,6 +31,8 @@ export type EnvironmentItem = EnvironmentSnapshot['environments'][string] & {
   shared_resources_total?: number;
   shared_resources_ready?: number;
   missing_dependencies?: string[];
+  optional_missing?: string[];
+  optional_total?: number;
   supported?: boolean;
   platform_note?: string;
   dependency_installed?: number;
