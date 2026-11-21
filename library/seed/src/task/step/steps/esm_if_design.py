@@ -9,7 +9,13 @@ from src.core.forms.form import Form
 from src.task.step.base import Step
 from src.task.context.base import Context
 
-from ._esm_if_common import chain_residues, load_esm_if, native_sequence, residue_log_probs
+from ._esm_if_common import (
+    chain_residues,
+    design_letters,
+    load_esm_if,
+    native_sequence,
+    residue_log_probs,
+)
 
 _STATISTICS = ("mean_log_prob", "sequence_recovery")
 
@@ -108,12 +114,11 @@ class EsmIfDesignStep(Step):
         rows: list[list[float]] = []
         sequences: list[str] = []
         for _index in range(num_samples):
-            sequence = model.sample(coords, temperature=temperature)
-            if len(sequence) != len(labels):
-                raise StepError(
-                    f"esm_if_design: model returned {len(sequence)} residues for "
-                    f"{len(labels)} backbone residues"
-                )
+            sequence = design_letters(
+                model.sample(coords, temperature=temperature),
+                len(labels),
+                "esm_if_design",
+            )
             values = residue_log_probs(model, alphabet, coords, sequence)
             recovery = float(
                 sum(1.0 for left, right in zip(sequence, native) if left == right) / len(native)

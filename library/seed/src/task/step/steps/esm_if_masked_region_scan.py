@@ -8,7 +8,13 @@ from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.context.base import Context
 from src.task.step.base import Step
-from ._esm_if_common import chain_residues, load_esm_if, native_sequence, residue_log_probs
+from ._esm_if_common import (
+    chain_residues,
+    design_letters,
+    load_esm_if,
+    native_sequence,
+    residue_log_probs,
+)
 
 _STATISTICS = ("start", "end", "recovery", "mean_log_prob")
 _MASK = "<mask>"
@@ -144,13 +150,11 @@ class EsmIfMaskedRegionScanStep(Step):
             for index, (start, stop) in enumerate(windows):
                 torch.manual_seed(seed + index)
                 partial = partial_sequence(sequence, start, stop)
-                design = model.sample(coords, partial_seq=partial, temperature=temperature)
-                design = str(design).strip().upper()
-                if len(design) != len(sequence):
-                    raise StepError(
-                        f"esm_if_masked_region_scan: the sampled design has length {len(design)}, "
-                        f"expected {len(sequence)}"
-                    )
+                design = design_letters(
+                    model.sample(coords, partial_seq=partial, temperature=temperature),
+                    len(sequence),
+                    "esm_if_masked_region_scan",
+                )
                 log_probs = np.asarray(residue_log_probs(model, alphabet, coords, design), dtype=np.float64)
                 designs.append(design)
                 scores.append(log_probs)

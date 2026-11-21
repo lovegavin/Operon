@@ -11,6 +11,7 @@ from src.task.context.base import Context
 from src.task.step.base import Step
 from src.task.step.steps._esm_if_common import (
     chain_residues,
+    design_letters,
     load_esm_if,
     native_sequence,
     residue_log_probs,
@@ -187,13 +188,11 @@ class EsmIfInterfaceRedesignStep(Step):
         records: list[dict] = []
         for sample in range(1, num_samples + 1):
             torch.manual_seed(seed + sample - 1)
-            designed = str(model.sample(coords, partial_seq=partial, temperature=temperature)).strip()
-            if len(designed) != len(sequence):
-                raise StepError(
-                    "esm_if_interface_redesign: sample "
-                    f"{sample} returned {len(designed)} residues for a "
-                    f"{len(sequence)}-residue chain"
-                )
+            designed = design_letters(
+                model.sample(coords, partial_seq=partial, temperature=temperature),
+                len(sequence),
+                "esm_if_interface_redesign",
+            )
             log_probs = residue_log_probs(model, alphabet, coords, designed)
             matched = sum(
                 1

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import numpy as np
@@ -102,6 +103,30 @@ def chain_residues(form, field_dim: str, chain: str):
         )
     residue_names = [first_resname[label] for label in order]
     return order, residue_names, backbone
+
+
+_TOKEN = re.compile(r"<[A-Za-z_0-9]+>|[A-Za-z]")
+
+
+def design_letters(raw, length: int, operator: str) -> str:
+    """Turn a sampled design string into one letter per residue.
+
+    ``GVPTransformerModel.sample`` joins raw dictionary tokens, so a sample that
+    picks ``<EOS>`` or ``<unk>`` returns a multi-character token and the plain
+    string is longer than the chain.  Special tokens become ``X`` so recovery
+    counts them as a mismatch instead of failing the whole job.
+    """
+
+    letters: list[str] = []
+    for token in _TOKEN.findall(str(raw).strip()):
+        letters.append("X" if len(token) > 1 else token.upper())
+    design = "".join(letters)
+    if len(design) != length:
+        raise StepError(
+            f"{operator}: the sampled design has {len(design)} residues for a "
+            f"{length}-residue chain"
+        )
+    return design
 
 
 def native_sequence(residue_names) -> str:

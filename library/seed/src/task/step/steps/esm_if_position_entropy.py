@@ -10,7 +10,12 @@ from src.task.step.base import Step
 from src.task.context.base import Context
 
 from ._esm_common import AA_ORDER
-from ._esm_if_common import chain_residues, load_esm_if, native_sequence
+from ._esm_if_common import (
+    chain_residues,
+    design_letters,
+    load_esm_if,
+    native_sequence,
+)
 
 _STATISTICS = ("entropy_bits", "recovery", "max_frequency")
 _UNKNOWN = -1
@@ -156,12 +161,11 @@ class EsmIfPositionEntropyStep(Step):
         torch.manual_seed(seed)
         sequences: list[str] = []
         for _index in range(num_samples):
-            sequence = str(model.sample(coords, temperature=temperature))
-            if len(sequence) != len(labels):
-                raise StepError(
-                    "esm_if_position_entropy: model returned "
-                    f"{len(sequence)} residues for {len(labels)} backbone residues"
-                )
+            sequence = design_letters(
+                model.sample(coords, temperature=temperature),
+                len(labels),
+                "esm_if_position_entropy",
+            )
             sequences.append(sequence)
         counts = design_counts(sequences, len(labels))
         rows = position_rows(counts, native)
