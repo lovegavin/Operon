@@ -114,6 +114,42 @@ def test_prepare_skips_ready_environment(tmp_path, monkeypatch):
     assert called == []
 
 
+def test_force_prepare_rebuilds_a_ready_environment(tmp_path, monkeypatch):
+    """A ready environment still installs newly declared optional bindings on request."""
+    fake, external = make_service(tmp_path, monkeypatch)
+    entry = environments.load(fake.plugins.source_root)['demo']
+    python = external / 'demo' / 'bin' / 'python'
+    python.parent.mkdir(parents=True)
+    python.write_text('#!/bin/sh\n', encoding='utf-8')
+    python.chmod(0o755)
+    (external / 'demo' / 'receipt.json').write_text(
+        json.dumps({'spec_sha256': environment_install.spec_sha256(entry)}), encoding='utf-8')
+    started = []
+    release = threading.Event()
+
+    def fake_prepare(name, root, source=None):
+        started.append(name)
+        release.wait(5)
+
+    monkeypatch.setattr(environment_install, 'prepare', fake_prepare)
+    result = server.environment_prepare(fake, {'names': ['demo'], 'force': True})
+    assert result['started'] == ['demo']
+    release.set()
+    deadline = time.time() + 5
+    while 'demo' in server.environment_snapshot(fake)['running'] and time.time() < deadline:
+        time.sleep(0.01)
+    assert started == ['demo']
+
+
+def test_retry_asks_for_a_forced_prepare(tmp_path, monkeypatch):
+    fake, _ = make_service(tmp_path, monkeypatch)
+    calls = []
+    monkeypatch.setattr(server, 'environment_prepare',
+                        lambda service, payload=None: calls.append(payload) or {})
+    server.environment_retry(fake, {'name': 'demo'})
+    assert calls == [{'names': ['demo'], 'force': True}]
+
+
 def test_prepare_can_repair_dependencies(tmp_path, monkeypatch):
     fake, _ = make_service(tmp_path, monkeypatch)
     monkeypatch.setattr(environment_install, 'prepare', lambda *a, **k: None)
@@ -145,7 +181,7 @@ def test_manager_wrappers_route_remote_methods():
     manager.prepare_environments('srv', ['demo'], True)
     manager.environment_log('srv', 'demo', 5)
     assert [item[1] for item in seen] == ['environments', 'environments_prepare', 'environments_log']
-    assert seen[1][2] == {'names': ['demo'], 'dependencies': True}
+    assert seen[1][2] == {'names': ['demo'], 'dependencies': True, 'force': False}
     assert seen[2][2] == {'name': 'demo', 'limit': 5}
 
 

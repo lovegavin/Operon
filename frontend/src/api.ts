@@ -214,9 +214,9 @@ export const api = {
       `/api/remote/${encodeURIComponent(id)}/pool/stop`, {force}),
   remoteEnvironments: (id: string) =>
     request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments`),
-  remotePrepareEnvironments: (id: string, names?: string[], dependencies = false) =>
+  remotePrepareEnvironments: (id: string, names?: string[], dependencies = false, force = false) =>
     request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments/prepare`,
-      {names, dependencies}),
+      {names, dependencies, force}),
   remoteEnvironmentDependencyDownload: (id: string, name: string, kind: string, requirement: string) =>
     request<RemoteEnvironments>(`/api/remote/${encodeURIComponent(id)}/environments/${encodeURIComponent(name)}/dependencies/download`,
       {kind, name: requirement}),

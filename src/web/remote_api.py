@@ -86,7 +86,8 @@ def mount_remote(app, service):
     @app.post('/api/remote/{key}/environments/prepare')
     def remote_prepare_environments(key: str, payload: dict | None = None):
         payload = payload or {}
-        return manager.prepare_environments(key, payload.get('names'), bool(payload.get('dependencies')))
+        return manager.prepare_environments(key, payload.get('names'), bool(payload.get('dependencies')),
+                                            bool(payload.get('force')))
 
     @app.post('/api/remote/{key}/environments/{name}/dependencies/download')
     def remote_dependency_download(key: str, name: str, payload: dict | None = None):

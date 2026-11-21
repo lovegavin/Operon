@@ -533,8 +533,10 @@ class RemoteManager:
     def environments(self, key: str) -> dict:
         return self.call(key, 'environments')
 
-    def prepare_environments(self, key: str, names=None, dependencies: bool = False) -> dict:
-        return self.call(key, 'environments_prepare', {'names': names, 'dependencies': dependencies})
+    def prepare_environments(self, key: str, names=None, dependencies: bool = False,
+                             force: bool = False) -> dict:
+        return self.call(key, 'environments_prepare',
+                         {'names': names, 'dependencies': dependencies, 'force': force})
 
     def environment_retry(self, key: str, name: str) -> dict:
         return self.call(key, 'environments_retry', {'name': name})

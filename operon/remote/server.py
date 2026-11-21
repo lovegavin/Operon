@@ -327,7 +327,7 @@ def environment_retry(service, payload: dict | None = None) -> dict:
         environment_cancel(service, {'name': name})
     except Exception:
         pass
-    return environment_prepare(service, {'names': [name]})
+    return environment_prepare(service, {'names': [name], 'force': True})
 
 
 def environment_prepare(service, payload: dict | None = None) -> dict:
@@ -335,6 +335,7 @@ def environment_prepare(service, payload: dict | None = None) -> dict:
     payload = payload or {}
     names = payload.get('names') or None
     dependencies = bool(payload.get('dependencies'))
+    force = bool(payload.get('force'))
     snapshot = environment_snapshot(service)
     if snapshot.get('error'):
         return snapshot
@@ -343,7 +344,8 @@ def environment_prepare(service, payload: dict | None = None) -> dict:
         for name, entry in (snapshot.get('environments') or {}).items():
             if names is not None and name not in names:
                 continue
-            if not environment_install.needs_preparation((entry or {}).get('status') or ''):
+            status = (entry or {}).get('status') or ''
+            if not force and not environment_install.needs_preparation(status):
                 continue
             if name in _ENVIRONMENT_JOBS:
                 continue

@@ -102,6 +102,7 @@ describe('action availability', () => {
     expect(availableActions('installing')).toEqual(['log', 'cancel']);
     expect(availableActions('queued')).toEqual(['log', 'cancel']);
     expect(availableActions('ready')).toEqual(['log']);
+    expect(availableActions('ready', 2)).toEqual(['optional', 'log']);
     expect(availableActions('cancelled')).toEqual(['prepare', 'log']);
   });
 });

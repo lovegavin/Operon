@@ -44,7 +44,7 @@ export type EnvironmentView = Omit<EnvironmentSnapshot, 'environments' | 'operat
 };
 
 export type Tone = 'ready' | 'missing' | 'queued' | 'stale' | 'installing' | 'failed';
-export type Action = 'prepare' | 'repair' | 'log' | 'cancel';
+export type Action = 'prepare' | 'repair' | 'optional' | 'log' | 'cancel';
 
 const tones: Tone[] = ['ready', 'missing', 'queued', 'stale', 'installing', 'failed'];
 
@@ -195,10 +195,13 @@ export function phaseLabel(phase?: string) {
   return t(phaseKeys[phase] || '准备中');
 }
 
-export function availableActions(status: string): Action[] {
+export function availableActions(status: string, optionalMissing = 0): Action[] {
   const actions: Action[] = [];
   if (status === 'missing' || status === 'cancelled') actions.push('prepare');
   if (status === 'stale' || status === 'failed' || status === 'incomplete') actions.push('repair');
+  // Optional bindings (pyarrow, pysam, vina ...) never block readiness, so a ready
+  // environment with a failed optional install needs its own entry point.
+  if (status === 'ready' && optionalMissing > 0) actions.push('optional');
   actions.push('log');
   if (statusTone(status) === 'installing' || statusTone(status) === 'queued') actions.push('cancel');
   return actions;
@@ -321,7 +324,7 @@ export function usedByText(item: EnvironmentItem) {
 }
 
 export function actionLabel(action: Action) {
-  return t({prepare: '准备', repair: '修复', log: '查看日志', cancel: '取消'}[action]);
+  return t({prepare: '准备', repair: '修复', optional: '补装可选依赖', log: '查看日志', cancel: '取消'}[action]);
 }
 
 function progressText(item: EnvironmentItem) {
@@ -442,12 +445,12 @@ export function EnvironmentCard({item, busy = false, cancelling = false, gap, on
       {readiness === 'failed' ? `${t('安装失败')}：` : ''}{reason}
     </p>}
     <footer className="runtime-actions">
-      {availableActions(item.status).map(action =>
+      {availableActions(item.status, (item.optional_missing || []).length).map(action =>
         <button key={action}
-          className={`subtle-button${action === 'prepare' || action === 'repair' ? ' is-primary' : ''}${action === 'cancel' ? ' is-danger' : ''}`}
+          className={`subtle-button${action === 'prepare' || action === 'repair' || action === 'optional' ? ' is-primary' : ''}${action === 'cancel' ? ' is-danger' : ''}`}
           disabled={busy || (action === 'cancel' && cancelling)
-            || (item.supported === false && (action === 'prepare' || action === 'repair'))}
-          title={item.supported === false && (action === 'prepare' || action === 'repair') ? item.platform_note : undefined}
+            || (item.supported === false && (action === 'prepare' || action === 'repair' || action === 'optional'))}
+          title={item.supported === false && (action === 'prepare' || action === 'repair' || action === 'optional') ? item.platform_note : undefined}
           onClick={() => onAction?.(action, item.name)}>
           {action === 'cancel' && cancelling ? t('取消中…') : actionLabel(action)}
         </button>)}
@@ -733,6 +736,11 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
           t('已请求服务器取消「{name}」。', {name}))
           .finally(() => setCancelling(current => ({...current, [name]: false})));
         return;
+      }
+      if (action === 'optional') {
+        return void runRemote(`remote:${name}`,
+          () => api.remotePrepareEnvironments(target, [name], false, true),
+          t('已向服务器提交补装可选依赖「{name}」。', {name}));
       }
       return void runRemote(`remote:${name}`, () => api.remotePrepareEnvironments(target, [name]),
         t('已向服务器提交安装「{name}」。', {name}));
