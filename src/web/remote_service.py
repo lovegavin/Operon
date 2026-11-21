@@ -99,8 +99,28 @@ class RemoteManager:
 
     def persist(self):
         with self.lock:
-            atomic_json(self.path, self.state)
+            state = self._merged_state()
+            atomic_json(self.path, state)
             self.path.chmod(0o600)
+            self.state = state
+
+    def _merged_state(self):
+        """Union the file on disk with this process view instead of replacing it.
+
+        Two adapters can share one workspace (the desktop window and an agent
+        instance); whoever saves last used to erase the other one's jobs, which
+        looked like a restart losing in-flight work.
+        """
+        disk = read_json(self.path, {})
+        state = dict(disk) if isinstance(disk, dict) else {}
+        for key in ('profiles', 'jobs', 'pending'):
+            merged = dict(state.get(key) or {})
+            merged.update(self.state.get(key) or {})
+            state[key] = merged
+        for key, value in self.state.items():
+            if key not in ('profiles', 'jobs', 'pending'):
+                state[key] = value
+        return state
 
     def profile(self, key):
         if key not in self.state['profiles']: raise KeyError('找不到服务器连接配置。')
