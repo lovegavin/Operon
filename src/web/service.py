@@ -527,7 +527,8 @@ class JobService:
             return
         import psutil
         records = ((self.jobs_dir / key / 'job.json' for key, value in list(self.jobs.items())
-                    if value['status'] in ('queued', 'running') or value.get('logs_complete') is False)
+                    if value['status'] in ('queued', 'preparing', 'running')
+                    or value.get('logs_complete') is False)
                    if active_only else _glob_paths(self.jobs_dir, '*/job.json'))
         for record in records:
             value = read_json(record)
@@ -537,6 +538,18 @@ class JobService:
                     if not process_alive(value.get('owner', {})):
                         value['owner'] = self.owner
                         write_json(record, value)
+                elif value["status"] == "preparing" and not process_alive(value.get('owner', {})):
+                    # Planning died with its launcher: nothing was started, so the
+                    # record is finished as interrupted instead of reserving a slot
+                    # until an unrelated timeout fires.
+                    value['status'] = 'interrupted'
+                    value['error'] = '本地服务重启，之前的任务未完成。'
+                    value['finished_at'] = datetime.now(timezone.utc).isoformat()
+                    value['logs_complete'] = True
+                    self._launcher_event(value, 'preparing_interrupted', status=value['status'],
+                                         error=value['error'])
+                    self._release(value)
+                    write_json(record, value)
                 elif value["status"] == "running" or value.get("logs_complete") is False:
                     owner = value.get("owner", {})
                     try:
