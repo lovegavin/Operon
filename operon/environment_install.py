@@ -960,7 +960,7 @@ def _commit(name: str, staging: Path, final: Path) -> None:
         shutil.rmtree(previous, ignore_errors=True)
 
 
-PIP_STARTUP_SECONDS = 900.0
+PIP_STARTUP_SECONDS = 1800.0
 
 
 def _pip_env(python: Path) -> dict[str, str]:
@@ -973,7 +973,11 @@ def _pip_env(python: Path) -> dict[str, str]:
     """
     env = _probe_environment(python)
     env['PYTHONUNBUFFERED'] = '1'
-    env['PIP_PROGRESS_BAR'] = 'on'
+    # The progress bar repaints one line with carriage returns, so over a pipe
+    # the whole download looks like one unfinished line: nothing reaches the
+    # log until it ends. Plain lines are what a captured log wants.
+    env['PIP_PROGRESS_BAR'] = 'off'
+    env['PIP_DISABLE_PIP_VERSION_CHECK'] = '1'
     return env
 
 
