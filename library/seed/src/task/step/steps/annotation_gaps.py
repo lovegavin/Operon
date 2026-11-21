@@ -30,7 +30,7 @@ from src.core import Form, StepError
 from src.core.forms.metadata import project_metadata
 from src.task.context import Context
 from src.task.step.base import Step
-from src.task.step.steps._annotation_columns import require_role
+from src.task.step.steps._annotation_columns import decode_column, require_role
 
 
 _STAT_LABELS = ("gap_length", "left_start", "left_end",
@@ -94,7 +94,8 @@ class AnnotationGapsStep(Step):
             fld_labels, encoders, "type", "annotation_gaps"
         )
         _, seqid_index, seqid_enc = require_role(
-            fld_labels, encoders, "seqid", "annotation_gaps"
+            fld_labels, encoders, "seqid", "annotation_gaps",
+            require_encoder=False,
         )
         _, start_index, _ = require_role(
             fld_labels, encoders, "start", "annotation_gaps",
@@ -107,6 +108,7 @@ class AnnotationGapsStep(Step):
 
         type_codes = form.data[:, type_index]
         seqid_codes = form.data[:, seqid_index]
+        seqid_names = decode_column(seqid_codes, seqid_enc)
         starts = form.data[:, start_index]
         ends = form.data[:, end_index]
 
@@ -114,9 +116,7 @@ class AnnotationGapsStep(Step):
         for i in range(form.data.shape[0]):
             if type_enc.inverse.get(int(round(float(type_codes[i])))) != "gene":
                 continue
-            sid = seqid_enc.inverse.get(
-                int(round(float(seqid_codes[i]))), ""
-            )
+            sid = seqid_names[i]
             genes_by_seq.setdefault(sid, []).append(
                 (float(starts[i]), float(ends[i]))
             )

@@ -31,7 +31,7 @@ from src.core import Form, StepError
 from src.core.forms.metadata import project_metadata
 from src.task.context import Context
 from src.task.step.base import Step
-from src.task.step.steps._annotation_columns import require_role, try_role, parse_direct_gene_id
+from src.task.step.steps._annotation_columns import decode_column, require_role, try_role, parse_direct_gene_id
 
 
 _STAT_LABELS = ("n_exons", "n_introns", "gene_length", "cds_total", "strand")
@@ -93,7 +93,8 @@ class GeneStructureStep(Step):
             fld_labels, encoders, "type", "gene_structure"
         )
         _, seqid_index, seqid_enc = require_role(
-            fld_labels, encoders, "seqid", "gene_structure"
+            fld_labels, encoders, "seqid", "gene_structure",
+            require_encoder=False,
         )
         _, strand_index, strand_enc = require_role(
             fld_labels, encoders, "strand", "gene_structure"
@@ -109,6 +110,7 @@ class GeneStructureStep(Step):
 
         type_codes = form.data[:, type_index]
         seqid_codes = form.data[:, seqid_index]
+        seqid_names = decode_column(seqid_codes, seqid_enc)
         starts = form.data[:, start_index]
         ends = form.data[:, end_index]
         strand_codes = form.data[:, strand_index]
@@ -145,9 +147,7 @@ class GeneStructureStep(Step):
                 continue
             gene_records.append({
                 "idx": i,
-                "seqid": seqid_enc.inverse.get(
-                    int(round(float(seqid_codes[i]))), ""
-                ),
+                "seqid": seqid_names[i],
                 "start": float(starts[i]),
                 "end": float(ends[i]),
                 "strand": strand_enc.inverse.get(
@@ -198,9 +198,7 @@ class GeneStructureStep(Step):
                     )
                     if tname != "exon":
                         continue
-                    if seqid_enc.inverse.get(
-                        int(round(float(seqid_codes[i]))), ""
-                    ) != gseq:
+                    if seqid_names[i] != gseq:
                         continue
                     if starts[i] >= gs and ends[i] <= ge:
                         n_exons += 1

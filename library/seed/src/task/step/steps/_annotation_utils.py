@@ -12,7 +12,7 @@ import re
 import numpy as np
 
 from src.core import StepError
-from ._annotation_columns import require_role, try_role
+from ._annotation_columns import decode_column, require_role, try_role
 
 
 _CODONS = {
@@ -57,7 +57,9 @@ def annotation_table(form, record_dim, field_dim, step_name):
     labels = form.labels.get(field_dim, {})
     encoders = form.info.get("encoders", {}).get(field_dim, {})
 
-    _, seqid_i, seqid_enc = require_role(labels, encoders, "seqid", step_name)
+    _, seqid_i, seqid_enc = require_role(
+        labels, encoders, "seqid", step_name, require_encoder=False
+    )
     _, type_i, type_enc = require_role(labels, encoders, "type", step_name)
     _, start_i, _ = require_role(
         labels, encoders, "start", step_name, require_encoder=False
@@ -67,7 +69,7 @@ def annotation_table(form, record_dim, field_dim, step_name):
     )
 
     n = int(form.data.shape[0])
-    seqids = _decode(form.data[:, seqid_i], seqid_enc, step_name)
+    seqids = decode_column(form.data[:, seqid_i], seqid_enc)
     types = _decode(form.data[:, type_i], type_enc, step_name)
     starts = np.rint(form.data[:, start_i]).astype(np.int64)
     ends = np.rint(form.data[:, end_i]).astype(np.int64)

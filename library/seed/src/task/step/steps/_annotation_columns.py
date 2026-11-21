@@ -70,6 +70,31 @@ def require_role(labels, encoders, role, step_name, require_encoder=True):
     )
 
 
+def plain_label(value, missing=""):
+    """Return one column value as the text label the operators compare on."""
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return str(value)
+    if number != number:  # NaN
+        return missing
+    if abs(number - round(number)) < 1e-9:
+        return str(int(round(number)))
+    return repr(number)
+
+
+def decode_column(values, encoder, missing=""):
+    """Decode a column, falling back to the value itself when it has no encoder.
+
+    Chromosome columns that are entirely numeric are not label-encoded by the
+    readers, but their value is still the chromosome name.
+    """
+    if encoder is None:
+        return [plain_label(value, missing) for value in values]
+    inverse = getattr(encoder, "inverse", None) or {}
+    return [str(inverse.get(int(round(float(value))), missing)) for value in values]
+
+
 def try_role(labels, encoders, role):
     """Return ``(column_name, index, encoder)`` or ``(None, None, None)``."""
     for alias in ROLE_ALIASES[role]:
