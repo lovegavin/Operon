@@ -44,13 +44,27 @@ class Context:
         pass
 
 
+def _encoder_class():
+    """The label encoder type the installed library hands to steps.
+
+    Readers are shipped separately from the application, so ``src.core.encoding``
+    and ``src.reader.readers._encoder`` define two distinct classes with the same
+    shape.  Steps guard on the reader class, so reviving with the core copy would
+    silently fall back to numeric labels.
+    """
+    try:
+        from src.reader.readers._encoder import LabelEncoder
+    except Exception:
+        from src.core.encoding import LabelEncoder
+    return LabelEncoder
+
+
 def _revive(value):
     if isinstance(value, dict):
         if set(value) == {"__float__"}:
             return float(value['__float__'])
         if set(value) == {"__labelencoder__"}:
-            from src.core.encoding import LabelEncoder
-            encoder = LabelEncoder()
+            encoder = _encoder_class()()
             encoder.mapping = {k: int(v) for k, v in value["__labelencoder__"].items()}
             encoder.inverse = {code: label for label, code in encoder.mapping.items()}
             return encoder

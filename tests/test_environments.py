@@ -233,3 +233,17 @@ def test_proxy_step_forwards_the_lock_to_run_step(monkeypatch):
     step.run(Ctx(), [])
 
     assert seen['lock'] == lock
+
+def test_revive_uses_the_label_encoder_the_library_ships():
+    from operon.env_worker import _revive
+
+    try:
+        from src.reader.readers._encoder import LabelEncoder
+    except Exception:
+        import pytest
+        pytest.skip('the installed library is not importable here')
+
+    revived = _revive({'encoders': {'field': {'atom_name': {'__labelencoder__': {'N': 0, 'CA': 1}}}}})
+    encoder = revived['encoders']['field']['atom_name']
+    assert isinstance(encoder, LabelEncoder)
+    assert encoder.inverse_transform([1.0]) == ['CA']
