@@ -581,6 +581,17 @@ class RemoteManager:
         if not info: raise RemoteError('先连接服务器，读取服务器算子注册表。')
         return info['catalog']
 
+
+    def _reconnect_key_profile(self, key, profile):
+        """Restore a key/agent profile in place; password profiles stay manual."""
+        if profile.get('auth', 'password') == 'password':
+            return None
+        try:
+            self.connect(key, {})
+        except Exception:  # noqa: BLE001 - the caller reports the honest reason
+            return None
+        return self.connections.get(key)
+
     def prepare(self, graph, *, require_connection=False):
         from .parameters import freeze_graph
         from .routes import prepare_interface
@@ -590,6 +601,8 @@ class RemoteManager:
             if not profile.get('workspace'):
                 raise RemoteError('服务器连接尚未准备完成，请重新连接服务器后再运行。', code='remote_disconnected')
             connection = self.connections.get(key)
+            if not connection or not connection.connected:
+                connection = self._reconnect_key_profile(key, profile)
             if not connection or not connection.connected:
                 raise RemoteError('服务器连接已断开。请重新连接服务器后再运行；服务器上的任务会继续运行。', code='remote_disconnected')
         catalog = self.catalog(graph)
