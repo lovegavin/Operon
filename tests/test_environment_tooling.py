@@ -40,4 +40,5 @@ def test_pack_conda_pins_pkg_resources_provider(tmp_path, monkeypatch):
     assert seen['module'] == 'conda_pack'
     assert seen['version'] == '0.8.1'
     assert seen['extra'] == ('setuptools<81',)
-    assert calls and 'conda_pack' in calls[0][-4]
+    program = calls[0][calls[0].index('-c') + 1]
+    assert 'ignore_missing_files=True' in program

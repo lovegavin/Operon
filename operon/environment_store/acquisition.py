@@ -93,8 +93,12 @@ def pack_conda(prefix, output, root):
     """conda-pack owns prefix relocation; editable/missing files are NOT ignored."""
     # conda-pack 0.8.1 imports pkg_resources, which setuptools 81 dropped.
     module = tooling(root, 'conda_pack', '0.8.1', extra=('setuptools<81',))
+    # pip installs into these prefixes by design, so conda's file manifest is
+    # expected to drift; refusing to pack would make every prepared environment
+    # unexportable.
     code = ('import sys; sys.path.insert(0,sys.argv[1]); import conda_pack; '
-            'conda_pack.pack(prefix=sys.argv[2],output=sys.argv[3],format="tar",verbose=False)')
+            'conda_pack.pack(prefix=sys.argv[2],output=sys.argv[3],format="tar",verbose=False,'
+            'ignore_missing_files=True)')
     run_process([sys.executable, '-I', '-c', code, str(module), str(prefix), str(output)], timeout=1800)
 
 
