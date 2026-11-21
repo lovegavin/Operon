@@ -70,6 +70,24 @@ class Resource:
             name = str(raw.get("name") or "").strip()
             if not name:
                 raise StepError(f"resource '{identifier}' has a unit without a name")
+            unit_files: list[str] = []
+            file_sizes: dict[str, int] = {}
+            for item in raw.get("files") or []:
+                if isinstance(item, dict):
+                    # Released manifests may publish per-file sizes next to the
+                    # name; keep them so a download without its own size can
+                    # still report a planned total.
+                    file_name = str(item.get("path") or item.get("name") or "").strip()
+                    try:
+                        file_size = int(item.get("bytes") or item.get("size_bytes") or 0)
+                    except (TypeError, ValueError):
+                        file_size = 0
+                    if file_name:
+                        unit_files.append(file_name)
+                        if file_size > 0:
+                            file_sizes[file_name] = file_size
+                elif str(item).strip():
+                    unit_files.append(str(item).strip())
             components.append(
                 {
                     "name": name,
@@ -78,7 +96,8 @@ class Resource:
                     "kind": str(raw.get("kind") or "").strip(),
                     "bytes": int(raw.get("bytes") or 0),
                     "url": str(raw.get("url") or "").strip(),
-                    "files": tuple(str(item) for item in raw.get("files") or [] if str(item).strip()),
+                    "files": tuple(unit_files),
+                    "file_sizes": file_sizes,
                     "note": str(raw.get("note") or "").strip(),
                 }
             )
@@ -382,6 +401,36 @@ def link_mode(path: str | Path | None) -> str:
     return ""
 
 
+# Explicit old-name aliases: the manifest asks for the released name while a
+# host provisioned earlier still has the previous file name on disk.  Only
+# content-equivalent pairs belong here; no prefix or suffix matching, because
+# two databases that merely share a directory are not interchangeable.
+FILE_ALIASES: dict[str, tuple[str, ...]] = {
+    "pdb_seqres/pdb_seqres.txt": ("pdb_seqres/pdb_seqres_2022_09_28.fasta",),
+    "pdb_seqres/pdb_seqres_2022_09_28.fasta": ("pdb_seqres/pdb_seqres.txt",),
+}
+
+
+def resolved_path(root: str | Path, name: str) -> Path:
+    """Return the on-disk path for *name*, following the explicit alias table."""
+
+    base = Path(root)
+    direct = base / name
+    if direct.exists():
+        return direct
+    for alias in FILE_ALIASES.get(str(name), ()):
+        alternate = base / alias
+        if alternate.exists():
+            return alternate
+    return direct
+
+
+def file_exists(root: str | Path, name: str) -> bool:
+    """Whether *name* (or one of its explicit aliases) exists under *root*."""
+
+    return resolved_path(root, name).exists()
+
+
 def _file_entry(path: Path | None) -> dict[str, Any]:
     if path is None:
         return {"present": False, "size_mb": 0.0, "linked": False, "target": "", "mode": ""}
@@ -507,7 +556,10 @@ def resource_components(resource: Resource, resolved: str | Path | None = None) 
     rows: list[dict[str, Any]] = []
     for unit in getattr(resource, "components", ()) or ():
         files = list(unit.get("files") or [])
-        entries = [_file_entry(root_path / name if root_path is not None else None) for name in files]
+        entries = [
+            _file_entry(resolved_path(root_path, name) if root_path is not None else None)
+            for name in files
+        ]
         present = [entry["present"] for entry in entries]
         if not entries:
             state = "unknown"
@@ -541,7 +593,7 @@ def check_resource(resource: Resource, root: str | Path | None = None) -> dict[s
     resolved = resolve_root(resource, root)
     files: dict[str, dict[str, Any]] = {}
     for name in expected_files(resource):
-        path = resolved / name if resolved is not None else None
+        path = resolved_path(resolved, name) if resolved is not None else None
         files[name] = _file_entry(path)
         present = bool(files[name]["present"])
     missing = [name for name, info in files.items() if not info["present"]]

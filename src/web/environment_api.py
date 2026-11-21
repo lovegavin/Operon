@@ -393,6 +393,7 @@ def mount_environments(app, service):
             counts[environment] = {
                 'total': len(names), 'ready': 0,
                 'missing': list(names), 'names': names,
+                'declared': set(names), 'shared_total': 0, 'shared_ready': 0,
             }
         try:
             payload = _resource_api.snapshot(service) or {}
@@ -415,20 +416,29 @@ def mount_environments(app, service):
                 environment = str(environment)
                 bucket = counts.setdefault(
                     environment,
-                    {'total': 0, 'ready': 0, 'missing': [], 'names': []},
+                    {'total': 0, 'ready': 0, 'missing': [], 'names': [],
+                     'declared': set(), 'shared_total': 0, 'shared_ready': 0},
                 )
                 key = (environment, rid)
                 if key in seen:
                     continue
                 seen.add(key)
+                declared_names = bucket.setdefault('declared', set())
                 if rid not in bucket['names']:
                     bucket['names'].append(rid)
                     bucket['total'] += 1
                     bucket['missing'].append(rid)
+                    # A resource that names the environment but is not declared
+                    # in its manifest entry is shared infrastructure, counted
+                    # separately so a lean environment is not called incomplete.
+                    if rid not in declared_names:
+                        bucket['shared_total'] = int(bucket.get('shared_total', 0)) + 1
                 if all(_resource_api.card_ready(card) for card in cards):
                     bucket['ready'] += 1
                     if rid in bucket['missing']:
                         bucket['missing'].remove(rid)
+                    if rid not in declared_names:
+                        bucket['shared_ready'] = int(bucket.get('shared_ready', 0)) + 1
         return counts
 
     def snapshot():
@@ -463,15 +473,20 @@ def mount_environments(app, service):
             if not isinstance(item, dict):
                 continue
             bucket = counts.get(str(name)) or {
-                'total': 0, 'ready': 0, 'missing': [],
+                'total': 0, 'ready': 0, 'missing': [], 'declared': set(),
                 'shared_total': 0, 'shared_ready': 0,
             }
             item['resources'] = list(bucket.get('names') or [])
             item['resources_total'] = int(bucket['total'])
             item['resources_ready'] = int(bucket['ready'])
             item['resources_missing'] = list(bucket['missing'][:8])
-            item['shared_resources_total'] = int(bucket.get('shared_total', 0))
+            shared_total = int(bucket.get('shared_total', 0))
+            item['shared_resources_total'] = shared_total
             item['shared_resources_ready'] = int(bucket.get('shared_ready', 0))
+            # Keep the two fields consistent: ``shared`` is exactly the claim
+            # that this environment has at least one shared resource unit.
+            item['shared'] = shared_total > 0
+            item['managed'] = not item['shared']
             total, ready = int(bucket['total']), int(bucket['ready'])
             if total and ready < total:
                 missing_names = [str(name) for name in bucket['missing'][:3]]

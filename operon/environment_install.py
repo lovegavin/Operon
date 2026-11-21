@@ -490,6 +490,21 @@ def _mamba_cache(root) -> Path | None:
             continue
     return None
 
+def _process_io(pid):
+    """Return the byte counters this process has moved, when the kernel exposes them."""
+
+    try:
+        with open(f'/proc/{pid}/io', 'rb') as handle:
+            total = 0
+            for line in handle.read().decode('ascii', 'replace').splitlines():
+                key, _, value = line.partition(':')
+                if key in ('read_bytes', 'write_bytes', 'rchar', 'wchar'):
+                    total += int(value.strip())
+            return total
+    except (OSError, ValueError):
+        return None
+
+
 def _activity_signature(paths):
     signature = []
     for path in paths:
@@ -561,6 +576,8 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
     watched = [Path(item) for item in (watch or ()) if item]
     activity = _activity_signature(watched)
     sampled = time.monotonic()
+    sampled_io = [time.monotonic()]
+    io_mark = [_process_io(process.pid)]
     try:
         while process.poll() is None:
             if control is not None and control.stopped:
@@ -572,6 +589,13 @@ def _run(argv, *, log, env=None, timeout=3600, progress=None, control=None,
                 if current != activity:
                     activity = current
                     last_output[0] = time.monotonic()
+            if time.monotonic() - sampled_io[0] > 1.0:
+                sampled_io[0] = time.monotonic()
+                current_io = _process_io(process.pid)
+                if current_io is not None:
+                    if io_mark[0] is not None and current_io > io_mark[0]:
+                        last_output[0] = time.monotonic()
+                    io_mark[0] = current_io
             waited = time.monotonic() - last_output[0]
             if first_output[0]:
                 limit, what = stall, f'produced no output for {stall:.0f}s'
@@ -960,7 +984,7 @@ def _commit(name: str, staging: Path, final: Path) -> None:
         shutil.rmtree(previous, ignore_errors=True)
 
 
-PIP_STARTUP_SECONDS = 1800.0
+PIP_STARTUP_SECONDS = 3600.0
 
 
 def _pip_env(python: Path) -> dict[str, str]:

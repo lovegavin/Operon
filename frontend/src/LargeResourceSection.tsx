@@ -167,13 +167,19 @@ export function downloadPercent(operation?: LargeResourceOperation): number {
   return Math.max(0, Math.min(100, Math.floor((completed / planned) * 100)));
 }
 
+function clippedError(error: unknown, fallback: string): string {
+  const text = String(error || fallback);
+  return text.length > 200 ? text.slice(0, 200) : text;
+}
+
 export function downloadButtonLabel(operation: LargeResourceOperation | undefined,
                                     fallback: string): string {
   if (!operation) return fallback;
   const status = String(operation.status || '').toLowerCase();
   if (status === 'succeeded') return t('下载完成');
-  if (status === 'failed') return String(operation.error || t('下载失败'));
-  if (status === 'cancelled') return String(operation.error || t('下载已取消'));
+  if (status === 'failed') return clippedError(operation.error, t('下载失败'));
+  // 后端的取消错误就是字面量 'cancelled'；终态必须显示中文。
+  if (status === 'cancelled') return t('已取消');
   if (status === 'running' || status === 'queued') {
     if (Number(operation.planned_bytes || 0) > 0) {
       return t('下载中 {percent}%', { percent: downloadPercent(operation) });
@@ -204,7 +210,13 @@ function UnitCard({ resource, component, busy, download, onLink, onUnlink, onDow
   const declared = declaredFiles(component);
   const action = unitAction(component);
   const downloading = operationActive(download);
-  const buttonText = download ? downloadButtonLabel(download, action.text) : action.text;
+  const status = String(download?.status || '').toLowerCase();
+  // 取消或完成后按钮要回到动作文案，否则它看起来仍是“下载中”，
+  // 也让用户能直接重试。
+  const buttonText = download && (downloading || status === 'failed' || status === 'succeeded')
+    ? downloadButtonLabel(download, action.text) : action.text;
+  // 后端取消时 error 是字面量 'cancelled'，不能漏进按钮提示里。
+  const buttonTitle = status === 'cancelled' ? action.reason : (download?.error || action.reason);
   // 后端没登记应校验的文件：卡片只说明它不参与就绪判定。
   const undeclared = declared.length === 0;
   return (
@@ -258,7 +270,7 @@ function UnitCard({ resource, component, busy, download, onLink, onUnlink, onDow
               disabled={busy || downloading || !action.enabled}
               data-action={action.enabled ? (pendingDownload.length ? 'download' : 'rsync') : 'blocked'}
               data-pending={pendingDownload.length}
-              title={download?.error || action.reason}
+              title={buttonTitle}
               onClick={() => onDownload(resource, component)}>
               {buttonText}
             </button>
@@ -267,6 +279,9 @@ function UnitCard({ resource, component, busy, download, onLink, onUnlink, onDow
           </>
         )}
       </footer>
+      {!linked && status === 'cancelled'
+        ? <p className="runtime-note" data-download-status="cancelled">{t('已取消')}</p>
+        : null}
     </article>
   );
 }
@@ -409,9 +424,12 @@ export function LargeResourceSection({ target = '', environment, compact }: {
             });
             await load();
             if (!alive) return;
-            const failed = terminal.find((row) =>
-              String(row.operation.status || '').toLowerCase() === 'failed');
-            if (failed) setMessage(String(failed.operation.error || t('下载失败')));
+            const statusOf = (row: { operation: LargeResourceOperation }) =>
+              String(row.operation.status || '').toLowerCase();
+            const failed = terminal.find((row) => statusOf(row) === 'failed');
+            const cancelled = terminal.find((row) => statusOf(row) === 'cancelled');
+            if (failed) setMessage(clippedError(failed.operation.error, t('下载失败')));
+            else if (cancelled) setMessage(t('已取消'));
             else setMessage(t('下载完成'));
             return;
           }

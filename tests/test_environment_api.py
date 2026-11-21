@@ -73,6 +73,9 @@ def test_environment_resources_list_matches_its_counts(tmp_path, monkeypatch):
         assert set(item['resources']) == {f'unit{i}' for i in range(5)}
         assert item['resources_ready'] == 5
         assert item['shared_resources_total'] <= item['resources_total']
+        assert item['shared_resources_total'] == 5
+        assert item['shared'] is True
+        assert item['shared'] == (item['shared_resources_total'] > 0)
 
 
 def test_cancel_reports_not_cancelled_and_completed_for_an_idle_environment(tmp_path):
@@ -100,3 +103,19 @@ def test_cancel_reports_cancelled_for_a_running_job(tmp_path):
         assert body['cancelled'] is True
         assert body['completed'] is False
         assert body['job'] == 'job-1'
+
+
+def test_shared_flag_matches_the_shared_unit_count(tmp_path, monkeypatch):
+    monkeypatch.setattr('src.web.resource_api.snapshot',
+                        lambda service: {'resources': []})
+    with TestClient(studio(tmp_path)) as client:
+        client.headers['X-Studio-Token'] = client.get('/api/bootstrap').json()['token']
+        response = client.get('/api/environments')
+        assert response.status_code == 200
+        environments = response.json()['environments']
+        item = environments['core']
+        assert item['shared_resources_total'] == 0
+        assert item['shared'] is False
+        assert item['managed'] is True
+        for name, entry in environments.items():
+            assert entry['shared'] == (entry['shared_resources_total'] > 0), name

@@ -228,4 +228,15 @@ describe('large resource download feedback', () => {
       .toBe('磁盘已满');
     expect(downloadButtonLabel(undefined, '下载缺失文件（2）')).toBe('下载缺失文件（2）');
   });
+
+  it('shows a cancelled job in Chinese and re-enables the action', () => {
+    expect(downloadButtonLabel({id: 'job', status: 'cancelled', error: 'cancelled'},
+      '下载缺失文件（2）')).toBe('已取消');
+  });
+
+  it('clips a failed job error to 200 characters', () => {
+    const long = 'x'.repeat(300);
+    expect(downloadButtonLabel({id: 'job', status: 'failed', error: long},
+      '下载缺失文件（2）')).toHaveLength(200);
+  });
 });

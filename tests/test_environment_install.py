@@ -16,6 +16,17 @@ def manifest(root: Path, entries: dict) -> Path:
     return root
 
 
+
+def test_a_quiet_download_is_not_judged_a_stall():
+    import os
+
+    from operon import environment_install
+
+    assert environment_install.PIP_STARTUP_SECONDS >= 3600.0
+    mine = environment_install._process_io(os.getpid())
+    assert mine is None or mine >= 0
+    assert environment_install._process_io(2 ** 22 + 12345) is None
+
 def test_plan_marks_missing_and_used_by(tmp_path):
     source = manifest(tmp_path / 'source', {'demo': {'python': '3.11', 'imports': []}})
     plan = environment_install.plan(tmp_path / 'external', [

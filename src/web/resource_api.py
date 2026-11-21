@@ -210,9 +210,23 @@ def _declared_environments() -> set[str]:
         return set()
 
 
+def _with_percent(job: dict) -> dict:
+    """Copy one job and add the integer percentage the panel renders.
+
+    ``completed_bytes`` only moves when a whole file finishes; ``bytes`` tracks
+    the partial file too, so use the larger of the two or a multi-gigabyte
+    download would look frozen between two files.
+    """
+    result = dict(job)
+    planned = int(result.get("planned_bytes") or 0)
+    done = max(int(result.get("completed_bytes") or 0), int(result.get("bytes") or 0))
+    result["percent"] = min(100, max(0, int(done * 100 / planned))) if planned > 0 else 0
+    return result
+
+
 def operation(job_id: str) -> dict | None:
     job = _jobs.get(job_id)
-    return dict(job) if job else None
+    return _with_percent(job) if job else None
 
 
 
@@ -320,19 +334,23 @@ def unit_declared_files(resource, unit: str) -> list[str]:
                            or getattr(resource, 'files', ()))
 
 
-def _split_presence(base, declared) -> tuple[list[str], list[str]]:
+def _split_presence(base, declared, common=None) -> tuple[list[str], list[str]]:
     """Split declared names into the ones present under ``base`` and the rest.
 
     ``base`` is the only directory those files can live in; without it nothing is
     on disk, which must read as "all missing" rather than "nothing declared".
+    ``common`` is the library module, so its explicit old-name aliases count as
+    present; without it only the exact path is checked.
     """
     present: list[str] = []
     missing: list[str] = []
     for name in declared:
-        if base is not None and (base / name).exists():
-            present.append(name)
-        else:
+        if base is None:
             missing.append(name)
+            continue
+        exists = ((common.file_exists(base, name) if common is not None and
+                   hasattr(common, 'file_exists') else (base / name).exists()))
+        (present if exists else missing).append(name)
     return present, missing
 
 
@@ -470,7 +488,7 @@ def snapshot(service) -> dict:
         # instead of the whole call failing with a bare ValueError.
         return {'library': release,
                 'library_root': str(Path(service.plugins.directory)),
-                'resources': [], 'operations': list(_jobs.values())[-20:],
+                'resources': [], 'operations': [_with_percent(value) for value in list(_jobs.values())[-20:]],
                 'available': False, 'error': str(exc)}
     probes = sorted({probe for resource in resources.values()
                     for probe in (resource.env, resource.id) if probe})
@@ -555,7 +573,7 @@ def snapshot(service) -> dict:
             elif item.get('root'):
                 base = Path(str(item['root']).replace('\\?\\', ''))
             present_files, missing_files = _split_presence(
-                base, unit_declared_files(resource, unit_name))
+                base, unit_declared_files(resource, unit_name), common)
             unit['files_present'] = present_files
             unit['files_missing'] = missing_files
             unit['state'] = _card_state(present_files, missing_files,
@@ -577,7 +595,7 @@ def snapshot(service) -> dict:
         'library': release,
         'library_root': str(Path(service.plugins.directory)),
         'resources': items,
-        'operations': list(_jobs.values())[-20:],
+        'operations': [_with_percent(value) for value in list(_jobs.values())[-20:]],
     }
 
 
@@ -954,13 +972,57 @@ def unit_downloads(name: str, resource, unit: str | None) -> tuple[list[dict], s
     raise ValueError(f"resource '{name}' has no downloadable files")
 
 
-def _planned_bytes(planned: list[dict]) -> int:
-    """Total declared size, only when every planned file publishes one."""
+def _declared_sizes(resource, unit: str | None) -> dict[str, int]:
+    """Per-file sizes the manifest publishes, keyed by relative path.
 
-    sizes = [int(entry.get("bytes") or 0) for entry in planned]
-    if not sizes or any(size <= 0 for size in sizes):
-        return 0
-    return sum(sizes)
+    ``units[].files`` may be plain names or mappings carrying ``bytes`` (or
+    ``size_bytes``); only the latter can seed ``planned_bytes`` when a download
+    entry publishes no size of its own.
+    """
+    units = [entry for entry in getattr(resource, 'components', ()) or ()
+             if isinstance(entry, dict)]
+    if unit:
+        units = [entry for entry in units if str(entry.get('name') or '') == unit]
+    elif len(units) > 1:
+        # A resource-level file list cannot be attributed to one unit.
+        units = []
+    sizes: dict[str, int] = {}
+    for entry in units:
+        for name, size in (entry.get('file_sizes') or {}).items():
+            try:
+                value = int(size)
+            except (TypeError, ValueError):
+                continue
+            if value > 0:
+                sizes[str(name)] = value
+        for item in entry.get('files') or ():
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get('path') or item.get('name') or '').strip()
+            size = int(item.get('bytes') or item.get('size_bytes') or 0)
+            if name and size > 0:
+                sizes[name] = size
+    return sizes
+
+
+def _planned_bytes(planned: list[dict], resource=None, unit: str | None = None) -> int:
+    """Total declared size, only when every planned file publishes one.
+
+    Some manifests leave the size off the download entry and publish it on the
+    unit file instead; fall back to that map so the panel can still show a
+    percentage.  One unknown file keeps the total at 0 (indeterminate progress)
+    rather than inventing a number.
+    """
+    declared = _declared_sizes(resource, unit) if resource is not None else {}
+    total = 0
+    for entry in planned:
+        size = int(entry.get("bytes") or entry.get("size_bytes") or 0)
+        if size <= 0 and declared:
+            size = int(declared.get(str(entry.get("path") or "")) or 0)
+        if size <= 0:
+            return 0
+        total += size
+    return total
 
 
 def start(service, name: str, root: str | None = None, overwrite: bool = False,
@@ -970,14 +1032,14 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
     with _lock:
         active = _running.get(name)
         if active and _jobs.get(active, {}).get('status') == 'running':
-            return dict(_jobs[active])
+            return operation(active)
         key = uuid.uuid4().hex
         planned = _selected_downloads(downloads, allowed)
         covered, missing = unit_coverage(resource, unit)
         job = {'id': key, 'name': name, 'status': 'running', 'error': None,
                'started_at': _now(), 'finished_at': None, 'bytes': 0, 'files': 0,
-               'completed_bytes': 0, 'planned_bytes': _planned_bytes(planned),
-               'phase': 'starting', 'current': '', 'planned': len(planned),
+               'completed_bytes': 0, 'planned_bytes': _planned_bytes(planned, resource, unit),
+               'phase': 'downloading', 'current': '', 'planned': len(planned),
                'unit': unit, 'downloadable': covered, 'undownloadable': missing}
         _jobs[key] = job
         _running[name] = key
@@ -1057,7 +1119,7 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
 
     threading.Thread(target=watch, name=f'resource-watch-{name}', daemon=True).start()
     threading.Thread(target=run, name=f'resource-{name}', daemon=True).start()
-    return dict(job)
+    return operation(key)
 
 
 def _rsync_fetch(spec: dict, target: Path, *, event: threading.Event,

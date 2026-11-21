@@ -439,3 +439,71 @@ def test_planned_bytes_requires_a_size_for_every_file() -> None:
     assert resource_api._planned_bytes([{"bytes": 10}, {"bytes": 5}]) == 15
     assert resource_api._planned_bytes([{"bytes": 10}, {"bytes": 0}]) == 0
     assert resource_api._planned_bytes([]) == 0
+
+
+def test_planned_bytes_falls_back_to_unit_declared_file_sizes() -> None:
+    resource = _CardResource([_Unit('afdb', ())])
+    resource.components = ({
+        'name': 'afdb',
+        'files': [
+            {'path': 'pdb_seqres/pdb_seqres.txt', 'bytes': 68_464_969},
+            {'path': 'params/params_model_1_ptm.npz', 'size_bytes': 373_103_340},
+        ],
+    },)
+    planned = [
+        {'path': 'pdb_seqres/pdb_seqres.txt'},
+        {'path': 'params/params_model_1_ptm.npz'},
+    ]
+    assert resource_api._planned_bytes(planned, resource, 'afdb') == 441_568_309
+    # One file without any known size keeps the total indeterminate.
+    assert resource_api._planned_bytes(planned + [{'path': 'unknown.bin'}],
+                                       resource, 'afdb') == 0
+
+
+def test_operation_reports_percent_only_with_a_planned_total(monkeypatch) -> None:
+    monkeypatch.setattr(resource_api, '_jobs', {
+        'job': {'id': 'job', 'status': 'running', 'completed_bytes': 50,
+                'bytes': 75, 'planned_bytes': 200},
+        'unknown': {'id': 'unknown', 'status': 'running', 'completed_bytes': 1,
+                    'bytes': 1, 'planned_bytes': 0},
+    })
+    assert resource_api.operation('job')['percent'] == 37
+    assert resource_api.operation('unknown')['percent'] == 0
+
+
+def test_an_explicit_old_file_alias_counts_as_present(tmp_path: Path) -> None:
+    from src.task.step.steps import _resources_common as common
+
+    root = tmp_path / 'afdb'
+    (root / 'pdb_seqres').mkdir(parents=True)
+    (root / 'pdb_seqres' / 'pdb_seqres_2022_09_28.fasta').write_bytes(b'old')
+
+    assert common.file_exists(root, 'pdb_seqres/pdb_seqres.txt') is True
+    assert resource_api._split_presence(
+        root, ['pdb_seqres/pdb_seqres.txt'], common,
+    ) == (['pdb_seqres/pdb_seqres.txt'], [])
+    entry = common.check_resource(
+        common.load_resources()['alphafold2'], root,
+    )['files']['pdb_seqres/pdb_seqres.txt']
+    assert entry['present'] is True
+
+
+def test_resource_from_entry_keeps_unit_file_sizes_for_planned_bytes() -> None:
+    from src.task.step.steps import _resources_common as common
+
+    entry = {
+        'id': 'demo', 'title': 'demo', 'kind': 'model', 'url': '', 'install': '',
+        'env': 'OPERON_DEMO_PATH', 'roots': ['.'], 'files': ['a.bin'],
+        'downloads': [{'url': 'https://example.com/a.bin', 'path': 'a.bin'}],
+        'units': [{'name': 'afdb', 'files': [
+            {'path': 'a.bin', 'bytes': 10},
+            {'name': 'b.bin', 'size_bytes': 5},
+        ]}],
+    }
+    resource = common.Resource.from_entry(entry)
+    unit = resource.components[0]
+    assert unit['files'] == ('a.bin', 'b.bin')
+    assert unit['file_sizes'] == {'a.bin': 10, 'b.bin': 5}
+    assert resource_api._planned_bytes(
+        [{'path': 'a.bin'}, {'path': 'b.bin'}], resource, 'afdb',
+    ) == 15
