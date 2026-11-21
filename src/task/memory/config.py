@@ -84,7 +84,7 @@ class MemoryConfig:
             raise ManifestError("Require 0 < target_fraction < spill_fraction <= 1")
         keep = raw.get("keep", [])
         if not isinstance(keep, list) or any(not isinstance(n, str) for n in keep):
-            raise ManifestError("runtime.memory.keep must be a list of form names")
+            raise ManifestError(f"runtime.memory.keep must be a list of form names, got {keep!r}")
         profiles = raw.get("profiles", {})
         if not isinstance(profiles, dict):
             raise ManifestError("runtime.memory.profiles must be a mapping")
