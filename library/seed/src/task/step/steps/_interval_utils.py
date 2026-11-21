@@ -33,6 +33,8 @@ def interval_table(
     operator,
     class_field=None,
     class_names=None,
+    strict_classes=False,
+    unknown_classes=None,
 ):
     """Decode a BED-like form into per-chromosome interval arrays.
 
@@ -67,10 +69,14 @@ def interval_table(
         lookup = {name: position for position, name in enumerate(class_names or [])}
         unknown = sorted({value for value in decoded if value not in lookup})
         if unknown:
-            raise StepError(
-                f"{operator}: unknown classes {unknown}; expected {sorted(lookup)}"
-            )
-        class_values = [lookup[value] for value in decoded]
+            if strict_classes:
+                raise StepError(
+                    f"{operator}: unknown classes {unknown}; expected {sorted(lookup)}; "
+                    "pass strict_classes=false to ignore them"
+                )
+            if unknown_classes is not None:
+                unknown_classes.extend(name for name in unknown if name not in unknown_classes)
+        class_values = [lookup.get(value, -1) for value in decoded]
 
     grouped = {}
     for i, name in enumerate(chrom_values):

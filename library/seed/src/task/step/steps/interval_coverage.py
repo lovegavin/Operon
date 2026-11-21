@@ -102,6 +102,7 @@ class IntervalCoverageStep(Step):
         ]
         class_field = params.get("class_field", "name")
 
+        unknown_classes: list = []
         (
             regions,
             _classes,
@@ -118,6 +119,8 @@ class IntervalCoverageStep(Step):
             "interval_coverage",
             class_field=class_field,
             class_names=names,
+            strict_classes=bool(params.get("strict_classes", False)),
+            unknown_classes=unknown_classes,
         )
         query_regions, _, _, _, _, _, _ = interval_table(
             inputs[1],
@@ -137,12 +140,14 @@ class IntervalCoverageStep(Step):
         covered_bp = np.zeros(n_classes, dtype=np.int64)
         n_features = np.zeros(n_classes, dtype=np.int64)
         n_covered = np.zeros(n_classes, dtype=np.int64)
+        n_unknown_features = 0
         for chrom, start, end, class_index in zip(chrom_values, starts, ends, class_values):
             class_index = int(class_index)
             if class_index < 0:
-                raise StepError(
-                    "interval_coverage: every feature row needs a known class"
-                )
+                # Reported through ``unknown_classes``; those rows carry no known class to
+                # attribute coverage to, so they are counted and skipped.
+                n_unknown_features += 1
+                continue
             length = int(end - start)
             feature_bp[class_index] += length
             n_features[class_index] += 1
@@ -169,7 +174,7 @@ class IntervalCoverageStep(Step):
             data=data,
             dims=["class", "statistic"],
             labels={"class": labels, "statistic": {name: i for i, name in enumerate(_STAT_LABELS)}},
-            info={"classes": names},
+            info={"classes": names, "unknown_classes": list(unknown_classes)},
         )
         out.validate()
         ctx[out_name] = out
@@ -177,6 +182,8 @@ class IntervalCoverageStep(Step):
             "n_classes": n_classes,
             "covered_bp": int(covered_bp.sum()),
             "feature_bp": int(feature_bp.sum()),
+            "unknown_classes": list(unknown_classes),
+            "n_unknown_features": n_unknown_features,
         }
 
     def export(self, ctx):

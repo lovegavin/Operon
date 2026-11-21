@@ -164,6 +164,7 @@ class IntervalAnnotateStep(Step):
             params.get("interval_end_field", "chromEnd"),
             "interval_annotate",
         )
+        unknown_classes: list = []
         (
             feature_regions,
             _feature_classes,
@@ -180,6 +181,8 @@ class IntervalAnnotateStep(Step):
             "interval_annotate",
             class_field=class_field,
             class_names=names,
+            strict_classes=bool(params.get("strict_classes", False)),
+            unknown_classes=unknown_classes,
         )
         by_chrom = {}
         for chrom, start, end, class_index in zip(
@@ -210,7 +213,12 @@ class IntervalAnnotateStep(Step):
             data=data,
             dims=["interval", "statistic"],
             labels={"interval": labels, "statistic": {name: i for i, name in enumerate(_STAT_LABELS)}},
-            info={"classes": list(names), "intergenic_index": len(names), "priority": list(priority)},
+            info={
+                "classes": list(names),
+                "intergenic_index": len(names),
+                "priority": list(priority),
+                "unknown_classes": list(unknown_classes),
+            },
         )
         out.validate()
         ctx[out_name] = out
@@ -218,6 +226,7 @@ class IntervalAnnotateStep(Step):
             "n_intervals": len(table),
             "classes": names,
             "priority": priority,
+            "unknown_classes": list(unknown_classes),
         }
 
     def export(self, ctx):

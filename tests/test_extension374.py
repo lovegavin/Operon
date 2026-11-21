@@ -72,11 +72,42 @@ def test_annotate_priority_and_intergenic():
     assert out.info["classes"] == ["promoter", "exon"]
     assert out.info["intergenic_index"] == 2
 
-def test_annotate_rejects_unknown_class():
+def test_annotate_reports_unknown_class_instead_of_failing():
+    features = _bed([("chr1", 0, 10, "weird")])
+    intervals = _bed([("chr1", 0, 10, "peak")])
+    step = IntervalAnnotateStep()
+    ctx = Ctx({"output": "out", "class_names": "promoter,exon"})
+    step.run(ctx, [intervals, features])
+    out = ctx["out"]
+    # The unknown class contributes no hit, so the interval falls back to intergenic and
+    # the class is reported rather than aborting the run.
+    assert list(out.data[0]) == [2.0, 0.0, 0.0]
+    assert out.info["unknown_classes"] == ["weird"]
+    assert step.export(ctx)["unknown_classes"] == ["weird"]
+
+
+def test_annotate_strict_classes_still_rejects_unknown_class():
     features = _bed([("chr1", 0, 10, "weird")])
     intervals = _bed([("chr1", 0, 10, "peak")])
     with pytest.raises(StepError, match="unknown classes"):
-        _run(IntervalAnnotateStep(), {"class_names": "promoter,exon"}, [intervals, features])
+        _run(
+            IntervalAnnotateStep(),
+            {"class_names": "promoter,exon", "strict_classes": True},
+            [intervals, features],
+        )
+
+
+def test_coverage_skips_and_reports_unknown_class():
+    features = _bed([("chr1", 0, 100, "exon"), ("chr1", 200, 300, "weird")])
+    intervals = _bed([("chr1", 0, 250, "peak")])
+    step = IntervalCoverageStep()
+    ctx = Ctx({"output": "out", "class_names": "promoter,exon"})
+    step.run(ctx, [features, intervals])
+    out = ctx["out"]
+    assert out.info["unknown_classes"] == ["weird"]
+    assert list(out.data[1]) == [1.0, 100.0, 100.0, 1.0, 1.0]
+    exported = step.export(ctx)
+    assert exported["n_unknown_features"] == 1
 
 
 def test_coverage_fraction():
