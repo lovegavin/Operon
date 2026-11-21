@@ -506,7 +506,9 @@
         "biotite",
         "esm",
         "torch",
-        "torch_geometric"
+        "torch_geometric",
+        "pydantic",
+        "torch_scatter"
       ],
       "requirements": [
         "torch==2.3.1",
@@ -525,7 +527,11 @@
       ],
       "torch_version": "2.3.1",
       "torch_cuda": true,
-      "notes": "esm.inverse_folding pulls torch_geometric and biotite at import time; without them the esm_if_* operators fail inside the environment."
+      "notes": "esm.inverse_folding pulls torch_geometric and biotite at import time; without them the esm_if_* operators fail inside the environment. Inverse folding (esm_if_*) needs torch_scatter for esm.inverse_folding.gvp_modules and pydantic for the ESM-IF loader; both are pinned here so a fresh install can run them.",
+      "pip_wheels": [
+        "pydantic==2.14.3",
+        "https://data.pyg.org/whl/torch-2.3.0%2Bcu121/torch_scatter-2.1.2%2Bpt23cu121-cp311-cp311-linux_x86_64.whl"
+      ]
     },
     "alphafold2": {
       "title": "AlphaFold2 数据",
