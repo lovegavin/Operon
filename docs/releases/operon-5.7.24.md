@@ -59,6 +59,11 @@ in the UI reaches the remote worker and comes back with results.
   erase the other's job records, which made completed jobs vanish from
   `operon jobs` after a restart. Saving now unions the records on disk with the
   records in memory.
+- **A job whose planner died mid-preparing is finished instead of hanging.**
+  The refresh only took over `queued` records and only interrupted `running`
+  ones, so a `preparing` record whose owner had exited stayed in that state for
+  ever and kept a worker slot busy. A dead owner now marks the job
+  `interrupted` with `logs_complete`, and the active scan includes `preparing`.
 - **A key profile reconnects before the server is reported offline.** Planning
   drops disconnected servers from the candidates, so a graph aimed at a key
   profile failed with "the server profile may be missing or disconnected". Both
@@ -67,10 +72,16 @@ in the UI reaches the remote worker and comes back with results.
 
 ## Library
 
-The bundled library stays at 1.1.14. The environment declarations in
-`library/seed/operon/environments.json` changed: `core` declares the modules its
-bound operators and readers import (including `coverage` and `libdeflate`, which
-`numba` and `pysam` need at import time), `vina` and the binary-reader wheels are
-declared as best-effort bindings, and `esm2` declares `biotite` and
-`torch_geometric`. A declaration guard in `tests/test_environment_declarations.py`
-keeps the declared set in step with what `builtin_packages.json` requires.
+The bundled library moves to **1.1.15** because the environment declarations in
+`library/seed/operon/environments.json` changed after 1.1.14 shipped: `core`
+declares the modules its bound operators and readers import (including
+`coverage` and `libdeflate`, which `numba` and `pysam` need at import time),
+`vina` and the binary-reader wheels are declared as best-effort bindings, and
+`esm2` declares `biotite` and `torch_geometric`. A declaration guard in
+`tests/test_environment_declarations.py` keeps the declared set in step with
+what `builtin_packages.json` requires.
+
+1.1.15 also declares the `strict_classes` switch that `interval_annotate` and
+`interval_coverage` already read. Without the declaration the descriptor
+extractor rejected both operators, which silently shrank the catalog to 1072
+operators and dropped the `gm12878_interval_annotation` route.

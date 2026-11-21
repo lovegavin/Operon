@@ -7,9 +7,10 @@ freshly installed Windows instance driving a cleared Linux server (`licai-srv`).
 
 - Fresh install: `D:\OperonAccept`, Windows 11, port 5880, Edge attached over
   CDP 9421 for every UI step (text-only inspection, no screenshots).
-- Server: `/public/home/lihj/Operon`, deployment `code-bcc7a49df0379aba3e45`,
-  build `08e83cae3f86`, library `main-v1.1.14` (7 packages, 1182 descriptors,
-  1074 operators), Python 3.11 from the managed micromamba prefix.
+- Build: `source_commit 8536fe1cda570e68d9acb42ef564874edf8a9164`, library
+  `main-v1.1.15` (7 packages, 1182 descriptors, 1074 operators, 79 routes),
+  Python 3.11 from the managed micromamba prefix. The 19 environments below were
+  installed from the panel and survived the redeploy to this build.
 - **19 of 19 environments ready**, installed from the panel: `alphafold2`,
   `antifold`, `antismash`, `boltz`, `colabfold`, `core`, `dssp`, `esm2`, `esm3`,
   `esmfold`, `genomics`, `hic`, `hmmer`, `ligandmpnn`, `openfold`, `openmm81`,
@@ -115,3 +116,11 @@ being re-run.
 - `vina` cannot be installed from source on this host; the binding is declared
   best-effort and the operator reports the missing module.
 - The `prodigal` resource unit is undownloadable by design (upstream `make`).
+
+## Catalog guard
+
+`python3 -m operon registry build --scope routes` reports 1074 operators,
+108 readers and 79 routes with no errors. It is the check that catches a
+descriptor the extractor rejects: an undeclared `strict_classes` read in
+`interval_annotate`/`interval_coverage` had silently cost two operators
+and one route before 1.1.15 declared the switch.
