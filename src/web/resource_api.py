@@ -236,6 +236,9 @@ def unit_coverage(resource, unit: str | None) -> tuple[list[str], list[str]]:
     git_paths = [str(entry.get('path') or '').strip().replace('\\', '/').strip('/')
                  for entry in getattr(resource, 'downloads', ()) or ()
                  if isinstance(entry.get('git'), dict)]
+    archive_prefixes = [str(entry.get('path') or '').strip().replace('\\', '/').strip('/')
+                        for entry in getattr(resource, 'downloads', ()) or ()
+                        if str(entry.get('archive') or '').strip()]
     if not names and any(path and path == unit for path, _member in sources):
         return [str(unit or 'archive')], []
     covered: list[str] = []
@@ -267,6 +270,9 @@ def unit_coverage(resource, unit: str | None) -> tuple[list[str], list[str]]:
             or normalised == prefix
             or normalised.startswith(prefix + '/')
             for prefix in git_paths
+        ) or any(
+            normalised == prefix or normalised.startswith(prefix + '/')
+            for prefix in archive_prefixes if prefix
         )
         (covered if matched else missing).append(text)
     if not covered:

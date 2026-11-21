@@ -100,3 +100,17 @@ def test_unit_coverage_splits_files_with_and_without_sources():
     covered, missing = resource_api.unit_coverage(resource, 'bundle')
     assert covered == ['params/model.npz']
     assert missing == ['uniref90/uniref90.fasta']
+
+def test_unit_coverage_accepts_a_whole_archive_for_its_directory():
+    entry = {
+        'path': 'bfd',
+        'url': 'https://example.invalid/bfd.tar.gz',
+        'archive': 'tar.gz',
+    }
+    resource = _resource(downloads=(entry,), components=(
+        {'name': 'bundle', 'files': ['bfd/bfd_metaclust.ffdata', 'bfd/bfd_metaclust.ffindex',
+                                     'pdb70/pdb70_a3m.ffdata']},
+    ))
+    covered, missing = resource_api.unit_coverage(resource, 'bundle')
+    assert covered == ['bfd/bfd_metaclust.ffdata', 'bfd/bfd_metaclust.ffindex']
+    assert missing == ['pdb70/pdb70_a3m.ffdata']
