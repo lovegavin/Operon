@@ -221,7 +221,13 @@ describe('large resource download feedback', () => {
     };
     expect(downloadButtonLabel(running, '下载缺失文件（2）')).toBe('下载中 25%');
     expect(downloadButtonLabel({id: 'job', status: 'running'}, '下载缺失文件（2）'))
-      .toBe('下载中…');
+      .toBe('下载中…（等待字节统计）');
+    // planned_bytes == 0 但已有已写字节：显示已下载量而不是 0%。
+    expect(downloadButtonLabel({id: 'job', status: 'running', percent: null,
+      planned_bytes: 0, downloaded_bytes: 2_621_440}, '下载缺失文件（2）'))
+      .toBe('下载中（已下载 2.5 MB）');
+    expect(downloadButtonLabel({id: 'job', status: 'running', indeterminate: true,
+      downloaded_bytes: 1_536}, '下载缺失文件（2）')).toBe('下载中（已下载 1536 B）');
     expect(downloadButtonLabel({id: 'job', status: 'succeeded'}, '下载缺失文件（2）'))
       .toBe('下载完成');
     expect(downloadButtonLabel({id: 'job', status: 'failed', error: '磁盘已满'}, '下载缺失文件（2）'))

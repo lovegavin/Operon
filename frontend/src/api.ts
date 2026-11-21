@@ -284,6 +284,12 @@ export const api = {
     request<import('./types').LargeResourceLinkResult>(
       `/api/remote/${encodeURIComponent(id)}/resources/${encodeURIComponent(name)}/download`,
       {root, overwrite, unit}),
+  largeResourceCancel: (name: string) =>
+    request<import('./types').LargeResourceCancelAnswer>(
+      `/api/resources/${encodeURIComponent(name)}/cancel`, {}),
+  remoteResourceCancel: (id: string, name: string) =>
+    request<import('./types').LargeResourceCancelAnswer>(
+      `/api/remote/${encodeURIComponent(id)}/resources/${encodeURIComponent(name)}/cancel`, {}),
   environmentDependencyDownload: (name: string, kind: string, dependency: string) =>
     request<{environment: string; kind: string; requirement: string; status: string}>(
       `/api/environments/${encodeURIComponent(name)}/dependencies/download`,

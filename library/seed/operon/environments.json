@@ -296,8 +296,7 @@
         "statsmodels",
         "torch",
         "transformers",
-        "umap",
-        "vina"
+        "umap"
       ],
       "shared": true,
       "managed": false,
@@ -335,19 +334,23 @@
         "scanpy==1.10.3",
         "transformers==4.46.3",
         "umap-learn==0.5.6",
-        "vina==1.2.5",
         "patsy>=0.5"
       ],
       "resources": [],
-      "notes": "Operators bound to this environment import beyond the analysis stack: torch, transformers, scanpy, pydeseq2, pdb2pqr, posebusters, vina, umap-learn and ViennaRNA (the RNA module) are all reachable from core operators, so the declaration has to carry them or a ready environment still fails at run time. The binary genetics readers additionally need pyarrow, pysam, pyBigWig, bed-reader, bgen-reader and pgenlib; two of them only build with a modern C++ toolchain, so they are declared as best-effort and reported per environment.",
+      "notes": "Most operators run here. Heavy optional stacks (scanpy/torch/transformers) are declared explicitly; the AutoDock Vina binding has no wheel on PyPI so it is built with the conda-provided SWIG toolchain and, like the binary readers (pyarrow/pysam/pyBigWig/bed-reader/bgen-reader/pgenlib), does not block readiness.",
       "torch_cpu": true,
       "best_effort": [
+        "vina==1.2.5",
         "pyarrow>=15",
         "pysam>=0.22",
         "pyBigWig>=0.3.22",
         "bed-reader>=1.0.0",
         "bgen-reader>=4.0.8",
         "pgenlib>=0.90"
+      ],
+      "conda_packages": [
+        "swig>=4.1",
+        "boost>=1.82"
       ]
     },
     "proteinmpnn": {

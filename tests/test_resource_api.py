@@ -468,7 +468,46 @@ def test_operation_reports_percent_only_with_a_planned_total(monkeypatch) -> Non
                     'bytes': 1, 'planned_bytes': 0},
     })
     assert resource_api.operation('job')['percent'] == 37
-    assert resource_api.operation('unknown')['percent'] == 0
+    assert resource_api.operation('job')['indeterminate'] is False
+    assert resource_api.operation('job')['downloaded_bytes'] == 75
+    unknown = resource_api.operation('unknown')
+    assert unknown['percent'] is None
+    assert unknown['indeterminate'] is True
+    assert unknown['downloaded_bytes'] == 1
+
+
+def test_cancel_reports_a_live_download_and_a_finished_one(monkeypatch) -> None:
+    event = threading.Event()
+    job = {'id': 'run', 'name': 'esm2', 'kind': 'download', 'status': 'running',
+           'phase': 'downloading'}
+    monkeypatch.setattr(resource_api, '_jobs', {'run': job})
+    monkeypatch.setattr(resource_api, '_running', {'esm2': 'run'})
+    monkeypatch.setattr(resource_api, '_cancel', {'run': event})
+
+    answer = resource_api.cancel(None, 'esm2')
+    assert event.is_set() is True
+    assert answer['cancelled'] is True
+    assert answer['completed'] is False
+    assert answer['status'] == 'running'
+    assert job['phase'] == 'cancelling'
+
+    # The worker writes the terminal state and drops its running entry, so a
+    # second cancel must report "already finished" instead of raising.
+    job['status'] = 'cancelled'
+    job['phase'] = 'cancelled'
+    monkeypatch.setattr(resource_api, '_running', {})
+    answer = resource_api.cancel(None, 'esm2')
+    assert answer['cancelled'] is False
+    assert answer['completed'] is True
+    assert answer['status'] == 'cancelled'
+
+
+def test_cancel_unknown_resource_raises(monkeypatch) -> None:
+    monkeypatch.setattr(resource_api, '_jobs', {})
+    monkeypatch.setattr(resource_api, '_running', {})
+    monkeypatch.setattr(resource_api, '_cancel', {})
+    with pytest.raises(KeyError):
+        resource_api.cancel(None, 'nothing')
 
 
 def test_an_explicit_old_file_alias_counts_as_present(tmp_path: Path) -> None:

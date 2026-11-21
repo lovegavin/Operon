@@ -184,7 +184,12 @@ export function downloadButtonLabel(operation: LargeResourceOperation | undefine
     if (Number(operation.planned_bytes || 0) > 0) {
       return t('下载中 {percent}%', { percent: downloadPercent(operation) });
     }
-    return t('下载中…');
+    // planned_bytes == 0 说明清单里不是每个文件都声明了大小（后端因此返回
+    // percent: null + indeterminate）；此时显示已写字节数，连字节都还没统计
+    // 到时才退回不确定态文案。
+    const downloaded = Number(operation.downloaded_bytes || 0);
+    if (downloaded > 0) return t('下载中（已下载 {size}）', { size: megabytes(downloaded) });
+    return t('下载中…（等待字节统计）');
   }
   return fallback;
 }
@@ -194,7 +199,8 @@ function operationActive(operation?: LargeResourceOperation): boolean {
   return status === 'running' || status === 'queued';
 }
 
-function UnitCard({ resource, component, busy, download, onLink, onUnlink, onDownload }: {
+function UnitCard({ resource, component, busy, download, onLink, onUnlink, onDownload,
+  onCancel }: {
   resource: LargeResource;
   component: LargeResourceComponent;
   busy?: boolean;
@@ -202,6 +208,7 @@ function UnitCard({ resource, component, busy, download, onLink, onUnlink, onDow
   onLink: (resource: LargeResource, component: LargeResourceComponent) => void;
   onUnlink: (resource: LargeResource, component: LargeResourceComponent) => void;
   onDownload: (resource: LargeResource, component: LargeResourceComponent) => void;
+  onCancel: (resource: LargeResource, component: LargeResourceComponent) => void;
 }) {
   const state = String(component.state || 'missing').toLowerCase();
   const linked = state === 'linked';
@@ -274,6 +281,15 @@ function UnitCard({ resource, component, busy, download, onLink, onUnlink, onDow
               onClick={() => onDownload(resource, component)}>
               {buttonText}
             </button>
+            {downloading || status === 'cancelled' ? (
+              <button type="button" className="subtle-button"
+                disabled={busy || !downloading}
+                data-action="cancel-download"
+                data-download-status={downloading ? 'cancelling' : 'cancelled'}
+                onClick={() => onCancel(resource, component)}>
+                {downloading ? t('取消下载') : t('已取消')}
+              </button>
+            ) : null}
             <button type="button" className="subtle-button is-primary" disabled={busy}
               onClick={() => onLink(resource, component)}>{t('链接')}</button>
           </>
@@ -390,6 +406,24 @@ export function LargeResourceSection({ target = '', environment, compact }: {
     const count = pendingDownloads(component).length || missingFiles(component).length || 1;
     void act(`download:${component.name}`, () => beginDownload(resource, component),
       downloadStartedMessage(component.name, count));
+  };
+
+  // 取消后立刻把这一项标成终态：轮询只跟踪活动任务，所以它不会再把状态翻回
+  // running；按钮文案 1 秒内变成「已取消」，下载按钮同时恢复可点。
+  const cancelDownload = (resource: LargeResource, component: LargeResourceComponent) => {
+    const key = component.name;
+    void act(`cancel:${key}`, async () => {
+      if (target) await api.remoteResourceCancel(target, resource.id);
+      else await api.largeResourceCancel(resource.id);
+      setDownloads((previous) => previous[key] ? {
+        ...previous,
+        [key]: {
+          ...previous[key],
+          operation: { ...previous[key].operation, status: 'cancelled', error: 'cancelled' },
+        },
+      } : previous);
+      setMessage(t('已取消'));
+    });
   };
 
   const runningJobs = useMemo(() => Object.values(downloads)
@@ -531,10 +565,12 @@ export function LargeResourceSection({ target = '', environment, compact }: {
             resource={resource}
             component={component}
             download={downloads[component.name]?.operation}
-            busy={busy === `download:${component.name}` || busy === `unlink:${component.name}` || busy === 'download-all'}
+            busy={busy === `download:${component.name}` || busy === `unlink:${component.name}`
+              || busy === `cancel:${component.name}` || busy === 'download-all'}
             onLink={(item, part) => { setLink({ resource: item, component: part }); setSource(''); }}
             onUnlink={unlink}
             onDownload={download}
+            onCancel={cancelDownload}
           />
         ))}
       </div> : null}

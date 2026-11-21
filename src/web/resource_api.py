@@ -211,16 +211,24 @@ def _declared_environments() -> set[str]:
 
 
 def _with_percent(job: dict) -> dict:
-    """Copy one job and add the integer percentage the panel renders.
+    """Copy one job and add the progress fields the panel renders.
 
     ``completed_bytes`` only moves when a whole file finishes; ``bytes`` tracks
     the partial file too, so use the larger of the two or a multi-gigabyte
     download would look frozen between two files.
+
+    A manifest whose files do not all declare a size reports a zero
+    ``planned_bytes``.  Returning 0% there would claim the download made no
+    progress, so the total is marked indeterminate and the bytes written so far
+    are exposed instead; when the total is known the percentage keeps its
+    original integer meaning.
     """
     result = dict(job)
     planned = int(result.get("planned_bytes") or 0)
     done = max(int(result.get("completed_bytes") or 0), int(result.get("bytes") or 0))
-    result["percent"] = min(100, max(0, int(done * 100 / planned))) if planned > 0 else 0
+    result["downloaded_bytes"] = done
+    result["indeterminate"] = planned <= 0
+    result["percent"] = min(100, max(0, int(done * 100 / planned))) if planned > 0 else None
     return result
 
 
@@ -1036,7 +1044,8 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
         key = uuid.uuid4().hex
         planned = _selected_downloads(downloads, allowed)
         covered, missing = unit_coverage(resource, unit)
-        job = {'id': key, 'name': name, 'status': 'running', 'error': None,
+        job = {'id': key, 'name': name, 'kind': 'download', 'status': 'running',
+               'error': None,
                'started_at': _now(), 'finished_at': None, 'bytes': 0, 'files': 0,
                'completed_bytes': 0, 'planned_bytes': _planned_bytes(planned, resource, unit),
                'phase': 'downloading', 'current': '', 'planned': len(planned),
@@ -1245,19 +1254,44 @@ def _git_fetch(spec: dict, target: Path, *, event: threading.Event,
     return {'status': 'cloned', 'bytes': copied}
 
 
+def _latest_job(name: str) -> dict | None:
+    """Return the most recent job recorded for one resource name, if any."""
+    for job in reversed(list(_jobs.values())):
+        if str(job.get('name') or '') == name:
+            return job
+    return None
+
+
 def cancel(service, name: str) -> dict:
+    """Cancel the download running for one resource name.
+
+    The answer always names the fields the panel reacts to: ``cancelled`` (a
+    live job was signalled just now), ``completed`` (no live job remains, so
+    there is nothing left to cancel) and the job ``status``.  A finished job
+    keeps its other fields so an old caller still sees the same payload shape.
+    """
     with _lock:
         key = _running.get(name)
-        if not key:
+        live = _jobs.get(key) if key else None
+        if live is not None and str(live.get('status') or '') == 'running':
+            event = _cancel.get(key)
+            if event is None:
+                raise KeyError(name)
+            event.set()
+            live['phase'] = 'cancelling'
+            answer = dict(live)
+            answer['cancelled'] = True
+            answer['completed'] = False
+            answer['status'] = str(live.get('status') or 'running')
+            return answer
+        finished = live if live is not None else _latest_job(name)
+        if finished is None:
             raise KeyError(name)
-        event = _cancel.get(key)
-        if event is None:
-            raise KeyError(name)
-        event.set()
-        job = _jobs.get(key)
-        if job:
-            job['phase'] = 'cancelling'
-        return dict(job or {})
+        answer = dict(finished)
+        answer['cancelled'] = False
+        answer['completed'] = True
+        answer['status'] = str(finished.get('status') or 'cancelled')
+        return answer
 
 
 def read_log(service, name: str, limit: int = 200) -> dict:
