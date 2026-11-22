@@ -155,10 +155,12 @@
       "default": "server",
       "enum": [
         "server",
-        "empty"
+        "empty",
+        "local"
       ],
       "x-ui-group": "模型",
-      "x-ui-order": 10
+      "x-ui-order": 10,
+      "description": "server: let Boltz fetch an MSA over the network; local: build it with MMseqs2 from the local ColabFold databases; empty: no MSA"
     },
     "cache_dir": {
       "title": "权重缓存目录",
@@ -166,6 +168,14 @@
       "default": "",
       "x-ui-group": "依赖",
       "x-ui-order": 3
+    },
+    "msa_threads": {
+      "type": "integer",
+      "default": 8,
+      "minimum": 1,
+      "maximum": 64,
+      "title": "MSA search threads",
+      "description": "Threads used by the local MMseqs2 search when msa_mode is local."
     }
   }
 }

@@ -1014,6 +1014,86 @@
         }
       ],
       "notes": "mkdssp 4.x reads residue chemistry from components.cif, but the bioconda dssp package only ships the mmCIF dictionaries. Download the uncompressed components.cif (527,378,519 bytes, verified 2026-11-21) into ~/.local/share/operon/resources/ccd; structure_dssp_segments points LIBCIFPP_DATA_DIR at that directory."
+    },
+    {
+      "id": "colabfold_msa",
+      "title": "ColabFold sequence databases (UniRef30 2302 + environmental 2021-08)",
+      "kind": "database",
+      "url": "https://opendata.mmseqs.org/colabfold/",
+      "install": "download uniref30_2302.tar.gz (95.8 GiB) and colabfold_envdb_202108.tar.gz (109.9 GiB) and extract both below the resource root; MMseqs2 searches them locally",
+      "env": "OPERON_COLABFOLD_MSA",
+      "roots": [
+        "~/.local/share/operon/resources/colabfold_msa"
+      ],
+      "files": [
+        "uniref30_2302/uniref30_2302_db",
+        "uniref30_2302/uniref30_2302_db.dbtype",
+        "uniref30_2302/uniref30_2302_db.index",
+        "colabfold_envdb_202108/colabfold_envdb_202108_db",
+        "colabfold_envdb_202108/colabfold_envdb_202108_db.dbtype",
+        "colabfold_envdb_202108/colabfold_envdb_202108_db.index"
+      ],
+      "link_unit": "tree",
+      "link_root": "colabfold_msa",
+      "envs": [
+        "colabfold",
+        "boltz"
+      ],
+      "units": [
+        {
+          "name": "uniref30_2302",
+          "path": "uniref30_2302",
+          "mode": "tree",
+          "kind": "database",
+          "bytes": 102918187842,
+          "url": "https://opendata.mmseqs.org/colabfold/uniref30_2302.tar.gz",
+          "files": [],
+          "note": "MMseqs2 database: uniref30_2302_db plus .dbtype/.index/.0 splits"
+        },
+        {
+          "name": "colabfold_envdb_202108",
+          "path": "colabfold_envdb_202108",
+          "mode": "tree",
+          "kind": "database",
+          "bytes": 117965643010,
+          "url": "https://opendata.mmseqs.org/colabfold/colabfold_envdb_202108.tar.gz",
+          "files": [],
+          "note": "MMseqs2 database: colabfold_envdb_202108_db plus .dbtype/.index/.0 splits"
+        }
+      ],
+      "expected_files": [
+        {
+          "path": "uniref30_2302/uniref30_2302_db.dbtype",
+          "required": true
+        },
+        {
+          "path": "uniref30_2302/uniref30_2302_db.index",
+          "required": true
+        }
+      ],
+      "downloads": [
+        {
+          "path": "uniref30_2302",
+          "url": [
+            "https://opendata.mmseqs.org/colabfold/uniref30_2302.tar.gz"
+          ],
+          "archive": "tar.gz",
+          "bytes": 102918187842,
+          "unit": "uniref30_2302",
+          "note": "verified 2026-11-22: HTTP 200, Content-Length 102,918,187,842 bytes"
+        },
+        {
+          "path": "colabfold_envdb_202108",
+          "url": [
+            "https://opendata.mmseqs.org/colabfold/colabfold_envdb_202108.tar.gz"
+          ],
+          "archive": "tar.gz",
+          "bytes": 117965643010,
+          "unit": "colabfold_envdb_202108",
+          "note": "verified 2026-11-22: HTTP 200, Content-Length 117,965,643,010 bytes"
+        }
+      ],
+      "notes": "Boltz, ColabFold and AlphaFold-style operators build MSAs locally with MMseqs2 against these databases, so no structure run needs the ColabFold API. Measurements on 2026-11-22: opendata.mmseqs.org served uniref30 at 2.9 MB/s and the environmental database at 9.4 MB/s from the compute host, while wwwuser.gwdg.de/~compbiol/colabfold/ dropped to 38 KB/s. The colabfold environment installs the mmseqs binary; set OPERON_COLABFOLD_MSA to point at a copy outside the resource root."
     }
   ],
   "version": 2

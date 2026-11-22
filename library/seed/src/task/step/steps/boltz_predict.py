@@ -33,7 +33,7 @@ def _default_cache() -> str:
     return str(check["root"]) if check.get("status") == "ok" else ""
 
 
-def write_yaml(path: Path, sequence: str, *, chain: str = "A", ligand_smiles: str = "", ligand_chain: str = "B", affinity: bool = False, msa_mode: str = "server") -> None:
+def write_yaml(path: Path, sequence: str, *, chain: str = "A", ligand_smiles: str = "", ligand_chain: str = "B", affinity: bool = False, msa_mode: str = "server", msa_path: Path | None = None) -> None:
     """Write a Boltz-2 input YAML for one protein and an optional ligand."""
 
     clean = "".join(residue for residue in str(sequence).upper() if residue.isalpha())
@@ -42,6 +42,10 @@ def write_yaml(path: Path, sequence: str, *, chain: str = "A", ligand_smiles: st
     body = _YAML_PROTEIN.format(chain=chain, sequence=clean)
     if msa_mode == "empty":
         body += "      msa: empty\n"
+    elif msa_mode == "local":
+        if msa_path is None or not Path(msa_path).is_file():
+            raise StepError("boltz_predict: msa_mode 'local' needs a built alignment")
+        body += f"      msa: {Path(msa_path).resolve()}\n"
     if ligand_smiles:
         body += _YAML_LIGAND.format(chain=ligand_chain, smiles=str(ligand_smiles).strip())
     if affinity:
@@ -177,6 +181,15 @@ class BoltzPredictStep(Step):
         workdir = Path(tempfile.mkdtemp(prefix="boltz_"))
         yaml_path = workdir / "input.yaml"
         msa_mode = str(params.get("msa_mode", "server"))
+        msa_path = None
+        if msa_mode == "local":
+            from src.task.step.steps._msa_common import build_msa
+
+            msa_path = build_msa(
+                sequences[0],
+                workdir / "msa",
+                threads=int(params.get("msa_threads", 8) or 8),
+            )
         write_yaml(
             yaml_path,
             sequences[0],
@@ -185,6 +198,7 @@ class BoltzPredictStep(Step):
             ligand_chain=str(params.get("ligand_chain", "B")),
             affinity=bool(params.get("affinity", False)),
             msa_mode=msa_mode,
+            msa_path=msa_path,
         )
         out_dir = workdir / "out"
         command = boltz_command(
