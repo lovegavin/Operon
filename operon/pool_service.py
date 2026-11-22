@@ -194,6 +194,19 @@ class MultiWorkspaceExecutor:
         return ExecutionResult(state='unknown', detail=f'job-status:{status}')
 
 
+def _registration_binding(*, explicit_library, library_root, previous_library, requested_manifest):
+    """Library binding and catalog policy a registration actually asks for.
+
+    A client that omits the library keeps the binding the workspace already
+    runs with: re-deriving it from the application directory made the policy
+    look changed on every registration, which then failed any submit that
+    arrived while a task was active.
+    """
+    if not explicit_library and previous_library is not None:
+        library_root = previous_library
+    return library_root, bool(requested_manifest and not library_root)
+
+
 class PoolService:
     """One authoritative allocator for registered workspaces in one pool."""
 
@@ -327,12 +340,14 @@ class PoolService:
                        worker_python=None, manifest_only_registry=False, library_root=None, force=False):
         from src.web.service import JobService, Settings
         root = _resolve(root)
+        explicit_library = library_root is not None
         if library_root is None:
             from operon.installation import library_root as _infer_library_root
             library_root = _infer_library_root(code_root or self.code_root)
+        requested_manifest = bool(manifest_only_registry)
         # The version-scoped library decides resolution; a manifest-only
         # registry cannot see its packages even when the client asked for it.
-        manifest_only_registry = bool(manifest_only_registry and not library_root)
+        manifest_only_registry = bool(requested_manifest and not library_root)
         if str(root) in self.workspaces:
             service = self.workspaces[str(root)]
             if data_dir is not None and service.directory != _resolve(data_dir):
@@ -347,6 +362,9 @@ class PoolService:
             changed_code = code_root is not None and _resolve(code_root) != _resolve(service.settings.code_root)
             previous_library = (_resolve(service.settings.library_root)
                                 if getattr(service.settings, 'library_root', None) else None)
+            library_root, manifest_only_registry = _registration_binding(
+                explicit_library=explicit_library, library_root=library_root,
+                previous_library=previous_library, requested_manifest=requested_manifest)
             changed_library = library_root is not None and _resolve(library_root) != previous_library
             selected_python = str(Path(worker_python).absolute()) if worker_python else service.plugins.python
             changed_policy = manifest_only_registry != service.settings.manifest_only_registry
