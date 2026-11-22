@@ -105,6 +105,7 @@
     "TsvFileReader": "core",
     "TsvReader": "core",
     "TxtReader": "core",
+    "ValuesReader": "core",
     "VcfFileReader": "core",
     "VcfReader": "core",
     "WigReader": "core",
