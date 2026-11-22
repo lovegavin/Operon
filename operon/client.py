@@ -159,6 +159,30 @@ class Client:
         finally:
             Path(temporary).unlink(missing_ok=True)
 
+    def upload(self, path, source, chunk_size=8 * 1024 * 1024):
+        """Stream a local file into the workspace without JSON or base64 framing."""
+        source = Path(source)
+        if not source.is_file():
+            raise ClientError(f'{source} is not a readable file', 'source_missing')
+        route = '/api' + path if path.startswith('/v1/') else '/api/agent' + path
+
+        def body():
+            with source.open('rb') as stream:
+                while True:
+                    chunk = stream.read(chunk_size)
+                    if not chunk:
+                        return
+                    yield chunk
+
+        response = self.http.post(route, content=body(), timeout=None)
+        if response.status_code == 403:
+            try:
+                self.restart()
+            except (ClientError, httpx.HTTPError):
+                return self.decode(response)
+            response = self.http.post(route, content=body(), timeout=None)
+        return self.decode(response)
+
     def sessions(self):
         return self.request("/sessions")
 

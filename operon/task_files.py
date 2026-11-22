@@ -7,6 +7,7 @@ directories are never writable through this service.
 """
 from __future__ import annotations
 
+import hashlib
 import os
 import tempfile
 from pathlib import Path, PurePosixPath
@@ -161,6 +162,91 @@ def write_binary(root, relative, content, overwrite=True):
     return _write_data(root, relative, data, overwrite)
 
 
+class StreamSink:
+    """Copy a streamed request body into one workspace file.
+
+    The bytes never pass through JSON or base64: each chunk is written straight to a
+    temporary file that is renamed into place only when the whole body arrived, so a
+    dropped connection cannot leave a truncated file behind.
+    """
+
+    def __init__(self, root, relative, overwrite=True):
+        self._root = _workspace(root)
+        _, self._target = _target(self._root, relative, 'path')
+        self._overwrite = overwrite
+        self._existed = False
+        self._handle = None
+        self._temporary = None
+        self._stream = None
+        self._size = 0
+        self._digest = hashlib.sha256()
+        self.result = None
+
+    def __enter__(self):
+        target = self._target
+        self._existed = target.exists()
+        if self._existed:
+            if target.is_dir():
+                raise CommandError('invalid_path', 'path already exists as a directory')
+            if not self._overwrite:
+                raise CommandError(
+                    'file_exists',
+                    f'{target.relative_to(self._root).as_posix()} already exists; pass overwrite=true to replace it',
+                    409,
+                )
+        target.parent.mkdir(parents=True, exist_ok=True)
+        final = target.resolve()
+        if final != self._root and not final.is_relative_to(self._root):
+            raise CommandError('invalid_path', 'path escapes the workspace')
+        self._handle, self._temporary = tempfile.mkstemp(prefix='.' + target.name + '.', dir=target.parent)
+        self._stream = os.fdopen(self._handle, 'wb')
+        return self
+
+    def write(self, chunk):
+        if not chunk:
+            return 0
+        data = bytes(chunk)
+        self._stream.write(data)
+        self._size += len(data)
+        self._digest.update(data)
+        return len(data)
+
+    def __exit__(self, exc_type, exc, trace):
+        try:
+            if self._stream is not None:
+                self._stream.close()
+            if exc_type is None:
+                os.replace(self._temporary, self._target)
+                self.result = {
+                    'workspace': str(self._root),
+                    'path': self._target.relative_to(self._root).as_posix(),
+                    'bytes': self._size,
+                    'sha256': self._digest.hexdigest(),
+                    'created': not self._existed,
+                }
+        finally:
+            if exc_type is not None and self._temporary:
+                try:
+                    os.unlink(self._temporary)
+                except OSError:
+                    pass
+            self._stream = None
+        return False
+
+
+def open_stream(root, relative, overwrite=True):
+    """Open a bounded writer for a streamed upload; use it as a context manager."""
+    return StreamSink(root, relative, overwrite)
+
+
+def write_stream(root, relative, chunks, overwrite=True):
+    """Write an iterable of byte chunks to a workspace-relative path."""
+    with open_stream(root, relative, overwrite) as sink:
+        for chunk in chunks:
+            sink.write(chunk)
+    return sink.result
+
+
 class TaskFiles:
     """Workspace file operations owned by the profile application service."""
 
@@ -179,3 +265,9 @@ class TaskFiles:
 
     def write_binary(self, path, content, overwrite=True):
         return write_binary(self.root, path, content, overwrite)
+
+    def open_stream(self, path, overwrite=True):
+        return open_stream(self.root, path, overwrite)
+
+    def write_stream(self, path, chunks, overwrite=True):
+        return write_stream(self.root, path, chunks, overwrite)

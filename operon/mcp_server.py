@@ -482,6 +482,32 @@ def create_server(client):
                               {'path': path, 'content': content_base64, 'overwrite': overwrite})
 
     @server.tool()
+    def operon_upload_file(source_path: str, path: str, overwrite: bool = True) -> dict:
+        """Stream a local file into the Operon workspace without base64 framing.
+
+        source_path is read by the MCP process (absolute paths are allowed); path is
+        workspace-relative. The body is copied straight to disk, so this lifts the 50 MiB
+        limit of operon_write_binary for large FASTA/FASTQ/PDB/BAM inputs. Requires edit scope.
+        """
+        query = urlencode({'path': path, 'overwrite': 'true' if overwrite else 'false'})
+        return client.upload('/v1/workspace/files/raw?' + query, source_path)
+
+    @server.tool()
+    def operon_job_figure(job_id: str, index: int, format: str = 'png',
+                          figure_id: str | None = None, destination: str | None = None) -> dict:
+        """Download a rendered report figure (png, pdf, svg, ...) into the workspace.
+
+        index is the zero-based report step that produced the figure; figure_id picks one
+        figure when a step reported several. Requires read scope.
+        """
+        query = {'format': format}
+        if figure_id:
+            query['figure_id'] = figure_id
+        target = _download_target(destination or f'reports/{job_id}-{index}.{format}')
+        return client.download('/v1/jobs/' + quote(job_id, safe='') + f'/reports/{int(index)}/figure?'
+                               + urlencode(query), target)
+
+    @server.tool()
     def operon_remote_status(brief: bool = True) -> dict:
         """List SSH execution profiles with their connected state.
 
@@ -1005,12 +1031,20 @@ def create_server(client):
 
     @server.tool()
     def operon_preferences() -> dict:
-        """Read the profile's presentation preferences without a desktop session."""
+        """Read the profile's preferences: language, theme and the default parallel task count.
+
+        parallel_tasks is the same default the desktop's Settings -> Execution field writes;
+        a graph that sets runtime.execution.max_parallel_tasks still overrides it.
+        """
         return client.request('/v1/preferences')
 
     @server.tool()
     def operon_preferences_save(preferences: dict, initialize: bool = False) -> dict:
-        """Persist presentation preferences (language, theme); requires edit scope."""
+        """Persist preferences (language, theme, parallel_tasks); requires edit scope.
+
+        parallel_tasks is 1-64 or null for the built-in default of 2; it is the same setting the
+        desktop exposes under Settings -> Execution.
+        """
         return client.request('/v1/preferences', {'preferences': preferences, 'initialize': initialize})
 
     @server.tool()

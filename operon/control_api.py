@@ -131,7 +131,8 @@ def mount_control(app, application, bridge):
         authorize(request)
         return {'api_version': 1, 'operator_protocol': 3, 'headless': bool(getattr(app.state, 'headless', False)),
                 'capabilities': ['workflows', 'tasks', 'artifacts', 'operator-docs', 'canvas-sessions', 'agent-guides', 'brief-views', 'result-viewers', 'workflow-readiness', 'explicit-environment-preparation', 'transaction-diffs',
-                                'task-scaffolding', 'workspace-files', 'workspace-binary-files',
+                                'task-scaffolding', 'workspace-files', 'workspace-binary-files', 'workspace-stream-uploads',
+        'job-report-figures',
                                 'library-install', 'route-collection-import', 'storage-browse', 'storage-preview',
                                 'plan-compile', 'plan-submit', 'run-plan-export', 'large-resource-download',
                                 'large-resource-link'],
@@ -310,6 +311,16 @@ def mount_control(app, application, bridge):
         except (binascii.Error, ValueError) as exc:
             raise CommandError('invalid_content', f'content must be base64-encoded bytes: {exc}', 422) from exc
         return application.task_files.write_binary(payload.path, data, payload.overwrite)
+
+    @app.post('/api/v1/workspace/files/raw')
+    async def write_workspace_stream(request: Request, path: str, overwrite: bool = True):
+        """Copy a raw request body into the workspace without JSON or base64 framing."""
+        authorize(request, 'edit')
+        sink = application.task_files.open_stream(path, overwrite)
+        with sink:
+            async for chunk in request.stream():
+                sink.write(chunk)
+        return sink.result
 
     @app.get('/api/v1/guides')
     def guides(request: Request):
