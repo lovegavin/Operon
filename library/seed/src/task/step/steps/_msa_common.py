@@ -62,14 +62,32 @@ def _has_database(root: Path, name: str) -> bool:
     return base.is_file() and all((root / (name + suffix)).is_file() for suffix in _REQUIRED_SUFFIXES)
 
 
+def _database_directories(root: Path) -> list[Path]:
+    """Yield the root itself plus its immediate subdirectories.
+
+    The ColabFold archives unpack their database files either into the resource
+    root or into a directory named after the archive, so both layouts have to
+    resolve to the same database.
+    """
+
+    directories = [root]
+    try:
+        children = sorted(entry for entry in root.iterdir() if entry.is_dir())
+    except OSError:
+        children = []
+    directories.extend(children)
+    return directories
+
+
 def database_root() -> tuple[Path, str, str]:
     """Return ``(root, uniref prefix, envdb prefix or '')`` for installed databases."""
 
     for root in _resource_roots():
-        if not _has_database(root, UNIREF_DB):
-            continue
-        envdb = ENVDB_DB if _has_database(root, ENVDB_DB) else ""
-        return root, UNIREF_DB, envdb
+        for directory in _database_directories(root):
+            if not _has_database(directory, UNIREF_DB):
+                continue
+            envdb = ENVDB_DB if _has_database(directory, ENVDB_DB) else ""
+            return directory, UNIREF_DB, envdb
     raise StepError(
         "no local MSA database: download the 'colabfold_msa' resource "
         "(UniRef30 + ColabFold environmental database) or link an existing copy"
@@ -165,6 +183,7 @@ def build_msa(
         ],
         timeout=timeout,
     )
+    produced = base / f"{name}.a3m"
     _run(
         binary,
         [
@@ -172,28 +191,16 @@ def build_msa(
             str(base / "qdb"),
             database,
             str(base / "res"),
-            str(base / "profile"),
+            str(produced),
             "--msa-format-mode",
             "6",
         ],
         timeout=timeout,
     )
-    _run(
-        binary,
-        [
-            "unpackdb",
-            str(base / "profile"),
-            str(base),
-            "--unpack-name-mode",
-            "0",
-            "--unpack-suffix",
-            ".a3m",
-        ],
-        timeout=timeout,
-    )
-    produced = base / f"{name}.a3m"
     if not produced.is_file():
         raise StepError(f"MSA search produced no alignment for {name}")
+    # ``--msa-format-mode 6`` terminates the final record with a NUL byte.
+    produced.write_bytes(produced.read_bytes().replace(b"\x00", b"\n"))
     lines = produced.read_text(encoding="utf-8", errors="replace").splitlines()
     if not lines or not lines[0].startswith(">"):
         raise StepError(f"MSA search produced an unreadable alignment for {name}")

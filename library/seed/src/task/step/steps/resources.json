@@ -1035,10 +1035,6 @@
       ],
       "link_unit": "tree",
       "link_root": "colabfold_msa",
-      "envs": [
-        "colabfold",
-        "boltz"
-      ],
       "units": [
         {
           "name": "uniref30_2302",
@@ -1093,7 +1089,7 @@
           "note": "verified 2026-11-22: HTTP 200, Content-Length 117,965,643,010 bytes"
         }
       ],
-      "notes": "Boltz, ColabFold and AlphaFold-style operators build MSAs locally with MMseqs2 against these databases, so no structure run needs the ColabFold API. Measurements on 2026-11-22: opendata.mmseqs.org served uniref30 at 2.9 MB/s and the environmental database at 9.4 MB/s from the compute host, while wwwuser.gwdg.de/~compbiol/colabfold/ dropped to 38 KB/s. The colabfold environment installs the mmseqs binary; set OPERON_COLABFOLD_MSA to point at a copy outside the resource root."
+      "notes": "Boltz, ColabFold and AlphaFold-style operators build MSAs locally with MMseqs2 against these databases, so no structure run needs the ColabFold API. Measurements on 2026-11-22: opendata.mmseqs.org served uniref30 at 2.9 MB/s and the environmental database at 9.4 MB/s from the compute host, while wwwuser.gwdg.de/~compbiol/colabfold/ dropped to 38 KB/s. The colabfold environment installs the mmseqs binary; set OPERON_COLABFOLD_MSA to point at a copy outside the resource root. The archive is not part of any environment's dependency gate: an environment stays ready without it, and only the operators that build MSAs locally need it (they report a clear error when it is absent)."
     }
   ],
   "version": 2
