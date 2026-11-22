@@ -509,9 +509,18 @@ def mount_environments(app, service):
                 reason = '资源未齐备（%d/%d）' % (ready, total)
                 if missing_names:
                     reason += '：' + '、'.join(missing_names)
+                item['resources_warning'] = reason
                 if not item.get('error'):
                     item['error'] = reason
-                if str(item.get('status') or '') == 'ready':
+                # Only a resource the environment declares in its own manifest
+                # makes the environment unusable.  A shared resource unit (one
+                # an environment merely names, such as a database shared by
+                # several toolchains) is reported as a warning: downgrading to
+                # ``incomplete`` there used to lock a finished environment out
+                # of every client that gates on a ready status.
+                declared_missing = [name for name in bucket['missing']
+                                    if name in (bucket.get('declared') or set())]
+                if declared_missing and str(item.get('status') or '') == 'ready':
                     item['status'] = 'incomplete'
         return {**data, 'operations': operations}
 
