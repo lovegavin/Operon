@@ -16,6 +16,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.step.base import Step
+from . import _protein_common
 from src.task.step.steps._protein_common import (
     column_index,
     contact_stats,
@@ -159,21 +160,13 @@ class ProteinmpnnMaskedInterfaceDesignStep(Step):
         design_dim = str(params.get("design_dim") or "design")
         out_name = str(params.get("output") or "designs")
 
-        structure_text = str(params.get("structure_path") or "").strip()
-        if not structure_text:
-            raise StepError(
-                "proteinmpnn_masked_interface_design: structure_path is required "
-                "(the PDB file the atom form was read from)"
-            )
-        structure = Path(structure_text).expanduser()
-        if not structure.is_file():
-            raise StepError(
-                f"proteinmpnn_masked_interface_design: structure_path '{structure}' is not a file"
-            )
-        if structure.suffix.lower() != ".pdb":
-            raise StepError(
-                "proteinmpnn_masked_interface_design: structure_path must be a .pdb file"
-            )
+        structure = _protein_common.structure_file(
+            form,
+            params.get("structure_path"),
+            "proteinmpnn_masked_interface_design",
+            atom_dim,
+            field_dim,
+        )
 
         cutoff = float(params.get("cutoff") if params.get("cutoff") is not None else 4.5)
         if not 0.0 < cutoff <= 10.0:

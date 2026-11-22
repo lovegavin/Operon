@@ -14,6 +14,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from . import _protein_common
 from src.task.step.steps._envpython import environment_python
 
 from src.task.step.steps._protein_common import (
@@ -292,13 +293,13 @@ class ProteinmpnnMaskedInterfaceScoreStep(Step):
         field_dim = str(params.get("field_dim", "field"))
         out_name = params.get("output", self.name)
 
-        structure_text = str(params.get("structure_path", "") or "").strip()
-        structure = Path(structure_text).expanduser()
-        if not structure.is_file():
-            raise StepError(
-                "proteinmpnn_masked_interface_score: structure_path "
-                f"'{structure}' is not a file"
-            )
+        structure = _protein_common.structure_file(
+            form,
+            params.get("structure_path"),
+            "proteinmpnn_masked_interface_score",
+            atom_dim,
+            field_dim,
+        )
         repo = Path(
             str(params.get("proteinmpnn_path", "") or "").strip()
             or os.environ.get("OPERON_PROTEINMPNN_PATH", "")

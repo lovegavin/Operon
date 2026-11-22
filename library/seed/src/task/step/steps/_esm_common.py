@@ -11,9 +11,29 @@ AA_ORDER = "ACDEFGHIKLMNPQRSTVWY"
 MAX_RESIDUES = 1022
 
 
+_DEFAULT_CHECKPOINT = "esm2_t6_8M_UR50D.pt"
+
+
+def default_checkpoint() -> str:
+    """Return the ESM-2 checkpoint declared by the esm2 resource, or an empty string."""
+
+    try:
+        from ._resources_common import check_resource, load_resources, resolved_path
+    except Exception:  # pragma: no cover - helper import guard
+        return ""
+    try:
+        check = check_resource(load_resources()["esm2"])
+    except Exception:  # pragma: no cover - manifest guard
+        return ""
+    if check.get("status") != "ok":
+        return ""
+    candidate = resolved_path(check["root"], _DEFAULT_CHECKPOINT)
+    return str(candidate) if candidate.is_file() else ""
+
+
 def load_esm(model_path: str, device: str, operator: str):
     """Load a local ESM checkpoint and return (model, alphabet, torch, device)."""
-    text = str(model_path or "").strip()
+    text = str(model_path or "").strip() or default_checkpoint()
     if not text:
         raise StepError(
             f"{operator}: model_path is required; point it at a local ESM "

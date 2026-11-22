@@ -436,7 +436,8 @@
       "python": "3.11",
       "imports": [],
       "requirements": [
-        "pydantic>=2.7"
+        "pydantic>=2.7",
+        "numpy>=1.24"
       ],
       "conda_packages": [
         "hmmer=3.4",
@@ -472,7 +473,7 @@
         "antismash=7.1.0",
         "hmmer=3.4",
         "prodigal=2.6.3",
-        "ncbi-amrfinderplus=3.12"
+        "ncbi-amrfinderplus=4.2.5"
       ],
       "binaries": [
         "antismash",
@@ -485,7 +486,7 @@
         "prodigal"
       ],
       "experimental": true,
-      "notes": "antiSMASH needs its own databases in addition to the binaries; the AntismashDB and AMRFinderPlus databases are resources. Experimental until a full cluster run is verified.",
+      "notes": "antiSMASH needs its own databases in addition to the binaries; the AntismashDB and AMRFinderPlus databases are resources.  The AMRFinderPlus database ships with a format version, so the binary is pinned to 4.2.5 to match the current database release.  Experimental until a full cluster run is verified.",
       "platforms": [
         "linux",
         "darwin"

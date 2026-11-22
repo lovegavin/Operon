@@ -7,6 +7,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
+from . import _protein_common
 
 
 from pathlib import Path
@@ -86,9 +87,13 @@ class ProteinmpnnInterfaceTemperatureScanStep(Step):
         params = ctx.step_params
         form = inputs[0]
         field_dim = params["field_dim"]
-        structure = Path(str(params["structure_path"])).expanduser()
-        if not structure.is_file():
-            raise StepError(f"proteinmpnn_interface_temperature_scan: structure_path {structure} is not a file")
+        structure = _protein_common.structure_file(
+            form,
+            params.get("structure_path"),
+            "proteinmpnn_interface_temperature_scan",
+            str(params.get("atom_dim") or "atom"),
+            field_dim,
+        )
         chains = pdb_chains(structure)
         binder_chains, target_chains = pick_chain_sides(set(chains), params.get("binder_chains", ""), params.get("target_chains", ""), "proteinmpnn_interface_temperature_scan")
         chain_values = decode_column(form, field_dim, "chain")

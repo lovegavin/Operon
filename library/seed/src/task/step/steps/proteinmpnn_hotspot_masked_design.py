@@ -10,6 +10,7 @@ from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
 
+from . import _protein_common
 from ._protein_common import decode_column, heavy_atom_mask, residue_labels
 from ._structure_common import atom_coords, field_columns, pick_chain_sides, residue_numbers
 from .interface_hotspots import contact_statistics
@@ -143,13 +144,9 @@ class ProteinmpnnHotspotMaskedDesignStep(Step):
         top_n = int(params.get("top_n") or 0)
         out_name = params.get("output", self.name)
 
-        if not structure_text:
-            raise StepError("proteinmpnn_hotspot_masked_design: structure_path is required")
-        structure = Path(structure_text).expanduser()
-        if not structure.is_file():
-            raise StepError(f"proteinmpnn_hotspot_masked_design: structure_path {structure} is not a file")
-        if structure.suffix.lower() not in {".pdb", ".ent"}:
-            raise StepError("proteinmpnn_hotspot_masked_design: structure_path must name a .pdb file")
+        structure = _protein_common.structure_file(
+            form, structure_text, "proteinmpnn_hotspot_masked_design", atom_dim, field_dim
+        )
         if not 3.0 <= cutoff <= 10.0:
             raise StepError("proteinmpnn_hotspot_masked_design: cutoff must be between 3 and 10 angstrom")
         if min_contacts < 1:

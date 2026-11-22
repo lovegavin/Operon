@@ -35,6 +35,106 @@ def _format_number(value) -> str:
     return format(number, ".10g")
 
 
+def structure_file(
+    form: Form,
+    requested,
+    prefix: str,
+    atom_dim: str = "atom",
+    field_dim: str = "field",
+) -> Path:
+    """Return a PDB file for *form*.
+
+    The operators receive the structure as a form, so asking callers for the
+    same file a second time breaks a wired route.  When no usable path is
+    passed the coordinates are re-emitted into a temporary PDB file.
+    """
+
+    text = str(requested or "").strip()
+    if text and text != ".":
+        candidate = Path(text).expanduser()
+        if candidate.is_file():
+            return candidate
+    import tempfile
+
+    target = Path(tempfile.mkdtemp(prefix=prefix + "-")) / "structure.pdb"
+    return write_structure_pdb(form, atom_dim, field_dim, target, prefix)
+
+
+def write_structure_pdb(
+    form: Form,
+    atom_dim: str,
+    field_dim: str,
+    target: Path,
+    prefix: str,
+) -> Path:
+    """Write one PDB file from an atom x field form."""
+
+    data = np.asarray(form.data, dtype=float)
+    if data.ndim != 2 or list(form.dims) != [atom_dim, field_dim]:
+        raise StepError(
+            f"{prefix}: expected a form with dims ['{atom_dim}', '{field_dim}'], "
+            f"got {list(form.dims)}"
+        )
+    columns = {}
+    for name in ("x", "y", "z", "occupancy", "bfactor", "residue_number"):
+        index = column_index(form, field_dim, name)
+        if index >= 0:
+            columns[name] = data[:, index]
+    for required in ("x", "y", "z", "residue_number"):
+        if required not in columns:
+            raise StepError(
+                f"{prefix}: the structure form is missing the '{required}' column; "
+                "wire a PDB reader that provides x, y, z and residue_number"
+            )
+    texts = {
+        name: decode_column(form, field_dim, name)
+        for name in ("atom_name", "resname", "chain", "element", "altloc", "insertion_code")
+    }
+    lines = []
+    for index in range(data.shape[0]):
+
+        def text(name, default=""):
+            column = texts.get(name)
+            if column is None:
+                return default
+            value = str(column[index]).strip()
+            return value or default
+
+        name = text("atom_name")[:4]
+        residue_name = text("resname").strip().upper()
+        if not name.strip():
+            continue
+        if residue_name in {"HOH", "WAT", "DOD", "H2O"}:
+            continue
+        resname = (residue_name or "UNK")[:3].rjust(3)
+        chain = text("chain", " ")[:1] or " "
+        element = text("element")[:2].rjust(2)
+        number = int(round(float(columns["residue_number"][index])))
+        occupancy = float(columns["occupancy"][index]) if "occupancy" in columns else 1.0
+        bfactor = float(columns["bfactor"][index]) if "bfactor" in columns else 0.0
+        lines.append(
+            "ATOM  {serial:>5} {name:<4}{alt:>1}{res:>3} {chain:>1}{number:>4}{icode:>1}   "
+            "{x:>8.3f}{y:>8.3f}{z:>8.3f}{occupancy:>6.2f}{bfactor:>6.2f}          {element:>2}".format(
+                serial=(index % 100000) + 1,
+                name=name,
+                alt=text("altloc", " ")[:1] or " ",
+                res=resname,
+                chain=chain,
+                number=number,
+                icode=text("insertion_code", " ")[:1] or " ",
+                x=float(columns["x"][index]),
+                y=float(columns["y"][index]),
+                z=float(columns["z"][index]),
+                occupancy=occupancy,
+                bfactor=bfactor,
+                element=element,
+            )
+        )
+    lines.append("END")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("\n".join(lines) + "\n")
+    return target
+
 def decode_column(form: Form, field_dim: str, name: str) -> np.ndarray | None:
     """Decode one structural column to strings.
 

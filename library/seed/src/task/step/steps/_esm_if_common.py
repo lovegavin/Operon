@@ -15,9 +15,30 @@ from ._structure_common import atom_coords
 _BACKBONE = {"N": 0, "CA": 1, "C": 2}
 
 
+_CHECKPOINT_NAME = "esm_if1_gvp4_t16_142M_UR50.pt"
+
+
+def default_checkpoint() -> str:
+    """Return the ESM-IF1 checkpoint from the declared resource, or an empty string."""
+
+    try:
+        from ._resources_common import check_resource, load_resources, resolved_path
+    except Exception:  # pragma: no cover - helper import guard
+        return ""
+    try:
+        resource = load_resources()["esm_if1"]
+        check = check_resource(resource)
+    except Exception:  # pragma: no cover - manifest guard
+        return ""
+    if check.get("status") != "ok":
+        return ""
+    candidate = resolved_path(check["root"], _CHECKPOINT_NAME)
+    return str(candidate) if candidate.is_file() else ""
+
+
 def load_esm_if(model_path, operator: str):
     """Load a local ESM-IF1 checkpoint and return (model, alphabet, torch)."""
-    raw = str(model_path or "").strip()
+    raw = str(model_path or "").strip() or default_checkpoint()
     if not raw:
         raise StepError(
             f"{operator}: model_path is required; point it at a local ESM-IF1 checkpoint "
