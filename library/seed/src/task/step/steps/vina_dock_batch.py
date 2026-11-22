@@ -15,6 +15,7 @@ from src.task.step.base import Step
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
 
 from .vina_dock import docking_command, ligand_centroid, parse_vina_log
+from . import _vina_common
 
 _STATISTICS = ("best_affinity", "rmsd_lb", "rmsd_ub", "n_modes")
 
@@ -152,7 +153,7 @@ class VinaDockBatchStep(Step):
         params = ctx.step_params
         receptor_text = str(params.get("receptor_path") or "").strip()
         ligand_text = str(params.get("ligand_paths") or "").strip()
-        binary = str(params.get("vina_path") or "vina").strip() or "vina"
+        binary = _vina_common.resolve_binary(str(params.get("vina_path") or "vina").strip() or "vina")
         timeout = int(params.get("timeout_seconds") or 600)
         out_name = params.get("output", self.name)
 

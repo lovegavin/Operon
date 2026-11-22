@@ -1109,6 +1109,52 @@
         }
       ],
       "notes": "Boltz, ColabFold and AlphaFold-style operators build MSAs locally with MMseqs2 against these databases, so no structure run needs the ColabFold API. Measurements on 2026-11-22: opendata.mmseqs.org served uniref30 at 2.9 MB/s and the environmental database at 9.4 MB/s from the compute host, while wwwuser.gwdg.de/~compbiol/colabfold/ dropped to 38 KB/s. The colabfold environment installs the mmseqs binary; set OPERON_COLABFOLD_MSA to point at a copy outside the resource root. The archive is not part of any environment's dependency gate: an environment stays ready without it, and only the operators that build MSAs locally need it (they report a clear error when it is absent)."
+    },
+    {
+      "id": "vina",
+      "title": "AutoDock Vina executable",
+      "kind": "tool",
+      "url": "https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_linux_x86_64",
+      "install": "download the static linux binary into the resource root and keep it executable",
+      "env": "OPERON_VINA",
+      "roots": [
+        "~/.local/share/operon/resources/vina"
+      ],
+      "files": [
+        "vina_1.2.5_linux_x86_64"
+      ],
+      "expected_files": [
+        "vina_1.2.5_linux_x86_64"
+      ],
+      "downloads": [
+        {
+          "url": "https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_linux_x86_64",
+          "path": "vina_1.2.5_linux_x86_64",
+          "bytes": 4089576,
+          "unit": "vina",
+          "note": "verified 2026-11-22 through the GitHub proxy: HTTP 200, 4,089,576 bytes. PyPI vina 1.2.5 ships cp36-cp39 wheels only, so the static build is the only source for the python 3.11 environments."
+        }
+      ],
+      "link_unit": "items",
+      "link_root": "vina",
+      "envs": [
+        "core"
+      ],
+      "units": [
+        {
+          "name": "vina_1.2.5_linux_x86_64",
+          "path": "",
+          "mode": "file",
+          "kind": "tool",
+          "bytes": 4089576,
+          "url": "https://github.com/ccsb-scripps/AutoDock-Vina/releases/download/v1.2.5/vina_1.2.5_linux_x86_64",
+          "files": [
+            "vina_1.2.5_linux_x86_64"
+          ],
+          "note": "executable; vina_dock and vina_dock_batch resolve it when PATH has no vina"
+        }
+      ],
+      "notes": "The vina_dock and vina_dock_batch operators only need the executable, not the python package. Downloading the static release binary removes the last dependency the CentOS 7 host cannot build."
     }
   ],
   "version": 2

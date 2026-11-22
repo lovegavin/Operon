@@ -14,6 +14,7 @@ from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.step.base import Step
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
+from . import _vina_common
 
 _ATOMIC_NUMBER = {
     "H": 1, "C": 6, "N": 7, "O": 8, "F": 9, "P": 15, "S": 16,
