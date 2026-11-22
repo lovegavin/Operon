@@ -398,20 +398,6 @@ class TaskService:
             graph = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
             return self._launch(graph)
 
-def _pool_error(exc: Exception) -> CommandError:
-    """Translate a pool authority failure into a command error clients can act on."""
-
-    if getattr(exc, 'code', None) == 'pool_upgrade_required':
-        return CommandError(
-            'pool_busy',
-            'Another Operon version still has active tasks in the shared pool; retry shortly',
-            503, {'retryable': True, 'reason': f'{type(exc).__name__}: {exc}'})
-    return CommandError(
-        'engine_unavailable',
-        'The shared pool is unavailable; no local executor fallback was used',
-        503, {'reason': f'{type(exc).__name__}: {exc}'})
-
-
     def _launch(self, graph, *, validated=False):
         if not validated:
             graph = self.app._execution_binding(graph, self.app.validate(graph, require_files=True))
@@ -710,6 +696,25 @@ def _pool_error(exc: Exception) -> CommandError:
                     'done': end >= size and job['status'] not in ACTIVE and job.get('logs_complete', True), 'status': job['status']}
         return {'text': '', 'base64': '', 'offset': 0, 'eof': True, 'done': job['status'] not in ACTIVE,
                 'status': job['status'], 'error': job.get('error')}
+
+
+
+
+
+
+def _pool_error(exc: Exception) -> CommandError:
+    """Translate a pool authority failure into a command error clients can act on."""
+
+    if getattr(exc, 'code', None) == 'pool_upgrade_required':
+        return CommandError(
+            'pool_busy',
+            'Another Operon version still has active tasks in the shared pool; retry shortly',
+            503, {'retryable': True, 'reason': f'{type(exc).__name__}: {exc}'})
+    return CommandError(
+        'engine_unavailable',
+        'The shared pool is unavailable; no local executor fallback was used',
+        503, {'reason': f'{type(exc).__name__}: {exc}'})
+
 
 
 class ArtifactService:
