@@ -18,6 +18,7 @@ from pathlib import Path
 import numpy as np
 
 from src.core.errors import StepError
+from src.task.step.steps._resources_common import check_resource, load_resources
 from src.core.forms import Form
 from src.reader import read_source
 from src.task.step.base import Step
@@ -32,6 +33,17 @@ sequences:
       sequence: {sequence}
       msa: empty
 """
+
+
+def _default_cache() -> str:
+    """Return the installed Boltz weights directory, or an empty string."""
+
+    try:
+        resource = load_resources()["boltz"]
+        check = check_resource(resource)
+    except Exception:
+        return ""
+    return str(check["root"]) if check.get("status") == "ok" else ""
 
 
 def write_yaml(path: Path, chain: str, sequence: str) -> None:
@@ -234,7 +246,7 @@ class BoltzComplexConfidenceStep(Step):
         device = str(params.get("device", "cpu"))
         if device not in ("cpu", "cuda"):
             raise StepError("boltz_complex_confidence: device must be 'cpu' or 'cuda'")
-        cache = str(params.get("cache_dir", "") or "").strip()
+        cache = str(params.get("cache_dir", "") or "").strip() or _default_cache()
         if not cache:
             from operon_core.steps._resources_common import load_resources
             entry = load_resources().get("boltz")

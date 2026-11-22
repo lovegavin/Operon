@@ -5,6 +5,7 @@ from __future__ import annotations
 import numpy as np
 
 from src.core.errors import StepError
+from src.task.step.steps._resources_common import check_resource, load_resources
 from src.core.forms import Form
 from src.task.step.base import Step
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
@@ -19,6 +20,17 @@ from pathlib import Path
 
 _YAML_PROTEIN = "version: 1\nsequences:\n  - protein:\n      id: {chain}\n      sequence: {sequence}\n"
 _YAML_LIGAND = "  - ligand:\n      id: {chain}\n      smiles: \"{smiles}\"\n"
+
+
+def _default_cache() -> str:
+    """Return the installed Boltz weights directory, or an empty string."""
+
+    try:
+        resource = load_resources()["boltz"]
+        check = check_resource(resource)
+    except Exception:
+        return ""
+    return str(check["root"]) if check.get("status") == "ok" else ""
 
 
 def write_yaml(path: Path, sequence: str, *, chain: str = "A", ligand_smiles: str = "", ligand_chain: str = "B", affinity: bool = False, msa_mode: str = "server") -> None:
@@ -189,7 +201,7 @@ class BoltzPredictStep(Step):
             no_kernels=bool(params.get("no_kernels", False)),
             extra=str(params.get("extra_args", "")),
         )
-        cache_dir = str(params.get("cache_dir", "") or "")
+        cache_dir = str(params.get("cache_dir", "") or "").strip() or _default_cache()
         if cache_dir:
             command.extend(["--cache", cache_dir])
         if str(resolved).lower().endswith(".py"):
