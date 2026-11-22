@@ -24,7 +24,8 @@ files only.
 Label rules accepted:
 
     builtin           sequence: first token after '>'
-    auto              position indices "0", "1", ...
+                      position: the index of the residue, "0", "1", ...
+    auto              sequence: the record index; position: indices "0", "1", ...
     {name: pos, ...}  explicit mapping
 
 A missing dim entry defaults to ``auto`` for position and
@@ -167,7 +168,10 @@ class FastaReader(Reader):
             )
 
         pos_rule = labels.get(position_dim, "auto")
-        if pos_rule in (None, "auto"):
+        if pos_rule in (None, "auto", "builtin"):
+            # A FASTA record carries no per-residue names, so both rules name
+            # the positions by their index.  "builtin" is accepted because the
+            # declared default and the workflow editor both offer it.
             final[position_dim] = {
                 str(i): i for i in range(max_len)
             }
