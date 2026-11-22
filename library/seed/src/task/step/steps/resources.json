@@ -143,16 +143,23 @@
         "~/.local/share/operon/resources/esm2"
       ],
       "files": [
-        "esm2_t6_8M_UR50D.pt"
+        "esm2_t6_8M_UR50D.pt",
+        "esm2_t6_8M_UR50D-contact-regression.pt"
       ],
       "expected_files": [
-        "esm2_t6_8M_UR50D.pt"
+        "esm2_t6_8M_UR50D.pt",
+        "esm2_t6_8M_UR50D-contact-regression.pt"
       ],
       "downloads": [
         {
           "url": "https://dl.fbaipublicfiles.com/fair-esm/models/esm2_t6_8M_UR50D.pt",
           "path": "esm2_t6_8M_UR50D.pt",
           "bytes": 30099493
+        },
+        {
+          "url": "https://dl.fbaipublicfiles.com/fair-esm/regression/esm2_t6_8M_UR50D-contact-regression.pt",
+          "path": "esm2_t6_8M_UR50D-contact-regression.pt",
+          "bytes": 1511
         }
       ],
       "link_unit": "items",
@@ -173,6 +180,18 @@
             "esm2_t6_8M_UR50D.pt"
           ],
           "note": ""
+        },
+        {
+          "name": "esm2_t6_8M_UR50D-contact-regression.pt",
+          "path": "",
+          "mode": "file",
+          "kind": "weights",
+          "bytes": 1511,
+          "url": "https://dl.fbaipublicfiles.com/fair-esm/regression/esm2_t6_8M_UR50D-contact-regression.pt",
+          "files": [
+            "esm2_t6_8M_UR50D-contact-regression.pt"
+          ],
+          "note": "fair-esm loads this regression head beside every esm2 checkpoint"
         }
       ]
     },

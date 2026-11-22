@@ -223,7 +223,8 @@
         "openmm==8.1.1",
         "numpy==1.26.4",
         "setuptools>=68,<81",
-        "wheel"
+        "wheel",
+        "pydantic>=2.7"
       ],
       "notes": "OpenMM 8.1.1 wheels use the NumPy 1 ABI. This isolated venv shares the host Python (3.11 on Studio 4.1.9; venv_shared ignores the declared version) and pins OpenMM 8.1.1 plus NumPy 1.26 without downgrading the shared NumPy 2 runtime. PDBFixer 1.9 is bundled inside the operator library, so environment creation needs no GitHub download and no external pdbfixer package.",
       "pip_wheels": [
@@ -372,7 +373,8 @@
         "numpy==1.26.4",
         "scipy==1.13.1",
         "biopython==1.83",
-        "tqdm"
+        "tqdm",
+        "pydantic>=2.7"
       ],
       "resources": [
         "proteinmpnn"
@@ -394,7 +396,8 @@
         "numpy==1.26.4",
         "scipy==1.13.1",
         "biopython==1.83",
-        "tqdm"
+        "tqdm",
+        "pydantic>=2.7"
       ],
       "resources": [
         "ligandmpnn"
@@ -417,7 +420,8 @@
         "scipy==1.13.1",
         "hydra-core==1.3.2",
         "omegaconf==2.3.0",
-        "pyyaml>=6.0"
+        "pyyaml>=6.0",
+        "pydantic>=2.7"
       ],
       "resources": [
         "rfdiffusion"
@@ -431,7 +435,9 @@
       "title": "HMMER 序列比对",
       "python": "3.11",
       "imports": [],
-      "requirements": [],
+      "requirements": [
+        "pydantic>=2.7"
+      ],
       "conda_packages": [
         "hmmer=3.4",
         "infernal=1.1.4"
@@ -502,6 +508,9 @@
       "platforms": [
         "linux",
         "darwin"
+      ],
+      "requirements": [
+        "pydantic>=2.7"
       ]
     },
     "esm2": {
@@ -521,7 +530,8 @@
         "scipy==1.13.1",
         "biopython==1.83",
         "biotite==0.41.2",
-        "torch-geometric==2.6.1"
+        "torch-geometric==2.6.1",
+        "pydantic>=2.7"
       ],
       "pip_pypi": [
         "fair-esm==2.0.0"
@@ -543,7 +553,8 @@
       "python": "3.11",
       "imports": [],
       "requirements": [
-        "numpy"
+        "numpy",
+        "pydantic>=2.7"
       ],
       "resources": [
         "alphafold2"
@@ -579,6 +590,9 @@
       "platforms": [
         "linux",
         "darwin"
+      ],
+      "requirements": [
+        "pydantic>=2.7"
       ]
     },
     "hic": {
@@ -592,7 +606,8 @@
         "cooler==0.9.3",
         "numpy==1.26.4",
         "pandas==2.2.2",
-        "psutil>=5.9"
+        "psutil>=5.9",
+        "pydantic>=2.7"
       ],
       "binaries": [
         "pairtools",
@@ -619,6 +634,9 @@
       "platforms": [
         "linux",
         "darwin"
+      ],
+      "requirements": [
+        "pydantic>=2.7"
       ]
     }
   }
