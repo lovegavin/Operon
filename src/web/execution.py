@@ -1029,7 +1029,7 @@ class ExecutionService:
         try:
             job = self._read(key); graph = Graph.model_validate(job['graph']); plan = job['execution_plan']
             pending = {unit['id']: unit for unit in plan['units'] if unit['id'] not in job['completed_units']}
-            parallel = min(len(plan['units']), settings(graph).get('max_parallel_tasks', 2))
+            parallel = min(len(plan['units']), settings(graph).get('max_parallel_tasks', 2) or (os.cpu_count() or 2))
             with ThreadPoolExecutor(max_workers=max(1, parallel), thread_name_prefix='stage') as pool:
                 running = {}
                 while pending or running:

@@ -324,22 +324,94 @@ def create_server(client):
             return client.request('/remote/' + quote(profile_id, safe='') + '/browse', remote)
         return client.request('/browse', payload)
 
+    def _with_parallel(graph, max_parallel_tasks):
+        """Copy the graph and write the requested per-job concurrency into it."""
+        if max_parallel_tasks is None:
+            return graph
+        value = int(max_parallel_tasks)
+        if value < 0:
+            raise ValueError('max_parallel_tasks must be zero (unlimited) or a positive integer')
+        result = dict(graph or {})
+        runtime = dict(result.get('runtime') or {})
+        execution = dict(runtime.get('execution') or {})
+        execution['max_parallel_tasks'] = value
+        runtime['execution'] = execution
+        result['runtime'] = runtime
+        return result
+
     @server.tool()
     def operon_submit(request_id: str, graph: dict | None = None, workflow_id: str | None = None,
-                       expected_version: int | None = None, view: str = 'brief') -> dict:
+                       expected_version: int | None = None, view: str = 'brief',
+                       max_parallel_tasks: int | None = None) -> dict:
         """Submit a workflow without a canvas; requires --allow-run. Exactly one graph or workflow_id.
 
         Reuse request_id only for identical retries. A saved workflow requires expected_version.
+        max_parallel_tasks overrides the profile default for this job; 0 means unlimited.
         Returns a durable job ID immediately; closing the MCP connection does not cancel the task.
         """
         payload = {'request_id': request_id, 'expected_version': expected_version}
         if graph is not None:
-            payload['graph'] = graph
+            payload['graph'] = _with_parallel(graph, max_parallel_tasks)
         if workflow_id:
             payload['workflow_id'] = workflow_id
         from .agent_views import job_view
         job_view({}, view)
         return job_view(client.request('/v1/jobs', payload), view)
+
+    @server.tool()
+    def operon_submit_many(graphs: list[dict], request_ids: list[str] | None = None,
+                           max_parallel_tasks: int | None = None, view: str = 'brief',
+                           workers: int = 16) -> dict:
+        """Submit a list of graphs concurrently; requires --allow-run.
+
+        One MCP request carries many jobs, so a client that can only speak to one
+        tool at a time no longer serialises the queue. Returns the accepted job
+        IDs in the order of ``graphs`` plus per-index errors for the rejects.
+        max_parallel_tasks is applied to every graph; 0 means unlimited.
+        """
+        from concurrent.futures import ThreadPoolExecutor
+        from .agent_views import job_view
+        items = list(graphs or [])
+        if not items:
+            raise ValueError('graphs must contain at least one graph')
+        names = list(request_ids or [])
+        if names and len(names) != len(items):
+            raise ValueError('request_ids must be empty or match graphs in length')
+
+        def one(index):
+            payload = {'request_id': names[index] if names else f'mcp-batch-{index}'}
+            payload['graph'] = _with_parallel(items[index], max_parallel_tasks)
+            try:
+                return {'index': index, 'job': job_view(client.request('/v1/jobs', payload), view)}
+            except Exception as error:  # noqa: BLE001 - one reject must not hide the rest
+                return {'index': index, 'error': f'{type(error).__name__}: {error}'}
+
+        with ThreadPoolExecutor(max_workers=max(1, min(int(workers or 16), 64))) as pool:
+            results = list(pool.map(one, range(len(items))))
+        accepted = [item for item in results if 'job' in item]
+        return {'items': results, 'accepted': len(accepted), 'rejected': len(results) - len(accepted)}
+
+    @server.tool()
+    def operon_jobs_many(job_ids: list[str], view: str = 'brief') -> dict:
+        """Read several durable job statuses in one request.
+
+        Mirrors operon_jobs for a list of IDs, so polling a batch is one call
+        instead of one call per job.
+        """
+        from concurrent.futures import ThreadPoolExecutor
+        from .agent_views import job_view
+        ids = [str(item) for item in (job_ids or []) if item]
+        if not ids:
+            raise ValueError('job_ids must contain at least one id')
+
+        def one(job_id):
+            try:
+                return {'job_id': job_id, 'job': job_view(client.request('/v1/jobs/' + quote(job_id, safe='')), view)}
+            except Exception as error:  # noqa: BLE001 - report the miss, keep the batch
+                return {'job_id': job_id, 'error': f'{type(error).__name__}: {error}'}
+
+        with ThreadPoolExecutor(max_workers=max(1, min(len(ids), 32))) as pool:
+            return {'items': list(pool.map(one, ids))}
 
     @server.tool()
     def operon_jobs(profile_id: str | None = None) -> dict:
@@ -1042,7 +1114,7 @@ def create_server(client):
     def operon_preferences_save(preferences: dict, initialize: bool = False) -> dict:
         """Persist preferences (language, theme, parallel_tasks); requires edit scope.
 
-        parallel_tasks is 1-64 or null for the built-in default of 2; it is the same setting the
+        parallel_tasks is 0 (unlimited), 1-64, or null for the built-in default of 2; it is the same setting the
         desktop exposes under Settings -> Execution.
         """
         return client.request('/v1/preferences', {'preferences': preferences, 'initialize': initialize})

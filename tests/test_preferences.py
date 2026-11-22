@@ -18,23 +18,23 @@ def test_language_is_profile_scoped_and_survives_new_service(tmp_path):
     settings = Settings(workspace, workspace / '.studio', ROOT / 'frontend/dist', testing=True)
     with TestClient(create_app(settings)) as client:
         bootstrap = client.get('/api/bootstrap').json()
-        assert bootstrap['preferences'] == {'language': 'system', 'theme': 'system'}
+        assert bootstrap['preferences'] == {'language': 'system', 'theme': 'system', 'parallel_tasks': None}
         headers = {'X-Studio-Token': bootstrap['token']}
         assert client.post('/api/preferences', json={'language': 'en'}, headers=headers).status_code == 200
         assert client.post('/api/preferences', json={'theme': 'dark'}, headers=headers).status_code == 200
-        assert client.get('/api/preferences').json() == {'language': 'en', 'theme': 'dark'}
+        assert client.get('/api/preferences').json() == {'language': 'en', 'theme': 'dark', 'parallel_tasks': None}
         # Old browser caches initialize missing fields only, even on a new port.
-        assert client.post('/api/preferences?initialize=true', json={'language': 'zh-CN', 'theme': 'light'}, headers=headers).json() == {'language': 'en', 'theme': 'dark'}
+        assert client.post('/api/preferences?initialize=true', json={'language': 'zh-CN', 'theme': 'light'}, headers=headers).json() == {'language': 'en', 'theme': 'dark', 'parallel_tasks': None}
         assert client.post('/api/preferences', json={'language': '../../escape'}, headers=headers).status_code == 422
-        assert client.get('/api/preferences').json() == {'language': 'en', 'theme': 'dark'}
+        assert client.get('/api/preferences').json() == {'language': 'en', 'theme': 'dark', 'parallel_tasks': None}
         assert client.post('/api/preferences', json={'theme': 'invented'}, headers=headers).status_code == 422
     # A new app/port uses the same profile file, not a browser-origin setting.
     with TestClient(create_app(settings)) as client:
-        assert client.get('/api/bootstrap').json()['preferences'] == {'language': 'en', 'theme': 'dark'}
+        assert client.get('/api/bootstrap').json()['preferences'] == {'language': 'en', 'theme': 'dark', 'parallel_tasks': None}
     assert json.loads((workspace / '.studio/config.json').read_text()) == {'language': 'en', 'theme': 'dark'}
     other = tmp_path / 'other'
     with TestClient(create_app(Settings(other, other / '.studio', ROOT / 'frontend/dist', testing=True))) as client:
-        assert client.get('/api/bootstrap').json()['preferences'] == {'language': 'system', 'theme': 'system'}
+        assert client.get('/api/bootstrap').json()['preferences'] == {'language': 'system', 'theme': 'system', 'parallel_tasks': None}
 
 
 def test_migrates_old_settings_once_without_resurrecting_cleared_choices(tmp_path):
@@ -46,7 +46,7 @@ def test_migrates_old_settings_once_without_resurrecting_cleared_choices(tmp_pat
     config = UserConfig(tmp_path)
     assert config.read() == {'language': 'en', 'viewers': {'paths': {'igv': 'example.exe'}, 'defaults': {'.bed': 'igv'}}}
     save(tmp_path, Preferences(theme='dark', language='zh-CN'), initialize=True)
-    assert load(tmp_path).model_dump() == {'language': 'en', 'theme': 'dark'}
+    assert load(tmp_path).model_dump() == {'language': 'en', 'theme': 'dark', 'parallel_tasks': None}
     config.update(lambda value: value['viewers']['defaults'].clear())
     assert UserConfig(tmp_path).read()['viewers']['defaults'] == {}
     for path, value in originals.items():

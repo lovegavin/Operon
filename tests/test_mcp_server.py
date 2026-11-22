@@ -121,7 +121,9 @@ def test_new_mcp_surface_is_complete():
     server = create_server(SimpleNamespace(request=lambda *args, **kwargs: {}))
     names = {tool.name for tool in asyncio.run(server.list_tools())}
     assert NEW_TOOLS <= names
-    assert len(names) == 142
+    # The batch tools exist so one MCP request can drive many jobs at once.
+    assert {'operon_submit_many', 'operon_jobs_many'} <= names
+    assert len(names) == 146
 
 
 def test_route_collection_remove_uses_delete():

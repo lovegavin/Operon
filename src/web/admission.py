@@ -234,9 +234,10 @@ class HostAdmission:
         memory = manifest.get('runtime', {}).get('memory', {})
         execution = manifest.get('runtime', {}).get('execution', {})
         parallel = execution.get('max_parallel_tasks', 2)
-        if isinstance(parallel, bool) or not isinstance(parallel, int) or parallel < 1:
-            raise ValueError('execution.max_parallel_tasks must be a positive integer')
-        slots = min(self.cpus, parallel)
+        if isinstance(parallel, bool) or not isinstance(parallel, int) or parallel < 0:
+            raise ValueError('execution.max_parallel_tasks must be zero (unlimited) or a positive integer')
+        # Zero is an explicit request for the whole host.
+        slots = min(self.cpus, parallel or self.cpus)
         def resource(value, default=0):
             return value if isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value > 0 else default
         steps = manifest.get('steps', [])

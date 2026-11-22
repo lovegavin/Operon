@@ -10,7 +10,8 @@ class Preferences(BaseModel):
     theme: Literal['system', 'light', 'dark'] = 'system'
     # How many plan units one job may run at once when its graph does not
     # say.  1 disables parallelism; higher values are bounded by the host.
-    parallel_tasks: int | None = Field(default=None, ge=1, le=64)
+    # 0 means unlimited: the planner then uses every unit the host allows.
+    parallel_tasks: int | None = Field(default=None, ge=0, le=64)
 
 
 def presentation(value):
