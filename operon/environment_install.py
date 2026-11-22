@@ -245,6 +245,16 @@ def _split_dependency_counts(rows) -> dict:
     }
 
 
+def dependency_counts(rows) -> dict:
+    """Public form of the required/optional split for callers outside this module.
+
+    The remote snapshot used to overwrite ``dependency_total`` with the combined
+    count, which is why a ready environment with one optional binding still read
+    as "依赖缺失" in the panel.
+    """
+    return _split_dependency_counts(rows)
+
+
 def _dependency_fields(result: dict, entry: dict, directory: Path) -> None:
     """Attach declared-dependency counts even when the environment is not built yet.
 

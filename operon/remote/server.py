@@ -222,9 +222,8 @@ def environment_snapshot(service) -> dict:
             except Exception:
                 location = ''
         entry = entries.get(name) if isinstance(entries, dict) else None
-        installed, total, rows = environment_install.dependency_status(entry or {}, location)
-        item['dependency_installed'] = installed
-        item['dependency_total'] = total
+        _, _, rows = environment_install.dependency_status(entry or {}, location)
+        item.update(environment_install.dependency_counts(rows))
         item['dependencies'] = rows
         entry_map = entry if isinstance(entry, dict) else {}
         declared = [str(value) for value in (entry_map.get('resources') or []) if value]
