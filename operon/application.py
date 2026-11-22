@@ -398,6 +398,20 @@ class TaskService:
             graph = Graph.model_validate(layout(graph)) if isinstance(graph, dict) else graph
             return self._launch(graph)
 
+def _pool_error(exc: Exception) -> CommandError:
+    """Translate a pool authority failure into a command error clients can act on."""
+
+    if getattr(exc, 'code', None) == 'pool_upgrade_required':
+        return CommandError(
+            'pool_busy',
+            'Another Operon version still has active tasks in the shared pool; retry shortly',
+            503, {'retryable': True, 'reason': f'{type(exc).__name__}: {exc}'})
+    return CommandError(
+        'engine_unavailable',
+        'The shared pool is unavailable; no local executor fallback was used',
+        503, {'reason': f'{type(exc).__name__}: {exc}'})
+
+
     def _launch(self, graph, *, validated=False):
         if not validated:
             graph = self.app._execution_binding(graph, self.app.validate(graph, require_files=True))
@@ -407,19 +421,13 @@ class TaskService:
             try:
                 return self.service.launch(graph)
             except Exception as exc:  # noqa: BLE001 - pool authority failure is explicit
-                raise CommandError(
-                    'engine_unavailable',
-                    'The shared pool is unavailable; no local executor fallback was used',
-                    503, {'reason': f'{type(exc).__name__}: {exc}'}) from exc
+                raise _pool_error(exc) from exc
         try:
             return (self.app.executions.launch(graph) if self.app.executions.applies(graph)
                     else self.service.launch(graph))
         except Exception as exc:  # noqa: BLE001 - pool authority failure is explicit
             if getattr(self.service, 'pool_remote', False):
-                raise CommandError(
-                    'engine_unavailable',
-                    'The shared pool is unavailable; no local executor fallback was used',
-                    503, {'reason': f'{type(exc).__name__}: {exc}'}) from exc
+                raise _pool_error(exc) from exc
             raise
 
     def _prepare_submission(self, graph):
