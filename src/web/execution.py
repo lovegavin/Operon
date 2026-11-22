@@ -1220,9 +1220,18 @@ class ExecutionService:
         child = job['children'][index]
         return self.service.result_path(child['id'], rest) if child['target']['kind'] == 'local' else self._fetch_output(key, child, 'result', path=rest)
 
+    def summary(self, key):
+        """Cheap record for the job list: no console, no child results, no artifacts."""
+        job = self._read(key)
+        job['progress'] = execution_progress(job)
+        return job
+
     def history(self):
-        return sorted([self.details(path.parent.name) for path in self.directory.glob('exec-*/job.json')],
+        return sorted([self.summary(path.parent.name) for path in self.directory.glob('exec-*/job.json')],
                       key=lambda job: job['created_at'], reverse=True)
+
+    def history_count(self):
+        return sum(1 for _ in self.directory.glob('exec-*/job.json'))
 
     def cancel(self, key):
         job = self._read(key)
