@@ -33,12 +33,18 @@ export function ConcurrencySettings() {
     } catch (problem) {setError((problem as Error).message);}
     finally {setPending(false);}
   }
-  return <fieldset className="appearance-settings"><legend>{t("默认并发任务数")}</legend>
+  return <section className="execution-settings">
+    <h4>{t("默认并发任务数")}</h4>
     <p className="settings-hint">{t("同一个任务里可以同时运行几步；留空使用内置默认值 2。")}</p>
-    <label className="concurrency-field"><input type="number" min={1} max={64} step={1} inputMode="numeric"
-      value={value} disabled={pending} placeholder="2"
-      onChange={event => setValue(event.target.value)} onBlur={commit} onKeyDown={event => {if (event.key === 'Enter') commit();}}/>
-      <span>{t("留空表示 2")}</span></label>
+    <label className="concurrency-field">
+      <span className="concurrency-copy">
+        <strong>{t("并发任务数")}</strong>
+        <small>{t("范围 1–64，上限取决于服务器核数。")}</small>
+      </span>
+      <input type="number" min={1} max={64} step={1} inputMode="numeric"
+        value={value} disabled={pending} placeholder="2"
+        onChange={event => setValue(event.target.value)} onBlur={commit} onKeyDown={event => {if (event.key === 'Enter') commit();}}/>
+    </label>
     {error && <p className="modal-error" role="alert">{error}</p>}
-  </fieldset>;
+  </section>;
 }

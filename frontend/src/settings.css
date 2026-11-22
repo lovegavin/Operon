@@ -61,7 +61,13 @@
 .language-settings label:has(input:checked) { border-color:var(--text-primary); background:var(--surface-hover); }
 .language-settings input { accent-color:var(--text-primary); }.language-settings label svg { margin-left:auto; }
 
-.concurrency-field { display:flex; gap:10px; align-items:center; }
-.concurrency-field input { width:110px; padding:8px 10px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text-primary); font:inherit; }
-.concurrency-field span { font-size:12px; color:var(--text-secondary); }
+.execution-settings { max-width:560px; }
+.execution-settings h4 { margin:0 0 6px; font-size:14px; font-weight:500; }
+.execution-settings .settings-hint { margin:0 0 14px; }
+.concurrency-field { display:flex; gap:20px; align-items:center; justify-content:space-between; padding:16px; border:1px solid var(--border); border-radius:var(--radius-md); background:var(--surface); }
+.concurrency-field .concurrency-copy { display:flex; flex-direction:column; gap:5px; min-width:0; }
+.concurrency-field .concurrency-copy strong { font-size:13px; font-weight:500; }
+.concurrency-field .concurrency-copy small { font-size:12px; line-height:1.4; color:var(--text-secondary); }
+.concurrency-field input { flex:none; width:88px; padding:9px 10px; border:1px solid var(--border); border-radius:8px; background:var(--surface); color:var(--text-primary); font:inherit; text-align:center; }
+.concurrency-field input:focus-visible { outline:2px solid var(--accent, var(--text-primary)); outline-offset:1px; }
 .settings-hint { margin:0 0 12px; font-size:12px; color:var(--text-secondary); }

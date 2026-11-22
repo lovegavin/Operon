@@ -1126,5 +1126,7 @@
   "默认并发任务数": "Default parallel tasks",
   "同一个任务里可以同时运行几步；留空使用内置默认值 2。": "How many steps of one job may run at once; leave empty for the built-in 2.",
   "留空表示 2": "Empty means 2",
-  "并发任务数必须是正整数": "Parallel task count must be a positive integer"
+  "并发任务数必须是正整数": "Parallel task count must be a positive integer",
+  "并发任务数": "Concurrent tasks",
+  "范围 1–64，上限取决于服务器核数。": "1–64; the server's core count is the ceiling."
 }
