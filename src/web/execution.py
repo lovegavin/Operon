@@ -81,6 +81,8 @@ class ExecutionService:
         self.threads, self.cancels = {}, {}
         self.progress_stamps = {}
         self.cancel_stamps = {}
+        self.disconnected_since = {}
+        self.disconnect_seconds = float(os.environ.get('OPERON_DISCONNECT_SECONDS', '900'))
         self.owner = process_identity()
         # Another Studio window may own a coordinator; never duplicate it.
         for path in self.directory.glob('exec-*/job.json'):
@@ -355,7 +357,9 @@ class ExecutionService:
         while True:
             self._check(key)
             try:
-                return self.service.remotes.call(profile, method, params)
+                result = self.service.remotes.call(profile, method, params)
+                self.disconnected_since.pop(key, None)
+                return result
             except RemoteError as exc:
                 if str(exc) == 'Transfer memory is unavailable; retry admission':
                     self._update(key, status='queued', progress={**self._read(key)['progress'], 'phase': 'queued', 'current': 'Waiting for transfer memory'})
@@ -363,6 +367,15 @@ class ExecutionService:
                     continue
                 if exc.code != 'remote_disconnected':
                     raise
+                since = self.disconnected_since.setdefault(key, time.monotonic())
+                waited = time.monotonic() - since
+                if waited > self.disconnect_seconds:
+                    self.disconnected_since.pop(key, None)
+                    raise RemoteError(
+                        '服务器连接已断开超过 %d 分钟，任务已停止；请在服务器面板重新连接后重试。'
+                        % round(waited / 60),
+                        code='remote_disconnected',
+                    )
                 self._update(key, status='waiting_connection', progress={**self._read(key)['progress'], 'phase': 'waiting_connection'})
                 if self.stopping.wait(.5):
                     self._check(key)

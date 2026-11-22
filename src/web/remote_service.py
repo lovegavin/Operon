@@ -568,11 +568,26 @@ class RemoteManager:
         return self.call(key, 'environments_repair', {'name': name})
 
     def call(self, key, method, params=None):
-        self.profile(key)
-        connection = self.connections.get(key)
-        if not connection or not connection.connected:
-            raise RemoteError('服务器未连接。请在服务器面板重新连接，服务器上的任务会继续运行。', code='remote_disconnected')
-        return connection.call(method, params)
+        profile = self.profile(key)
+        for attempt in (0, 1):
+            connection = self.connections.get(key)
+            if not connection or not connection.connected:
+                connection = self._reconnect_key_profile(key, profile)
+                if not connection:
+                    raise RemoteError(
+                        '服务器未连接。请在服务器面板重新连接，服务器上的任务会继续运行。',
+                        code='remote_disconnected',
+                    )
+            try:
+                return connection.call(method, params)
+            except RemoteError as exc:
+                # A channel can look connected while the peer is gone.  Give the
+                # key profile one silent reconnect before reporting the break.
+                if attempt or exc.code != 'remote_disconnected':
+                    raise
+                self.disconnect(key)
+        raise RemoteError('服务器未连接。请在服务器面板重新连接，服务器上的任务会继续运行。',
+                          code='remote_disconnected')
 
     def catalog(self, graph):
         key = remote_profile(graph)
