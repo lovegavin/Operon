@@ -1190,8 +1190,20 @@ def _normalise_package(name: str) -> str:
     return str(name).strip().lower().replace('_', '-').replace(' ', '-')
 
 
+def _wheel_project(value: str) -> str:
+    """Return the project of a wheel URL or path, or '' when this is not one."""
+    head = str(value).strip()
+    if not head.lower().endswith('.whl'):
+        return ''
+    base = head.replace('\\', '/').rsplit('/', 1)[-1]
+    return base.split('-', 1)[0]
+
+
 def _requirement_name(value: str) -> str:
     head = str(value).split(';')[0].strip()
+    project = _wheel_project(head)
+    if project:
+        return _normalise_package(project)
     for marker in ('[', '=', '<', '>', '!', '~', ' '):
         head = head.split(marker)[0]
     return _normalise_package(head)
