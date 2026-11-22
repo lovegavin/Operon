@@ -1121,5 +1121,10 @@
   "依赖缺失": "Dependencies missing",
   "需重新准备": "Needs re-preparation",
   "该环境的依赖安装未完成": "The dependency install for this environment did not finish.",
-  "该环境未安装或安装记录已失效，请重新准备": "This environment is not installed, or its installation record is stale. Prepare it again."
+  "该环境未安装或安装记录已失效，请重新准备": "This environment is not installed, or its installation record is stale. Prepare it again.",
+  "执行": "Execution",
+  "默认并发任务数": "Default parallel tasks",
+  "同一个任务里可以同时运行几步；留空使用内置默认值 2。": "How many steps of one job may run at once; leave empty for the built-in 2.",
+  "留空表示 2": "Empty means 2",
+  "并发任务数必须是正整数": "Parallel task count must be a positive integer"
 }

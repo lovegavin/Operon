@@ -225,6 +225,26 @@ def mark_cancelled(name: str, root=None) -> bool:
     return True
 
 
+
+def _split_dependency_counts(rows) -> dict:
+    """Count required dependencies apart from the optional ones.
+
+    Only a missing *required* dependency makes an environment unusable, and the
+    panel derives that from these two counters.  An optional binding that cannot
+    be installed (``vina`` has no cp311 wheel) used to hold the card at
+    "依赖缺失" even when every required dependency was in place.
+    """
+    required = [row for row in rows if not row.get('optional')]
+    optional = [row for row in rows if row.get('optional')]
+    return {
+        'dependency_total': len(required),
+        'dependency_installed': sum(1 for row in required if row.get('installed')),
+        'optional_total': len(optional),
+        'optional_installed': sum(1 for row in optional if row.get('installed')),
+        'optional_missing': [str(row.get('name')) for row in optional if not row.get('installed')][:8],
+    }
+
+
 def _dependency_fields(result: dict, entry: dict, directory: Path) -> None:
     """Attach declared-dependency counts even when the environment is not built yet.
 
@@ -237,9 +257,9 @@ def _dependency_fields(result: dict, entry: dict, directory: Path) -> None:
     except Exception:
         return
     result['dependencies'] = rows
-    result['dependency_total'] = total
-    result['dependency_installed'] = installed
-    result['missing_dependencies'] = [str(row.get('name')) for row in rows if not row.get('installed')][:8]
+    result.update(_split_dependency_counts(rows))
+    result['missing_dependencies'] = [str(row.get('name')) for row in rows
+                                      if not row.get('installed') and not row.get('optional')][:8]
 
 
 PREPARABLE_STATUSES = frozenset({'missing', 'failed', 'stale', 'incomplete'})
@@ -291,8 +311,7 @@ def state(name: str, root=None, source=None) -> dict:
         # failed every operator at run time.
         installed, total, rows = dependency_status(entry, directory)
         result['dependencies'] = rows
-        result['dependency_total'] = total
-        result['dependency_installed'] = installed
+        result.update(_split_dependency_counts(rows))
         missing = [str(row.get('name')) for row in rows
                    if not row.get('installed') and not row.get('optional')]
         optional = [str(row.get('name')) for row in rows

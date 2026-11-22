@@ -324,8 +324,14 @@ def mount_environments(app, service):
         for row in rows:
             row['installed'] = dependency_installed(row, location)
         item['dependencies'] = rows
-        item['dependency_total'] = len(rows)
-        item['dependency_installed'] = sum(1 for row in rows if row.get('installed'))
+        required_rows = [row for row in rows if not row.get('optional')]
+        optional_rows = [row for row in rows if row.get('optional')]
+        item['dependency_total'] = len(required_rows)
+        item['dependency_installed'] = sum(1 for row in required_rows if row.get('installed'))
+        item['optional_total'] = len(optional_rows)
+        item['optional_installed'] = sum(1 for row in optional_rows if row.get('installed'))
+        item['optional_missing'] = [str(row.get('name')) for row in optional_rows
+                                     if not row.get('installed')][:8]
         item['supported'] = environment_install.platform_supported(entry)
         item['platform_note'] = environment_install.unsupported_reason(entry)
         item['shared'] = bool(entry.get('shared'))

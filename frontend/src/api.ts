@@ -238,6 +238,7 @@ export const api = {
       (unit ? `?unit=${encodeURIComponent(unit)}` : ''),
       undefined, {method: 'DELETE'}),
 
+  preferences: () => request<import('./preferences').UiPreferences>('/api/preferences'),
   savePreferences: (value: Partial<import('./preferences').UiPreferences>, initialize = false) => {
     // Keep responses in edit order when users switch settings sections quickly.
     const result = preferencesWrite.catch(() => {}).then(() => request<import('./preferences').UiPreferences>(`/api/preferences?initialize=${initialize}`, value));

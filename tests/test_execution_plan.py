@@ -533,7 +533,10 @@ def test_broken_unrelated_host_does_not_block_explicit_target():
         resources=lambda: {},
         dependencies=SimpleNamespace(snapshot=lambda: {}),
         remotes=Remotes(), root='.')
-    engine = SimpleNamespace(service=service)
+    # `infos` reconnects a targeted profile before planning; this double owns no
+    # sessions, so the hook is a no-op instead of a method on a real service.
+    ensure = lambda graph: None
+    engine = SimpleNamespace(service=service, _ensure_target=ensure)
     value = Graph.model_validate({'nodes': [], 'edges': [],
                                   'runtime': {'execution': {'target': {'kind': 'ssh', 'profile_id': 'good'}}}})
     result = ExecutionService.infos(engine, graph=value)

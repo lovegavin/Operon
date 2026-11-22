@@ -1,13 +1,14 @@
 import {t} from './i18n';
 import {useEffect, useRef, useState, type ComponentProps} from 'react';
-import {Database, HardDrives, Monitor, Palette, Translate, X} from '@phosphor-icons/react';
+import {Database, Cpu, HardDrives, Monitor, Palette, Translate, X} from '@phosphor-icons/react';
 import {RemotePanel} from './RemotePanel';
 import {ViewerSettings} from './ViewerSettings';
 import {AppearanceSettings} from './AppearanceSettings';
 import {LanguageSettings} from './LanguageSettings';
+import {ConcurrencySettings} from './ConcurrencySettings';
 import './settings.css';
 
-export type SettingsSection = 'servers' | 'viewers' | 'appearance' | 'language' | 'resources';
+export type SettingsSection = 'servers' | 'viewers' | 'execution' | 'appearance' | 'language' | 'resources';
 export function SettingsPage({initial, onClose, appearance, ...remote}: Omit<ComponentProps<typeof RemotePanel>, 'embedded' | 'onBusyChange'> & {
   initial: SettingsSection; appearance: ComponentProps<typeof AppearanceSettings>;
 }) {
@@ -22,7 +23,7 @@ export function SettingsPage({initial, onClose, appearance, ...remote}: Omit<Com
     element?.showModal();
     return () => {element?.close(); previous?.focus();};
   }, []);
-  const sections = [{id:'servers', name:t("服务器"), Icon:HardDrives}, {id:'viewers', name:t("输出与查看器"), Icon:Monitor}, {id:'appearance', name:t("外观"), Icon:Palette}, {id:'language', name:t("语言"), Icon:Translate}] as const;
+  const sections = [{id:'servers', name:t("服务器"), Icon:HardDrives}, {id:'viewers', name:t("输出与查看器"), Icon:Monitor}, {id:'execution', name:t("执行"), Icon:Cpu}, {id:'appearance', name:t("外观"), Icon:Palette}, {id:'language', name:t("语言"), Icon:Translate}] as const;
   return <dialog className="settings-page" ref={dialog} role="dialog" aria-modal="true" aria-labelledby="settings-title"
     onCancel={e => {e.preventDefault(); if (!busy) onClose();}}
     onKeyDown={e => e.stopPropagation()}>
@@ -32,6 +33,7 @@ export function SettingsPage({initial, onClose, appearance, ...remote}: Omit<Com
       <main className="settings-content" ref={content}>
         <div hidden={section !== 'servers'}><div className="settings-page-heading"><h3>{t("服务器")}</h3></div><RemotePanel {...remote} embedded onClose={onClose} onBusyChange={setServerBusy}/></div>
         <div hidden={section !== 'viewers'}><div className="settings-page-heading"><h3>{t("输出与查看器")}</h3></div><ViewerSettings onBusyChange={setViewerBusy}/></div>
+        <div hidden={section !== 'execution'}><div className="settings-page-heading"><h3>{t("执行")}</h3></div><ConcurrencySettings/></div>
         <div hidden={section !== 'appearance'}><div className="settings-page-heading"><h3>{t("外观")}</h3></div><AppearanceSettings {...appearance}/></div>
         <div hidden={section !== 'language'}><div className="settings-page-heading"><h3>{t("语言")}</h3></div><LanguageSettings/></div>
       </main>

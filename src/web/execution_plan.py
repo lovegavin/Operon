@@ -40,6 +40,21 @@ def unavailable_input(key):
     )
 
 
+DEFAULT_PARALLEL_TASKS = 2
+_default_parallel_tasks = None
+
+
+def set_default_parallel_tasks(value):
+    """Record the profile-wide default; ``None`` restores the built-in value."""
+    global _default_parallel_tasks
+    _default_parallel_tasks = value if isinstance(value, int) and not isinstance(value, bool) and value >= 1 else None
+
+
+def default_parallel_tasks():
+    """How many units a job runs at once when its graph does not decide."""
+    return _default_parallel_tasks or DEFAULT_PARALLEL_TASKS
+
+
 def target_key(value):
     value = target(value)
     return value.get("profile_id", "local")
@@ -65,6 +80,7 @@ def settings(graph):
         result[key] = {name: target(value) for name, value in result[key].items()}
     if "max_parallel_tasks" in result and (type(result["max_parallel_tasks"]) is not int or result["max_parallel_tasks"] < 1):
         raise GraphError("Parallel task count must be a positive integer")
+    result.setdefault("max_parallel_tasks", default_parallel_tasks())
     if 'split_independent_branches' in result and type(result['split_independent_branches']) is not bool:
         raise GraphError('split_independent_branches must be a boolean')
     ids = {node.id for node in graph.nodes}

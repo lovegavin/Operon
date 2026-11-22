@@ -1,6 +1,6 @@
 """Presentation preferences belong to the profile, not a workflow or loopback port."""
 from typing import Literal
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from operon.user_config import UserConfig
 
 
@@ -8,6 +8,9 @@ class Preferences(BaseModel):
     model_config = ConfigDict(extra='forbid')
     language: Literal['system', 'zh-CN', 'en'] = 'system'
     theme: Literal['system', 'light', 'dark'] = 'system'
+    # How many plan units one job may run at once when its graph does not
+    # say.  1 disables parallelism; higher values are bounded by the host.
+    parallel_tasks: int | None = Field(default=None, ge=1, le=64)
 
 
 def presentation(value):
@@ -27,6 +30,9 @@ def save(directory, preferences, initialize=False):
 
 
 def mount_preferences(app, service):
+    from .execution_plan import set_default_parallel_tasks
+    set_default_parallel_tasks(load(service.directory).parallel_tasks)
+
     @app.get('/api/preferences')
     def read_preferences():
         return load(service.directory)
@@ -35,4 +41,6 @@ def mount_preferences(app, service):
     def write_preferences(preferences: Preferences, initialize: bool = False):
         # First boot can import old browser-only choices, but must not overwrite
         # an existing profile setting (including one saved by another client).
-        return save(service.directory, preferences, initialize)
+        saved = save(service.directory, preferences, initialize)
+        set_default_parallel_tasks(saved.parallel_tasks)
+        return saved
