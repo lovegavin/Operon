@@ -382,9 +382,12 @@ def mount_control(app, application, bridge):
         return application.jobs.submit(payload.model_dump(exclude_none=True))
 
     @app.get('/api/v1/jobs')
-    def jobs(request: Request):
+    def jobs(request: Request, limit: int = 0):
         authorize(request)
-        return application.jobs.list()
+        jobs_list = application.jobs.list()
+        if isinstance(jobs_list, list) and limit > 0:
+            return jobs_list[:limit]
+        return jobs_list
 
     @app.get('/api/v1/jobs/{key}')
     def job(key: str, request: Request, view: Literal['brief', 'full'] = 'full'):
