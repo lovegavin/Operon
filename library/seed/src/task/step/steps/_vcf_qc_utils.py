@@ -214,3 +214,30 @@ def hwe_rows(path: str, max_sites: int = 0) -> list[dict]:
             if max_sites and len(rows) >= max_sites:
                 break
     return rows
+
+
+def site_labels(rows: list[dict]) -> dict[str, int]:
+    """Map each row to a unique *site* label.
+
+    A VCF may carry more than one record for the same ``CHROM:POS`` (for
+    example a reference call followed by an alternate allele, or the same
+    position listed per gene).  Using the bare site as a label then collapses
+    two rows onto one position, and the Form cannot tell which row owns the
+    remaining slot ("dim 'site' has unlabeled positions").  Keep the plain
+    label for the first occurrence and qualify the following ones.
+    """
+    labels: dict[str, int] = {}
+    seen: dict[str, int] = {}
+    for index, row in enumerate(rows):
+        site = str(row.get('site') or '')
+        if not site:
+            site = 'site'
+        count = seen.get(site, 0)
+        seen[site] = count + 1
+        label = site if count == 0 else f'{site}#{count + 1}'
+        while label in labels:
+            count += 1
+            seen[site] = count + 1
+            label = f'{site}#{count + 1}'
+        labels[label] = index
+    return labels

@@ -5,7 +5,7 @@ import numpy as np
 
 from src.task.step.base import Step
 
-from ._vcf_qc_utils import site_missingness, vcf_path
+from ._vcf_qc_utils import site_labels, site_missingness, vcf_path
 
 STATISTICS = ("n_called", "n_missing", "call_rate")
 
@@ -66,7 +66,7 @@ class VcfSiteMissingnessStep(Step):
         )
         if data.size == 0:
             data = data.reshape(0, len(STATISTICS))
-        labels = {row["site"]: index for index, row in enumerate(rows)}
+        labels = site_labels(rows)
         from src.core import Form
 
         output_name = str(params.get("output") or "site_missingness")
