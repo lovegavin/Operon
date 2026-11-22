@@ -15,8 +15,7 @@ def decode_column(form, field_dim, name, operator="peak"):
     """Return a decoded string column from a tabular form."""
 
     labels = _labels(form, field_dim)
-    if name not in labels:
-        raise StepError(f"{operator}: column '{name}' is required")
+    name = resolve_column(labels, name, operator)
     values = np.asarray(form.data[:, labels[name]])
     encoder = ((form.info or {}).get("encoders") or {}).get(field_dim, {}).get(name)
     inverse = getattr(encoder, "inverse", None)
@@ -38,12 +37,29 @@ def decode_column(form, field_dim, name, operator="peak"):
     return decoded
 
 
+COLUMN_ALIASES = {
+    "start": ("start", "chromStart"),
+    "end": ("end", "chromEnd"),
+}
+
+
+def resolve_column(labels, name, operator="peak"):
+    """Return the label that plays ``name``, honouring documented aliases."""
+
+    for alias in COLUMN_ALIASES.get(name, (name,)):
+        if alias in labels:
+            return alias
+    available = ", ".join(sorted(str(key) for key in labels))
+    raise StepError(
+        f"{operator}: column '{name}' is required; available: [{available}]"
+    )
+
+
 def numeric_column(form, field_dim, name, operator="peak"):
     """Return a finite numeric column from a tabular form."""
 
     labels = _labels(form, field_dim)
-    if name not in labels:
-        raise StepError(f"{operator}: column '{name}' is required")
+    name = resolve_column(labels, name, operator)
     values = np.asarray(form.data[:, labels[name]], dtype=float)
     if values.size and np.any(~np.isfinite(values)):
         raise StepError(f"{operator}: column '{name}' contains non-finite values")
