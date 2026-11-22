@@ -97,8 +97,15 @@ class ExecutionService:
     @staticmethod
     def applies(graph):
         value = graph.runtime.get('execution') or {}
-        return bool(isinstance(value, dict) and any(k in value for k in ('mode', 'node_targets', 'file_locations'))
-                    or any(n.source and n.source.location for n in graph.nodes)) and not graph.runtime.get('execution_parent_id')
+        if not isinstance(value, dict):
+            return False
+        if graph.runtime.get('execution_parent_id'):
+            return False
+        explicit = value.get('target') or value
+        targeted = isinstance(explicit, dict) and explicit.get('kind') == 'ssh' and bool(explicit.get('profile_id'))
+        if targeted or any(k in value for k in ('mode', 'node_targets', 'file_locations')):
+            return True
+        return any(n.source and n.source.location for n in graph.nodes)
 
     @staticmethod
     def owns(key):
