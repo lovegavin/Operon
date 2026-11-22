@@ -47,7 +47,8 @@
       "title": "Boltz 结构与亲和力",
       "python": "3.11",
       "imports": [
-        "boltz"
+        "boltz",
+        "pydantic"
       ],
       "conda_packages": [],
       "pip_wheels": [
@@ -83,12 +84,14 @@
         "modelcif==1.2",
         "fairscale==0.4.13"
       ],
-      "requirements": [],
+      "requirements": [
+        "pydantic>=2.7"
+      ],
       "no_deps": [
         "boltz==2.2.1"
       ],
       "wired": true,
-      "notes": "CUDA 12.1 torch wheel; GPU required.",
+      "notes": "CUDA 12.1 torch wheel; GPU required. Boltz imports pydantic while parsing its schema.",
       "torch_version": "2.3.1",
       "torch_cuda": true,
       "torch_index_url": "https://download.pytorch.org/whl/cu121",
