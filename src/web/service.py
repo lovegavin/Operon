@@ -731,7 +731,8 @@ class JobService:
         if allocation['memory_enabled']:
             memory['budget_mb'] = allocation['budget_bytes'] / MIB
             memory['process_limit_mb'] = allocation['process_limit_bytes'] / MIB
-        task, parameter_values = split_task(relative_manifest(manifest, directory, catalog))
+        task, parameter_values = split_task(
+            relative_manifest(manifest, directory, catalog, workflow_paths=False))
         request_digest = hashlib.sha256(json.dumps(
             {'graph': graph.model_dump(mode='json'), 'parameters': parameter_values},
             sort_keys=True, separators=(',', ':')).encode('utf-8')).hexdigest()

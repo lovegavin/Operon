@@ -36,8 +36,15 @@ def _relative_or_absolute(path, directory):
         return Path(path).as_posix()
 
 
-def relative_manifest(manifest, directory, catalog=None):
-    """Keep executable/exported workflows relocatable alongside their data."""
+def relative_manifest(manifest, directory, catalog=None, *, workflow_paths=True):
+    """Keep executable/exported workflows relocatable alongside their data.
+
+    ``workflow_paths`` rewrites the inputs an operator names as workspace files
+    (``x-operon-path: workflow``) so an exported manifest travels with its data.
+    A run keeps them absolute: the worker starts in the job's scratch directory,
+    so a path relative to the job directory resolves one level too deep and the
+    file appears missing.
+    """
     from copy import deepcopy
     result = deepcopy(manifest)
     if catalog:
@@ -51,7 +58,7 @@ def relative_manifest(manifest, directory, catalog=None):
             else:
                 schema = operators[step['name']]['parameters_schema']
             for key, field in schema.get('properties', {}).items():
-                if field.get('x-operon-path') == 'workflow' and step.get('params', {}).get(key):
+                if workflow_paths and field.get('x-operon-path') == 'workflow' and step.get('params', {}).get(key):
                     step['params'][key] = _relative_or_absolute(step['params'][key], directory)
         from operon.reader_selection import candidates
         for source in result['sources'].values():

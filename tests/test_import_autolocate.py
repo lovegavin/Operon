@@ -76,3 +76,20 @@ def test_export_keeps_cross_drive_input_paths(monkeypatch):
     result = relative_manifest(manifest, 'C:/jobs/run')
     assert result['sources']['data']['path'] == 'D:/data/counts.csv'
     assert result['runtime']['memory']['cache_dir'].replace('\\', '/') == '../cache'
+
+def test_a_run_keeps_workflow_inputs_absolute():
+    from src.web.graph import relative_manifest
+    catalog = {'operators': [{
+        'id': 'peak_annotate',
+        'parameters_schema': {'properties': {'blacklist': {'x-operon-path': 'workflow'}}},
+    }], 'readers': []}
+    manifest = {
+        'sources': {}, 'runtime': {'memory': {}},
+        'steps': [{'name': 'peak_annotate', 'params': {'blacklist': '/data/blacklist.bed'}}],
+    }
+    exported = relative_manifest(manifest, '/jobs/req-1', catalog)
+    assert exported['steps'][0]['params']['blacklist'] == '../../data/blacklist.bed'
+    launched = relative_manifest(manifest, '/jobs/req-1', catalog, workflow_paths=False)
+    # The worker starts inside the job scratch directory, so a relative
+    # workspace path would be looked up one level too deep.
+    assert launched['steps'][0]['params']['blacklist'] == '/data/blacklist.bed'
