@@ -30,7 +30,7 @@ tRNAscanSE/Configuration.pm in @INC`). The conda metadata repair is what lets
 
 ## Operator coverage
 
-1070 of 1074 catalog operators have at least one complete job on a real
+1068 of 1074 catalog operators have at least one complete job on a real
 reader-to-operator route (the registry reports `1074 operators / 109 readers /
 79 routes / 0 errors`). The last six are classified below.
 
@@ -68,13 +68,33 @@ without h5py), `pytest tests/test_dependencies.py` 11 passed 1 skipped. The
 frontend suite and the packaging self-check run inside `build5739.ps1`; the
 payload reports `problems: []` for `source_commit … dirty=False`.
 
-## Late fixes verified on the managed server
+## MCP and UI acceptance of the release surfaces
 
-- `flye_assemble` completed in 127 s once worker temp roots were shortened; the
-  failure mode was an AF_UNIX path limit, not a sandbox resource cap.
-- `colabfold_predict` completed in 156 s with `msa_mode=single_sequence` after
-  the jax/dm-haiku pins.
-- `ligandmpnn_side_chain_packing` completed in 102 s and `vina_dock_python` in
-  97 s, both on the GPU defaults introduced in this release.
-- The runtime panel now opens on the local target, and a channel that fails with
-  a timeout or a disconnect is retired instead of reporting `connected: true`.
+- Environments: a pure MCP call `operon_environments_prepare
+  {"names":["colabfold","vina310","openmm81"],"profile_id":"licai-srv"}` returned
+  `started [...]` with one job per environment and the panel reached `ready 19 /
+  incomplete 1` (only `alphafold2`, which now reports `resources_declared 0/9`).
+  The same prepare/repair actions were exercised from the runtime panel earlier
+  in the session for `openmm81`, `dssp`, `genomics`, `core`, `ligandmpnn` and
+  `vina310`.
+- Resources: `operon_resources` plus `operon_resource_download` /
+  `operon_resource_cancel` started and stopped a transfer for 16 of the 19
+  resources, and the UI path (runtime panel → environment card title → resources
+  → "install all") produced the same server-side operations, with cancels
+  reaching `/api/resources` operations.
+- Canvas: `operon_sessions` → `operon_graph` → `operon_open` (append and replace)
+  → `operon_run` created the document `page_c74abc0d7b244139ab6967d7ecaa8d94`
+  and submitted job `exec-d08ebef643444a39a26854b57fde92e5`, which reached
+  `complete` with `CsvReader(iris.csv) → pca`.
+
+## Late fixes verified in this build
+
+- `flye_assemble` completes in 127 s once the worker temp root stays inside the
+  `AF_UNIX` budget (the sandbox failure was an 80-character `TMPDIR`).
+- `colabfold_predict` completes in 156 s with `msa_mode=single_sequence` and the
+  pinned `jax==0.4.23` / `jaxlib==0.4.23` / `chex==0.1.86` stack.
+- `boltz_predict` completes in 129 s with `no_kernels=true`, which is now the
+  default because the optional `cuequivariance_torch` kernels are absent.
+- `vina_dock_python` completes in 97 s in the dedicated `vina310` environment
+  (Python 3.10, `vina 1.2.2`, `numpy==1.23.5`), and the registry assigns it
+  there through `environment_assignments.json`.

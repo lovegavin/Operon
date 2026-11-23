@@ -75,20 +75,3 @@ behind the runs above:
   (RTX 3090): `ligandmpnn_side_chain_packing` completes in 185 s,
   `proteinmpnn_design` in 83 s, `esmfold_predict` in 58 s (538 s on CPU), and
   `boltz_predict` runs with `--accelerator gpu`.
-
-## Coverage
-
-Every bundled operator is now exercised through a real reader -> operator route
-on the managed server: **1071 of 1074 (99.7%)** completed in this cycle. The
-four that remain are accounted for:
-
-- `alphafold2_predict`, `alphafold2_batch_predict`: the databases are linked as
-  downloads and are still arriving (about 220 GB); the operator only accepts a
-  full `--data_dir`, so they cannot finish before the tree is complete.
-- `openfold_predict`: the bundled OpenFold checkout has no
-  `attn_core_inplace_cuda` kernel source, and `openfold/utils/kernel/attention_core.py`
-  imports that extension at module import time, so the model cannot load even on
-  CPU. This is recorded as an offline gap, not an operator defect.
-- `boltz_predict`: completes in 129 s once the CUDA kernels are off; boltz imports `cuequivariance_torch` when they are on, and the managed environment does not ship it. The operator now defaults to `--no_kernels`.
-
-
