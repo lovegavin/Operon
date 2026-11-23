@@ -518,21 +518,12 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   const [remoteLoaded, setRemoteLoaded] = useState<Record<string, RemoteEnvironments>>({});
   const [remoteBusy, setRemoteBusy] = useState('');
   const [remoteError, setRemoteError] = useState('');
-  const [target, setTarget] = useState<string>(() => {
-    try {
-      return window.localStorage.getItem('operon.runtime-target') || '';
-    } catch {
-      return '';
-    }
-  });
-  useEffect(() => {
-    try {
-      if (target) window.localStorage.setItem('operon.runtime-target', target);
-      else window.localStorage.removeItem('operon.runtime-target');
-    } catch {
-      /* storage may be unavailable in hardened browsers */
-    }
-  }, [target]);
+  // The panel always opens on the local target: a remembered remote target used
+  // to come back while the remote snapshot was unreachable, which rendered as
+  // connected with an empty environment list. The choice lasts while the panel is
+  // open.
+  const [target, setTarget] = useState<string>('');
+  const [remotePending, setRemotePending] = useState(false);
   const [resourceList, setResourceList] = useState<LargeResource[]>([]);
   useEffect(() => {
     let alive = true;
@@ -624,11 +615,16 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     if (!target) return;
     let active = true;
     async function loadRemote() {
+      setRemotePending(true);
       try {
         const value = await api.remoteEnvironments(target as string);
-        if (active) setRemoteLoaded(current => ({...current, [target as string]: value}));
+        if (!active) return;
+        setRemoteLoaded(current => ({...current, [target as string]: value}));
+        setRemoteError('');
       } catch (failure) {
         if (active) setRemoteError((failure as Error).message);
+      } finally {
+        if (active) setRemotePending(false);
       }
     }
     void loadRemote();
@@ -806,6 +802,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   }
 
   function chooseTarget(id: string) {
+    setRemoteError('');
     setTarget(id);
     if (id && !remoteLoaded[id]) void loadRemote(id);
   }
@@ -867,12 +864,21 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
   return <Modal title={t('运行状态')} onClose={onClose}>
     <div className="runtime-panel">
       {error && <pre className="modal-error">{error}</pre>}
+      {target && remoteError &&
+        <div className="runtime-warning" data-testid="remote-unavailable">
+          <strong>{t('远程环境清单读取失败')}</strong>
+          <span>{remoteError}</span>
+          <button className="subtle-button" disabled={Boolean(remoteBusy)}
+            onClick={() => void loadRemote(target)}>{t('重新连接')}</button>
+        </div>}
       {!snapshot && !error && <div className="modal-empty"><p>{t('正在读取环境状态…')}</p></div>}
       {snapshot && !snapshot.manifest.present && !target &&
         <div className="modal-empty"><p>{t('当前算子库没有环境清单')}</p></div>}
       {((snapshot && snapshot.manifest.present) || target) && !items.length &&
         <div className="modal-empty">
-          <p>{target ? t('当前目标没有隔离环境') : t('没有隔离环境')}</p>
+          <p>{target
+            ? remotePending && !remoteError ? t('正在读取远程环境清单…') : t('当前目标没有隔离环境')
+            : t('没有隔离环境')}</p>
           {!target && <small>{t('算子库未声明需要独立安装的环境。')}</small>}
         </div>}
       {((snapshot && snapshot.manifest.present) || target) && items.length > 0 &&

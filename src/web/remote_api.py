@@ -81,7 +81,13 @@ def mount_remote(app, service):
 
     @app.get('/api/remote/{key}/environments')
     def remote_environments(key: str):
-        return manager.environments(key)
+        try:
+            return manager.environments(key)
+        except RemoteError as exc:
+            message = str(exc).lower()
+            if exc.code == 'remote_disconnected' or 'timed out' in message or '超时' in str(exc):
+                manager.invalidate(key, exc)
+            raise
 
     @app.post('/api/remote/{key}/environments/prepare')
     def remote_prepare_environments(key: str, payload: dict | None = None):

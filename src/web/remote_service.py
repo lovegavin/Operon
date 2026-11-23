@@ -516,6 +516,36 @@ class RemoteManager:
             if local_reserved:
                 admission.release(lease)
 
+    def invalidate(self, key, error=None):
+        """Drop a cached channel whose peer stopped answering.
+
+        The desktop polls ``status`` every few seconds and only looks at the
+        in-memory flag, so a dead channel used to keep reporting
+        ``connected: true`` while every call timed out.  A failed call is the
+        cheapest liveness probe we have, so it retires the channel.
+        """
+        with self.lock:
+            connection = self.connections.pop(key, None)
+            if connection is not None:
+                try:
+                    connection.close()
+                except Exception:
+                    pass
+            self.pools.pop(key, None)
+            info = self.directory/(key+'.catalog.json')
+            if error and info.exists():
+                try:
+                    import json
+                    payload = json.loads(info.read_text(encoding='utf-8'))
+                except Exception:
+                    payload = None
+                if isinstance(payload, dict):
+                    payload['connection_error'] = str(error)[:400]
+                    try:
+                        info.write_text(json.dumps(payload), encoding='utf-8')
+                    except Exception:
+                        pass
+
     def disconnect(self, key):
         with self.lock:
             if key in self.connecting: self.connecting[key].set()
