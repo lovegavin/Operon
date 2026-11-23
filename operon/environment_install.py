@@ -1001,6 +1001,59 @@ def _rewrite_shebangs(root: Path, stale: Path | None = None) -> int:
     return changed
 
 
+STAGING_MARKER = re.compile(r'\.staging-[^/\s:;\'"()]+')
+
+
+def _relocate(root: Path, stale: Path | None = None) -> int:
+    """Replace a staging prefix that a promoted tree still mentions.
+
+    Conda packages bake their build prefix into generated wrappers, ``.pc``
+    files, Perl module loaders and configuration files, not only into shebangs.
+    Renaming the staging directory leaves those references dangling, so an
+    environment can read as ready and still fail the moment a helper runs.
+    """
+
+    replacement = str(root).replace('\\', '/')
+    literal = str(stale).replace('\\', '/') if stale is not None else None
+    if literal is not None and literal == replacement:
+        return 0
+    changed = 0
+    for entry in root.rglob('*'):
+        try:
+            if entry.is_symlink():
+                text = os.readlink(entry).replace('\\', '/')
+                if literal is not None and literal in text:
+                    entry.unlink()
+                    entry.symlink_to(text.replace(literal, replacement))
+                    changed += 1
+                continue
+            if not entry.is_file() or entry.suffix in {'.pyc', '.so', '.dylib', '.a'}:
+                continue
+            if entry.stat().st_size > TEXT_LIMIT:
+                continue
+            data = entry.read_bytes()
+            if b'\x00' in data[:8192]:
+                continue
+            if literal is not None:
+                current = literal.encode('utf-8')
+                if current not in data:
+                    continue
+                updated = data.replace(current, replacement.encode('utf-8'))
+            else:
+                original = data.decode('utf-8', 'surrogateescape')
+                rewritten = STAGING_MARKER.sub(replacement, original)
+                if rewritten == original:
+                    continue
+                updated = rewritten.encode('utf-8', 'surrogateescape')
+            mode = entry.stat().st_mode
+            entry.write_bytes(updated)
+            os.chmod(entry, mode)
+            changed += 1
+        except OSError:
+            continue
+    return changed
+
+
 def repair(name: str, root=None) -> dict:
     """Rewrite stale staging shebangs in an environment that is already installed."""
 
@@ -1008,6 +1061,7 @@ def repair(name: str, root=None) -> dict:
     if not directory.is_dir():
         raise ValueError(f'environment {name!r} is not installed')
     changed = _rewrite_shebangs(directory)
+    changed += _relocate(directory)
     return {'name': name, 'directory': str(directory), 'rewritten': changed}
 
 
@@ -1039,8 +1093,12 @@ def _commit(name: str, staging: Path, final: Path) -> None:
             f'could not commit environment {name}: its directory is still in use '
             f'by a running probe or task; stop the task and retry ({error})') from error
     _rewrite_shebangs(final, staging)
+    _relocate(final, staging)
     if previous is not None:
         shutil.rmtree(previous, ignore_errors=True)
+
+
+TEXT_LIMIT = 8 * 1024 * 1024
 
 
 PIP_STARTUP_SECONDS = 3600.0

@@ -352,7 +352,8 @@
         "hdbscan>=0.8.40",
         "python-igraph==0.10.8",
         "igraph==0.10.8",
-        "leidenalg==0.10.2"
+        "leidenalg==0.10.2",
+        "xgboost>=2.0"
       ],
       "resources": [],
       "notes": "Most operators run here. Heavy optional stacks (scanpy/torch/transformers) are declared explicitly; the AutoDock Vina binding has no wheel on PyPI so it is built with the conda-provided SWIG toolchain and, like the binary readers (pyarrow/pysam/pyBigWig/bed-reader/bgen-reader/pgenlib), does not block readiness. coverage is required because numba imports numba.misc.coverage_support at import time; libdeflate is the shared library pysam links against. The vina executable now arrives as the vina resource; vina_dock and vina_dock_batch resolve it from the resource root when PATH carries no vina.",

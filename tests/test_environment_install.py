@@ -375,3 +375,24 @@ def test_a_failed_preparation_records_why(tmp_path):
     environment_install._write_progress('done', tmp_path, {'name': 'done', 'phase': 'ready'})
     assert not environment_install.mark_failed('done', tmp_path, ValueError('late'))
     assert environment_install.read_progress('done', tmp_path)['phase'] == 'ready'
+
+
+def test_a_promoted_environment_forgets_its_staging_prefix(tmp_path):
+    from operon.environment_install import _relocate
+
+    root = tmp_path / 'genomics'
+    root.mkdir()
+    stale = tmp_path / '.staging-genomics-abcd1234'
+    wrapper = root / 'bin' / 'tRNAscan-SE'
+    wrapper.parent.mkdir()
+    wrapper.write_text('#!/bin/sh\nPERL5LIB="%s/lib/tRNAscan-SE" exec perl "$0" "$@"\n' % stale,
+                       encoding='utf-8')
+    binary = root / 'bin' / 'tool.bin'
+    binary.write_bytes(b'\x00\x01' + str(stale).encode('utf-8'))
+
+    changed = _relocate(root)
+
+    assert changed == 1
+    assert str(stale) not in wrapper.read_text(encoding='utf-8')
+    assert str(root) in wrapper.read_text(encoding='utf-8')
+    assert str(stale).encode('utf-8') in binary.read_bytes()
