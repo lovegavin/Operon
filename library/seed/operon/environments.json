@@ -712,6 +712,7 @@
         "vina=1.2.2"
       ],
       "requirements": [
+        "numpy==1.23.5",
         "pydantic>=2.7",
         "psutil>=5.9"
       ],
