@@ -704,7 +704,7 @@
       "title": "AutoDock Vina Python bindings",
       "python": "3.10",
       "platforms": [
-        "linux-64"
+        "linux"
       ],
       "conda_packages": [
         "vina=1.2.2"
