@@ -14,18 +14,16 @@ source build fails; the binary resource is used instead).
 
 ## Operator coverage
 
-1055 of 1074 catalog operators have at least one complete job on a real
-reader-to-operator route. The 19 remaining are classified below.
+1064 of 1074 catalog operators have at least one complete job on a real
+reader-to-operator route. The 10 remaining are classified below.
 
 | class | operators | why |
 | --- | --- | --- |
-| weights not present offline | lphafold2_predict, lphafold2_batch_predict, colabfold_predict, esmfold_predict, openfold_predict, ligandmpnn_side_chain_packing, 
-ucleotide_transformer_embedding, 
-ucleotide_transformer_variant_effect | the upstream checkpoints are not part of the downloadable resource set |
-| external binary missing | structure_pocket_detect (pocket) | no build for this host |
-| python binding missing | ina_dock_python | ina has no cp311 wheel |
-| contract needs a shape no reader produces | stuart_maxwell | wants two inputs with sample/eature dims; the matrix reader path is being worked out |
-| fixture still wrong | lye_assemble, oltz_predict, oltz_complex_confidence | protein FASTA instead of nucleotide reads; single-chain FASTA for a complex |
+| weights not present offline | alphafold2_predict, alphafold2_batch_predict, colabfold_predict, openfold_predict, nucleotide_transformer_embedding, nucleotide_transformer_variant_effect | the upstream checkpoints are not part of the downloadable resource set |
+| python binding missing | vina_dock_python | vina ships no cp311 wheel |
+| third-party tool fails on this host | flye_assemble | flye aborts with "Contained seqs: 0" on error-free reads and with a worker EOFError on a 17x nano-hq set; the packaged schema has no subassemblies mode |
+| python dependency missing inside the tool env | ligandmpnn_side_chain_packing | the packer imports openfold.data.data_transforms, and the ligandmpnn env has no openfold package |
+| still running | boltz_predict | boltz1 on CPU with sampling_steps=40 is verified to start; a full run needs more wall clock than a batch window |
 
 ## Fixes verified on this build
 

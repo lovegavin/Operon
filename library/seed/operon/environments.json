@@ -87,7 +87,8 @@
       ],
       "requirements": [
         "pydantic>=2.7",
-        "psutil>=5.9"
+        "psutil>=5.9",
+        "jsonschema>=4.0"
       ],
       "no_deps": [
         "boltz==2.2.1"
@@ -369,7 +370,8 @@
         "swig>=4.1",
         "boost>=1.82",
         "libdeflate>=1.19",
-        "xgboost"
+        "xgboost",
+        "fpocket>=3.1"
       ]
     },
     "proteinmpnn": {
