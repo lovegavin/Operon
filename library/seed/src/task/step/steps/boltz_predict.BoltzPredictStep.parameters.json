@@ -146,9 +146,10 @@
     "no_kernels": {
       "title": "禁用 kernel",
       "type": "boolean",
-      "default": false,
+      "default": true,
       "x-ui-group": "模型",
-      "x-ui-order": 9
+      "x-ui-order": 9,
+      "description": "Skip the optional cuequivariance CUDA kernels. On by default because a managed environment without cuequivariance_torch fails at import; turn it off only when the kernels are installed and a GPU run needs them."
     },
     "msa_mode": {
       "title": "MSA 模式",

@@ -68,7 +68,7 @@ def boltz_command(
     sampling_steps: int = 200,
     diffusion_samples: int = 1,
     num_workers: int = 1,
-    no_kernels: bool = False,
+    no_kernels: bool = True,
     extra: str = "",
 ) -> list[str]:
     """Build the official `boltz predict` invocation."""
@@ -213,7 +213,7 @@ class BoltzPredictStep(Step):
             sampling_steps=int(params.get("sampling_steps", 200)),
             diffusion_samples=int(params.get("diffusion_samples", 1)),
             num_workers=int(params.get("num_workers", 1)),
-            no_kernels=bool(params.get("no_kernels", False)),
+            no_kernels=bool(params.get("no_kernels", True)),
             extra=str(params.get("extra_args", "")),
         )
         cache_dir = str(params.get("cache_dir", "") or "").strip() or _default_cache()
