@@ -1,5 +1,6 @@
 """Masked marginal mutation effects from a local ESM checkpoint."""
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import re
 from typing import Callable
@@ -169,7 +170,7 @@ class EsmMaskedMarginalStep(Step):
         mutations = str(ctx.step_params.get("mutations", ""))
         model_path = str(ctx.step_params.get("model_path", "")).strip()
         sequence_index = int(ctx.step_params.get("sequence_index", 0))
-        device = str(ctx.step_params.get("device", "cpu")).strip().lower()
+        device = resolve_device(ctx.step_params.get("device"), "esm_masked_marginal")
         out_name = ctx.step_params.get("output", self.name)
 
         if len(form.dims) != 2 or list(form.dims) != [sequence_dim, position_dim]:

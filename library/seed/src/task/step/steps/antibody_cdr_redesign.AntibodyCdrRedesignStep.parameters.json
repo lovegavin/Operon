@@ -39,7 +39,12 @@
     "model_name": {
       "type": "string",
       "default": "v_48_020",
-      "enum": ["v_48_002", "v_48_010", "v_48_020", "v_48_030"],
+      "enum": [
+        "v_48_002",
+        "v_48_010",
+        "v_48_020",
+        "v_48_030"
+      ],
       "title": "模型",
       "description": "ProteinMPNN 权重版本。",
       "x-ui-group": "advanced",
@@ -82,8 +87,12 @@
     },
     "device": {
       "type": "string",
-      "default": "cpu",
-      "enum": ["cpu", "cuda"],
+      "default": "auto",
+      "enum": [
+        "auto",
+        "cpu",
+        "cuda"
+      ],
       "title": "设备",
       "description": "运行设备。",
       "x-ui-group": "advanced",

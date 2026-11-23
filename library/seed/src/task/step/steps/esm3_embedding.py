@@ -1,6 +1,7 @@
 """esm3_embedding: per-residue ESM-3 embeddings for protein sequences."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 from pathlib import Path
 
@@ -107,7 +108,7 @@ class Esm3EmbeddingStep(Step):
         sequences = decode_sequences(inputs[0], str(params.get("sequence_dim", "sequence")), str(params.get("position_dim", "position")))
         if not sequences:
             raise StepError("esm3_embedding: the input holds no sequence")
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "esm3_embedding")
         if device not in ("cpu", "cuda"):
             raise StepError("esm3_embedding: device must be 'cpu' or 'cuda'")
         name = _MODELS.get(str(params.get("model_name", "esm3-sm-open-v1")).lower())

@@ -1,5 +1,6 @@
 """Masked pseudo-likelihood scoring with a local ESM checkpoint."""
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import numpy as np
 
@@ -115,7 +116,7 @@ class EsmPseudoLikelihoodStep(Step):
         seq_dim = str(params.get("sequence_dim", "sequence"))
         pos_dim = str(params.get("position_dim", "position"))
         model_path = str(params.get("model_path", "") or "").strip()
-        device = str(params.get("device", "cpu") or "cpu").strip().lower()
+        device = resolve_device(params.get("device"), "esm_pseudo_likelihood")
         batch_size = int(params.get("batch_size", 32))
         out_name = params.get("output", self.name)
         if len(form.dims) != 2 or list(form.dims) != [seq_dim, pos_dim]:

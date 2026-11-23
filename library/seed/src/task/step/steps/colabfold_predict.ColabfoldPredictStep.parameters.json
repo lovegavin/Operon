@@ -58,11 +58,12 @@
     },
     "device": {
       "type": "string",
-      "default": "cpu",
+      "default": "auto",
       "title": "运行设备",
       "x-ui-group": "advanced",
       "x-ui-order": 60,
       "enum": [
+        "auto",
         "cpu",
         "cuda"
       ]

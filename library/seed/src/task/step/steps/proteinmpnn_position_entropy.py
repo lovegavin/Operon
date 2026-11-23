@@ -1,5 +1,6 @@
 """Per-position amino-acid entropy from ProteinMPNN sampled designs."""
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import subprocess
@@ -225,7 +226,7 @@ class ProteinmpnnPositionEntropyStep(Step):
             raise StepError(
                 f"proteinmpnn_position_entropy: model_name must be one of {list(MODELS)}"
             )
-        device = str(params.get("device") or "cpu")
+        device = resolve_device(params.get("device"), "proteinmpnn_position_entropy", python=str(params.get("python_executable") or ""))
         if device not in {"cpu", "cuda"}:
             raise StepError("proteinmpnn_position_entropy: device must be 'cpu' or 'cuda'")
         raw_samples = params.get("num_seq_per_target")

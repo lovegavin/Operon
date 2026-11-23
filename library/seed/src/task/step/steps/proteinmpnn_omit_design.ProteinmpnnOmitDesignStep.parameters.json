@@ -81,8 +81,9 @@
       "description": "cpu 或 cuda",
       "x-ui-group": "模型",
       "x-ui-order": 9,
-      "default": "cpu",
+      "default": "auto",
       "enum": [
+        "auto",
         "cpu",
         "cuda"
       ]

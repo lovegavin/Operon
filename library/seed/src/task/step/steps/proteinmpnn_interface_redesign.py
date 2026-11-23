@@ -1,6 +1,7 @@
 """Design only the binder residues that contact a target chain."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import shutil
@@ -189,7 +190,7 @@ class ProteinmpnnInterfaceRedesignStep(Step):
         count = int(params.get("num_seq_per_target", 4))
         temperature = str(params.get("sampling_temp", "0.1"))
         seed = int(params.get("seed", 1))
-        device = str(params.get("device") or "cpu")
+        device = resolve_device(params.get("device"), "proteinmpnn_interface_redesign", python=str(params.get("python_executable") or ""))
         timeout = int(params.get("timeout", 3600))
         out_name = str(ctx.step_params.get("output", "designs"))
 

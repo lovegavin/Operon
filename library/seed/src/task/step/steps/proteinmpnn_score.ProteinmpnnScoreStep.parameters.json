@@ -35,7 +35,12 @@
     },
     "model_name": {
       "type": "string",
-      "enum": ["v_48_002", "v_48_010", "v_48_020", "v_48_030"],
+      "enum": [
+        "v_48_002",
+        "v_48_010",
+        "v_48_020",
+        "v_48_030"
+      ],
       "default": "v_48_020",
       "title": "权重版本",
       "x-ui-group": "advanced",
@@ -68,8 +73,12 @@
     },
     "device": {
       "type": "string",
-      "enum": ["cpu", "cuda"],
-      "default": "cpu",
+      "enum": [
+        "auto",
+        "cpu",
+        "cuda"
+      ],
+      "default": "auto",
       "title": "计算设备",
       "x-ui-group": "advanced",
       "x-ui-order": 80

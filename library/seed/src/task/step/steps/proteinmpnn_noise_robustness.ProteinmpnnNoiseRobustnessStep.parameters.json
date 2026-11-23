@@ -66,7 +66,12 @@
     },
     "model_name": {
       "type": "string",
-      "enum": ["v_48_002", "v_48_010", "v_48_020", "v_48_030"],
+      "enum": [
+        "v_48_002",
+        "v_48_010",
+        "v_48_020",
+        "v_48_030"
+      ],
       "default": "v_48_020",
       "title": "模型",
       "description": "ProteinMPNN checkpoint variant.",
@@ -99,8 +104,12 @@
     },
     "device": {
       "type": "string",
-      "enum": ["cpu", "cuda"],
-      "default": "cpu",
+      "enum": [
+        "auto",
+        "cpu",
+        "cuda"
+      ],
+      "default": "auto",
       "title": "设备",
       "description": "Run the designer on CPU or CUDA.",
       "x-ui-group": "Environment",

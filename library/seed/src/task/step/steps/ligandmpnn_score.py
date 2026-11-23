@@ -1,6 +1,7 @@
 """Per-residue sequence likelihoods from the official LigandMPNN scorer."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import re
@@ -156,7 +157,7 @@ class LigandMpnnScoreStep(Step):
         model_type = str(params.get("model_type", "ligand_mpnn"))
         if model_type not in _MODEL_TYPES:
             raise StepError(f"ligandmpnn_score: model_type must be one of {list(_MODEL_TYPES)}")
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "ligandmpnn_score", python=str(params.get("python_executable") or ""))
         if device not in ("cpu", "cuda"):
             raise StepError("ligandmpnn_score: device must be 'cpu' or 'cuda'")
         if device == "cuda" and not _cuda_available():

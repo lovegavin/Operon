@@ -1,6 +1,7 @@
 """Per-position native recovery of ProteinMPNN sampled designs."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import shutil
@@ -139,7 +140,7 @@ class ProteinmpnnNativeRecoveryScanStep(Step):
         count = int(params.get("num_seq_per_target", 16))
         temperature = str(params.get("sampling_temp", "0.1"))
         seed = int(params.get("seed", 1))
-        device = str(params.get("device") or "cpu")
+        device = resolve_device(params.get("device"), "proteinmpnn_native_recovery_scan", python=str(params.get("python_executable") or ""))
         timeout = int(params.get("timeout", 3600))
         position_dim = str(params.get("position_dim") or "position")
         out_name = str(params.get("output", "recovery"))

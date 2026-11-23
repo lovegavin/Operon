@@ -66,10 +66,11 @@
     "device": {
       "title": "设备",
       "type": "string",
-      "default": "cpu",
+      "default": "auto",
       "x-ui-group": "模型",
       "x-ui-order": 3,
       "enum": [
+        "auto",
         "cpu",
         "cuda"
       ]

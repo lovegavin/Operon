@@ -1,6 +1,7 @@
 """Consensus design across several ProteinMPNN checkpoints."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import shutil
@@ -176,7 +177,7 @@ class ProteinmpnnMultiModelConsensusStep(Step):
                 "proteinmpnn_multi_model_consensus: seed must not be negative"
             )
         chains = str(params.get("chains", "")).strip().replace(" ", "")
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "proteinmpnn_multi_model_consensus", python=str(params.get("python_executable") or ""))
         if device not in {"cpu", "cuda"}:
             raise StepError(
                 "proteinmpnn_multi_model_consensus: device must be 'cpu' or 'cuda'"

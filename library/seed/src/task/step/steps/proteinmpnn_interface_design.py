@@ -1,5 +1,6 @@
 """Interface-focused ProteinMPNN design with chain, bias and tie controls."""
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import math
@@ -161,7 +162,7 @@ class ProteinmpnnInterfaceDesignStep(Step):
         num_seq = int(params.get("num_seq_per_target", 4))
         sampling_temp = str(params.get("sampling_temp", "0.1") or "0.1").strip()
         seed = int(params.get("seed", 1))
-        device = str(params.get("device", "cpu") or "cpu").strip().lower()
+        device = resolve_device(params.get("device"), "proteinmpnn_interface_design", python=str(params.get("python_executable") or ""))
         binder_text = str(params.get("binder_chains", "A") or "A").strip()
         target_text = str(params.get("target_chains", "") or "").strip()
         design_ranges = str(params.get("design_ranges", "") or "").strip()

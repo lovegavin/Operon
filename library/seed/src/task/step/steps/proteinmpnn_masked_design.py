@@ -7,6 +7,7 @@ indices here.
 """
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import os
@@ -59,7 +60,7 @@ def run_masked_designer(params: dict, structure: Path, chain_text: str, payload:
     count = int(params.get("num_seq_per_target") if params.get("num_seq_per_target") is not None else 8)
     temperature = str(params.get("sampling_temp") or "0.1")
     seed = int(params.get("seed") if params.get("seed") is not None else 1)
-    device = str(params.get("device") or "cpu")
+    device = resolve_device(params.get("device"), "proteinmpnn_masked_design", python=str(params.get("python_executable") or ""))
     timeout = int(params.get("timeout") if params.get("timeout") is not None else 1800)
     if model_name not in MODELS:
         raise StepError(f"proteinmpnn_masked_design: model_name must be one of {', '.join(MODELS)}")

@@ -147,8 +147,9 @@
       "x-ui-group": "Design",
       "x-ui-order": 16,
       "description": "运行设备。",
-      "default": "cpu",
+      "default": "auto",
       "enum": [
+        "auto",
         "cpu",
         "cuda"
       ]

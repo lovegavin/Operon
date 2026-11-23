@@ -99,10 +99,11 @@
     "device": {
       "type": "string",
       "enum": [
+        "auto",
         "cpu",
         "cuda"
       ],
-      "default": "cpu",
+      "default": "auto",
       "title": "设备",
       "x-ui-group": "advanced",
       "x-ui-order": 100

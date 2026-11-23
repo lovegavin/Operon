@@ -1,6 +1,7 @@
 """esm3_fold: sequence-to-structure prediction with ESM-3."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import shutil
 import tempfile
@@ -96,7 +97,7 @@ class Esm3FoldStep(Step):
         if len(sequences) != 1:
             raise StepError(f"esm3_fold: expected exactly one sequence, got {len(sequences)}")
         sequence = sequences[0]
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "esm3_fold")
         if device not in ("cpu", "cuda"):
             raise StepError("esm3_fold: device must be 'cpu' or 'cuda'")
         steps = int(params.get("num_steps", 20))

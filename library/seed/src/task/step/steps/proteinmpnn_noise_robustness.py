@@ -7,6 +7,7 @@ small backbone displacements rather than to sampling randomness.
 """
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import shutil
@@ -149,7 +150,7 @@ def run_replicate(
     count = int(params.get("num_seq_per_target") or 8)
     temperature = str(params.get("sampling_temp") or "0.1")
     seed = int(params.get("seed") or 0)
-    device = str(params.get("device") or "cpu").strip().lower()
+    device = resolve_device(params.get("device"), "proteinmpnn_noise_robustness", python=str(params.get("python_executable") or ""))
     if model_name not in MODELS:
         raise StepError(
             "proteinmpnn_noise_robustness: model_name must be one of "

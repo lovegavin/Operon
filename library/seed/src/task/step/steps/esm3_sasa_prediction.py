@@ -1,6 +1,7 @@
 """esm3_sasa_prediction: per-residue solvent accessibility from the ESM-3 SASA track."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import numpy as np
 
@@ -111,7 +112,7 @@ class Esm3SasaPredictionStep(Step):
         sequence = sequences[0]
         if not sequence:
             raise StepError("esm3_sasa_prediction: the sequence is empty")
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "esm3_sasa_prediction")
         if device not in ("cpu", "cuda"):
             raise StepError("esm3_sasa_prediction: device must be 'cpu' or 'cuda'")
         num_steps = int(params.get("num_steps", 8))

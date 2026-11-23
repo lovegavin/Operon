@@ -1,6 +1,7 @@
 """Side-chain packing through the official LigandMPNN packer."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import shutil
@@ -108,7 +109,7 @@ class LigandmpnnSideChainPackingStep(Step):
                 f"{weights / sc_checkpoint} was not found; download "
                 "ligandmpnn_sc_v_32_002_16.pt from the official repository"
             )
-        device = str(params.get("device", "cpu")).strip() or "cpu"
+        device = resolve_device(params.get("device"), "ligandmpnn_side_chain_packing", python=str(params.get("python_executable") or ""))
         if device not in ("cpu", "cuda"):
             raise StepError("ligandmpnn_side_chain_packing: device must be 'cpu' or 'cuda'")
         chain_text = str(params.get("chains", "")).strip()

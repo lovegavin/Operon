@@ -1,6 +1,7 @@
 """Measure how an amino-acid sampling bias shifts per-position design frequencies."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import os
@@ -246,7 +247,7 @@ class ProteinmpnnBiasScanStep(Step):
         temperature = 0.5 if raw_temperature is None else float(raw_temperature)
         raw_seed = params.get("seed", 1)
         seed = 1 if raw_seed is None else int(raw_seed)
-        device = str(params.get("device", "cpu") or "cpu").strip().lower()
+        device = resolve_device(params.get("device"), "proteinmpnn_bias_scan", python=str(params.get("python_executable") or ""))
         raw_timeout = params.get("timeout", 1800)
         timeout = 1800 if raw_timeout is None else int(raw_timeout)
         out_name = str(params.get("output", "shift") or "shift")

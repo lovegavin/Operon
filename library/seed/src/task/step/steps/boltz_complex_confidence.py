@@ -6,6 +6,7 @@ process only.
 """
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import os
@@ -243,7 +244,7 @@ class BoltzComplexConfidenceStep(Step):
         resolved = shutil.which(binary) or (binary if Path(binary).is_file() else "")
         if not resolved:
             raise StepError("boltz_complex_confidence: 'boltz' was not found on PATH; install it with 'python -m pip install boltz'")
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "boltz_complex_confidence")
         if device not in ("cpu", "cuda"):
             raise StepError("boltz_complex_confidence: device must be 'cpu' or 'cuda'")
         cache = str(params.get("cache_dir", "") or "").strip() or _default_cache()

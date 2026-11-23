@@ -1,6 +1,7 @@
 """Design antibody framework positions while keeping every Kabat CDR fixed."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import os
@@ -201,7 +202,7 @@ class AntibodyCdrRedesignStep(Step):
         seed = int(params.get("seed", 1))
         if seed < 0:
             raise StepError("antibody_cdr_redesign: seed must not be negative")
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "antibody_cdr_redesign", python=str(params.get("python_executable") or ""))
         if device not in {"cpu", "cuda"}:
             raise StepError("antibody_cdr_redesign: device must be 'cpu' or 'cuda'")
         timeout = float(params.get("timeout", 1800.0))

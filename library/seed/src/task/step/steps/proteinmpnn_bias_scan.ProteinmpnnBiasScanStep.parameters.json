@@ -39,7 +39,12 @@
     "model_name": {
       "type": "string",
       "default": "v_48_020",
-      "enum": ["v_48_002", "v_48_010", "v_48_020", "v_48_030"],
+      "enum": [
+        "v_48_002",
+        "v_48_010",
+        "v_48_020",
+        "v_48_030"
+      ],
       "title": "模型",
       "description": "ProteinMPNN 模型变体。",
       "x-ui-group": "basic",
@@ -92,8 +97,12 @@
     },
     "device": {
       "type": "string",
-      "default": "cpu",
-      "enum": ["cpu", "cuda"],
+      "default": "auto",
+      "enum": [
+        "auto",
+        "cpu",
+        "cuda"
+      ],
       "title": "计算设备",
       "description": "cpu 时通过 CUDA_VISIBLE_DEVICES 强制使用 CPU。",
       "x-ui-group": "advanced",

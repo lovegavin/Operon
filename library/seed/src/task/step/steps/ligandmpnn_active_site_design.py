@@ -1,6 +1,7 @@
 """Design only the residues around a bound ligand with the official LigandMPNN."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import shutil
@@ -208,7 +209,7 @@ class LigandmpnnActiveSiteDesignStep(Step):
         cutoff = 8.0 if raw_cutoff is None else float(raw_cutoff)
         raw_seed = params.get("seed", 1)
         seed = 1 if raw_seed is None else int(raw_seed)
-        device = str(params.get("device", "cpu") or "cpu").strip().lower()
+        device = resolve_device(params.get("device"), "ligandmpnn_active_site_design", python=str(params.get("python_executable") or ""))
         raw_timeout = params.get("timeout", 1800)
         timeout = 1800 if raw_timeout is None else int(raw_timeout)
         out_name = str(params.get("output", "designs") or "designs")

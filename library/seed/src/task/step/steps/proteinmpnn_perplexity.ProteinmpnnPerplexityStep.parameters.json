@@ -29,7 +29,12 @@
     "model_name": {
       "type": "string",
       "title": "模型名称",
-      "enum": ["v_48_002", "v_48_010", "v_48_020", "v_48_030"],
+      "enum": [
+        "v_48_002",
+        "v_48_010",
+        "v_48_020",
+        "v_48_030"
+      ],
       "default": "v_48_020",
       "x-ui-group": "basic",
       "x-ui-order": 0
@@ -62,8 +67,12 @@
     "device": {
       "type": "string",
       "title": "设备",
-      "enum": ["cpu", "cuda"],
-      "default": "cpu",
+      "enum": [
+        "auto",
+        "cpu",
+        "cuda"
+      ],
+      "default": "auto",
       "x-ui-group": "advanced",
       "x-ui-order": 40
     },

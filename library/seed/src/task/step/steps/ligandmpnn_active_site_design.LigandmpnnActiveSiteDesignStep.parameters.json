@@ -93,8 +93,12 @@
     },
     "device": {
       "type": "string",
-      "default": "cpu",
-      "enum": ["cpu", "cuda"],
+      "default": "auto",
+      "enum": [
+        "auto",
+        "cpu",
+        "cuda"
+      ],
       "title": "计算设备",
       "description": "cpu 时通过 CUDA_VISIBLE_DEVICES 强制使用 CPU。",
       "x-ui-group": "advanced",

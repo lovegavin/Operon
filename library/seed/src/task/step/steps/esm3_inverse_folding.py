@@ -1,6 +1,7 @@
 """esm3_inverse_folding: structure-conditioned sequence design with ESM-3."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import tempfile
 from pathlib import Path
@@ -133,7 +134,7 @@ class Esm3InverseFoldingStep(Step):
             raise StepError(f"esm3_inverse_folding: structure_path {structure} is not a file")
         if structure.suffix.lower() not in (".pdb", ".ent"):
             raise StepError("esm3_inverse_folding: structure_path must name a .pdb file")
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "esm3_inverse_folding")
         if device not in ("cpu", "cuda"):
             raise StepError("esm3_inverse_folding: device must be 'cpu' or 'cuda'")
         steps = int(params.get("num_steps", 20))

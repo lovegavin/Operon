@@ -1,6 +1,7 @@
 """Boltz-2 co-folding prediction wrapper."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import numpy as np
 
@@ -207,7 +208,7 @@ class BoltzPredictStep(Step):
             out_dir,
             model=str(params.get("model", "boltz2")),
             use_msa_server=bool(params.get("use_msa_server", True)) and msa_mode == "server",
-            device=str(params.get("device", "cpu")),
+            device=resolve_device(params.get("device"), "boltz_predict"),
             output_format=str(params.get("output_format", "pdb")),
             sampling_steps=int(params.get("sampling_steps", 200)),
             diffusion_samples=int(params.get("diffusion_samples", 1)),

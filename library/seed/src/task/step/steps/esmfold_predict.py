@@ -1,6 +1,7 @@
 """Structure prediction with the official ESMFold implementation of ``fair-esm``."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import numpy as np
 
@@ -125,7 +126,7 @@ class EsmfoldPredictStep(Step):
         (sequences,) = inputs
         sequence_dim = str(params.get("sequence_dim") or "sequence")
         position_dim = str(params.get("position_dim") or "position")
-        device = str(params.get("device") or "cpu")
+        device = resolve_device(params.get("device"), "esmfold_predict")
         chunk_size = int(params.get("chunk_size") if params.get("chunk_size") is not None else 64)
         num_recycles = int(params.get("num_recycles") if params.get("num_recycles") is not None else 4)
         out_name = str(params.get("output") or "structure")

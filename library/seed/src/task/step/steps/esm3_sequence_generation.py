@@ -1,6 +1,7 @@
 """ESM-3 sequence generation with masked prompts."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 from pathlib import Path
 
@@ -141,7 +142,7 @@ class Esm3SequenceGenerationStep(Step):
         num_steps = int(params.get("num_steps", 8))
         temperature = float(params.get("temperature", 0.7))
         seed = int(params.get("seed", 0))
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "esm3_sequence_generation")
         if device not in ("cpu", "cuda"):
             raise StepError("esm3_sequence_generation: device must be 'cpu' or 'cuda'")
         if not 1 <= num_steps <= 64:

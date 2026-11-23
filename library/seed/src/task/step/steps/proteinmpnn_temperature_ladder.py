@@ -1,6 +1,7 @@
 """Screen ProteinMPNN sampling temperatures for diversity and confidence."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import shutil
@@ -176,7 +177,7 @@ class ProteinmpnnTemperatureLadderStep(Step):
                 "proteinmpnn_temperature_ladder: seed must not be negative"
             )
         chains = str(params.get("chains", "")).strip().replace(" ", "")
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "proteinmpnn_temperature_ladder", python=str(params.get("python_executable") or ""))
         if device not in {"cpu", "cuda"}:
             raise StepError(
                 "proteinmpnn_temperature_ladder: device must be 'cpu' or 'cuda'"

@@ -1,5 +1,6 @@
 """Per-position amino-acid frequency matrix from ProteinMPNN sampled designs."""
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import tempfile
 from pathlib import Path
@@ -111,7 +112,7 @@ class ProteinmpnnDesignProfileStep(Step):
             raise StepError(
                 f"proteinmpnn_design_profile: model_name must be one of {list(MODELS)}"
             )
-        device = str(params.get("device") or "cpu")
+        device = resolve_device(params.get("device"), "proteinmpnn_design_profile", python=str(params.get("python_executable") or ""))
         if device not in {"cpu", "cuda"}:
             raise StepError(
                 "proteinmpnn_design_profile: device must be 'cpu' or 'cuda'"

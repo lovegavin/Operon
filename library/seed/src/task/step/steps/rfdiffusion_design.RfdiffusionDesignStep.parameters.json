@@ -35,10 +35,11 @@
       "type": "string",
       "title": "设备",
       "description": "推理设备。",
-      "default": "cpu",
+      "default": "auto",
       "x-ui-group": "参数",
       "x-ui-order": 2,
       "enum": [
+        "auto",
         "cpu",
         "cuda"
       ]

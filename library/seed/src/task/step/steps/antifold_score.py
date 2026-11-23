@@ -1,6 +1,7 @@
 """AntiFold inverse-folding scores for antibody structures."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import tempfile
@@ -178,7 +179,7 @@ class AntifoldScoreStep(Step):
                 "antifold_score: weights_path is required; download model.pt from "
                 "https://opig.stats.ox.ac.uk/data/downloads/AntiFold/models/model.pt"
             )
-        device = str(params.get("device", "cpu")).lower()
+        device = resolve_device(params.get("device"), "antifold_score")
         device_note: dict[str, str] = {}
         if device == "cuda":
             # AntiFold's own batching feeds CPU tensors into a CUDA model, so a GPU

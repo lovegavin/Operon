@@ -1,6 +1,7 @@
 """Diversity of ProteinMPNN designs: pairwise identity and clusters."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import os
@@ -118,7 +119,7 @@ def run_designer(params: dict, structure: Path, chain: str) -> list[str]:
     count = int(params.get("num_seq_per_target") if params.get("num_seq_per_target") is not None else 16)
     temperature = str(params.get("sampling_temp") or "0.1")
     seed = int(params.get("seed") if params.get("seed") is not None else 1)
-    device = str(params.get("device") or "cpu")
+    device = resolve_device(params.get("device"), "proteinmpnn_design_diversity", python=str(params.get("python_executable") or ""))
     timeout = int(params.get("timeout") if params.get("timeout") is not None else 1800)
 
     if model_name not in MODELS:

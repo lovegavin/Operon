@@ -1,6 +1,7 @@
 """Constrained amino-acid design with the official ProteinMPNN runner."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import os
@@ -97,7 +98,7 @@ def run_omit_designer(
         out_dir.mkdir()
         command = omit_command(params, structure, out_dir, chains_text, omit, weights, repo)
         env = dict(os.environ)
-        env["CUDA_VISIBLE_DEVICES"] = "" if str(params.get("device", "cpu")) == "cpu" else "0"
+        env["CUDA_VISIBLE_DEVICES"] = "" if resolve_device(params.get("device"), "proteinmpnn_omit_design", python=str(params.get("python_executable") or "")) == "cpu" else "0"
         try:
             completed = subprocess.run(
                 command,
@@ -204,7 +205,7 @@ class ProteinmpnnOmitDesignStep(Step):
             raise StepError(
                 f"proteinmpnn_omit_design: model_name must be one of {', '.join(MODELS)}"
             )
-        device = str(params.get("device", "cpu")).strip() or "cpu"
+        device = resolve_device(params.get("device"), "proteinmpnn_omit_design", python=str(params.get("python_executable") or ""))
         if device not in ("cpu", "cuda"):
             raise StepError("proteinmpnn_omit_design: device must be 'cpu' or 'cuda'")
         omit = parse_omit(str(params.get("omit_AAs", "C")))

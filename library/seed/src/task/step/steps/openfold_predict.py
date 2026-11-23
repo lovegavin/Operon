@@ -1,6 +1,7 @@
 """openfold_predict: OpenFold (AlphaFold-2) structure prediction."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import shutil
@@ -171,12 +172,12 @@ class OpenfoldPredictStep(Step):
             out_dir,
             params=weights,
             preset=str(params.get("config_preset", "model_1_ptm")),
-            device=str(params.get("device", "cpu")),
+            device=resolve_device(params.get("device"), "openfold_predict", python=str(params.get("python_executable") or "")),
             skip_relaxation=bool(params.get("skip_relaxation", True)),
         )
         env = dict(os.environ)
         env["PYTHONPATH"] = str(repo) + ((os.pathsep + env["PYTHONPATH"]) if env.get("PYTHONPATH") else "")
-        if str(params.get("device", "cpu")) == "cpu":
+        if resolve_device(params.get("device"), "openfold_predict", python=str(params.get("python_executable") or "")) == "cpu":
             env["CUDA_VISIBLE_DEVICES"] = ""
         timeout = int(params.get("timeout_seconds", 3600))
         try:

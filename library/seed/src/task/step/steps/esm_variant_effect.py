@@ -1,5 +1,6 @@
 """Zero-shot variant effect scan with a local ESM checkpoint."""
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import numpy as np
 
@@ -153,7 +154,7 @@ class EsmVariantEffectStep(Step):
         sequence_dim = str(params.get("sequence_dim", "sequence"))
         position_dim = str(params.get("position_dim", "position"))
         model_path = str(params.get("model_path", "") or "").strip()
-        device = str(params.get("device", "cpu") or "cpu").strip().lower()
+        device = resolve_device(params.get("device"), "esm_variant_effect")
         positions_text = str(params.get("positions", "") or "")
         batch_size = int(params.get("batch_size", 16))
         out_name = params.get("output", self.name)

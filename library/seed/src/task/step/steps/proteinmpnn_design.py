@@ -1,5 +1,6 @@
 """ProteinMPNN sequence design through the official runner script."""
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import csv
@@ -199,7 +200,7 @@ class ProteinMpnnDesignStep(Step):
         chains = str(params.get("chains", "")).strip()
         fixed_text = str(params.get("fixed_positions", "")).strip()
         design_text = str(params.get("design_ranges", "")).strip()
-        device = str(params.get("device", "cpu")).strip().lower()
+        device = resolve_device(params.get("device"), "proteinmpnn_design", python=str(params.get("python_executable") or ""))
         ca_only = bool(params.get("ca_only", False))
         out_name = params.get("output", self.name)
         timeout = float(params.get("timeout_seconds", 1800.0))

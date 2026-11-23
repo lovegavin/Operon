@@ -46,8 +46,9 @@
     },
     "device": {
       "type": "string",
-      "default": "cpu",
+      "default": "auto",
       "enum": [
+        "auto",
         "cpu",
         "cuda"
       ],

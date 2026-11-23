@@ -31,8 +31,9 @@
     "device": {
       "title": "计算设备",
       "type": "string",
-      "default": "cpu",
+      "default": "auto",
       "enum": [
+        "auto",
         "cpu",
         "cuda"
       ],

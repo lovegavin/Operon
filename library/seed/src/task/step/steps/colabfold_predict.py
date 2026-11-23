@@ -1,6 +1,7 @@
 """Structure prediction with the official ColabFold ``colabfold_batch`` runner."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import os
@@ -206,7 +207,7 @@ class ColabfoldPredictStep(Step):
         num_models = int(params.get("num_models") if params.get("num_models") is not None else 1)
         num_recycles = int(params.get("num_recycles") if params.get("num_recycles") is not None else 3)
         msa_mode = str(params.get("msa_mode") or "mmseqs2_uniref_env")
-        device = str(params.get("device") or "cpu")
+        device = resolve_device(params.get("device"), "colabfold_predict")
         timeout = int(params.get("timeout_seconds") if params.get("timeout_seconds") is not None else 3600)
         if msa_mode not in _MSA_MODES:
             raise StepError(

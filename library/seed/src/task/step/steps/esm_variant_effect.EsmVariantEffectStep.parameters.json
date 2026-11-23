@@ -25,8 +25,12 @@
     },
     "device": {
       "type": "string",
-      "default": "cpu",
-      "enum": ["cpu", "cuda"],
+      "default": "auto",
+      "enum": [
+        "auto",
+        "cpu",
+        "cuda"
+      ],
       "title": "计算设备",
       "x-ui-group": "basic",
       "x-ui-order": 30

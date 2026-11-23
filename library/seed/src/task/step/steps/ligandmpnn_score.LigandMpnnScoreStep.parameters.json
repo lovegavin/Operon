@@ -37,7 +37,11 @@
     "model_type": {
       "type": "string",
       "default": "ligand_mpnn",
-      "enum": ["ligand_mpnn", "protein_mpnn", "soluble_mpnn"],
+      "enum": [
+        "ligand_mpnn",
+        "protein_mpnn",
+        "soluble_mpnn"
+      ],
       "title": "模型类型",
       "description": "与权重文件对应的模型类型。",
       "x-ui-group": "basic",
@@ -117,8 +121,12 @@
     },
     "device": {
       "type": "string",
-      "default": "cpu",
-      "enum": ["cpu", "cuda"],
+      "default": "auto",
+      "enum": [
+        "auto",
+        "cpu",
+        "cuda"
+      ],
       "title": "设备",
       "description": "计算设备；cpu 会清空 CUDA_VISIBLE_DEVICES。",
       "x-ui-group": "basic",

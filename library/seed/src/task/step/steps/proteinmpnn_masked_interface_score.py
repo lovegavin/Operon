@@ -1,6 +1,7 @@
 """Interface-restricted ProteinMPNN score: mean NLL over interface residues."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import subprocess
@@ -138,7 +139,7 @@ def score_interface(params, repo: Path, weights: Path, structure: Path) -> tuple
 
     python = str(params.get("python_executable", "") or "").strip() or environment_python("proteinmpnn") or sys.executable
     timeout = float(params.get("timeout_seconds", 1800.0))
-    device = str(params.get("device", "cpu") or "cpu").strip().lower()
+    device = resolve_device(params.get("device"), "proteinmpnn_masked_interface_score", python=str(params.get("python_executable") or ""))
     model = str(params.get("model_name", "v_48_020") or "v_48_020").strip()
     chains_text = str(params.get("chains", "") or "").strip()
     runner = repo / "protein_mpnn_run.py"

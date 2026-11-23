@@ -102,8 +102,9 @@
       "type": "string",
       "x-ui-group": "输入",
       "x-ui-order": 11,
-      "default": "cpu",
+      "default": "auto",
       "enum": [
+        "auto",
         "cpu",
         "cuda"
       ]

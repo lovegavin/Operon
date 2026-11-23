@@ -1,6 +1,7 @@
 """Per-position amino-acid probabilities from ProteinMPNN conditional-probability mode."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import shutil
@@ -125,7 +126,7 @@ class ProteinmpnnProbabilityProfileStep(Step):
         python_executable = str(params.get("python_executable", "") or "").strip()
         model_name = str(params.get("model_name", "v_48_020") or "v_48_020").strip()
         chains = str(params.get("chains", "") or "").strip()
-        device = str(params.get("device", "cpu") or "cpu").strip().lower()
+        device = resolve_device(params.get("device"), "proteinmpnn_probability_profile", python=str(params.get("python_executable") or ""))
         num_batches = int(params.get("num_batches", 1))
         seed = int(params.get("seed", 1))
         timeout = float(params.get("timeout_seconds", 1800.0))

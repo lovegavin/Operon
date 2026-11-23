@@ -1,6 +1,7 @@
 """ProteinMPNN per-position perplexity from conditional probabilities."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import re
 import shutil
@@ -165,7 +166,7 @@ def run_designer(params: dict, structure: Path, weights: Path | None) -> tuple[s
         import os
 
         env.update(os.environ)
-        if str(params.get("device", "cpu")) != "cuda":
+        if resolve_device(params.get("device"), "proteinmpnn_perplexity", python=str(params.get("python_executable") or "")) != "cuda":
             env["CUDA_VISIBLE_DEVICES"] = ""
         try:
             completed = subprocess.run(
@@ -275,7 +276,7 @@ class ProteinmpnnPerplexityStep(Step):
         seed = int(params.get("seed", 1))
         if seed < 0:
             raise StepError("proteinmpnn_perplexity: seed must not be negative")
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "proteinmpnn_perplexity", python=str(params.get("python_executable") or ""))
         if device not in ("cpu", "cuda"):
             raise StepError("proteinmpnn_perplexity: device must be 'cpu' or 'cuda'")
         weights_text = str(params.get("weights_path", "") or "").strip()

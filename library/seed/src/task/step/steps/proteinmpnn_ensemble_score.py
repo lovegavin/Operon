@@ -1,6 +1,7 @@
 """Score a structure with an ensemble of official ProteinMPNN models."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import os
 import shutil
@@ -112,7 +113,7 @@ class ProteinmpnnEnsembleScoreStep(Step):
         python_executable = str(params.get("python_executable", "") or "").strip()
         chains = str(params.get("chains", "") or "").strip()
         seed = int(params.get("seed", 1))
-        device = str(params.get("device", "cpu") or "cpu").strip().lower()
+        device = resolve_device(params.get("device"), "proteinmpnn_ensemble_score", python=str(params.get("python_executable") or ""))
         timeout = float(params.get("timeout_seconds", 1800.0))
         out_name = params.get("output", self.name)
         models = parse_models(str(params.get("models", ",".join(MODELS))))

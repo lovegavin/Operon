@@ -1,6 +1,7 @@
 """Per-residue amino-acid bias design with the official ProteinMPNN runner."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import json
 import subprocess
@@ -105,7 +106,7 @@ def run_bias_designer(
     """Run the official ProteinMPNN runner with a per-residue bias file."""
 
     timeout = int(params.get("timeout_seconds", 1800) or 1800)
-    device = str(params.get("device", "cpu")).strip() or "cpu"
+    device = resolve_device(params.get("device"), "proteinmpnn_bias_matrix", python=str(params.get("python_executable") or ""))
     executable = str(params.get("python_executable", "")).strip() or environment_python("proteinmpnn") or sys.executable
     with tempfile.TemporaryDirectory(prefix="operon_bias_") as tmp:
         out_dir = Path(tmp) / "designs"
@@ -234,7 +235,7 @@ class ProteinmpnnBiasMatrixStep(Step):
             raise StepError(
                 f"proteinmpnn_bias_matrix: model_name must be one of {', '.join(MODELS)}"
             )
-        device = str(params.get("device", "cpu")).strip() or "cpu"
+        device = resolve_device(params.get("device"), "proteinmpnn_bias_matrix", python=str(params.get("python_executable") or ""))
         if device not in ("cpu", "cuda"):
             raise StepError("proteinmpnn_bias_matrix: device must be 'cpu' or 'cuda'")
         strength = float(params.get("strength", 1.0))

@@ -1,6 +1,7 @@
 """esm3_secondary_structure: ESM-3 secondary-structure track prediction."""
 
 from __future__ import annotations
+from ._device_common import resolve_device
 
 import tempfile
 
@@ -144,7 +145,7 @@ class Esm3SecondaryStructureStep(Step):
         sequence = sequences[0]
         if not sequence:
             raise StepError("esm3_secondary_structure: the sequence is empty")
-        device = str(params.get("device", "cpu"))
+        device = resolve_device(params.get("device"), "esm3_secondary_structure")
         if device not in ("cpu", "cuda"):
             raise StepError("esm3_secondary_structure: device must be 'cpu' or 'cuda'")
         num_steps = int(params.get("num_steps", 8))

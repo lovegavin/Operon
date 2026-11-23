@@ -105,8 +105,9 @@
       "type": "string",
       "title": "设备",
       "description": "cpu 或 cuda",
-      "default": "cpu",
+      "default": "auto",
       "enum": [
+        "auto",
         "cpu",
         "cuda"
       ],
