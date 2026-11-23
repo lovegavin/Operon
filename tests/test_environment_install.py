@@ -352,3 +352,26 @@ def test_a_build_without_isolation_uses_the_declared_dependencies(tmp_path, monk
     assert built, commands
     assert '--no-build-isolation' in built[0]
     assert '--no-deps' in built[0]
+
+
+def test_a_bare_requirement_may_build_without_isolation():
+    from operon import environment_install
+
+    environment_install._validate({'no_build_isolation': ['cooltools>=0.6']})
+    environment_install._validate({'no_build_isolation': ['pkg @ https://example.test/pkg.whl']})
+    with pytest.raises(ValueError):
+        environment_install._validate({'no_build_isolation': ['http://example.test/pkg.tar.gz']})
+
+
+def test_a_failed_preparation_records_why(tmp_path):
+    from operon import environment_install
+
+    environment_install._write_progress('demo', tmp_path, {'name': 'demo', 'phase': 'installing'})
+    assert environment_install.mark_failed('demo', tmp_path, ValueError('boom'))
+    progress = environment_install.read_progress('demo', tmp_path)
+    assert progress['phase'] == 'failed'
+    assert 'boom' in progress['error']
+
+    environment_install._write_progress('done', tmp_path, {'name': 'done', 'phase': 'ready'})
+    assert not environment_install.mark_failed('done', tmp_path, ValueError('late'))
+    assert environment_install.read_progress('done', tmp_path)['phase'] == 'ready'

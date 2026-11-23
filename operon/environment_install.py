@@ -225,6 +225,23 @@ def mark_cancelled(name: str, root=None) -> bool:
     return True
 
 
+def mark_failed(name: str, root, error) -> bool:
+    """Record why a preparation stopped so the panel can show it.
+
+    The worker used to swallow the exception, which left a request that returned
+    200 with the last recorded phase still in place: pressing "prepare" again
+    looked like a no-op.  A failure is a state, so it belongs in the progress file.
+    """
+    progress = read_progress(name, root) or {'name': name}
+    if str(progress.get('phase') or '') == 'ready':
+        return False
+    message = f'{type(error).__name__}: {error}'
+    progress.update({'phase': 'failed', 'detail': message[:400], 'error': message[:4000],
+                     'updated_at': _now()})
+    _write_progress(name, root, progress)
+    return True
+
+
 
 def _split_dependency_counts(rows) -> dict:
     """Count required dependencies apart from the optional ones.
@@ -708,6 +725,11 @@ def _validate(spec: dict):
         raise ValueError('invalid environment field: build_env')
     for value in spec.get('no_build_isolation') or []:
         candidate = value.split(' @ ', 1)[1].strip() if ' @ ' in value else value.strip()
+        if '://' not in candidate:
+            # A bare requirement names a package that the environment already
+            # declares; building it without isolation is the whole point of the
+            # field, so there is no remote source to vet here.
+            continue
         if not (candidate.startswith('https://') or candidate.startswith('git+https://')):
             raise ValueError(f'only https package sources are allowed: {value}')
 

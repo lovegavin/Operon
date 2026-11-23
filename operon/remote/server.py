@@ -355,8 +355,13 @@ def environment_prepare(service, payload: dict | None = None) -> dict:
     def worker(name: str):
         try:
             environment_install.prepare(name, snapshot['root'], source=snapshot['source'])
-        except Exception:
-            pass
+        except Exception as exc:
+            # A request that acknowledged the work must not hide its failure: the
+            # next "prepare" call would look like a no-op on a stale snapshot.
+            try:
+                environment_install.mark_failed(name, snapshot['root'], exc)
+            except Exception:
+                pass
         finally:
             with _ENVIRONMENT_LOCK:
                 _ENVIRONMENT_JOBS.pop(name, None)
