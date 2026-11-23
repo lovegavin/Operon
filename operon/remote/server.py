@@ -199,6 +199,19 @@ def resource_readiness(names: list[str], environment: str = '') -> tuple[int, in
     return ready, total, missing
 
 
+def declared_resources_gate(ready: int, total: int, status: str) -> bool:
+    """Say whether a declared resource gap makes an environment incomplete.
+
+    A resource that an environment declares in its own manifest is part of
+    readiness: the operator cannot run without the files.  A resource that only
+    names the environment as one of its consumers stays a warning, because
+    several toolchains share it and a half-downloaded database must not lock a
+    finished environment out of every client that gates on a ready status.
+    """
+
+    return bool(total) and int(ready) < int(total) and str(status or '') == 'ready'
+
+
 def environment_snapshot(service) -> dict:
     _SNAPSHOT_SERVICE['service'] = service
     try:
@@ -232,17 +245,23 @@ def environment_snapshot(service) -> dict:
         item['resources_ready'] = ready_units
         item['resources_missing'] = missing_names
         if all_units and ready_units < all_units:
-            # A resource is downloaded on demand: its absence is a warning, not a
-            # broken environment.  Downgrading a finished environment to
-            # ``incomplete`` made every client that gates on a ready status refuse
-            # to plan, even though the toolchain itself was installed and the
-            # operator would have reported the missing resource by name.
+            # Two tiers.  A resource the environment declares itself is part of
+            # readiness and flips the status to ``incomplete`` below.  A resource
+            # that only lists the environment among its consumers stays a
+            # warning: several toolchains share it, and refusing to plan because
+            # a shared database is still downloading would gate a finished
+            # environment out of every client.
             reason = f'资源未齐备（{ready_units}/{all_units}）'
             if missing_names:
                 reason = f'{reason}：' + '、'.join(missing_names[:3])
             item['resources_warning'] = reason
             if not item.get('error'):
                 item['error'] = reason
+            own_ready, own_total, _ = resource_readiness(declared)
+            item['resources_declared_ready'] = own_ready
+            item['resources_declared_total'] = own_total
+            if declared_resources_gate(own_ready, own_total, item.get('status')):
+                item['status'] = 'incomplete'
     with _ENVIRONMENT_LOCK:
         running = {name: dict(value) for name, value in _ENVIRONMENT_JOBS.items()}
     return {'root': str(root), 'source': str(source), 'environments': plan, 'running': running}

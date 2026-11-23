@@ -111,3 +111,33 @@ def test_rsync_only_unit_still_reports_download_support() -> None:
     downloads, allowed = resource_api.unit_downloads('pdb_mmcif', resource, None)
     assert downloads and allowed is None
 
+def test_a_shared_resource_gap_is_only_a_warning(monkeypatch):
+    monkeypatch.setattr(remote_server, '_environment_plan', lambda service: (
+        '/root', '/source',
+        {'boltz': {'status': 'ready', 'error': '', 'location': '/tmp/boltz'}},
+    ))
+    from operon import environment_install as environment_install_module
+
+    monkeypatch.setattr(environment_install_module, 'dependency_status',
+                        lambda entry, location: (1, 1, [{'kind': 'requirements', 'name': 'numpy', 'installed': True}]))
+    monkeypatch.setattr(environment_install_module, 'dependency_counts',
+                        lambda rows: {'dependency_total': 1, 'dependency_installed': 1,
+                                      'missing_dependencies': []})
+    # The environment declares nothing of its own; the catalogue entry only names
+    # it among several consumers, exactly like colabfold_msa does.
+    monkeypatch.setattr(remote_server, '_resource_catalogue', lambda service: {
+        'colabfold_msa': {'state': 'partial', 'environments': ['boltz', 'colabfold'],
+                          'components': [{'name': 'uniref30_2302', 'files': [{'path': 'a', 'present': False}]}]},
+    })
+
+    snapshot = remote_server.environment_snapshot(object())
+    item = snapshot['environments']['boltz']
+    assert item['status'] == 'ready'
+    assert item['resources_warning']
+
+
+def test_declared_resources_gate_only_touches_a_ready_environment():
+    assert remote_server.declared_resources_gate(0, 9, 'ready') is True
+    assert remote_server.declared_resources_gate(9, 9, 'ready') is False
+    assert remote_server.declared_resources_gate(0, 9, 'installing') is False
+    assert remote_server.declared_resources_gate(0, 0, 'ready') is False
