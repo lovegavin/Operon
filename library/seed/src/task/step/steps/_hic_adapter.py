@@ -61,7 +61,11 @@ def load_analysis(result, ctx, params):
         # expansion check before delegating to the existing table Reader.
         if path.stat().st_size * 32 > budget:
             raise ValueError(f'Analysis table exceeds memory_mb; the complete TSV remains at {path}')
-        from src.reader.readers.tsv_reader import TsvReader
+        try:
+            # Packaged libraries move the shared readers into operon_readers.
+            from operon_readers.readers.tsv_reader import TsvReader
+        except ImportError:  # source tree
+            from src.reader.readers.tsv_reader import TsvReader
         import csv
         with path.open(encoding='utf-8', newline='') as stream:
             rows = csv.reader(stream, delimiter='\t')
