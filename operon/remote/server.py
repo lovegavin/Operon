@@ -231,11 +231,16 @@ def environment_snapshot(service) -> dict:
         item['resources_total'] = all_units
         item['resources_ready'] = ready_units
         item['resources_missing'] = missing_names
-        if all_units and ready_units < all_units and str(item.get('status') or '') == 'ready':
-            item['status'] = 'incomplete'
+        if all_units and ready_units < all_units:
+            # A resource is downloaded on demand: its absence is a warning, not a
+            # broken environment.  Downgrading a finished environment to
+            # ``incomplete`` made every client that gates on a ready status refuse
+            # to plan, even though the toolchain itself was installed and the
+            # operator would have reported the missing resource by name.
             reason = f'资源未齐备（{ready_units}/{all_units}）'
             if missing_names:
                 reason = f'{reason}：' + '、'.join(missing_names[:3])
+            item['resources_warning'] = reason
             if not item.get('error'):
                 item['error'] = reason
     with _ENVIRONMENT_LOCK:
