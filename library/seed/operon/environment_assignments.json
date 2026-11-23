@@ -1161,7 +1161,7 @@
     "vif": "core",
     "vina_dock": "core",
     "vina_dock_batch": "core",
-    "vina_dock_python": "core",
+    "vina_dock_python": "vina310",
     "vina_pose_cluster": "core",
     "vina_pose_rmsd": "core",
     "violin": "core",
