@@ -54,8 +54,8 @@
         {
           "path": "ProteinMPNN/vanilla_model_weights/v_48_020.pt",
           "url": [
-            "https://cdn.jsdelivr.net/gh/dauparas/ProteinMPNN@main/vanilla_model_weights/v_48_020.pt",
             "https://ghproxy.net/https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/vanilla_model_weights/v_48_020.pt",
+            "https://cdn.jsdelivr.net/gh/dauparas/ProteinMPNN@main/vanilla_model_weights/v_48_020.pt",
             "https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/vanilla_model_weights/v_48_020.pt"
           ],
           "unit": "ProteinMPNN",
@@ -64,8 +64,8 @@
         {
           "path": "protein_mpnn_run.py",
           "url": [
-            "https://cdn.jsdelivr.net/gh/dauparas/ProteinMPNN@main/protein_mpnn_run.py",
             "https://ghproxy.net/https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/protein_mpnn_run.py",
+            "https://cdn.jsdelivr.net/gh/dauparas/ProteinMPNN@main/protein_mpnn_run.py",
             "https://raw.githubusercontent.com/dauparas/ProteinMPNN/main/protein_mpnn_run.py"
           ],
           "bytes": 29312,
@@ -1157,7 +1157,10 @@
           "mode": "tree",
           "kind": "database",
           "bytes": 102918187842,
-          "url": "https://opendata.mmseqs.org/colabfold/uniref30_2302.tar.gz",
+          "url": [
+            "https://opendata.mmseqs.org/colabfold/uniref30_2302.tar.gz",
+            "https://wwwuser.gwdg.de/~compbiol/colabfold/uniref30_2302.tar.gz"
+          ],
           "files": [],
           "note": "MMseqs2 database: uniref30_2302_db plus .dbtype/.index/.0 splits"
         },
@@ -1167,7 +1170,10 @@
           "mode": "tree",
           "kind": "database",
           "bytes": 117965643010,
-          "url": "https://opendata.mmseqs.org/colabfold/colabfold_envdb_202108.tar.gz",
+          "url": [
+            "https://opendata.mmseqs.org/colabfold/colabfold_envdb_202108.tar.gz",
+            "https://wwwuser.gwdg.de/~compbiol/colabfold/colabfold_envdb_202108.tar.gz"
+          ],
           "files": [],
           "note": "MMseqs2 database: colabfold_envdb_202108_db plus .dbtype/.index/.0 splits"
         }

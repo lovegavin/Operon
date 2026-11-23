@@ -48,6 +48,16 @@ that merely lists the environment as a consumer (the shared ColabFold MSA
 database, 206 GB, consumed by `boltz` and `colabfold`) stays a warning, so
 downloading it does not block a working environment.
 
+- A resource tree that an older upload left behind no longer blocks the
+  download: a size or digest mismatch replaces the stale file instead of failing
+  the whole install, so "install" repairs the tree.
+- An install may take over a connection that never finished. Before, a stale
+  connect kept every later install failing with "this server is connecting or
+  preparing its environment" until the desktop restarted.
+- Resource mirrors: the ProteinMPNN checkout downloads through `ghproxy.net`
+  first (jsDelivr answers 403), and the ColabFold databases list the GWDG mirror
+  next to `opendata.mmseqs.org` (which rate-limits with 429).
+
 ## Library
 
 `library main-v1.1.26` carries the Hi-C import fix and the environment changes
