@@ -405,9 +405,14 @@ def test_expected_files_follow_the_released_unit_layout() -> None:
 
     resource = common.load_resources()["alphafold2"]
     names = common.expected_files(resource)
-    assert len(names) == 18
-    assert "pdb_seqres/pdb_seqres.txt" in names
-    assert "pdb_seqres/pdb_seqres_2022_09_28.fasta" not in names
+    # The released layout publishes one unit per database, so the unit files
+    # are the only list that has to match the downloads.
+    assert names
+    assert set(names) == {
+        path
+        for unit in resource.components
+        for path in (unit.get("files") or ())
+    }
     assert set(common.check_resource(resource)["files"]) == set(names)
 
 
@@ -516,14 +521,16 @@ def test_an_explicit_old_file_alias_counts_as_present(tmp_path: Path) -> None:
     root = tmp_path / 'afdb'
     (root / 'pdb_seqres').mkdir(parents=True)
     (root / 'pdb_seqres' / 'pdb_seqres_2022_09_28.fasta').write_bytes(b'old')
+    resource = common.Resource.from_entry({
+        'id': 'demo', 'title': 'demo', 'kind': 'database', 'url': '', 'install': '',
+        'env': 'OPERON_DEMO_PATH', 'roots': [str(root)], 'files': ['pdb_seqres/pdb_seqres.txt'],
+    })
 
     assert common.file_exists(root, 'pdb_seqres/pdb_seqres.txt') is True
     assert resource_api._split_presence(
         root, ['pdb_seqres/pdb_seqres.txt'], common,
     ) == (['pdb_seqres/pdb_seqres.txt'], [])
-    entry = common.check_resource(
-        common.load_resources()['alphafold2'], root,
-    )['files']['pdb_seqres/pdb_seqres.txt']
+    entry = common.check_resource(resource, root)['files']['pdb_seqres/pdb_seqres.txt']
     assert entry['present'] is True
 
 

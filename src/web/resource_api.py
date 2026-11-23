@@ -684,11 +684,14 @@ def _download(entry: dict, root: Path, *, overwrite: bool, event, job: dict, ope
     expected_sha = str(entry.get("sha256") or "").lower()
     if target.is_file() and not overwrite:
         actual = target.stat().st_size
-        if expected_bytes and actual != expected_bytes:
-            raise ValueError(f"{target} exists with {actual} bytes, expected {expected_bytes}")
-        if expected_sha and _sha256(target) != expected_sha:
-            raise ValueError(f"{target} exists with a different sha256")
-        return {"path": relative, "status": "existing", "bytes": actual}
+        size_ok = not expected_bytes or actual == expected_bytes
+        digest_ok = not expected_sha or _sha256(target) == expected_sha
+        if size_ok and digest_ok:
+            return {"path": relative, "status": "existing", "bytes": actual}
+        # A copy that no longer matches the declared payload is stale: replace
+        # it instead of failing the download, so "install" can repair a tree
+        # that an older upload left behind.
+        target.unlink()
     target.parent.mkdir(parents=True, exist_ok=True)
     partial = target.with_name(target.name + ".part")
     archive = str(entry.get("archive") or "").lower()
