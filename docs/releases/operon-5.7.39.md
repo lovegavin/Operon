@@ -49,3 +49,13 @@ fpocket>=3.1 for core (structure_pocket_detect resolves the binary through the
 shared runtime). boltz_predict defaults to model=boltz2 while the downloadable
 resource set only carries the Boltz-1 checkpoint, so a boltz2 run downloads
 weights at run time; pass model=boltz1 for an offline run.
+
+## Added
+
+- The deep-learning operators now default `device` to `auto`: the resolver asks
+  the environment that runs the model whether torch can see a CUDA device and
+  picks `cuda` when it can, so a machine with a GPU no longer runs every model
+  on the CPU. `cpu` and `cuda` still work when pinned, and an unknown value is
+  rejected instead of silently falling back. Verified on the acceptance host
+  (RTX 3090): `ligandmpnn_side_chain_packing` completes in 185 s and
+  `boltz_predict` runs with `--accelerator gpu`.
