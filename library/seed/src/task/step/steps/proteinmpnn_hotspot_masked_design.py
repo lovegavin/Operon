@@ -134,6 +134,7 @@ class ProteinmpnnHotspotMaskedDesignStep(Step):
 
     def run(self, ctx: Context, inputs) -> None:
         params = ctx.step_params
+        form = inputs[0]
         atom_dim = str(params.get("atom_dim", "atom")).strip() or "atom"
         field_dim = str(params.get("field_dim", "field")).strip() or "field"
         structure_text = str(params.get("structure_path") or "").strip()
@@ -154,7 +155,6 @@ class ProteinmpnnHotspotMaskedDesignStep(Step):
         if top_n < 0:
             raise StepError("proteinmpnn_hotspot_masked_design: top_n must not be negative")
 
-        form = inputs[0]
         field_columns(form, field_dim, ("x", "y", "z", "chain", "resname", "residue_number", "element"))
         heavy = heavy_atom_mask(form, field_dim)
         chains = np.asarray([str(value).strip() for value in decode_column(form, field_dim, "chain")])

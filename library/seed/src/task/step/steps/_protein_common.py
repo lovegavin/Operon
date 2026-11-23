@@ -1,6 +1,8 @@
 """Shared helpers for protein sequence and structure operators."""
 from __future__ import annotations
 
+from pathlib import Path
+
 import numpy as np
 
 from src.core import Form, StepError

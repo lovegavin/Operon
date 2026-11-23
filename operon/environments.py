@@ -167,6 +167,14 @@ def _probe_environment_variables(python: Path) -> dict[str, str]:
     folders = [python.parent, base, base / 'Library' / 'bin', base / 'bin']
     env['PATH'] = os.pathsep.join(
         [*(str(item) for item in folders if item.is_dir()), env.get('PATH', '')])
+    libs = [item for item in (base / 'lib', base / 'lib64') if item.is_dir()]
+    if libs:
+        # Some environments (torch in particular) load the host libstdc++ before
+        # numpy gets a chance to use the one shipped with the environment, which
+        # turns a working environment into a probe failure.
+        previous = env.get('LD_LIBRARY_PATH', '')
+        env['LD_LIBRARY_PATH'] = os.pathsep.join(
+            [*(str(item) for item in libs), *([previous] if previous else [])])
     return env
 
 
