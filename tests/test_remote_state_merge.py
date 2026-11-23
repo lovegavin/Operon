@@ -36,3 +36,20 @@ def test_the_merged_view_is_visible_to_the_instance_that_saved(tmp_path):
     assert {item['id'] for item in first.history()} == {'a', 'b'}
     reopened = RemoteManager(SimpleNamespace(directory=tmp_path))
     assert {item['id'] for item in reopened.history()} == {'a', 'b'}
+
+
+def test_a_cancelled_connection_event_is_not_reused(tmp_path):
+    import threading
+    from src.web.remote_service import RemoteManager
+
+    manager = RemoteManager.__new__(RemoteManager)
+    manager.lock = threading.RLock()
+    manager.connecting = {'srv': threading.Event()}
+    manager.connecting['srv'].set()
+    manager.pools = {}
+    manager.connections = {}
+    manager.credentials = {}
+
+    manager.disconnect('srv')
+
+    assert 'srv' not in manager.connecting

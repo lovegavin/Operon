@@ -209,6 +209,9 @@ class RemoteManager:
                 raise RemoteError('已有环境请由服务端管理员维护；自动安装仅用于托管安装目录。')
             secret = credentials or self.credentials.get(key, {})
             if self.connections.get(key): self.connections.pop(key).close()
+            stale = self.connecting.pop(key, None)
+            if stale is not None:
+                stale.set()
             cancel = self.connecting[key] = threading.Event()
             self.progress[key] = {'running': True, 'lines': [], 'error': ''}
         def report(message):
@@ -548,7 +551,8 @@ class RemoteManager:
 
     def disconnect(self, key):
         with self.lock:
-            if key in self.connecting: self.connecting[key].set()
+            cancel = self.connecting.pop(key, None)
+            if cancel is not None: cancel.set()
             self.pools.pop(key, None)
             connection = self.connections.pop(key, None)
             if connection: connection.close()
