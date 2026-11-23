@@ -85,3 +85,28 @@ behind the runs above:
   (RTX 3090): `ligandmpnn_side_chain_packing` completes in 185 s,
   `proteinmpnn_design` in 83 s, `esmfold_predict` in 58 s (538 s on CPU), and
   `boltz_predict` runs with `--accelerator gpu`.
+
+## Fixed after the first acceptance pass
+
+- A failed connection no longer blocks the next install. `connect()` used to
+  raise as soon as the key was present in `connecting`, and that entry survived
+  a disconnect, so every later `install` returned
+  `此服务器正在连接或准备环境。`; an install now retires the pending event and
+  continues, and a disconnect removes the entry.
+- A state read that overlaps an atomic replace is retried. The desktop and an
+  MCP window share `.studio/remote/profiles.json` (1.7 MB), and Windows reports
+  the overlapping read as `PermissionError`, which used to abort
+  `RemoteManager.__init__`.
+- A stale resource file is replaced instead of aborting the download. The
+  `proteinmpnn` operator file was found with 29,781 bytes where the release
+  declares 29,312; the downloader now removes the old copy and fetches the
+  expected one, and the resource completes (`downloaded_bytes 6,710,613`).
+- `proteinmpnn` tries `ghproxy.net` before `cdn.jsdelivr.net` (the latter answers
+  403 for the pinned path), and the ColabFold database units list
+  `wwwuser.gwdg.de/~compbiol/colabfold/…` as a mirror because
+  `opendata.mmseqs.org` rate-limits (429).
+
+The remaining known defects, with symptoms and workarounds, are tracked in
+`DEFECTS.md` (D12–D17): the install still holds the manager lock while it waits
+on SSH, two `operon.remote.server` processes can still race for one workspace,
+and both are documented instead of silently retried.

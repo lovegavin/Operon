@@ -98,3 +98,15 @@ payload reports `problems: []` for `source_commit … dirty=False`.
 - `vina_dock_python` completes in 97 s in the dedicated `vina310` environment
   (Python 3.10, `vina 1.2.2`, `numpy==1.23.5`), and the registry assigns it
   there through `environment_assignments.json`.
+
+## Resource repair and mirror evidence
+
+- `operon_resource_download {"name": "proteinmpnn"}` on the deployed server:
+  the log shows `ProteinMPNN/vanilla_model_weights/v_48_020.pt existing 6681301`
+  and `protein_mpnn_run.py existing 29312` (the 29,781-byte copy was removed
+  first), then `phase: complete`, `downloaded_bytes 6,710,613`.
+- Mirror probes from the server (`curl -4 -sIL`): the GWDG links
+  `wwwuser.gwdg.de/~compbiol/colabfold/uniref30_2302.tar.gz` and
+  `…/colabfold_envdb_202108.tar.gz` answer 200, while
+  `opendata.mmseqs.org/colabfold/uniref30_2302.tar.gz` answers 429, which is why
+  the units now list both.
