@@ -2,7 +2,7 @@
   "version": 2,
   "environments": {
     "antifold": {
-      "title": "AntiFold \u6297\u4f53\u8bbe\u8ba1",
+      "title": "AntiFold 抗体设计",
       "python": "3.11",
       "imports": [
         "antifold",
@@ -45,7 +45,7 @@
       ]
     },
     "boltz": {
-      "title": "Boltz \u7ed3\u6784\u4e0e\u4eb2\u548c\u529b",
+      "title": "Boltz 结构与亲和力",
       "python": "3.11",
       "imports": [
         "boltz",
@@ -102,7 +102,7 @@
       ]
     },
     "colabfold": {
-      "title": "ColabFold \u7ed3\u6784\u9884\u6d4b",
+      "title": "ColabFold 结构预测",
       "python": "3.11",
       "imports": [
         "colabfold"
@@ -128,7 +128,7 @@
       ]
     },
     "esm3": {
-      "title": "ESM-3 \u86cb\u767d\u8bed\u8a00\u6a21\u578b",
+      "title": "ESM-3 蛋白语言模型",
       "python": "3.11",
       "imports": [
         "esm",
@@ -184,7 +184,7 @@
       ]
     },
     "esmfold": {
-      "title": "ESMFold \u7ed3\u6784\u9884\u6d4b",
+      "title": "ESMFold 结构预测",
       "python": "3.11",
       "imports": [
         "esm",
@@ -218,7 +218,7 @@
       ]
     },
     "openmm81": {
-      "title": "OpenMM \u7ed3\u6784\u51c6\u5907",
+      "title": "OpenMM 结构准备",
       "python": "3.11",
       "imports": [
         "openmm",
@@ -241,7 +241,7 @@
       "resources": []
     },
     "openfold": {
-      "title": "OpenFold \u7ed3\u6784\u9884\u6d4b",
+      "title": "OpenFold 结构预测",
       "python": "3.11",
       "imports": [
         "torch",
@@ -285,7 +285,7 @@
       ]
     },
     "core": {
-      "title": "\u57fa\u7840\u8fd0\u884c\u65f6",
+      "title": "基础运行时",
       "python": "3.11",
       "imports": [
         "Bio",
@@ -372,7 +372,7 @@
       ]
     },
     "proteinmpnn": {
-      "title": "ProteinMPNN \u86cb\u767d\u8bbe\u8ba1",
+      "title": "ProteinMPNN 蛋白设计",
       "python": "3.11",
       "imports": [
         "torch",
@@ -396,7 +396,7 @@
       "notes": "Runs the ProteinMPNN checkout from resources.json (code and weights). Torch 2.3.1 with NumPy 1.26 matches the other structure environments; the install is experimental until a GPU run is verified on this environment."
     },
     "ligandmpnn": {
-      "title": "LigandMPNN \u914d\u4f53\u8bbe\u8ba1",
+      "title": "LigandMPNN 配体设计",
       "python": "3.11",
       "imports": [
         "torch",
@@ -421,7 +421,7 @@
       "notes": "Runs the LigandMPNN checkout from resources.json. Experimental: the upstream package assumes torch 2.x and NumPy 1.x, which this environment pins."
     },
     "rfdiffusion": {
-      "title": "RFdiffusion \u9aa8\u67b6\u751f\u6210",
+      "title": "RFdiffusion 骨架生成",
       "python": "3.11",
       "imports": [
         "torch",
@@ -448,7 +448,7 @@
       "notes": "Runs the RFdiffusion checkout and checkpoints from resources.json. Experimental: SE3Transformer and dgl are vendored by the checkout; verify on a GPU host before relying on it."
     },
     "hmmer": {
-      "title": "HMMER \u5e8f\u5217\u6bd4\u5bf9",
+      "title": "HMMER 序列比对",
       "python": "3.11",
       "imports": [],
       "requirements": [
@@ -477,7 +477,7 @@
       ]
     },
     "antismash": {
-      "title": "antiSMASH \u57fa\u56e0\u7c07",
+      "title": "antiSMASH 基因簇",
       "python": "3.11",
       "imports": [
         "antismash"
@@ -511,7 +511,7 @@
       ]
     },
     "dssp": {
-      "title": "DSSP \u4e8c\u7ea7\u7ed3\u6784\u6307\u6d3e",
+      "title": "DSSP 二级结构指派",
       "python": "3.11",
       "conda_packages": [
         "dssp=4.4.11",
@@ -534,7 +534,7 @@
       ]
     },
     "esm2": {
-      "title": "ESM-2 \u86cb\u767d\u8bed\u8a00\u6a21\u578b",
+      "title": "ESM-2 蛋白语言模型",
       "python": "3.11",
       "imports": [
         "biotite",
@@ -570,7 +570,7 @@
       ]
     },
     "alphafold2": {
-      "title": "AlphaFold2 \u6570\u636e",
+      "title": "AlphaFold2 数据",
       "python": "3.11",
       "imports": [],
       "requirements": [
@@ -585,7 +585,7 @@
       "notes": "Wraps a local AlphaFold-2 checkout: link the afdb directory (params and MSA databases) from the resource card, then set the runner (run_alphafold.py) and python_executable to the interpreter of that checkout, or export OPERON_ALPHAFOLD2_HOME. The environment itself only provides a Python shell, so it installs without the multi-gigabyte AlphaFold dependencies."
     },
     "genomics": {
-      "title": "\u57fa\u56e0\u7ec4\u7ec4\u88c5\u4e0e\u6bd4\u5bf9",
+      "title": "基因组组装与比对",
       "python": "3.11",
       "conda_packages": [
         "minimap2=2.28",
@@ -619,7 +619,7 @@
       ]
     },
     "hic": {
-      "title": "Hi-C \u5206\u6790",
+      "title": "Hi-C 分析",
       "python": "3.11",
       "conda_packages": [
         "samtools=1.20",
@@ -666,7 +666,7 @@
       ]
     },
     "rna": {
-      "title": "RNA \u7ed3\u6784\u5206\u6790",
+      "title": "RNA 结构分析",
       "python": "3.11",
       "conda_packages": [
         "viennarna=2.6.4"
@@ -682,7 +682,9 @@
       ],
       "requirements": [
         "pydantic>=2.7",
-        "psutil>=5.9"
+        "psutil>=5.9",
+        "numpy>=1.24",
+        "pandas>=2.0"
       ]
     }
   }
