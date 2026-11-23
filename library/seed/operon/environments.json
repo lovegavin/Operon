@@ -663,7 +663,10 @@
       ],
       "no_build_isolation": [
         "cooltools>=0.6"
-      ]
+      ],
+      "build_env": {
+        "CFLAGS": "-std=gnu99"
+      }
     },
     "rna": {
       "title": "RNA 结构分析",

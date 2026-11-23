@@ -702,6 +702,10 @@ def _validate(spec: dict):
         lowered = value.lower()
         if 'file:' in lowered or 'ssh:' in lowered or lowered.startswith(('/', '.')) or 'git@' in lowered:
             raise ValueError(f'unsupported package source: {value}')
+    build_env = spec.get('build_env') or {}
+    if not isinstance(build_env, dict) or any(
+            not isinstance(key, str) or not isinstance(value, str) for key, value in build_env.items()):
+        raise ValueError('invalid environment field: build_env')
     for value in spec.get('no_build_isolation') or []:
         candidate = value.split(' @ ', 1)[1].strip() if ' @ ' in value else value.strip()
         if not (candidate.startswith('https://') or candidate.startswith('git+https://')):
@@ -1020,7 +1024,7 @@ def _commit(name: str, staging: Path, final: Path) -> None:
 PIP_STARTUP_SECONDS = 3600.0
 
 
-def _pip_env(python: Path) -> dict[str, str]:
+def _pip_env(python: Path, extra: dict[str, str] | None = None) -> dict[str, str]:
     """Return the environment for one pip run.
 
     pip's progress bar writes carriage returns and only flushes when its buffer
@@ -1035,6 +1039,8 @@ def _pip_env(python: Path) -> dict[str, str]:
     # log until it ends. Plain lines are what a captured log wants.
     env['PIP_PROGRESS_BAR'] = 'off'
     env['PIP_DISABLE_PIP_VERSION_CHECK'] = '1'
+    for name, value in (extra or {}).items():
+        env[str(name)] = str(value)
     return env
 
 
@@ -1157,9 +1163,12 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
         # pins numpy 1.x, and a package such as scikit-learn would then be rebuilt
         # from source for no reason.  The environment declares every runtime
         # dependency next to the entry, so `--no-deps` keeps the tree untouched.
+        # A declaration may carry build flags the host compiler needs: the
+        # system gcc of an older server still defaults to C89, and a Cython
+        # extension generated for C99 then fails to compile.
         _run([*install, *PIP_TRANSFER, '--no-build-isolation', '--no-deps', *no_build], log=log,
              timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
-             env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
+             env=_pip_env(python, entry.get('build_env')), startup=PIP_STARTUP_SECONDS)
 
 
 def _probe_environment(python: Path) -> dict[str, str]:
