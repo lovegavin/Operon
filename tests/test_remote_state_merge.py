@@ -53,3 +53,29 @@ def test_a_cancelled_connection_event_is_not_reused(tmp_path):
     manager.disconnect('srv')
 
     assert 'srv' not in manager.connecting
+
+
+def test_an_install_may_take_over_a_stale_connection() -> None:
+    from src.web.remote_service import RemoteError, RemoteManager
+    import threading
+
+    manager = RemoteManager.__new__(RemoteManager)
+    manager.lock = threading.RLock()
+    manager.connecting = {'srv': threading.Event()}
+    manager.connections = {}
+    manager.pools = {}
+    manager.credentials = {}
+    manager.pending_keys = {}
+    manager.state = {'profiles': {'srv': {'host': 'h', 'port': 22, 'environment': 'managed'}}}
+    manager.directory = __import__('pathlib').Path('.')
+    manager._local_build = lambda: {}
+    stale = manager.connecting['srv']
+    try:
+        manager.connect('srv', {}, install=True)
+    except RemoteError as error:  # pragma: no cover - the takeover must not raise this
+        assert '正在连接' not in str(error), str(error)
+    except Exception:
+        pass
+    finally:
+        assert stale.is_set()
+        assert 'srv' not in manager.connecting

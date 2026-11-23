@@ -200,8 +200,15 @@ class RemoteManager:
         if force and not install:
             raise RemoteError('强制升级只适用于安装 / 升级服务端。')
         with self.lock:
-            if key in self.connecting:
-                raise RemoteError('此服务器正在连接或准备环境。')
+            pending = self.connecting.get(key)
+            if pending is not None:
+                if not install:
+                    raise RemoteError('此服务器正在连接或准备环境。')
+                # An install is the repair action: it must be able to take over
+                # from a connection that never finished, otherwise a stale
+                # event blocks every later attempt.
+                self.connecting.pop(key, None)
+                pending.set()
             profile = deepcopy(self.profile(key))
             build = self.local_build()
             profile['build'] = build
