@@ -153,8 +153,6 @@ class LigandmpnnSideChainPackingStep(Step):
                 str(params.get("packed_suffix", "_packed")).strip() or "_packed",
                 "--seed",
                 str(int(params.get("seed", 0) or 0)),
-                "--device",
-                device,
                 "--verbose",
                 "0",
             ]

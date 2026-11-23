@@ -403,17 +403,22 @@
       "python": "3.11",
       "imports": [
         "torch",
-        "numpy"
+        "numpy",
+        "tree",
+        "ml_collections"
       ],
       "requirements": [
         "torch==2.3.1",
-        "numpy==1.26.4",
         "scipy==1.13.1",
         "biopython==1.83",
         "tqdm",
         "pydantic>=2.7",
         "psutil>=5.9",
-        "prody>=2.4"
+        "prody>=2.4",
+        "numpy>=1.21,<1.24",
+        "ml_collections>=0.1.7",
+        "dm-tree>=0.1.8",
+        "immutabledict>=2.0"
       ],
       "resources": [
         "ligandmpnn"
