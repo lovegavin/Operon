@@ -328,152 +328,243 @@
       "title": "AlphaFold2 parameters",
       "kind": "weights+databases",
       "url": "https://github.com/google-deepmind/alphafold",
-      "install": "download the AF2 parameter bundle and the BFD/UniRef/MGnify databases into the AlphaFold data directory",
+      "install": "each component downloads on demand from the link above; a run only reads the components its preset needs (about 224 GB in total)",
       "env": "OPERON_ALPHAFOLD_DATA",
       "roots": [
         "~/.local/share/operon/resources/alphafold2"
       ],
       "files": [
-        "params/params_model_1_ptm.npz"
+        "params/params_model_1.npz",
+        "params/params_model_1_ptm.npz",
+        "params/params_model_2.npz",
+        "params/params_model_2_ptm.npz",
+        "params/params_model_3.npz",
+        "params/params_model_3_ptm.npz",
+        "params/params_model_4.npz",
+        "params/params_model_4_ptm.npz",
+        "params/params_model_5.npz",
+        "params/params_model_5_ptm.npz",
+        "uniref90/uniref90.fasta",
+        "bfd/bfd-first_non_consensus_sequences.fasta",
+        "mgnify/mgy_clusters.fa",
+        "pdb_seqres/pdb_seqres.txt",
+        "uniprot/uniprot_sprot.fasta",
+        "pdb_mmcif/mmcif_files",
+        "pdb_mmcif/obsolete.dat"
       ],
       "link_unit": "tree",
-      "link_root": "afdb",
+      "link_root": "alphafold2",
       "expected_files": [
-        {
-          "path": "params/params_model_1_ptm.npz",
-          "required": true
-        },
-        {
-          "path": "uniref90/uniref90.fasta",
-          "required": true
-        },
-        {
-          "path": "uniref30/uniref30_2302.db.tar.gz",
-          "required": true
-        },
-        {
-          "path": "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz",
-          "required": true
-        },
-        {
-          "path": "mgnify/mgy_clusters_2022_05.fa",
-          "required": true
-        },
-        {
-          "path": "pdb70/pdb70_from_mmcif_200916.tar.gz",
-          "required": true
-        },
-        {
-          "path": "pdb_seqres/pdb_seqres_2022_09_28.fasta",
-          "required": true
-        },
-        {
-          "path": "uniprot/uniprot_sprot.fasta",
-          "required": true
-        },
-        {
-          "path": "pdb_mmcif/mmcif_files",
-          "required": true
-        }
+        "params/params_model_1.npz",
+        "params/params_model_1_ptm.npz",
+        "params/params_model_2.npz",
+        "params/params_model_2_ptm.npz",
+        "params/params_model_3.npz",
+        "params/params_model_3_ptm.npz",
+        "params/params_model_4.npz",
+        "params/params_model_4_ptm.npz",
+        "params/params_model_5.npz",
+        "params/params_model_5_ptm.npz",
+        "uniref90/uniref90.fasta",
+        "bfd/bfd-first_non_consensus_sequences.fasta",
+        "mgnify/mgy_clusters.fa",
+        "pdb_seqres/pdb_seqres.txt",
+        "uniprot/uniprot_sprot.fasta",
+        "pdb_mmcif/mmcif_files",
+        "pdb_mmcif/obsolete.dat"
       ],
       "envs": [
         "alphafold2"
       ],
       "units": [
         {
-          "name": "afdb",
-          "path": "",
+          "name": "params",
+          "path": "params",
           "mode": "tree",
-          "kind": "weights+databases",
-          "bytes": 2778668962476,
-          "url": "https://github.com/google-deepmind/alphafold",
+          "kind": "weights",
+          "bytes": 5587968000,
+          "url": "https://storage.googleapis.com/alphafold/alphafold_params_2022-12-06.tar",
+          "files": [],
+          "note": "official 2022-12-06 parameters"
+        },
+        {
+          "name": "uniref90",
+          "path": "uniref90",
+          "mode": "tree",
+          "kind": "database",
+          "bytes": 32692271968,
+          "url": "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/uniref/uniref90/uniref90.fasta.gz",
+          "files": [],
+          "note": "EBI mirror of UniRef90"
+        },
+        {
+          "name": "uniref30",
+          "path": "uniref30",
+          "mode": "tree",
+          "kind": "database",
+          "bytes": 70555922504,
+          "url": "https://wwwuser.gwdg.de/~compbiol/uniclust/2023_02/UniRef30_2023_02_hhsuite.tar.gz",
+          "files": [],
+          "note": "UniRef30 2023_02 hhsuite bundle"
+        },
+        {
+          "name": "bfd",
+          "path": "bfd",
+          "mode": "tree",
+          "kind": "database",
+          "bytes": 10331373891,
+          "url": "https://storage.googleapis.com/alphafold-databases/reduced_dbs/bfd-first_non_consensus_sequences.fasta.gz",
+          "files": [],
+          "note": "reduced_dbs BFD"
+        },
+        {
+          "name": "mgnify",
+          "path": "mgnify",
+          "mode": "tree",
+          "kind": "database",
+          "bytes": 72741135623,
+          "url": "https://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/2022_05/mgy_clusters.fa.gz",
+          "files": [],
+          "note": "MGnify 2022_05 clusters"
+        },
+        {
+          "name": "pdb70",
+          "path": "pdb70",
+          "mode": "tree",
+          "kind": "database",
+          "bytes": 28627472935,
+          "url": "https://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_from_mmcif_latest.tar.gz",
+          "files": [],
+          "note": "PDB70 hhsuite database"
+        },
+        {
+          "name": "pdb_seqres",
+          "path": "pdb_seqres",
+          "mode": "tree",
+          "kind": "database",
+          "bytes": 68464969,
+          "url": "https://files.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz",
+          "files": [],
+          "note": "PDB sequence residues"
+        },
+        {
+          "name": "uniprot",
+          "path": "uniprot",
+          "mode": "tree",
+          "kind": "database",
+          "bytes": 93867502,
+          "url": "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
+          "files": [],
+          "note": "Swiss-Prot from the EBI mirror"
+        },
+        {
+          "name": "pdb_mmcif",
+          "path": "pdb_mmcif",
+          "mode": "tree",
+          "kind": "database",
+          "bytes": 0,
+          "url": "rsync://rsync.wwpdb.org:33444/ftp/data/structures/divided/mmCIF/",
           "files": [
-            "params/params_model_1_ptm.npz",
-            "uniref90/uniref90.fasta",
-            "uniref30/uniref30_2302.db.tar.gz",
-            "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_a3m.ffdata",
-            "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_a3m.ffindex",
-            "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata",
-            "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffindex",
-            "mgnify/mgy_clusters_2022_05.fa",
-            "pdb70/pdb70_a3m.ffdata",
-            "pdb70/pdb70_a3m.ffindex",
-            "pdb70/pdb70_hhm.ffdata",
-            "pdb70/pdb70_hhm.ffindex",
-            "pdb70/pdb70_clu.tsv",
-            "pdb70/pdb70_cs219.ffdata",
-            "pdb70/pdb70_cs219.ffindex",
-            "pdb_seqres/pdb_seqres.txt",
-            "uniprot/uniprot_sprot.fasta",
-            "pdb_mmcif/mmcif_files"
+            "mmcif_files",
+            "obsolete.dat"
           ],
-          "note": ""
+          "note": "PDB mmCIF mirror over rsync"
         }
       ],
       "downloads": [
         {
-          "path": "params/params_model_1_ptm.npz",
-          "url": "https://storage.googleapis.com/alphafold/alphafold_params_2022-12-06.tar",
+          "unit": "params",
+          "path": "params",
+          "bytes": 5587968000,
           "archive": "tar",
-          "member": "params/params_model_1_ptm.npz",
-          "bytes": 373103340,
-          "unit": "afdb"
-        },
-        {
-          "path": "uniref90/uniref90.fasta",
-          "url": "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/uniref/uniref90/uniref90.fasta.gz",
-          "archive": "gz",
-          "unit": "afdb"
-        },
-        {
-          "path": "uniref30/uniref30_2302.db.tar.gz",
           "url": [
-            "https://opendata.mmseqs.org/colabfold/uniref30_2302.db.tar.gz",
-            "https://mmseqs.com/colabfold/uniref30_2302.db.tar.gz"
+            "https://storage.googleapis.com/alphafold/alphafold_params_2022-12-06.tar"
           ],
-          "unit": "afdb",
-          "note": "HTTP 429 (17-byte rate-limit page) from opendata.mmseqs.org on 2026-11-20; mmseqs.com now 302-redirects to github.com HTML, so no working mirror is known. AlphaFold's own download_uniref30.sh currently pins https://storage.googleapis.com/alphafold-databases/v2.3/UniRef30_2021_03.tar.gz (different release name); it is not substituted here because the manifest declares the 2023-02 database."
+          "note": "verified 2026-11-23: ranged request answers 206 and the whole file is 5,587,968,000 bytes"
         },
         {
-          "path": "bfd",
-          "url": "https://storage.googleapis.com/alphafold-databases/casp14_versions/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt.tar.gz",
-          "unit": "afdb",
-          "archive": "tar.gz",
-          "note": "the released tarball unpacks into bfd/, so the whole archive is extracted below that directory (official AlphaFold layout)"
-        },
-        {
-          "path": "mgnify/mgy_clusters_2022_05.fa",
-          "url": "https://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/current_release/mgy_clusters.fa.gz",
+          "unit": "uniref90",
+          "path": "uniref90/uniref90.fasta",
+          "bytes": 32692271968,
           "archive": "gz",
-          "unit": "afdb"
+          "url": [
+            "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/uniref/uniref90/uniref90.fasta.gz"
+          ],
+          "note": "verified 2026-11-23: 206; ftp.uniprot.org does not answer from this host"
         },
         {
+          "unit": "uniref30",
+          "path": "uniref30",
+          "bytes": 70555922504,
+          "archive": "tar.gz",
+          "url": [
+            "https://wwwuser.gwdg.de/~compbiol/uniclust/2023_02/UniRef30_2023_02_hhsuite.tar.gz"
+          ],
+          "note": "verified 2026-11-23: 206; opendata.mmseqs.org answers 429 to single requests"
+        },
+        {
+          "unit": "bfd",
+          "path": "bfd/bfd-first_non_consensus_sequences.fasta",
+          "bytes": 10331373891,
+          "archive": "gz",
+          "url": [
+            "https://storage.googleapis.com/alphafold-databases/reduced_dbs/bfd-first_non_consensus_sequences.fasta.gz"
+          ],
+          "note": "verified 2026-11-23: 206"
+        },
+        {
+          "unit": "mgnify",
+          "path": "mgnify/mgy_clusters.fa",
+          "bytes": 72741135623,
+          "archive": "gz",
+          "url": [
+            "https://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/2022_05/mgy_clusters.fa.gz"
+          ],
+          "note": "verified 2026-11-23: 206; the published name is mgy_clusters.fa.gz"
+        },
+        {
+          "unit": "pdb70",
           "path": "pdb70",
-          "url": "https://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/old-releases/pdb70_from_mmcif_200916.tar.gz",
-          "unit": "afdb",
+          "bytes": 28627472935,
           "archive": "tar.gz",
-          "note": "the released tarball unpacks into pdb70/, so the whole archive is extracted below that directory (official AlphaFold layout)"
+          "url": [
+            "https://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_from_mmcif_latest.tar.gz"
+          ],
+          "note": "verified 2026-11-23: 206"
         },
         {
+          "unit": "pdb_seqres",
           "path": "pdb_seqres/pdb_seqres.txt",
-          "url": "https://files.rcsb.org/pub/pdb/derived_data/pdb_seqres.txt.gz",
+          "bytes": 68464969,
           "archive": "gz",
-          "unit": "afdb"
+          "url": [
+            "https://files.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz"
+          ],
+          "note": "verified 2026-11-23: 206; ftp.wwpdb.org does not answer from this host"
         },
         {
+          "unit": "uniprot",
           "path": "uniprot/uniprot_sprot.fasta",
-          "url": "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
+          "bytes": 93867502,
           "archive": "gz",
-          "unit": "afdb"
+          "url": [
+            "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz"
+          ],
+          "note": "verified 2026-11-23: 206"
         },
         {
-          "path": "pdb_mmcif/mmcif_files",
-          "rsync": "rsync://rsync.wwpdb.org:33444/ftp/data/structures/divided/mmCIF/",
-          "note": "rsync://rsync.ebi.ac.uk/pdb/... answers '@ERROR: Unknown module pdb' (verified 2026-11-20); RCSB serves the same tree via rsync on port 33444. Fallback browse URL: https://files.rcsb.org/pub/pdb/data/structures/divided/mmCIF/ (HTTP 200).",
-          "unit": "afdb"
+          "unit": "pdb_mmcif",
+          "path": "pdb_mmcif",
+          "bytes": 0,
+          "rsync": {
+            "url": "rsync://rsync.wwpdb.org:33444/ftp/data/structures/divided/mmCIF/",
+            "note": "the upstream only publishes this mirror over rsync"
+          },
+          "note": "verified 2026-11-21: rsync --list-only succeeds"
         }
       ],
-      "notes": "Database names follow the AlphaFold 2.3.x flag defaults so the official run_alphafold.py finds them: mgnify/mgy_clusters_2022_05.fa, pdb_seqres/pdb_seqres_2022_09_28.fasta, pdb70/pdb70_from_mmcif_200916.tar.gz, uniref90/uniref90.fasta, bfd/bfd_metaclust...sorted_opt.tar.gz, uniprot/uniprot_sprot.fasta. The uniref30 archive is the 2023-02 release (uniref30_2302.db) rather than the 2021-03 snapshot the upstream script names; point --uniref30_database_path at it as usual. pdb_mmcif has no HTTP archive upstream (RCSB publishes it over rsync only), so it can only be linked, or downloaded with rsync from rsync.wwpdb.org on port 33444 (see that download's note). Verified 2026-11-20: params tar 5,587,968,000 bytes (member 373,103,340), uniref90 32,692,271,968, bfd 291,649,557,441, mgnify 168,161,316,715, pdb70 21,671,479,453, pdb_seqres 68,464,969, uniprot 93,867,502. uniref30: HTTP 429, no working mirror. pdb_mmcif: EBI module gone, use rsync.wwpdb.org:33444 (see that download's note)."
+      "notes": "AlphaFold 2 used to be one 2.78 TB unit pointing at the GitHub repository, so the panel could never download it. It is now split into its real components, and every HTTP link was verified on 2026-11-23 by a one-megabyte ranged request: parameters 5.6 GB, UniRef90 32.7 GB, UniRef30 70.6 GB, reduced BFD 10.3 GB, MGnify 72.7 GB, PDB70 28.6 GB, PDB seqres 68 MB, Swiss-Prot 94 MB, plus the PDB mmCIF mirror over rsync. Nothing is pre-installed.",
+      "bytes": 220698477392
     },
     {
       "id": "rfdiffusion",
