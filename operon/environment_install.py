@@ -1152,7 +1152,12 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
              env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
     no_build = entry.get('no_build_isolation') or []
     if no_build:
-        _run([*install, *PIP_TRANSFER, '--no-build-isolation', *no_build], log=log,
+        # A source build that runs inside the environment must not resolve its own
+        # build dependencies: pip would fetch numpy 2 headers while the environment
+        # pins numpy 1.x, and a package such as scikit-learn would then be rebuilt
+        # from source for no reason.  The environment declares every runtime
+        # dependency next to the entry, so `--no-deps` keeps the tree untouched.
+        _run([*install, *PIP_TRANSFER, '--no-build-isolation', '--no-deps', *no_build], log=log,
              timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
              env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
 

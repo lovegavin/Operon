@@ -338,3 +338,17 @@ def test_one_optional_binding_does_not_stop_the_best_effort_batch():
     assert attempted == ['vina==1.2.5', 'pyarrow>=15', 'pysam>=0.22']
     assert skipped == ['vina==1.2.5']
     assert any('vina==1.2.5' in line for line in logged)
+
+def test_a_build_without_isolation_uses_the_declared_dependencies(tmp_path, monkeypatch):
+    staging = tmp_path / 'env'
+    (staging / 'bin').mkdir(parents=True)
+    (staging / 'bin' / 'python').write_text('', encoding='utf-8')
+    commands = []
+    monkeypatch.setattr(environment_install, '_run',
+                        lambda command, **kwargs: commands.append(command))
+    monkeypatch.setattr(environment_install, '_pip_prefix', lambda staging: [])
+    environment_install._install({'no_build_isolation': ['cooltools>=0.6']}, staging, None)
+    built = [command for command in commands if 'cooltools>=0.6' in command]
+    assert built, commands
+    assert '--no-build-isolation' in built[0]
+    assert '--no-deps' in built[0]
