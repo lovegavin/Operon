@@ -124,6 +124,14 @@ def probe_environment(entry_id, environment, imports):
     folders = [python.parent, base, base / 'Library' / 'bin', base / 'bin']
     env['PATH'] = os.pathsep.join(
         [*(str(item) for item in folders if item.is_dir()), env.get('PATH', '')])
+    libs = [item for item in (base / 'lib', base / 'lib64') if item.is_dir()]
+    if libs:
+        # A probe that imports torch first makes the host libstdc++ sticky, so
+        # numpy's own copy can no longer be resolved and a ready environment
+        # looks broken. Put the environment libraries in front of the host.
+        previous = env.get('LD_LIBRARY_PATH', '')
+        env['LD_LIBRARY_PATH'] = os.pathsep.join(
+            [*(str(item) for item in libs), *([previous] if previous else [])])
     result = subprocess.run([str(python), '-X', 'utf8', '-c', script], capture_output=True, text=True,
                             encoding='utf-8', errors='replace', timeout=300, env=env, cwd=_probe_cwd(python))
     if result.returncode:
