@@ -40,10 +40,20 @@ def safe_json(value):
 
 
 def read_json(path, default=None):
-    try:
-        return json.loads(io_path(path).read_text(encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError):
-        return default
+    target = io_path(path)
+    # Windows reports a read that races an atomic replace as a permission error
+    # (sharing violation), so a state file shared by the desktop and an MCP
+    # window must be retried instead of crashing the reader.
+    for attempt in range(6):
+        try:
+            return json.loads(target.read_text(encoding="utf-8"))
+        except (FileNotFoundError, json.JSONDecodeError):
+            return default
+        except PermissionError:
+            if attempt == 5:
+                return default
+            time.sleep(0.02 * (attempt + 1))
+    return default
 
 
 def write_json(path, value):

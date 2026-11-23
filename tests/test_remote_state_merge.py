@@ -79,3 +79,20 @@ def test_an_install_may_take_over_a_stale_connection() -> None:
     finally:
         assert stale.is_set()
         assert 'srv' not in manager.connecting
+
+
+def test_a_state_read_survives_a_sharing_violation(monkeypatch, tmp_path) -> None:
+    from src.web import service as web_service
+
+    calls = {'n': 0}
+
+    class Flaky:
+        def read_text(self, *args, **kwargs):
+            calls['n'] += 1
+            if calls['n'] <= 2:
+                raise PermissionError(13, 'sharing violation')
+            return '{"profiles": {}}'
+
+    monkeypatch.setattr(web_service, 'io_path', lambda path: Flaky())
+    assert web_service.read_json(tmp_path / 'profiles.json', {}) == {'profiles': {}}
+    assert calls['n'] == 3
