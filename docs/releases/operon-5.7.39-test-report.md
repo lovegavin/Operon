@@ -30,7 +30,7 @@ tRNAscanSE/Configuration.pm in @INC`). The conda metadata repair is what lets
 
 ## Operator coverage
 
-1068 of 1074 catalog operators have at least one complete job on a real
+1070 of 1074 catalog operators have at least one complete job on a real
 reader-to-operator route (the registry reports `1074 operators / 109 readers /
 79 routes / 0 errors`). The last six are classified below.
 
@@ -67,3 +67,14 @@ tests/test_import_autolocate.py tests/test_hic_workflow.py` 20 passed (3 skipped
 without h5py), `pytest tests/test_dependencies.py` 11 passed 1 skipped. The
 frontend suite and the packaging self-check run inside `build5739.ps1`; the
 payload reports `problems: []` for `source_commit … dirty=False`.
+
+## Late fixes verified on the managed server
+
+- `flye_assemble` completed in 127 s once worker temp roots were shortened; the
+  failure mode was an AF_UNIX path limit, not a sandbox resource cap.
+- `colabfold_predict` completed in 156 s with `msa_mode=single_sequence` after
+  the jax/dm-haiku pins.
+- `ligandmpnn_side_chain_packing` completed in 102 s and `vina_dock_python` in
+  97 s, both on the GPU defaults introduced in this release.
+- The runtime panel now opens on the local target, and a channel that fails with
+  a timeout or a disconnect is retired instead of reporting `connected: true`.
