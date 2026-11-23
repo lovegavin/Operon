@@ -110,11 +110,21 @@ def n50(lengths: list[int]) -> tuple[int, int]:
     return ordered[-1], len(ordered)
 
 
+def resolve_binary(binary: str) -> str:
+    """Return the executable we can actually launch for *binary*."""
+
+    candidate = Path(binary).expanduser()
+    if candidate.is_absolute() or os.sep in binary or (os.altsep and os.altsep in binary):
+        return str(candidate)
+    found = shutil.which(binary)
+    return found or binary
+
+
 def tool_environment(binary: str) -> dict:
     """Prepend the tool directory to PATH so Flye finds minimap2 and friends."""
 
     env = dict(os.environ)
-    folder = str(Path(binary).expanduser().absolute().parent)
+    folder = str(Path(resolve_binary(binary)).expanduser().absolute().parent)
     env["PATH"] = folder + os.pathsep + env.get("PATH", "")
     return env
 
@@ -138,10 +148,11 @@ def run_flye(
         reads = folder / "reads.fasta"
         write_fasta(sequences, reads)
         out_dir = folder / "flye_out"
+        executable = resolve_binary(binary)
         launcher = (
-            [sys.executable, binary]
-            if str(binary).lower().endswith(".py")
-            else [binary]
+            [sys.executable, executable]
+            if executable.lower().endswith(".py")
+            else [executable]
         )
         command = [
             *launcher,
