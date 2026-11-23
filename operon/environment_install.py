@@ -1176,6 +1176,110 @@ def _attempt_best_effort(items, attempt, log):
     return skipped
 
 
+
+_PEP440 = re.compile(
+    r'^(?:\d+!)?\d+(?:\.\d+)*'
+    r'(?:[-_\.]?(?:a|b|c|rc|alpha|beta|pre|preview)[-_\.]?\d*)?'
+    r'(?:-\d+|[-_\.]?(?:post|rev|r)[-_\.]?\d*)?'
+    r'(?:[-_\.]?dev[-_\.]?\d*)?'
+    r'(?:\+[a-z0-9]+(?:[-_\.][a-z0-9]+)*)?$',
+    re.IGNORECASE,
+)
+
+
+def _version_is_pep440(text: str) -> bool:
+    """Report whether ``text`` is a version ``packaging`` accepts."""
+
+    value = str(text or '').strip()
+    return bool(value) and bool(_PEP440.match(value))
+
+
+def _site_packages_directories(prefix: Path) -> list[Path]:
+    base = Path(prefix)
+    found = [path for path in sorted(base.glob('lib/python*/site-packages')) if path.is_dir()]
+    windows = base / 'Lib' / 'site-packages'
+    if windows.is_dir():
+        found.append(windows)
+    return found
+
+
+def _conda_package_version(prefix: Path, project: str) -> str:
+    """Read the version conda recorded for ``project``."""
+
+    meta = Path(prefix) / 'conda-meta'
+    if not meta.is_dir():
+        return ''
+    wanted = _normalise_package(project)
+    for item in sorted(meta.glob('*.json')):
+        try:
+            payload = json.loads(item.read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            continue
+        if _normalise_package(str(payload.get('name') or '')) != wanted:
+            continue
+        version = str(payload.get('version') or '').strip()
+        if _version_is_pep440(version):
+            return version
+    return ''
+
+
+def repair_metadata_versions(prefix: Path, log=None) -> int:
+    """Rewrite non-PEP 440 metadata versions a conda build left behind.
+
+    A conda package may ship legacy ``*.egg-info`` metadata whose ``Version`` is
+    a build tag such as ``aafe735-mod`` (the AutoDock Vina bindings do). pip reads
+    it through ``pkg_resources`` and aborts every later ``pip install`` in that
+    environment with ``InvalidVersion`` before installing anything. The recipe
+    knows the real version, so rewrite the metadata instead of failing.
+    """
+
+    repaired = 0
+    for site in _site_packages_directories(Path(prefix)):
+        try:
+            entries = sorted(site.iterdir())
+        except OSError:
+            continue
+        for entry in entries:
+            suffix = next((text for text in ('.dist-info', '.egg-info') if entry.name.endswith(text)), '')
+            if not suffix or not entry.is_dir():
+                continue
+            info = entry / ('METADATA' if suffix == '.dist-info' else 'PKG-INFO')
+            try:
+                lines = info.read_text(encoding='utf-8', errors='replace').splitlines()
+            except OSError:
+                continue
+            project = version = ''
+            for line in lines:
+                if line.startswith('Name:') and not project:
+                    project = line.split(':', 1)[1].strip()
+                elif line.startswith('Version:') and not version:
+                    version = line.split(':', 1)[1].strip()
+            if not project or not version or _version_is_pep440(version):
+                continue
+            replacement = _conda_package_version(Path(prefix), project)
+            if not replacement:
+                continue
+            updated = [
+                f'Version: {replacement}' if line.startswith('Version:') else line
+                for line in lines
+            ]
+            try:
+                info.write_text('\n'.join(updated) + '\n', encoding='utf-8')
+            except OSError:
+                continue
+            directory = f"{project.replace('-', '_').replace('.', '_')}-{replacement}{suffix}"
+            target = site / directory
+            try:
+                if not target.exists():
+                    entry.rename(target)
+            except OSError:
+                pass
+            repaired += 1
+            if log is not None:
+                log(f'rewrote metadata version {version!r} as {replacement!r} for {project}')
+    return repaired
+
+
 def _install(entry: dict, staging: Path, log, root=None, progress=None, control=None):
     python = _python(staging)
     # Use the extended prefix only for pip filesystem writes. Keep the actual
@@ -1195,6 +1299,7 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
              timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
              startup=CONDA_STARTUP_SECONDS, watch=[base(root), staging, _mamba_cache(root)])
+        repair_metadata_versions(staging, log)
     if entry.get('torch_cpu'):
         _run([*install, *PIP_TRANSFER, 'torch',
               '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,

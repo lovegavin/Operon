@@ -396,3 +396,37 @@ def test_a_promoted_environment_forgets_its_staging_prefix(tmp_path):
     assert str(stale) not in wrapper.read_text(encoding='utf-8')
     assert str(root) in wrapper.read_text(encoding='utf-8')
     assert str(stale).encode('utf-8') in binary.read_bytes()
+
+
+def test_a_conda_build_tag_is_rewritten_to_the_packaged_version(tmp_path):
+    site = tmp_path / 'lib' / 'python3.10' / 'site-packages'
+    legacy = site / 'vina-aafe735_mod-py3.10.egg-info'
+    legacy.mkdir(parents=True)
+    (legacy / 'PKG-INFO').write_text(
+        'Metadata-Version: 2.1\nName: vina\nVersion: aafe735-mod\nSummary: bindings\n',
+        encoding='utf-8',
+    )
+    meta = tmp_path / 'conda-meta'
+    meta.mkdir()
+    (meta / 'vina-1.2.2-h1234_0.json').write_text(
+        '{"name": "vina", "version": "1.2.2", "build": "h1234_0"}',
+        encoding='utf-8',
+    )
+
+    repaired = environment_install.repair_metadata_versions(tmp_path)
+
+    assert repaired == 1
+    updated = site / 'vina-1.2.2.egg-info'
+    assert updated.is_dir()
+    assert 'Version: 1.2.2' in (updated / 'PKG-INFO').read_text(encoding='utf-8')
+
+
+def test_a_valid_metadata_version_is_left_alone(tmp_path):
+    site = tmp_path / 'lib' / 'python3.11' / 'site-packages'
+    valid = site / 'numpy-1.26.4.dist-info'
+    valid.mkdir(parents=True)
+    (valid / 'METADATA').write_text('Metadata-Version: 2.1\nName: numpy\nVersion: 1.26.4\n', encoding='utf-8')
+
+    assert environment_install.repair_metadata_versions(tmp_path) == 0
+    assert valid.is_dir()
+    assert 'Version: 1.26.4' in (valid / 'METADATA').read_text(encoding='utf-8')
