@@ -63,7 +63,7 @@ class RnaStructureFeaturesStep(Step):
         "resources": {
             "memory_modes": ["full"],
             "estimate": "estimate_memory",
-            "external_tools": ["viennarna"],
+            "external_tools": ["RNAfold"],
         },
         "dependencies": [],
         "dependency_imports": [],
