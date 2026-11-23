@@ -114,14 +114,17 @@
         "jsonschema==4.26.0",
         "pandas==1.5.3",
         "numpy==1.26.4",
-        "psutil>=5.9"
+        "psutil>=5.9",
+        "jax==0.4.23",
+        "jaxlib==0.4.23",
+        "chex==0.1.86"
       ],
       "conda_packages": [
         "mmseqs2"
       ],
       "torch_cpu": true,
       "wired": true,
-      "notes": "colabfold 1.5.5 requires pandas<2 and dm-haiku==0.0.10, so this environment pins pandas 1.5.3 and lets the colabfold extra choose dm-haiku; colabfold_batch lives in the environment bin directory and the MMseqs2/UniRef databases remain external (resources.json colabfold). mmseqs2 provides the mmseqs binary that builds MSAs locally from the colabfold_msa resource.",
+      "notes": "colabfold 1.5.5 requires pandas<2 and dm-haiku==0.0.10, so this environment pins pandas 1.5.3 and lets the colabfold extra choose dm-haiku; colabfold_batch lives in the environment bin directory and the MMseqs2/UniRef databases remain external (resources.json colabfold). mmseqs2 provides the mmseqs binary that builds MSAs locally from the colabfold_msa resource. jax is pinned to 0.4.23 with chex 0.1.86 because dm-haiku 0.0.10 (required by colabfold 1.5.5) calls jax.linear_util, which jax removed after 0.4.23; chex 0.1.90 would pull jax>=0.4.27 back in.",
       "torch_version": "2.3.1",
       "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
       "resources": [

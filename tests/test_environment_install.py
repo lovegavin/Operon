@@ -430,3 +430,19 @@ def test_a_valid_metadata_version_is_left_alone(tmp_path):
     assert environment_install.repair_metadata_versions(tmp_path) == 0
     assert valid.is_dir()
     assert 'Version: 1.26.4' in (valid / 'METADATA').read_text(encoding='utf-8')
+
+
+def test_a_long_temp_root_is_replaced_for_worker_steps(tmp_path):
+    from operon.environments import TEMP_LIMIT, short_temp_root
+
+    long_root = str(tmp_path / ('deep/' * 20))
+    assert short_temp_root({'TMPDIR': long_root}) in (None, '/tmp', '/var/tmp')
+    values = {'TMPDIR': long_root}
+    if short_temp_root(values):
+        assert len(short_temp_root(values)) <= TEMP_LIMIT
+
+
+def test_a_short_temp_root_is_left_alone():
+    from operon.environments import short_temp_root
+
+    assert short_temp_root({'TMPDIR': '/tmp'}) is None

@@ -370,6 +370,30 @@ def _execute(command, directory, python, paths, *, timeout, tools=None, cancel=N
                 raise StepError(f"environment bridge timed out after {timeout}s")
 
 
+TEMP_LIMIT = 75
+"""Longest temp root that still leaves room for a multiprocessing manager socket.
+
+``multiprocessing.Manager`` binds ``<temp>/pymp-XXXXXXXX/listener-XXXXXXXX``; the
+Linux ``sun_path`` budget is 107 bytes, so a temp root past 75 characters makes
+every manager-backed tool die with ``OSError: AF_UNIX path too long`` while the
+parent only sees ``EOFError``.
+"""
+
+SHORT_TEMP_ROOTS = ('/tmp', '/var/tmp')
+
+
+def short_temp_root(env=None) -> str | None:
+    """Return a short temp root when the inherited one is too long to be safe."""
+    values = os.environ if env is None else env
+    longest = max((str(values.get(key) or '') for key in ('TMPDIR', 'TEMP', 'TMP')), key=len)
+    if len(longest) <= TEMP_LIMIT or os.name == 'nt':
+        return None
+    for root in SHORT_TEMP_ROOTS:
+        if os.path.isdir(root) and os.access(root, os.W_OK):
+            return root
+    return None
+
+
 def worker_environment(python: Path, paths=(), tools=None) -> dict[str, str]:
     """Keep OS/DLL/download settings while isolating Python module resolution."""
     env = os.environ.copy()
@@ -389,6 +413,12 @@ def worker_environment(python: Path, paths=(), tools=None) -> dict[str, str]:
         env['LD_LIBRARY_PATH'] = os.pathsep.join(
             [*(str(p) for p in libs), *([previous] if previous else [])]
         )
+    short = short_temp_root(env)
+    if short:
+        # A job directory under the studio tree easily exceeds the AF_UNIX
+        # budget once a tool nests its own socket inside TMPDIR.
+        for key in ('TMPDIR', 'TEMP', 'TMP'):
+            env[key] = short
     bindings = {str(name): str(value) for name, value in (tools or {}).items() if value}
     if bindings:
         # The bridge resolves tools from the server's managed environments; the

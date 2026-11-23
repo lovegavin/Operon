@@ -188,7 +188,7 @@ def run_flye(
             tail = (completed.stderr or completed.stdout or "").strip().splitlines()
             raise StepError(
                 "flye_assemble: the assembler failed with exit code "
-                f"{completed.returncode}: {' | '.join(tail[-3:])}"
+                f"{completed.returncode}: {' | '.join(tail[-40:])}"
             )
         assembly = out_dir / "assembly.fasta"
         if not assembly.is_file():
