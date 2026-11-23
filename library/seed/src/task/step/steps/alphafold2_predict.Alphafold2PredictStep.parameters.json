@@ -66,8 +66,8 @@
     "use_gpu": {
       "type": "boolean",
       "default": false,
-      "title": "使用 GPU",
-      "description": "传给 run_alphafold.py 的 --use_gpu；关闭时清空 CUDA_VISIBLE_DEVICES。",
+      "title": "GPU 松弛",
+      "description": "传给 run_alphafold.py 的 --use_gpu_relax（原版没有 --use_gpu）；推理阶段始终用 GPU，仅松弛阶段受此开关控制。",
       "x-ui-group": "advanced",
       "x-ui-order": 70
     },
@@ -94,6 +94,26 @@
       "title": "输出名称",
       "x-ui-group": "advanced",
       "x-ui-order": 100
+    },
+    "db_preset": {
+      "type": "string",
+      "enum": [
+        "full_dbs",
+        "reduced_dbs"
+      ],
+      "default": "full_dbs",
+      "title": "数据库预设",
+      "description": "full_dbs 需要 uniref30/bfd/pdb70；reduced_dbs 只用 small_bfd，省内存与时间。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 55
+    },
+    "run_relax": {
+      "type": "boolean",
+      "default": false,
+      "title": "运行结构松弛",
+      "description": "传给 run_alphafold.py 的 --run_relax；开启需要环境里安装 openmm 与 pdbfixer，且每个模型多花几分钟。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 62
     }
   }
 }

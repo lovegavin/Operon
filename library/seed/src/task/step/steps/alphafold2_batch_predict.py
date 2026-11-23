@@ -133,6 +133,10 @@ class Alphafold2BatchPredictStep(Step):
         if preset not in PRESETS:
             raise StepError(f"{where}: model_preset must be one of {', '.join(PRESETS)}, got '{preset}'")
         template_date = str(params.get("max_template_date") or DEFAULT_TEMPLATE_DATE)
+        db_preset = str(params.get("db_preset") or "full_dbs")
+        if db_preset not in ("full_dbs", "reduced_dbs"):
+            raise StepError(f"{where}: db_preset must be full_dbs or reduced_dbs, got '{db_preset}'")
+        run_relax = bool(params.get("run_relax"))
         use_gpu = bool(params.get("use_gpu"))
         timeout = int(params.get("timeout_seconds") or DEFAULT_TIMEOUT)
         data_dir = data_directory(params, where)
@@ -150,6 +154,8 @@ class Alphafold2BatchPredictStep(Step):
                     python_executable=python_executable,
                     preset=preset,
                     max_template_date=template_date,
+                    db_preset=db_preset,
+                    run_relax=run_relax,
                     use_gpu=use_gpu,
                     timeout=timeout,
                     where=where,

@@ -20,6 +20,54 @@ DEFAULT_TEMPLATE_DATE = "2022-01-01"
 DEFAULT_TIMEOUT = 3600
 
 
+#: Database files of a stock AlphaFold-2 ``data_dir``; ``reduced_dbs`` swaps BFD.
+DATABASES = {
+    "uniref90": ("uniref90", "uniref90.fasta"),
+    "mgnify": ("mgnify", "mgy_clusters_2022_05.fa"),
+    "pdb70": ("pdb70", "pdb70"),
+    "uniref30": ("uniref30", "UniRef30_2021_03"),
+    "bfd": (
+        "bfd",
+        "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
+    ),
+    "small_bfd": ("small_bfd", "bfd-first_non_consensus_sequences.fasta"),
+    "pdb_seqres": ("pdb_seqres", "pdb_seqres.txt"),
+    "uniprot": ("uniprot", "uniprot.fasta"),
+}
+
+
+def database_arguments(data_dir, preset: str = "full_dbs", where: str = "alphafold2_predict") -> dict:
+    """The ``--*_database_path`` flags a stock checkout requires, derived from ``data_dir``."""
+
+    root = Path(data_dir)
+    names = ["uniref90", "mgnify", "pdb_seqres", "uniprot"]
+    if preset == "reduced_dbs":
+        names.append("small_bfd")
+    else:
+        names.extend(["pdb70", "uniref30", "bfd"])
+    arguments = {}
+    missing = []
+    for name in names:
+        folder, filename = DATABASES[name]
+        candidate = root / folder / filename
+        if not candidate.exists():
+            missing.append(str(candidate))
+            continue
+        arguments[name] = candidate
+    mmcif = root / "pdb_mmcif" / "mmcif_files"
+    if mmcif.is_dir():
+        arguments["template_mmcif_dir"] = mmcif
+    obsolete = root / "pdb_mmcif" / "obsolete.dat"
+    if obsolete.is_file():
+        arguments["obsolete_pdbs_path"] = obsolete
+    if missing:
+        raise StepError(
+            f"{where}: data_dir {root} is missing {len(missing)} database "
+            f"item(s) for db_preset {preset}: " + ", ".join(missing[:4])
+        )
+    return arguments
+
+
 def data_directory(params, where: str = "alphafold2_predict") -> Path:
     """Parameter, then ``OPERON_ALPHAFOLD2_DATA``, then the declared resource env."""
 
@@ -90,20 +138,33 @@ def alphafold_command(
     data_dir,
     preset: str = DEFAULT_PRESET,
     max_template_date: str = DEFAULT_TEMPLATE_DATE,
-    use_gpu: bool = False,
+    db_preset: str = "full_dbs",
+    run_relax: bool = False,
+    use_gpu_relax: bool = False,
 ) -> list[str]:
-    """The official non-interactive ``run_alphafold.py`` invocation."""
+    """The ``run_alphafold.py`` invocation a stock checkout accepts.
 
-    return [
+    A stock checkout exposes no ``--use_gpu`` flag: GPU use is chosen per stage by
+    ``--use_gpu_relax``, and every MSA database has to be named explicitly instead
+    of being derived from ``--data_dir``.
+    """
+
+    databases = database_arguments(data_dir, db_preset)
+    command = [
         str(python_executable),
         str(runner),
         f"--fasta_paths={fasta}",
         f"--output_dir={output_dir}",
         f"--data_dir={data_dir}",
         f"--model_preset={preset}",
+        f"--db_preset={db_preset}",
         f"--max_template_date={max_template_date}",
-        "--use_gpu=" + ("true" if use_gpu else "false"),
+        "--run_relax=" + ("true" if run_relax else "false"),
+        "--use_gpu_relax=" + ("true" if use_gpu_relax else "false"),
     ]
+    for name, value in databases.items():
+        command.append(f"--{name.replace('_directory', '_dir')}={value}")
+    return command
 
 
 def ranking_payload(folder) -> dict:
@@ -193,6 +254,8 @@ def run_prediction(
     python_executable,
     preset: str = DEFAULT_PRESET,
     max_template_date: str = DEFAULT_TEMPLATE_DATE,
+    db_preset: str = "full_dbs",
+    run_relax: bool = False,
     use_gpu: bool = False,
     timeout: int = DEFAULT_TIMEOUT,
     where: str = "alphafold2_predict",
@@ -207,7 +270,9 @@ def run_prediction(
         data_dir=data_dir,
         preset=preset,
         max_template_date=max_template_date,
-        use_gpu=use_gpu,
+        db_preset=db_preset,
+        run_relax=run_relax,
+        use_gpu_relax=use_gpu,
     )
     environment = dict(os.environ)
     if not use_gpu:
@@ -314,6 +379,13 @@ class Alphafold2PredictStep(Step):
                 f"alphafold2_predict: model_preset must be one of {', '.join(PRESETS)}, got '{preset}'"
             )
         template_date = str(params.get("max_template_date") or DEFAULT_TEMPLATE_DATE)
+        db_preset = str(params.get("db_preset") or "full_dbs")
+        if db_preset not in ("full_dbs", "reduced_dbs"):
+            raise StepError(
+                "alphafold2_predict: db_preset must be full_dbs or reduced_dbs, "
+                f"got '{db_preset}'"
+            )
+        run_relax = bool(params.get("run_relax"))
         use_gpu = bool(params.get("use_gpu"))
         timeout = int(params.get("timeout_seconds") or DEFAULT_TIMEOUT)
 
@@ -325,6 +397,8 @@ class Alphafold2PredictStep(Step):
             python_executable=interpreter(params),
             preset=preset,
             max_template_date=template_date,
+            db_preset=db_preset,
+            run_relax=run_relax,
             use_gpu=use_gpu,
             timeout=timeout,
         )

@@ -585,19 +585,44 @@
       ]
     },
     "alphafold2": {
-      "title": "AlphaFold2 数据",
+      "title": "AlphaFold 2.3.1 monomer and multimer",
       "python": "3.11",
-      "imports": [],
+      "imports": [
+        "jax",
+        "haiku",
+        "Bio",
+        "ml_collections"
+      ],
       "requirements": [
-        "numpy",
-        "pydantic>=2.7",
-        "psutil>=5.9"
+        "biopython==1.79",
+        "jax==0.4.23",
+        "jaxlib==0.4.23",
+        "dm-haiku==0.0.10",
+        "dm-tree==0.1.8",
+        "ml-collections",
+        "absl-py",
+        "numpy==1.23.5",
+        "scipy",
+        "pandas>=1.5,<2",
+        "immutabledict"
+      ],
+      "conda_packages": [
+        "hmmer",
+        "hhsuite",
+        "kalign"
+      ],
+      "binaries": [
+        "jackhmmer",
+        "hmmsearch",
+        "hhblits",
+        "hhsearch",
+        "kalign"
       ],
       "resources": [
         "alphafold2"
       ],
       "planned": false,
-      "notes": "Wraps a local AlphaFold-2 checkout: link the afdb directory (params and MSA databases) from the resource card, then set the runner (run_alphafold.py) and python_executable to the interpreter of that checkout, or export OPERON_ALPHAFOLD2_HOME. The environment itself only provides a Python shell, so it installs without the multi-gigabyte AlphaFold dependencies."
+      "notes": "AlphaFold 2.3.1 imports Bio.Data.SCOPData, removed in biopython 1.81, so biopython is pinned to 1.79. Relaxation needs openmm and pdbfixer; the operators run with --models_to_relax=none."
     },
     "genomics": {
       "title": "基因组组装与比对",
