@@ -63,9 +63,17 @@ def test_snapshot_downgrades_ready_environment_with_missing_resources(monkeypatc
         {'alphafold2': {'status': 'ready', 'error': '', 'location': '/tmp/af2'}},
     ))
     from operon import environment_install as environment_install_module
+    from operon import environments as environments_module
 
     monkeypatch.setattr(environment_install_module, 'dependency_status',
                         lambda entry, location: (1, 1, [{'kind': 'requirements', 'name': 'numpy', 'installed': True}]))
+    # Only a resource the environment declares in its own manifest can downgrade
+    # it; one that merely lists the environment among its consumers stays a
+    # warning.  The manifest entry therefore has to declare the resource for this
+    # scenario to exist at all.
+    monkeypatch.setattr(environments_module, 'load', lambda: {
+        'alphafold2': {'resources': ['alphafold2']},
+    })
     monkeypatch.setattr(remote_server, '_resource_catalogue', lambda service: {
         'alphafold2': {'official_root': 'afdb', 'state': 'partial',
                        'units': [{'name': 'afdb', 'files': [{'path': 'a', 'present': False}]}]},
@@ -75,6 +83,8 @@ def test_snapshot_downgrades_ready_environment_with_missing_resources(monkeypatc
     item = snapshot['environments']['alphafold2']
     assert item['resources_total'] == 1
     assert item['resources_ready'] == 0
+    assert item['resources_declared_total'] == 1
+    assert item['resources_declared_ready'] == 0
     assert item['status'] == 'incomplete'
     assert '资源未齐备（0/1）' in item['error']
 
