@@ -121,7 +121,10 @@
       "conda_packages": [
         "mmseqs2",
         "cuda-cudart=12.2",
-        "cuda-cupti=12.2"
+        "cuda-cupti=12.2",
+        "cudnn=8.9",
+        "libcusolver=11.5.2",
+        "libcusparse=12.1.2"
       ],
       "torch_cpu": true,
       "wired": true,
@@ -615,7 +618,10 @@
         "hhsuite",
         "kalign",
         "cuda-cudart=12.2",
-        "cuda-cupti=12.2"
+        "cuda-cupti=12.2",
+        "cudnn=8.9",
+        "libcusolver=11.5.2",
+        "libcusparse=12.1.2"
       ],
       "binaries": [
         "jackhmmer",
