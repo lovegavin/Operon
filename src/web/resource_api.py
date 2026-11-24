@@ -580,8 +580,14 @@ def snapshot(service) -> dict:
                 base = Path(str(item['link_target']).replace('\\?\\', ''))
             elif item.get('root'):
                 base = Path(str(item['root']).replace('\\?\\', ''))
+            declared_files = unit_declared_files(resource, unit_name)
+            prefix = str(unit.get('path') or '').strip('/')
+            if prefix:
+                # Units that live in their own directory publish bare names;
+                # the file only exists under <root>/<unit path>/<name>.
+                declared_files = [f"{prefix}/{name}" for name in declared_files]
             present_files, missing_files = _split_presence(
-                base, unit_declared_files(resource, unit_name), common)
+                base, declared_files, common)
             unit['files_present'] = present_files
             unit['files_missing'] = missing_files
             unit['state'] = _card_state(present_files, missing_files,
