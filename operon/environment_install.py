@@ -428,6 +428,21 @@ def progress_stale(progress: dict, stale_after: float = _STALE_AFTER) -> bool:
     return _age_seconds(progress.get('updated_at')) > stale_after
 
 
+def mark_ready(name: str, root, progress: dict) -> dict:
+    """Record a finished preparation and forget why the previous one failed.
+
+    Reporting a ready environment next to the error of an older attempt made the
+    panel look broken even though every dependency was installed.
+    """
+    progress = dict(progress or {})
+    progress.pop('error', None)
+    progress.pop('detail', None)
+    progress['phase'] = 'ready'
+    progress['updated_at'] = _now()
+    _write_progress(name, root, progress)
+    return progress
+
+
 def reap_stale(name: str, root=None) -> str:
     """Turn an orphaned active phase into a readable failure; return its message."""
     progress = read_progress(name, root)
@@ -1874,7 +1889,7 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
         final = target(name, root)
         _commit(name, staging, final)
         _error_path(name, root).unlink(missing_ok=True)
-        progress['phase'] = 'ready'
+        progress.update(mark_ready(name, root, progress))
         note(f'environment {name} is ready')
     except Cancelled:
         progress['phase'] = 'cancelled'

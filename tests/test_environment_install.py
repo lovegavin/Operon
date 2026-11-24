@@ -474,3 +474,20 @@ def test_a_venv_is_rebound_to_the_running_interpreter(tmp_path):
     config = (environment / 'pyvenv.cfg').read_text(encoding='utf-8')
     assert 'home = ' + str(pathlib.Path(sys.executable).parent) in config
     assert '/gone' not in config
+
+def test_a_successful_preparation_forgets_the_previous_failure(tmp_path):
+    """A ready environment must not keep showing an error from an older attempt."""
+    from operon import environment_install
+
+    root = tmp_path / 'envs'
+    root.mkdir()
+    environment_install._write_progress('demo', root, {'phase': 'failed', 'error': 'boom', 'detail': 'x'})
+    assert environment_install.read_progress('demo', root)['error'] == 'boom'
+
+    progress = environment_install.mark_ready('demo', root, environment_install.read_progress('demo', root))
+
+    assert progress['phase'] == 'ready'
+    stored = environment_install.read_progress('demo', root)
+    assert stored['phase'] == 'ready'
+    assert not stored.get('error')
+    assert not stored.get('detail')
