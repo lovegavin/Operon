@@ -375,6 +375,20 @@ def link_units(resource: Resource) -> list[dict[str, Any]]:
             {"name": name, "target": name, "title": Path(name).name}
             for name in expected_files(resource)
         ]
+    declared = getattr(resource, "components", ()) or ()
+    if declared:
+        # A resource that publishes maintenance units is linked unit by unit:
+        # showing one opaque "tree" row would hide every file the manifest
+        # delivers, which is exactly what the panel is meant to display.
+        return [
+            {
+                "name": str(unit.get("name") or ""),
+                "target": str(unit.get("path") or unit.get("name") or ""),
+                "title": str(unit.get("title") or unit.get("name") or ""),
+            }
+            for unit in declared
+            if str(unit.get("name") or "")
+        ]
     return [{"name": "tree", "target": "", "title": resource.title}]
 
 
