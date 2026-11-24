@@ -239,6 +239,7 @@ class Coordinator:
                     self._diagnose('launch_error', outbox=item['id'],
                                    error=f'{type(exc).__name__}: {exc}')
             result['polled'] = self._poll_attempts()
+            result['abandoned'] = self._poll_quarantined()
             result['resized'] = self._poll_resizes()
             result['cancelled'] = self._handle_cancellations()
             self._refresh_ready()
@@ -693,6 +694,24 @@ class Coordinator:
             self._diagnose('prune_error', error=str(exc))
 
     # -- recovery ------------------------------------------------------
+    def _poll_quarantined(self) -> int:
+        """Release quarantined attempts whose worker is provably gone.
+
+        `_poll_attempts` walks the live states only, so an attempt quarantined
+        while the pool keeps running is never revisited: its lease charges
+        capacity no live worker can use and every later unit waits behind it
+        until the pool restarts.
+        """
+        released = 0
+        for attempt in self.store.attempts_for_pool(self.pool_id,
+                                                    states=[AttemptState.RECOVERY_REQUIRED.value]):
+            try:
+                if self._abandon_quarantined(attempt):
+                    released += 1
+            except Exception as exc:  # noqa: BLE001 - durable diagnostic
+                self._diagnose('recovery_abandon_error', attempt_id=attempt['id'], error=str(exc))
+        return released
+
     def _abandon_quarantined(self, attempt) -> bool:
         """Release the lease of a quarantined attempt whose worker is provably gone.
 
