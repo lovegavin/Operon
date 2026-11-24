@@ -491,3 +491,16 @@ def test_a_successful_preparation_forgets_the_previous_failure(tmp_path):
     assert stored['phase'] == 'ready'
     assert not stored.get('error')
     assert not stored.get('detail')
+
+
+def test_transfers_are_bounded_by_progress_not_wall_clock():
+    """A slow link is not a failure: only a stalled transfer should stop."""
+    signature = __import__('inspect').signature(environment_install._download)
+    assert signature.parameters['deadline'].default is None
+    assert environment_install.TRANSFER_SECONDS == 0
+    assert environment_install.PIP_TRANSFER_SECONDS == 0
+
+
+def test_remote_rpc_has_no_wall_clock_ceiling_by_default():
+    from operon.remote import client
+    assert client.RPC_HARD_SECONDS == 0

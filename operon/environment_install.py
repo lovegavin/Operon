@@ -865,12 +865,12 @@ def _release_slot() -> None:
 
 
 def _download(url: str, destination: Path, log, control=None, *, timeout: float = 45.0,
-              deadline: float = 420.0) -> int:
-    """Stream one HTTPS payload with a hard deadline and cooperative cancellation.
+              deadline: float | None = None) -> int:
+    """Stream one HTTPS payload with cooperative cancellation.
 
-    A stalled CDN connection used to freeze the whole preparation queue: the worker
-    held the single slot while ``urlopen`` waited forever, so cancelling the job left
-    the environment stuck in ``creating``. Chunked reads keep the control flag live.
+    The socket timeout only bounds one unresponsive read; as long as bytes keep
+    arriving the transfer runs for as long as it needs. Chunked reads keep the
+    control flag live, so cancelling the job still stops it promptly.
     """
     started = time.monotonic()
     request = urllib.request.Request(url, headers={'User-Agent': 'operon-environment/1'})
@@ -879,7 +879,7 @@ def _download(url: str, destination: Path, log, control=None, *, timeout: float 
         while True:
             if control is not None:
                 control.check()
-            if time.monotonic() - started > deadline:
+            if deadline is not None and time.monotonic() - started > deadline:
                 raise RuntimeError(f'download exceeded {deadline:.0f}s: {url}')
             chunk = source.read(1 << 20)
             if not chunk:
@@ -1200,6 +1200,9 @@ PIP_STARTUP_SECONDS = 3600.0
 # No total cap: a large wheel over a slow link may need hours.  The stall
 # watchdog still aborts a transfer that stops making progress.
 PIP_TRANSFER_SECONDS = 0
+# Downloads, pip installs and conda solves are bounded by progress, not by
+# wall-clock time: a 100 GB payload over a 200 KB/s link is still progress.
+TRANSFER_SECONDS = 0
 
 
 def _pip_env(python: Path, extra: dict[str, str] | None = None) -> dict[str, str]:
@@ -1248,12 +1251,12 @@ def _create(entry: dict, staging: Path, log, root=None, progress=None, control=N
     env = _mamba_env(base(root))
     if entry.get('clone_shared'):
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, '--clone', sys.prefix], log=log, env=env,
-             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             timeout=TRANSFER_SECONDS, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
              startup=CONDA_STARTUP_SECONDS, watch=[base(root), staging, _mamba_cache(root)])
     else:
         _run([mamba, '--no-rc', 'create', '-y', '-p', staging, *_conda_flags(entry),
               '--strict-channel-priority', 'python=' + str(entry.get('python', '3.11')), 'pip'],
-             log=log, env=env, timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             log=log, env=env, timeout=TRANSFER_SECONDS, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
              startup=CONDA_STARTUP_SECONDS, watch=[base(root), staging, _mamba_cache(root)])
 
 
@@ -1395,19 +1398,19 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
         mamba = _micromamba(base(root), log, control)
         _run([mamba, '--no-rc', 'install', '-y', '-p', staging, *_conda_flags(entry),
               '--strict-channel-priority', *conda_packages], log=log, env=_mamba_env(base(root)),
-             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             timeout=TRANSFER_SECONDS, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
              startup=CONDA_STARTUP_SECONDS, watch=[base(root), staging, _mamba_cache(root)])
         repair_metadata_versions(staging, log)
     if entry.get('torch_cpu'):
         _run([*install, *PIP_TRANSFER, 'torch',
-              '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=1800,
+              '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=TRANSFER_SECONDS,
              env=_pip_env(python), startup=PIP_STARTUP_SECONDS, progress=progress, control=control)
     if entry.get('torch_cuda'):
         version = str(entry.get('torch_version') or '').strip()
         target = f'torch=={version}' if version else 'torch'
         index = str(entry.get('torch_index_url') or '').strip()
         extra = ['--index-url', index] if index else []
-        _run([*install, *PIP_TRANSFER, *extra, target], log=log, timeout=3600,
+        _run([*install, *PIP_TRANSFER, *extra, target], log=log, timeout=TRANSFER_SECONDS,
              env=_pip_env(python), startup=PIP_STARTUP_SECONDS, progress=progress, control=control)
     if direct:
         _run([*install, *PIP_TRANSFER, *PIP_INDEX, *PIP_TRUSTED, *direct], log=log,
@@ -1423,7 +1426,7 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
     requirements = entry.get('requirements') or []
     if requirements:
         _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *PIP_TRUSTED, *requirements],
-             log=log, timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             log=log, timeout=TRANSFER_SECONDS, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
              env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
     best_effort = entry.get('best_effort') or []
     if best_effort:
@@ -1433,13 +1436,13 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
             best_effort,
             lambda requirement: _run(
                 [*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *PIP_TRUSTED, requirement],
-                log=log, timeout=5400, progress=progress, control=control,
+                log=log, timeout=TRANSFER_SECONDS, progress=progress, control=control,
                 stall=BUILD_STALL_SECONDS, env=_pip_env(python), startup=PIP_STARTUP_SECONDS),
             log)
     no_deps = entry.get('no_deps') or []
     if no_deps:
         _run([*install, *PIP_TRANSFER, '--no-deps', *PIP_INDEX, *PIP_TRUSTED, *no_deps], log=log,
-             timeout=5400, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             timeout=TRANSFER_SECONDS, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
              env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
     no_build = entry.get('no_build_isolation') or []
     if no_build:
@@ -1452,7 +1455,7 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
         # system gcc of an older server still defaults to C89, and a Cython
         # extension generated for C99 then fails to compile.
         _run([*install, *PIP_TRANSFER, '--no-build-isolation', '--no-deps', *no_build], log=log,
-             timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             timeout=TRANSFER_SECONDS, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
              env=_pip_env(python, entry.get('build_env')), startup=PIP_STARTUP_SECONDS)
 
 
@@ -1787,7 +1790,7 @@ def _install_dependency(name: str, kind: str, requirement: str, root=None, log=N
         mamba = _micromamba(base(root), note, control)
         _run([mamba, '--no-rc', 'install', '-y', '-p', str(final), *_conda_flags([requirement]),
               '--strict-channel-priority', requirement],
-             log=note, env=_mamba_env(base(root)), timeout=3600, control=control, stall=BUILD_STALL_SECONDS,
+             log=note, env=_mamba_env(base(root)), timeout=TRANSFER_SECONDS, control=control,
              startup=CONDA_STARTUP_SECONDS, watch=[base(root), final, _mamba_cache(root)])
     else:
         python = _python(final)
@@ -1800,7 +1803,7 @@ def _install_dependency(name: str, kind: str, requirement: str, root=None, log=N
             extra = ['--only-binary=:all:']
         _run([python, '-X', 'utf8', '-m', 'pip', 'install', *prefix, *PIP_TRANSFER,
               *(flags or []), *(extra or []), *PIP_INDEX, *PIP_TRUSTED, requirement],
-             log=note, timeout=3600, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
+             log=note, timeout=TRANSFER_SECONDS, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
              env=_pip_env(python), startup=PIP_STARTUP_SECONDS)
     progress['phase'] = 'complete'
     progress['detail'] = f'installed {requirement}'

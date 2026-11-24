@@ -3,6 +3,7 @@ import base64
 from collections import deque
 import hashlib
 import json
+import os
 import re
 import shlex
 import threading
@@ -10,6 +11,11 @@ import time
 import uuid
 
 from .protocol import ANSI, Decoder, transmit
+
+# A remote call that keeps receiving frames is making progress; only the
+# inactivity window should end it. Set OPERON_RPC_HARD_SECONDS to restore a
+# wall-clock ceiling for a deployment that needs one.
+RPC_HARD_SECONDS = float(os.environ.get('OPERON_RPC_HARD_SECONDS', '0') or 0)
 
 
 class RemoteError(ValueError):
@@ -200,7 +206,7 @@ class SSHConnection:
                 transmit({'id': identity, 'method': method, 'params': params or {}}, 'Q',
                          lambda part: self.channel.sendall(part.encode()), self._line)
                 decoder = Decoder('R')
-                hard_deadline = time.monotonic() + 1800
+                hard_deadline = (time.monotonic() + RPC_HARD_SECONDS) if RPC_HARD_SECONDS else float('inf')
                 # Explicit dependency repair can download/build packages before
                 # returning its first frame. Ordinary metadata RPC stays short.
                 response_timeout = (1800 if method == 'validate_environment' and (params or {}).get('repair') is True
