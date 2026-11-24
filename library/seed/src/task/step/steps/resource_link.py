@@ -244,6 +244,34 @@ def _link_file(source: Path, target: Path) -> str:
             raise ValueError(f"could not link {target} to {source}: {detail}") from symlink_error
 
 
+def _locate(root: Path, relative: str) -> Path | None:
+    """Resolve one expected file, allowing one folder of unit nesting.
+
+    Upstream bundles such as the AlphaFold-2 ``afdb`` tree keep every unit in
+    its own directory, so ``uniref90/uniref90.fasta`` must match the declared
+    ``uniref90.fasta`` without declaring the folder twice.
+    """
+
+    candidate = Path(relative)
+    if candidate.is_absolute() or ".." in candidate.parts:
+        return None
+    direct = root / relative
+    if direct.is_file():
+        return direct
+    name = candidate.name
+    try:
+        children = list(root.iterdir())
+    except OSError:
+        return None
+    for child in children:
+        if not child.is_dir():
+            continue
+        nested = child / name
+        if nested.is_file():
+            return nested
+    return None
+
+
 def _present_files(resource: common.Resource, source: Path) -> list[str]:
     """Expected file names that already exist in the source tree."""
 
@@ -252,11 +280,12 @@ def _present_files(resource: common.Resource, source: Path) -> list[str]:
         return [source.name] if source.name in expected else []
     names: list[str] = []
     for relative in expected:
-        candidate = Path(relative)
-        if candidate.is_absolute() or ".." in candidate.parts:
-            continue
-        if (source / relative).is_file():
-            names.append(str(relative))
+        located = _locate(source, relative)
+        if located is not None:
+            try:
+                names.append(str(located.relative_to(source)))
+            except ValueError:
+                names.append(str(relative))
     return names
 
 
@@ -276,9 +305,10 @@ def _probe(resource: common.Resource, source: Path, target: Path) -> tuple[str, 
                 raise ValueError(
                     f"resource '{resource.id}' expected file is not a safe relative path: {relative!r}"
                 )
-            if (source / relative).is_file():
-                probe = relative
-                handle_path = target / relative
+            located = _locate(source, relative)
+            if located is not None:
+                probe = str(located.relative_to(source))
+                handle_path = target / probe
                 break
     if handle_path is None:
         listed = ", ".join(expected) or "(none declared)"
