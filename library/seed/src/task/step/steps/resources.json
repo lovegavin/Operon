@@ -418,12 +418,12 @@
           "bytes": 70555922504,
           "url": "https://wwwuser.gwdg.de/~compbiol/uniclust/2023_02/UniRef30_2023_02_hhsuite.tar.gz",
           "files": [
-            "UniRef30_2023_02_a3m.ffdata",
-            "UniRef30_2023_02_a3m.ffindex",
-            "UniRef30_2023_02_cs219.ffdata",
-            "UniRef30_2023_02_cs219.ffindex",
-            "UniRef30_2023_02_hhm.ffdata",
-            "UniRef30_2023_02_hhm.ffindex"
+            "UniRef30_2021_03_a3m.ffdata",
+            "UniRef30_2021_03_a3m.ffindex",
+            "UniRef30_2021_03_cs219.ffdata",
+            "UniRef30_2021_03_cs219.ffindex",
+            "UniRef30_2021_03_hhm.ffdata",
+            "UniRef30_2021_03_hhm.ffindex"
           ],
           "note": "UniRef30 2023_02 hhsuite bundle"
         },
@@ -438,7 +438,9 @@
             "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_a3m.ffdata",
             "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_a3m.ffindex",
             "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata",
-            "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffindex"
+            "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffindex",
+            "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_hhm.ffdata",
+            "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_hhm.ffindex"
           ],
           "note": "hh-suite BFD (only published on Google Cloud, unreachable from the licence server; link an existing directory)"
         },
