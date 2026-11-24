@@ -297,7 +297,7 @@ def needs_preparation(status: str) -> bool:
     return status in PREPARABLE_STATUSES
 
 
-def state(name: str, root=None, source=None) -> dict:
+def state(name: str, root=None, source=None, *, alive=None) -> dict:
     """Report one environment without creating or probing anything."""
     entry = environments.describe(name, source)
     directory = target(name, root)
@@ -377,7 +377,7 @@ def state(name: str, root=None, source=None) -> dict:
             result['status'] = 'ready'
             result['error'] = error.get('message') or ''
     result['used_by'] = []
-    reap_stale(name, root)
+    reap_stale(name, root, alive=alive)
     progress = read_progress(name, root)
     result['progress'] = progress
     if progress.get('phase') == 'queued':
@@ -389,7 +389,7 @@ def state(name: str, root=None, source=None) -> dict:
     return result
 
 
-def plan(root=None, descriptors=None, source=None) -> dict:
+def plan(root=None, descriptors=None, source=None, alive=()) -> dict:
     """Plan every declared environment, optionally annotating operator owners."""
     owners = {}
     for descriptor in descriptors or ():
@@ -398,7 +398,7 @@ def plan(root=None, descriptors=None, source=None) -> dict:
             owners.setdefault(name, []).append(descriptor.get('id'))
     result = {}
     for name in sorted(environments.load(source)):
-        item = state(name, root, source)
+        item = state(name, root, source, alive=name in alive)
         item['used_by'] = sorted(owners.get(name, []))
         result[name] = item
     return result
@@ -443,8 +443,16 @@ def mark_ready(name: str, root, progress: dict) -> dict:
     return progress
 
 
-def reap_stale(name: str, root=None) -> str:
-    """Turn an orphaned active phase into a readable failure; return its message."""
+def reap_stale(name: str, root=None, *, alive=None) -> str:
+    """Turn an orphaned active phase into a readable failure; return its message.
+
+    ``alive`` says the caller still holds a job for this environment.  An install
+    that waits for the shared bootstrap lock writes ``queued`` and then stays
+    silent for minutes, so age alone would turn a healthy queue into a wall of
+    "the last install was interrupted" failures.
+    """
+    if alive:
+        return ''
     progress = read_progress(name, root)
     if not progress_stale(progress):
         return ''

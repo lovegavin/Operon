@@ -122,7 +122,10 @@ def _environment_plan(service):
     source = service.plugins.source_root
     catalog = getattr(service, 'catalog', None) or {}
     descriptors = list(catalog.get('operators') or ()) + list(catalog.get('readers') or ())
-    return root, source, environment_install.plan(root, descriptors, source=str(source))
+    with _ENVIRONMENT_LOCK:
+        alive = set(_ENVIRONMENT_JOBS)
+    plan = environment_install.plan(root, descriptors, source=str(source), alive=alive)
+    return root, source, plan
 
 
 _RESOURCE_CACHE: dict[str, object] = {'at': 0.0, 'items': {}}
