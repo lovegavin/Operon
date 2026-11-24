@@ -599,7 +599,9 @@
         "haiku",
         "Bio",
         "ml_collections",
-        "pydantic"
+        "pydantic",
+        "tensorflow",
+        "h5py"
       ],
       "requirements": [
         "biopython==1.79",
@@ -614,7 +616,9 @@
         "immutabledict",
         "typing_extensions>=4",
         "pydantic>=2.7",
-        "psutil>=5.9"
+        "psutil>=5.9",
+        "tensorflow-cpu==2.15.1",
+        "h5py==3.10.0"
       ],
       "conda_packages": [
         "hmmer",
