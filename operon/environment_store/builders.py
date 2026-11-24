@@ -56,20 +56,54 @@ def extract_locked(archive, destination, *, format, maximum, cancel=None):
         nonlocal total
         path = confined(destination, name.rstrip('/'))
         normalized = os.path.normcase(str(path))
-        if normalized in seen:
-            raise ContractError('Duplicate archive member', code='invalid_environment')
+        duplicate = normalized in seen
         seen.add(normalized)
-        if size < 0 or maximum < total + size:
-            raise ContractError('Archive exceeds its declared build allowance', code='invalid_environment')
-        total += size
+        if not duplicate:
+            if size < 0 or maximum < total + size:
+                raise ContractError('Archive exceeds its declared build allowance', code='invalid_environment')
+            total += size
         if cancel and cancel():
             raise InterruptedError('Archive extraction cancelled')
-        return path
+        return path, duplicate
+
+    def repeated_directory(path):
+        return io_path(path).is_dir()
+
+    def repeated_link(path):
+        return io_path(path).is_symlink()
+
+    def repeated_file(path, stream, size):
+        """A repeated file is safe only when its bytes match what landed.
+
+        Vendors repack a tree by listing the same path twice (indygreg's portable
+        CPython does it for ``lib/python3.11/site-packages``), so an identical
+        repeat is skipped; a repeat that disagrees is still an error.
+        """
+        target = io_path(path)
+        if not target.is_file() or target.is_symlink() or target.stat().st_size != size:
+            return False
+        with target.open('rb') as existing:
+            while True:
+                landed = existing.read(1024 * 1024)
+                incoming = stream.read(1024 * 1024)
+                if landed != incoming:
+                    return False
+                if not landed:
+                    return True
 
     if format == 'zip':
         with zipfile.ZipFile(archive) as source:
             for entry in source.infolist():
-                path = io_path(member(entry.filename, entry.file_size))
+                path, duplicate = member(entry.filename, entry.file_size)
+                path = io_path(path)
+                if duplicate:
+                    if entry.is_dir() and repeated_directory(path):
+                        continue
+                    if not entry.is_dir():
+                        with source.open(entry) as payload:
+                            if repeated_file(path, payload, entry.file_size):
+                                continue
+                    raise ContractError('Duplicate archive member', code='invalid_environment')
                 mode = entry.external_attr >> 16
                 if mode & 0o170000 == 0o120000:
                     raise ContractError('ZIP symlinks require a target tar recipe', code='invalid_environment')
@@ -87,7 +121,18 @@ def extract_locked(archive, destination, *, format, maximum, cancel=None):
         links = []
         with tarfile.open(archive, 'r:*') as source:
             for entry in source:
-                path = io_path(member(entry.name, entry.size))
+                path, duplicate = member(entry.name, entry.size)
+                path = io_path(path)
+                if duplicate:
+                    if entry.isdir() and repeated_directory(path):
+                        continue
+                    if entry.issym() and repeated_link(path):
+                        continue
+                    if entry.isfile():
+                        with source.extractfile(entry) as payload:
+                            if repeated_file(path, payload, entry.size):
+                                continue
+                    raise ContractError('Duplicate archive member', code='invalid_environment')
                 if entry.isdir():
                     path.mkdir(parents=True, exist_ok=True)
                 elif entry.isfile():
