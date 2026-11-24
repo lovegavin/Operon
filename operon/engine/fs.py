@@ -21,7 +21,7 @@ _STATES_LOCK = threading.Lock()
 class FileLock:
     """Reentrant per thread; the OS lock is released even after a crash."""
 
-    def __init__(self, path, timeout=30.0):
+    def __init__(self, path, timeout=None):
         self.path, self.timeout = Path(path), timeout
         key = os.path.normcase(str(self.path.resolve()))
         with _STATES_LOCK:
@@ -38,7 +38,7 @@ class FileLock:
                 handle.seek(0, os.SEEK_END)
                 if not handle.tell():
                     handle.write(b'\0'); handle.flush()
-                deadline = time.monotonic() + self.timeout
+                deadline = None if self.timeout is None else time.monotonic() + self.timeout
                 while True:
                     try:
                         handle.seek(0)

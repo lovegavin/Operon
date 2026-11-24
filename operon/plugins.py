@@ -54,7 +54,7 @@ GROUPS = {"operon.operators": "operator", "operon.readers": "reader"}
 process_context = threading.local()
 
 
-def run_process(args, *, timeout=180, env=None):
+def run_process(args, *, timeout=None, env=None):
     # JSON descriptors contain arbitrary Unicode. Parent and Python child must
     # agree on the wire encoding even on Windows with an ANSI/GBK console locale.
     child_env = dict(os.environ if env is None else env)
@@ -67,17 +67,17 @@ def run_process(args, *, timeout=180, env=None):
         raise ValueError('Dependency preparation cancelled: Studio is closing')
     from operon.processes import owned_process
     with owned_process(list(map(str, args)), stdout=subprocess.PIPE, stderr=subprocess.PIPE, **options) as child:
-        deadline = time.monotonic() + timeout
+        deadline = None if timeout is None else time.monotonic() + timeout
         while True:
             if cancel is not None and cancel.is_set():
                 raise ValueError('Dependency preparation cancelled: Studio is closing')
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
+            remaining = None if deadline is None else deadline - time.monotonic()
+            if remaining is not None and remaining <= 0:
                 if cancel is not None:
                     raise ValueError('Dependency preparation cancelled or timed out')
                 raise subprocess.TimeoutExpired(args, timeout)
             try:
-                stdout, stderr = child.communicate(timeout=min(.2, remaining))
+                stdout, stderr = child.communicate(timeout=.2 if remaining is None else min(.2, remaining))
                 result = subprocess.CompletedProcess(args, child.returncode, stdout, stderr)
                 break
             except subprocess.TimeoutExpired:

@@ -56,21 +56,21 @@ class Shell:
     def __init__(self, connection, progress, cancel):
         self.connection, self.progress, self.cancel = connection, progress, cancel
 
-    def run(self, command, *, timeout=120):
+    def run(self, command, *, timeout=None):
         from .client import RemoteError
         if self.cancel.is_set():
             raise RemoteError('环境准备已取消。', code='remote_cancelled')
         marker = 'BP_SETUP_' + uuid.uuid4().hex
         # A subshell confines cd/env/exit and redirects only this command's output.
         self.connection.channel.sendall(('( ' + command + ' ) 2>&1; printf "\\n' + marker + ' %s\\n" "$?"\n').encode())
-        end = time.monotonic() + timeout
+        end = None if timeout is None else time.monotonic() + timeout
         output = []
-        while time.monotonic() < end:
+        while end is None or time.monotonic() < end:
             if self.cancel.is_set():
                 self.connection.close()
                 raise RemoteError('环境准备已取消；重新连接可重试。', code='remote_cancelled')
             try:
-                line = self.connection._line(min(end, time.monotonic() + 1))
+                line = self.connection._line(time.monotonic() + 1 if end is None else min(end, time.monotonic() + 1))
             except TimeoutError:
                 continue
             match = re.search(re.escape(marker) + r' (\d+)\s*$', line)
@@ -493,7 +493,7 @@ export OPERON_MAMBA={q(mamba)}
                'while kill -0 "$bp_setup_pid" 2>/dev/null; do tail -n 1 ' + q(log) +
                '; printf "\\n"; sleep 2; done; wait "$bp_setup_pid"; bp_status=$?; tail -n 12 ' + q(log) + '; exit "$bp_status"')
     try:
-        shell.run(command, timeout=3600)
+        shell.run(command, timeout=None)
     except RemoteError as exc:
         raise RemoteError(str(exc) + '\n完整安装日志：' + log, code=exc.code) from exc
     # Publish a stable, server-owned entry point only after successful setup.
@@ -507,7 +507,7 @@ export OPERON_MAMBA={q(mamba)}
     shell.upload(cleanup, CLEANUP_SCRIPT.encode())
     try:
         shell.run(q(python) + ' -I ' + q(cleanup) + ' ' + q(managed) + ' ' + q(code) + ' ' + q(env) + ' ' + q(log),
-                  timeout=300)
+                  timeout=None)
     finally:
         try:
             shell.run('rm -f -- ' + q(cleanup))

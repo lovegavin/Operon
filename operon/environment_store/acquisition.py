@@ -17,7 +17,7 @@ from operon.plugins import run_process
 def tooling(root, module, version, extra=()):
     directory = Path(root) / 'export-tools' / (module + '-' + version)
     receipt = directory / '.ready.json'
-    with FileLock(directory.with_suffix('.lock'), timeout=1200):
+    with FileLock(directory.with_suffix('.lock'), timeout=None):
         identity = {'module': module, 'version': version, 'extra': list(extra)}
         ready = (receipt.is_file() and json.loads(receipt.read_text()) == identity
                  and (directory / module).is_dir())
@@ -31,10 +31,10 @@ def tooling(root, module, version, extra=()):
             run_process([sys.executable, '-m', 'pip', 'install', '--disable-pip-version-check',
                          '--no-compile', '--target', str(directory), module.replace('_', '-') + '==' + version,
                          *extra],
-                        timeout=900)
+                        timeout=None)
             run_process([sys.executable, '-I', '-c',
                          'import sys,importlib;sys.path.insert(0,sys.argv[1]);importlib.import_module(sys.argv[2])',
-                         str(directory), module], timeout=45)
+                         str(directory), module], timeout=120)
             atomic_json(receipt, identity)
     return directory
 
@@ -67,13 +67,13 @@ def standalone_python(root, details):
 
     def acquire(name):
         try:
-            run_process([uv, '--no-config', 'python', 'install', '--no-bin', name], env=env, timeout=1200)
+            run_process([uv, '--no-config', 'python', 'install', '--no-bin', name], env=env, timeout=None)
         except Exception:  # noqa: BLE001 - an undownloadable patch falls back below
             return None
         return run_process([uv, '--no-config', 'python', 'find', '--managed-python', name],
                            env=env, timeout=60).strip() or None
 
-    with FileLock(directory / (request + '.lock'), timeout=1800):
+    with FileLock(directory / (request + '.lock'), timeout=None):
         selected = acquire(request)
         if selected is None and minor != request:
             selected = acquire(minor)
@@ -83,7 +83,7 @@ def standalone_python(root, details):
     if not Path(selected).resolve().is_relative_to(directory.resolve()):
         raise ContractError('Acquired Python escaped its managed directory', code='environment_unverified')
     from .canvas import PROBE
-    actual = json.loads(run_process([selected, '-I', '-c', PROBE], timeout=45))
+    actual = json.loads(run_process([selected, '-I', '-c', PROBE], timeout=120))
     if (list(actual['version'][:2]), actual['os'], actual['arch']) != (list(wanted[:2]), details['os'], details['arch']):
         raise ContractError('Acquired Python does not match the selected interpreter', code='environment_unverified')
     return actual
@@ -99,29 +99,29 @@ def pack_conda(prefix, output, root):
     code = ('import sys; sys.path.insert(0,sys.argv[1]); import conda_pack; '
             'conda_pack.pack(prefix=sys.argv[2],output=sys.argv[3],format="tar",verbose=False,'
             'ignore_missing_files=True)')
-    run_process([sys.executable, '-I', '-c', code, str(module), str(prefix), str(output)], timeout=1800)
+    run_process([sys.executable, '-I', '-c', code, str(module), str(prefix), str(output)], timeout=None)
 
 
 def managed_r(root, executable):
     """Recreate only a system R runtime at its exact version, not its packages."""
     from operon.environment_install import _micromamba, _mamba_env
     from operon.contracts.base import sha256_hex
-    version = run_process([str(executable), '--vanilla', '-e', 'cat(as.character(getRversion()))'], timeout=45).strip()
+    version = run_process([str(executable), '--vanilla', '-e', 'cat(as.character(getRversion()))'], timeout=120).strip()
     from packaging.version import Version
     Version(version)  # do not pass unvalidated output as a solver expression
     root = Path(root) / 'export-r'
     root.mkdir(parents=True, exist_ok=True)
     prefix = root / sha256_hex(version)[:16]
     selected = prefix / ('Scripts/Rscript.exe' if os.name == 'nt' else 'bin/Rscript')
-    with FileLock(prefix.with_suffix('.lock'), timeout=1800):
+    with FileLock(prefix.with_suffix('.lock'), timeout=None):
         if not selected.is_file():
             mamba = _micromamba(root, lambda value: None)
             run_process([str(mamba), '--no-rc', 'create', '-y', '-p', str(prefix), '--override-channels',
                          '-c', 'conda-forge', '--strict-channel-priority', 'r-base==' + version],
-                        env=_mamba_env(root), timeout=1800)
+                        env=_mamba_env(root), timeout=None)
     from operon.r_runtime import RRuntime
     actual = run_process([str(selected), '--vanilla', '-e', 'cat(as.character(getRversion()))'],
-                         env=RRuntime._env(None, selected), timeout=45).strip()
+                         env=RRuntime._env(None, selected), timeout=120).strip()
     if actual != version:
         raise ContractError('Acquired R differs from selected R', code='environment_unverified')
     return selected
