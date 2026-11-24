@@ -438,7 +438,14 @@ def link(
         else:
             target = root / key
 
+    unit_files = expected if key == 'tree' else [name for name in expected if name == key]
     if _is_link(target) and _points_to(target, real):
+        missing = [name for name in unit_files if not (target / name).exists()]
+        if missing:
+            raise ValueError(
+                f"the link at {target} does not provide {', '.join(missing)}; "
+                f"point it at a directory that contains the official files, or link the unit on its own"
+            )
         receipt = common.read_receipt(resource) or {}
         recorded = (receipt.get("units") or {}).get(key) or {}
         return {

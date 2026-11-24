@@ -162,6 +162,20 @@ def test_link_is_idempotent(tmp_path):
     assert second["target"] == str(root)
 
 
+@POSIX_ONLY
+def test_link_reports_a_unit_file_the_link_does_not_provide(tmp_path):
+    source = _source(tmp_path)
+    root = tmp_path / "resources" / "esm2"
+    resource = _resource(root)
+    allowed = [str(tmp_path / "external")]
+
+    link(resource, source, allowed_roots=allowed)
+    (source / EXPECTED).unlink()
+
+    with pytest.raises(ValueError, match="does not provide"):
+        link(resource, source, allowed_roots=allowed)
+
+
 def test_link_conflict_without_replace(tmp_path):
     source = _source(tmp_path)
     root = tmp_path / "resources" / "esm2"
@@ -383,8 +397,9 @@ def test_manifest_declares_link_roots_and_expected_files():
     assert os.path.expanduser("~/.cache/torch") in roots
     assert os.path.expanduser("~/.local/share/operon/external") in roots
     assert os.path.expanduser("~/operon-resources") in roots
-    assert resources["esm2"].expected_files == (EXPECTED,)
-    assert common.expected_files(resources["esm2"]) == (EXPECTED,)
+    contact = "esm2_t6_8M_UR50D-contact-regression.pt"
+    assert resources["esm2"].expected_files == (EXPECTED, contact)
+    assert common.expected_files(resources["esm2"]) == (EXPECTED, contact)
 
 
 def test_link_roots_unions_manifest_and_per_resource_roots(tmp_path):
