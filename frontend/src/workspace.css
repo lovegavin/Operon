@@ -472,3 +472,10 @@
   line-height: 1.5;
   color: var(--text-muted, #6b7280);
 }
+.runtime-summary-item.is-ready {--tone:var(--tone-ready);}
+.runtime-summary-item.is-missing {--tone:var(--tone-missing);}
+.runtime-summary-item.is-stale {--tone:var(--tone-stale);}
+.runtime-summary-item.is-installing {--tone:var(--tone-installing);}
+.runtime-summary-item.is-failed {--tone:var(--tone-failed);}
+.runtime-detail-footer .runtime-back {background:#111; border-color:#111; color:#fff;}
+.runtime-detail-footer .runtime-back:hover {background:#2a2a2a; border-color:#2a2a2a;}

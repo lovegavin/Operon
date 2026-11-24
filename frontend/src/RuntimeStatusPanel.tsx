@@ -354,7 +354,7 @@ export function SummaryStrip({items, gaps = {}, busy, target = '', targets = [],
     <div className="runtime-summary-counts" aria-live="polite" aria-label={t('环境概况')}>
       <strong>{t('{count} 个环境', {count: counts.total})}</strong>
       {(Object.keys(readiness) as Readiness[]).filter(key => readiness[key] > 0).map(key =>
-        <span className="runtime-summary-item" data-readiness={key} key={key}>
+        <span className={} data-readiness={key} key={key}>
           <i className="runtime-dot" aria-hidden="true"/>
           {t('{count} {label}', {count: readiness[key], label: t(readinessKeys[key])})}
         </span>)}
@@ -998,7 +998,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
           <LargeResourceSection target={target} environment={detail.name} compact/>
         </section>}
         {view !== 'root' && <div className="runtime-detail-footer">
-          <button type="button" className="subtle-button"
+          <button type="button" className="subtle-button runtime-back"
             onClick={() => setView('root')}>{t('返回')}</button>
         </div>}
       </Modal>}
