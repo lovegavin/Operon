@@ -80,3 +80,34 @@ deep-learning operators now choose the GPU by themselves.
   `operon_submit_many`/`operon_jobs_many` submit a batch over one session and
   `max_parallel_tasks: 0` means "use the host", which the desktop already
   allowed.
+
+- **A quarantined worker frees its lease instead of blocking the pool.** A worker
+  killed while its descendants were still alive is parked in `recovery_required`
+  with its lease still granted, and the tick only walked the live states: the
+  lease charged capacity no process could use and every later unit waited behind
+  it until the pool restarted. The tick now polls the quarantined attempts and
+  abandons the ones whose recorded process identity is provably dead.
+- **A repeated archive member no longer aborts an environment closure.** Both a
+  portable CPython archive and a conda-pack closure list some members twice; the
+  extractor refused the whole archive. Members are now applied in order, so the
+  later entry wins, and a genuinely conflicting member is still refused when the
+  bytes differ.
+- **A closure symlink replaces the file it renames.** A closure that carries
+  `lib/libpython3.11.so` both as a file and as a link to
+  `libpython3.11.so.1.0` failed the canvas closure check with `EEXIST`. Links are
+  created after the regular members and in their own order, so the last entry
+  wins exactly like `tar -x`.
+- **Linking a unit verifies the unit.** A unit link that pointed at a directory
+  without the unit's files was reported as already linked; the link now lists the
+  missing files and refuses.
+- **No transfer has a wall-clock deadline.** Environment downloads, uv, conda,
+  micromamba and archive extraction run until they finish; only the local
+  readiness probes keep a short bound so a hung probe cannot stall the installer.
+- **The environment card lifts on hover.** The card now carries the same
+  gradient as the primary actions, in both themes.
+- **A queued install is no longer reaped by age.** Each environment in a batch
+  writes `queued` and then waits for the shared bootstrap lock, and the snapshot
+  treated that silence as death after three minutes: "install all" turned a
+  healthy queue into a wall of "the last install was interrupted" failures. The
+  snapshot now tells the age check which environments still own a worker, so an
+  entry that is genuinely waiting is left alone.
