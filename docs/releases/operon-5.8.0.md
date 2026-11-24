@@ -111,3 +111,9 @@ deep-learning operators now choose the GPU by themselves.
   healthy queue into a wall of "the last install was interrupted" failures. The
   snapshot now tells the age check which environments still own a worker, so an
   entry that is genuinely waiting is left alone.
+- **A dead torch mirror falls back to the interpreter index.** The CUDA
+  environments pin `torch_index_url` at a regional mirror; when that host stops
+  answering, the pinned wheel looked unavailable and `antifold`, `openfold` and
+  `esm3` failed with `Could not find a version that satisfies the requirement
+  torch==2.3.1`. The install is retried once through the interpreter's own
+  index, and the first failure stays in the log.
