@@ -504,3 +504,21 @@ def test_transfers_are_bounded_by_progress_not_wall_clock():
 def test_remote_rpc_has_no_wall_clock_ceiling_by_default():
     from operon.remote import client
     assert client.RPC_HARD_SECONDS == 0
+
+
+def test_a_transfer_never_ends_on_a_clock():
+    """Downloads and builds wait for bytes; only local probes keep a cap."""
+    import inspect
+
+    from operon import plugins
+    from operon.engine.fs import FileLock
+
+    import pathlib
+
+    assert inspect.signature(plugins.run_process).parameters['timeout'].default is None
+    assert inspect.signature(FileLock.__init__).parameters['timeout'].default is None
+
+    acquisition = (pathlib.Path(__file__).resolve().parents[1]
+                   / 'operon/environment_store/acquisition.py').read_text()
+    for capped in ('timeout=900', 'timeout=1200', 'timeout=1800'):
+        assert capped not in acquisition, capped
