@@ -1197,6 +1197,9 @@ TEXT_LIMIT = 8 * 1024 * 1024
 
 
 PIP_STARTUP_SECONDS = 3600.0
+# No total cap: a large wheel over a slow link may need hours.  The stall
+# watchdog still aborts a transfer that stops making progress.
+PIP_TRANSFER_SECONDS = 0
 
 
 def _pip_env(python: Path, extra: dict[str, str] | None = None) -> dict[str, str]:
@@ -1408,13 +1411,15 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
              env=_pip_env(python), startup=PIP_STARTUP_SECONDS, progress=progress, control=control)
     if direct:
         _run([*install, *PIP_TRANSFER, *PIP_INDEX, *PIP_TRUSTED, *direct], log=log,
-             timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
-             env=_pip_env(python), startup=PIP_STARTUP_SECONDS, watch=[base(root), staging])
+             timeout=PIP_TRANSFER_SECONDS, progress=progress, control=control,
+             stall=BUILD_STALL_SECONDS, env=_pip_env(python), startup=PIP_STARTUP_SECONDS,
+             watch=[base(root), staging])
     wheels = entry.get('pip_wheels') or []
     if wheels:
         _run([*install, *PIP_TRANSFER, '--only-binary=:all:', *PIP_INDEX, *PIP_TRUSTED, *wheels],
-             log=log, timeout=1800, progress=progress, control=control, stall=BUILD_STALL_SECONDS,
-             env=_pip_env(python), startup=PIP_STARTUP_SECONDS, watch=[base(root), staging])
+             log=log, timeout=PIP_TRANSFER_SECONDS, progress=progress, control=control,
+             stall=BUILD_STALL_SECONDS, env=_pip_env(python), startup=PIP_STARTUP_SECONDS,
+             watch=[base(root), staging])
     requirements = entry.get('requirements') or []
     if requirements:
         _run([*install, *PIP_TRANSFER, '--prefer-binary', *PIP_INDEX, *PIP_TRUSTED, *requirements],
