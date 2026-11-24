@@ -25,18 +25,18 @@ DEFAULT_TIMEOUT = 3600
 #: the checkout appends ``_a3m``/``_cs219``/``_hhm`` itself, so those paths have
 #: to be validated through their ``<prefix>_a3m.ffdata`` sidecar.
 DATABASES = {
-    "uniref90": ("uniref90", "uniref90.fasta", False),
-    "mgnify": ("mgnify", "mgy_clusters_2022_05.fa", False),
-    "pdb70": ("pdb70", "pdb70", True),
-    "uniref30": ("uniref30", "UniRef30_2021_03", True),
-    "bfd": (
+    "uniref90_database_path": ("uniref90", "uniref90.fasta", False),
+    "mgnify_database_path": ("mgnify", "mgy_clusters_2022_05.fa", False),
+    "pdb70_database_path": ("pdb70", "pdb70", True),
+    "uniref30_database_path": ("uniref30", "UniRef30_2021_03", True),
+    "bfd_database_path": (
         "bfd",
         "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
         True,
     ),
-    "small_bfd": ("small_bfd", "bfd-first_non_consensus_sequences.fasta", False),
-    "pdb_seqres": ("pdb_seqres", "pdb_seqres.txt", False),
-    "uniprot": ("uniprot", "uniprot.fasta", False),
+    "small_bfd_database_path": ("small_bfd", "bfd-first_non_consensus_sequences.fasta", False),
+    "pdb_seqres_database_path": ("pdb_seqres", "pdb_seqres.txt", False),
+    "uniprot_database_path": ("uniprot", "uniprot.fasta", False),
 }
 
 
@@ -44,11 +44,11 @@ def database_arguments(data_dir, preset: str = "full_dbs", where: str = "alphafo
     """The ``--*_database_path`` flags a stock checkout requires, derived from ``data_dir``."""
 
     root = Path(data_dir)
-    names = ["uniref90", "mgnify", "pdb_seqres", "uniprot"]
+    names = ["uniref90_database_path", "mgnify_database_path", "pdb_seqres_database_path", "uniprot_database_path"]
     if preset == "reduced_dbs":
-        names.append("small_bfd")
+        names.append("small_bfd_database_path")
     else:
-        names.extend(["pdb70", "uniref30", "bfd"])
+        names.extend(["pdb70_database_path", "uniref30_database_path", "bfd_database_path"])
     arguments = {}
     missing = []
     for name in names:
@@ -171,7 +171,7 @@ def alphafold_command(
         "--use_gpu_relax=" + ("true" if use_gpu_relax else "false"),
     ]
     for name, value in databases.items():
-        command.append(f"--{name.replace('_directory', '_dir')}={value}")
+        command.append(f"--{name}={value}")
     return command
 
 
