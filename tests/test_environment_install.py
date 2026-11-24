@@ -522,3 +522,45 @@ def test_a_transfer_never_ends_on_a_clock():
                    / 'operon/environment_store/acquisition.py').read_text()
     for capped in ('timeout=900', 'timeout=1200', 'timeout=1800'):
         assert capped not in acquisition, capped
+import operon.environment_install as install
+
+
+def test_a_dead_torch_mirror_falls_back_to_the_interpreter_index(monkeypatch):
+    seen = []
+
+    def fake_run(command, **kwargs):
+        seen.append(list(command))
+        if "--index-url" in command:
+            raise RuntimeError("ERROR: Could not find a version that satisfies the requirement torch==2.3.1")
+        return None
+
+    monkeypatch.setattr(install, "_run", fake_run)
+    entry = {
+        "torch_cuda": True,
+        "torch_version": "2.3.1",
+        "torch_index_url": "https://mirrors.example.invalid/pypi/simple",
+    }
+    messages = []
+    install._install_torch(entry, ["python", "-m", "pip", "install"], {}, messages.append, progress=None)
+
+    assert len(seen) == 2
+    assert "--index-url" in seen[0]
+    assert "https://mirrors.example.invalid/pypi/simple" in seen[0]
+    assert "--index-url" not in seen[1]
+    assert seen[1][-1] == "torch==2.3.1"
+    assert messages and "mirrors.example.invalid" in messages[0]
+
+
+def test_the_torch_fallback_stops_at_the_first_success(monkeypatch):
+    seen = []
+
+    def fake_run(command, **kwargs):
+        seen.append(list(command))
+        return None
+
+    monkeypatch.setattr(install, "_run", fake_run)
+    entry = {"torch_cuda": True, "torch_version": "2.6.0", "torch_index_url": "https://mirrors.example/pypi"}
+    install._install_torch(entry, ["python", "-m", "pip", "install"], {}, lambda message: None)
+
+    assert len(seen) == 1
+    assert seen[0][-1] == "torch==2.6.0"

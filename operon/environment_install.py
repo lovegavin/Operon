@@ -1389,6 +1389,34 @@ def repair_metadata_versions(prefix: Path, log=None) -> int:
     return repaired
 
 
+def _install_torch(entry: dict, command: list, env: dict, log, *, progress=None, control=None) -> None:
+    """Install a CUDA build of torch, falling back to the interpreter default index.
+
+    A declaration may point at a regional mirror because the full wheel set is
+    hundreds of megabytes.  Mirrors disappear, and then the pinned version looks
+    unavailable even though the interpreter can still reach its own index, so a
+    failed mirror attempt is retried once without the override.
+    """
+    version = str(entry.get('torch_version') or '').strip()
+    target = f'torch=={version}' if version else 'torch'
+    index = str(entry.get('torch_index_url') or '').strip()
+    attempts = ([['--index-url', index]] if index else []) + [[]]
+    failure = None
+    for position, extra in enumerate(attempts):
+        try:
+            _run([*command, *PIP_TRANSFER, *extra, target], log=log, timeout=TRANSFER_SECONDS,
+                 env=env, startup=PIP_STARTUP_SECONDS, progress=progress, control=control)
+            return
+        except Exception as error:  # noqa: BLE001 - the second attempt reports its own failure
+            failure = error
+            if position + 1 == len(attempts):
+                break
+            if log is not None:
+                log(f'torch install through {index or "the default index"} failed: {error}')
+    if failure is not None:
+        raise failure
+
+
 def _install(entry: dict, staging: Path, log, root=None, progress=None, control=None):
     python = _python(staging)
     # Use the extended prefix only for pip filesystem writes. Keep the actual
@@ -1414,12 +1442,7 @@ def _install(entry: dict, staging: Path, log, root=None, progress=None, control=
               '--index-url', 'https://download.pytorch.org/whl/cpu'], log=log, timeout=TRANSFER_SECONDS,
              env=_pip_env(python), startup=PIP_STARTUP_SECONDS, progress=progress, control=control)
     if entry.get('torch_cuda'):
-        version = str(entry.get('torch_version') or '').strip()
-        target = f'torch=={version}' if version else 'torch'
-        index = str(entry.get('torch_index_url') or '').strip()
-        extra = ['--index-url', index] if index else []
-        _run([*install, *PIP_TRANSFER, *extra, target], log=log, timeout=TRANSFER_SECONDS,
-             env=_pip_env(python), startup=PIP_STARTUP_SECONDS, progress=progress, control=control)
+        _install_torch(entry, install, _pip_env(python), log, progress=progress, control=control)
     if direct:
         _run([*install, *PIP_TRANSFER, *PIP_INDEX, *PIP_TRUSTED, *direct], log=log,
              timeout=PIP_TRANSFER_SECONDS, progress=progress, control=control,
