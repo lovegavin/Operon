@@ -440,7 +440,7 @@
             "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata",
             "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffindex"
           ],
-          "note": "reduced_dbs BFD"
+          "note": "hh-suite BFD (only published on Google Cloud, unreachable from the licence server; link an existing directory)"
         },
         {
           "name": "mgnify",
@@ -450,9 +450,9 @@
           "bytes": 72741135623,
           "url": "https://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/2022_05/mgy_clusters.fa.gz",
           "files": [
-            "mgy_clusters_2022_05.fa"
+            "mgy_clusters.fa"
           ],
-          "note": "MGnify 2022_05 clusters"
+          "note": "MGnify 2022_05 clusters (EBI mirror unpacks as mgy_clusters.fa)"
         },
         {
           "name": "pdb70",
@@ -491,9 +491,9 @@
           "bytes": 93867502,
           "url": "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
           "files": [
-            "uniprot.fasta"
+            "uniprot_sprot.fasta"
           ],
-          "note": "Swiss-Prot from the EBI mirror"
+          "note": "Swiss-Prot from the EBI mirror (unpacks as uniprot_sprot.fasta)"
         },
         {
           "name": "pdb_mmcif",

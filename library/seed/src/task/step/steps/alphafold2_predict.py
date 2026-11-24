@@ -39,6 +39,15 @@ DATABASES = {
     "uniprot_database_path": ("uniprot", "uniprot.fasta", False),
 }
 
+#: Names the same database is published under by different mirrors.  The EBI
+#: archive unpacks as ``uniprot_sprot.fasta``/``mgy_clusters.fa`` while the
+#: Google Cloud archive (and a stock AlphaFold-2 install) use the names above,
+#: so both are accepted and the first one that exists wins.
+DATABASE_ALIASES = {
+    "uniprot_database_path": ("uniprot_sprot.fasta",),
+    "mgnify_database_path": ("mgy_clusters.fa",),
+}
+
 
 def database_arguments(
     data_dir,
@@ -61,6 +70,12 @@ def database_arguments(
     for name in names:
         folder, filename, prefix = DATABASES[name]
         candidate = root / folder / filename
+        if not prefix and not candidate.exists():
+            for alias in DATABASE_ALIASES.get(name, ()):
+                alternative = root / folder / alias
+                if alternative.exists():
+                    candidate = alternative
+                    break
         if prefix:
             present = (root / folder / f"{filename}_a3m.ffdata").is_file()
         else:
