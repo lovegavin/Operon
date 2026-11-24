@@ -40,11 +40,18 @@ DATABASES = {
 }
 
 
-def database_arguments(data_dir, preset: str = "full_dbs", where: str = "alphafold2_predict") -> dict:
+def database_arguments(
+    data_dir,
+    preset: str = "full_dbs",
+    where: str = "alphafold2_predict",
+    model_preset: str = "monomer_ptm",
+) -> dict:
     """The ``--*_database_path`` flags a stock checkout requires, derived from ``data_dir``."""
 
     root = Path(data_dir)
-    names = ["uniref90_database_path", "mgnify_database_path", "pdb_seqres_database_path", "uniprot_database_path"]
+    names = ["uniref90_database_path", "mgnify_database_path"]
+    if model_preset == "multimer":
+        names.extend(["pdb_seqres_database_path", "uniprot_database_path"])
     if preset == "reduced_dbs":
         names.append("small_bfd_database_path")
     else:
@@ -157,7 +164,7 @@ def alphafold_command(
     of being derived from ``--data_dir``.
     """
 
-    databases = database_arguments(data_dir, db_preset)
+    databases = database_arguments(data_dir, db_preset, where=where, model_preset=model_preset)
     command = [
         str(python_executable),
         str(runner),
