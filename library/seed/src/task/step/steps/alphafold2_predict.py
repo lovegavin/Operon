@@ -164,7 +164,7 @@ def alphafold_command(
     of being derived from ``--data_dir``.
     """
 
-    databases = database_arguments(data_dir, db_preset, where=where, model_preset=model_preset)
+    databases = database_arguments(data_dir, db_preset, model_preset=preset)
     command = [
         str(python_executable),
         str(runner),
