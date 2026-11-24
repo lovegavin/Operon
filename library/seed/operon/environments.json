@@ -116,19 +116,23 @@
         "numpy==1.26.4",
         "psutil>=5.9",
         "jax==0.4.23",
-        "jaxlib==0.4.23",
         "chex==0.1.86"
       ],
       "conda_packages": [
-        "mmseqs2"
+        "mmseqs2",
+        "cuda-cudart=12.2",
+        "cuda-cupti=12.2"
       ],
       "torch_cpu": true,
       "wired": true,
-      "notes": "colabfold 1.5.5 requires pandas<2 and dm-haiku==0.0.10, so this environment pins pandas 1.5.3 and lets the colabfold extra choose dm-haiku; colabfold_batch lives in the environment bin directory and the MMseqs2/UniRef databases remain external (resources.json colabfold). mmseqs2 provides the mmseqs binary that builds MSAs locally from the colabfold_msa resource. jax is pinned to 0.4.23 with chex 0.1.86 because dm-haiku 0.0.10 (required by colabfold 1.5.5) calls jax.linear_util, which jax removed after 0.4.23; chex 0.1.90 would pull jax>=0.4.27 back in.",
+      "notes": "colabfold 1.5.5 requires pandas<2 and dm-haiku==0.0.10, so this environment pins pandas 1.5.3 and lets the colabfold extra choose dm-haiku; colabfold_batch lives in the environment bin directory and the MMseqs2/UniRef databases remain external (resources.json colabfold). mmseqs2 provides the mmseqs binary that builds MSAs locally from the colabfold_msa resource. jax is pinned to 0.4.23 with chex 0.1.86 because dm-haiku 0.0.10 (required by colabfold 1.5.5) calls jax.linear_util, which jax removed after 0.4.23; chex 0.1.90 would pull jax>=0.4.27 back in. jaxlib is installed from the CUDA12 wheel index so ColabFold runs on the GPU.",
       "torch_version": "2.3.1",
       "torch_index_url": "https://mirrors.aliyun.com/pypi/simple",
       "resources": [
         "colabfold"
+      ],
+      "pip_wheels": [
+        "jaxlib @ https://storage.googleapis.com/jax-releases/cuda12/jaxlib-0.4.23+cuda12.cudnn89-cp311-cp311-manylinux2014_x86_64.whl"
       ]
     },
     "esm3": {
@@ -596,7 +600,6 @@
       "requirements": [
         "biopython==1.79",
         "jax==0.4.23",
-        "jaxlib==0.4.23",
         "dm-haiku==0.0.10",
         "dm-tree==0.1.8",
         "ml-collections",
@@ -610,7 +613,9 @@
       "conda_packages": [
         "hmmer",
         "hhsuite",
-        "kalign"
+        "kalign",
+        "cuda-cudart=12.2",
+        "cuda-cupti=12.2"
       ],
       "binaries": [
         "jackhmmer",
@@ -620,7 +625,10 @@
         "kalign"
       ],
       "planned": false,
-      "notes": "AlphaFold 2.3.1 imports Bio.Data.SCOPData, removed in biopython 1.81, so biopython is pinned to 1.79. Relaxation needs openmm and pdbfixer; the operators run with --models_to_relax=none."
+      "notes": "AlphaFold 2.3.1 imports Bio.Data.SCOPData, removed in biopython 1.81, so biopython is pinned to 1.79. Relaxation needs openmm and pdbfixer; the operators run with --models_to_relax=none. The GPU build of jaxlib comes from the JAX CUDA12 wheel index; cuda-cudart/cuda-cupti 12.2 keep it from falling back to the CPU backend.",
+      "pip_wheels": [
+        "jaxlib @ https://storage.googleapis.com/jax-releases/cuda12/jaxlib-0.4.23+cuda12.cudnn89-cp311-cp311-manylinux2014_x86_64.whl"
+      ]
     },
     "genomics": {
       "title": "基因组组装与比对",
