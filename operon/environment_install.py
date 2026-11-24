@@ -301,12 +301,23 @@ def state(name: str, root=None, source=None) -> dict:
     """Report one environment without creating or probing anything."""
     entry = environments.describe(name, source)
     directory = target(name, root)
-    python = None
-    for layout in ('bin/python', 'Scripts/python.exe', 'python.exe'):
-        candidate = directory / layout
-        if candidate.is_file() and os.access(candidate, os.X_OK):
-            python = candidate
-            break
+
+    def interpreter():
+        for layout in ('bin/python', 'Scripts/python.exe', 'python.exe'):
+            candidate = directory / layout
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return candidate
+        return None
+
+    python = interpreter()
+    if python is None and entry.get('venv_shared') and directory.is_dir():
+        # A new server build replaces the interpreter this venv inherits from, so
+        # its links dangle until they are pointed at the running interpreter.
+        try:
+            if rebind_venv(str(directory)):
+                python = interpreter()
+        except OSError:
+            python = None
     expected = spec_sha256(entry)
     recorded = receipt(name, root)
     error = _read(_error_path(name, root))
@@ -325,8 +336,18 @@ def state(name: str, root=None, source=None) -> dict:
         result['error'] = error.get('message') or unsupported_reason(entry)
         _dependency_fields(result, entry, directory)
     elif python is None:
-        result['status'] = 'failed' if error.get('message') else 'missing'
-        result['error'] = error.get('message') or ''
+        if error.get('message'):
+            result['status'] = 'failed'
+            result['error'] = error['message']
+        elif directory.is_dir():
+            # The directory exists but cannot start: call that failed rather than
+            # "not installed", which hid a broken interpreter behind a fresh-install
+            # button that would have refused to run.
+            result['status'] = 'failed'
+            result['error'] = 'the environment directory exists but its interpreter cannot start'
+        else:
+            result['status'] = 'missing'
+            result['error'] = ''
         _dependency_fields(result, entry, directory)
     elif recorded.get('spec_sha256') != expected:
         result['status'] = 'stale'
@@ -1063,6 +1084,65 @@ def repair(name: str, root=None) -> dict:
     changed = _rewrite_shebangs(directory)
     changed += _relocate(directory)
     return {'name': name, 'directory': str(directory), 'rewritten': changed}
+
+
+def rebind_venv(location) -> int:
+    """Point a ``--system-site-packages`` venv back at the running interpreter.
+
+    These environments inherit everything from the interpreter that created them,
+    which lives under the deployment directory.  Installing a new server build
+    replaces that directory, so the recorded ``pyvenv.cfg`` home and the
+    ``bin/python*`` links end up dangling: the environment still holds its own
+    packages, but no interpreter can start, and the panel reported it as
+    "not installed".  Rebinding rewrites the three paths and repairs the links.
+    """
+    root = Path(location)
+    config = root / 'pyvenv.cfg'
+    changed = 0
+    if config.is_file():
+        home = Path(sys.executable).parent
+        lines = []
+        for line in config.read_text(encoding='utf-8', errors='replace').splitlines():
+            key = line.partition('=')[0].strip().lower()
+            if key == 'home':
+                lines.append(f'home = {home}')
+            elif key == 'executable':
+                lines.append(f'executable = {sys.executable}')
+            elif key == 'command':
+                lines.append(f'command = {sys.executable} -m venv --system-site-packages {root}')
+            else:
+                lines.append(line)
+        updated = '\n'.join(lines) + '\n'
+        if updated != config.read_text(encoding='utf-8', errors='replace'):
+            config.write_text(updated, encoding='utf-8')
+            changed += 1
+    bin_dir = root / 'bin'
+    if not bin_dir.is_dir():
+        return changed
+    for name in ('python3.11', 'python3.12', 'python3.13'):
+        if (bin_dir / name).is_symlink() or (bin_dir / name).exists():
+            link = bin_dir / name
+            try:
+                link.unlink()
+            except OSError:
+                pass
+            link.symlink_to(sys.executable)
+            changed += 1
+            break
+    for name in ('python', 'python3'):
+        link = bin_dir / name
+        if link.is_symlink() and os.readlink(link).endswith('python3.11'):
+            continue
+        if link.exists() and not link.is_symlink():
+            continue
+        try:
+            if link.is_symlink():
+                link.unlink()
+        except OSError:
+            continue
+        link.symlink_to('python3.11')
+        changed += 1
+    return changed
 
 
 def _commit(name: str, staging: Path, final: Path) -> None:

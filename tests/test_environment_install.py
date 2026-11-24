@@ -446,3 +446,31 @@ def test_a_short_temp_root_is_left_alone():
     from operon.environments import short_temp_root
 
     assert short_temp_root({'TMPDIR': '/tmp'}) is None
+
+def test_a_venv_is_rebound_to_the_running_interpreter(tmp_path):
+    """A new server build replaces the interpreter a shared venv inherits from."""
+    import os
+    import pathlib
+    import sys
+
+    from operon import environment_install
+
+    root = tmp_path / 'envs'
+    environment = root / 'openmm81'
+    (environment / 'bin').mkdir(parents=True)
+    (environment / 'pyvenv.cfg').write_text(
+        'home = /gone/bin\ninclude-system-site-packages = true\nexecutable = /gone/bin/python3.11\n',
+        encoding='utf-8')
+    (environment / 'bin' / 'python3.11').symlink_to('/gone/bin/python3.11')
+    (environment / 'bin' / 'python3').symlink_to('python')
+    (environment / 'bin' / 'python').symlink_to('python3')
+    assert not (environment / 'bin' / 'python').exists()
+
+    changed = environment_install.rebind_venv(str(environment))
+
+    assert changed
+    assert os.readlink(environment / 'bin' / 'python3.11') == sys.executable
+    assert os.readlink(environment / 'bin' / 'python') == 'python3.11'
+    config = (environment / 'pyvenv.cfg').read_text(encoding='utf-8')
+    assert 'home = ' + str(pathlib.Path(sys.executable).parent) in config
+    assert '/gone' not in config
