@@ -178,9 +178,12 @@
 .runtime-panel .subtle-button.is-danger:hover {background:var(--error-soft);}
 .runtime-grid {display:grid; grid-template-columns:repeat(auto-fill, minmax(272px, 1fr)); gap:14px;}
 .runtime-card {display:flex; flex-direction:column; gap:11px; padding:16px; min-width:0;
-  border:1px solid var(--border); border-radius:12px; background:var(--panel); box-shadow:var(--shadow-sm);
-  transition:transform 160ms var(--ease-out), box-shadow 160ms, border-color 160ms;}
-.runtime-card:hover {transform:translateY(-2px); border-color:var(--border-strong); box-shadow:0 10px 24px rgb(0 0 0 / 10%);}
+  border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-sm);
+  background:linear-gradient(180deg, color-mix(in oklab, var(--action) 7%, var(--panel)) 0%, var(--panel) 64%);
+  transition:transform 160ms var(--ease-out), box-shadow 160ms, border-color 160ms, background 160ms;}
+.runtime-card:hover {transform:translateY(-2px); border-color:var(--action);
+  background:linear-gradient(180deg, color-mix(in oklab, var(--action) 14%, var(--panel)) 0%, color-mix(in oklab, var(--action) 5%, var(--panel)) 72%);
+  box-shadow:0 10px 24px color-mix(in oklab, var(--action) 24%, transparent);}
 .runtime-card-head {display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
 .runtime-card-title {min-width:0;}
 .runtime-card-title h3 {font-size:14px; font-weight:600; letter-spacing:-.2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}

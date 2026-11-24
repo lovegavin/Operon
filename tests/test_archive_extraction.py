@@ -35,12 +35,14 @@ def test_an_identical_zip_member_may_repeat(tmp_path):
     assert (destination / 'pkg/data.txt').read_text() == 'one'
 
 
-def test_a_conflicting_zip_member_is_refused(tmp_path):
-    archive = tmp_path / 'vendor.zip'
-    write_zip(archive, [('pkg/data.txt', 'one'), ('pkg/data.txt', 'two')])
-
-    with pytest.raises(ContractError, match='Duplicate archive member'):
-        builders.extract_locked(archive, tmp_path / 'out', format='zip', maximum=1024)
+def test_a_conflicting_zip_member_overwrites_the_earlier_one(tmp_path):
+    archive = tmp_path / 'conflict.zip'
+    with zipfile.ZipFile(archive, 'w') as handle:
+        handle.writestr('tool/config.json', '{"first": true}')
+        handle.writestr('tool/config.json', '{"second": true}')
+    destination = tmp_path / 'tree'
+    builders.extract_locked(archive, destination, format='zip', maximum=1 << 20)
+    assert (destination / 'tool' / 'config.json').read_text() == '{"second": true}'
 
 
 def test_an_identical_tar_member_may_repeat(tmp_path):

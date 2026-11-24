@@ -598,7 +598,8 @@
         "jax",
         "haiku",
         "Bio",
-        "ml_collections"
+        "ml_collections",
+        "pydantic"
       ],
       "requirements": [
         "biopython==1.79",
@@ -611,7 +612,9 @@
         "scipy",
         "pandas>=1.5,<2",
         "immutabledict",
-        "typing_extensions>=4"
+        "typing_extensions>=4",
+        "pydantic>=2.7",
+        "psutil>=5.9"
       ],
       "conda_packages": [
         "hmmer",

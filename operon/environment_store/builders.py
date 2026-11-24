@@ -73,11 +73,12 @@ def extract_locked(archive, destination, *, format, maximum, cancel=None):
         return io_path(path).is_symlink()
 
     def repeated_file(path, stream, size):
-        """A repeated file is safe only when its bytes match what landed.
+        """A repeated file is skipped when its bytes match what landed.
 
         Vendors repack a tree by listing the same path twice (indygreg's portable
-        CPython does it for ``lib/python3.11/site-packages``), so an identical
-        repeat is skipped; a repeat that disagrees is still an error.
+        CPython does it for ``lib/python3.11/site-packages``) and a packer may also
+        rewrite a path after touching it, so a repeat that disagrees overwrites the
+        earlier member exactly like ``tar`` does; only the last one survives.
         """
         target = io_path(path)
         if not target.is_file() or target.is_symlink() or target.stat().st_size != size:
@@ -97,13 +98,12 @@ def extract_locked(archive, destination, *, format, maximum, cancel=None):
                 path, duplicate = member(entry.filename, entry.file_size)
                 path = io_path(path)
                 if duplicate:
-                    if entry.is_dir() and repeated_directory(path):
+                    if entry.is_dir():
+                        path.mkdir(parents=True, exist_ok=True)
                         continue
-                    if not entry.is_dir():
-                        with source.open(entry) as payload:
-                            if repeated_file(path, payload, entry.file_size):
-                                continue
-                    raise ContractError('Duplicate archive member', code='invalid_environment')
+                    with source.open(entry) as payload:
+                        if repeated_file(path, payload, entry.file_size):
+                            continue
                 mode = entry.external_attr >> 16
                 if mode & 0o170000 == 0o120000:
                     raise ContractError('ZIP symlinks require a target tar recipe', code='invalid_environment')
@@ -111,7 +111,7 @@ def extract_locked(archive, destination, *, format, maximum, cancel=None):
                     path.mkdir(parents=True, exist_ok=True)
                 else:
                     path.parent.mkdir(parents=True, exist_ok=True)
-                    with source.open(entry) as inp, path.open('xb') as out:
+                    with source.open(entry) as inp, path.open('wb' if duplicate else 'xb') as out:
                         shutil.copyfileobj(inp, out, 1024 * 1024)
                     if os.name != 'nt' and mode:
                         path.chmod(mode & 0o777)
@@ -124,20 +124,21 @@ def extract_locked(archive, destination, *, format, maximum, cancel=None):
                 path, duplicate = member(entry.name, entry.size)
                 path = io_path(path)
                 if duplicate:
-                    if entry.isdir() and repeated_directory(path):
+                    if entry.isdir():
+                        path.mkdir(parents=True, exist_ok=True)
                         continue
-                    if entry.issym() and repeated_link(path):
-                        continue
-                    if entry.isfile():
+                    if entry.issym():
+                        if repeated_link(path):
+                            path.unlink()
+                    elif entry.isfile():
                         with source.extractfile(entry) as payload:
                             if repeated_file(path, payload, entry.size):
                                 continue
-                    raise ContractError('Duplicate archive member', code='invalid_environment')
                 if entry.isdir():
                     path.mkdir(parents=True, exist_ok=True)
                 elif entry.isfile():
                     path.parent.mkdir(parents=True, exist_ok=True)
-                    with source.extractfile(entry) as inp, path.open('xb') as out:
+                    with source.extractfile(entry) as inp, path.open('wb' if duplicate else 'xb') as out:
                         shutil.copyfileobj(inp, out, 1024 * 1024)
                     path.chmod(entry.mode & 0o777)
                 elif entry.issym():
