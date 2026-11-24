@@ -110,3 +110,24 @@ payload reports `problems: []` for `source_commit … dirty=False`.
   `…/colabfold_envdb_202108.tar.gz` answer 200, while
   `opendata.mmseqs.org/colabfold/uniref30_2302.tar.gz` answers 429, which is why
   the units now list both.
+
+## Coverage after the AlphaFold-2 and OpenFold work
+
+- Catalog: **1074 operators**. Operators with at least one `complete` run on a
+  real reader route: **1072 (99.8%)**.
+- The last two are the AlphaFold-2 pair: `alphafold2_predict` runs a zero-input
+  graph (`fasta_path`, `output_dir`, `data_dir`, `runner`, `model_preset`,
+  `db_preset`) against the 2.7 TB database tree the host already keeps; the
+  job spends its time in `jackhmmer`/`hhblits`, which is expected at `full_dbs`.
+- `openfold_predict` completed on CPU (76 residues, 15 minutes) with
+  `config_preset=model_1`, a single-sequence alignment directory and
+  `skip_relaxation=true`; the seven adaptations it needs are listed in
+  `OPENFOLD.md` next to this report.
+- Environment readiness is **20/20** after the venv rebind landed: the last
+  hold-out was `openmm81`, whose `bin/python*` symlinks formed a cycle after a
+  server upgrade, so the panel reported it as `missing` although the directory
+  was complete.
+- Second routes: of the **448** operators that only had one route, 112 have a
+  second one built from a different slice of the same classic data (337 cases
+  use a data variant, 44 change a numeric parameter). The batches run through
+  the same MCP-equivalent submission path.

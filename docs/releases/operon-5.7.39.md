@@ -110,3 +110,33 @@ The remaining known defects, with symptoms and workarounds, are tracked in
 `DEFECTS.md` (D12–D17): the install still holds the manager lock while it waits
 on SSH, two `operon.remote.server` processes can still race for one workspace,
 and both are documented instead of silently retried.
+
+## AlphaFold-2 and OpenFold reach a real run
+
+- `alphafold2_predict` and `alphafold2_batch_predict` now drive a stock
+  AlphaFold-2.3.1 checkout instead of assuming our own wrapper: the command
+  builder emits the flags that checkout defines (`--db_preset`, `--run_relax`,
+  `--use_gpu_relax`) and every database path it needs
+  (`--uniref90_database_path`, `--mgnify_database_path`,
+  `--bfd_database_path`/`--small_bfd_database_path`, `--uniref30_database_path`,
+  `--uniprot_database_path`, `--pdb70_database_path`,
+  `--pdb_seqres_database_path`, `--template_mmcif_dir`, `--obsolete_pdbs_path`).
+  `pdb_seqres`/`uniprot` are added only for `multimer`, because the checkout
+  rejects them for `monomer_ptm`. The hh-suite databases are prefix databases
+  (`*_a3m.ffdata`) and are validated as such.
+- The `alphafold2` environment is a runnable runtime (biopython 1.79, jax 0.4.23,
+  dm-haiku, tensorflow-cpu 2.15.1 with a binary h5py 3.10.0, openmm 8.2 and
+  pdbfixer 1.11 from conda-forge, plus the `simtk` compatibility package the
+  2.3.1 relax code imports). Its `resources` entry is gone on purpose: the
+  database directory is an operator parameter (`data_dir`), which is how
+  AlphaFold itself expects to be pointed at `afdb`.
+- `openfold_predict` runs the CPU path on a host without a compiled attention
+  kernel: the `attn_core_inplace_cuda` module resolves to a stub, and the model
+  is built with `inplace_safe=False` and `use_memory_efficient_kernel=False`.
+  `pytorch-lightning==2.1.4` and `cuda-python==12.3.0` are installed because the
+  checkout imports them unconditionally, and `tensorrt` is optional. A 76-residue
+  chain completes in 15 minutes on CPU.
+- Environment preparation now clears the previous failure when it succeeds
+  (`mark_ready` drops `error`/`detail`), and a shared venv whose interpreter
+  cannot start is rebound to the running interpreter instead of being reported
+  as `missing`.
