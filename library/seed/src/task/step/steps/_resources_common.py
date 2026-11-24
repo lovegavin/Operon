@@ -345,8 +345,18 @@ def expected_files(resource: Resource) -> tuple[str, ...]:
 
     declared: tuple[Any, ...] = ()
     for component in getattr(resource, "components", ()) or ():
-        files = component.get("files") if isinstance(component, Mapping) else ()
-        if files:
+        if not isinstance(component, Mapping):
+            continue
+        files = component.get("files") or ()
+        prefix = str(component.get("path") or "").strip("/")
+        if not files:
+            continue
+        if prefix:
+            declared = declared + tuple(
+                f"{prefix}/{str(entry.get('path') if isinstance(entry, Mapping) else entry).strip('/')}"
+                for entry in files
+            )
+        else:
             declared = declared + tuple(files)
     if not declared:
         declared = resource.expected_files or resource.files or ()
@@ -570,8 +580,12 @@ def resource_components(resource: Resource, resolved: str | Path | None = None) 
     rows: list[dict[str, Any]] = []
     for unit in getattr(resource, "components", ()) or ():
         files = list(unit.get("files") or [])
+        prefix = str(unit.get("path") or "").strip("/")
         entries = [
-            _file_entry(resolved_path(root_path, name) if root_path is not None else None)
+            _file_entry(
+                resolved_path(root_path, f"{prefix}/{name}" if prefix else name)
+                if root_path is not None else None
+            )
             for name in files
         ]
         present = [entry["present"] for entry in entries]
