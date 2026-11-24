@@ -848,6 +848,20 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
     }
   }
 
+  async function reconnectRemote(id: string) {
+    setRemoteBusy(id);
+    setRemoteError('');
+    try {
+      await api.connectRemote(id, {});
+      const value = await api.remoteEnvironments(id);
+      setRemoteLoaded(current => ({...current, [id]: value}));
+    } catch (failure) {
+      setRemoteError((failure as Error).message);
+    } finally {
+      setRemoteBusy('');
+    }
+  }
+
   async function prepareRemote(id: string) {
     setRemoteBusy(id);
     setRemoteError('');
@@ -869,7 +883,7 @@ export function RuntimeStatusPanel({onClose}: {onClose: () => void}) {
           <strong>{t('远程环境清单读取失败')}</strong>
           <span>{remoteError}</span>
           <button className="subtle-button" disabled={Boolean(remoteBusy)}
-            onClick={() => void loadRemote(target)}>{t('重新连接')}</button>
+            onClick={() => void reconnectRemote(target)}>{t('重新连接')}</button>
         </div>}
       {!snapshot && !error && <div className="modal-empty"><p>{t('正在读取环境状态…')}</p></div>}
       {snapshot && !snapshot.manifest.present && !target &&

@@ -20,19 +20,23 @@ DEFAULT_TEMPLATE_DATE = "2022-01-01"
 DEFAULT_TIMEOUT = 3600
 
 
-#: Database files of a stock AlphaFold-2 ``data_dir``; ``reduced_dbs`` swaps BFD.
+#: Database files of a stock AlphaFold-2 ``data_dir``.
+#: The third item marks the hh-suite databases: AlphaFold receives a *prefix* and
+#: the checkout appends ``_a3m``/``_cs219``/``_hhm`` itself, so those paths have
+#: to be validated through their ``<prefix>_a3m.ffdata`` sidecar.
 DATABASES = {
-    "uniref90": ("uniref90", "uniref90.fasta"),
-    "mgnify": ("mgnify", "mgy_clusters_2022_05.fa"),
-    "pdb70": ("pdb70", "pdb70"),
-    "uniref30": ("uniref30", "UniRef30_2021_03"),
+    "uniref90": ("uniref90", "uniref90.fasta", False),
+    "mgnify": ("mgnify", "mgy_clusters_2022_05.fa", False),
+    "pdb70": ("pdb70", "pdb70", True),
+    "uniref30": ("uniref30", "UniRef30_2021_03", True),
     "bfd": (
         "bfd",
         "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
+        True,
     ),
-    "small_bfd": ("small_bfd", "bfd-first_non_consensus_sequences.fasta"),
-    "pdb_seqres": ("pdb_seqres", "pdb_seqres.txt"),
-    "uniprot": ("uniprot", "uniprot.fasta"),
+    "small_bfd": ("small_bfd", "bfd-first_non_consensus_sequences.fasta", False),
+    "pdb_seqres": ("pdb_seqres", "pdb_seqres.txt", False),
+    "uniprot": ("uniprot", "uniprot.fasta", False),
 }
 
 
@@ -48,9 +52,13 @@ def database_arguments(data_dir, preset: str = "full_dbs", where: str = "alphafo
     arguments = {}
     missing = []
     for name in names:
-        folder, filename = DATABASES[name]
+        folder, filename, prefix = DATABASES[name]
         candidate = root / folder / filename
-        if not candidate.exists():
+        if prefix:
+            present = (root / folder / f"{filename}_a3m.ffdata").is_file()
+        else:
+            present = candidate.exists()
+        if not present:
             missing.append(str(candidate))
             continue
         arguments[name] = candidate
@@ -275,6 +283,8 @@ def run_prediction(
         use_gpu_relax=use_gpu,
     )
     environment = dict(os.environ)
+    binary_dir = str(Path(python_executable).parent)
+    environment["PATH"] = binary_dir + os.pathsep + environment.get("PATH", "")
     if not use_gpu:
         environment["CUDA_VISIBLE_DEVICES"] = ""
     try:

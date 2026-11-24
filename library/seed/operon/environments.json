@@ -604,7 +604,8 @@
         "numpy==1.23.5",
         "scipy",
         "pandas>=1.5,<2",
-        "immutabledict"
+        "immutabledict",
+        "typing_extensions>=4"
       ],
       "conda_packages": [
         "hmmer",
@@ -617,9 +618,6 @@
         "hhblits",
         "hhsearch",
         "kalign"
-      ],
-      "resources": [
-        "alphafold2"
       ],
       "planned": false,
       "notes": "AlphaFold 2.3.1 imports Bio.Data.SCOPData, removed in biopython 1.81, so biopython is pinned to 1.79. Relaxation needs openmm and pdbfixer; the operators run with --models_to_relax=none."
