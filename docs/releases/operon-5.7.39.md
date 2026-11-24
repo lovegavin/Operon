@@ -140,3 +140,20 @@ and both are documented instead of silently retried.
   (`mark_ready` drops `error`/`detail`), and a shared venv whose interpreter
   cannot start is rebound to the running interpreter instead of being reported
   as `missing`.
+
+### AlphaFold-2 runs end to end
+
+`alphafold2_predict` completes on the shipped runtime against a stock
+AlphaFold-2.3.1 checkout and its 2.7 TB database tree: five monomer_ptm models
+plus the ranking step, 85 minutes on 16 cores with `--db_preset=full_dbs` and
+`--run_relax=false`. Two things had to be fixed first: the checkout reads
+`Bio.Data.SCOPData` (removed in biopython 1.81) and it expects each database
+flag by its full name (`--uniref90_database_path`, `--template_mmcif_dir`),
+including the `*_a3m.ffdata` prefix convention for the hh-suite databases.
+`alphafold2` therefore ships biopython 1.79 with jax 0.4.23, dm-haiku,
+tensorflow-cpu 2.15.1, conda-forge openmm 8.2 plus pdbfixer 1.11 and a small
+`simtk` compatibility package.
+
+The nine maintenance units of the `alphafold2` resource now declare the files
+their archives produce, so the resource panel reports per-component progress
+instead of `undeclared file list`.

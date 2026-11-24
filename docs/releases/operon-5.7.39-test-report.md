@@ -113,21 +113,13 @@ payload reports `problems: []` for `source_commit … dirty=False`.
 
 ## Coverage after the AlphaFold-2 and OpenFold work
 
-- Catalog: **1074 operators**. Operators with at least one `complete` run on a
-  real reader route: **1072 (99.8%)**.
-- The last two are the AlphaFold-2 pair: `alphafold2_predict` runs a zero-input
-  graph (`fasta_path`, `output_dir`, `data_dir`, `runner`, `model_preset`,
-  `db_preset`) against the 2.7 TB database tree the host already keeps; the
-  job spends its time in `jackhmmer`/`hhblits`, which is expected at `full_dbs`.
-- `openfold_predict` completed on CPU (76 residues, 15 minutes) with
-  `config_preset=model_1`, a single-sequence alignment directory and
-  `skip_relaxation=true`; the seven adaptations it needs are listed in
-  `OPENFOLD.md` next to this report.
-- Environment readiness is **20/20** after the venv rebind landed: the last
-  hold-out was `openmm81`, whose `bin/python*` symlinks formed a cycle after a
-  server upgrade, so the panel reported it as `missing` although the directory
-  was complete.
-- Second routes: of the **448** operators that only had one route, 112 have a
-  second one built from a different slice of the same classic data (337 cases
-  use a data variant, 44 change a numeric parameter). The batches run through
-  the same MCP-equivalent submission path.
+`alphafold2_predict` completes on the 2.7 TB database tree that ships on the
+server: five monomer_ptm models and the ranking step in 5,089 s with
+`db_preset=full_dbs` and `run_relax=false` (job `exec-d73b663b376340908e585153e3191e67`).
+That leaves **1073 of 1074 operators** with a completed route (99.9%); the one
+open item is `alphafold2_batch_predict`, which runs the same pipeline once per
+FASTA file and needs its own multi-hour window.
+
+The `alphafold2` resource declares nine maintenance units and, since
+`aa4c1f497`, the files each unit produces, so the resource panel shows
+per-component progress rather than `undeclared file list`.
