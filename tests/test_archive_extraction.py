@@ -53,3 +53,42 @@ def test_an_identical_tar_member_may_repeat(tmp_path):
     builders.extract_locked(archive, destination, format='tar', maximum=1024)
 
     assert (destination / 'pkg/data.txt').read_text() == 'one'
+
+
+def test_a_tar_link_replaces_a_regular_member_with_the_same_name(tmp_path):
+    """Conda packs ``libpython3.11.so`` both as a file and as a link."""
+    archive = tmp_path / 'closure.tar'
+    with tarfile.open(archive, 'w') as handle:
+        payload = b'first'
+        info = tarfile.TarInfo('lib/libpython3.11.so')
+        info.size = len(payload)
+        handle.addfile(info, io.BytesIO(payload))
+        link = tarfile.TarInfo('lib/libpython3.11.so')
+        link.type = tarfile.SYMTYPE
+        link.linkname = 'libpython3.11.so.1.0'
+        handle.addfile(link)
+
+    destination = tmp_path / 'tree'
+    builders.extract_locked(archive, destination, format='tar', maximum=1 << 20)
+
+    assert (destination / 'lib' / 'libpython3.11.so').is_symlink()
+    assert (destination / 'lib' / 'libpython3.11.so').readlink().as_posix() == 'libpython3.11.so.1.0'
+
+
+def test_a_tar_file_replaces_a_link_with_the_same_name(tmp_path):
+    archive = tmp_path / 'closure2.tar'
+    with tarfile.open(archive, 'w') as handle:
+        link = tarfile.TarInfo('lib/libpython3.11.so')
+        link.type = tarfile.SYMTYPE
+        link.linkname = 'libpython3.11.so.1.0'
+        handle.addfile(link)
+        payload = b'owned'
+        info = tarfile.TarInfo('lib/libpython3.11.so')
+        info.size = len(payload)
+        handle.addfile(info, io.BytesIO(payload))
+
+    destination = tmp_path / 'tree'
+    builders.extract_locked(archive, destination, format='tar', maximum=1 << 20)
+
+    assert not (destination / 'lib' / 'libpython3.11.so').is_symlink()
+    assert (destination / 'lib' / 'libpython3.11.so').read_bytes() == b'owned'

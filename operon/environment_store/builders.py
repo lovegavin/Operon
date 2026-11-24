@@ -119,6 +119,8 @@ def extract_locked(archive, destination, *, format, maximum, cancel=None):
         # No tar.extractall, devices, FIFOs or link traversal. Links are created
         # after regular files so a later member cannot write through a link.
         links = []
+        written = {}
+        position = 0
         with tarfile.open(archive, 'r:*') as source:
             for entry in source:
                 path, duplicate = member(entry.name, entry.size)
@@ -141,14 +143,25 @@ def extract_locked(archive, destination, *, format, maximum, cancel=None):
                     with source.extractfile(entry) as inp, path.open('wb' if duplicate else 'xb') as out:
                         shutil.copyfileobj(inp, out, 1024 * 1024)
                     path.chmod(entry.mode & 0o777)
+                    written[path] = position
                 elif entry.issym():
                     if Path(entry.linkname).is_absolute() or not (path.parent / entry.linkname).resolve().is_relative_to(destination.resolve()):
                         raise ContractError('Archive link escapes root', code='path_escape')
-                    links.append((path, entry.linkname))
+                    links.append((path, entry.linkname, position))
                 else:
                     raise ContractError('Archive contains unsupported special member', code='invalid_environment')
-        for path, target in links:
+                position += 1
+        # Tar semantics: the last member wins even when a regular file and a
+        # symlink share a name (Conda packs libpython3.11.so both ways). Links
+        # are still created after the regular files so no write can travel
+        # through one, but a link only lands when nothing later replaced it.
+        pending = sorted(links, key=lambda item: item[2])
+        for path, target, index in pending:
+            if written.get(path, -1) > index:
+                continue
             path.parent.mkdir(parents=True, exist_ok=True)
+            if path.exists() or path.is_symlink():
+                path.unlink()
             path.symlink_to(target)
     else:
         raise ContractError('Unknown archive format', code='invalid_environment')
