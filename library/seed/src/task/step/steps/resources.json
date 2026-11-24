@@ -384,7 +384,18 @@
           "kind": "weights",
           "bytes": 5587968000,
           "url": "https://storage.googleapis.com/alphafold/alphafold_params_2022-12-06.tar",
-          "files": [],
+          "files": [
+            "params_model_1.npz",
+            "params_model_1_ptm.npz",
+            "params_model_2.npz",
+            "params_model_2_ptm.npz",
+            "params_model_3.npz",
+            "params_model_3_ptm.npz",
+            "params_model_4.npz",
+            "params_model_4_ptm.npz",
+            "params_model_5.npz",
+            "params_model_5_ptm.npz"
+          ],
           "note": "official 2022-12-06 parameters"
         },
         {
@@ -394,7 +405,9 @@
           "kind": "database",
           "bytes": 32692271968,
           "url": "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/uniref/uniref90/uniref90.fasta.gz",
-          "files": [],
+          "files": [
+            "uniref90.fasta"
+          ],
           "note": "EBI mirror of UniRef90"
         },
         {
@@ -404,7 +417,14 @@
           "kind": "database",
           "bytes": 70555922504,
           "url": "https://wwwuser.gwdg.de/~compbiol/uniclust/2023_02/UniRef30_2023_02_hhsuite.tar.gz",
-          "files": [],
+          "files": [
+            "UniRef30_2023_02_a3m.ffdata",
+            "UniRef30_2023_02_a3m.ffindex",
+            "UniRef30_2023_02_cs219.ffdata",
+            "UniRef30_2023_02_cs219.ffindex",
+            "UniRef30_2023_02_hhm.ffdata",
+            "UniRef30_2023_02_hhm.ffindex"
+          ],
           "note": "UniRef30 2023_02 hhsuite bundle"
         },
         {
@@ -414,7 +434,12 @@
           "kind": "database",
           "bytes": 10331373891,
           "url": "https://storage.googleapis.com/alphafold-databases/reduced_dbs/bfd-first_non_consensus_sequences.fasta.gz",
-          "files": [],
+          "files": [
+            "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_a3m.ffdata",
+            "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_a3m.ffindex",
+            "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata",
+            "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffindex"
+          ],
           "note": "reduced_dbs BFD"
         },
         {
@@ -424,7 +449,9 @@
           "kind": "database",
           "bytes": 72741135623,
           "url": "https://ftp.ebi.ac.uk/pub/databases/metagenomics/peptide_database/2022_05/mgy_clusters.fa.gz",
-          "files": [],
+          "files": [
+            "mgy_clusters_2022_05.fa"
+          ],
           "note": "MGnify 2022_05 clusters"
         },
         {
@@ -434,7 +461,14 @@
           "kind": "database",
           "bytes": 28627472935,
           "url": "https://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/pdb70_from_mmcif_latest.tar.gz",
-          "files": [],
+          "files": [
+            "pdb70_a3m.ffdata",
+            "pdb70_a3m.ffindex",
+            "pdb70_cs219.ffdata",
+            "pdb70_cs219.ffindex",
+            "pdb70_hhm.ffdata",
+            "pdb70_hhm.ffindex"
+          ],
           "note": "PDB70 hhsuite database"
         },
         {
@@ -444,7 +478,9 @@
           "kind": "database",
           "bytes": 68464969,
           "url": "https://files.wwpdb.org/pub/pdb/derived_data/pdb_seqres.txt.gz",
-          "files": [],
+          "files": [
+            "pdb_seqres.txt"
+          ],
           "note": "PDB sequence residues"
         },
         {
@@ -454,7 +490,9 @@
           "kind": "database",
           "bytes": 93867502,
           "url": "https://ftp.ebi.ac.uk/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
-          "files": [],
+          "files": [
+            "uniprot.fasta"
+          ],
           "note": "Swiss-Prot from the EBI mirror"
         },
         {
