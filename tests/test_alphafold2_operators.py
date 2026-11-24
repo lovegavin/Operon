@@ -113,9 +113,37 @@ def _pdb(plddt: float) -> str:
     return head + f"{plddt:6.2f}" + "           C\nEND\n"
 
 
+#: The database flags a stock checkout requires, in the order the builder emits them.
+#: A full_dbs monomer run names five databases; a multimer run inserts the two
+#: sequence databases ahead of the hh-suite ones.
+FULL_DBS_NAMES = (
+    "uniref90_database_path",
+    "mgnify_database_path",
+    "pdb70_database_path",
+    "uniref30_database_path",
+    "bfd_database_path",
+)
+MULTIMER_FULL_DBS_NAMES = (
+    "uniref90_database_path",
+    "mgnify_database_path",
+    "pdb_seqres_database_path",
+    "uniprot_database_path",
+    "pdb70_database_path",
+    "uniref30_database_path",
+    "bfd_database_path",
+)
+FULL_DBS_FILES = {
+    "uniref90_database_path": "uniref90/uniref90.fasta",
+    "mgnify_database_path": "mgnify/mgy_clusters_2022_05.fa",
+    "pdb70_database_path": "pdb70/pdb70",
+    "uniref30_database_path": "uniref30/UniRef30_2021_03",
+    "bfd_database_path": "bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt",
+}
+
+
 @pytest.fixture()
 def checkout(tmp_path):
-    """A fake AlphaFold-2 checkout plus the uniref90 database the MSA step needs."""
+    """A fake AlphaFold-2 checkout plus the stock ``data_dir`` the operators need."""
 
     home = tmp_path / "checkout"
     home.mkdir()
@@ -123,6 +151,26 @@ def checkout(tmp_path):
     data = tmp_path / "data"
     (data / "uniref90").mkdir(parents=True)
     (data / "uniref90" / "uniref90.fasta").write_text(">query\nMKTAY\n", encoding="utf-8")
+    (data / "mgnify").mkdir()
+    (data / "mgnify" / "mgy_clusters_2022_05.fa").write_text(">query\nMKTAY\n", encoding="utf-8")
+    # AlphaFold receives a *prefix* for the hh-suite databases and appends
+    # ``_a3m``/``_cs219``/``_hhm`` itself, so the sidecar is the file to create.
+    for folder, prefix in (
+        ("pdb70", "pdb70"),
+        ("uniref30", "UniRef30_2021_03"),
+        ("bfd", "bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt"),
+    ):
+        (data / folder).mkdir()
+        (data / folder / f"{prefix}_a3m.ffdata").write_text("", encoding="utf-8")
+    for folder, name in (
+        ("small_bfd", "bfd-first_non_consensus_sequences.fasta"),
+        ("pdb_seqres", "pdb_seqres.txt"),
+        ("uniprot", "uniprot.fasta"),
+    ):
+        (data / folder).mkdir()
+        (data / folder / name).write_text(">query\nMKTAY\n", encoding="utf-8")
+    (data / "pdb_mmcif" / "mmcif_files").mkdir(parents=True)
+    (data / "pdb_mmcif" / "obsolete.dat").write_text("", encoding="utf-8")
     return {"home": home, "data": data}
 
 
@@ -157,7 +205,21 @@ def test_alphafold2_predict_returns_the_ranked_model(tmp_path, monkeypatch, chec
     assert arguments["data_dir"] == str(checkout["data"])
     assert arguments["model_preset"] == "monomer_ptm"
     assert arguments["max_template_date"] == "2022-01-01"
-    assert arguments["use_gpu"] == "false"
+    assert arguments["db_preset"] == "full_dbs"
+    assert arguments["run_relax"] == "false"
+    assert arguments["use_gpu_relax"] == "false"
+    assert arguments["template_mmcif_dir"] == str(
+        checkout["data"] / "pdb_mmcif" / "mmcif_files"
+    )
+    assert arguments["obsolete_pdbs_path"] == str(
+        checkout["data"] / "pdb_mmcif" / "obsolete.dat"
+    )
+    # a stock checkout derives nothing from --data_dir: every database is explicit
+    assert [name for name in arguments if name.endswith("_database_path")] == list(
+        FULL_DBS_NAMES
+    )
+    for name, relative in FULL_DBS_FILES.items():
+        assert Path(arguments[name]) == checkout["data"] / relative
 
     report = json.loads(Path(artifact.info["result_file"]).read_text(encoding="utf-8"))
     assert report["model_preset"] == "monomer_ptm"
@@ -192,7 +254,17 @@ def test_alphafold2_predict_forwards_non_default_models(tmp_path, monkeypatch, c
     arguments = json.loads((output / "arguments.json").read_text(encoding="utf-8"))
     assert arguments["model_preset"] == "multimer"
     assert arguments["max_template_date"] == "2020-05-14"
-    assert arguments["use_gpu"] == "true"
+    assert arguments["use_gpu_relax"] == "true"
+    # a multimer run adds the sequence databases a monomer run must not touch
+    assert [name for name in arguments if name.endswith("_database_path")] == list(
+        MULTIMER_FULL_DBS_NAMES
+    )
+    assert Path(arguments["pdb_seqres_database_path"]) == (
+        checkout["data"] / "pdb_seqres" / "pdb_seqres.txt"
+    )
+    assert Path(arguments["uniprot_database_path"]) == (
+        checkout["data"] / "uniprot" / "uniprot.fasta"
+    )
     report = json.loads(Path(artifact.info["result_file"]).read_text(encoding="utf-8"))
     assert report["max_template_date"] == "2020-05-14"
     assert report["use_gpu"] is True
@@ -380,16 +452,32 @@ def test_environment_metadata_lists_the_alphafold2_family():
     )
     card = environments["environments"]["alphafold2"]
     assert card["planned"] is False
-    assert card["requirements"] == ["numpy"]
-    assert card["imports"] == []
-    assert "afdb" in card["notes"]
+    # biopython stays pinned to the release AlphaFold-2 imports SCOPData from
+    assert "biopython==1.79" in card["requirements"]
+    assert any(requirement.startswith("numpy") for requirement in card["requirements"])
+    assert "Bio" in card["imports"]
+    assert "biopython" in card["notes"]
 
     resources = json.loads(
         (OPERATOR_DIR / "resources.json").read_text(encoding="utf-8")
     )
     record = next(item for item in resources["resources"] if item["id"] == "alphafold2")
     assert record["env"] == "OPERON_ALPHAFOLD_DATA"
-    assert len(record["units"]) == 1
-    assert len(record["units"][0]["files"]) == 18
+    units = {unit["name"]: unit for unit in record["units"]}
+    assert {
+        "params",
+        "uniref90",
+        "uniref30",
+        "bfd",
+        "mgnify",
+        "pdb70",
+        "pdb_seqres",
+        "uniprot",
+        "pdb_mmcif",
+    } <= set(units)
+    declared = {
+        str(name) for unit in record["units"] for name in (unit.get("files") or [])
+    }
     resource = common.load_resources(OPERATOR_DIR / "resources.json")["alphafold2"]
-    assert len(common.expected_files(resource)) == 18
+    assert resource.env == "OPERON_ALPHAFOLD_DATA"
+    assert set(common.expected_files(resource)) == declared
