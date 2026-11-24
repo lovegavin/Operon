@@ -151,3 +151,31 @@ def test_declared_resources_gate_only_touches_a_ready_environment():
     assert remote_server.declared_resources_gate(9, 9, 'ready') is False
     assert remote_server.declared_resources_gate(0, 9, 'installing') is False
     assert remote_server.declared_resources_gate(0, 0, 'ready') is False
+
+
+def test_snapshot_clears_a_stale_resource_reason(monkeypatch):
+    """A ready environment keeps no reason from an earlier, incomplete snapshot."""
+    monkeypatch.setattr(remote_server, '_environment_plan', lambda service: (
+        '/root', '/source',
+        {'alphafold2': {'status': 'ready',
+                        'error': '资源未齐备（8/9）：pdb_mmcif',
+                        'location': '/tmp/af2'}},
+    ))
+    from operon import environment_install as environment_install_module
+    from operon import environments as environments_module
+
+    monkeypatch.setattr(environment_install_module, 'dependency_status',
+                        lambda entry, location: (1, 1, [{'kind': 'requirements', 'name': 'numpy', 'installed': True}]))
+    monkeypatch.setattr(environments_module, 'load', lambda: {
+        'alphafold2': {'resources': ['alphafold2']},
+    })
+    monkeypatch.setattr(remote_server, '_resource_catalogue', lambda service: {
+        'alphafold2': {'official_root': 'afdb', 'state': 'present',
+                       'units': [{'name': 'afdb', 'files': [{'path': 'a', 'present': True}]}]},
+    })
+
+    snapshot = remote_server.environment_snapshot(object())
+    item = snapshot['environments']['alphafold2']
+    assert item['resources_ready'] == item['resources_total'] == 1
+    assert item['error'] == ''
+    assert item['status'] == 'ready'

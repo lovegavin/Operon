@@ -66,3 +66,24 @@ def test_an_old_library_reports_that_it_cannot_link_a_single_unit(monkeypatch):
     monkeypatch.setattr(resource_api, '_link_roots', lambda common: ['/data'])
     with pytest.raises(resource_api.LinkUnsupported):
         resource_api.link(SimpleNamespace(), 'esm2', '/data/esm2', unit='a.pt')
+
+
+def test_component_presence_follows_the_prefixed_unit_verdict():
+    """A unit publishes ``<unit.path>/<file>``; the component lists leaves."""
+    units = [{
+        'name': 'pdb_mmcif',
+        'files_present': ['pdb_mmcif/mmcif_files', 'pdb_mmcif/obsolete.dat'],
+        'files_missing': [],
+        'state': 'present',
+        'downloadable': ['mmcif_files', 'obsolete.dat'],
+    }]
+    components = [{
+        'name': 'pdb_mmcif',
+        'files': [{'name': 'mmcif_files', 'present': False},
+                  {'name': 'obsolete.dat', 'present': True}],
+    }]
+
+    resource_api._mirror_components(components, units)
+
+    assert [entry['present'] for entry in components[0]['files']] == [True, True]
+    assert resource_api.card_ready(components[0]) is True

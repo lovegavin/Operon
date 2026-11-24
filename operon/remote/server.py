@@ -262,6 +262,9 @@ def environment_snapshot(service) -> dict:
             item['resources_declared_total'] = own_total
             if declared_resources_gate(own_ready, own_total, item.get('status')):
                 item['status'] = 'incomplete'
+        elif str(item.get('error') or '').startswith('资源未齐备'):
+            # The units arrived; drop the reason an earlier snapshot left behind.
+            item['error'] = ''
     with _ENVIRONMENT_LOCK:
         running = {name: dict(value) for name, value in _ENVIRONMENT_JOBS.items()}
     return {'root': str(root), 'source': str(source), 'environments': plan, 'running': running}

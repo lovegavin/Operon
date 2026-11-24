@@ -469,7 +469,11 @@ def _mirror_components(components, units, rsync=None, downloads=None) -> None:
         missing = [str(name) for name in unit.get('files_missing') or ()]
         present = {str(name) for name in unit.get('files_present') or ()}
         component['missing'] = missing
-        missing_names = set(missing)
+        # A unit publishes ``<unit.path>/<file>`` once its directory is kept,
+        # while the component lists bare file names; compare leaves so the two
+        # views cannot disagree about one directory.
+        missing_names = {name.rsplit('/', 1)[-1] for name in missing}
+        present_names = {name.rsplit('/', 1)[-1] for name in present}
         files = []
         for entry in component.get('files') or ():
             if not isinstance(entry, dict):
@@ -477,9 +481,10 @@ def _mirror_components(components, units, rsync=None, downloads=None) -> None:
                 continue
             copy = dict(entry)
             relative = str(copy.get('name') or copy.get('path') or '')
-            if relative in missing_names:
+            leaf = relative.rsplit('/', 1)[-1]
+            if leaf in missing_names:
                 copy['present'] = False
-            elif relative in present:
+            elif leaf in present_names:
                 copy['present'] = True
             files.append(copy)
         component['files'] = files
