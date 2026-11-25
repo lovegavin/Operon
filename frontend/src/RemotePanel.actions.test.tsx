@@ -19,7 +19,7 @@ vi.mock('react', async importOriginal => {
 });
 vi.mock('./api', async importOriginal => {
   const actual = await importOriginal<typeof import('./api')>();
-  return {...actual, api: {saveRemote: vi.fn(), connectRemote: vi.fn(), installRemote: vi.fn(), refreshRemote: vi.fn(), trustRemote: vi.fn()}};
+  return {...actual, api: {saveRemote: vi.fn(), connectRemote: vi.fn(), installRemote: vi.fn(), refreshRemote: vi.fn(), trustRemote: vi.fn(), remoteSetup: vi.fn()}};
 });
 
 type Element = {type: unknown; props: Record<string, unknown>};
@@ -63,7 +63,8 @@ beforeEach(() => {
   servers = [{profile: {...profile}, connected: false}];
   vi.mocked(api.saveRemote).mockImplementation(async value => ({...value, id: profile.id}));
   vi.mocked(api.connectRemote).mockResolvedValue(info);
-  vi.mocked(api.installRemote).mockResolvedValue(info);
+  vi.mocked(api.installRemote).mockResolvedValue({status: 'running', started: true});
+  vi.mocked(api.remoteSetup).mockResolvedValue({running: false, lines: [], error: ''});
   vi.mocked(api.refreshRemote).mockResolvedValue(info);
   vi.mocked(api.trustRemote).mockResolvedValue({});
 });

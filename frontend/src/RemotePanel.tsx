@@ -67,7 +67,21 @@ export function RemotePanel({servers, active, onUpdate, onSelect, onClose, embed
       saved = trusted ? profile : await api.saveRemote(profile);
       setProfile(saved);
       if (trusted) await api.trustRemote(trusted.id, trusted.fingerprint);
-      await (action === 'install' ? api.installRemote(saved.id!, {password, passphrase}, force) : api.connectRemote(saved.id!, {password, passphrase}));
+      if (action === 'install') {
+        await api.installRemote(saved.id!, {password, passphrase}, force);
+        for (;;) {
+          const state = await api.remoteSetup(saved.id!);
+          setSetup(state.lines);
+          if (state.error) {
+            throw new ApiError(state.error, undefined, undefined, state.code || 'install_failed',
+                               state.fingerprint ? {fingerprint: state.fingerprint, changed: !!state.changed} : undefined);
+          }
+          if (!state.running) break;
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        }
+      } else {
+        await api.connectRemote(saved.id!, {password, passphrase});
+      }
       setPassword(''); setPassphrase(''); setTrust(null);
       await onUpdate(); onSelect(saved.id!);
     } catch (e) {

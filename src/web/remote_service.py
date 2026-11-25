@@ -68,6 +68,7 @@ class RemoteManager:
         self.connections, self.credentials, self.pending_keys = {}, {}, {}
         self.connecting, self.progress = {}, {}
         self.library_operations = {}
+        self.installing = {}
         self.pools = {}
         self.lock = threading.RLock()
         self._build = None
@@ -304,6 +305,54 @@ class RemoteManager:
                 raise RemoteError('服务端维护仍在进行，可稍后刷新查看结果。', code='registry_refresh_pending')
             time.sleep(.5)
             info = connection.call('refresh_status')
+
+    def start_install(self, key, credentials, *, force=False):
+        """Start a managed install/upgrade and return before it finishes.
+
+        Installing or upgrading the server takes minutes.  Holding an HTTP
+        request open for it makes clients (the desktop window and MCP alike)
+        abort the fetch and report a failure while the upgrade is still
+        running, so the call only starts a worker and progress is polled from
+        ``setup_status`` like the library operations.
+        """
+        with self.lock:
+            self.profile(key)
+            thread = self.installing.get(key)
+            if thread is not None and thread.is_alive():
+                return {'status': 'running', 'started': False}
+            stale = self.connecting.pop(key, None)
+            if stale is not None:
+                stale.set()
+            self.progress[key] = {'running': True,
+                                  'lines': ['正在开始安装 / 升级服务端'],
+                                  'error': '', 'code': ''}
+            thread = threading.Thread(target=self._install_worker,
+                                      args=(key, deepcopy(credentials or {}), bool(force)),
+                                      name=f'remote-install-{key[:8]}', daemon=True)
+            self.installing[key] = thread
+            thread.start()
+        return {'status': 'running', 'started': True}
+
+    def _install_worker(self, key, credentials, force):
+        try:
+            self.connect(key, credentials, install=True, force=force)
+        except HostKeyRequired as exc:
+            with self.lock:
+                state = self.progress.setdefault(key, {'lines': []})
+                state.update({'running': False, 'code': 'host_key_required',
+                              'fingerprint': exc.key.get('fingerprint', ''),
+                              'changed': bool(exc.changed),
+                              'error': '需要先核对主机指纹再升级。'})
+                self.pending_keys[key] = exc.key
+        except Exception as exc:
+            with self.lock:
+                state = self.progress.setdefault(key, {'lines': []})
+                state.update({'running': False, 'code': str(getattr(exc, 'code', '') or
+                                                            'install_failed'),
+                              'error': getattr(exc, 'message', None) or str(exc)})
+        finally:
+            with self.lock:
+                self.installing.pop(key, None)
 
     def setup_status(self, key):
         with self.lock:

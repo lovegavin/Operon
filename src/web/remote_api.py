@@ -41,8 +41,8 @@ def mount_remote(app, service):
         force = payload.get('force', False)
         if not isinstance(force, bool):
             raise RemoteError('force must be boolean')
-        return manager.connect(key, {k: str(payload[k]) for k in ('password', 'passphrase') if payload.get(k)},
-                               install=True, force=force)
+        credentials = {k: str(payload[k]) for k in ('password', 'passphrase') if payload.get(k)}
+        return manager.start_install(key, credentials, force=force)
 
     @app.post('/api/remote/{key}/refresh')
     def refresh(key: str, payload: dict | None = None):

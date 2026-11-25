@@ -34,3 +34,12 @@ rebuild.
 Operator library 2.1.1 carries the declaration. App 5.10.1 ships it in the
 bundled seed, so a managed server installed from the application build applies
 the same patch.
+### Server installs report progress instead of blocking
+
+The install / upgrade request now starts a background worker and returns at once;
+the desktop panel streams `/api/remote/{id}/setup` while the upgrade runs, so a
+long SSH install can no longer abort the window's fetch or leave the log empty.
+Host-key prompts still reach the panel (fingerprint carried by the setup status),
+and MCP `operon_remote_install` + `operon_remote_install_status` follow the same
+contract they already documented.
+

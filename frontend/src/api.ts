@@ -257,7 +257,7 @@ export const api = {
   remoteStatus: () => request<import('./types').RemoteStatus[]>('/api/remote'),
   saveRemote: (profile: import('./types').RemoteProfile) => request<import('./types').RemoteProfile>('/api/remote/profiles', profile),
   connectRemote: (id: string, credentials: {password?: string; passphrase?: string}) => request<import('./types').RemoteInfo>(`/api/remote/${id}/connect`, credentials),
-  installRemote: (id: string, credentials: {password?: string; passphrase?: string}, force = false) => request<import('./types').RemoteInfo>(`/api/remote/${id}/install`, {...credentials, force}),
+  installRemote: (id: string, credentials: {password?: string; passphrase?: string}, force = false) => request<{status: string; started?: boolean}>(`/api/remote/${id}/install`, {...credentials, force}),
   refreshRemote: (id: string) => request<import('./types').RemoteInfo>(`/api/remote/${id}/refresh`, {}),
   checkRemoteLibrary: (id: string) => request<import('./types').RemoteLibraryCheck>(`/api/remote/${id}/library/check`, {}),
   installRemoteLibrary: (id: string, payload: {packages: string[]; local_revision: string; remote_revision: string}) =>
@@ -265,7 +265,7 @@ export const api = {
   remoteLibraryStatus: (id: string) => request<import('./types').RemoteLibraryOperation>(`/api/remote/${id}/library/status`),
   remoteLibraryPlan: (id: string) => request<import('./types').RemoteLibraryPlan>(`/api/remote/${id}/library/plan`),
   syncRemoteLibrary: (id: string) => request<import('./types').RemoteLibraryOperation>(`/api/remote/${id}/library/sync`, {}),
-  remoteSetup: (id: string) => request<{running: boolean; lines: string[]; error: string}>(`/api/remote/${id}/setup`),
+  remoteSetup: (id: string) => request<{running: boolean; lines: string[]; error: string; code?: string; fingerprint?: string; changed?: boolean}>(`/api/remote/${id}/setup`),
   trustRemote: (id: string, fingerprint: string) => request(`/api/remote/${id}/trust`, {fingerprint}),
   disconnectRemote: (id: string) => request(`/api/remote/${id}/disconnect`, {}),
   removeRemote: (id: string) => request(`/api/remote/${id}/remove`, {}),
