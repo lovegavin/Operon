@@ -148,6 +148,35 @@ def test_latest_producer_only_and_report_fallback(ctx):
     assert native_results(ctx, 'designs') == []
 
 
+def test_multi_output_producer_attributes_by_role(ctx):
+    pdb = ctx.artifact_path('pred/model.pdb')
+    pdb.write_text('END\n')
+    scores = ctx.artifact_path('pred/scores.json')
+    scores.write_text('{}')
+    report = ctx.out_dir / 'colabfold.json'
+    report.write_text(json.dumps({'result_files': [
+        {'id': 'structure', 'path': str(pdb), 'format': 'pdb'},
+        {'id': 'scores', 'path': str(scores), 'format': 'json'}]}), encoding='utf-8')
+    ctx.artifacts['exports'] = [{'index': 1, 'elapsed': 0, 'name': 'colabfold_predict',
+                                'params': {'output': 'structure'}, 'export_path': 'colabfold.json'}]
+    saved = export(ctx, matrix(), format='pdb', _input_names=['structure'])
+    assert list(saved.files.values()) == [str(pdb)]
+    attributed = native_results(ctx, 'structure')
+    assert [item['id'] for item in attributed] == ['structure']
+
+
+def test_single_role_report_is_still_attributable(ctx):
+    pdb = ctx.artifact_path('converted/model.pdb')
+    pdb.write_text('END\n')
+    report = ctx.out_dir / 'convert.json'
+    report.write_text(json.dumps({'result_files': [
+        {'id': 'structure', 'path': str(pdb), 'format': 'pdb'}]}), encoding='utf-8')
+    ctx.artifacts['exports'] = [{'index': 1, 'elapsed': 0, 'name': 'structure_convert_format',
+                                'params': {'output': 'converted'}, 'export_path': 'convert.json'}]
+    saved = export(ctx, matrix(), format='pdb', _input_names=['converted'])
+    assert list(saved.files.values()) == [str(pdb)]
+
+
 def test_reject_external_producer_reference(ctx, tmp_path):
     external = tmp_path / 'outside.pdb'
     external.write_text('END')

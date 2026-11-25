@@ -264,7 +264,6 @@ class VinaDockStep(Step):
     }
 
     def run(self, ctx, inputs) -> None:
-        del inputs
         params = dict(ctx.step_params)
         if inputs:
             params['receptor_path'] = _port_inputs.file(inputs[0], params.get('receptor_path'), self.name, roles=('receptor',))

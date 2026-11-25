@@ -45,8 +45,6 @@ def native_results(ctx, input_name):
             names.append(entry.get('params', {}).get(cls.output_parameter, cls.name))
         if input_name not in names:
             continue
-        if len(set(names)) != 1:
-            return []  # A multi-output report cannot attribute files to one port.
         cache = ctx.artifacts.get('native_results', {}).get(input_name, {})
         if cache.get('index') == entry['index']:
             return cache['files']
@@ -56,7 +54,13 @@ def native_results(ctx, input_name):
             raise StepError('export_results: producer report escapes the task output')
         with io_path(path).open(encoding='utf-8') as stream:
             report = json.load(stream)
-        return report.get('result_files', []) if isinstance(report, dict) else []
+        files = report.get('result_files', []) if isinstance(report, dict) else []
+        # A producer may publish several ports in one report; attribute by role first,
+        # then let the caller pick by requested format (auto keeps every file).
+        roles = {str(item.get('id')) for item in files if isinstance(item, dict)}
+        if input_name in roles:
+            return [item for item in files if isinstance(item, dict) and str(item.get('id')) == input_name]
+        return files
     return []
 
 

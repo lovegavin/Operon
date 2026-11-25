@@ -161,7 +161,6 @@ class RfdiffusionDesignStep(Step):
     }
 
     def run(self, ctx, inputs) -> None:
-        del inputs
         params = dict(ctx.step_params)
         if inputs:
             params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
