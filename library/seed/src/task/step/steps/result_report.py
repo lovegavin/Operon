@@ -32,9 +32,7 @@ class ResultReportStep(Step):
             'inputs': [{'logical_type': 'form',
                         'representations': ['form', 'file_artifact'],
                         'metadata': {}}],
-            'outputs': [{'logical_type': 'file_artifact',
-                         'representations': ['file_artifact'],
-                         'metadata': {}}],
+            'outputs': [],
         },
         'protocol_version': 3,
         'id': 'result_report',
@@ -47,14 +45,12 @@ class ResultReportStep(Step):
         'contracts': {'version': 1,
                       'inputs': [{'version': 1, 'numeric': True, 'info': {},
                                   'dims': [], 'labels': [], 'parallel': []}],
-                      'output': {'mode': 'declare',
-                                 'schema': {'kind': 'file', 'numeric': False, 'ndim': 0,
-                                            'info': {}}}},
+                      'output': {'mode': 'report'}},
         'resources': {'memory_modes': ['full'], 'supports_cuda': False,
                       'estimate': 'estimate_memory'},
         'inputs_arity': 1,
-        'outputs': ['output'],
-        'output_parameter': 'output',
+        'outputs': [],
+        'output_parameter': None,
     }
 
     def _summary(self, form: Form) -> list[list[str]]:
@@ -82,7 +78,6 @@ class ResultReportStep(Step):
         if extension is None:
             raise StepError(f"result_report: unsupported format '{fmt}' (use csv, json or markdown)")
         title = str(params.get('title') or 'result report')
-        out_name = str(params.get('output') or 'output')
 
         directory = output_directory(ctx, 'report')
         destination = Path(io_path(directory / f'report.{extension}'))
@@ -119,8 +114,6 @@ class ResultReportStep(Step):
             raise StepError('result_report: input must be a Form or a file artifact')
 
         files = [result_file('report', destination, extension, title)]
-        remember_native(ctx, out_name, files)
-        ctx[out_name] = FileArtifact(extension, {'report': str(destination)},
-                                     {'representation': extension, 'title': title})
+        remember_native(ctx, 'report', files)
         self._result_files = files
         self._report = report

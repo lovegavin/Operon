@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from src.core import Form
 from src.task.step.steps.result_report import ResultReportStep
 
 
@@ -16,13 +17,13 @@ class _Stub:
         self.data = np.arange(12, dtype=float).reshape(4, 3)
 
 
-def test_definition_declares_a_file_output() -> None:
+def test_definition_is_a_terminal_report_step() -> None:
     definition = ResultReportStep.definition
     assert definition["id"] == "result_report"
-    assert definition["outputs"] == ["output"]
-    assert definition["output_parameter"] == "output"
-    assert definition["contracts"]["output"]["mode"] == "declare"
-    assert definition["contracts"]["output"]["schema"]["kind"] == "file"
+    assert definition["outputs"] == []
+    assert definition["output_parameter"] is None
+    assert definition["data_formats"]["outputs"] == []
+    assert definition["contracts"]["output"] == {"mode": "report"}
 
 
 def test_summary_reports_shape_dims_and_labels() -> None:
@@ -34,3 +35,34 @@ def test_summary_reports_shape_dims_and_labels() -> None:
     assert table["labels[feature]"] == "3 entries"
     assert table["info[source]"] == "unit-test"
     assert "preview" in table
+
+
+def test_run_registers_a_native_report_without_an_output_port(tmp_path) -> None:
+    class _Ctx:
+        def __init__(self) -> None:
+            self.step_params = {"format": "csv"}
+            self.task_dir = tmp_path
+            self.artifacts: dict = {}
+
+        def __setitem__(self, key, value) -> None:
+            raise AssertionError(f"terminal step must not register output {key!r}")
+
+    form = Form(
+        data=np.arange(12, dtype=float).reshape(4, 3),
+        dims=["sample", "feature"],
+        labels={"feature": {"a": 0, "b": 1, "c": 2}},
+        info={"source": "unit-test"},
+    )
+    step = ResultReportStep.__new__(ResultReportStep)
+    ctx = _Ctx()
+    step.run(ctx, [form])
+
+    native = ctx.artifacts["native_results"]["report"]
+    assert len(native["files"]) == 1
+    assert native["files"][0]["format"] == "csv"
+    assert step._result_files == native["files"]
+    report = tmp_path / "artifacts" / "report"
+    written = list(report.glob("*/report.csv"))
+    assert len(written) == 1
+    text = written[0].read_text(encoding="utf-8")
+    assert "shape,4x3" in text
