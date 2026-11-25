@@ -36,7 +36,7 @@ fall into four groups.
 | Part | Value |
 | --- | --- |
 | Application | Operon Studio 5.7.23, Windows x64 payload |
-| Local instance | `D:\ot55\stage0v55fy`, HTTP on port 5866 |
+| Local instance | `<workdir>\stage0v55fy`, HTTP on port 5866 |
 | Remote host | `licai-srv` (172.22.148.93), CentOS 7 class, glibc 2.17, g++ 4.8.5 |
 | Remote root | `/public/home/lihj/Operon` (`managed_root`) |
 | Remote code | `managed-v1/code-574b071221c1c3ef7e81` |
@@ -103,7 +103,7 @@ into these groups.
   columns, a GWAS table without coordinates cannot be placed, a BED file whose
   chromosome column is numeric carries no encoder, a table whose `sample` axis
   has 20 positions cannot be normalised as if it had more. These are recorded as
-  data preconditions in `D:\ot55\p6\EXPERIMENTS.md`.
+  data preconditions in `<workdir>\p6\EXPERIMENTS.md`.
 - **Reader-to-operator contract gap.** `FastaFileReader` produces a
   `file_artifact` and form-typed operators refuse it with
   `Logical type file_artifact cannot feed form; insert an explicit scientific

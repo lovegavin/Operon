@@ -27,7 +27,7 @@ Artifact sizes are listed below; the SHA-256 digests of the same files are in
 
 | Step | Result |
 | --- | --- |
-| Installer | exit 0, 20.2 s (`D:\ot55\stage0v55fe`) |
+| Installer | exit 0, 20.2 s (`<workdir>\stage0v55fe`) |
 | Version | `5.7.20 (41a0fc79)` |
 | Library | `main-v1.1.13` (1,074 operators, 1,182 descriptors, 7 packages, 108 readers) |
 | Environments | 18, alphafold2 `resources_total 1 / ready 0` |

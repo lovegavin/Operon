@@ -23,13 +23,13 @@
 
 - Catalog: **1074 operators**, 108 readers, 79 routes; `registry build --scope routes`
   reports 0 errors.
-- Coverage counted from every recorded run (`D:\ot55\p6\runs\*.csv`, 966 distinct
+- Coverage counted from every recorded run (`<workdir>\p6\runs\*.csv`, 966 distinct
   cases, 950 attempted): **592 operators have completed at least once (55.1 %)**.
 - Families closed tonight with real fixtures: distance/group operators (46/46),
   2×2 table families (19/19), sequence families including codon, peptide, assembly,
   MSA, phylogeny, HMMER, foldseek and GO (29/29 → 25 operators).
-- Remaining non-completions are classified in `D:\ot55\p6\DEFECTS.md` and
-  `D:\ot55\p6\CLASSIFY.md`: fixture semantics first, then environment/tool gaps,
+- Remaining non-completions are classified in `<workdir>\p6\DEFECTS.md` and
+  `<workdir>\p6\CLASSIFY.md`: fixture semantics first, then environment/tool gaps,
   then a small number of product findings.
 
 ## Known gaps (recorded, not silently dropped)

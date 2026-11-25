@@ -2,7 +2,7 @@
 
 Release `5.8.0` ships with operator library `main-v1.2.0`. Everything below was
 measured on the acceptance pair: the desktop application installed under
-`D:\Operon test` (served on <http://127.0.0.1:5882>) and the managed server
+`<install dir>` (served on <http://127.0.0.1:5882>) and the managed server
 `licai-srv-test` (`172.22.149.42`, deployment root
 `/public/home/lihj/Operon test`, 56 CPUs, RTX 3090 24 GB).
 
@@ -13,7 +13,7 @@ during the acceptance and was upgraded to the release build afterwards.
 
 ## Operator coverage — 1074 of 1074
 
-Coverage is counted from every recorded run in `D:\ot55\p6\runs\*.csv`, keeping
+Coverage is counted from every recorded run in `<workdir>\p6\runs\*.csv`, keeping
 only names that exist in the shipped catalog (`catalog_names.txt`, 1074
 operators). 9,450 runs were recorded; 1,074 distinct operators were attempted
 and 1,074 reached `complete` at least once.

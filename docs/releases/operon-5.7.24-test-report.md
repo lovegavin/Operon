@@ -5,7 +5,7 @@ freshly installed Windows instance driving a cleared Linux server (`licai-srv`).
 
 ## Environment
 
-- Fresh install: `D:\OperonAccept`, Windows 11, port 5880, Edge attached over
+- Fresh install: `<install dir>`, Windows 11, port 5880, Edge attached over
   CDP 9421 for every UI step (text-only inspection, no screenshots).
 - Build: `source_commit 8536fe1cda570e68d9acb42ef564874edf8a9164`, library
   `main-v1.1.15` (7 packages, 1182 descriptors, 1074 operators, 79 routes),

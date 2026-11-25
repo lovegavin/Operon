@@ -29,5 +29,5 @@ the CLI, HTTP and MCP submission paths work. Library stays at `1.1.22`.
 - `hmmer_domains` needs a user-supplied pressed `Pfam-A.hmm` (documented in
   `docs/large_resources.md`); `esm_pseudo_likelihood` wants an explicit
   `model_path`.
-- Defect ledger (`D:\ot55\p6\DEFECTS.md`) before this fix: 757 operators
+- Defect ledger (`<workdir>\p6\DEFECTS.md`) before this fix: 757 operators
   attempted, 385 complete, 372 failing, split by cause.
