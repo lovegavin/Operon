@@ -279,6 +279,12 @@ export type ExecutionPlan = {mode: 'manual' | 'auto';
 export type ExecutionResources = {targets: {target: TargetRef; name: string; capacity_bytes: number;
   reserved_bytes: number; available_bytes: number; active_jobs: number; queued_jobs: number;
   cpu_capacity: number; cpu_reserved: number}[]};
+export type NodeSlurmNode = {name: string; partition: string; available: boolean; state: string;
+  cpus: number; memory_mb: number; gres: string};
+export type NodeCapacity = {target: string; kind: 'local' | 'ssh'; name: string; host: string; platform: string;
+  connected: boolean; available: boolean; error?: string; cpu_count: number; load: number | null;
+  memory: {total_bytes: number; available_bytes: number}; disk: {total_bytes: number; free_bytes: number};
+  gpus: number; score: number; slurm: {available: boolean; nodes: NodeSlurmNode[]; idle: number}};
 export type BrowseRemote = (current: string, onSelected: (path: string, source?: DataSource, location?: TargetRef) => void, source?: boolean, target?: TargetRef, reader?: string) => void;
 
 export type LargeResourceDownload = {url: string; name?: string; dest?: string; size?: number; sha256?: string};

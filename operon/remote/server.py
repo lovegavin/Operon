@@ -737,6 +737,9 @@ class RemoteService:
             return {**inventory(self.service.plugins.state()),
                     'build': deepcopy(self.handshake.build),
                     'build_id': self.handshake.build.get('build_id', '')}
+        if method == 'host_capacity':
+            from operon import nodes
+            return nodes.snapshot(self.workspace)
         if method == 'build_info':
             from copy import deepcopy
             return {'build': deepcopy(self.handshake.build),

@@ -72,6 +72,8 @@ def create_app(settings=None):
     mount_preferences(app, service)
     from .remote_api import mount_remote
     remote_events, remote_console = mount_remote(app, service)
+    from .nodes_api import mount_nodes
+    mount_nodes(app, service)
     executions = application.executions
     app.state.executions = service.executions = executions
     from .execution_api import mount_execution, ACTIVE_STATUSES

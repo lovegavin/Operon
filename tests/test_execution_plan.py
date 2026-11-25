@@ -552,5 +552,8 @@ def test_broken_unrelated_host_does_not_block_explicit_target():
     automatic = Graph.model_validate({'nodes': [], 'edges': [],
                                       'runtime': {'execution': {'mode': 'auto'}}})
     result = ExecutionService.infos(engine, graph=automatic)
-    assert calls == ['good', 'good', 'bad']
+    # Automatic placement probes each node's host_capacity after the pin
+    # checks, so both validated hosts gain one extra call each.
+    assert calls[:3] == ['good', 'good', 'bad']
+    assert set(calls[3:]) == {'good', 'bad'}
     assert any(item.get('pin_validation_error') for item in result)

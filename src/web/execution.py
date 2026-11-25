@@ -217,6 +217,18 @@ class ExecutionService:
                         {'operator': '*', 'reason': 'pin_validation_unavailable',
                          'error': f'{type(exc).__name__}: {exc}'}]}
                     info['pin_validation_error'] = f'{type(exc).__name__}: {exc}'
+        if graph is not None and len(result) > 1:
+            try:
+                from operon import nodes as host_inventory
+                if settings(graph).get('mode') == 'auto':
+                    # Automatic placement prefers the node with the most free
+                    # capacity; its own pool still allocates inside that domain.
+                    capacity = {item['target']: item for item in host_inventory.inventory(self.service)}
+                    result.sort(key=lambda info: (
+                        not capacity.get(target_key(info['target']), {}).get('available', True),
+                        -float(capacity.get(target_key(info['target']), {}).get('score') or 0.0)))
+            except Exception:  # noqa: BLE001 - placement survives an unreachable probe
+                pass
         return result
 
     def catalog(self, graph):

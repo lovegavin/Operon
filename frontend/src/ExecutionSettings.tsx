@@ -7,7 +7,7 @@ import {ReadinessChecks} from './ReadinessChecks';
 import {ResourceSummary} from './ResourceSummary';
 import {bytes} from './graph';
 import {defaultTarget, executionConfig, targetFromKey, targetKey, targetLabel} from './execution';
-import type {ExecutionConfig, ExecutionPlan, Graph, RemoteStatus, TargetRef} from './types';
+import type {ExecutionConfig, ExecutionPlan, Graph, NodeCapacity, RemoteStatus, TargetRef} from './types';
 
 export function EnvironmentMenu({graph, nodeId, servers, onSelect}: {
   graph: Graph; nodeId: string; servers: RemoteStatus[]; onSelect: (target?: TargetRef) => void;
@@ -37,6 +37,14 @@ export function ExecutionSettings({graph, servers, disabled, onChange, preflight
   const config = executionConfig(graph);
   const [preview, setPreview] = useState<{signature: string; plan: ExecutionPlan} | null>(null);
   const [loading, setLoading] = useState(false), [error, setError] = useState('');
+  const [capacity, setCapacity] = useState<NodeCapacity[] | null>(null);
+  const [capacityError, setCapacityError] = useState(''), [capacityLoading, setCapacityLoading] = useState(false);
+  async function loadCapacity() {
+    setCapacityLoading(true); setCapacityError('');
+    try {setCapacity(await api.nodes(true));}
+    catch (value) {setCapacityError((value as Error).message);}
+    finally {setCapacityLoading(false);}
+  }
   const signature = JSON.stringify(graph);
   const plan = preview?.signature === signature ? preview.plan : undefined;
   async function inspect() {
@@ -53,6 +61,22 @@ export function ExecutionSettings({graph, servers, disabled, onChange, preflight
       <button aria-pressed={config.mode === 'manual'} disabled={disabled} className={config.mode === 'manual' ? 'active' : ''}
         onClick={() => onChange({mode: 'manual'})}>{t("手动")}</button>
     </div>
+    {config.mode === 'auto' && <div className="node-capacity">
+      <div className="node-capacity-head"><span>{t("按空闲容量自动分配")}</span>
+        <button type="button" className="subtle-button" disabled={disabled || capacityLoading}
+          onClick={() => void loadCapacity()}>{capacityLoading ? t("读取中…") : t("查看节点容量")}</button>
+      </div>
+      {capacityError && <p className="field-error" role="alert">{capacityError}</p>}
+      {capacity && capacity.length > 0 && <ol className="node-capacity-list">
+        {[...capacity].sort((a, b) => b.score - a.score).map(node => <li key={node.target}
+          className={node.available ? '' : 'unavailable'}>
+          <div><strong>{node.name}</strong><small>{node.available ? t("可用") : (node.error || t("不可用"))}</small></div>
+          <div><span>{node.cpu_count} {t("核")}</span><span>{t("内存")} {bytes(node.memory.available_bytes)}</span>
+            <span>{t("磁盘")} {bytes(node.disk.free_bytes)}</span>{node.gpus > 0 && <span>{node.gpus} GPU</span>}
+            <span className="node-score">{node.score.toFixed(2)}</span></div>
+        </li>)}
+      </ol>}
+    </div>}
     <label className="field"><span>{config.mode === 'auto' ? t("优先环境") : t("默认环境")}</span>
       <select aria-label={t("默认运行环境")} value={targetKey(defaultTarget(graph))} disabled={disabled}
         onChange={e => onChange({...targetFromKey(e.target.value), profile_id: e.target.value || undefined})}>

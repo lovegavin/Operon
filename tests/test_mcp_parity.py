@@ -22,7 +22,7 @@ SERVER_SOURCE = ROOT / 'operon' / 'mcp_server.py'
 
 # api.ts exported the surface as one object literal; keep this pinned so a silent parser
 # drift cannot shrink the audit.
-EXPECTED_API_METHODS = 109
+EXPECTED_API_METHODS = 110
 
 # method -> (MCP tool, route tokens the tool must still call)
 PARITY: dict[str, tuple[str, tuple[str, ...]]] = {
@@ -64,6 +64,7 @@ PARITY: dict[str, tuple[str, tuple[str, ...]]] = {
     'prepareViewer': ('operon_viewer_prepare', ('/prepare-viewer',)),
     'executionPlan': ('operon_execution_plan', ('/v1/execution/plan',)),
     'executionResources': ('operon_execution_resources', ('/v1/execution/resources',)),
+    'nodes': ('operon_nodes', ('/v1/nodes',)),
     'remoteStatus': ('operon_remote_status', ('/remote/summary',)),
     'saveRemote': ('operon_remote_save', ('/v1/remotes',)),
     'connectRemote': ('operon_remote_connect', ('/v1/remotes/', '/connect')),

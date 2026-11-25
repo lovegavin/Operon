@@ -807,6 +807,20 @@ def create_server(client):
         return client.request("/plugins/install", {"wheel": wheel})
 
     @server.tool()
+    def operon_nodes(profile_id: str | None = None, refresh: bool = False) -> dict:
+        """Discover compute nodes and their free CPU, memory, disk and GPU capacity.
+
+        Read-only. ``target`` is the profile id used by execution settings
+        (``local`` for this desktop) and ``score`` ranks free capacity: automatic
+        placement prefers available nodes in descending score order. Pass
+        profile_id to read one node; refresh=true bypasses the short cache.
+        """
+        suffix = '?refresh=1' if refresh else ''
+        if profile_id:
+            return client.request('/v1/nodes/' + quote(profile_id, safe='') + suffix)
+        return client.request('/v1/nodes' + suffix)
+
+    @server.tool()
     def operon_resources(profile_id: str | None = None) -> dict:
         """List the large resources declared by the installed library.
 

@@ -253,6 +253,7 @@ export const api = {
   prepareViewer: (job: string, artifact: string, role: string) => request<{path: string}>(`/api/v1/jobs/${encodeURIComponent(job)}/artifacts/${encodeURIComponent(artifact)}/prepare-viewer`, {role}),
   executionPlan: (graph: Graph) => request<import('./types').ExecutionPlan>('/api/execution/plan', graph),
   executionResources: () => request<import('./types').ExecutionResources>('/api/execution/resources'),
+  nodes: (refresh = false) => request<import('./types').NodeCapacity[]>('/api/nodes' + (refresh ? '?refresh=1' : '')),
   remoteStatus: () => request<import('./types').RemoteStatus[]>('/api/remote'),
   saveRemote: (profile: import('./types').RemoteProfile) => request<import('./types').RemoteProfile>('/api/remote/profiles', profile),
   connectRemote: (id: string, credentials: {password?: string; passphrase?: string}) => request<import('./types').RemoteInfo>(`/api/remote/${id}/connect`, credentials),
