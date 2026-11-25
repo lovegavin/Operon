@@ -1,0 +1,692 @@
+/home/gavin/.local/lib/python3.12/site-packages/pytest_asyncio/plugin.py:300: PytestDeprecationWarning: The configuration option "asyncio_default_fixture_loop_scope" is unset.
+The event loop scope for asynchronous fixtures will default to the "fixture" caching scope. Future versions of pytest-asyncio will default the loop scope for asynchronous fixtures to "function" scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+.........................F...................F...FFFFFF                  [100%]
+=================================== FAILURES ===================================
+________ test_managed_branch_continues_and_existing_viewer_opens_files _________
+
+tmp_path = PosixPath('/tmp/pytest-of-gavin/pytest-469/test_managed_branch_continues_0')
+
+    def test_managed_branch_continues_and_existing_viewer_opens_files(tmp_path):
+        from src.web.service import JobService
+        root = tmp_path / 'workspace'
+        task = root / '.studio/jobs/branch'
+        steps = [{'name': 'export_results', 'inputs': ['X'], 'params': {'output': 'saved', 'format': 'csv'}},
+                 {'name': 'describe', 'inputs': ['X']}]
+        ctx = Context(task, {'steps': steps, 'runtime': {'memory': {'budget_mb': 32, 'chunk_mb': .01}}})
+        try:
+            ctx['X'] = matrix()
+>           run(ctx, steps)
+
+tests/test_export_results.py:199: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/task/runner.py:152: in run
+    step.run(ctx, forms)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <operon.environments.proxy_step.<locals>.EnvironmentStep object at 0x73b8356885c0>
+ctx = <src.task.context.base.Context object at 0x73b80e965ca0>, inputs = []
+
+    def run(self, ctx, inputs):
+        python = resolve(self._environment)
+        if python is None:
+>           raise StepError(f"{descriptor['id']}: isolated environment {self._environment!r} is not installed")
+E           src.core.errors.errors.StepError: export_results: isolated environment 'core' is not installed
+
+operon/environments.py:512: StepError
+____________ test_environment_metadata_lists_the_alphafold2_family _____________
+
+    def test_environment_metadata_lists_the_alphafold2_family():
+        assignments = json.loads(
+            (ROOT / "library/seed/operon/environment_assignments.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        for operator_id in OPERATORS:
+            assert assignments["operators"][operator_id] == "alphafold2"
+    
+        environments = json.loads(
+            (ROOT / "library/seed/operon/environments.json").read_text(encoding="utf-8")
+        )
+        card = environments["environments"]["alphafold2"]
+        assert card["planned"] is False
+        # biopython stays pinned to the release AlphaFold-2 imports SCOPData from
+        assert "biopython==1.79" in card["requirements"]
+        assert any(requirement.startswith("numpy") for requirement in card["requirements"])
+        assert "Bio" in card["imports"]
+        assert "biopython" in card["notes"]
+    
+        resources = json.loads(
+            (OPERATOR_DIR / "resources.json").read_text(encoding="utf-8")
+        )
+        record = next(item for item in resources["resources"] if item["id"] == "alphafold2")
+        assert record["env"] == "OPERON_ALPHAFOLD_DATA"
+        units = {unit["name"]: unit for unit in record["units"]}
+        assert {
+            "params",
+            "uniref90",
+            "uniref30",
+            "bfd",
+            "mgnify",
+            "pdb70",
+            "pdb_seqres",
+            "uniprot",
+            "pdb_mmcif",
+        } <= set(units)
+        declared = {
+            str(name) for unit in record["units"] for name in (unit.get("files") or [])
+        }
+        resource = common.load_resources(OPERATOR_DIR / "resources.json")["alphafold2"]
+        assert resource.env == "OPERON_ALPHAFOLD_DATA"
+>       assert set(common.expected_files(resource)) == declared
+E       AssertionError: assert {'bfd/bfd_met...ffindex', ...} == {'UniRef30_20...ffindex', ...}
+E         
+E         Extra items in the left set:
+E         'bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_a3m.ffdata'
+E         'bfd/bfd_metaclust_clu_complete_id30_c90_final_seq.sorted_opt_cs219.ffdata'
+E         'params/params_model_1.npz'
+E         'pdb70/pdb70_cs219.ffindex'
+E         'uniref30/UniRef30_2021_03_hhm.ffdata'...
+E         
+E         ...Full output truncated, use '-vv' to show
+
+tests/test_alphafold2_operators.py:492: AssertionError
+_ test_optional_dependencies_are_not_imported_during_registration[esm_embedding_autoencoder-torch] _
+
+name = 'esm_embedding_autoencoder', dependency = 'torch'
+
+    @pytest.mark.parametrize('name,dependency', [
+        ('esm_embedding_autoencoder', 'torch'), ('vhh_humanization_score', 'Bio'),
+        *[(name, 'rdkit') for name in ('rdkit_atom_environment_histogram', 'rdkit_charge_profile',
+                                      'rdkit_fragment_profile', 'rdkit_reaction_smarts_apply')]])
+    def test_optional_dependencies_are_not_imported_during_registration(name, dependency):
+        source = Path(__file__).resolve().parents[1] / 'library/seed/src/task/step/steps' / (name + '.py')
+        code = ("import os,runpy,sys; sys.modules[sys.argv[1]]=None; "
+                "import src.task.step.steps as steps; "
+                "steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); "
+                "runpy.run_path(sys.argv[2])")
+>       subprocess.run([sys.executable, '-I', '-c', code, dependency, str(source),
+                        str(source.parents[4])], check=True)
+
+tests/test_library_release.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as s...path(sys.argv[2])", 'torch', '/home/gavin/Operon/library/seed/src/task/step/steps/esm_embedding_autoencoder.py', ...],)
+kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as steps; steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); runpy.run_path(sys.argv[2])", 'torch', '/home/gavin/Operon/library/seed/src/task/step/steps/esm_embedding_autoencoder.py', '/home/gavin/Operon/library/seed']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'src'
+_ test_optional_dependencies_are_not_imported_during_registration[vhh_humanization_score-Bio] _
+
+name = 'vhh_humanization_score', dependency = 'Bio'
+
+    @pytest.mark.parametrize('name,dependency', [
+        ('esm_embedding_autoencoder', 'torch'), ('vhh_humanization_score', 'Bio'),
+        *[(name, 'rdkit') for name in ('rdkit_atom_environment_histogram', 'rdkit_charge_profile',
+                                      'rdkit_fragment_profile', 'rdkit_reaction_smarts_apply')]])
+    def test_optional_dependencies_are_not_imported_during_registration(name, dependency):
+        source = Path(__file__).resolve().parents[1] / 'library/seed/src/task/step/steps' / (name + '.py')
+        code = ("import os,runpy,sys; sys.modules[sys.argv[1]]=None; "
+                "import src.task.step.steps as steps; "
+                "steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); "
+                "runpy.run_path(sys.argv[2])")
+>       subprocess.run([sys.executable, '-I', '-c', code, dependency, str(source),
+                        str(source.parents[4])], check=True)
+
+tests/test_library_release.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as s....run_path(sys.argv[2])", 'Bio', '/home/gavin/Operon/library/seed/src/task/step/steps/vhh_humanization_score.py', ...],)
+kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as steps; steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); runpy.run_path(sys.argv[2])", 'Bio', '/home/gavin/Operon/library/seed/src/task/step/steps/vhh_humanization_score.py', '/home/gavin/Operon/library/seed']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'src'
+_ test_optional_dependencies_are_not_imported_during_registration[rdkit_atom_environment_histogram-rdkit] _
+
+name = 'rdkit_atom_environment_histogram', dependency = 'rdkit'
+
+    @pytest.mark.parametrize('name,dependency', [
+        ('esm_embedding_autoencoder', 'torch'), ('vhh_humanization_score', 'Bio'),
+        *[(name, 'rdkit') for name in ('rdkit_atom_environment_histogram', 'rdkit_charge_profile',
+                                      'rdkit_fragment_profile', 'rdkit_reaction_smarts_apply')]])
+    def test_optional_dependencies_are_not_imported_during_registration(name, dependency):
+        source = Path(__file__).resolve().parents[1] / 'library/seed/src/task/step/steps' / (name + '.py')
+        code = ("import os,runpy,sys; sys.modules[sys.argv[1]]=None; "
+                "import src.task.step.steps as steps; "
+                "steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); "
+                "runpy.run_path(sys.argv[2])")
+>       subprocess.run([sys.executable, '-I', '-c', code, dependency, str(source),
+                        str(source.parents[4])], check=True)
+
+tests/test_library_release.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as s...s.argv[2])", 'rdkit', '/home/gavin/Operon/library/seed/src/task/step/steps/rdkit_atom_environment_histogram.py', ...],)
+kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as steps; steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); runpy.run_path(sys.argv[2])", 'rdkit', '/home/gavin/Operon/library/seed/src/task/step/steps/rdkit_atom_environment_histogram.py', '/home/gavin/Operon/library/seed']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'src'
+_ test_optional_dependencies_are_not_imported_during_registration[rdkit_charge_profile-rdkit] _
+
+name = 'rdkit_charge_profile', dependency = 'rdkit'
+
+    @pytest.mark.parametrize('name,dependency', [
+        ('esm_embedding_autoencoder', 'torch'), ('vhh_humanization_score', 'Bio'),
+        *[(name, 'rdkit') for name in ('rdkit_atom_environment_histogram', 'rdkit_charge_profile',
+                                      'rdkit_fragment_profile', 'rdkit_reaction_smarts_apply')]])
+    def test_optional_dependencies_are_not_imported_during_registration(name, dependency):
+        source = Path(__file__).resolve().parents[1] / 'library/seed/src/task/step/steps' / (name + '.py')
+        code = ("import os,runpy,sys; sys.modules[sys.argv[1]]=None; "
+                "import src.task.step.steps as steps; "
+                "steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); "
+                "runpy.run_path(sys.argv[2])")
+>       subprocess.run([sys.executable, '-I', '-c', code, dependency, str(source),
+                        str(source.parents[4])], check=True)
+
+tests/test_library_release.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as s....run_path(sys.argv[2])", 'rdkit', '/home/gavin/Operon/library/seed/src/task/step/steps/rdkit_charge_profile.py', ...],)
+kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as steps; steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); runpy.run_path(sys.argv[2])", 'rdkit', '/home/gavin/Operon/library/seed/src/task/step/steps/rdkit_charge_profile.py', '/home/gavin/Operon/library/seed']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'src'
+_ test_optional_dependencies_are_not_imported_during_registration[rdkit_fragment_profile-rdkit] _
+
+name = 'rdkit_fragment_profile', dependency = 'rdkit'
+
+    @pytest.mark.parametrize('name,dependency', [
+        ('esm_embedding_autoencoder', 'torch'), ('vhh_humanization_score', 'Bio'),
+        *[(name, 'rdkit') for name in ('rdkit_atom_environment_histogram', 'rdkit_charge_profile',
+                                      'rdkit_fragment_profile', 'rdkit_reaction_smarts_apply')]])
+    def test_optional_dependencies_are_not_imported_during_registration(name, dependency):
+        source = Path(__file__).resolve().parents[1] / 'library/seed/src/task/step/steps' / (name + '.py')
+        code = ("import os,runpy,sys; sys.modules[sys.argv[1]]=None; "
+                "import src.task.step.steps as steps; "
+                "steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); "
+                "runpy.run_path(sys.argv[2])")
+>       subprocess.run([sys.executable, '-I', '-c', code, dependency, str(source),
+                        str(source.parents[4])], check=True)
+
+tests/test_library_release.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as s...un_path(sys.argv[2])", 'rdkit', '/home/gavin/Operon/library/seed/src/task/step/steps/rdkit_fragment_profile.py', ...],)
+kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as steps; steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); runpy.run_path(sys.argv[2])", 'rdkit', '/home/gavin/Operon/library/seed/src/task/step/steps/rdkit_fragment_profile.py', '/home/gavin/Operon/library/seed']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'src'
+_ test_optional_dependencies_are_not_imported_during_registration[rdkit_reaction_smarts_apply-rdkit] _
+
+name = 'rdkit_reaction_smarts_apply', dependency = 'rdkit'
+
+    @pytest.mark.parametrize('name,dependency', [
+        ('esm_embedding_autoencoder', 'torch'), ('vhh_humanization_score', 'Bio'),
+        *[(name, 'rdkit') for name in ('rdkit_atom_environment_histogram', 'rdkit_charge_profile',
+                                      'rdkit_fragment_profile', 'rdkit_reaction_smarts_apply')]])
+    def test_optional_dependencies_are_not_imported_during_registration(name, dependency):
+        source = Path(__file__).resolve().parents[1] / 'library/seed/src/task/step/steps' / (name + '.py')
+        code = ("import os,runpy,sys; sys.modules[sys.argv[1]]=None; "
+                "import src.task.step.steps as steps; "
+                "steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); "
+                "runpy.run_path(sys.argv[2])")
+>       subprocess.run([sys.executable, '-I', '-c', code, dependency, str(source),
+                        str(source.parents[4])], check=True)
+
+tests/test_library_release.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+input = None, capture_output = False, timeout = None, check = True
+popenargs = (['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as s...th(sys.argv[2])", 'rdkit', '/home/gavin/Operon/library/seed/src/task/step/steps/rdkit_reaction_smarts_apply.py', ...],)
+kwargs = {}
+
+    def run(*popenargs,
+            input=None, capture_output=False, timeout=None, check=False, **kwargs):
+        """Run command with arguments and return a CompletedProcess instance.
+    
+        The returned instance will have attributes args, returncode, stdout and
+        stderr. By default, stdout and stderr are not captured, and those attributes
+        will be None. Pass stdout=PIPE and/or stderr=PIPE in order to capture them,
+        or pass capture_output=True to capture both.
+    
+        If check is True and the exit code was non-zero, it raises a
+        CalledProcessError. The CalledProcessError object will have the return code
+        in the returncode attribute, and output & stderr attributes if those streams
+        were captured.
+    
+        If timeout is given, and the process takes too long, a TimeoutExpired
+        exception will be raised.
+    
+        There is an optional argument "input", allowing you to
+        pass bytes or a string to the subprocess's stdin.  If you use this argument
+        you may not also use the Popen constructor's "stdin" argument, as
+        it will be used internally.
+    
+        By default, all communication is in bytes, and therefore any "input" should
+        be bytes, and the stdout and stderr will be bytes. If in text mode, any
+        "input" should be a string, and stdout and stderr will be strings decoded
+        according to locale encoding, or by "encoding" if set. Text mode is
+        triggered by setting any of text, encoding, errors or universal_newlines.
+    
+        The other arguments are the same as for the Popen constructor.
+        """
+        if input is not None:
+            if kwargs.get('stdin') is not None:
+                raise ValueError('stdin and input arguments may not both be used.')
+            kwargs['stdin'] = PIPE
+    
+        if capture_output:
+            if kwargs.get('stdout') is not None or kwargs.get('stderr') is not None:
+                raise ValueError('stdout and stderr arguments may not be used '
+                                 'with capture_output.')
+            kwargs['stdout'] = PIPE
+            kwargs['stderr'] = PIPE
+    
+        with Popen(*popenargs, **kwargs) as process:
+            try:
+                stdout, stderr = process.communicate(input, timeout=timeout)
+            except TimeoutExpired as exc:
+                process.kill()
+                if _mswindows:
+                    # Windows accumulates the output in a single blocking
+                    # read() call run on child threads, with the timeout
+                    # being done in a join() on those threads.  communicate()
+                    # _after_ kill() is required to collect that and add it
+                    # to the exception.
+                    exc.stdout, exc.stderr = process.communicate()
+                else:
+                    # POSIX _communicate already populated the output so
+                    # far into the TimeoutExpired exception.
+                    process.wait()
+                raise
+            except:  # Including KeyboardInterrupt, communicate handled that.
+                process.kill()
+                # We don't call process.wait() as .__exit__ does that for us.
+                raise
+            retcode = process.poll()
+            if check and retcode:
+>               raise CalledProcessError(retcode, process.args,
+                                         output=stdout, stderr=stderr)
+E               subprocess.CalledProcessError: Command '['/usr/bin/python3', '-I', '-c', "import os,runpy,sys; sys.modules[sys.argv[1]]=None; import src.task.step.steps as steps; steps.__path__.append(os.path.join(sys.argv[3], 'src', 'task', 'step', 'steps')); runpy.run_path(sys.argv[2])", 'rdkit', '/home/gavin/Operon/library/seed/src/task/step/steps/rdkit_reaction_smarts_apply.py', '/home/gavin/Operon/library/seed']' returned non-zero exit status 1.
+
+/usr/lib/python3.12/subprocess.py:571: CalledProcessError
+----------------------------- Captured stderr call -----------------------------
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+ModuleNotFoundError: No module named 'src'
+=========================== short test summary info ============================
+FAILED tests/test_export_results.py::test_managed_branch_continues_and_existing_viewer_opens_files
+FAILED tests/test_alphafold2_operators.py::test_environment_metadata_lists_the_alphafold2_family
+FAILED tests/test_library_release.py::test_optional_dependencies_are_not_imported_during_registration[esm_embedding_autoencoder-torch]
+FAILED tests/test_library_release.py::test_optional_dependencies_are_not_imported_during_registration[vhh_humanization_score-Bio]
+FAILED tests/test_library_release.py::test_optional_dependencies_are_not_imported_during_registration[rdkit_atom_environment_histogram-rdkit]
+FAILED tests/test_library_release.py::test_optional_dependencies_are_not_imported_during_registration[rdkit_charge_profile-rdkit]
+FAILED tests/test_library_release.py::test_optional_dependencies_are_not_imported_during_registration[rdkit_fragment_profile-rdkit]
+FAILED tests/test_library_release.py::test_optional_dependencies_are_not_imported_during_registration[rdkit_reaction_smarts_apply-rdkit]
+8 failed, 47 passed in 2.04s
