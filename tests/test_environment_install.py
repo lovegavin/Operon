@@ -564,3 +564,44 @@ def test_the_torch_fallback_stops_at_the_first_success(monkeypatch):
 
     assert len(seen) == 1
     assert seen[0][-1] == "torch==2.6.0"
+
+
+def test_apply_patches_is_idempotent_and_scoped(tmp_path):
+    from operon import environment_install
+
+    site = tmp_path / 'lib' / 'python3.11' / 'site-packages' / 'simtk' / 'openmm' / 'app'
+    site.mkdir(parents=True)
+    target = site / '__init__.py'
+    target.write_text('from openmm.app import *\n', encoding='utf-8')
+    entry = {'patches': [{
+        'path': 'simtk/openmm/app/__init__.py',
+        'marker': '__path__ = list(_openmm_app.__path__)',
+        'content': 'import openmm.app as _openmm_app\n__path__ = list(_openmm_app.__path__)\n',
+    }]}
+    applied = environment_install.apply_patches(tmp_path, entry)
+    assert applied == ['lib/python3.11/site-packages/simtk/openmm/app/__init__.py']
+    body = target.read_text(encoding='utf-8')
+    assert body.startswith('from openmm.app import *')
+    assert '__path__ = list(_openmm_app.__path__)' in body
+    assert environment_install.apply_patches(tmp_path, entry) == []
+
+
+def test_apply_patches_supports_write_mode(tmp_path):
+    from operon import environment_install
+
+    root = tmp_path / 'Lib' / 'site-packages' / 'pkg'
+    root.mkdir(parents=True)
+    entry = {'patches': [{'path': 'pkg/__init__.py', 'mode': 'write', 'content': 'VALUE = 1\n'}]}
+    assert environment_install.apply_patches(tmp_path, entry) == ['Lib/site-packages/pkg/__init__.py']
+    assert (root / '__init__.py').read_text(encoding='utf-8') == 'VALUE = 1\n'
+
+
+def test_validate_rejects_patch_paths_outside_site_packages():
+    import pytest
+
+    from operon import environment_install
+
+    with pytest.raises(ValueError):
+        environment_install._validate({'python': '3.11', 'patches': [{'path': '../escape.py', 'content': 'x\n'}]})
+    with pytest.raises(ValueError):
+        environment_install._validate({'python': '3.11', 'patches': [{'path': 'ok.py', 'mode': 'merge', 'content': 'x\n'}]})

@@ -763,6 +763,19 @@ def _validate(spec: dict):
         lowered = value.lower()
         if 'file:' in lowered or 'ssh:' in lowered or lowered.startswith(('/', '.')) or 'git@' in lowered:
             raise ValueError(f'unsupported package source: {value}')
+    patches = spec.get('patches') or []
+    if not isinstance(patches, list) or any(not isinstance(item, dict) for item in patches):
+        raise ValueError('invalid environment field: patches')
+    for item in patches:
+        if not isinstance(item.get('path'), str) or not item['path'].strip():
+            raise ValueError('invalid environment patch path')
+        if not isinstance(item.get('content'), str) or not item['content'].strip():
+            raise ValueError('invalid environment patch content')
+        if str(item.get('mode') or 'append').lower() not in {'append', 'write'}:
+            raise ValueError('invalid environment patch mode')
+        relative = Path(item['path'])
+        if relative.is_absolute() or '..' in relative.parts:
+            raise ValueError('environment patch path must stay inside site-packages')
     build_env = spec.get('build_env') or {}
     if not isinstance(build_env, dict) or any(
             not isinstance(key, str) or not isinstance(value, str) for key, value in build_env.items()):
@@ -1098,7 +1111,55 @@ def _relocate(root: Path, stale: Path | None = None) -> int:
     return changed
 
 
-def repair(name: str, root=None) -> dict:
+def _site_package_roots(directory) -> list[Path]:
+    """Every site-packages tree an environment prefix carries."""
+    folder = Path(directory)
+    found = []
+    for pattern in ('lib/python*/site-packages', 'Lib/site-packages', 'lib/site-packages'):
+        found.extend(path for path in folder.glob(pattern) if path.is_dir())
+    return sorted(set(found))
+
+
+def apply_patches(directory, entry, log=None) -> list:
+    """Apply the declarative site-packages patches an environment declares.
+
+    Some upstream tools import a module layout that a package no longer exposes
+    (AlphaFold-2 expects ``simtk.openmm.app.internal`` from OpenMM 7, while
+    OpenMM 8 ships a thin compatibility package).  Declaring the extra lines in
+    the environment keeps the fix reproducible: a rebuilt environment applies it
+    again instead of depending on a hand-edited file.
+    """
+    patches = (entry or {}).get('patches') or []
+    applied = []
+    roots = _site_package_roots(directory)
+    for patch in patches:
+        relative = str(patch.get('path') or '').strip()
+        content = str(patch.get('content') or '')
+        if not relative or not content:
+            continue
+        marker = str(patch.get('marker') or '').strip() or content.strip().splitlines()[0]
+        mode = str(patch.get('mode') or 'append').strip().lower()
+        for root in roots:
+            target = root / relative
+            try:
+                current = target.read_text(encoding='utf-8', errors='replace') if target.is_file() else ''
+            except OSError:
+                current = ''
+            if marker and marker in current:
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if mode == 'write':
+                updated = content
+            else:
+                updated = current + ('' if not current or current.endswith('\n') else '\n') + content
+            target.write_text(updated, encoding='utf-8')
+            applied.append(str(target.relative_to(directory)))
+            if log is not None:
+                log(f'patched {target.relative_to(directory)}')
+    return applied
+
+
+def repair(name: str, root=None, source=None) -> dict:
     """Rewrite stale staging shebangs in an environment that is already installed."""
 
     directory = base(root) / name
@@ -1106,7 +1167,12 @@ def repair(name: str, root=None) -> dict:
         raise ValueError(f'environment {name!r} is not installed')
     changed = _rewrite_shebangs(directory)
     changed += _relocate(directory)
-    return {'name': name, 'directory': str(directory), 'rewritten': changed}
+    try:
+        entry = environments.describe(name, source)
+    except Exception:  # noqa: BLE001 - repairing an undeclared environment is still useful
+        entry = {}
+    applied = apply_patches(directory, entry)
+    return {'name': name, 'directory': str(directory), 'rewritten': changed, 'patches': applied}
 
 
 def rebind_venv(location) -> int:
@@ -1914,6 +1980,8 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
         progress['phase'] = 'installing'
         _install(entry, staging, note, root, progress=progress, control=control)
         control.check()
+        applied = apply_patches(staging, entry, note)
+        control.check()
         progress['phase'] = 'probing'
         python = _python(staging)
         script = _probe(python, entry, note, progress=progress, control=control)
@@ -1921,7 +1989,7 @@ def prepare(name: str, root=None, source=None, log=None, control=None) -> dict:
         progress['phase'] = 'committing'
         (staging / 'receipt.json').write_text(json.dumps({
             'schema': 1, 'name': name, 'python': str(entry.get('python', '3.11')),
-            'spec_sha256': spec_sha256(entry), 'imports': script,
+            'spec_sha256': spec_sha256(entry), 'imports': script, 'patches': applied,
             'bootstrap': 'setuptools>=68,<81 wheel', 'installer': 'environment_install/2',
             'created_at': now(),
         }, indent=2), encoding='utf-8')
