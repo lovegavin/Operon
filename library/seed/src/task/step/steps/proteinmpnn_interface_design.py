@@ -17,6 +17,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
 
 from .proteinmpnn_design import (
@@ -122,7 +123,8 @@ class ProteinmpnnInterfaceDesignStep(Step):
     parameters_file = 'proteinmpnn_interface_design.ProteinmpnnInterfaceDesignStep.parameters.json'
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         'protocol_version': 3,
      'id': 'proteinmpnn_interface_design',
@@ -132,7 +134,8 @@ class ProteinmpnnInterfaceDesignStep(Step):
      'category': 'Machine Learning',
      'icon': 'Intersect',
      'contracts': {'version': 1,
-                   'inputs': [],
+                   'inputs': [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+    ],
                    'output': {'mode': 'declare',
                               'schema': {'ndim': 2,
                                          'numeric': True,
@@ -144,13 +147,15 @@ class ProteinmpnnInterfaceDesignStep(Step):
                    'estimate': 'estimate_memory'},
      'dependencies': ['numpy>=1.24'],
      'dependency_imports': [],
-     'inputs_arity': 0,
+     'inputs_arity': 1,
      'outputs': [],
      'output_parameter': 'output',
      'description': 'Design a binder chain against a fixed partner with the official ProteinMPNN runner, including amino-acid bias, omission and tied positions.'}
 
     def run(self, ctx: Context, inputs) -> None:
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
         structure_path = Path(str(params.get("structure_path", "") or "").strip()).expanduser()
         proteinmpnn_path = Path(
             str(params.get("proteinmpnn_path", "") or "").strip()

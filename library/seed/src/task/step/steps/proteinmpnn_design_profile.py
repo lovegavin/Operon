@@ -10,6 +10,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 
 from .proteinmpnn_design import MODELS
 from .proteinmpnn_position_entropy import (
@@ -65,7 +66,8 @@ class ProteinmpnnDesignProfileStep(Step):
     )
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "proteinmpnn_design_profile",
@@ -76,7 +78,8 @@ class ProteinmpnnDesignProfileStep(Step):
         "icon": "ChartBar",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+    ],
             "output": {
                 "mode": "declare",
                 "schema": {
@@ -90,13 +93,15 @@ class ProteinmpnnDesignProfileStep(Step):
         "resources": {"memory_modes": ["full"], "supports_cuda": True},
         "dependencies": ["numpy>=1.24", "torch>=2.0"],
         "dependency_imports": ["numpy"],
-        "inputs_arity": 0,
+        "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx: Context, inputs: list) -> None:
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
         structure = Path(str(params.get("structure_path") or "")).expanduser()
         if not structure.is_file():
             raise StepError(

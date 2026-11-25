@@ -17,6 +17,7 @@ from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.context.base import Context
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
 from src.task.step.steps.proteinmpnn_score import (
     MODELS,
@@ -58,7 +59,9 @@ class ProteinmpnnEnsembleScoreStep(Step):
 
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+        {'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "proteinmpnn_ensemble_score",
@@ -69,7 +72,9 @@ class ProteinmpnnEnsembleScoreStep(Step):
         "icon": "Brain",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+        {'version': 1, 'numeric': True, 'dims': [{'param': 'sequence_dim', 'default': 'sequence'}, {'param': 'position_dim', 'default': 'position'}], 'labels': [], 'parallel': [], 'ndim': 2, 'info': {'representation': {'type': 'string', 'const': 'sequence_codes'}}},
+    ],
             "output": {
                 "mode": "declare",
                 "schema": {
@@ -87,7 +92,7 @@ class ProteinmpnnEnsembleScoreStep(Step):
         },
         "dependencies": ["numpy>=1.24"],
         "dependency_imports": [],
-        "inputs_arity": 0,
+        "inputs_arity": 2,
         "outputs": [],
         "output_parameter": "output",
         "description": (
@@ -98,7 +103,11 @@ class ProteinmpnnEnsembleScoreStep(Step):
     }
 
     def run(self, ctx: Context, inputs) -> None:
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
+        if len(inputs) > 1:
+            params['fasta_path'] = _port_inputs.fasta(inputs[1], params.get('fasta_path'), self.name)
         structure_path = Path(
             str(params.get("structure_path", "") or "").strip()
         ).expanduser()

@@ -9,6 +9,7 @@ from src.core.errors import StepError
 from src.task.context import Context
 from src.task.runner import run
 from src.task.step.steps.structure_md_pca import ca_indices, covariance, kabsch, load_frames, pca_modes
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 
@@ -75,7 +76,7 @@ def test_run_and_errors(tmp_path):
     path = tmp_path / "traj.npy"
     np.save(path, frames)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_pca", "params": {"trajectory_path": str(path), "topology_path": str(topology), "n_modes": 5}}])
+    run_legacy(ctx, [{"name": "structure_md_pca", "params": {"trajectory_path": str(path), "topology_path": str(topology), "n_modes": 5}}])
     result = ctx["modes"]
     assert result.dims == ["mode", "statistic"]
     assert result.data.shape[0] <= 5

@@ -13,6 +13,7 @@ from src.task.step.steps.structure_md_contact_occupancy import (
     load_frames,
     residue_groups,
 )
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 TOPOLOGY = FIXTURES / "vhh_1mel.pdb"
@@ -56,7 +57,7 @@ def test_residue_groups_and_table():
 def test_run_occupancy_hand_case(tmp_path):
     topology, trajectory = _synthetic(tmp_path)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_contact_occupancy", "params": {"output": "contacts", "trajectory_path": str(trajectory), "topology_path": str(topology), "cutoff": 5.0, "min_occupancy": 0.5}}])
+    run_legacy(ctx, [{"name": "structure_md_contact_occupancy", "params": {"output": "contacts", "trajectory_path": str(trajectory), "topology_path": str(topology), "cutoff": 5.0, "min_occupancy": 0.5}}])
     table = ctx["contacts"]
     assert table.data.shape == (1, 3)
     assert table.info["n_frames"] == 3
@@ -81,7 +82,7 @@ def test_distances_match_brute_force(tmp_path):
     npy = tmp_path / "frames.npy"
     np.save(npy, frames / 10.0)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_contact_occupancy", "params": {"output": "contacts", "trajectory_path": str(npy), "topology_path": str(topology), "cutoff": 4.0, "min_occupancy": 0.0}}])
+    run_legacy(ctx, [{"name": "structure_md_contact_occupancy", "params": {"output": "contacts", "trajectory_path": str(npy), "topology_path": str(topology), "cutoff": 4.0, "min_occupancy": 0.0}}])
     table = ctx["contacts"]
     labels = table.labels["contact"]
     assert "A:1-B:2" in labels
@@ -100,4 +101,4 @@ def test_errors(tmp_path):
         topology, trajectory = _synthetic(tmp_path)
         single = tmp_path / "single.npy"
         np.save(single, np.load(trajectory)[:1])
-        run(ctx, [{"name": "structure_md_contact_occupancy", "params": {"output": "contacts", "trajectory_path": str(single), "topology_path": str(topology)}}])
+        run_legacy(ctx, [{"name": "structure_md_contact_occupancy", "params": {"output": "contacts", "trajectory_path": str(single), "topology_path": str(topology)}}])

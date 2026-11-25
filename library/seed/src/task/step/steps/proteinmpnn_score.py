@@ -15,6 +15,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
 
 MODELS = ("v_48_002", "v_48_010", "v_48_020", "v_48_030")
@@ -101,7 +102,9 @@ class ProteinmpnnScoreStep(Step):
     parameters_file = 'proteinmpnn_score.ProteinmpnnScoreStep.parameters.json'
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+        {'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         'protocol_version': 3,
      'id': 'proteinmpnn_score',
@@ -111,7 +114,9 @@ class ProteinmpnnScoreStep(Step):
      'category': 'Machine Learning',
      'icon': 'Brain',
      'contracts': {'version': 1,
-                   'inputs': [],
+                   'inputs': [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+        {'version': 1, 'numeric': True, 'dims': [{'param': 'sequence_dim', 'default': 'sequence'}, {'param': 'position_dim', 'default': 'position'}], 'labels': [], 'parallel': [], 'ndim': 2, 'info': {'representation': {'type': 'string', 'const': 'sequence_codes'}}},
+    ],
                    'output': {'mode': 'declare',
                               'schema': {'ndim': 2,
                                          'numeric': True,
@@ -123,13 +128,17 @@ class ProteinmpnnScoreStep(Step):
                    'estimate': 'estimate_memory'},
      'dependencies': ['numpy>=1.24'],
      'dependency_imports': [],
-     'inputs_arity': 0,
+     'inputs_arity': 2,
      'outputs': [],
      'output_parameter': 'output',
      'description': 'Score a structure/sequence pair with the official ProteinMPNN runner in --score_only mode; returns mean and global negative log-likelihood per sequence.'}
 
     def run(self, ctx: Context, inputs) -> None:
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
+        if len(inputs) > 1:
+            params['fasta_path'] = _port_inputs.fasta(inputs[1], params.get('fasta_path'), self.name)
         structure_path = Path(
             str(params.get("structure_path", "") or "").strip()
         ).expanduser()

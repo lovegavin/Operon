@@ -1,6 +1,7 @@
 """ProteinMPNN score-only operator (v1.21.0)."""
 from __future__ import annotations
 
+
 import json
 import os
 import subprocess

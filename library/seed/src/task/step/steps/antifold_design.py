@@ -15,6 +15,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
 
 ALPHABET = "ACDEFGHIKLMNPQRSTVWY"
@@ -187,7 +188,8 @@ class AntifoldDesignStep(Step):
     parameters_file = "antifold_design.AntifoldDesignStep.parameters.json"
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "antifold_design",
@@ -203,19 +205,22 @@ class AntifoldDesignStep(Step):
         "icon": "Dna",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+    ],
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory", "environment": "antifold"},
         "dependencies": ["antifold", "torch"],
         "dependency_imports": ["antifold"],
-        "inputs_arity": 0,
+        "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx, inputs):
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
         structure = Path(str(params.get("structure_path", ""))).expanduser()
         if not structure.is_file():
             raise StepError(f"antifold_design: structure_path {structure} is not a file")

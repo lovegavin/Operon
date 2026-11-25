@@ -14,6 +14,7 @@ from src.task.step.steps.esm3_inverse_folding import (
     native_sequence,
     recovery,
 )
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 
@@ -86,7 +87,7 @@ def test_run_round_trip(monkeypatch, tmp_path):
     monkeypatch.setattr(module, "load_model", lambda name, device: _FakeModel())
     _install_esm_stub(monkeypatch)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "esm3_inverse_folding", "params": {"output": "designs", "structure_path": str(FIXTURES / "vhh_1mel.pdb"), "chain": "A", "num_steps": 2}}])
+    run_legacy(ctx, [{"name": "esm3_inverse_folding", "params": {"output": "designs", "structure_path": str(FIXTURES / "vhh_1mel.pdb"), "chain": "A", "num_steps": 2}}])
     table = ctx["designs"]
     assert table.data.shape == (1, 2)
     assert table.info["sequences"] == ["MKVLAAGIVGLLLA"]
@@ -96,10 +97,10 @@ def test_run_round_trip(monkeypatch, tmp_path):
 def test_errors(tmp_path):
     ctx = Context(str(tmp_path / "task"), {"params": {}})
     with pytest.raises(StepError, match="is not a file"):
-        run(ctx, [{"name": "esm3_inverse_folding", "params": {"output": "designs", "structure_path": str(tmp_path / "missing.pdb")}}])
+        run_legacy(ctx, [{"name": "esm3_inverse_folding", "params": {"output": "designs", "structure_path": str(tmp_path / "missing.pdb")}}])
     with pytest.raises(StepError, match="must name a .pdb"):
         (tmp_path / "x.txt").write_text("x")
-        run(ctx, [{"name": "esm3_inverse_folding", "params": {"output": "designs", "structure_path": str(tmp_path / "x.txt")}}])
+        run_legacy(ctx, [{"name": "esm3_inverse_folding", "params": {"output": "designs", "structure_path": str(tmp_path / "x.txt")}}])
     with pytest.raises(StepError, match="chain 'Z' was not found"):
         chain_pdb(FIXTURES / "vhh_1mel.pdb", "Z", tmp_path)
 
@@ -114,7 +115,7 @@ def test_real_inverse_folding():
 
     module._CACHE.clear()
     ctx = Context("/tmp/operon_esm3_if", {"params": {}})
-    run(ctx, [{"name": "esm3_inverse_folding", "params": {"output": "designs", "structure_path": str(FIXTURES / "vhh_1mel.pdb"), "chain": "A", "num_steps": 10, "temperature": 0.7}}])
+    run_legacy(ctx, [{"name": "esm3_inverse_folding", "params": {"output": "designs", "structure_path": str(FIXTURES / "vhh_1mel.pdb"), "chain": "A", "num_steps": 10, "temperature": 0.7}}])
     table = ctx["designs"]
     assert table.data.shape[0] == 1
     assert table.info["n_residues"] > 100

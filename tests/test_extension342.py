@@ -10,6 +10,7 @@ from src.core.errors import StepError
 from src.task.context import Context
 from src.task.runner import run
 from src.task.step.steps.structure_md_dssp_transitions import coarse_state, transition_rows, transition_totals
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 
@@ -47,7 +48,7 @@ def test_run(tmp_path):
     path = tmp_path / "traj.npy"
     np.save(path, frames)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_dssp_transitions", "params": {"trajectory_path": str(path), "topology_path": str(topology)}}])
+    run_legacy(ctx, [{"name": "structure_md_dssp_transitions", "params": {"trajectory_path": str(path), "topology_path": str(topology)}}])
     result = ctx["transitions"]
     assert result.dims == ["residue", "statistic"]
     assert result.info["n_residues"] == 132

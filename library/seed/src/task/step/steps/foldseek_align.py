@@ -14,6 +14,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 
 _FORMAT = "query,target,alntmscore,rmsd,lddt,fident,qcov,tcov,alnlen"
 _COLUMNS = ("alntmscore", "rmsd", "lddt", "fident", "qcov", "tcov", "alnlen")
@@ -82,7 +83,9 @@ class FoldseekAlignStep(Step):
 
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'file_artifact', 'representations': ['file_artifact'], 'metadata': {}},
+        {'logical_type': 'file_artifact', 'representations': ['file_artifact'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "foldseek_align",
@@ -94,7 +97,9 @@ class FoldseekAlignStep(Step):
         "icon": "ShareNetwork",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [], 'info': {}},
+        {'version': 1, 'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [], 'info': {}},
+    ],
             "output": {
                 "mode": "declare",
                 "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": True},
@@ -104,13 +109,17 @@ class FoldseekAlignStep(Step):
                        "external_tools": ["foldseek"]},
         "dependencies": [],
         "dependency_imports": [],
-        "inputs_arity": 0,
+        "inputs_arity": 2,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx, inputs):
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['query_path'] = _port_inputs.file(inputs[0], params.get('query_path'), self.name, roles=('query',))
+        if len(inputs) > 1:
+            params['target_path'] = _port_inputs.file(inputs[1], params.get('target_path'), self.name, roles=('target',))
         query = Path(str(params.get("query_path", ""))).expanduser()
         target = Path(str(params.get("target_path", ""))).expanduser()
         if not str(params.get("query_path", "")):

@@ -13,6 +13,7 @@ from src.task.step.steps.structure_md_sasa_occupancy import (
     residue_sasa,
     sasa_rows,
 )
+from port_helpers import run_legacy
 
 
 def _atom_line(serial, name, resname, chain, number, x, y, z, element):
@@ -62,7 +63,7 @@ def test_rows_statistics():
 def test_run_writes_table(tmp_path):
     topology, npy = _single_atom(tmp_path)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_sasa_occupancy", "params": {"output": "sasa", "trajectory_path": str(npy), "topology_path": str(topology), "n_sphere_points": 512}}])
+    run_legacy(ctx, [{"name": "structure_md_sasa_occupancy", "params": {"output": "sasa", "trajectory_path": str(npy), "topology_path": str(topology), "n_sphere_points": 512}}])
     table = ctx["sasa"]
     assert table.data.shape == (1, 4)
     assert table.info["n_frames"] == 2

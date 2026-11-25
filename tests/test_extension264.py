@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+
 import json
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from src.reader import read_source
 from src.task.context.base import Context
 from src.task.runner import run
 from src.task.step.steps._sequence_common import encode_sequences
+from port_helpers import run_legacy
 
 FAKE_RUNNER = """import json
 import os
@@ -92,7 +94,7 @@ def test_run_bias_design(tmp_path, monkeypatch) -> None:
     }
     ctx = Context(str(tmp_path / "task"), {"params": {}})
     ctx.step_params = params
-    run(ctx, [{"name": "proteinmpnn_bias_matrix", "inputs": [], "params": params}])
+    run_legacy(ctx, [{"name": "proteinmpnn_bias_matrix", "inputs": [], "params": params}])
     out = ctx["designs"]
     captured = json.loads(capture.read_text())
     assert out.data.shape == (1, 2)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+
 import json
 import sys
 from pathlib import Path
@@ -13,6 +14,7 @@ from src.core.errors import StepError
 from src.task.context.base import Context
 from src.task.runner import run
 from src.task.step.steps.vina_dock_batch import split_paths, unique_labels
+from port_helpers import run_legacy
 
 FAKE_VINA = """import sys
 from pathlib import Path
@@ -73,7 +75,7 @@ def test_run_docks_two_ligands(tmp_path) -> None:
         "output": "results",
     }
     ctx.step_params = params
-    run(ctx, [{"name": "vina_dock_batch", "inputs": [], "params": params}])
+    run_legacy(ctx, [{"name": "vina_dock_batch", "inputs": [], "params": params}])
     out = ctx["results"]
     assert out.data.shape == (2, 4)
     assert list(out.labels["ligand"]) == ["lig_a", "lig_b"]
@@ -100,7 +102,7 @@ def test_explicit_center_is_used(tmp_path) -> None:
         "output": "results",
     }
     ctx.step_params = params
-    run(ctx, [{"name": "vina_dock_batch", "inputs": [], "params": params}])
+    run_legacy(ctx, [{"name": "vina_dock_batch", "inputs": [], "params": params}])
     assert ctx["results"].info["center"] == [1.0, 2.0, 3.0]
 
 

@@ -9,6 +9,7 @@ from src.core.errors import StepError
 from src.task.context import Context
 from src.task.runner import run
 from src.task.step.steps.structure_md_communication_path import dccm, path_weights, shortest_path
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 
@@ -55,7 +56,7 @@ def test_run_and_errors(tmp_path):
     path_npy = tmp_path / "traj.npy"
     np.save(path_npy, frames)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_communication_path", "params": {"trajectory_path": str(path_npy), "topology_path": str(topology), "source": 1, "target": 132, "min_correlation": 0.0}}])
+    run_legacy(ctx, [{"name": "structure_md_communication_path", "params": {"trajectory_path": str(path_npy), "topology_path": str(topology), "source": 1, "target": 132, "min_correlation": 0.0}}])
     result = ctx["path"]
     assert result.data.shape[1] == 3
     assert result.info["path_residues"][0] == 1

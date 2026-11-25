@@ -17,6 +17,7 @@ from src.task.step.steps.structure_md_ss_occupancy import (
     residue_key,
     write_frame,
 )
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 TOPOLOGY = FIXTURES / "vhh_1mel.pdb"
@@ -63,7 +64,7 @@ def test_run_matches_dssp_for_one_frame(tmp_path):
         pytest.skip("mkdssp is not installed")
     trajectory, count = _trajectory(tmp_path)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_ss_occupancy", "params": {"output": "occupancy", "trajectory_path": str(trajectory), "topology_path": str(TOPOLOGY)}}])
+    run_legacy(ctx, [{"name": "structure_md_ss_occupancy", "params": {"output": "occupancy", "trajectory_path": str(trajectory), "topology_path": str(TOPOLOGY)}}])
     result = ctx["occupancy"]
     assert result.info["n_frames"] == 3
     labels = sorted(result.labels["residue"], key=result.labels["residue"].get)
@@ -86,4 +87,4 @@ def test_errors(tmp_path):
         trajectory, _count = _trajectory(tmp_path)
         single = tmp_path / "single.npy"
         np.save(single, np.load(trajectory)[:1])
-        run(ctx, [{"name": "structure_md_ss_occupancy", "params": {"output": "occupancy", "trajectory_path": str(single), "topology_path": str(TOPOLOGY)}}])
+        run_legacy(ctx, [{"name": "structure_md_ss_occupancy", "params": {"output": "occupancy", "trajectory_path": str(single), "topology_path": str(TOPOLOGY)}}])

@@ -9,6 +9,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 
 COULOMB = 138.935456  # kJ nm / (mol e^2)
 
@@ -111,7 +112,8 @@ class StructureInterfaceResidueEnergyStep(Step):
     parameters_file = "structure_interface_residue_energy.StructureInterfaceResidueEnergyStep.parameters.json"
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_interface_residue_energy",
@@ -127,19 +129,22 @@ class StructureInterfaceResidueEnergyStep(Step):
         "icon": "ChartBar",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+    ],
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "dims": ["residue", "statistic"], "info_open": True, "axis_info_open": False, "labels": {"statistic": ["coulomb_kj", "lj_kj", "total_kj", "n_contacts"]}}},
         },
         "resources": {"memory_modes": ["full"], "environment": "openmm81", "estimate": "estimate_memory"},
         "dependencies": ["openmm==8.1.1", "numpy==1.26.4"],
         "dependency_imports": ["openmm"],
-        "inputs_arity": 0,
+        "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx, inputs):
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
         data = prepare_structure(str(params.get("structure_path", "")))
         binder = set(str(params.get("binder_chains", "") or ""))
         target = set(str(params.get("target_chains", "") or ""))

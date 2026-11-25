@@ -13,6 +13,7 @@ from src.task.step.steps.structure_md_salt_bridge_occupancy import (
     load_frames,
     salt_bridge_rows,
 )
+from port_helpers import run_legacy
 
 
 def _atom_line(serial, name, resname, chain, number, x, y, z):
@@ -57,7 +58,7 @@ def test_rows_hand_case():
 def test_run_occupancy(tmp_path):
     topology, trajectory = _synthetic(tmp_path)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_salt_bridge_occupancy", "params": {"output": "salt_bridges", "trajectory_path": str(trajectory), "topology_path": str(topology), "cutoff": 4.0, "min_occupancy": 0.5}}])
+    run_legacy(ctx, [{"name": "structure_md_salt_bridge_occupancy", "params": {"output": "salt_bridges", "trajectory_path": str(trajectory), "topology_path": str(topology), "cutoff": 4.0, "min_occupancy": 0.5}}])
     table = ctx["salt_bridges"]
     assert table.data.shape[0] == 1
     labels = table.labels["salt_bridge"]
@@ -74,4 +75,4 @@ def test_errors(tmp_path):
         topology, trajectory = _synthetic(tmp_path)
         single = tmp_path / "single.npy"
         np.save(single, np.load(trajectory)[:1])
-        run(ctx, [{"name": "structure_md_salt_bridge_occupancy", "params": {"output": "salt_bridges", "trajectory_path": str(single), "topology_path": str(topology)}}])
+        run_legacy(ctx, [{"name": "structure_md_salt_bridge_occupancy", "params": {"output": "salt_bridges", "trajectory_path": str(single), "topology_path": str(topology)}}])

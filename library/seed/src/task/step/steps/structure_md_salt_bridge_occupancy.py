@@ -10,6 +10,7 @@ from scipy.spatial import cKDTree
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 
 _ACID = {"ASP": ("OD1", "OD2"), "GLU": ("OE1", "OE2")}
 _BASE = {"LYS": ("NZ",), "ARG": ("NH1", "NH2", "NE"), "HIS": ("ND1", "NE2")}
@@ -87,7 +88,9 @@ class StructureMdSaltBridgeOccupancyStep(Step):
     parameters_file = "structure_md_salt_bridge_occupancy.StructureMdSaltBridgeOccupancyStep.parameters.json"
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'file_artifact', 'representations': ['file_artifact'], 'metadata': {}},
+        {'logical_type': 'file_artifact', 'representations': ['file_artifact'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_md_salt_bridge_occupancy",
@@ -103,19 +106,25 @@ class StructureMdSaltBridgeOccupancyStep(Step):
         "icon": "ShareNetwork",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [], 'info': {}},
+        {'version': 1, 'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [], 'info': {}},
+    ],
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
         "dependencies": [],
         "dependency_imports": [],
-        "inputs_arity": 0,
+        "inputs_arity": 2,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx, inputs):
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['trajectory_path'] = _port_inputs.file(inputs[0], params.get('trajectory_path'), self.name, roles=('trajectory',))
+        if len(inputs) > 1:
+            params['topology_path'] = _port_inputs.file(inputs[1], params.get('topology_path'), self.name, roles=('topology',))
         frames = load_frames(Path(str(params.get("trajectory_path", ""))))
         topology = Path(str(params.get("topology_path", ""))).expanduser()
         if not topology.is_file():

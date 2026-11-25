@@ -12,6 +12,7 @@ from src.task.step.steps.structure_md_quasiharmonic_entropy import (
     R_GAS,
     entropy_from_covariance,
 )
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 
@@ -43,7 +44,7 @@ def test_run_and_invariance(tmp_path):
     path, topology = _trajectory(tmp_path)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
     params = {"trajectory_path": str(path), "topology_path": str(topology), "n_modes": 4}
-    run(ctx, [{"name": "structure_md_quasiharmonic_entropy", "params": params}])
+    run_legacy(ctx, [{"name": "structure_md_quasiharmonic_entropy", "params": params}])
     result = ctx["entropy"]
     assert result.dims == ["mode", "statistic"]
     assert "total" in result.labels["mode"]

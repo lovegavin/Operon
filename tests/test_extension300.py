@@ -16,6 +16,7 @@ from src.task.step.steps.antifold_design import (
     parse_profile,
     profile_summary,
 )
+from port_helpers import run_legacy
 
 FASTA = """>pdb_AL , score=1.5146, global_score=1.5146, regions=['CDR1', 'CDR2'], model_name=AntiFold, seed=42
 DVQLQASGGG
@@ -107,7 +108,7 @@ def test_run_matches_contract(tmp_path):
     (tmp_path / "expected.csv").write_text(PROFILE)
     params, _ = _params(tmp_path, script)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "antifold_design", "params": params}])
+    run_legacy(ctx, [{"name": "antifold_design", "params": params}])
     result = ctx["designs"]
     assert result.dims == ["design", "statistic"]
     assert result.data.shape == (2, 4)
@@ -124,16 +125,16 @@ def test_errors(tmp_path):
     params, pdb = _params(tmp_path, script)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
     with pytest.raises(StepError, match="not a file"):
-        run(ctx, [{"name": "antifold_design", "params": {**params, "structure_path": str(tmp_path / "nope.pdb")}}])
+        run_legacy(ctx, [{"name": "antifold_design", "params": {**params, "structure_path": str(tmp_path / "nope.pdb")}}])
     bad = tmp_path / "input.txt"
     bad.write_text("x")
     with pytest.raises(StepError, match="must be a .pdb"):
-        run(ctx, [{"name": "antifold_design", "params": {**params, "structure_path": str(bad)}}])
+        run_legacy(ctx, [{"name": "antifold_design", "params": {**params, "structure_path": str(bad)}}])
     with pytest.raises(StepError, match="at least one antibody chain"):
-        run(ctx, [{"name": "antifold_design", "params": {**params, "nanobody_chain": ""}}])
+        run_legacy(ctx, [{"name": "antifold_design", "params": {**params, "nanobody_chain": ""}}])
     missing = tmp_path / "does_not_exist.py"
     with pytest.raises(StepError, match="failed with exit code"):
-        run(ctx, [{"name": "antifold_design", "params": {**params, "runner_path": str(missing)}}])
+        run_legacy(ctx, [{"name": "antifold_design", "params": {**params, "runner_path": str(missing)}}])
 
 
 @pytest.mark.skipif(os.environ.get("OPERON_ANTIFOLD_REAL") != "1", reason="set OPERON_ANTIFOLD_REAL=1 to run AntiFold")
@@ -141,7 +142,7 @@ def test_real_antifold(tmp_path):
     pytest.importorskip("antifold")
     fixture = Path(__file__).resolve().parent / "fixtures" / "vhh_1mel.pdb"
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "antifold_design", "params": {"output": "designs", "structure_path": str(fixture), "nanobody_chain": "A", "antigen_chain": "L", "num_seq_per_target": 2, "sampling_temp": "0.2"}}])
+    run_legacy(ctx, [{"name": "antifold_design", "params": {"output": "designs", "structure_path": str(fixture), "nanobody_chain": "A", "antigen_chain": "L", "num_seq_per_target": 2, "sampling_temp": "0.2"}}])
     result = ctx["designs"]
     assert result.data.shape[0] == 2
     assert result.info["wild_type_score"] > 0

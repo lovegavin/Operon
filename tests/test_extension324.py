@@ -14,6 +14,7 @@ from src.task.step.steps.structure_md_ligand_rmsd import (
     select_indices,
     superposition,
 )
+from port_helpers import run_legacy
 
 
 def _atom_line(serial, name, resname, chain, number, x, y, z):
@@ -75,7 +76,7 @@ def test_run_round_trip(tmp_path):
     moved[3:, 2] += 2.0
     np.save(npy, np.stack([coords, moved]) / 10.0)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_ligand_rmsd", "params": {"output": "ligand_rmsd", "trajectory_path": str(npy), "topology_path": str(topology), "receptor_chains": "A", "ligand_resname": "LIG"}}])
+    run_legacy(ctx, [{"name": "structure_md_ligand_rmsd", "params": {"output": "ligand_rmsd", "trajectory_path": str(npy), "topology_path": str(topology), "receptor_chains": "A", "ligand_resname": "LIG"}}])
     table = ctx["ligand_rmsd"]
     assert table.data.shape == (2, 1)
     assert table.info["n_ligand_atoms"] == 3

@@ -14,6 +14,7 @@ from src.task.step.steps.structure_md_dihedral_occupancy import (
     load_frames,
     occupancy_table,
 )
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 TOPOLOGY = FIXTURES / "vhh_1mel.pdb"
@@ -60,7 +61,7 @@ def test_run_round_trip(tmp_path):
     npy = tmp_path / "frames.npy"
     np.save(npy, np.stack([coords, coords + 0.2]) / 10.0)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_dihedral_occupancy", "params": {"output": "dihedrals", "trajectory_path": str(npy), "topology_path": str(TOPOLOGY), "chains": "A"}}])
+    run_legacy(ctx, [{"name": "structure_md_dihedral_occupancy", "params": {"output": "dihedrals", "trajectory_path": str(npy), "topology_path": str(TOPOLOGY), "chains": "A"}}])
     table = ctx["dihedrals"]
     assert table.data.shape[1] == 5
     assert table.info["n_frames"] == 2
@@ -92,4 +93,4 @@ def test_errors(tmp_path):
         coords = np.array([[float(line[30:38]), float(line[38:46]), float(line[46:54])] for line in lines])
         single = tmp_path / "single.npy"
         np.save(single, (coords / 10.0)[None, ...])
-        run(ctx, [{"name": "structure_md_dihedral_occupancy", "params": {"output": "dihedrals", "trajectory_path": str(single), "topology_path": str(TOPOLOGY)}}])
+        run_legacy(ctx, [{"name": "structure_md_dihedral_occupancy", "params": {"output": "dihedrals", "trajectory_path": str(single), "topology_path": str(TOPOLOGY)}}])

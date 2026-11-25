@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,6 +23,7 @@ from src.task.step.steps.antifold_score import (
     parse_regions,
     score_dataframe_from_records,
 )
+from port_helpers import run_legacy
 
 
 class Ctx(dict):
@@ -95,7 +97,7 @@ def test_runner_writes_score_table(monkeypatch, tmp_path):
         "device": "cpu",
         "imgt_regions": "CDR1,CDR2,CDR3",
     }
-    run(ctx, [{"name": "antifold_score", "params": params}])
+    run_legacy(ctx, [{"name": "antifold_score", "params": params}])
     form = ctx["scores"]
     assert form.dims == ["residue", "statistic"]
     assert form.data.shape == (2, 4)
@@ -139,7 +141,7 @@ def test_real_antifold_when_available():
         "weights_path": weights,
         "device": "cpu",
     }
-    run(ctx, [{"name": "antifold_score", "params": params}])
+    run_legacy(ctx, [{"name": "antifold_score", "params": params}])
     form = ctx["scores"]
     assert form.data.shape[0] == 132
     assert 1.0 < form.info["mean_perplexity"] < 10.0

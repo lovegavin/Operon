@@ -7,6 +7,7 @@ validated exactly as a saved workflow would validate them.
 
 from __future__ import annotations
 
+
 import sys
 from pathlib import Path
 
@@ -19,6 +20,7 @@ import test_extension133 as score_tests
 from src.reader import read_source
 from src.task.context.base import Context
 from src.task.runner import run
+from port_helpers import run_legacy
 
 FIXTURE = Path(__file__).parent / "fixtures" / "backbone_1bc8_c60_75.pdb"
 
@@ -34,7 +36,7 @@ def _context(tmp_path, name):
 def test_structure_hbonds_contract(tmp_path):
     ctx = _context(tmp_path, "hbonds")
     ctx["pdb"] = _pdb_form()
-    run(ctx, [{"name": "structure_hbonds", "inputs": ["pdb"], "params": {"output": "hbonds"}}])
+    run_legacy(ctx, [{"name": "structure_hbonds", "inputs": ["pdb"], "params": {"output": "hbonds"}}])
     result = ctx["hbonds"]
     assert list(result.dims) == ["residue", "statistic"]
     assert int(result.info["n_bonds"]) == 10

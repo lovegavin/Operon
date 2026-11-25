@@ -9,6 +9,7 @@ from src.core.errors import StepError
 from src.task.context import Context
 from src.task.runner import run
 from src.task.step.steps.structure_md_conformational_clusters import cluster_frames, pairwise_rmsd
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 
@@ -53,10 +54,10 @@ def test_identical_frames_single_cluster(tmp_path):
 def test_run_and_errors(tmp_path):
     path, topology, count = _trajectory(tmp_path)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_conformational_clusters", "params": {"trajectory_path": str(path), "topology_path": str(topology), "cutoff": 1.0}}])
+    run_legacy(ctx, [{"name": "structure_md_conformational_clusters", "params": {"trajectory_path": str(path), "topology_path": str(topology), "cutoff": 1.0}}])
     result = ctx["clusters"]
     assert result.data.shape[0] == count
     assert sum(result.info["cluster_sizes"]) == count
     assert result.info["n_clusters"] >= 1
     with pytest.raises((StepError, ValueError)):
-        run(ctx, [{"name": "structure_md_conformational_clusters", "params": {"trajectory_path": str(path), "topology_path": str(topology), "cutoff": 0.0}}])
+        run_legacy(ctx, [{"name": "structure_md_conformational_clusters", "params": {"trajectory_path": str(path), "topology_path": str(topology), "cutoff": 0.0}}])

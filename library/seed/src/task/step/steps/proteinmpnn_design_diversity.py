@@ -16,6 +16,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
 
 MODELS = ("v_48_002", "v_48_010", "v_48_020", "v_48_030")
@@ -200,7 +201,8 @@ class ProteinmpnnDesignDiversityStep(Step):
 
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "proteinmpnn_design_diversity",
@@ -216,7 +218,8 @@ class ProteinmpnnDesignDiversityStep(Step):
         "icon": "Stack",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+    ],
             "output": {
                 "mode": "declare",
                 "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": True},
@@ -225,13 +228,15 @@ class ProteinmpnnDesignDiversityStep(Step):
         "resources": {"memory_modes": ["full"], "supports_cuda": True, "estimate": "estimate_memory"},
         "dependencies": ["numpy>=1.24"],
         "dependency_imports": ["numpy"],
-        "inputs_arity": 0,
+        "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx, inputs) -> None:
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
         structure_text = str(params.get("structure_path") or "").strip()
         if not structure_text:
             raise StepError("proteinmpnn_design_diversity: structure_path is required")

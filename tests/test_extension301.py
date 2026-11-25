@@ -14,6 +14,7 @@ from src.task.step.steps.boltz_affinity_summary import (
     collect_affinity,
     parse_affinity,
 )
+from port_helpers import run_legacy
 
 
 def _write(tmp_path, name, payload):
@@ -60,7 +61,7 @@ def test_errors(tmp_path):
 def test_run_matches_contract(tmp_path):
     _write(tmp_path, "run_a", {"affinity_pred_value": -2.5, "affinity_probability_binary": 0.82})
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "boltz_affinity_summary", "params": {"output": "affinity", "affinity_path": str(tmp_path / "predictions")}}])
+    run_legacy(ctx, [{"name": "boltz_affinity_summary", "params": {"output": "affinity", "affinity_path": str(tmp_path / "predictions")}}])
     result = ctx["affinity"]
     assert result.dims == ["complex", "statistic"]
     assert result.data.shape == (1, 3)
@@ -72,4 +73,4 @@ def test_run_matches_contract(tmp_path):
 def test_run_requires_path(tmp_path):
     ctx = Context(str(tmp_path / "task"), {"params": {}})
     with pytest.raises(StepError, match="affinity_path is required"):
-        run(ctx, [{"name": "boltz_affinity_summary", "params": {"output": "affinity"}}])
+        run_legacy(ctx, [{"name": "boltz_affinity_summary", "params": {"output": "affinity"}}])

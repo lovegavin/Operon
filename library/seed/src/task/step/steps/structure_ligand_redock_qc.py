@@ -9,6 +9,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 
 
 def run_redock(
@@ -71,7 +72,10 @@ class StructureLigandRedockQcStep(Step):
     parameters_file = "structure_ligand_redock_qc.StructureLigandRedockQcStep.parameters.json"
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'file_artifact', 'representations': ['file_artifact'], 'metadata': {}},
+        {'logical_type': 'file_artifact', 'representations': ['file_artifact'], 'metadata': {}},
+        {'logical_type': 'file_artifact', 'representations': ['file_artifact'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_ligand_redock_qc",
@@ -86,19 +90,28 @@ class StructureLigandRedockQcStep(Step):
         "icon": "Flask",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [], 'info': {}},
+        {'version': 1, 'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [], 'info': {}},
+        {'version': 1, 'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [], 'info': {}},
+    ],
             "output": {"mode": "declare", "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": False}},
         },
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
         "dependencies": ["posebusters"],
         "dependency_imports": ["posebusters"],
-        "inputs_arity": 0,
+        "inputs_arity": 3,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx, inputs):
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['complex_path'] = _port_inputs.file(inputs[0], params.get('complex_path'), self.name, roles=('complex',))
+        if len(inputs) > 1:
+            params['ligand_path'] = _port_inputs.file(inputs[1], params.get('ligand_path'), self.name, roles=('ligand',))
+        if len(inputs) > 2:
+            params['pose_path'] = _port_inputs.file(inputs[2], params.get('pose_path'), self.name, roles=('pose',))
         report = run_redock(
             Path(str(params.get("complex_path", ""))),
             Path(str(params.get("ligand_path", ""))),

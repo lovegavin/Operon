@@ -2,6 +2,34 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
+    "atom_dim": {
+      "title": "原子维",
+      "type": "string",
+      "default": "atom",
+      "x-ui-group": "输入",
+      "x-ui-order": 1
+    },
+    "field_dim": {
+      "title": "字段维",
+      "type": "string",
+      "default": "field",
+      "x-ui-group": "输入",
+      "x-ui-order": 2
+    },
+    "sequence_dim": {
+      "title": "序列维",
+      "type": "string",
+      "default": "sequence",
+      "x-ui-group": "输入",
+      "x-ui-order": 3
+    },
+    "position_dim": {
+      "title": "位点维",
+      "type": "string",
+      "default": "position",
+      "x-ui-group": "输入",
+      "x-ui-order": 4
+    },
     "structure_path": {
       "x-operon-path": "workflow",
       "type": "string",

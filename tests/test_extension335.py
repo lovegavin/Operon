@@ -5,6 +5,7 @@ import pytest
 
 from src.core.errors import StepError
 from src.task.step.steps.structure_md_hbond_lifetime import lifetime_rows, run_lengths
+from port_helpers import run_legacy
 
 
 def _atom(chain, resname, number, name, element):
@@ -52,7 +53,7 @@ def test_run_round_trip(tmp_path):
     path = tmp_path / "traj.npy"
     np.save(path, frames / 10.0)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_hbond_lifetime", "params": {"trajectory_path": str(path), "topology_path": str(topology), "frame_time_ps": 0.5, "min_occupancy": 0.5}}])
+    run_legacy(ctx, [{"name": "structure_md_hbond_lifetime", "params": {"trajectory_path": str(path), "topology_path": str(topology), "frame_time_ps": 0.5, "min_occupancy": 0.5}}])
     result = ctx["lifetimes"]
     assert result.data.shape == (1, 5)
     assert result.data[0, 0] == pytest.approx(1.0)

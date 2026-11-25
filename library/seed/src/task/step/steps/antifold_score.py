@@ -12,6 +12,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms import Form
 from src.task.step import Step
+from src.task.step.steps import _port_inputs
 
 _IMGT = {"CDR1": (27, 38), "CDR2": (56, 65), "CDR3": (105, 117)}
 
@@ -118,7 +119,8 @@ class AntifoldScoreStep(Step):
 
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "antifold_score",
@@ -130,7 +132,8 @@ class AntifoldScoreStep(Step):
         "icon": "ChartLine",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+    ],
             "output": {
                 "version": 1,
                 "mode": "declare",
@@ -145,7 +148,7 @@ class AntifoldScoreStep(Step):
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory", "environment": "antifold"},
         "dependencies": [],
         "dependency_imports": ["antifold", "pandas", "torch"],
-        "inputs_arity": 0,
+        "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
     }
@@ -158,7 +161,9 @@ class AntifoldScoreStep(Step):
         }
 
     def run(self, ctx, inputs):
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
         raw_path = str(params.get("structure_path", "") or "").strip()
         if not raw_path:
             raise StepError("antifold_score: structure_path is required")

@@ -12,6 +12,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
 
 from .vina_dock import docking_command, ligand_centroid, parse_vina_log
@@ -111,7 +112,8 @@ class VinaDockBatchStep(Step):
     parameters_file = "vina_dock_batch.VinaDockBatchStep.parameters.json"
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'file_artifact', 'representations': ['file_artifact'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "vina_dock_batch",
@@ -126,7 +128,8 @@ class VinaDockBatchStep(Step):
         "icon": "Flask",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [], 'info': {}},
+    ],
             "output": {
                 "mode": "declare",
                 "schema": {
@@ -144,13 +147,15 @@ class VinaDockBatchStep(Step):
         },
         "dependencies": ["numpy>=1.24"],
         "dependency_imports": [],
-        "inputs_arity": 0,
+        "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx: Context, inputs) -> None:
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['receptor_path'] = _port_inputs.file(inputs[0], params.get('receptor_path'), self.name, roles=('receptor',))
         receptor_text = str(params.get("receptor_path") or "").strip()
         ligand_text = str(params.get("ligand_paths") or "").strip()
         binary = _vina_common.resolve_binary(str(params.get("vina_path") or "vina").strip() or "vina")

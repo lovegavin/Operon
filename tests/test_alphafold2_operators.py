@@ -8,6 +8,7 @@ pure Python.
 
 from __future__ import annotations
 
+
 import csv
 import json
 import sys
@@ -434,7 +435,15 @@ def test_the_four_operators_declare_the_alphafold2_environment():
         assert descriptor["kind"] == "operator"
         assert descriptor["resources"]["environment"] == "alphafold2"
         assert descriptor["output_parameter"] == "output"
-        assert descriptor["inputs_arity"] == 0
+        expected = {
+            "alphafold2_predict": (1, ["form"]),
+            "alphafold2_msa_search": (1, ["form"]),
+            "alphafold2_rank_models": (0, []),
+            "alphafold2_batch_predict": (0, []),
+        }
+        arity, kinds = expected[operator_id]
+        assert descriptor["inputs_arity"] == arity
+        assert [value["logical_type"] for value in descriptor["data_formats"]["inputs"]] == kinds
         assert descriptor["parameters_schema"]["type"] == "object"
 
 

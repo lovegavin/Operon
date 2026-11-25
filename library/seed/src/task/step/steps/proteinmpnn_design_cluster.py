@@ -9,6 +9,7 @@ import numpy as np
 from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 
 from .proteinmpnn_design_diversity import (
     MODELS,
@@ -52,7 +53,8 @@ class ProteinmpnnDesignClusterStep(Step):
 
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "version": "1.0.0",
@@ -64,7 +66,8 @@ class ProteinmpnnDesignClusterStep(Step):
         "icon": "Stack",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+    ],
             "output": {
                 "mode": "declare",
                 "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": True},
@@ -72,7 +75,7 @@ class ProteinmpnnDesignClusterStep(Step):
         },
         "resources": {"memory_modes": ["full"], "supports_cuda": True},
         "dependencies": ["numpy>=1.24"],
-        "inputs_arity": 0,
+        "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
     }
@@ -80,20 +83,21 @@ class ProteinmpnnDesignClusterStep(Step):
     _STATISTICS = ("cluster", "cluster_size", "mean_identity", "max_identity")
 
     def run(self, ctx, inputs) -> None:
+        params = dict(ctx.step_params)
         if inputs:
-            raise StepError("proteinmpnn_design_cluster: this operator takes no graph inputs")
-        structure_text = str(ctx.step_params.get("structure_path") or "").strip()
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
+        structure_text = str(params.get("structure_path") or "").strip()
         if not structure_text:
             raise StepError("proteinmpnn_design_cluster: structure_path is required")
         structure = Path(structure_text).expanduser()
         if not structure.is_file():
             raise StepError(f"proteinmpnn_design_cluster: structure_path {structure} does not exist")
 
-        cluster_dim = str(ctx.step_params.get("cluster_dim", "design") or "design")
-        out_name = ctx.step_params.get("output", "design_clusters") or "design_clusters"
-        threshold = ctx.step_params.get("identity_threshold", 0.8)
-        model_name = str(ctx.step_params.get("model_name") or "v_48_020")
-        chain = str(ctx.step_params.get("chain") or "")
+        cluster_dim = str(params.get("cluster_dim", "design") or "design")
+        out_name = params.get("output", "design_clusters") or "design_clusters"
+        threshold = params.get("identity_threshold", 0.8)
+        model_name = str(params.get("model_name") or "v_48_020")
+        chain = str(params.get("chain") or "")
 
         if not isinstance(threshold, (int, float)) or not 0.0 < float(threshold) <= 1.0:
             raise StepError("proteinmpnn_design_cluster: identity_threshold must be in (0, 1]")
@@ -102,7 +106,7 @@ class ProteinmpnnDesignClusterStep(Step):
                 f"proteinmpnn_design_cluster: model_name must be one of {', '.join(MODELS)}"
             )
 
-        sequences = run_designer(dict(ctx.step_params), structure, chain)
+        sequences = run_designer(dict(params), structure, chain)
         if len(sequences) < 2:
             raise StepError("proteinmpnn_design_cluster: at least two designs are required")
         identities = pairwise_identities(sequences)

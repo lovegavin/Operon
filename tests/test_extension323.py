@@ -15,6 +15,7 @@ from src.core.errors import StepError
 from src.task.context import Context
 from src.task.runner import run
 from src.task.step.steps.structure_ligand_redock_qc import redock_rows, run_redock
+from port_helpers import run_legacy
 
 
 def _ligand(path, shift=0.0):
@@ -59,7 +60,7 @@ def test_run_round_trip(tmp_path):
     _ligand(tmp_path / "crystal.sdf")
     _ligand(tmp_path / "pose.sdf", shift=3.0)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_ligand_redock_qc", "params": {
+    run_legacy(ctx, [{"name": "structure_ligand_redock_qc", "params": {
         "output": "redock",
         "complex_path": str(tmp_path / "protein.pdb"),
         "ligand_path": str(tmp_path / "crystal.sdf"),

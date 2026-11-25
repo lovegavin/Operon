@@ -1,6 +1,7 @@
 """Hand and oracle checks for the ProteinMPNN design operator."""
 from __future__ import annotations
 
+
 import json
 import sys
 from pathlib import Path
@@ -15,6 +16,7 @@ from src.task.step.steps.proteinmpnn_design import (
     parse_positions,
     pdb_chains,
 )
+from port_helpers import run_legacy
 
 FAKE_RUNNER = '''\
 import json
@@ -119,7 +121,7 @@ def test_saved_native_files_and_sequence_axis(tmp_path):
     structure, repo = _write_pdb(tmp_path), _fake_repo(tmp_path)
     ctx = Context(tmp_path / 'native-task', {})
     try:
-        run(ctx, [
+        run_legacy(ctx, [
             {'name': 'proteinmpnn_design', 'inputs': [], 'params': {
                 'output': 'designs', 'structure_path': str(structure),
                 'proteinmpnn_path': str(repo), 'device': 'cpu'}},

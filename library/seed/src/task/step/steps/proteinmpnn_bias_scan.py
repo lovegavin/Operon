@@ -17,6 +17,7 @@ from src.core.errors import StepError
 from src.core.forms.form import Form
 from src.task.context.base import Context
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
 
 from ._esm_common import AA_ORDER
@@ -190,7 +191,8 @@ class ProteinmpnnBiasScanStep(Step):
 
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "proteinmpnn_bias_scan",
@@ -206,7 +208,8 @@ class ProteinmpnnBiasScanStep(Step):
         "icon": "Shuffle",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+    ],
             "output": {
                 "mode": "declare",
                 "schema": {
@@ -224,13 +227,15 @@ class ProteinmpnnBiasScanStep(Step):
         },
         "dependencies": ["numpy>=1.24"],
         "dependency_imports": [],
-        "inputs_arity": 0,
+        "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx: Context, inputs: list) -> None:
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
         structure = Path(str(params.get("structure_path", ""))).expanduser()
         repo_value = str(params.get("proteinmpnn_path", "") or "")
         repo = Path(repo_value).expanduser() if repo_value else Path(os.environ.get("OPERON_PROTEINMPNN_PATH", ""))

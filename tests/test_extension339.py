@@ -9,6 +9,7 @@ from src.core.errors import StepError
 from src.task.context import Context
 from src.task.runner import run
 from src.task.step.steps.structure_md_tica import covariance_matrices, implied_timescales, tica_eigenvalues
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 
@@ -43,7 +44,7 @@ def test_run(tmp_path):
     path = tmp_path / "traj.npy"
     np.save(path, frames)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_tica", "params": {"trajectory_path": str(path), "topology_path": str(topology), "lag_frames": 2, "frame_time_ps": 0.5, "n_modes": 2}}])
+    run_legacy(ctx, [{"name": "structure_md_tica", "params": {"trajectory_path": str(path), "topology_path": str(topology), "lag_frames": 2, "frame_time_ps": 0.5, "n_modes": 2}}])
     result = ctx["components"]
     assert result.dims == ["mode", "statistic"]
     assert result.data.shape == (2, 2)

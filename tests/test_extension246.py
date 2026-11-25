@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+
 import sys
 from pathlib import Path
 
@@ -18,6 +19,7 @@ from src.task.step.steps.rfdiffusion_design import (
     parse_contigs,
     stack_designs,
 )
+from port_helpers import run_legacy
 
 
 def _line(
@@ -149,7 +151,7 @@ def _params(repo: Path, **overrides) -> dict:
 def test_run(tmp_path) -> None:
     repo = _fake_repo(tmp_path)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "rfdiffusion_design", "inputs": [], "params": _params(repo)}])
+    run_legacy(ctx, [{"name": "rfdiffusion_design", "inputs": [], "params": _params(repo)}])
     form = ctx["designs"]
     assert form.dims == ["design", "atom", "field"]
     assert form.data.shape == (2, 4, 12)
@@ -183,19 +185,23 @@ def test_run_errors(tmp_path) -> None:
 
     failing = _fake_repo(tmp_path / "failing", fail=True)
     with pytest.raises(StepError, match="failed with exit code 3"):
-        run(ctx, [{"name": "rfdiffusion_design", "inputs": [], "params": _params(failing)}])
+        run_legacy(ctx, [{"name": "rfdiffusion_design", "inputs": [], "params": _params(failing)}])
 
     empty = _fake_repo(tmp_path / "empty", empty=True)
     with pytest.raises(StepError, match="produced no PDB"):
-        run(ctx, [{"name": "rfdiffusion_design", "inputs": [], "params": _params(empty)}])
+        run_legacy(ctx, [{"name": "rfdiffusion_design", "inputs": [], "params": _params(empty)}])
 
     bare = tmp_path / "bare"
     (bare / "models").mkdir(parents=True)
     (bare / "models" / "Complex_beta_ckpt.pt").write_bytes(b"stub")
     with pytest.raises(StepError, match="is partial"):
-        run(ctx, [{"name": "rfdiffusion_design", "inputs": [], "params": _params(bare)}])
+        run_legacy(ctx, [{"name": "rfdiffusion_design", "inputs": [], "params": _params(bare)}])
 
 
 def test_definition() -> None:
-    assert RfdiffusionDesignStep.definition["inputs_arity"] == 0
+    assert RfdiffusionDesignStep.definition["inputs_arity"] == 1
+    assert [
+        value["logical_type"]
+        for value in RfdiffusionDesignStep.definition["data_formats"]["inputs"]
+    ] == ["form"]
     assert RfdiffusionDesignStep.definition["icon"] == "ShareNetwork"

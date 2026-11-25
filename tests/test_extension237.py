@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+
 import json
 from pathlib import Path
 
@@ -12,6 +13,7 @@ from src.core.errors import StepError
 from src.task.context.base import Context
 from src.task.runner import run
 from src.task.step.steps.proteinmpnn_tied_design import parse_tied_groups, tied_payload
+from port_helpers import run_legacy
 
 PDB_TEXT = (
     "ATOM      1  CA  ALA A   1       0.000   0.000   0.000  1.00 20.00           C\n"
@@ -96,7 +98,7 @@ def _run(tmp_path: Path, repo: Path, structure: Path, **params) -> Context:
         "output": "designs",
         **params,
     }
-    run(ctx, [{"name": "proteinmpnn_tied_design", "inputs": [], "params": payload}])
+    run_legacy(ctx, [{"name": "proteinmpnn_tied_design", "inputs": [], "params": payload}])
     return ctx
 
 

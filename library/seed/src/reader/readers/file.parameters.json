@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "string",
+      "title": "格式",
+      "description": "记录在产物上的表示名；留空则按扩展名推断。",
+      "default": ""
+    },
+    "role": {
+      "type": "string",
+      "title": "角色",
+      "description": "产物里的文件角色名，例如 trajectory、topology、complex。",
+      "default": "data"
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

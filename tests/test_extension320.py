@@ -14,6 +14,7 @@ from src.task.step.steps.structure_md_hbond_occupancy import (
     parse_atoms,
     donor_hydrogens,
 )
+from port_helpers import run_legacy
 
 
 def _atom_line(serial, name, resname, chain, number, x, y, z, element="N"):
@@ -63,7 +64,7 @@ def test_donor_detection():
 def test_run_occupancy_hand_case(tmp_path):
     topology, npy = _synthetic(tmp_path)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_hbond_occupancy", "params": {"output": "hbonds", "trajectory_path": str(npy), "topology_path": str(topology), "cutoff": 3.5, "angle_cutoff": 120.0, "min_occupancy": 0.1}}])
+    run_legacy(ctx, [{"name": "structure_md_hbond_occupancy", "params": {"output": "hbonds", "trajectory_path": str(npy), "topology_path": str(topology), "cutoff": 3.5, "angle_cutoff": 120.0, "min_occupancy": 0.1}}])
     table = ctx["hbonds"]
     assert table.data.shape == (1, 3)
     assert table.data[0][0] == pytest.approx(1 / 3, rel=1e-5)
@@ -84,4 +85,4 @@ def test_errors(tmp_path):
         ]) + "\n")
         two_atom = tmp_path / "two.npy"
         np.save(two_atom, np.load(npy)[:, :2])
-        run(ctx, [{"name": "structure_md_hbond_occupancy", "params": {"output": "hbonds", "trajectory_path": str(two_atom), "topology_path": str(no_h)}}])
+        run_legacy(ctx, [{"name": "structure_md_hbond_occupancy", "params": {"output": "hbonds", "trajectory_path": str(two_atom), "topology_path": str(no_h)}}])

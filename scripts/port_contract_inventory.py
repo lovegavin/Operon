@@ -250,25 +250,32 @@ def main() -> int:
 
     add("## Zero-input operators carrying run data by path")
     add("")
-    add("These are the third-path violations: `inputs_arity: 0` and the data arrives")
-    add("through a parameter. Each gets real ports; the data path parameter is removed.")
-    add("")
-    add("| Operator | Data parameters | Planned ports | Target arity |")
-    add("| --- | --- | --- | ---: |")
-    for name in sorted(zero_input):
-        row = zero_input[name]
-        params = [p for p in row["paths"] if category(p) == "data"]
-        planned = "; ".join(f"`{p}` -> {planned_kind(p)}" for p in params)
-        arity = max(len(params), row["arity"] or 0)
-        add(f"| `{name}` | {', '.join(f'`{p}`' for p in params)} | {planned} | {arity} |")
+    if zero_input:
+        add("These are third-path violations: `inputs_arity: 0` while run data arrives")
+        add("through a parameter. Each needs a real port.")
+        add("")
+        add("| Operator | Data parameters | Planned ports | Target arity |")
+        add("| --- | --- | --- | ---: |")
+        for name in sorted(zero_input):
+            row = zero_input[name]
+            params = [p for p in row["paths"] if category(p) == "data"]
+            planned = "; ".join(f"`{p}` -> {planned_kind(p)}" for p in params)
+            arity = max(len(params), row["arity"] or 0)
+            add(f"| `{name}` | {', '.join(f'`{p}`' for p in params)} | {planned} | {arity} |")
+    else:
+        add("None remain. Batch 4 gave every operator that carried run data by path a")
+        add("declared port, so no operator relies on the retired third path.")
     add("")
 
     add("## Ported operators with a data path override")
     add("")
-    add("These already take a port but still accept the same data as a bare path. The")
-    add("override is removed so the port is the only entrance.")
+    add("These declare a port and still accept the same data as a bare path. The")
+    add("override stays as an optional entrance for direct API calls and existing")
+    add("tests; a workflow transports the data through the port. Removing it is a")
+    add("documented follow-up, kept separate because 170 test references and several")
+    add("shipped route templates still set the parameter.")
     add("")
-    add("| Operator | Inputs arity | Data parameters to remove |")
+    add("| Operator | Inputs arity | Data parameters kept as an optional override |")
     add("| --- | ---: | --- |")
     for name in sorted(overrides):
         row = overrides[name]
@@ -299,9 +306,9 @@ def main() -> int:
     add("")
     add("Eleven readers emit `file_artifact` and declare no inputs: Alignment, BamFile,")
     add("ChainFile, Cooler, FastaFile, Fastq, GffFile, Pairs, SbmlFile, TsvFile and")
-    add("VcfFile. A generic `FileReader` is added in batch 4 so that formats without a")
-    add("typed reader (MD trajectories, PDBQT, result bundles) have a file source; the")
-    add("reader count moves from 109 to 110 because of it.")
+    add("VcfFile. A generic `FileReader` supplies a file source for formats without a")
+    add("typed reader (MD trajectories, PDBQT, result bundles); after batch 4 the reader")
+    add("count is 110.")
     add("")
 
     add("## Manual review")

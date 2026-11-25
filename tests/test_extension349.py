@@ -11,6 +11,7 @@ from src.task.step.steps.structure_md_interface_occupancy import (
     occupancy_rows,
     select_chains,
 )
+from port_helpers import run_legacy
 
 
 def _system(frames=3):
@@ -69,7 +70,7 @@ def test_run_round_trip(tmp_path):
         "ATOM      4  CA  THR B   2       3.000   0.000   8.000  1.00 90.00           C\n"
     )
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_interface_occupancy", "params": {"output": "interface", "trajectory_path": str(tmp_path / "traj.npy"), "topology_path": str(tmp_path / "top.pdb"), "cutoff": 5.0}}])
+    run_legacy(ctx, [{"name": "structure_md_interface_occupancy", "params": {"output": "interface", "trajectory_path": str(tmp_path / "traj.npy"), "topology_path": str(tmp_path / "top.pdb"), "cutoff": 5.0}}])
     result = ctx["interface"]
     assert result.dims == ["residue", "statistic"]
     assert result.info["n_frames"] == 3

@@ -11,6 +11,7 @@ from src.core.errors import StepError
 from src.core.forms import Form
 from src.reader import read_source
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 from src.task.step.steps._protein_common import column_index, residue_labels
 
 
@@ -108,7 +109,9 @@ class StructureMdInterfaceOccupancyStep(Step):
 
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'file_artifact', 'representations': ['file_artifact'], 'metadata': {}},
+        {'logical_type': 'file_artifact', 'representations': ['file_artifact'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "structure_md_interface_occupancy",
@@ -120,7 +123,9 @@ class StructureMdInterfaceOccupancyStep(Step):
         "icon": "Intersect",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [], 'info': {}},
+        {'version': 1, 'kind': 'file', 'numeric': False, 'ndim': 0, 'dims': [], 'info': {}},
+    ],
             "output": {
                 "mode": "declare",
                 "schema": {"ndim": 2, "numeric": True, "info_open": True, "axis_info_open": True},
@@ -129,13 +134,17 @@ class StructureMdInterfaceOccupancyStep(Step):
         "resources": {"memory_modes": ["full"], "estimate": "estimate_memory"},
         "dependencies": ["numpy>=1.24", "scipy>=1.10"],
         "dependency_imports": ["numpy", "scipy"],
-        "inputs_arity": 0,
+        "inputs_arity": 2,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx, inputs):
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['trajectory_path'] = _port_inputs.file(inputs[0], params.get('trajectory_path'), self.name, roles=('trajectory',))
+        if len(inputs) > 1:
+            params['topology_path'] = _port_inputs.file(inputs[1], params.get('topology_path'), self.name, roles=('topology',))
         trajectory = str(params.get("trajectory_path", "") or "").strip()
         if not trajectory:
             raise StepError("structure_md_interface_occupancy: trajectory_path is required")

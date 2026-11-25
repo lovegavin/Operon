@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+
 import sys
 from pathlib import Path
 
@@ -19,6 +20,7 @@ from src.task.step.steps.vina_dock import (
     parse_poses,
     parse_vina_log,
 )
+from port_helpers import run_legacy
 
 def _pdbqt_line(serial: int, name: str, resname: str, chain: str, number: int, x: float, y: float, z: float, charge: float, atom_type: str) -> str:
     return (
@@ -159,7 +161,7 @@ def test_run(tmp_path) -> None:
         "vina_path": str(binary),
     }
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "vina_dock", "inputs": [], "params": params}])
+    run_legacy(ctx, [{"name": "vina_dock", "inputs": [], "params": params}])
     form = ctx["poses"]
     assert form.dims == ["pose", "atom", "field"]
     assert form.data.shape == (2, 2, 5)
@@ -175,14 +177,18 @@ def test_run_errors(tmp_path) -> None:
     with pytest.raises(StepError, match="not a .pdbqt file"):
         plain = tmp_path / "receptor.pdb"
         plain.write_text(RECEPTOR, encoding="utf-8")
-        run(ctx, [{"name": "vina_dock", "inputs": [], "params": {"receptor_path": str(plain), "ligand_path": str(ligand), "vina_path": str(binary)}}])
+        run_legacy(ctx, [{"name": "vina_dock", "inputs": [], "params": {"receptor_path": str(plain), "ligand_path": str(ligand), "vina_path": str(binary)}}])
     with pytest.raises(StepError, match="is not a file"):
-        run(ctx, [{"name": "vina_dock", "inputs": [], "params": {"receptor_path": str(receptor), "ligand_path": str(tmp_path / "none.pdbqt"), "vina_path": str(binary)}}])
+        run_legacy(ctx, [{"name": "vina_dock", "inputs": [], "params": {"receptor_path": str(receptor), "ligand_path": str(tmp_path / "none.pdbqt"), "vina_path": str(binary)}}])
     with pytest.raises(StepError, match="was not found on PATH"):
-        run(ctx, [{"name": "vina_dock", "inputs": [], "params": {"receptor_path": str(receptor), "ligand_path": str(ligand), "vina_path": "definitely-not-vina"}}])
+        run_legacy(ctx, [{"name": "vina_dock", "inputs": [], "params": {"receptor_path": str(receptor), "ligand_path": str(ligand), "vina_path": "definitely-not-vina"}}])
 
 
 def test_definition() -> None:
-    assert VinaDockStep.definition["inputs_arity"] == 0
+    assert VinaDockStep.definition["inputs_arity"] == 2
+    assert [
+        value["logical_type"]
+        for value in VinaDockStep.definition["data_formats"]["inputs"]
+    ] == ["file_artifact", "file_artifact"]
     assert VinaDockStep.definition["category"] == "Machine Learning"
     assert sys.executable

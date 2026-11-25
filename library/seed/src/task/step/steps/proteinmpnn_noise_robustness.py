@@ -21,6 +21,7 @@ import numpy as np
 from src.core import Form, StepError
 from src.task.context import Context
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
 from src.task.step.steps.proteinmpnn_design import MODELS, parse_design_fasta
 
@@ -239,7 +240,8 @@ class ProteinmpnnNoiseRobustnessStep(Step):
 
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
          'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "proteinmpnn_noise_robustness",
@@ -256,7 +258,8 @@ class ProteinmpnnNoiseRobustnessStep(Step):
         "icon": "Brain",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+    ],
             "output": {
                 "mode": "declare",
                 "schema": {
@@ -274,13 +277,15 @@ class ProteinmpnnNoiseRobustnessStep(Step):
         },
         "dependencies": ["numpy>=1.24"],
         "dependency_imports": [],
-        "inputs_arity": 0,
+        "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx: Context, inputs) -> None:
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
         structure = Path(
             str(params.get("structure_path", "")).strip()
         ).expanduser()

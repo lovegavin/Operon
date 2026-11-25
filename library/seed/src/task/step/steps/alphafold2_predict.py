@@ -11,6 +11,7 @@ from pathlib import Path
 
 from src.core import FileArtifact, StepError
 from src.task.step.base import Step
+from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
 
@@ -347,7 +348,8 @@ class Alphafold2PredictStep(Step):
 
     definition = {
         'protocol_revision': '3.7',
-        'data_formats': {'inputs': [],
+        'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}},
+    ],
                          'outputs': [{'logical_type': 'file_artifact',
                                       'representations': ['file_artifact'],
                                       'metadata': {}}]},
@@ -366,7 +368,8 @@ class Alphafold2PredictStep(Step):
         "icon": "Brain",
         "contracts": {
             "version": 1,
-            "inputs": [],
+            "inputs": [{'version': 1, 'numeric': True, 'dims': [{'param': 'sequence_dim', 'default': 'sequence'}, {'param': 'position_dim', 'default': 'position'}], 'labels': [], 'parallel': [], 'ndim': 2, 'info': {'representation': {'type': 'string', 'const': 'sequence_codes'}}},
+    ],
             "output": {
                 "mode": "declare",
                 "schema": {
@@ -385,13 +388,15 @@ class Alphafold2PredictStep(Step):
             "supports_cuda": True,
             "estimate": "estimate_memory",
         },
-        "inputs_arity": 0,
+        "inputs_arity": 1,
         "outputs": [],
         "output_parameter": "output",
     }
 
     def run(self, ctx, inputs) -> None:
-        params = ctx.step_params
+        params = dict(ctx.step_params)
+        if inputs:
+            params['fasta_path'] = _port_inputs.fasta(inputs[0], params.get('fasta_path'), self.name)
         out_name = str(params.get("output") or "structure")
 
         fasta_value = str(params.get("fasta_path") or "").strip()

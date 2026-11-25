@@ -4,6 +4,20 @@
   "additionalProperties": false,
   "title": "界面残基能量分解参数",
   "properties": {
+    "atom_dim": {
+      "title": "原子维",
+      "type": "string",
+      "default": "atom",
+      "x-ui-group": "输入",
+      "x-ui-order": 1
+    },
+    "field_dim": {
+      "title": "字段维",
+      "type": "string",
+      "default": "field",
+      "x-ui-group": "输入",
+      "x-ui-order": 2
+    },
     "structure_path": {
       "x-operon-path": "workflow",
       "title": "结构 PDB 路径",

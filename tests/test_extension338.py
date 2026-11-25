@@ -15,6 +15,7 @@ from src.task.step.steps.structure_md_markov_states import (
     transition_counts,
     transition_matrix,
 )
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 
@@ -56,7 +57,7 @@ def test_run(tmp_path):
     path = tmp_path / "traj.npy"
     np.save(path, np.asarray(frames) / 10.0)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_markov_states", "params": {"trajectory_path": str(path), "topology_path": str(topology), "cutoff": 1.0, "lag_frames": 2, "frame_time_ps": 0.5}}])
+    run_legacy(ctx, [{"name": "structure_md_markov_states", "params": {"trajectory_path": str(path), "topology_path": str(topology), "cutoff": 1.0, "lag_frames": 2, "frame_time_ps": 0.5}}])
     result = ctx["states"]
     assert result.dims == ["state", "statistic"]
     assert result.info["n_states"] == 2

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+
 import json
 from pathlib import Path
 
@@ -14,6 +15,7 @@ from src.reader import read_source
 from src.task.context.base import Context
 from src.task.runner import run
 from src.task.step.steps._sequence_common import encode_sequences
+from port_helpers import run_legacy
 
 FAKE_RUNNER = """import json
 import os
@@ -57,7 +59,7 @@ def _run(tmp_path, params, repo, source, monkeypatch):
     monkeypatch.setenv("OPERON_PACK_CAPTURE", str(capture))
     ctx = Context(str(tmp_path / "task"), {"params": {}})
     ctx.step_params = params
-    run(ctx, [{"name": "ligandmpnn_side_chain_packing", "inputs": [], "params": params}])
+    run_legacy(ctx, [{"name": "ligandmpnn_side_chain_packing", "inputs": [], "params": params}])
     return ctx["packed"], json.loads(capture.read_text())
 
 

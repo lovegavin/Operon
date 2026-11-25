@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+
 import sys
 from pathlib import Path
 
@@ -141,5 +142,5 @@ def test_parameter_errors(tmp_path: Path) -> None:
         step.run(Ctx({**base, "identity_threshold": 1.5}), [])
     with pytest.raises(StepError, match="model_name"):
         step.run(Ctx({**base, "model_name": "v_99"}), [])
-    with pytest.raises(StepError, match="takes no graph inputs"):
+    with pytest.raises(StepError, match="the structure port expects a form or file_artifact"):
         step.run(Ctx(base), [object()])

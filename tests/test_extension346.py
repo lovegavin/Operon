@@ -9,6 +9,7 @@ from src.core.errors import StepError
 from src.task.context import Context
 from src.task.runner import run
 from src.task.step.steps.foldseek_align import foldseek_command, parse_row
+from port_helpers import run_legacy
 
 
 FIXTURE = "tests/fixtures/vhh_1mel.pdb"
@@ -41,7 +42,7 @@ def test_run_round_trip(tmp_path):
         encoding="utf-8",
     )
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "foldseek_align", "params": {"output": "alignment", "query_path": FIXTURE, "target_path": FIXTURE, "foldseek_path": str(script)}}])
+    run_legacy(ctx, [{"name": "foldseek_align", "params": {"output": "alignment", "query_path": FIXTURE, "target_path": FIXTURE, "foldseek_path": str(script)}}])
     result = ctx["alignment"]
     assert result.data.shape == (1, 7)
     assert result.info["alntmscore"] == pytest.approx(0.95)
@@ -53,8 +54,8 @@ def test_errors(tmp_path):
     script.write_text("print('x')\n", encoding="utf-8")
     ctx = Context(str(tmp_path / "t"), {"params": {}})
     with pytest.raises(StepError, match="query_path is required"):
-        run(ctx, [{"name": "foldseek_align", "params": {"output": "alignment", "target_path": FIXTURE}}])
+        run_legacy(ctx, [{"name": "foldseek_align", "params": {"output": "alignment", "target_path": FIXTURE}}])
     with pytest.raises(StepError, match="is not a file"):
-        run(ctx, [{"name": "foldseek_align", "params": {"output": "alignment", "query_path": "/tmp/nope.pdb", "target_path": FIXTURE}}])
+        run_legacy(ctx, [{"name": "foldseek_align", "params": {"output": "alignment", "query_path": "/tmp/nope.pdb", "target_path": FIXTURE}}])
     with pytest.raises(StepError, match="was not found"):
-        run(ctx, [{"name": "foldseek_align", "params": {"output": "alignment", "query_path": FIXTURE, "target_path": FIXTURE, "foldseek_path": "/tmp/nonexistent-foldseek"}}])
+        run_legacy(ctx, [{"name": "foldseek_align", "params": {"output": "alignment", "query_path": FIXTURE, "target_path": FIXTURE, "foldseek_path": "/tmp/nonexistent-foldseek"}}])

@@ -1,6 +1,7 @@
 """Tests for the ProteinMPNN per-position amino-acid profile."""
 from __future__ import annotations
 
+
 import os
 import sys
 from pathlib import Path

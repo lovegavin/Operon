@@ -19,10 +19,10 @@ editing by hand. Path roles are declared by name in that script, so an unknown
 | Definitions built indirectly (manual review) | 17 |
 | Operators still emitting `file_artifact` | 16 |
 | Emitters converted to `form` | 1 |
-| Operators consuming `file_artifact` | 54 |
+| Operators consuming `file_artifact` | 77 |
 | Operators with data path parameters | 68 |
-| Zero-input operators carrying run data by path | 54 |
-| Ported operators still carrying a data path override | 14 |
+| Zero-input operators carrying run data by path | 0 |
+| Ported operators still carrying a data path override | 68 |
 | `tool` path parameters (occurrences) | 62 |
 | `weights` path parameters (occurrences) | 43 |
 | `resource` path parameters (occurrences) | 8 |
@@ -39,8 +39,8 @@ sixteen keep a file output for the reason recorded per row.
 | --- | --- | --- | --- |
 | `align_reads` | 1 in / file out | keep `file_artifact` | BAM alignment; fifteen downstream operators open it by path and BAM is a streaming binary container |
 | `alphafold2_batch_predict` | 0 in / file out | keep `file_artifact` | heterogeneous summary table (names, status, paths, error text) over a prediction tree; no lossless numeric form |
-| `alphafold2_msa_search` | 0 in / file out | keep `file_artifact` | A3M alignment is the deliverable for external AF2/ColabFold tooling; insertion columns have no numeric form encoding |
-| `alphafold2_predict` | 0 in / file out | keep `file_artifact` | multi-model PDB/mmCIF bundle; `export_results` has no PDB writer, so a form could not be exported back |
+| `alphafold2_msa_search` | 1 in / file out | keep `file_artifact` | A3M alignment is the deliverable for external AF2/ColabFold tooling; insertion columns have no numeric form encoding |
+| `alphafold2_predict` | 1 in / file out | keep `file_artifact` | multi-model PDB/mmCIF bundle; `export_results` has no PDB writer, so a form could not be exported back |
 | `alphafold2_rank_models` | 0 in / file out | keep `file_artifact` | ranked copies of the same PDB bundle; no PDB writer on export |
 | `build_contacts` | 1 in / file out | keep `file_artifact` | Hi-C contact store in cool/hic; `analyze_contacts` reads the binary container |
 | `coding_variant_filter` | 1 in / file out | keep `file_artifact` | VCF interchange: headers, FILTER/INFO/FORMAT and phasing; twenty file consumers |
@@ -75,6 +75,7 @@ point. Their outputs are forms.
 | `bam_gene_counts` | 2 | yes |
 | `bam_mapq_distribution` | 1 | no |
 | `bam_read_length_stats` | 1 | no |
+| `boltz_affinity_summary` | 1 | no |
 | `build_contacts` | 1 | no |
 | `chain_coverage_summary` | 1 | no |
 | `coding_variant_filter` | 1 | no |
@@ -91,6 +92,7 @@ point. Their outputs are forms.
 | `fba_flux_distribution` | 1 | no |
 | `fba_flux_variability` | 1 | no |
 | `fba_gene_knockout` | 1 | no |
+| `foldseek_align` | 2 | no |
 | `genotype_grm` | 1 | no |
 | `genotype_pca` | 1 | no |
 | `genotype_pca_loadings` | 1 | no |
@@ -104,6 +106,25 @@ point. Their outputs are forms.
 | `prs_harmonize` | 2 | no |
 | `prs_ld_clump` | 2 | yes |
 | `result_report` | 1 | yes |
+| `structure_ligand_redock_qc` | 3 | no |
+| `structure_md_communication_path` | 2 | no |
+| `structure_md_conformational_clusters` | 2 | no |
+| `structure_md_contact_occupancy` | 2 | no |
+| `structure_md_dihedral_occupancy` | 2 | no |
+| `structure_md_dssp_transitions` | 2 | no |
+| `structure_md_free_energy_landscape` | 2 | no |
+| `structure_md_hbond_lifetime` | 2 | no |
+| `structure_md_hbond_occupancy` | 2 | no |
+| `structure_md_interface_occupancy` | 2 | no |
+| `structure_md_ligand_rmsd` | 2 | no |
+| `structure_md_markov_states` | 2 | no |
+| `structure_md_pca` | 2 | no |
+| `structure_md_quasiharmonic_entropy` | 2 | no |
+| `structure_md_rotamer_states` | 2 | no |
+| `structure_md_salt_bridge_occupancy` | 2 | no |
+| `structure_md_sasa_occupancy` | 2 | no |
+| `structure_md_ss_occupancy` | 2 | no |
+| `structure_md_tica` | 2 | no |
 | `variant_consequence` | 3 | no |
 | `variant_impact_summary` | 1 | no |
 | `vcf_concat` | 2 | no |
@@ -116,88 +137,90 @@ point. Their outputs are forms.
 | `vcf_sample_stats` | 1 | no |
 | `vcf_site_missingness` | 1 | no |
 | `vcf_stats` | 1 | no |
+| `vina_dock` | 2 | no |
+| `vina_dock_batch` | 1 | no |
 
 ## Zero-input operators carrying run data by path
 
-These are the third-path violations: `inputs_arity: 0` and the data arrives
-through a parameter. Each gets real ports; the data path parameter is removed.
-
-| Operator | Data parameters | Planned ports | Target arity |
-| --- | --- | --- | ---: |
-| `alphafold2_msa_search` | `fasta_path` | `fasta_path` -> form | 1 |
-| `alphafold2_predict` | `fasta_path` | `fasta_path` -> form | 1 |
-| `antibody_cdr_redesign` | `structure_path` | `structure_path` -> form | 1 |
-| `antifold_design` | `structure_path` | `structure_path` -> form | 1 |
-| `antifold_score` | `structure_path` | `structure_path` -> form | 1 |
-| `boltz_affinity_summary` | `affinity_path` | `affinity_path` -> file_artifact | 1 |
-| `esm3_inverse_folding` | `structure_path` | `structure_path` -> form | 1 |
-| `foldseek_align` | `query_path`, `target_path` | `query_path` -> form; `target_path` -> form | 2 |
-| `ligandmpnn_active_site_design` | `structure_path` | `structure_path` -> form | 1 |
-| `ligandmpnn_design` | `structure_path` | `structure_path` -> form | 1 |
-| `ligandmpnn_score` | `structure_path` | `structure_path` -> form | 1 |
-| `ligandmpnn_side_chain_packing` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_bias_matrix` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_bias_scan` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_design` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_design_cluster` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_design_diversity` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_design_profile` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_ensemble_score` | `structure_path`, `fasta_path` | `structure_path` -> form; `fasta_path` -> form | 2 |
-| `proteinmpnn_interface_design` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_interface_redesign` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_multi_model_consensus` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_native_recovery_scan` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_noise_robustness` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_omit_design` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_perplexity` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_position_entropy` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_probability_profile` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_score` | `structure_path`, `fasta_path` | `structure_path` -> form; `fasta_path` -> form | 2 |
-| `proteinmpnn_temperature_ladder` | `structure_path` | `structure_path` -> form | 1 |
-| `proteinmpnn_tied_design` | `structure_path` | `structure_path` -> form | 1 |
-| `rfdiffusion_design` | `structure_path` | `structure_path` -> form | 1 |
-| `structure_interface_residue_energy` | `structure_path` | `structure_path` -> form | 1 |
-| `structure_ligand_redock_qc` | `complex_path`, `ligand_path`, `pose_path` | `complex_path` -> file_artifact; `ligand_path` -> file_artifact; `pose_path` -> file_artifact | 3 |
-| `structure_md_communication_path` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_conformational_clusters` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_contact_occupancy` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_dihedral_occupancy` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_dssp_transitions` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_free_energy_landscape` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_hbond_lifetime` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_hbond_occupancy` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_interface_occupancy` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_ligand_rmsd` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_markov_states` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_pca` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_quasiharmonic_entropy` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_rotamer_states` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_salt_bridge_occupancy` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_sasa_occupancy` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_ss_occupancy` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `structure_md_tica` | `trajectory_path`, `topology_path` | `trajectory_path` -> file_artifact; `topology_path` -> file_artifact | 2 |
-| `vina_dock` | `receptor_path`, `ligand_path` | `receptor_path` -> file_artifact; `ligand_path` -> file_artifact | 2 |
-| `vina_dock_batch` | `receptor_path` | `receptor_path` -> file_artifact | 1 |
+None remain. Batch 4 gave every operator that carried run data by path a
+declared port, so no operator relies on the retired third path.
 
 ## Ported operators with a data path override
 
-These already take a port but still accept the same data as a bare path. The
-override is removed so the port is the only entrance.
+These declare a port and still accept the same data as a bare path. The
+override stays as an optional entrance for direct API calls and existing
+tests; a workflow transports the data through the port. Removing it is a
+documented follow-up, kept separate because 170 test references and several
+shipped route templates still set the parameter.
 
-| Operator | Inputs arity | Data parameters to remove |
+| Operator | Inputs arity | Data parameters kept as an optional override |
 | --- | ---: | --- |
+| `alphafold2_msa_search` | 1 | `fasta_path` |
+| `alphafold2_predict` | 1 | `fasta_path` |
+| `antibody_cdr_redesign` | 1 | `structure_path` |
+| `antifold_design` | 1 | `structure_path` |
+| `antifold_score` | 1 | `structure_path` |
 | `assembly_stats` | 1 | `reference_path` |
+| `boltz_affinity_summary` | 1 | `affinity_path` |
 | `boltz_complex_confidence` | 1 | `boltz_path` |
 | `boltz_predict` | 1 | `boltz_path` |
+| `esm3_inverse_folding` | 1 | `structure_path` |
+| `foldseek_align` | 2 | `query_path`, `target_path` |
 | `foldseek_search` | 1 | `query_path` |
+| `ligandmpnn_active_site_design` | 1 | `structure_path` |
+| `ligandmpnn_design` | 1 | `structure_path` |
+| `ligandmpnn_score` | 1 | `structure_path` |
+| `ligandmpnn_side_chain_packing` | 1 | `structure_path` |
+| `proteinmpnn_bias_matrix` | 1 | `structure_path` |
+| `proteinmpnn_bias_scan` | 1 | `structure_path` |
+| `proteinmpnn_design` | 1 | `structure_path` |
+| `proteinmpnn_design_cluster` | 1 | `structure_path` |
+| `proteinmpnn_design_diversity` | 1 | `structure_path` |
+| `proteinmpnn_design_profile` | 1 | `structure_path` |
+| `proteinmpnn_ensemble_score` | 2 | `structure_path`, `fasta_path` |
 | `proteinmpnn_hotspot_masked_design` | 1 | `structure_path` |
+| `proteinmpnn_interface_design` | 1 | `structure_path` |
+| `proteinmpnn_interface_redesign` | 1 | `structure_path` |
 | `proteinmpnn_interface_scan` | 1 | `structure_path` |
 | `proteinmpnn_interface_temperature_scan` | 1 | `structure_path` |
 | `proteinmpnn_masked_interface_score` | 1 | `structure_path` |
+| `proteinmpnn_multi_model_consensus` | 1 | `structure_path` |
+| `proteinmpnn_native_recovery_scan` | 1 | `structure_path` |
+| `proteinmpnn_noise_robustness` | 1 | `structure_path` |
+| `proteinmpnn_omit_design` | 1 | `structure_path` |
+| `proteinmpnn_perplexity` | 1 | `structure_path` |
+| `proteinmpnn_position_entropy` | 1 | `structure_path` |
+| `proteinmpnn_probability_profile` | 1 | `structure_path` |
+| `proteinmpnn_score` | 2 | `structure_path`, `fasta_path` |
+| `proteinmpnn_temperature_ladder` | 1 | `structure_path` |
+| `proteinmpnn_tied_design` | 1 | `structure_path` |
+| `rfdiffusion_design` | 1 | `structure_path` |
 | `structure_dockq` | 1 | `native_path` |
 | `structure_dssp_segments` | 1 | `structure_path` |
+| `structure_interface_residue_energy` | 1 | `structure_path` |
 | `structure_lddt` | 1 | `reference_path` |
+| `structure_ligand_redock_qc` | 3 | `complex_path`, `ligand_path`, `pose_path` |
+| `structure_md_communication_path` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_conformational_clusters` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_contact_occupancy` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_dihedral_occupancy` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_dssp_transitions` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_free_energy_landscape` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_hbond_lifetime` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_hbond_occupancy` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_interface_occupancy` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_ligand_rmsd` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_markov_states` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_pca` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_quasiharmonic_entropy` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_rotamer_states` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_salt_bridge_occupancy` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_sasa_occupancy` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_ss_occupancy` | 2 | `trajectory_path`, `topology_path` |
+| `structure_md_tica` | 2 | `trajectory_path`, `topology_path` |
 | `structure_tm_score` | 1 | `reference_path` |
+| `vina_dock` | 2 | `receptor_path`, `ligand_path` |
+| `vina_dock_batch` | 1 | `receptor_path` |
 | `vina_dock_python` | 1 | `ligand_path`, `flex_path` |
 | `vina_pose_rmsd` | 1 | `reference_path` |
 
@@ -266,9 +289,9 @@ the transport check.
 
 Eleven readers emit `file_artifact` and declare no inputs: Alignment, BamFile,
 ChainFile, Cooler, FastaFile, Fastq, GffFile, Pairs, SbmlFile, TsvFile and
-VcfFile. A generic `FileReader` is added in batch 4 so that formats without a
-typed reader (MD trajectories, PDBQT, result bundles) have a file source; the
-reader count moves from 109 to 110 because of it.
+VcfFile. A generic `FileReader` supplies a file source for formats without a
+typed reader (MD trajectories, PDBQT, result bundles); after batch 4 the reader
+count is 110.
 
 ## Manual review
 

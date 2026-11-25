@@ -9,6 +9,7 @@ from src.core.errors import StepError
 from src.task.context import Context
 from src.task.runner import run
 from src.task.step.steps.structure_md_free_energy_landscape import K_B_KJ, free_energy, project
+from port_helpers import run_legacy
 
 FIXTURES = Path(__file__).resolve().parents[1] / "tests" / "fixtures"
 
@@ -59,12 +60,12 @@ def test_rotation_invariance(tmp_path):
 def test_run_and_errors(tmp_path):
     path, topology, frames = _trajectory(tmp_path, count=60)
     ctx = Context(str(tmp_path / "task"), {"params": {}})
-    run(ctx, [{"name": "structure_md_free_energy_landscape", "params": {"trajectory_path": str(path), "topology_path": str(topology), "bins": 10, "temperature": 300.0}}])
+    run_legacy(ctx, [{"name": "structure_md_free_energy_landscape", "params": {"trajectory_path": str(path), "topology_path": str(topology), "bins": 10, "temperature": 300.0}}])
     result = ctx["landscape"]
     assert result.dims == ["cell", "statistic"]
     assert result.info["probability_sum"] == pytest.approx(1.0, rel=1e-6)
     assert result.info["min_free_energy_kj"] == 0.0
     with pytest.raises(StepError, match="must be distinct"):
-        run(ctx, [{"name": "structure_md_free_energy_landscape", "params": {"trajectory_path": str(path), "topology_path": str(topology), "pc1": 1, "pc2": 1}}])
+        run_legacy(ctx, [{"name": "structure_md_free_energy_landscape", "params": {"trajectory_path": str(path), "topology_path": str(topology), "pc1": 1, "pc2": 1}}])
     with pytest.raises((StepError, ValueError)):
-        run(ctx, [{"name": "structure_md_free_energy_landscape", "params": {"trajectory_path": str(path), "topology_path": str(topology), "temperature": -1.0}}])
+        run_legacy(ctx, [{"name": "structure_md_free_energy_landscape", "params": {"trajectory_path": str(path), "topology_path": str(topology), "temperature": -1.0}}])

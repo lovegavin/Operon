@@ -9,6 +9,20 @@
     "output_dir"
   ],
   "properties": {
+    "sequence_dim": {
+      "title": "序列维",
+      "type": "string",
+      "default": "sequence",
+      "x-ui-group": "输入",
+      "x-ui-order": 3
+    },
+    "position_dim": {
+      "title": "位点维",
+      "type": "string",
+      "default": "position",
+      "x-ui-group": "输入",
+      "x-ui-order": 4
+    },
     "fasta_path": {
       "x-operon-path": "workflow",
       "type": "string",

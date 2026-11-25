@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+
 from pathlib import Path
 
 import numpy as np
@@ -19,6 +20,7 @@ def _ctx(task_dir: Path, out_name: str, params: dict) -> Context:
 import json
 
 from src.task.step.steps.proteinmpnn_omit_design import parse_omit
+from port_helpers import run_legacy
 
 FAKE_RUNNER = """import json
 import os
@@ -88,7 +90,7 @@ def test_run_designs_without_omitted_residues(tmp_path, monkeypatch):
     capture = tmp_path / "capture.json"
     monkeypatch.setenv("OPERON_TEST_CAPTURE", str(capture))
     ctx = _ctx(tmp_path, "designs", params)
-    run(ctx, [{"name": "proteinmpnn_omit_design", "inputs": [], "params": params}])
+    run_legacy(ctx, [{"name": "proteinmpnn_omit_design", "inputs": [], "params": params}])
     form = ctx["designs"]
     assert form.dims == ["design", "statistic"]
     assert form.data.shape == (2, 2)
@@ -106,7 +108,7 @@ def test_leaked_residues_are_rejected(tmp_path, monkeypatch):
     monkeypatch.setenv("OPERON_TEST_CAPTURE", str(tmp_path / "capture.json"))
     ctx = _ctx(tmp_path, "designs", params)
     with pytest.raises(StepError, match="omitted residues"):
-        run(ctx, [{"name": "proteinmpnn_omit_design", "inputs": [], "params": params}])
+        run_legacy(ctx, [{"name": "proteinmpnn_omit_design", "inputs": [], "params": params}])
 
 
 def test_validation_errors(tmp_path):
@@ -121,13 +123,13 @@ def test_validation_errors(tmp_path):
         bad[key] = value
         ctx = _ctx(tmp_path, "designs", bad)
         with pytest.raises(StepError, match=message):
-            run(ctx, [{"name": "proteinmpnn_omit_design", "inputs": [], "params": bad}])
+            run_legacy(ctx, [{"name": "proteinmpnn_omit_design", "inputs": [], "params": bad}])
     bad = dict(params)
     bad["structure_path"] = str(Path(params["structure_path"]).with_suffix(".txt"))
     Path(bad["structure_path"]).write_text("x")
     ctx = _ctx(tmp_path, "designs", bad)
     with pytest.raises(StepError, match="must name a .pdb file"):
-        run(ctx, [{"name": "proteinmpnn_omit_design", "inputs": [], "params": bad}])
+        run_legacy(ctx, [{"name": "proteinmpnn_omit_design", "inputs": [], "params": bad}])
 
 
 def test_schema_errors_are_surfaced(tmp_path):
@@ -136,4 +138,4 @@ def test_schema_errors_are_surfaced(tmp_path):
     bad["device"] = "tpu"
     ctx = _ctx(tmp_path, "designs", bad)
     with pytest.raises((StepError, ValueError)):
-        run(ctx, [{"name": "proteinmpnn_omit_design", "inputs": [], "params": bad}])
+        run_legacy(ctx, [{"name": "proteinmpnn_omit_design", "inputs": [], "params": bad}])
