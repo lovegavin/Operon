@@ -120,7 +120,10 @@ def test_managed_transport_invokes_only_requested_install_action(monkeypatch, in
     assert calls == ['install' if install else 'locate']
     positional, keywords = seen[calls[0]]
     assert len(positional) == 2
-    assert keywords == {'expected': {'build_id': 'build-1'}}
+    expected = {'expected': {'build_id': 'build-1'}}
+    if install:
+        expected['force'] = False
+    assert keywords == expected
     assert '/shared/app' in sent[-1].decode()
     connection.close()
 
@@ -150,3 +153,12 @@ def test_python_extras_install_light_operator_packages(monkeypatch, tmp_path):
     assert install_linux._ensure_python_extras(constraints) is True
     joined = ' '.join(calls[0])
     assert 'pdb2pqr' in joined and 'ViennaRNA' in joined and str(constraints) in joined
+
+
+def test_receipt_build_falls_back_to_the_deployed_identity():
+    from operon.remote.install_linux import receipt_build
+
+    expected = {'application': {'source_sha256': 'a'}, 'library': {'bundle_sha256': 'b'}}
+    assert receipt_build(None, expected) is expected
+    assert receipt_build({'computed': True}, expected) == {'computed': True}
+    assert receipt_build(None, None) == {}

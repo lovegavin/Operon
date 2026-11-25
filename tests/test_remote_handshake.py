@@ -9,7 +9,7 @@ import uuid
 import pytest
 
 from operon.remote.handshake import (
-    CAPABILITIES, HandshakeError, daemon_request, installation_readiness,
+    CAPABILITIES, HandshakeError, daemon_request, installation_readiness, managed_build,
 )
 from operon.remote.server import RemoteService
 
@@ -442,3 +442,15 @@ def test_tool_snapshot_rechecks_a_cached_miss(remote, monkeypatch):
     installed.append(True)
     assert remote.handshake.tool_snapshot() == {'late-tool': True}
     assert module is not None
+
+
+def test_managed_build_reads_the_provisioning_receipt(tmp_path):
+    root = tmp_path / 'managed-v1'
+    env = root / 'env-c27107338b5cd5a0ce66'
+    env.mkdir(parents=True)
+    (tmp_path / 'server.json').write_text(
+        json.dumps({'build': {'build_id': 'abc', 'library': {'bundle_sha256': 'def'}}}),
+        encoding='utf-8',
+    )
+    assert managed_build(env) == {'build_id': 'abc', 'library': {'bundle_sha256': 'def'}}
+    assert managed_build(tmp_path / 'unrelated' / 'managed-v1' / 'env-x') == {}

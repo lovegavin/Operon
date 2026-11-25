@@ -105,6 +105,19 @@ def _read(path):
         return {}
 
 
+def managed_build(prefix):
+    """Return the build identity recorded by the managed deployment, if any.
+
+    The Linux installer records the identity of the deployed sources, but a
+    repair or an older deployment may leave it empty. The managed root receipt
+    written by the provisioning step always carries the identity the desktop
+    deployed, so the handshake must prefer it over recomputing a tree digest
+    that cannot see the workspace-installed operator library.
+    """
+    build = _read(Path(prefix).parent.parent / 'server.json').get('build')
+    return build if isinstance(build, dict) else {}
+
+
 def _stamp(path):
     """Inspect only the named runtime document/directory, never its contents."""
     path = Path(path)
@@ -188,7 +201,7 @@ class ManifestHandshake:
         if self.saved.get('version') != 1:
             self.saved = {}
         self.install_receipt = _read(Path(sys.prefix) / 'operon-ready.json')
-        self.build = self.install_receipt.get('build') or {}
+        self.build = self.install_receipt.get('build') or managed_build(sys.prefix)
         if not self.build:
             try:
                 from operon.build_identity import build_identity

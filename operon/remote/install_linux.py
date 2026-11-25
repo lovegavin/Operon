@@ -339,6 +339,17 @@ def ensure_requirements(specs, request, bundle=None, *, prepare_library=False):
     return environment_failures
 
 
+def receipt_build(identity, expected):
+    """The build a readiness receipt reports.
+
+    A managed deployment installs the operator library into the workspace, so
+    the code tree alone cannot be fingerprinted into the same identity the
+    desktop deployed. When that happens, report the identity the desktop sent
+    instead of an empty document, which forces every client handshake to fail.
+    """
+    return identity or expected or {}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--code', type=Path, required=True)
@@ -405,7 +416,7 @@ def main():
     from operon.remote.handshake import runtime_identity
     value = {"source_sha256": args.digest, "python": sys.version,
              "operators_checked": 0,
-             "build": identity or {},
+             "build": receipt_build(identity, expected),
              "packages": {d.metadata["Name"]: d.version for d in metadata.distributions()}}
     value["dependency_readiness"] = {
         "version": 1, "runtime": runtime_identity(), "entries": {}, "deferred": True,
