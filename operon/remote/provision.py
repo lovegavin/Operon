@@ -35,6 +35,16 @@ def source_archive(root):
     for bundle in sorted((root / 'library/libraries').glob('*/archive.zip')):
         named[bundle] = 'library/operon-library-' + bundle.parent.name + '.operon-library.zip'
     files += sorted(named)
+    # The managed installer builds the server library from this source tree.
+    # Without it the deployment records the desktop identity but carries no
+    # library and therefore no environment manifest.
+    library = root / 'library'
+    files += [library / name for name in ('pyproject.toml', 'release.json', 'README.md')
+              if (library / name).is_file()]
+    seed = library / 'seed'
+    if seed.is_dir():
+        files += [p for p in seed.rglob('*') if p.is_file()
+                  and p.suffix != '.pyc' and '__pycache__' not in p.parts]
     for directory in ('operon', 'operon_sdk', 'operon', 'src'):
         files += [p for p in (root / directory).rglob('*') if p.is_file()
                   and p.suffix in ('.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif', '.yaml', '.yml')
@@ -461,6 +471,8 @@ def provision(connection, profile, progress, cancel, root=None, expected=None, f
     from operon.build_identity import build_identity
     identity = build_identity(root or application_root(), source_sha256=digest)
     if expected is not None and expected.get('build_id') != identity['build_id']:
+        progress('本地程序在连接后发生变化：连接时 build=%s，当前 build=%s；'
+                 '未上传任何文件，服务器保留原版本。' % (expected.get('build_id'), identity['build_id']))
         raise RemoteError('本地程序在准备期间发生变化，请重试。', code='build_changed')
     code = managed + '/code-' + digest[:20]
     archive = managed + '/source-' + digest[:20] + '.tar.gz'

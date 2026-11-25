@@ -36,6 +36,30 @@ def test_archive_is_repeatable_and_contains_only_distributable_code(tmp_path):
     assert source_archive(tmp_path) == a  # Source checkout and desktop archive agree.
 
 
+def test_archive_carries_the_library_seed_for_managed_installs(tmp_path):
+    for name in ('pyproject.toml', 'README.md', 'requirements-hic-linux.txt'):
+        (tmp_path / name).write_text('public')
+    (tmp_path / 'scripts').mkdir()
+    for name in ('run.py', 'desktop_server.py'):
+        (tmp_path / 'scripts' / name).write_text('# public source')
+    library = tmp_path / 'library'
+    library.mkdir()
+    for name in ('pyproject.toml', 'release.json', 'README.md'):
+        (library / name).write_text('{"library_version": "2.0.0"}' if name == 'release.json' else 'lib')
+    seed = library / 'seed'
+    for name in ('operon/environments.json', 'operon/builtin_packages.json',
+                 'src/task/step/steps/a.py', 'routes/r/route.json', '__pycache__/a.pyc'):
+        path = seed / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('seed')
+    with tarfile.open(fileobj=io.BytesIO(source_archive(tmp_path))) as archive:
+        names = set(archive.getnames())
+    assert {'library/pyproject.toml', 'library/release.json',
+            'library/seed/operon/environments.json', 'library/seed/operon/builtin_packages.json',
+            'library/seed/src/task/step/steps/a.py', 'library/seed/routes/r/route.json'} <= names
+    assert 'library/seed/__pycache__/a.pyc' not in names
+
+
 def test_managed_profile_needs_no_python_paths_and_keeps_existing_profiles_manual():
     minimal = dict(name='Server', host='example.org', username='researcher', environment='managed')
     assert ConnectionProfile(**minimal).workspace == ''
