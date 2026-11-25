@@ -29,7 +29,63 @@ def _torch_cuda_available() -> bool:
         return False
 
 
+_PROBE_SCRIPT = r"""
+import sys
+
+found = []
+try:
+    import torch
+except Exception:
+    pass
+else:
+    try:
+        if torch.cuda.is_available():
+            found.append("torch")
+    except Exception:
+        pass
+
+try:
+    import jax
+except Exception:
+    pass
+else:
+    try:
+        names = [str(device).lower() for device in jax.devices()]
+    except Exception:
+        names = []
+    if any("cuda" in name or "gpu" in name for name in names):
+        found.append("jax")
+
+print(",".join(found))
+"""
+
+
+def _jax_devices_report_cuda(devices) -> bool:
+    """Return True when any JAX device names a CUDA or GPU backend."""
+
+    for device in devices:
+        try:
+            text = str(device).lower()
+        except Exception:  # pragma: no cover - a broken device must not crash
+            continue
+        if "cuda" in text or "gpu" in text:
+            return True
+    return False
+
+
+def _jax_cuda_available() -> bool:
+    try:
+        import jax  # noqa: PLC0415 - optional, only present in the model env
+    except Exception:
+        return False
+    try:
+        return _jax_devices_report_cuda(jax.devices())
+    except Exception:  # pragma: no cover - a broken driver must not crash planning
+        return False
+
+
 def _external_cuda_available(python: str) -> bool:
+    """Return True when the interpreter reports torch or JAX CUDA devices."""
     executable = str(python or "").strip()
     if not executable:
         return False
@@ -40,20 +96,27 @@ def _external_cuda_available(python: str) -> bool:
         executable = found
     try:
         completed = subprocess.run(
-            [executable, "-c", "import torch; print(torch.cuda.is_available())"],
+            [executable, "-c", _PROBE_SCRIPT],
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=180,
         )
     except (OSError, subprocess.SubprocessError):
         return False
-    return completed.returncode == 0 and completed.stdout.strip() == "True"
+    if completed.returncode != 0:
+        return False
+    backends = {item.strip() for item in completed.stdout.strip().split(",")}
+    return bool(backends & {"torch", "jax"})
 
 
 def cuda_available(python: str = "") -> bool:
-    """Return True when torch in-process or in ``python`` sees a CUDA device."""
+    """Return True when torch or JAX sees a CUDA device here or in ``python``.
 
-    if _torch_cuda_available():
+    A model that runs on JAX (ColabFold) can see a device while torch in the
+    same environment is a CPU build, so both frameworks have to be asked.
+    """
+
+    if _torch_cuda_available() or _jax_cuda_available():
         return True
     return _external_cuda_available(python)
 
