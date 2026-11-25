@@ -78,3 +78,10 @@ def test_wheel_identity_ignores_record_row_order(tmp_path):
             archive.writestr('pkg-1.0.dist-info/RECORD', ''.join(order))
     assert sha256(first) != sha256(second)
     assert wheel_contents(first) == wheel_contents(second)
+
+def test_minimum_library_version_tracks_the_shipped_library():
+    from packaging.version import Version
+    from operon.library_bundle import MINIMUM_LIBRARY_VERSION
+    release = json.loads((ROOT / 'library/release.json').read_text(encoding='utf-8'))
+    assert Version(MINIMUM_LIBRARY_VERSION) >= Version('2.0.0')
+    assert Version(MINIMUM_LIBRARY_VERSION) <= Version(release['version'])

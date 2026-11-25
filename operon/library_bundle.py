@@ -19,7 +19,10 @@ from operon.bytecode import filesystem_path
 
 
 LIBRARY_SUFFIXES = ('.operon-library.zip',)
-MINIMUM_LIBRARY_VERSION = '8.0.10'
+# Oldest library line this branch of the application can install. The 2.0.0
+# library is the first release that speaks the port-rule protocol; earlier
+# 1.x seeds cannot be installed by this application.
+MINIMUM_LIBRARY_VERSION = '2.0.0'
 
 
 def is_library_bundle(path):
