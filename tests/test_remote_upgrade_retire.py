@@ -63,3 +63,10 @@ def test_force_reports_when_old_daemon_survives():
     with pytest.raises(RemoteError, match='强制升级未能停止') as error:
         _retire_old_servers(shell, '/home/u', '/home/u/base/managed-v1', lambda message: None, force=True)
     assert error.value.code == 'remote_upgrade_blocked'
+
+def test_reports_a_pool_it_left_running_without_force():
+    shell = Shell(result(retired=[], blocked=[], pools=[],
+                         skipped=[{'pid': 9, 'reason': 'shared pool is running; stop it first or use force'}]))
+    messages = []
+    _retire_old_servers(shell, '/home/u', '/home/u/base/managed-v1', messages.append)
+    assert any('共享池' in message for message in messages)

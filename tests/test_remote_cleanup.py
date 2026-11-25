@@ -41,5 +41,16 @@ def test_cleanup_removes_previous_installations(tmp_path):
 
 
 def test_retire_script_clears_pool_directory_after_force_stop():
-    assert 'shutil.rmtree(os.path.dirname(path), ignore_errors=True)' in provision.RETIRE_SCRIPT
-    assert 'import glob, hashlib, json, os, shutil, signal' in provision.RETIRE_SCRIPT
+    script = provision.RETIRE_SCRIPT
+    assert 'shutil.rmtree(directory, ignore_errors=True)' in script
+    assert 'import glob, hashlib, json, os, shutil, signal' in script
+    # A forced stop only clears the record after the pool was signalled.
+    signalled = script.index('kill(pid, signal.SIGTERM)')
+    cleared = script.index('shutil.rmtree(directory, ignore_errors=True)', signalled)
+    assert signalled < cleared
+
+def test_retire_script_stops_the_pool_before_the_daemons():
+    script = provision.RETIRE_SCRIPT
+    assert script.index('def pool_pids') < script.index('if "operon.remote.server" not in joined')
+    assert 'shared pool is running; stop it first or use force' in script
+    assert 'pool record without a process' in script

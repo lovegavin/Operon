@@ -250,6 +250,57 @@ def cancel(address, pid, workspace, forced):
 
 
 retired, forced, blocked, skipped, pools = [], [], [], [], []
+
+
+def pool_pids():
+    # Every shared pool belonging to this home, recorded or not.
+    found = {}
+    for family in (".operon", ".biopipe"):
+        pattern = os.path.join(home, family, "admission", "*", "managed-pool", "instance.json")
+        for path in glob.glob(pattern):
+            try:
+                record = json.loads(open(path, encoding="utf-8").read())
+                pid = int(record.get("pid") or 0)
+            except (OSError, ValueError, TypeError):
+                pid = 0
+            found[pid] = path
+    for entry in os.listdir("/proc"):
+        if not entry.isdigit():
+            continue
+        pid = int(entry)
+        if pid == os.getpid():
+            continue
+        joined = " ".join(args_of(pid))
+        if "operon.managed_pool" not in joined and "biopipe.managed_pool" not in joined:
+            continue
+        if home not in joined:
+            continue
+        found.setdefault(pid, None)
+    return found
+
+
+# The pool outlives the daemon, so stop it before the code it serves is replaced.
+for pid, record in pool_pids().items():
+    directory = os.path.dirname(record) if record else None
+    if not pid or pid == os.getpid():
+        if directory:
+            shutil.rmtree(directory, ignore_errors=True)
+        continue
+    if not alive(pid):
+        if directory:
+            shutil.rmtree(directory, ignore_errors=True)
+        skipped.append({"pid": pid, "reason": "pool record without a process"})
+        continue
+    if not force:
+        skipped.append({"pid": pid, "reason": "shared pool is running; stop it first or use force"})
+        continue
+    kill(pid, signal.SIGTERM)
+    if wait_gone(pid, 6) or (kill(pid, signal.SIGKILL) or wait_gone(pid, 3)):
+        pools.append({"pid": pid, "record": record})
+        if directory:
+            shutil.rmtree(directory, ignore_errors=True)
+    else:
+        blocked.append({"pid": pid, "reason": "shared pool did not exit"})
 for entry in os.listdir("/proc"):
     if not entry.isdigit() or int(entry) == os.getpid():
         continue
@@ -302,23 +353,6 @@ for entry in os.listdir("/proc"):
         forced.append({"pid": pid, "workspace": workspace, "reason": "force-cancelled"})
     else:
         blocked.append({"pid": pid, "workspace": workspace, "reason": "server did not exit"})
-if force:
-    for family in (".operon", ".biopipe"):
-        pattern = os.path.join(home, family, "admission", "*", "managed-pool", "instance.json")
-        for path in glob.glob(pattern):
-            try:
-                record = json.loads(open(path, encoding="utf-8").read())
-                pid = int(record.get("pid") or 0)
-            except (OSError, ValueError, TypeError):
-                continue
-            if not pid or pid == os.getpid() or not alive(pid):
-                continue
-            kill(pid, signal.SIGTERM)
-            if not (wait_gone(pid, 6) or (kill(pid, signal.SIGKILL) or wait_gone(pid, 3))):
-                blocked.append({"pid": pid, "reason": "shared pool did not exit"})
-            else:
-                pools.append({"pid": pid, "record": path})
-                shutil.rmtree(os.path.dirname(path), ignore_errors=True)
 print("BP_RETIRE_RESULT " + json.dumps({"retired": retired, "forced": forced, "blocked": blocked,
                                          "skipped": skipped, "pools": pools},
                                          ensure_ascii=False, separators=(",", ":")))
@@ -363,6 +397,9 @@ def _retire_old_servers(shell, home, managed, progress, force=False):
         progress('已强制停止 %d 个旧版服务端' % len(result['forced']))
     if result.get('pools'):
         progress('已关闭 %d 个旧版共享池' % len(result['pools']))
+    skipped = result.get('skipped') or []
+    if any('shared pool is running' in str(item.get('reason', '')) for item in skipped):
+        progress('共享池仍在运行；下一次提交会按新版本重新启动它')
 
 
 CLEANUP_SCRIPT = r"""
