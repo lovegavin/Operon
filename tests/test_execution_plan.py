@@ -259,6 +259,11 @@ def test_unknown_sizes_are_explicit_and_stat_failure_becomes_warning():
     assert "metadata unavailable" in plan["warnings"][0]
 
 
+def test_zero_parallel_tasks_means_unlimited():
+    workflow = graph([operator("step")], max_parallel_tasks=0)
+    assert planner.settings(workflow)["max_parallel_tasks"] == 0
+
+
 @pytest.mark.parametrize("config,match", [
     ({"mode": "magic"}, "mode"),
     ({"kind": "docker"}, "Invalid execution environment"),
@@ -266,7 +271,7 @@ def test_unknown_sizes_are_explicit_and_stat_failure_becomes_warning():
     ({"node_targets": []}, "node_targets must be an object"),
     ({"file_locations": []}, "file_locations must be an object"),
     ({"node_targets": {"missing": LOCAL}}, "missing nodes"),
-    ({"max_parallel_tasks": 0}, "positive integer"),
+    ({"max_parallel_tasks": -1}, "positive integer"),
     ({"max_parallel_tasks": 1.5}, "positive integer"),
     ({"max_parallel_tasks": True}, "positive integer"),
 ])

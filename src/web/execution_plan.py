@@ -185,6 +185,28 @@ def capability(node, info):
     return None
 
 
+def resolve_reference(where, value, base, stat_file, *, pinned=False):
+    """Pick the host a declared path parameter is actually read from.
+
+    A parameter that is missing on its nominal target but present on this
+    machine is read locally, so the planner transfers it like a source file
+    instead of rejecting the route with "input file unavailable".
+    """
+    location = target(where)
+    if pinned or stat_file is None or location.get('kind') == 'local':
+        return location
+
+    def present(host):
+        try:
+            return stat_file(host, value, base) is not None
+        except (OSError, ValueError, KeyError):
+            return False
+
+    if present(location):
+        return location
+    return dict(LOCAL) if present(dict(LOCAL)) else location
+
+
 def _metadata(graph, infos, stat_file, warnings, *, dependencies_only=False, require_files=False):
     """Collect immutable file facts and used declarations once, outside sweeps.
 
@@ -262,7 +284,9 @@ def _metadata(graph, infos, stat_file, warnings, *, dependencies_only=False, req
                     value = node.params.get(name)
                     if value is not None and value != '':
                         valid_locations.add(field)
+                        marked = field in config['file_locations']
                         where = config['file_locations'].get(field, target(original_config))
+                        where = resolve_reference(where, value, part.base_dir, stat_file, pinned=marked)
                         reference(node, field, value, where, part.base_dir, refs)
             elif node.kind == 'source' and node.source:
                 if node.source.reader and node.source.reader not in readers:
@@ -309,6 +333,9 @@ def _metadata(graph, infos, stat_file, warnings, *, dependencies_only=False, req
                     valid_locations.add(field)
                     marked = field in config['file_locations']
                     where = config['file_locations'].get(field, location)
+                    where = resolve_reference(where, value,
+                                              part.base_dir if marked else source_base, stat_file,
+                                              pinned=marked)
                     reference(node, field, value, where, part.base_dir if marked else source_base, refs)
             elif node.kind == 'route' and node.route:
                 walk(node.route.graph, original_config, (*prefix, node.id), atomic, pins)

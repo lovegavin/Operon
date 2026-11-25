@@ -24,7 +24,8 @@ from operon.remote.client import RemoteError
 from operon.pool_service import PoolClientError
 from .admission import process_identity, process_alive
 from .contracts import analyze_graph
-from .execution_plan import ACTIVE, LOCAL, make_plan, target, target_key, settings, source_location, operator_nodes
+from .execution_plan import (ACTIVE, LOCAL, make_plan, resolve_reference, target, target_key, settings,
+                            source_location, operator_nodes)
 from .graph import GraphError, compile_graph, input_path
 from .models import Graph, GraphNode, Source, Position
 from .parameters import freeze_graph, export_bundle
@@ -534,7 +535,18 @@ class ExecutionService:
             elif node.kind == 'operator':
                 for name, field in specs[node.operator]['parameters_schema'].get('properties', {}).items():
                     if field.get('x-operon-path') and node.params.get(name):
-                        where = config['file_locations'].get(f'{node.id}.params.{name}', target(original_config))
+                        key_name = f'{node.id}.params.{name}'
+                        marked = key_name in config['file_locations']
+                        where = config['file_locations'].get(key_name, target(original_config))
+
+                        def detect(host, path, base, _self=self):
+                            info = _self._stat(host, [path], base)[0]
+                            if not info.get('exists'):
+                                raise FileNotFoundError(path)
+                            return int(info.get('bytes') or 0)
+
+                        where = resolve_reference(where, node.params[name], graph.base_dir, detect,
+                                                  pinned=marked)
                         refs = self._file_group(where, node.params[name], graph.base_dir)
                         node.params[name] = self._move(key, unit, refs, where)[refs[0]['name']]
             elif node.kind == 'route' and node.route:
