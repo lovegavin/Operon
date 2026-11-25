@@ -274,7 +274,14 @@ def environment_snapshot(service) -> dict:
 
 
 def environment_log(service, name: str, limit: int = 200) -> dict:
-    path = Path(service.directory) / 'environments' / f'{name}.log'
+    from operon import environment_install
+
+    root = Path(service.directory) / 'environments'
+    path = environment_install.log_path(name, root)
+    if not path.is_file():
+        legacy = root / f'{name}.log'
+        if legacy.is_file():
+            path = legacy
     if not path.is_file():
         return {'name': name, 'text': '', 'path': str(path)}
     try:

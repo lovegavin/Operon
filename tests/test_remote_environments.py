@@ -172,6 +172,17 @@ def test_environment_log_returns_tail(tmp_path):
     assert server.environment_log(service, 'absent')['text'] == ''
 
 
+def test_environment_log_reads_the_log_the_installer_writes(tmp_path):
+    directory = tmp_path / 'studio'
+    logs = directory / 'environments' / '.operon-environment-logs'
+    logs.mkdir(parents=True)
+    (logs / 'demo.log').write_text('one\ntwo\nthree', encoding='utf-8')
+    service = SimpleNamespace(directory=directory)
+    result = server.environment_log(service, 'demo', 2)
+    assert result['text'].splitlines() == ['two', 'three']
+    assert result['path'].endswith('.operon-environment-logs/demo.log')
+
+
 def test_manager_wrappers_route_remote_methods():
     from src.web.remote_service import RemoteManager
     manager = RemoteManager.__new__(RemoteManager)
