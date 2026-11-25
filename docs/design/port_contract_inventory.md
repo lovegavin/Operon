@@ -319,9 +319,16 @@ touches it:
 
 ## Registry checks derived from this inventory
 
-1. An operator output may be `file_artifact` only for an emitter listed above
-   with a reason; every other operator output is `form` or empty.
-2. Every remaining `*_path` parameter carries `x-operon-role` with one of
-   `tool`, `weights`, `resource`, `output`; a run-data path is an error.
-3. A reader declares no inputs.
+`operon/port_rules.py` enforces these rules in `registry build` and
+`registry check`; a violation keeps the operator out of the catalog.
+
+1. An operator output may be `file_artifact` only when the operator is listed
+   above with a reason; every other operator output is `form` or empty, and a
+   listed emitter that stops emitting fails the check.
+2. A converted emitter (`msa_trim`) may not declare a file output again.
+3. Every `*_path` parameter must be classified in `operon/port_rules.py` as
+   `tool`, `weights`, `resource` or `output`; an unknown name fails.
+4. A run-data path (`structure_path`, `fasta_path`, `trajectory_path`, ...)
+   requires at least one input port on the same operator.
+5. A reader declares no inputs and no input arity.
 

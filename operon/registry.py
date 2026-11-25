@@ -17,6 +17,7 @@ import sys
 import yaml
 
 from operon.library_location import source_root
+from operon.port_rules import check_descriptor
 ROOT = source_root() or Path(__file__).resolve().parents[1]
 PACKAGE_INDEX = Path("operon/builtin_packages.json")
 ROUTE_INDEX = Path("src/web/builtin_routes.json")
@@ -47,6 +48,7 @@ def scan_sources(root=ROOT, sources=None, warnings_out=None):
                     seen.add(declaration['id'])
                     descriptor = compiler.compile(declaration)
                     issues, warnings = check_source(path.read_text(encoding='utf-8'), descriptor)
+                    issues = [*issues, *check_descriptor(descriptor)]
                     if warnings_out is not None:
                         warnings_out.extend({'source': source, 'id': descriptor['id'], 'warning': w} for w in warnings)
                     if issues:
