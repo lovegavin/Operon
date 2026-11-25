@@ -17,6 +17,7 @@
       "x-ui-order": 10
     },
     "fasta_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "default": "",
       "title": "查询 FASTA",

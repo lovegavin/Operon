@@ -5,6 +5,7 @@
   "title": "AntiFold 抗体逆折叠参数",
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "title": "结构文件 (PDB)",
       "type": "string",
       "default": "",

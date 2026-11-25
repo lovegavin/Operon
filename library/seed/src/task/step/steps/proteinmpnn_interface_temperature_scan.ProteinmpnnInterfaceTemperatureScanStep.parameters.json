@@ -18,6 +18,7 @@
       "x-ui-order": 2
     },
     "structure_path": {
+      "x-operon-path": "workflow",
       "title": "结构文件",
       "type": "string",
       "default": "",

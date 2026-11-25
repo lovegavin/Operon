@@ -3,6 +3,7 @@
   "additionalProperties": false,
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "default": "",
       "title": "结构文件路径",
@@ -11,6 +12,7 @@
       "x-ui-order": 0
     },
     "fasta_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "default": "",
       "title": "序列 FASTA 路径",

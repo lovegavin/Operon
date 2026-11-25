@@ -3,6 +3,7 @@
   "additionalProperties": false,
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "title": "结构文件",
       "description": "PDB 文件路径，ProteinMPNN 直接读取该文件。",

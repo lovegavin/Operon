@@ -2,6 +2,7 @@
   "type": "object",
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "default": "",
       "title": "结构文件",
@@ -10,6 +11,7 @@
       "x-ui-order": 0
     },
     "fasta_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "default": "",
       "title": "待打分序列",

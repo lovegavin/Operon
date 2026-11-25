@@ -10,6 +10,7 @@
   ],
   "properties": {
     "fasta_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "default": "",
       "title": "输入 FASTA",

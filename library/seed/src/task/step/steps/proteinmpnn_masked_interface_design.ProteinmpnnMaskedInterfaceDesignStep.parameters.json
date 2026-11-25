@@ -27,6 +27,7 @@
       "x-ui-order": 30
     },
     "structure_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "default": "",
       "title": "PDB 结构路径",

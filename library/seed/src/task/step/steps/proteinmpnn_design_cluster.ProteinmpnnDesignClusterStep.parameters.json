@@ -4,6 +4,7 @@
   "description": "Sample designs and group them by pairwise sequence identity.",
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "default": "",
       "title": "结构 PDB 路径",

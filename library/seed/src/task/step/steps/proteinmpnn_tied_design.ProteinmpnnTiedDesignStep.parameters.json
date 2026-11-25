@@ -6,6 +6,7 @@
   "additionalProperties": false,
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "default": "",
       "title": "结构路径 (PDB)",

@@ -5,6 +5,7 @@
   "additionalProperties": false,
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "title": "结构文件",
       "description": "需要装包的骨架 PDB 路径",
       "type": "string",

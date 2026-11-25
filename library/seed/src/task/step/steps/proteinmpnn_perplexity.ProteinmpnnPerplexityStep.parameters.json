@@ -3,6 +3,7 @@
   "title": "ProteinMPNN Perplexity Parameters",
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "title": "结构文件路径",
       "description": "带完整骨架的 PDB 文件路径。",

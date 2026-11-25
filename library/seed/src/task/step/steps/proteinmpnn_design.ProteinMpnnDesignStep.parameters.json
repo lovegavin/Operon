@@ -2,6 +2,7 @@
   "type": "object",
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "minLength": 1,
       "default": "",

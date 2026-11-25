@@ -5,6 +5,7 @@
   "title": "ESM-3 逆折叠参数",
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "title": "主链结构 (PDB)",
       "type": "string",
       "default": "",

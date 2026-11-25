@@ -6,6 +6,7 @@
   "additionalProperties": false,
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "type": "string",
       "title": "输入结构路径",
       "description": "可选；提供后作为 motif/支架输入，留空表示从头生成。",

@@ -5,6 +5,7 @@
   "title": "界面残基能量分解参数",
   "properties": {
     "structure_path": {
+      "x-operon-path": "workflow",
       "title": "结构 PDB 路径",
       "type": "string",
       "default": "",
