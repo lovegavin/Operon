@@ -54,3 +54,10 @@ capacity, AF2 without explicit pointers, and route replays).
 -  resolves resource helpers from namespaced provider packages (), so remote resource listing and linking work after a library install.
 
 Both changes were covered by targeted tests (, , ) and do not change any operator contract.
+
+## Additional fixes in this line
+
+- Environment-bridged steps now receive `OPERON_ENVIRONMENTS_ROOT`, and `_envpython.environment_python()` falls back to sibling environments, so large-model operators locate their interpreter on managed servers.
+- `src/web/resource_api.py` resolves resource helpers from namespaced provider packages (`operon_library_<provider>.steps`), so remote resource listing and linking work after a library install.
+
+Both changes are covered by targeted tests (`tests/test_envpython.py`, `tests/test_environments.py`, `tests/test_resource_api.py`) and do not change any operator contract.
