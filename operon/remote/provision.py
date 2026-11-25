@@ -161,7 +161,7 @@ import glob, hashlib, json, os, shutil, signal, socket, struct, sys, tempfile, t
 home = os.path.realpath(sys.argv[1])
 force = len(sys.argv) > 2 and sys.argv[2] == "force"
 uid = os.getuid()
-directory = os.path.join(tempfile.gettempdir(), f"operon-ssh-{uid}")
+socket_dir = os.path.join(tempfile.gettempdir(), f"operon-ssh-{uid}")
 ACTIVE = {"queued", "preparing", "uploading", "running", "waiting_connection", "recovery_required"}
 
 
@@ -281,14 +281,14 @@ def pool_pids():
 
 # The pool outlives the daemon, so stop it before the code it serves is replaced.
 for pid, record in pool_pids().items():
-    directory = os.path.dirname(record) if record else None
+    pool_dir = os.path.dirname(record) if record else None
     if not pid or pid == os.getpid():
-        if directory:
-            shutil.rmtree(directory, ignore_errors=True)
+        if pool_dir:
+            shutil.rmtree(pool_dir, ignore_errors=True)
         continue
     if not alive(pid):
-        if directory:
-            shutil.rmtree(directory, ignore_errors=True)
+        if pool_dir:
+            shutil.rmtree(pool_dir, ignore_errors=True)
         skipped.append({"pid": pid, "reason": "pool record without a process"})
         continue
     if not force:
@@ -297,8 +297,8 @@ for pid, record in pool_pids().items():
     kill(pid, signal.SIGTERM)
     if wait_gone(pid, 6) or (kill(pid, signal.SIGKILL) or wait_gone(pid, 3)):
         pools.append({"pid": pid, "record": record})
-        if directory:
-            shutil.rmtree(directory, ignore_errors=True)
+        if pool_dir:
+            shutil.rmtree(pool_dir, ignore_errors=True)
     else:
         blocked.append({"pid": pid, "reason": "shared pool did not exit"})
 for entry in os.listdir("/proc"):
@@ -319,7 +319,7 @@ for entry in os.listdir("/proc"):
         continue
     if not (cwd == home or cwd.startswith(home + os.sep)):
         continue
-    address = os.path.join(directory, hashlib.sha256(os.path.realpath(workspace).encode()).hexdigest()[:24] + ".sock")
+    address = os.path.join(socket_dir, hashlib.sha256(os.path.realpath(workspace).encode()).hexdigest()[:24] + ".sock")
     if not os.path.exists(address):
         if not force:
             skipped.append({"pid": pid, "workspace": workspace, "reason": "socket missing"})
