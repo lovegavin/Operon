@@ -4,15 +4,11 @@ from __future__ import annotations
 
 import numpy as np
 
-from src.core import FileArtifact, StepError
+from src.core import StepError
 from src.task.context import Context
 from src.task.step.base import Step
-from ._msa_utils import alignment_records, trim_alignment
-from ._native_results import output_directory, remember_native, result_file
-
-
-def _wrap(sequence, width=60):
-    return [sequence[index:index + width] for index in range(0, len(sequence), width)]
+from ._msa_utils import GAP_CHARS, alignment_records, resolve_alphabet, trim_alignment
+from ._sequence_common import encode_sequences
 
 
 class MsaTrimStep(Step):
@@ -21,9 +17,7 @@ class MsaTrimStep(Step):
     definition = {
         'protocol_revision': '3.7',
         'data_formats': {'inputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}],
-         'outputs': [{'logical_type': 'file_artifact',
-                      'representations': ['file_artifact'],
-                      'metadata': {}}]},
+         'outputs': [{'logical_type': 'form', 'representations': ['form'], 'metadata': {}}]},
         "protocol_version": 3,
         "id": "msa_trim",
         "version": "1.0.0",
@@ -31,8 +25,8 @@ class MsaTrimStep(Step):
         "title": "Trim alignment columns and rows",
         "description": (
             "Drop alignment columns whose gap fraction exceeds a threshold and "
-            "rows that do not cover enough of the retained columns; writes a "
-            "trimmed aligned FASTA artifact."
+            "rows that do not cover enough of the retained columns; emits the "
+            "trimmed alignment as a sequence form."
         ),
         "category": "Sequence",
         "icon": "Filter",
@@ -54,14 +48,7 @@ class MsaTrimStep(Step):
             ],
             "output": {
                 "mode": "declare",
-                "schema": {
-                    "kind": "file",
-                    "numeric": False,
-                    "ndim": 0,
-                    "dims": [],
-                    "info": {"representation": {"type": "string", "const": "fasta"}},
-                    "info_open": True,
-                },
+                "schema": {"numeric": True, "ndim": 2, "info_open": True, "axis_info_open": True},
             },
         },
         "resources": {
@@ -99,23 +86,35 @@ class MsaTrimStep(Step):
         result = trim_alignment(
             names, sequences, max_gap_fraction, min_row_fraction
         )
-        records = []
-        for name, sequence in zip(result["names"], result["sequences"]):
-            records.append(f">{name}")
-            records.extend(_wrap(sequence))
-        directory = output_directory(ctx, out_name)
-        fasta_out = directory / f"{out_name}.fasta"
-        fasta_out.write_bytes(("\n".join(records) + "\n").encode("utf-8"))
-        result_files = [
-            result_file("alignment", str(fasta_out), "fasta", "Trimmed alignment")
-        ]
-        remember_native(ctx, out_name, result_files)
-        ctx[out_name] = FileArtifact(
-            "fasta",
-            {"alignment": str(fasta_out)},
-            info={"source": "msa_trim"},
+        alphabet = resolve_alphabet(result["sequences"], params.get("alphabet", "auto"))
+        trimmed = result["sequences"]
+        form = encode_sequences(
+            trimmed,
+            sequence_dim,
+            position_dim,
+            alphabet,
+            labels={
+                sequence_dim: {str(name): index for index, name in enumerate(result["names"])},
+                position_dim: {str(index): index for index in range(len(trimmed[0]))},
+            },
+            info_extra={
+                "source": "msa_trim",
+                "columns_before": result["columns_before"],
+                "columns_after": result["columns_after"],
+                "columns_removed": result["columns_removed"],
+                "rows_before": result["rows_before"],
+                "rows_after": result["rows_after"],
+                "rows_removed": result["rows_removed"],
+                "gap_fraction_before": result["gap_fraction_before"],
+                "gap_fraction_after": result["gap_fraction_after"],
+            },
         )
-        self._result_files = result_files
+        gaps = np.asarray(
+            [[character in GAP_CHARS for character in row] for row in trimmed], dtype=bool
+        )
+        if gaps.any():
+            form.data = np.where(gaps, np.nan, form.data).astype(form.data.dtype)
+        ctx[out_name] = form
         self._export_data = {
             "columns_before": result["columns_before"],
             "columns_after": result["columns_after"],
@@ -125,9 +124,7 @@ class MsaTrimStep(Step):
             "rows_removed": result["rows_removed"],
             "gap_fraction_before": result["gap_fraction_before"],
             "gap_fraction_after": result["gap_fraction_after"],
-            "file": str(fasta_out),
-            "bytes": int(fasta_out.stat().st_size),
-            "result_files": result_files,
+            "alphabet": alphabet,
         }
 
     def export(self, ctx):

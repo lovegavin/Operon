@@ -48,7 +48,30 @@ FILE_DATA = {
     "ligand_path", "pose_path", "flex_path", "receptor_path",
 }
 # Emitters that stay file_artifact because their product cannot be a form.
-KEEP_EMIT = {"align_reads", "build_contacts", "result_report"}
+# Emitters that stay `file_artifact`, each with the reason its product cannot be
+# a lossless form.  A new emitter must be classified here or in CONVERTED, or the
+# generator aborts, so the rule cannot drift silently.
+KEEP_EMIT: dict[str, str] = {
+    "align_reads": "BAM alignment; fifteen downstream operators open it by path and BAM is a streaming binary container",
+    "build_contacts": "Hi-C contact store in cool/hic; `analyze_contacts` reads the binary container",
+    "coding_variant_filter": "VCF interchange: headers, FILTER/INFO/FORMAT and phasing; twenty file consumers",
+    "liftover_variants": "VCF interchange: headers, FILTER/INFO/FORMAT and phasing; twenty file consumers",
+    "pileup_variants": "VCF interchange: headers, FILTER/INFO/FORMAT and phasing; twenty file consumers",
+    "variant_consequence": "VCF interchange: headers, INFO and FORMAT; twenty file consumers",
+    "vcf_concat": "VCF interchange; chained into merge by the `vcf_normalization` route",
+    "vcf_filter": "VCF interchange: headers, FILTER/INFO/FORMAT and phasing; twenty file consumers",
+    "vcf_merge": "VCF interchange; terminal step of the `vcf_normalization` route before export",
+    "vcf_normalize": "VCF interchange; the `vcf_normalization` route feeds its output to merge",
+    "consensus_sequence": "computed reference genome; `pileup_variants`, `variant_consequence` and `vcf_normalize` take a reference FASTA as a file, and genomes can exceed form memory",
+    "liftover_intervals": "one input produces two BEDs (mapped/unmapped); one form port cannot carry the split, and BED rows carry per-row chromosome names",
+    "alphafold2_predict": "multi-model PDB/mmCIF bundle; `export_results` has no PDB writer, so a form could not be exported back",
+    "alphafold2_rank_models": "ranked copies of the same PDB bundle; no PDB writer on export",
+    "alphafold2_msa_search": "A3M alignment is the deliverable for external AF2/ColabFold tooling; insertion columns have no numeric form encoding",
+    "alphafold2_batch_predict": "heterogeneous summary table (names, status, paths, error text) over a prediction tree; no lossless numeric form",
+}
+# Emitters that no longer declare a file output.  Kept explicit so the generator
+# can prove every emitter has a verdict.
+CONVERTED = {"msa_trim"}
 
 
 def category(name: str) -> str:
@@ -183,7 +206,8 @@ def main() -> int:
     add(f"| Operator sidecars scanned | {len(rows) + len(unparsed)} |")
     add(f"| Definitions parsed | {len(rows)} |")
     add(f"| Definitions built indirectly (manual review) | {len(unparsed)} |")
-    add(f"| Operators emitting `file_artifact` | {len(emitters)} |")
+    add(f"| Operators still emitting `file_artifact` | {len(emitters)} |")
+    add(f"| Emitters converted to `form` | {len(CONVERTED)} |")
     add(f"| Operators consuming `file_artifact` | {len(consumers)} |")
     add(f"| Operators with data path parameters | {len(data_ops)} |")
     add(f"| Zero-input operators carrying run data by path | {len(zero_input)} |")
@@ -195,16 +219,19 @@ def main() -> int:
 
     add("## Emitting operators")
     add("")
-    add("Only `align_reads`, `build_contacts` and `result_report` keep a `file_artifact`")
-    add("output: a BAM, a Hi-C contact store and a report cannot be represented as a form")
-    add("without losing their content. The other fifteen move to form outputs.")
+    add("An emitter keeps `file_artifact` only where its product cannot be a lossless")
+    add("form. `msa_trim` was the single violation and now emits a form; the other")
+    add("sixteen keep a file output for the reason recorded per row.")
     add("")
-    add("| Operator | Output ports | Action |")
-    add("| --- | --- | --- |")
+    add("| Operator | Output ports | Action | Reason |")
+    add("| --- | --- | --- | --- |")
     for name in sorted(emitters):
         row = emitters[name]
-        action = "keep (whitelisted terminal)" if name in KEEP_EMIT else "convert to form"
-        add(f"| `{name}` | {row['arity']} in / file out | {action} |")
+        if name in CONVERTED:
+            raise SystemExit(f"converted emitter still declares a file output: {name}")
+        if name not in KEEP_EMIT:
+            raise SystemExit(f"unclassified file_artifact emitter: {name}")
+        add(f"| `{name}` | {row['arity']} in / file out | keep `file_artifact` | {KEEP_EMIT[name]} |")
     add("")
 
     add("## Consuming operators")
@@ -289,13 +316,19 @@ def main() -> int:
 
     add("## Registry checks derived from this inventory")
     add("")
-    add("1. An operator output may be `file_artifact` only for the three whitelisted")
-    add("   terminals; every other operator output is `form` or empty.")
+    add("1. An operator output may be `file_artifact` only for an emitter listed above")
+    add("   with a reason; every other operator output is `form` or empty.")
     add("2. Every remaining `*_path` parameter carries `x-operon-role` with one of")
     add("   `tool`, `weights`, `resource`, `output`; a run-data path is an error.")
     add("3. A reader declares no inputs.")
     add("")
 
+    stale_keep = sorted(set(KEEP_EMIT) - set(emitters))
+    if stale_keep:
+        raise SystemExit(f"stale KEEP_EMIT entries: {stale_keep}")
+    still_emitting = sorted(CONVERTED & set(emitters))
+    if still_emitting:
+        raise SystemExit(f"converted emitters still declare a file output: {still_emitting}")
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text("\n".join(lines) + "\n", encoding="utf-8")
     print(f"wrote {args.out.relative_to(ROOT)}")

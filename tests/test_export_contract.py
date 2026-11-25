@@ -5,9 +5,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
+
 import pytest
 
-from src.core import FileArtifact
+from src.core import FileArtifact, Form
+from src.task.step.steps.export_results import ExportResultsStep
+from src.task.step.steps.msa_trim import MsaTrimStep
 from src.task.context import Context
 from src.task.runner import run
 from src.task.step.steps import esmfold_predict
@@ -169,3 +173,50 @@ def test_export_results_fasta_from_sequence_form(tmp_path):
         assert "MKV" in content and "AC" in content
     finally:
         ctx.finalize()
+
+class _ExportCtx(dict):
+    """Minimal mapping-style task context for direct step invocation."""
+
+    def __init__(self, params, root):
+        super().__init__()
+        self.step_params = dict(params)
+        self.out_dir = Path(root)
+        self.out_dir.mkdir(parents=True, exist_ok=True)
+        self.artifacts = {}
+
+    def log(self, *args, **kwargs):
+        return None
+
+
+def test_export_results_fasta_from_trimmed_alignment(tmp_path):
+    codes = {"A": 0, "C": 1, "G": 2, "T": 3, "-": 5}
+    rows = ["A-GT", "ATGT", "ACGT"]
+    data = np.asarray([[codes[character] for character in row] for row in rows], dtype=np.float32)
+    alignment = Form(
+        data,
+        dims=["sequence", "position"],
+        labels={
+            "sequence": {f"s{index}": index for index in range(len(rows))},
+            "position": {str(index): index for index in range(len(rows[0]))},
+        },
+        info={
+            "representation": "fasta",
+            "sequences": rows,
+            "alphabet": "dna",
+            "alphabet_map": codes,
+        },
+    )
+    ctx = _ExportCtx({"output": "trimmed", "max_gap_fraction": 0.2}, tmp_path / "task")
+    MsaTrimStep().run(ctx, [alignment])
+    trimmed = ctx["trimmed"]
+    assert trimmed.data.shape == (3, 3)
+    assert trimmed.info["sequences"] == ["AGT", "AGT", "AGT"]
+    assert trimmed.info["alphabet"] == "dna"
+
+    ctx.step_params = {"format": "fasta", "output": "saved"}
+    ExportResultsStep().run(ctx, [trimmed])
+    out = ctx["saved"]
+    assert out.info["formats"]["data"] == "fasta"
+    content = Path(out.files["data"]).read_text()
+    assert content.count(">") == 3
+    assert ">s0\nAGT" in content

@@ -28,10 +28,21 @@
       "default": 0.5,
       "description": "Rows covering less of the retained columns are removed."
     },
+    "alphabet": {
+      "type": "string",
+      "enum": [
+        "auto",
+        "dna",
+        "rna",
+        "protein"
+      ],
+      "default": "auto",
+      "description": "Residue alphabet of the alignment; auto detects it from the retained rows."
+    },
     "output": {
       "type": "string",
       "default": "trimmed",
-      "description": "Name of the output artifact."
+      "description": "Name of the trimmed alignment output form."
     }
   }
 }

@@ -132,15 +132,13 @@ def test_trim_removes_gappy_columns(tmp_path):
     step = MsaTrimStep()
     ctx = Ctx({"output": "trimmed", "max_gap_fraction": 0.2}, tmp_path)
     step.run(ctx, [_aligned(["A-GT", "ATGT", "ACGT"])])
-    artifact = ctx["trimmed"]
-    assert artifact.format == "fasta"
-    path = artifact.files["alignment"]
-    assert path.startswith(str(tmp_path))
-    text = open(path, encoding="utf-8").read()
-    assert text.count(">") == 3
+    form = ctx["trimmed"]
+    assert form.data.shape == (3, 3)
+    assert form.info["sequences"] == ["AGT", "AGT", "AGT"]
+    assert form.info["alphabet"] == "dna"
     exported = step.export(ctx)
     assert exported["columns_after"] == 3
-    assert exported["result_files"][0]["format"] == "fasta"
+    assert exported["alphabet"] == "dna"
 
 
 def test_trim_rejects_alignment_without_usable_columns():

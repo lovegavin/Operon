@@ -17,7 +17,8 @@ editing by hand. Path roles are declared by name in that script, so an unknown
 | Operator sidecars scanned | 1074 |
 | Definitions parsed | 1057 |
 | Definitions built indirectly (manual review) | 17 |
-| Operators emitting `file_artifact` | 18 |
+| Operators still emitting `file_artifact` | 16 |
+| Emitters converted to `form` | 1 |
 | Operators consuming `file_artifact` | 54 |
 | Operators with data path parameters | 68 |
 | Zero-input operators carrying run data by path | 54 |
@@ -30,30 +31,28 @@ editing by hand. Path roles are declared by name in that script, so an unknown
 
 ## Emitting operators
 
-Only `align_reads`, `build_contacts` and `result_report` keep a `file_artifact`
-output: a BAM, a Hi-C contact store and a report cannot be represented as a form
-without losing their content. The other fifteen move to form outputs.
+An emitter keeps `file_artifact` only where its product cannot be a lossless
+form. `msa_trim` was the single violation and now emits a form; the other
+sixteen keep a file output for the reason recorded per row.
 
-| Operator | Output ports | Action |
-| --- | --- | --- |
-| `align_reads` | 1 in / file out | keep (whitelisted terminal) |
-| `alphafold2_batch_predict` | 0 in / file out | convert to form |
-| `alphafold2_msa_search` | 0 in / file out | convert to form |
-| `alphafold2_predict` | 0 in / file out | convert to form |
-| `alphafold2_rank_models` | 0 in / file out | convert to form |
-| `build_contacts` | 1 in / file out | keep (whitelisted terminal) |
-| `coding_variant_filter` | 1 in / file out | convert to form |
-| `consensus_sequence` | 2 in / file out | convert to form |
-| `liftover_intervals` | 2 in / file out | convert to form |
-| `liftover_variants` | 2 in / file out | convert to form |
-| `msa_trim` | 1 in / file out | convert to form |
-| `pileup_variants` | 2 in / file out | convert to form |
-| `result_report` | 1 in / file out | keep (whitelisted terminal) |
-| `variant_consequence` | 3 in / file out | convert to form |
-| `vcf_concat` | 2 in / file out | convert to form |
-| `vcf_filter` | 1 in / file out | convert to form |
-| `vcf_merge` | 2 in / file out | convert to form |
-| `vcf_normalize` | 2 in / file out | convert to form |
+| Operator | Output ports | Action | Reason |
+| --- | --- | --- | --- |
+| `align_reads` | 1 in / file out | keep `file_artifact` | BAM alignment; fifteen downstream operators open it by path and BAM is a streaming binary container |
+| `alphafold2_batch_predict` | 0 in / file out | keep `file_artifact` | heterogeneous summary table (names, status, paths, error text) over a prediction tree; no lossless numeric form |
+| `alphafold2_msa_search` | 0 in / file out | keep `file_artifact` | A3M alignment is the deliverable for external AF2/ColabFold tooling; insertion columns have no numeric form encoding |
+| `alphafold2_predict` | 0 in / file out | keep `file_artifact` | multi-model PDB/mmCIF bundle; `export_results` has no PDB writer, so a form could not be exported back |
+| `alphafold2_rank_models` | 0 in / file out | keep `file_artifact` | ranked copies of the same PDB bundle; no PDB writer on export |
+| `build_contacts` | 1 in / file out | keep `file_artifact` | Hi-C contact store in cool/hic; `analyze_contacts` reads the binary container |
+| `coding_variant_filter` | 1 in / file out | keep `file_artifact` | VCF interchange: headers, FILTER/INFO/FORMAT and phasing; twenty file consumers |
+| `consensus_sequence` | 2 in / file out | keep `file_artifact` | computed reference genome; `pileup_variants`, `variant_consequence` and `vcf_normalize` take a reference FASTA as a file, and genomes can exceed form memory |
+| `liftover_intervals` | 2 in / file out | keep `file_artifact` | one input produces two BEDs (mapped/unmapped); one form port cannot carry the split, and BED rows carry per-row chromosome names |
+| `liftover_variants` | 2 in / file out | keep `file_artifact` | VCF interchange: headers, FILTER/INFO/FORMAT and phasing; twenty file consumers |
+| `pileup_variants` | 2 in / file out | keep `file_artifact` | VCF interchange: headers, FILTER/INFO/FORMAT and phasing; twenty file consumers |
+| `variant_consequence` | 3 in / file out | keep `file_artifact` | VCF interchange: headers, INFO and FORMAT; twenty file consumers |
+| `vcf_concat` | 2 in / file out | keep `file_artifact` | VCF interchange; chained into merge by the `vcf_normalization` route |
+| `vcf_filter` | 1 in / file out | keep `file_artifact` | VCF interchange: headers, FILTER/INFO/FORMAT and phasing; twenty file consumers |
+| `vcf_merge` | 2 in / file out | keep `file_artifact` | VCF interchange; terminal step of the `vcf_normalization` route before export |
+| `vcf_normalize` | 2 in / file out | keep `file_artifact` | VCF interchange; the `vcf_normalization` route feeds its output to merge |
 
 ## Consuming operators
 
@@ -297,8 +296,8 @@ touches it:
 
 ## Registry checks derived from this inventory
 
-1. An operator output may be `file_artifact` only for the three whitelisted
-   terminals; every other operator output is `form` or empty.
+1. An operator output may be `file_artifact` only for an emitter listed above
+   with a reason; every other operator output is `form` or empty.
 2. Every remaining `*_path` parameter carries `x-operon-role` with one of
    `tool`, `weights`, `resource`, `output`; a run-data path is an error.
 3. A reader declares no inputs.
