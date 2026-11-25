@@ -35,6 +35,42 @@ The legacy port default `kind: "form"` remains a protocol guarantee; explicit
 `kind: ["form", "file"]` is polymorphic and cannot be narrowed automatically.
 See [static migration](format_migration_v37.md) for inspect/apply commands.
 
+## Run data travels through ports
+
+A port is the only channel that carries run data. An operator reads its inputs
+from declared ports and offers its product on a declared output port; a
+parameter may configure the step, but it may not be the way data enters or
+leaves.
+
+- A Reader declares no inputs. It publishes a Form, or a file artifact when the
+  format is streaming or document-shaped (BAM, FASTQ, VCF, pairs, chain, SBML,
+  Cooler, alignment) and a table would lose information.
+- An operator may consume a Form or a file artifact. It emits a Form by default,
+  because `dims`, labels, `dtype` and `info` let the planner validate a
+  connection before submission.
+- An operator emits a file artifact only when a Form cannot represent the
+  product without loss. `operon/port_rules.py` lists the sixteen operators that
+  qualify, each with its reason: the eight VCF producers (headers, FILTER/INFO/
+  FORMAT, phasing), `align_reads` (BAM), `build_contacts` (Hi-C), the
+  AlphaFold-2 PDB and A3M products, the consensus reference genome, the liftover
+  mapped/unmapped BED pair and the AlphaFold-2 batch summary. The registry
+  rejects a file output that is not on that list, and rejects a listed operator
+  that stops emitting one.
+- `export_results` and `result_report` are the endpoints. They accept a Form or
+  a file artifact and write the deliverable: `export_results` renders table,
+  sequence, track, tree and contact forms and copies the files it cannot render;
+  `result_report` registers its report as a native result and declares no
+  output port.
+- A `*_path` parameter may name an executable, model weights, a reference
+  database or an output directory. It may not be the only way run data enters
+  an operator; `registry build` and `registry check` reject that shape.
+
+To migrate an operator that used to read a path, declare the port, resolve the
+value with `library/seed/src/task/step/steps/_port_inputs.py` (`structure`,
+`fasta`, `file`) and keep the old parameter only as an optional override for
+direct API calls, with an empty default so a graph that supplies the port is not
+reported as missing data.
+
 ## Native Reader to Form bridge
 
 A Reader may declare `logical_type: "form"` with
