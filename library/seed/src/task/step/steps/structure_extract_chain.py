@@ -12,7 +12,7 @@ from src.reader import read_source
 from src.task.context.base import Context
 from src.task.step.base import Step
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
-from src.task.step.steps._protein_common import column_index, decode_column
+from src.task.step.steps._protein_common import column_index
 from src.task.step.steps.structure_convert_format import (
     _ALIASES,
     _column,
@@ -20,8 +20,26 @@ from src.task.step.steps.structure_convert_format import (
     _fmt_atom,
     _labels,
     _text,
+    decoded_columns,
 )
 from operon.bytecode import io_path
+
+
+def selected_indices(chains, wanted, operator='structure_extract_chain'):
+    """Return the atom indices whose chain is in ``wanted``.
+
+    Raises a StepError that names the chains the input actually carries, so a
+    caller sees why a request for chain "B" found nothing instead of only
+    learning that nothing matched.
+    """
+    selected = [index for index, chain in enumerate(chains) if chain in wanted]
+    if not selected:
+        available = sorted({chain for chain in chains if chain})
+        raise StepError(
+            f"{operator}: no atoms belong to chains {', '.join(wanted)}; "
+            f"the input carries {', '.join(available) or 'no chain labels'}"
+        )
+    return selected
 
 
 class StructureExtractChainStep(Step):
@@ -77,24 +95,34 @@ class StructureExtractChainStep(Step):
         for axis in ('x', 'y', 'z'):
             if axis not in labels and f'cartn_{axis}' not in labels:
                 raise StepError(f"structure_extract_chain: the input has no '{axis}' or 'Cartn_{axis}' column")
-        if 'chain' not in labels and 'label_asym_id' not in labels and 'auth_asym_id' not in labels:
-            raise StepError('structure_extract_chain: the input has no chain column')
-        chains = [str(value) for value in decode_column(form, field_dim, 'chain')]
-        selected = [index for index, chain in enumerate(chains) if chain in wanted]
-        if not selected:
-            raise StepError(f"structure_extract_chain: no atoms belong to chains {', '.join(wanted)}")
+        chain_values = decoded_columns(form, field_dim, labels, 'chain')
+        if chain_values is None:
+            raise StepError(
+                'structure_extract_chain: the structure input has no chain column '
+                '(chain, label_asym_id or auth_asym_id); load the file with the PDB '
+                'reader or run structure_convert_format first'
+            )
+        chains = [str(value) for value in chain_values]
+        selected = selected_indices(chains, wanted)
         coords = np.column_stack([
             np.asarray(form.data[:, column_index(form, field_dim, axis)], dtype=np.float64)
             for axis in ('x', 'y', 'z')
         ])
         if not np.isfinite(coords).all():
             raise StepError('structure_extract_chain: coordinates contain NaN/inf')
-        resnames = [str(v) for v in decode_column(form, field_dim, 'resname')]
-        numbers = np.rint(np.asarray([float(v) for v in decode_column(form, field_dim, 'residue_number')], dtype=np.float64)).astype(np.int64)
-        names = [str(v) for v in decode_column(form, field_dim, 'atom_name')]
-        elements = [str(v) for v in decode_column(form, field_dim, 'element')]
-        altlocs = [str(v) for v in decode_column(form, field_dim, 'altloc')] if 'altloc' in labels or 'label_alt_id' in labels else [''] * len(chains)
-        codes = [str(v) for v in decode_column(form, field_dim, 'insertion_code')] if 'insertion_code' in labels or 'pdbx_pdb_ins_code' in labels else [''] * len(chains)
+        def column(key, fallback):
+            values = decoded_columns(form, field_dim, labels, key)
+            return [str(v) for v in values] if values is not None else fallback
+
+        resnames = column('resname', ['UNK'] * len(chains))
+        numbers = np.rint(np.asarray(
+            [float(v) for v in column('residue_number', range(1, len(chains) + 1))],
+            dtype=np.float64,
+        )).astype(np.int64)
+        names = column('atom_name', ['C'] * len(chains))
+        elements = column('element', [''] * len(chains))
+        altlocs = column('altloc', [''] * len(chains))
+        codes = column('insertion_code', [''] * len(chains))
         include_hetatm = bool(params.get('include_hetatm', False))
         lines = []
         previous = None

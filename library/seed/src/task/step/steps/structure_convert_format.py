@@ -28,6 +28,16 @@ _ALIASES = {
     'insertion_code': ('insertion_code', 'pdbx_pdb_ins_code'),
 }
 
+_TEXT_COLUMNS = (
+    'atom_name',
+    'resname',
+    'chain',
+    'residue_number',
+    'element',
+    'altloc',
+    'insertion_code',
+)
+
 
 def _labels(form, field_dim):
     return {str(k).lower(): int(v) for k, v in (form.labels.get(field_dim) or {}).items()}
@@ -38,6 +48,40 @@ def _column(form, field_dim, labels, names):
         if name in labels:
             return form.data.take(labels[name], axis=1)
     return None
+
+
+def _encoders(form, field_dim):
+    """Return the label encoders recorded for the field dimension."""
+    info = getattr(form, 'info', None) or {}
+    table = info.get('encoders') or {}
+    return table.get(field_dim) or {}
+
+
+def _column_named(form, field_dim, labels, names):
+    for name in names:
+        if name in labels:
+            return form.data.take(labels[name], axis=1), name
+    return None, None
+
+
+def _decode(values, encoder):
+    if values is None or encoder is None:
+        return values
+    return np.asarray(encoder.inverse_transform(np.asarray(values)))
+
+
+def decoded_columns(form, field_dim, labels, key):
+    """Decode one structural column through its aliases and label encoder.
+
+    A structure Form built by a reader may carry label-encoded integers for
+    chain, residue name or atom name. Writing those integers into a PDB turns
+    the chain letters into digits, so every text column has to be inverted
+    through ``form.info['encoders']`` before it reaches the file.
+    """
+    values, name = _column_named(form, field_dim, labels, _ALIASES[key])
+    if values is None:
+        return None
+    return _decode(values, _encoders(form, field_dim).get(name))
 
 
 def _text(value):
@@ -118,19 +162,20 @@ class StructureConvertFormatStep(Step):
             raise StepError(f'structure_convert_format: a structure form with dims [{atom_dim}, {field_dim}] is required')
         labels = _labels(form, field_dim)
         arrays = {key: _column(form, field_dim, labels, aliases) for key, aliases in _ALIASES.items()}
+        decoded = {key: decoded_columns(form, field_dim, labels, key) for key in _TEXT_COLUMNS}
         for axis in _COORDINATES:
             if arrays[axis] is None:
                 raise StepError(f"structure_convert_format: the input has no '{axis}' or 'Cartn_{axis}' column")
         coords = np.column_stack([np.asarray(arrays[a], dtype=np.float64) for a in _COORDINATES])
         if not np.isfinite(coords).all():
             raise StepError('structure_convert_format: coordinates contain NaN/inf')
-        resnames = arrays['resname'] if arrays['resname'] is not None else [params.get('resname', 'UNK')] * len(coords)
-        chains = arrays['chain'] if arrays['chain'] is not None else [params.get('chain', 'A')] * len(coords)
-        numbers = arrays['residue_number'] if arrays['residue_number'] is not None else np.arange(1, len(coords) + 1)
-        names = arrays['atom_name'] if arrays['atom_name'] is not None else ['C'] * len(coords)
-        elements = arrays['element'] if arrays['element'] is not None else [None] * len(coords)
-        altlocs = arrays['altloc'] if arrays['altloc'] is not None else [''] * len(coords)
-        codes = arrays['insertion_code'] if arrays['insertion_code'] is not None else [''] * len(coords)
+        resnames = decoded['resname'] if arrays['resname'] is not None else [params.get('resname', 'UNK')] * len(coords)
+        chains = decoded['chain'] if arrays['chain'] is not None else [params.get('chain', 'A')] * len(coords)
+        numbers = decoded['residue_number'] if arrays['residue_number'] is not None else np.arange(1, len(coords) + 1)
+        names = decoded['atom_name'] if arrays['atom_name'] is not None else ['C'] * len(coords)
+        elements = decoded['element'] if arrays['element'] is not None else [None] * len(coords)
+        altlocs = decoded['altloc'] if arrays['altloc'] is not None else [''] * len(coords)
+        codes = decoded['insertion_code'] if arrays['insertion_code'] is not None else [''] * len(coords)
         include_hetatm = bool(params.get('include_hetatm', False))
         lines = []
         previous_chain = None
