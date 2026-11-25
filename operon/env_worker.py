@@ -116,8 +116,22 @@ def _register_readers(directory) -> None:
     register_readers(json.loads(published.read_text(encoding="utf-8")))
 
 
+def _apply_resource_environment():
+    """Export declared resource roots before the step module is imported."""
+
+    try:
+        from src.task.step.steps import _resources_common
+
+        _resources_common.apply_environment()
+    except Exception:
+        # Older libraries do not carry the helper; the step still resolves its
+        # parameters exactly as before.
+        return
+
+
 def main():
     _prepend_environment_path()
+    _apply_resource_environment()
     directory = Path(sys.argv[1])
     request = json.loads((directory / "request.json").read_text(encoding="utf-8"))
     try:

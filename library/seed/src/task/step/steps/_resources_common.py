@@ -285,6 +285,34 @@ def resolve_root(resource: Resource, root: str | Path | None = None) -> Path | N
             return path
     return None
 
+def apply_environment(
+    manifest: dict[str, Any] | str | Path | None = None, *, override: bool = False
+) -> dict[str, str]:
+    """Publish each declared resource root through its environment variable.
+
+    Operator workers inherit the host environment, so a manifest ``env`` field
+    only reaches a step when something exports it there.  ``resolve_root``
+    honours an explicit value first, so an already-set variable is left alone
+    unless ``override`` is requested.
+    """
+
+    applied: dict[str, str] = {}
+    try:
+        resources = load_resources(manifest)
+    except Exception:
+        return applied
+    for resource in resources.values():
+        if not resource.env:
+            continue
+        if not override and os.environ.get(resource.env):
+            continue
+        root = resolve_root(resource)
+        if root is None:
+            continue
+        os.environ[resource.env] = str(root)
+        applied[resource.env] = str(root)
+    return applied
+
 
 def _fallback_root(resource: Resource) -> Path:
     """Path a resource would use even before any declared root exists."""

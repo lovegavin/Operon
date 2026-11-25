@@ -1297,6 +1297,29 @@
         }
       ],
       "notes": "The vina_dock and vina_dock_batch operators only need the executable, not the python package. Downloading the static release binary removes the last dependency the CentOS 7 host cannot build."
+    },
+    {
+      "id": "alphafold2_code",
+      "title": "AlphaFold-2 source checkout",
+      "kind": "code",
+      "url": "https://github.com/google-deepmind/alphafold",
+      "install": "check out the AlphaFold-2 source (run_alphafold.py) and link the checkout",
+      "env": "OPERON_ALPHAFOLD2_HOME",
+      "roots": [
+        "~/.local/share/operon/resources/alphafold2_code"
+      ],
+      "files": [
+        "run_alphafold.py"
+      ],
+      "expected_files": [
+        "run_alphafold.py"
+      ],
+      "link_unit": "tree",
+      "link_root": "alphafold2_code",
+      "envs": [
+        "alphafold2"
+      ],
+      "notes": "A checkout is usually shared and read-only, so it is linked rather than copied; workers export OPERON_ALPHAFOLD2_HOME from the linked root and the operator locates run_alphafold.py without a per-run parameter."
     }
   ],
   "version": 2
