@@ -59,18 +59,42 @@ def _manifest(root: Path) -> Path:
     raise ValueError('The installed library has no resources.json.')
 
 
+def _provider_prefixes(root: Path) -> list[str]:
+    """Module prefixes that carry the resource helpers in this code root.
+
+    A source checkout installs the providers under their canonical module
+    names (``operon_core``); a library-mode install namespaces each provider
+    as ``operon_library_<name>``.  Discover whichever layout is present
+    instead of assuming the canonical one.
+    """
+    prefixes: list[str] = []
+    for path in sorted(root.glob('*/steps/_resources_common.py')):
+        prefix = path.parent.parent.name
+        if prefix and prefix not in prefixes:
+            prefixes.append(prefix)
+    return [prefix + '.steps' for prefix in prefixes]
+
+
 def _modules(service):
     root = _code_root(service)
     text = str(root)
     if text not in sys.path:
         sys.path.insert(0, text)
-    common = importlib.import_module('operon_core.steps._resources_common')
-    fetch = importlib.import_module('operon_core.steps.resource_fetch')
-    try:
-        link = importlib.import_module('operon_core.steps.resource_link')
-    except ImportError:
-        link = None
-    return root, common, fetch, link
+    failures: list[str] = []
+    for prefix in ('operon_core.steps', *_provider_prefixes(root)):
+        try:
+            common = importlib.import_module(prefix + '._resources_common')
+            fetch = importlib.import_module(prefix + '.resource_fetch')
+        except ImportError as exc:
+            failures.append('%s: %s' % (prefix, exc))
+            continue
+        try:
+            link = importlib.import_module(prefix + '.resource_link')
+        except ImportError:
+            link = None
+        return root, common, fetch, link
+    raise ImportError('the installed library has no resource helpers (%s)'
+                      % '; '.join(failures))
 
 
 def _resource(service, name: str):

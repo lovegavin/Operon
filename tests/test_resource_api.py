@@ -553,3 +553,31 @@ def test_resource_from_entry_keeps_unit_file_sizes_for_planned_bytes() -> None:
     assert resource_api._planned_bytes(
         [{'path': 'a.bin'}, {'path': 'b.bin'}], resource, 'afdb',
     ) == 15
+
+
+def test_modules_resolve_a_namespaced_provider_layout(tmp_path: Path) -> None:
+    """Library-mode installs namespace providers; helpers must still import."""
+    plugins = tmp_path / "plugins"
+    steps = plugins / "code" / "operon_library_operon_core" / "steps"
+    steps.mkdir(parents=True)
+    (steps / "_resources_common.py").write_text("VALUE = 'common'\n", encoding="utf-8")
+    (steps / "resource_fetch.py").write_text("VALUE = 'fetch'\n", encoding="utf-8")
+    (steps / "resource_link.py").write_text("VALUE = 'link'\n", encoding="utf-8")
+
+    class Plugins:
+        directory = plugins
+
+        @staticmethod
+        def state():
+            return {"code_paths": ["code"]}
+
+    class Service:
+        pass
+
+    service = Service()
+    service.plugins = Plugins()
+    root, common, fetch, link = resource_api._modules(service)
+    assert root == plugins / "code"
+    assert common.VALUE == "common"
+    assert fetch.VALUE == "fetch"
+    assert link.VALUE == "link"

@@ -277,3 +277,16 @@ def test_worker_environment_publishes_resolved_tools(monkeypatch, tmp_path):
     assert json.loads(env['OPERON_PACKED_TOOLS']) == {'mkdssp': '/opt/dssp/bin/mkdssp'}
     env = environments.worker_environment(Path('python'), (), None)
     assert 'OPERON_PACKED_TOOLS' not in env
+
+
+def test_worker_environment_publishes_the_environments_root(monkeypatch, tmp_path):
+    from operon import environments
+
+    monkeypatch.delenv('OPERON_ENVIRONMENTS_ROOT', raising=False)
+    monkeypatch.setattr(environments, 'root', lambda: tmp_path / 'environments')
+    env = environments.worker_environment(Path('python'))
+    assert env['OPERON_ENVIRONMENTS_ROOT'] == str(tmp_path / 'environments')
+
+    monkeypatch.setenv('OPERON_ENVIRONMENTS_ROOT', '/explicit/root')
+    env = environments.worker_environment(Path('python'))
+    assert env['OPERON_ENVIRONMENTS_ROOT'] == '/explicit/root'

@@ -47,3 +47,10 @@ assertions); see `contract_tests.txt` and `acceptance-gap.md`.
 L1/L2/L3 execution layers were not replayed for 2.1.0 in this container; they
 are exercised by the 5.10.0 server acceptance run (environment install, node
 capacity, AF2 without explicit pointers, and route replays).
+
+## Additional fixes in this line
+
+- Environment-bridged steps now receive , and  falls back to sibling environments, so large-model operators can find their interpreter on managed servers.
+-  resolves resource helpers from namespaced provider packages (), so remote resource listing and linking work after a library install.
+
+Both changes were covered by targeted tests (, , ) and do not change any operator contract.

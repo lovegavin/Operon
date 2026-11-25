@@ -413,6 +413,11 @@ def worker_environment(python: Path, paths=(), tools=None) -> dict[str, str]:
         env['LD_LIBRARY_PATH'] = os.pathsep.join(
             [*(str(p) for p in libs), *([previous] if previous else [])]
         )
+    # The bridge runs inside one isolated environment; library steps that need a
+    # sibling environment (for example AlphaFold-2's own interpreter) resolve it
+    # through the stable environments root, which must therefore travel with the
+    # worker instead of being re-derived from sys.prefix.
+    env.setdefault('OPERON_ENVIRONMENTS_ROOT', str(root()))
     short = short_temp_root(env)
     if short:
         # A job directory under the studio tree easily exceeds the AF_UNIX
