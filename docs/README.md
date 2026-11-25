@@ -95,6 +95,7 @@ they tested; they are historical evidence, not current installation instructions
 - [Hard-capability status](design/hard_capability_status.md)
 - [Minibinder and VHH design route](design/minibinder_vhh_design_route.md)
 - [Competitive landscape and moat analysis](design/competitive_landscape.md)
+- [Port contract inventory (form and file artifacts)](design/port_contract_inventory.md)
 - [Agent working notes](design/agent_working_notes.md)
 
 ## Extend and maintain
