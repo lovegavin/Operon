@@ -234,3 +234,25 @@ def test_library_endpoints_share_manager_without_implicit_installs():
         assert client.post('/api/remote/example/library/install', json=selection).json()['status'] == 'running'
         assert calls[-1] == ('install', 'example', selection)
         assert client.get('/api/remote/example/library/status').json()['status'] == 'complete'
+
+def test_selected_bare_ids_install_with_library_semantics(tmp_path):
+    """A provider library declares bare operator IDs; the remote install path
+    must install it with library semantics instead of rejecting the IDs."""
+    from operon.dropins import single_file_wheel
+    source = tmp_path / 'bare.py'
+    write_extension(source, '''OPERON_PLUGIN = {'name': 'remote-bare-provider'}
+from operon_sdk import Step
+class Bare(Step):
+    name = 'remote_bare_op'
+    input_contracts = []
+    output_contract = {'mode': 'report'}
+    parameters_schema = {'type': 'object'}
+    def run(self, ctx, inputs):
+        raise AssertionError('Not a workflow execution')
+''')
+    wheel = single_file_wheel(source, tmp_path / 'wheels')
+    manager = PluginManager(tmp_path / 'remote', source_root=None)
+    revision = inventory(manager.state())['revision']
+    transfers, item = upload(wheel, tmp_path)
+    install_selected(manager, transfers, {'files': [item], 'remote_revision': revision})
+    assert 'remote_bare_op' in {d['id'] for d in manager.state()['descriptors']}

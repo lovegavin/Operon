@@ -178,5 +178,5 @@ def install_selected(manager, transfers, payload):
                 raise ValueError('Selection is stale, disabled, or would replace remote-only operators; check the library again')
             # The package installer validates protocol, code/schema and ID
             # uniqueness, prepares immutable code, then publishes atomically.
-            manager._install_many(wheels, state)
+            manager._install_many(wheels, state, library=True)
     return {'installed': sorted(names)}
