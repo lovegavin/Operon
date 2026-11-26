@@ -86,11 +86,16 @@ def stack_designs(paths: list[Path]) -> tuple[np.ndarray, dict, dict]:
     design_labels: dict[str, int] = {}
     atom_labels: dict[str, int] = {}
     field_labels: dict[str, int] = {}
+    encoders: dict = {}
     summary: list[dict] = []
     for index, path in enumerate(paths):
         form = read_source(path, ["atom", "field"], {"atom": "auto", "field": "builtin"})
         if not field_labels:
             field_labels = dict(form.labels["field"])
+            # The readers label-encode text columns (chain, resname, atom_name, ...) and keep the
+            # inverse maps in info["encoders"]; dropping them turns a re-emitted PDB into raw
+            # numeric codes.
+            encoders = dict((form.info or {}).get("encoders") or {})
         elif dict(form.labels["field"]) != field_labels:
             raise StepError("rfdiffusion_design: the designs carry different field columns")
         ordered = sorted(form.labels["atom"].items(), key=lambda item: item[1])
@@ -114,7 +119,11 @@ def stack_designs(paths: list[Path]) -> tuple[np.ndarray, dict, dict]:
         else np.zeros((0, 0, len(field_labels)), dtype=np.float32)
     )
     labels = {"design": design_labels, "atom": atom_labels, "field": field_labels}
-    return data, labels, {"designs": summary, "n_atoms": int(data.shape[1]) if frames else 0}
+    return data, labels, {
+        "designs": summary,
+        "n_atoms": int(data.shape[1]) if frames else 0,
+        "encoders": encoders,
+    }
 
 
 class RfdiffusionDesignStep(Step):
@@ -281,6 +290,7 @@ class RfdiffusionDesignStep(Step):
                 "design_index": selected,
                 "n_atoms": extra["n_atoms"],
                 "designs": extra["designs"],
+                "encoders": extra.get("encoders") or {},
                 "contigs": str(params.get("contigs") or ""),
                 "rfdiffusion_path": str(repo),
             },

@@ -143,3 +143,27 @@ def test_structure_writer_keeps_blank_pdb_markers(tmp_path):
         assert line[26] != "_", line
         assert line[21] == "A", line
         assert line[22:26].strip().isdigit(), line
+
+
+def test_stacked_designs_keep_the_reader_encoders(tmp_path: Path) -> None:
+    from src.task.step.steps import rfdiffusion_design as designer
+    from src.task.step.steps._protein_common import write_structure_pdb
+
+    pdb = tmp_path / "design_0.pdb"
+    pdb.write_text(
+        "ATOM      1  N   ALA A   1      11.104   6.134  -6.504  1.00  0.00           N\n"
+        "ATOM      2  CA  ALA A   1      11.639   6.071  -5.147  1.00  0.00           C\n"
+        "END\n"
+    )
+    second = tmp_path / "design_1.pdb"
+    second.write_text(pdb.read_text().replace("  11.104", "  61.104").replace("  11.639", "  61.639"))
+    data, labels, extra = designer.stack_designs([pdb, second])
+    assert data.shape == (2, 2, 12)
+    assert extra["encoders"], "the stacked table dropped the reader encoders"
+    stack = Form(data=data, dims=["design", "atom", "field"], labels=labels,
+                 info={"designs": extra["designs"], "encoders": extra["encoders"]}, axis_info={})
+    target = write_structure_pdb(stack, "atom", "field", tmp_path / "out.pdb", "probe", design_index=2)
+    lines = [line for line in target.read_text().splitlines() if line.startswith("ATOM")]
+    assert lines[0][17:20] == "ALA"
+    assert lines[0][21] == "A"
+    assert "  61.104" in lines[0]
