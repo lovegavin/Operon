@@ -167,3 +167,37 @@ def test_stacked_designs_keep_the_reader_encoders(tmp_path: Path) -> None:
     assert lines[0][17:20] == "ALA"
     assert lines[0][21] == "A"
     assert "  61.104" in lines[0]
+
+
+def test_native_results_falls_back_to_the_recorded_port(tmp_path, monkeypatch):
+    import importlib
+    import json
+    import sys
+
+    from operon.env_worker import Context
+    from src.task.step.steps.export_results import native_results
+
+    run_dir = tmp_path / "run-1"
+    steps = run_dir / "steps"
+    steps.mkdir(parents=True)
+    native = tmp_path / "artifacts" / "colabfold" / "abc" / "prediction.pdb"
+    native.parent.mkdir(parents=True)
+    native.write_text("ATOM\n", encoding="utf-8")
+    report = steps / "01_colabfold_predict.json"
+    report.write_text(
+        json.dumps({"result_files": [{"id": "structure", "path": str(native),
+                                      "format": "pdb", "filename": "prediction.pdb"}]}),
+        encoding="utf-8",
+    )
+    module = sys.modules.get("src.task.step") or importlib.import_module("src.task.step")
+    monkeypatch.setattr(module, "STEPS", {}, raising=False)
+    ctx = Context(
+        {"output": "folded_1"},
+        str(tmp_path / "bridge"),
+        str(tmp_path / "artifacts"),
+        out_dir=str(run_dir),
+        exports=[{"index": 1, "name": "colabfold_predict", "params": {"output": "folded_1"},
+                  "export_path": "steps/01_colabfold_predict.json"}],
+    )
+    files = native_results(ctx, "folded_1")
+    assert [item["id"] for item in files] == ["structure"]

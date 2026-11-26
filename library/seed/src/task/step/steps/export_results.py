@@ -39,10 +39,13 @@ def native_results(ctx, input_name):
     for entry in reversed(ctx.artifacts.get('exports', [])):
         cls = STEPS.get(entry['name'])
         if cls is None:
-            continue
-        names = list(cls.outputs)
-        if cls.output_parameter:
-            names.append(entry.get('params', {}).get(cls.output_parameter, cls.name))
+            # The environment bridge imports only the step it runs, so the producer's
+            # class can be absent from STEPS. Its record still names the port it published.
+            names = [entry.get('params', {}).get('output') or entry['name']]
+        else:
+            names = list(cls.outputs)
+            if cls.output_parameter:
+                names.append(entry.get('params', {}).get(cls.output_parameter, cls.name))
         if input_name not in names:
             continue
         cache = ctx.artifacts.get('native_results', {}).get(input_name, {})
