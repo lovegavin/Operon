@@ -1180,7 +1180,7 @@
       "title": "ColabFold sequence databases (UniRef30 2302 + environmental 2021-08)",
       "kind": "database",
       "url": "https://opendata.mmseqs.org/colabfold/",
-      "install": "download uniref30_2302.tar.gz (95.8 GiB) and colabfold_envdb_202108.tar.gz (109.9 GiB) and extract both below the resource root; MMseqs2 searches them locally",
+      "install": "download uniref30_2302.tar.gz (95.8 GiB) and colabfold_envdb_202108.tar.gz (109.9 GiB), extract both below the resource root and build the MMseqs2 databases and indexes in place (tsv2db for the sequence and header tables, then createindex); MMseqs2 searches them locally",
       "env": "OPERON_COLABFOLD_MSA",
       "roots": [
         "~/.local/share/operon/resources/colabfold_msa"
@@ -1242,7 +1242,35 @@
           "archive": "tar.gz",
           "bytes": 102918187842,
           "unit": "uniref30_2302",
-          "note": "verified 2026-11-22: HTTP 200, Content-Length 102,918,187,842 bytes"
+          "note": "verified 2026-11-22: HTTP 200, Content-Length 102,918,187,842 bytes; extraction is followed by tsv2db and createindex",
+          "after": [
+            [
+              "{tool:mmseqs}",
+              "tsv2db",
+              "{root}/uniref30_2302/uniref30_2302_seq.tsv",
+              "{root}/uniref30_2302/uniref30_2302_db",
+              "--output-dbtype",
+              "0"
+            ],
+            [
+              "{tool:mmseqs}",
+              "tsv2db",
+              "{root}/uniref30_2302/uniref30_2302_h.tsv",
+              "{root}/uniref30_2302/uniref30_2302_db_h",
+              "--output-dbtype",
+              "12"
+            ],
+            [
+              "{tool:mmseqs}",
+              "createindex",
+              "{root}/uniref30_2302/uniref30_2302_db",
+              "{root}/uniref30_2302/tmp_uniref30_2302",
+              "--remove-tmp-files",
+              "1",
+              "--threads",
+              "{threads}"
+            ]
+          ]
         },
         {
           "path": "colabfold_envdb_202108",
@@ -1252,7 +1280,35 @@
           "archive": "tar.gz",
           "bytes": 117965643010,
           "unit": "colabfold_envdb_202108",
-          "note": "verified 2026-11-22: HTTP 200, Content-Length 117,965,643,010 bytes"
+          "note": "verified 2026-11-22: HTTP 200, Content-Length 117,965,643,010 bytes; extraction is followed by tsv2db and createindex",
+          "after": [
+            [
+              "{tool:mmseqs}",
+              "tsv2db",
+              "{root}/colabfold_envdb_202108/colabfold_envdb_202108_seq.tsv",
+              "{root}/colabfold_envdb_202108/colabfold_envdb_202108_db",
+              "--output-dbtype",
+              "0"
+            ],
+            [
+              "{tool:mmseqs}",
+              "tsv2db",
+              "{root}/colabfold_envdb_202108/colabfold_envdb_202108_h.tsv",
+              "{root}/colabfold_envdb_202108/colabfold_envdb_202108_db_h",
+              "--output-dbtype",
+              "12"
+            ],
+            [
+              "{tool:mmseqs}",
+              "createindex",
+              "{root}/colabfold_envdb_202108/colabfold_envdb_202108_db",
+              "{root}/colabfold_envdb_202108/tmp_colabfold_envdb_202108",
+              "--remove-tmp-files",
+              "1",
+              "--threads",
+              "{threads}"
+            ]
+          ]
         }
       ],
       "notes": "Boltz, ColabFold and AlphaFold-style operators build MSAs locally with MMseqs2 against these databases, so no structure run needs the ColabFold API. Measurements on 2026-11-22: opendata.mmseqs.org served uniref30 at 2.9 MB/s and the environmental database at 9.4 MB/s from the compute host, while wwwuser.gwdg.de/~compbiol/colabfold/ dropped to 38 KB/s. The colabfold environment installs the mmseqs binary; set OPERON_COLABFOLD_MSA to point at a copy outside the resource root. The archive is not part of any environment's dependency gate: an environment stays ready without it, and only the operators that build MSAs locally need it (they report a clear error when it is absent)."

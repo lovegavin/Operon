@@ -11,6 +11,7 @@ adapter.
 from __future__ import annotations
 
 import gzip
+import collections
 import hashlib
 import importlib
 import os
@@ -687,6 +688,85 @@ class _Cancelled(Exception):
     """Raised when the user cancels a download."""
 
 
+def _tool_path(name: str) -> str:
+    """Resolve a build tool such as ``mmseqs`` for the post-extract commands."""
+
+    declared = os.environ.get(f"OPERON_{name.upper().replace('-', '_')}_PATH")
+    if declared and Path(declared).is_file():
+        return str(Path(declared))
+    found = shutil.which(name)
+    if found:
+        return found
+    bases = (Path.home() / ".local" / "share" / "operon" / "environments",
+             Path.home() / ".local" / "share" / "operon" / "resources")
+    for base in bases:
+        for candidate in sorted(base.glob(f"*/bin/{name}")) + sorted(base.glob(f"*/*/bin/{name}")):
+            if candidate.is_file():
+                return str(candidate)
+    raise RuntimeError(f"{name} is not installed; prepare the environment that ships it first")
+
+
+def _flatten_wrapper(target: Path) -> None:
+    """Promote the contents of a single same-named wrapper directory.
+
+    Database archives ship either flat or wrapped in a directory that repeats
+    the declared path; both layouts must end up directly below ``target`` so the
+    declared files and the build commands find the TSV files.
+    """
+
+    if not target.is_dir():
+        return
+    entries = [item for item in target.iterdir()]
+    if len(entries) != 1:
+        return
+    inner = entries[0]
+    if not inner.is_dir() or inner.name != target.name:
+        return
+    for item in list(inner.iterdir()):
+        os.replace(item, target / item.name)
+    inner.rmdir()
+
+
+def _after_argv(command: list, root: Path) -> list[str]:
+    threads = str(max(1, min(8, os.cpu_count() or 4)))
+    argv: list[str] = []
+    for item in command:
+        text = str(item).replace("{root}", str(root)).replace("{threads}", threads)
+        if text.startswith("{tool:") and text.endswith("}"):
+            argv.append(_tool_path(text[len("{tool:"):-1]))
+        else:
+            argv.append(text)
+    return argv
+
+
+def _run_after(commands: list, *, root: Path, event, emit, job: dict) -> None:
+    """Run the manifest's post-extract build steps and stream their output."""
+
+    import subprocess
+
+    for command in commands:
+        if event.is_set():
+            raise _Cancelled("cancelled")
+        argv = _after_argv(command, root)
+        emit("BUILD " + " ".join(argv))
+        process = subprocess.Popen(argv, cwd=str(root), stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT, text=True, bufsize=1)
+        tail: collections.deque[str] = collections.deque(maxlen=8)
+        assert process.stdout is not None
+        for line in process.stdout:
+            stripped = line.rstrip()
+            if stripped:
+                tail.append(stripped)
+                emit("BUILD " + stripped)
+            if event.is_set():
+                process.terminate()
+                raise _Cancelled("cancelled")
+        code = process.wait()
+        if code:
+            detail = " / ".join(tail) or "no output"
+            raise RuntimeError(f"{argv[0]} exited with {code}: {detail}")
+
+
 def _sha256(path: Path) -> str:
     hasher = hashlib.sha256()
     with path.open("rb") as handle:
@@ -835,8 +915,13 @@ def _extract_zip(bundle: Path, target: Path, member: str, event, job: dict) -> i
     return written
 
 
-def _extract_tree(bundle: Path, target: Path, event, job: dict) -> int:
-    """Extract every regular file of a tar archive below ``target``."""
+def _extract_tree(bundle: Path, target: Path, event, job: dict,
+                  strip: int = 0) -> int:
+    """Extract every regular file of a tar archive below ``target``.
+
+    ``strip`` drops leading path components so an archive that wraps its
+    contents in one directory still lands directly in the declared path.
+    """
 
     import tarfile
 
@@ -850,6 +935,11 @@ def _extract_tree(bundle: Path, target: Path, event, job: dict) -> int:
             name = info.name
             while name.startswith("./"):
                 name = name[2:]
+            if strip:
+                parts = pathlib.PurePosixPath(name).parts[strip:]
+                name = "/".join(parts)
+                if not name:
+                    continue
             if not name or name.startswith("/") or ".." in pathlib.PurePosixPath(name).parts:
                 raise ValueError(f"archive member escapes the target: {info.name!r}")
             destination = (root / name).resolve()
@@ -877,7 +967,8 @@ def _extract_tree(bundle: Path, target: Path, event, job: dict) -> int:
     return written
 
 
-def _extract_member(bundle: Path, target: Path, member: str, event, job: dict) -> int:
+def _extract_member(bundle: Path, target: Path, member: str, event, job: dict,
+                    strip: int = 0) -> int:
     """Extract one member, or the whole archive, of a tar file.
 
     AlphaFold publishes its reference databases as archives that stand for a
@@ -889,7 +980,7 @@ def _extract_member(bundle: Path, target: Path, member: str, event, job: dict) -
     import tarfile
 
     if not member:
-        return _extract_tree(bundle, target, event, job)
+        return _extract_tree(bundle, target, event, job, strip)
     extracted = target.with_name(target.name + ".extract")
     with tarfile.open(bundle, "r:*") as archive:
         info = archive.getmember(member)
@@ -1141,7 +1232,14 @@ def start(service, name: str, root: str | None = None, overwrite: bool = False,
                 job['completed_bytes'] = int(job.get('completed_bytes') or 0) + int(result.get('bytes') or 0)
                 job['bytes'] = int(job.get('completed_bytes') or 0)
                 emit(f'OK {entry.get("path")} {result.get("status")} {result.get("bytes", 0)}')
-                if entry.get('archive') and allowed is not None:
+                build = entry.get('after') or ()
+                if build:
+                    _flatten_wrapper(target / str(entry.get('path') or ''))
+                    job['phase'] = 'building'
+                    emit(f'BUILD {entry.get("path") or ""} started')
+                    _run_after(build, root=target, event=event, emit=emit, job=job)
+                    job['phase'] = 'downloading'
+                elif entry.get('archive') and allowed is not None:
                     _prune_tree(target / str(entry.get('path') or ''), allowed,
                                 event, emit)
             if event.is_set():
