@@ -435,6 +435,10 @@ def pool_stop(service, payload):
         return {'stopped': False, 'forced': force, 'busy': True, 'error': str(exc)}
 
 
+ACTIVE_JOB_STATUSES = frozenset({'queued', 'preparing', 'uploading', 'running',
+                                              'waiting_connection'})
+
+
 class RemoteService:
     def __init__(self, workspace, input_roots=None):
         self._lifecycle = threading.RLock()
@@ -489,7 +493,11 @@ class RemoteService:
         exports = getattr(application, 'plan_exports', None)
         with self._lease_guard():
             leases = bool(self.transport_leases) or bool(self.transport_active)
-        return bool(self.service.processes or self.service.threads or leases or
+        jobs = getattr(getattr(application, 'service', None), 'jobs', None)
+        running = isinstance(jobs, dict) and any(
+            isinstance(value, dict) and value.get('status') in ACTIVE_JOB_STATUSES
+            for value in jobs.values())
+        return bool(running or self.service.processes or self.service.threads or leases or
                     (canvas is not None and canvas.active) or
                     (exports is not None and (exports._active or exports._pending)) or
                     (handshake is not None and handshake.maintenance_running) or
@@ -1304,7 +1312,7 @@ def ensure_daemon(workspace, *, upgrade=False):
             subprocess.Popen([sys.executable, '-m', 'operon.remote.server', '--serve', '--workspace', str(workspace)],
                              cwd=Path(__file__).resolve().parents[2], stdin=subprocess.DEVNULL, stdout=log, stderr=log,
                              start_new_session=True)
-        deadline = time.monotonic()+60
+        deadline = time.monotonic()+150
         while time.monotonic() < deadline:
             try:
                 validate_daemon_response(rpc(workspace, daemon_request()))
@@ -1321,7 +1329,7 @@ def serve(workspace):
     address.unlink(missing_ok=True)
     loop = ControlLoop(service.dispatch, limits=limits_from_environment(),
                        on_error=service.record_dispatch_error)
-    idle_seconds = float(os.environ.get('OPERON_REMOTE_IDLE_SECONDS', 300))
+    idle_seconds = float(os.environ.get('OPERON_REMOTE_IDLE_SECONDS', 1800))
     with socket.socket(socket.AF_UNIX) as listener:
         listener.bind(str(address)); os.chmod(address, 0o600)
         listener.listen(64)
