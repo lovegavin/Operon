@@ -15,6 +15,7 @@ import urllib.request
 
 from audit_portability import audit_files
 from operon.bytecode import io_path
+from operon.remote.provision import SEED_NAMES, SEED_SUFFIXES
 
 
 def _windows_path(path):
@@ -133,7 +134,9 @@ def main():
         payload_directories.append('library/seed')
     for directory in payload_directories:
         for source in (root / directory).rglob('*'):
-            if source.is_file() and source.suffix.lower() in {'.py', '.json', '.md', '.sql', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'}:
+            if source.is_file() and (
+                source.suffix.lower() in SEED_SUFFIXES or source.name in SEED_NAMES
+            ):
                 copy(source, source.relative_to(root))
     for source in (root / 'tasks').rglob('*'):
         if source.is_file() and source.suffix in {'.py', '.yaml', '.yml', '.json'} and 'output' not in source.relative_to(root).parts:

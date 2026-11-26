@@ -319,3 +319,35 @@ def test_split_failures_keeps_openmm_extras_non_fatal():
     required, optional = split_failures(results)
     assert list(required) == ['structure_rmsd']
     assert set(optional) == {'structure_openmm_energy', 'structure_md_rmsf'}
+
+def test_archive_keeps_operator_data_like_pdbfixer_templates(tmp_path):
+    for name in ('pyproject.toml', 'README.md', 'requirements-hic-linux.txt'):
+        (tmp_path / name).write_text('public')
+    (tmp_path / 'scripts').mkdir()
+    for name in ('run.py', 'desktop_server.py'):
+        (tmp_path / 'scripts' / name).write_text('# public source')
+    library = tmp_path / 'library'
+    library.mkdir()
+    (library / 'release.json').write_text('{"library_version": "2.1.3"}')
+    seed = library / 'seed'
+    steps = seed / 'src/task/step/steps/_pdbfixer'
+    for name in ('__init__.py', 'pdbfixer.py', 'soft.xml', 'LICENSE',
+                 'templates/ALA.pdb', 'templates/ARG.pdb'):
+        path = steps / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text('data')
+    with tarfile.open(fileobj=io.BytesIO(source_archive(tmp_path))) as archive:
+        names = set(archive.getnames())
+    for expected in ('library/seed/src/task/step/steps/_pdbfixer/soft.xml',
+                     'library/seed/src/task/step/steps/_pdbfixer/LICENSE',
+                     'library/seed/src/task/step/steps/_pdbfixer/templates/ALA.pdb',
+                     'library/seed/src/task/step/steps/_pdbfixer/templates/ARG.pdb'):
+        assert expected in names
+
+
+def test_release_packaging_shares_the_provision_whitelist():
+    packaged = Path(__file__).resolve().parents[1] / 'scripts' / 'package_release.py'
+    source = packaged.read_text(encoding='utf-8')
+    assert 'from operon.remote.provision import SEED_NAMES, SEED_SUFFIXES' in source
+    assert "source.suffix.lower() in SEED_SUFFIXES" in source
+    assert re.search(r"SEED_SUFFIXES = frozenset\(\{[^}]*'\.pdb'", (packaged.parents[1] / 'operon' / 'remote' / 'provision.py').read_text(encoding='utf-8'))

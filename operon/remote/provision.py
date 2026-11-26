@@ -27,7 +27,10 @@ SOURCE_EPOCH = 946684800  # 2000-01-01 UTC
 # entries. Both sides must agree or a source checkout and the packaged tree
 # would compute different source digests for the same application.
 SEED_SUFFIXES = frozenset({'.py', '.json', '.md', '.sql', '.png', '.jpg',
-                           '.jpeg', '.webp', '.gif', '.svg'})
+                           '.jpeg', '.webp', '.gif', '.svg', '.xml', '.pdb',
+                           '.txt', '.cif', '.mmcif', '.csv', '.tsv', '.yaml',
+                           '.yml', '.npy', '.npz'})
+SEED_NAMES = frozenset({'LICENSE', 'LICENSE.txt', 'NOTICE', 'README'})
 ROUTE_SUFFIXES = frozenset({'.json', '.yaml', '.yml'})
 
 
@@ -35,6 +38,8 @@ def _seed_member(path, seed):
     """Whether the packaged operator seed carries this file."""
     if '__pycache__' in path.parts or path.suffix == '.pyc':
         return False
+    if path.name in SEED_NAMES:
+        return True
     suffix = path.suffix.lower()
     if suffix in SEED_SUFFIXES:
         return True
