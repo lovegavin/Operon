@@ -271,7 +271,7 @@ export type TargetRef = {kind: 'local'} | {kind: 'ssh'; profile_id: string};
 export type ExecutionConfig = {
   kind: 'local' | 'ssh'; profile_id?: string; mode?: 'manual' | 'auto';
   node_targets?: Record<string, TargetRef>; file_locations?: Record<string, TargetRef>;
-  eligible_targets?: TargetRef[]; max_parallel_tasks?: number;
+  eligible_targets?: TargetRef[]; max_parallel_tasks?: number; node?: string;
 };
 export type ExecutionPlan = {mode: 'manual' | 'auto';
   units: {id: string; node_ids: string[]; target: TargetRef; reason: string; estimated_bytes?: number}[];
@@ -280,11 +280,14 @@ export type ExecutionResources = {targets: {target: TargetRef; name: string; cap
   reserved_bytes: number; available_bytes: number; active_jobs: number; queued_jobs: number;
   cpu_capacity: number; cpu_reserved: number}[]};
 export type NodeSlurmNode = {name: string; partition: string; available: boolean; state: string;
-  cpus: number; memory_mb: number; gres: string};
+  cpus: number; memory_mb: number; gres: string;
+  cpus_idle?: number | null; mem_free_mb?: number | null; env_ready?: boolean | null;
+  score?: number; rank?: number; selectable?: boolean; reason?: string};
 export type NodeCapacity = {target: string; kind: 'local' | 'ssh'; name: string; host: string; platform: string;
   connected: boolean; available: boolean; error?: string; cpu_count: number; load: number | null;
   memory: {total_bytes: number; available_bytes: number}; disk: {total_bytes: number; free_bytes: number};
-  gpus: number; score: number; slurm: {available: boolean; nodes: NodeSlurmNode[]; idle: number}};
+  gpus: number; score: number; rank?: number; selectable?: boolean; reason?: string;
+  slurm: {available: boolean; nodes: NodeSlurmNode[]; idle: number}};
 export type BrowseRemote = (current: string, onSelected: (path: string, source?: DataSource, location?: TargetRef) => void, source?: boolean, target?: TargetRef, reader?: string) => void;
 
 export type LargeResourceDownload = {url: string; name?: string; dest?: string; size?: number; sha256?: string};

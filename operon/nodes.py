@@ -275,3 +275,27 @@ def inventory(service, *, refresh: bool = False) -> list[dict]:
     with _LOCK:
         _CACHE[key] = (now + CACHE_SECONDS, nodes)
     return nodes
+
+def execution_node(graph: dict) -> str:
+    """Return the compute node requested by a graph runtime, if any."""
+    runtime = (graph or {}).get('runtime') or {}
+    execution = runtime.get('execution') or {}
+    value = execution.get('node')
+    return str(value).strip() if isinstance(value, str) else ''
+
+
+def srun_command(command, node: str, cpus: int = 1):
+    """Wrap a job command so Slurm runs it on the requested compute node."""
+    node = str(node or '').strip()
+    parts = [str(part) for part in command]
+    if not node:
+        return parts
+    if not re.fullmatch(r'[A-Za-z0-9_.-]{1,120}', node):
+        raise RuntimeError(f'invalid compute node name {node!r}')
+    srun = shutil.which('srun')
+    if not srun:
+        raise RuntimeError(f'execution node {node!r} was requested but slurm (srun) is not available on this host')
+    cores = max(1, int(cpus or 1))
+    return [srun, '-N', '1', '-n', '1', '--nodelist', node, '-c', str(cores), '--time', '1440',
+            '--export=ALL', *parts]
+

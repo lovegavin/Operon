@@ -51,6 +51,17 @@ def targets(plan):
     return {key: unit["target"] for unit in plan["units"] for key in unit["node_ids"]}
 
 
+def test_execution_settings_keep_a_compute_node():
+    workflow = graph([source(), operator('step')], [('input', 'step')], mode='manual', node='node79')
+    assert planner.settings(workflow)['node'] == 'node79'
+
+
+def test_execution_settings_reject_a_non_string_node():
+    workflow = graph([source(), operator('step')], [('input', 'step')], mode='manual', node=7)
+    with pytest.raises(GraphError, match='compute-node'):
+        planner.settings(workflow)
+
+
 def test_dependency_placement_does_not_require_input_paths_or_stat_data():
     workflow = graph([source(path=''), operator('step')], [('input', 'step')], mode='manual')
     def forbidden(*args):

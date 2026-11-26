@@ -16,6 +16,7 @@ import traceback
 import uuid
 
 import yaml
+from operon.nodes import execution_node, srun_command
 from operon.run_log import append_event
 
 from .graph import GraphError, compile_graph, relative_manifest
@@ -1309,6 +1310,10 @@ class JobService:
             else:
                 # Older server distributions and explicit custom worker roots.
                 command = [python, str(code_root / 'scripts/run.py'), str(directory)]
+            node = execution_node(job.get('graph') or {})
+            if node:
+                command = srun_command(command, node, allocation['cpu_threads'])
+                job['execution_node'] = node
             console.write(f'[Operon launcher] Job {key}\nPython: {python}\nTask: {directory}\n')
             console.flush()
             self._launcher_event(job, 'worker_launching', python=python, allocation=allocation, message='Starting analysis worker')

@@ -1,5 +1,7 @@
 from types import SimpleNamespace
 
+import pytest
+
 from operon import nodes
 
 
@@ -122,3 +124,26 @@ def test_slurm_parser_uses_cpu_states_and_free_memory(monkeypatch):
     assert node['gpus'] == 1 and node['env_ready'] is False
     assert node['score'] < 0.5
 
+
+def test_execution_node_reads_the_runtime_request():
+    assert nodes.execution_node({'runtime': {'execution': {'node': ' node79 '}}}) == 'node79'
+    assert nodes.execution_node({'runtime': {'execution': {'node': 3}}}) == ''
+    assert nodes.execution_node({}) == ''
+
+
+def test_srun_command_wraps_the_worker(monkeypatch):
+    monkeypatch.setattr(nodes.shutil, 'which', lambda name: '/usr/bin/srun' if name == 'srun' else None)
+    command = nodes.srun_command(['/envs/core/bin/python', '-m', 'operon.worker', 'd'], 'node79', 8)
+    assert command[:9] == ['/usr/bin/srun', '-N', '1', '-n', '1', '--nodelist', 'node79', '-c', '8']
+    assert command[9:11] == ['--time', '1440']
+    assert command[11:] == ['--export=ALL', '/envs/core/bin/python', '-m', 'operon.worker', 'd']
+    assert nodes.srun_command(['python', 'x'], '', 4) == ['python', 'x']
+
+
+def test_srun_command_rejects_bad_names_and_missing_slurm(monkeypatch):
+    monkeypatch.setattr(nodes.shutil, 'which', lambda name: '/usr/bin/srun')
+    with pytest.raises(RuntimeError, match='invalid compute node name'):
+        nodes.srun_command(['python'], 'bad node', 1)
+    monkeypatch.setattr(nodes.shutil, 'which', lambda name: None)
+    with pytest.raises(RuntimeError, match='slurm'):
+        nodes.srun_command(['python'], 'node79', 1)

@@ -90,6 +90,14 @@ def settings(graph):
     if "max_parallel_tasks" in result and (type(result["max_parallel_tasks"]) is not int or result["max_parallel_tasks"] < 0):
         raise GraphError("Parallel task count must be zero (unlimited) or a positive integer")
     result.setdefault("max_parallel_tasks", default_parallel_tasks())
+    if "node" in result:
+        node = result["node"]
+        if node is None:
+            result["node"] = ""
+        elif not isinstance(node, str):
+            raise GraphError("Execution node must be a compute-node name")
+        else:
+            result["node"] = node.strip()
     if 'split_independent_branches' in result and type(result['split_independent_branches']) is not bool:
         raise GraphError('split_independent_branches must be a boolean')
     ids = {node.id for node in graph.nodes}

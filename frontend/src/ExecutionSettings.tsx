@@ -85,6 +85,27 @@ export function ExecutionSettings({graph, servers, disabled, onChange, preflight
         {servers.map(server => <option value={server.profile.id} key={server.profile.id}>{server.profile.name}{server.connected ? '' : t(" · 离线")}</option>)}
       </select>
     </label>
+    {config.mode === 'manual' && defaultTarget(graph).kind === 'ssh' && <div className="node-select">
+      <div className="node-capacity-head"><span>{t("计算节点")}</span>
+        <button type="button" className="subtle-button" disabled={disabled || capacityLoading}
+          onClick={() => void loadCapacity()}>{capacityLoading ? t("读取中…") : t("读取节点")}</button>
+      </div>
+      {capacityError && <p className="field-error" role="alert">{capacityError}</p>}
+      {(() => {
+        const key = config.profile_id || '';
+        const entry = capacity?.find(item => item.kind === 'ssh' && item.target === key);
+        if (!entry) return <p className="field-hint">{t("读取节点后选择 Slurm 计算节点；留空则在登录节点运行。")}</p>;
+        if (!entry.slurm?.available) return <p className="field-hint">{t("该服务器没有可用的 Slurm。")}</p>;
+        return <label className="field"><span>{t("计算节点")}</span>
+          <select aria-label={t("计算节点")} value={config.node ?? ''} disabled={disabled}
+            onChange={e => onChange({node: e.target.value || undefined})}>
+            <option value="">{t("登录节点")}</option>
+            {entry.slurm.nodes.map(item => <option key={item.name} value={item.name} disabled={!item.available}
+              title={item.reason || ''}>{item.name} · {item.available ? (item.cpus_idle != null ? `${item.cpus_idle}/${item.cpus} ${t("核空闲")}` : t("可用")) : (item.reason || t("忙碌"))}{item.score != null ? ` · ${item.score.toFixed(2)}` : ''}</option>)}
+          </select>
+        </label>;
+      })()}
+    </div>}
     <label className="field"><span>{t("并行任务上限")} <small>{t("可选")}</small></span>
       <input aria-label={t("并行任务上限")} type="number" min="1" step="1" placeholder={t("按可用资源")} disabled={disabled}
         value={config.max_parallel_tasks ?? ''} onChange={e => onChange({max_parallel_tasks: e.target.value ? Math.max(1, Math.floor(Number(e.target.value))) : undefined})}/>

@@ -656,6 +656,8 @@ class ExecutionService:
         config = settings(graph)
         stage_execution = {'kind': 'local',
                            'max_parallel_tasks': config.get('max_parallel_tasks', 2)}
+        if config.get('node'):
+            stage_execution['node'] = config['node']
         if 'cache' in config:
             stage_execution['cache'] = config['cache']
         stage.runtime['execution'] = stage_execution

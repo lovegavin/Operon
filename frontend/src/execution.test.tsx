@@ -177,3 +177,17 @@ describe('parallel task visibility', () => {
     expect(html).not.toContain('value=');
   });
 });
+
+describe('compute node selection', () => {
+  it('keeps a compute-node choice on the default target', () => {
+    const next = withExecution(graph, {mode: 'manual', kind: 'ssh', profile_id: 'ssh-a', node: 'node79'});
+    expect(executionConfig(next).node).toBe('node79');
+    expect(defaultTarget(next)).toEqual({kind: 'ssh', profile_id: 'ssh-a'});
+  });
+  it('offers a node picker when the default target is an SSH server', () => {
+    const next = withExecution(graph, {mode: 'manual', kind: 'ssh', profile_id: 'ssh-a'});
+    const html = renderToStaticMarkup(<ExecutionSettings graph={next} servers={servers} disabled={false} onChange={() => {}}/>);
+    expect(html).toContain('计算节点');
+    expect(html).toContain('读取节点');
+  });
+});
