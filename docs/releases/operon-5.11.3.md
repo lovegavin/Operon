@@ -40,6 +40,21 @@ nothing changes for callers that already had working network access. A
 database prefix without `.dbtype`/`.index` now fails with a message that
 names the missing index instead of hanging in the predictor.
 
+## ProteinMPNN reads the resource tree the installer writes
+
+Five ProteinMPNN operators searched `<resource>/vanilla_model_weights` and
+relied on a hand-made symlink, because the downloaded tree kept the upstream
+`ProteinMPNN/` wrapper while the manifest declared one. The resource manifest
+now lists the unit files relative to the resource root and links the upstream
+tree at that root, so a fresh install and a linked tree resolve the same
+files. `_protein_common.proteinmpnn_layout()` accepts both layouts, and every
+ProteinMPNN operator falls back to `OPERON_PROTEINMPNN_PATH` and then to the
+installed resource when the parameter is empty.
+
+The AlphaFold-2 resource manifest also named probe files that do not exist in
+the downloaded tree (`bfd-first_non_consensus_sequences.fasta`,
+`mgy_clusters.fa`); it now names the files the bundle really carries.
+
 ## Also in this build
 
 - `msa_mode`, `msa_host`, `msa_databases` and the local-database layout
@@ -65,4 +80,4 @@ names the missing index instead of hanging in the predictor.
 - `operon-library-main-v2.1.4.operon-library.zip` — operator library
 - `operon_builtin_library-2.1.4-py3-none-any.whl` — library wheel
 - `Operon-Routes-v2.1.4.zip` — route collection
-- `SHA256SUMS-5.11.3.txt`, `SHA256SUMS-library-v2.1.4.txt`
+- `SHA256SUMS-5.11.3.txt`, `SHA256SUMS-library-2.1.4.txt`
