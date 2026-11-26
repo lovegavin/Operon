@@ -1,137 +1,51 @@
-# ColabFold structure prediction
+# ColabFold 结构预测（colabfold_predict）
 
-## Purpose
+调用本机安装的 `colabfold_batch` 跑 AlphaFold2/ColabFold 预测，把 rank-001 结构读回成“每原子一行”的结构表，并把 pLDDT、pTM、最大 PAE 等指标写进该表的 `info`。
 
-> 用官方 `colabfold_batch` 从一条序列预测结构并读取置信度。
+## Inputs
 
-该算子把序列交给 ColabFold 的批处理入口，返回 rank-001 的 PDB 结构，以及
-pLDDT、pTM 和 PAE 的汇总。它只负责调用：不训练模型、不合并多条比对，也不判断
-折叠结果是否具有生物学意义。
+| 名称 | 类型/维度 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `inputs[0]` | 2-D numeric Form，dims 为 `sequence_dim` × `position_dim`（默认 `sequence` × `position`） | 是 | 唯一输入端口（`inputs_arity = 1`）。内容是**序列编码**（`info.representation` 必须为 `sequence_codes`），即用字母表编号表示的氨基酸序列；本算子只接受**一条**序列，多行或多条链会被拒绝（`expected exactly one sequence, got N`）。 |
 
-实际使用中最容易卡住的是 MSA 搜索。`mmseqs2_uniref_env` 和 `mmseqs2_uniref`
-都需要可达的 MSA 服务器，或本机已下载的 uniref/环境序列数据库；`colabfold`
-解释器默认不附带这些搜索数据库，所以未额外配置时 `colabfold_batch` 会请求公共
-服务器 `https://api.colabfold.com`。只要该地址可达，这两种模式就是可用的，不需要
-在本机准备数据库。`msa_host` 用来改指私有或镜像服务器；确实不需要比对时再退回
-`single_sequence`。
+若上游在 `info["sequences"]` 里放了原始字符串（单条、非空），会优先使用它——这样多聚体用 `:` 分隔链的写法（如 `ACDE:FG`）可以保留；否则由编码矩阵解码。
 
-## Inputs and outputs
+## Outputs
 
-Kind: `operator`. Operator ID: `colabfold_predict`. Input count: `1`.
+| 名称 | 类型/维度 | 说明 |
+| --- | --- | --- |
+| `output`（参数 `output` 可改名，默认 `structure`） | ndim = 2 的 numeric Form，dims 为 `atom` × `field` | **每行一个 PDB 原子**（不是指标汇总表）：`atom` 维是原子序号/标签，`field` 维是结构字段（坐标 x/y/z、元素、残基名等，与 `structure_pdb` 读入的结构表一致）。 |
+| 原生文件（副作用） | `prediction.pdb`、`scores.json` | 写到本次运行的输出目录；同时登记为结果文件（结构 PDB，以及存在时的打分 JSON）。 |
 
-输入端口是 `sequence` × `position` 的序列表。Reader 保留的原始 FASTA 文本优先，
-因此多聚体的 `:` 链分隔符不会被解码成未知残基。
+`info` 中携带的指标：`mean_plddt`（pLDDT 均值，0–100）、`ptm`（pTM，0–1，单链时可能缺失）、`max_pae`（**PAE 的最大值**，不是平均值）、`n_residues`（残基数）、`model_path`、`scores_path`、`sequences`、`msa_mode`、`msa_host`、`msa_db1`、`msa_db2`。
 
-输出端口是 `atom` × `field` 的 Form，来自 rank-001 的 PDB。`info` 记录
-`mean_plddt`、`ptm`、`max_pae`、`n_residues`、`model_path`、`scores_path`、
-`sequences`、`msa_mode` 和 `msa_host`。PDB 与 ColabFold 的 scores JSON 作为
-native results 保留为 `structure` 和 `scores`。
+打分文件缺失时不会失败：`mean_plddt` / `ptm` / `max_pae` 全部为 NaN、`n_residues` 为 0，且不登记 scores 结果文件。输入序列为空、找不到可执行文件、预测超时、返回码非 0、或没有产出 rank-001 结构时都会抛异常，不会返回空表。
 
 ## Parameters
 
-| 参数 | 默认值 | 说明 |
-| --- | --- | --- |
-| `colabfold_path` | `colabfold_batch` | 可执行文件；以 `.py` 结尾时用当前解释器启动。 |
-| `num_models` | `1` | `--num-models`，取值 1-5。 |
-| `num_recycles` | `3` | `--num-recycle`，取值 1-48。 |
-| `msa_mode` | `mmseqs2_uniref_env` | `--msa-mode`，见下文。 |
-| `msa_host` | 空 | `--host-url`；MSA 服务器地址。留空时不传该参数，沿用 ColabFold 的默认值。 |
-| `msa_databases` | 空 | 本地 MMseqs2 数据库根目录；里面应有 `uniref30_2302/uniref30_2302_db`，并可带 `colabfold_envdb_202108/colabfold_envdb_202108_db`。设置后不再联网搜索。 |
-| `msa_db1` | 空 | 直接给 `--db1` 的数据库前缀（覆盖 `msa_databases`）。 |
-| `msa_db2` | 空 | 直接给 `--db2` 的数据库前缀；设置后自动追加 `--use-env 1`。 |
-| `device` | `auto` | `auto`、`cpu` 或 `cuda`；`cpu` 会清空 `CUDA_VISIBLE_DEVICES`。 |
-| `timeout_seconds` | `3600` | 整次运行的墙钟上限，包含 MSA 搜索。 |
-| `output` | `structure` | 输出端口名。 |
-
-`msa_host` 为空或全为空白时视为未设置，命令中不出现 `--host-url`，行为与旧版本
-完全一致。非空值必须是 `http://` 或 `https://` 开头的 URL；否则在启动
-`colabfold_batch` 之前就以 `StepError` 拒绝，避免把拼写错误变成难懂的连接失败。
-校验后的地址会写入输出 `info` 的 `msa_host`，便于确认某次运行实际用了哪台服务器。
-
-## MSA modes
-
-| 模式 | 搜索范围 | 前提 |
-| --- | --- | --- |
-| `mmseqs2_uniref_env` | UniRef 加环境序列（ColabFold 默认） | MSA 服务器，或本地 uniref/环境数据库 |
-| `mmseqs2_uniref` | 仅 UniRef | 同上 |
-| `single_sequence` | 不搜索，序列本身作为比对 | 无 |
-
-两种 `mmseqs2_*` 模式并非天然离线：本机没有数据库时，`colabfold_batch` 会把查询
-提交到 `--host-url` 指向的服务器（默认 `https://api.colabfold.com`）。那是共享的
-公共服务，可能排队、限流或暂时不可达；搜索失败会表现为非零退出码，算子会把退出
-码和 stderr 末尾一并报出。要避开公共服务的波动，就在 `msa_host` 填一个私有或
-镜像地址。
-
-`single_sequence` 完全不联网，适合确认预测链路本身是否正常，也适合既不联网又没有
-数据库的机器。代价是真实存在的：没有共进化信号，pLDDT 和 pTM 通常更低，多聚体
-几乎拿不到链间信号（ipTM），因此它的输出应视为冒烟测试而非科研结果。
-
-`msa_host` 非空时，算子把 `--host-url` 追加到命令末尾，例如：
-
-```text
-colabfold_batch query.fasta out --num-models 1 --num-recycle 3 --msa-mode mmseqs2_uniref_env --overwrite --host-url https://msa.example.org
-```
-
-`colabfold_path` 指向 `.py` 时，命令行最前面还会多一个 `sys.executable`。
-
-## Local MSA databases
-
-想完全离线跑 `mmseqs2_uniref_env`，把 ColabFold 的两份 MMseqs2 数据库解压到
-`msa_databases` 指向的目录：
-
-```
-<msa_databases>/
-  uniref30_2302/uniref30_2302_db{,.dbtype,.index,...}
-  colabfold_envdb_202108/colabfold_envdb_202108_db{,.dbtype,.index,...}
-```
-
-算子会按上面的布局拼出 `--db1`（以及存在索引时的 `--db2 --use-env 1`）。
-`msa_db1` / `msa_db2` 可以直接覆盖前缀，用于数据库放在别处的情况。
-`uniref30_2302_db` 缺少 `.dbtype`/`.index` 时算子会直接报错并指出路径，而不是
-静默退回联网搜索。`single_sequence` 从不搜索比对，因此忽略这三个参数。
-
-数据库本身由 `colabfold_msa` 资源管理（UniRef30 2023_02 约 96 GiB、环境序列库
-约 110 GiB，解压后需要更大的磁盘），见 `docs/large_resources.md`。
-
-## Runtime environment
-
-声明依赖为 `numpy>=1.24`；算子运行在专用的 `colabfold` 解释器中，解析和覆盖方式见
-docs/large_resources.md。`colabfold_batch` 必须在可执行路径上（默认参数就是这个
-名称）。搜索数据库（uniref 等）体积很大，默认不会安装，因此 MSA 要么走服务器，
-要么用 `single_sequence`，要么另行准备本地数据库。
+| 参数 | 类型 | 默认 | 说明 |
+| --- | --- | --- | --- |
+| `sequence_dim` | string | `sequence` | 输入表第 0 维名称。 |
+| `position_dim` | string | `position` | 输入表第 1 维名称（残基位置维）。 |
+| `colabfold_path` | string | `colabfold_batch` | 可执行文件名或路径；以 `.py` 结尾时会用当前 `sys.executable` 启动。 |
+| `num_models` | integer | `1` | 每个 MSA 训练/预测的模型数（1–5）；只读取 rank-001 的结果。 |
+| `num_recycles` | integer | `3` | 循环次数（1–48），越大越慢。 |
+| `msa_mode` | enum | `mmseqs2_uniref_env` | 三选一：`mmseqs2_uniref_env`（UniRef30 + 环境数据库，默认，最全）、`mmseqs2_uniref`（仅 UniRef30，更快）、`single_sequence`（不做 MSA，仅单序列）。 |
+| `msa_host` | string | `""` | 远程 MSA 服务地址，例如 `https://api.colabfold.com`；留空则用 ColabFold 自己的默认值。必须是 http(s) URL。 |
+| `device` | enum | `auto` | `auto` 自动探测 CUDA（torch 或 JAX 任一可用即可），否则 CPU；也可强制 `cpu` / `cuda`。 |
+| `timeout_seconds` | integer | `3600` | 子进程超时（60–86400 秒），超时抛 `timed out after N s`。 |
+| `output` | string | `structure` | 输出端口名，同时作为原生文件的结果名。 |
+| `msa_databases` | string | `""` | 本地 MMseqs2 数据库**根目录**：其下需有 `uniref30_2302/uniref30_2302_db` 与 `colabfold_envdb_202108/colabfold_envdb_202108_db`。给出后解析成 `--db1`（环境库有索引时再加 `--db2 --use-env 1`）指向本地 MMseqs2 库；`msa_host` 非空时仍会同时传 `--host-url`，两者并存时由 `colabfold_batch` 自行取舍。 |
+| `msa_db1` | string | `""` | 显式指定 `--db1` 的数据库前缀，**优先级高于** `msa_databases`。 |
+| `msa_db2` | string | `""` | 显式指定 `--db2` 的数据库前缀，优先级最高；给出时会自动追加 `--use-env 1`。 |
 
 ## Notes
 
-每次运行使用独立的临时目录（`operon_colabfold_*`），结束后删除，因此搜索产生的
-`.a3m` 不会保留：同一序列重复预测会重复付 MSA 的代价。`colabfold_batch` 本身也
-接受 `.a3m` 作为 query，但本算子固定写入 `query.fasta`，无法复用已有比对；需要
-复用时应在本算子之外完成搜索。在本项目的验证中，一个测试复合物经公共服务器的
-`mmseqs2_uniref_env` 搜索约 76 秒返回 1,147 条 a2m 序列，说明该路径在联网主机上
-是可用且可等待的。
-
-## Limitations
-
-- 一次只预测一条 query：算子写一个 `query.fasta`、调用一次 runner，不批量、不合并
-  多种 `msa_mode`、不做模板搜索。
-- 不暴露 Amber/relaxation 等开关，runner 自身默认值生效。
-- 只汇总 `ptm` 与 `max_pae`：多聚体的 ipTM 仍在保留的 `scores.json` 里，需要链间
-  置信度时应直接读该文件。
-- 评分来自 ColabFold 的模型输出，算子不做校准，也不评估生物学有效性。
-- MSA 服务器属于外部设施，公共服务器故障不代表序列或本机安装有问题。
-
-## Examples
-
-```python
-from src.task.step.steps.colabfold_predict import ColabfoldPredictStep
-```
-
-把该步骤接在 FASTA Reader 之后；先以 `msa_mode = "single_sequence"` 做一次不联网的
-冒烟测试，确认链路可用后，再改为 `mmseqs2_uniref_env` 并视需要设置 `msa_host`。
-
-命令拼装由 tests/test_extension244.py（`--msa-mode`、模型数、循环数）和
-tests/test_colabfold_msa_host.py（`--host-url` 的有无与 URL 校验）覆盖；序列拼接规则
-见 tests/test_colabfold_sequence.py。
-
-## Source
-
-Implementation: `src/task/step/steps/colabfold_predict.py` (`ColabfoldPredictStep`).
+- **`msa_mode` 三种取值的实际差别**：`mmseqs2_uniref_env` 同时搜 UniRef30 与环境库（默认，慢但召回最好）；`mmseqs2_uniref` 只搜 UniRef30（快，适合孤儿蛋白/大复合体）；`single_sequence` 完全不生成 MSA，只用单条序列。**单序列模式下 pTM/ipTM 与 PAE 明显偏悲观**，多聚体界面尤其不可信，不要用它来比较界面质量。
+- **数据库参数的优先级**：`msa_db1` / `msa_db2`（显式）> `msa_databases`（根目录推导）> `msa_host`（远程）。`msa_databases` 只在“没给显式 db 且模式不是 `single_sequence`”时才解析：`uniref30_2302_db` 缺失会直接报错；`colabfold_envdb_202108_db` 若没有 `.dbtype`/`.index` 索引则静默跳过，退化成只用 UniRef30（`mmseqs2_uniref_env` 名义上仍是双库，但实际只查了单库）。
+- 本算子**从不读取** `colabfold_msa` 资源目录（该约 221 GB 的资源只被 `boltz_predict` 使用），也不会自己下载数据库；要用本地库只能通过 `msa_databases` 或 `msa_db1`/`msa_db2` 显式指定。
+- 只读 rank-001：优先 `*_relaxed_rank_001_*.pdb`，没有则退回 `*_unrelaxed_rank_001_*.pdb`；`num_models > 1` 也只是多算几个模型，输出仍只有 rank-001。
+- `mean_plddt` 是全部残基的平均；`max_pae` 是**最大** PAE，反映最不可信的那一段界面，比平均 PAE 更保守。
+- 复合体请用 `:` 分隔链并让上游写入 `info["sequences"]`；只有编码矩阵时链边界会丢失。
+- 运行目录是临时目录，结束后清理；要保留中间文件请用原生结果文件（`prediction.pdb` / `scores.json`）。
+- 可执行文件找不到时的报错会提示 `pip install colabfold[alphafold]` 并指向 `docs/large_resources.md`；`device=cpu` 时会把 `CUDA_VISIBLE_DEVICES` 置空，速度极慢，仅适合冒烟测试。

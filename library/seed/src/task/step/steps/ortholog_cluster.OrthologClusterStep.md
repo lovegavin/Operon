@@ -1,7 +1,40 @@
-# Ortholog clustering by presence-pattern similarity
+# 直系同源聚类（ortholog_cluster）
 
-## Purpose
+把 2-D 存在/缺失矩阵（presence/absence matrix）的**行**按存在模式两两做 Jaccard 相似度，超过阈值就并在一起，最后每簇输出一行（簇大小与占比）。这是单连接的连通分量聚类，不是层次聚类或 k-means。
 
-Clusters genes into ortholog groups by Jaccard similarity of their presence patterns.
+## Inputs
 
-Input is a two-dimensional presence/absence matrix with genomes on the first axis and genes on the second.
+| 名称 | 类型/维度 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `inputs[0]` | 2-D numeric Form，dims 为 `genome_dim` × `gene_dim`（默认 `genome` × `gene`） | 是 | 唯一输入端口（`inputs_arity = 1`）。矩阵按 `> 0` 二值化：行是**被聚类的对象**（第 0 维，即 `genome_dim`），列是特征维（第 1 维，即 `gene_dim`）。行名（第 0 维标签）用作输出行标签；该维没有标签时取不到名称（代码按索引直取，会报错），请确保读入时带行标签。 |
+
+注意轴向：聚类发生在**第 0 维**（`genome_dim`）上，每一行用它在第 1 维（`gene_dim`）各列上的 0/1 模式当特征。若你的矩阵是“基因 × 基因组”，需要先在 upstream 转置，否则聚的是另一侧的实体。
+
+## Outputs
+
+| 名称 | 类型/维度 | 说明 |
+| --- | --- | --- |
+| `output`（参数 `output` 可改名，默认 `output`） | ndim = 2 的 numeric Form，dims 固定为 `entry` × `statistic` | **每个簇一行**（行数 = 簇个数，不是输入行数）；`entry` 标签 = 该簇中**索引最小**的成员的行名（重名时追加 `#1`、`#2` 去重）；`statistic` 依次为 `cluster_size`、`fraction`。数值保留 9 位小数。 |
+
+- `cluster_size`：簇内成员数（整数，以浮点存储）。
+- `fraction`：`cluster_size / n_rows`，所有行的 `fraction` 之和为 1。
+
+输出**没有**逐成员的从属关系、没有 cluster_id 列、没有“是否单例”标记、没有簇间距离或树状图。想知道某个具体成员落在哪个簇，只能靠“簇标签是索引最小成员名”这一规则反推，或在上游自行重算。所有行都是空模式（全 0）时每行自成一簇，输出行数等于输入行数。
+
+## Parameters
+
+| 参数 | 类型 | 默认 | 说明 |
+| --- | --- | --- | --- |
+| `output` | string | `output` | 输出端口名。 |
+| `min_jaccard` | number | `0.8` | 合并阈值，取值 0–1；两个行的 Jaccard 相似度 `|交集| / |并集| >= 阈值` 时合并。 |
+| `genome_dim` | string | `genome` | 第 0 维名称（被聚类的一侧）。 |
+| `gene_dim` | string | `gene` | 第 1 维名称（特征/列一侧）。 |
+
+## Notes
+
+- 相似度定义：两行的交叠列数除以并集列数（`logical_and` 计数 / `logical_or` 计数）。若两行都为全 0，并集为 0，代码显式跳过（`if union_sz and ...`），因此**全 0 行永远不与任何行合并**，一定成为单例簇。
+- **单连接（single-linkage）语义**：只要存在一条“每步 Jaccard ≥ 阈值”的链，整条链上的行都会进同一簇，因此簇内可能存在彼此相似度低于阈值的成员对；这是连通分量聚类的固有性质，不是 bug。
+- 阈值的极端取值：`min_jaccard = 0` 时任何并集非空的行对都会合并，所有非空行塌成一个巨大簇；`min_jaccard = 1` 时只有存在模式完全相同的行才合并。
+- 顺序规则：簇按 `(-cluster_size, 该簇最小行索引)` 排序，即“大簇在前，同大小按首次出现位置”；输出的第 0 行总是最大的簇。
+- 复杂度：对所有行对做 O(n²) 次集合运算，且整张矩阵一次性读入内存；行数上万时会很慢且占内存，建议先过滤低频行或分块。
+- 阈值对结果非常敏感，0.7/0.8/0.9 往往给出差别很大的簇数；报告时应写明所用阈值，并注意“簇数”不能直接当作同源基因家族数。
