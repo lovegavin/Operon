@@ -19,6 +19,7 @@ from src.task.context.base import Context
 from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
+from src.task.step.steps._protein_common import proteinmpnn_layout
 
 from ._esm_common import AA_ORDER
 from .proteinmpnn_design import MODELS, parse_design_fasta
@@ -270,6 +271,7 @@ class ProteinmpnnBiasScanStep(Step):
                 "proteinmpnn_bias_scan: proteinmpnn_path is required; point it at an "
                 "official ProteinMPNN checkout"
             )
+        repo = proteinmpnn_layout(repo)[0]
         if not (repo / "protein_mpnn_run.py").is_file():
             raise StepError(
                 f"proteinmpnn_bias_scan: {repo / 'protein_mpnn_run.py'} does not exist"

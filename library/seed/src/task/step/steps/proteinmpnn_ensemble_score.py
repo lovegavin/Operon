@@ -19,6 +19,7 @@ from src.task.context.base import Context
 from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
+from src.task.step.steps._protein_common import proteinmpnn_layout
 from src.task.step.steps.proteinmpnn_score import (
     MODELS,
     parse_fasta,
@@ -146,7 +147,8 @@ class ProteinmpnnEnsembleScoreStep(Step):
                 "proteinmpnn_ensemble_score: proteinmpnn_path is not a directory "
                 "(set OPERON_PROTEINMPNN_PATH or the proteinmpnn_path parameter)"
             )
-        runner = proteinmpnn_path / "protein_mpnn_run.py"
+        layout_root, default_weights = proteinmpnn_layout(proteinmpnn_path)
+        runner = layout_root / "protein_mpnn_run.py"
         if not runner.is_file():
             raise StepError(
                 f"proteinmpnn_ensemble_score: '{runner}' does not exist"
@@ -154,7 +156,7 @@ class ProteinmpnnEnsembleScoreStep(Step):
         weights_path = (
             Path(weights_text).expanduser()
             if weights_text
-            else proteinmpnn_path / "vanilla_model_weights"
+            else default_weights
         )
         for model in models:
             if not (weights_path / f"{model}.pt").is_file():

@@ -19,6 +19,7 @@ from src.task.context import Context
 from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
+from src.task.step.steps._protein_common import proteinmpnn_layout
 
 from .proteinmpnn_design import (
     MODELS,
@@ -193,7 +194,8 @@ class ProteinmpnnInterfaceDesignStep(Step):
                 f"'{proteinmpnn_path}' is not a directory (set "
                 "OPERON_PROTEINMPNN_PATH or the proteinmpnn_path parameter)"
             )
-        runner = proteinmpnn_path / "protein_mpnn_run.py"
+        layout_root, default_weights = proteinmpnn_layout(proteinmpnn_path)
+        runner = layout_root / "protein_mpnn_run.py"
         if not runner.is_file():
             raise StepError(
                 f"proteinmpnn_interface_design: '{runner}' does not exist; point "
@@ -220,7 +222,7 @@ class ProteinmpnnInterfaceDesignStep(Step):
         weights_path = (
             Path(weights_text).expanduser()
             if weights_text
-            else proteinmpnn_path / "vanilla_model_weights"
+            else default_weights
         )
         weight_file = weights_path / f"{model_name}.pt"
         if not weight_file.is_file():

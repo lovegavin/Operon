@@ -18,6 +18,7 @@ from src.core.forms.form import Form
 from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
+from src.task.step.steps._protein_common import proteinmpnn_layout
 
 MODELS = ("v_48_002", "v_48_010", "v_48_020", "v_48_030")
 
@@ -101,6 +102,7 @@ def run_designer(params: dict, structure: Path, chain: str) -> list[str]:
     from src.task.step.steps.proteinmpnn_design import parse_design_fasta
 
     repo = Path(str(params.get("proteinmpnn_path") or "")).expanduser()
+    repo, default_weights = proteinmpnn_layout(repo)
     runner = repo / "protein_mpnn_run.py"
     if not runner.is_file():
         raise StepError(
@@ -111,7 +113,7 @@ def run_designer(params: dict, structure: Path, chain: str) -> list[str]:
     if weights_text:
         weights = Path(weights_text).expanduser()
     else:
-        candidate = repo / "vanilla_model_weights"
+        candidate = default_weights
         weights = candidate if candidate.is_dir() else None
     if weights is not None and not weights.exists():
         raise StepError(f"proteinmpnn_design_diversity: weights_path {weights} does not exist")

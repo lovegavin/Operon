@@ -18,6 +18,7 @@ from src.reader import read_source
 from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
+from src.task.step.steps._protein_common import proteinmpnn_layout
 
 from .proteinmpnn_design import (
     MODELS,
@@ -32,7 +33,7 @@ BIAS_ALPHABET = "ACDEFGHIKLMNPQRSTVWYX"
 
 def _resolve_weights(repo: Path, text: str) -> Path:
     raw = str(text or "").strip()
-    weights = Path(raw).expanduser() if raw else repo / "vanilla_model_weights"
+    weights = Path(raw).expanduser() if raw else proteinmpnn_layout(repo)[1]
     if not weights.is_dir():
         raise StepError(
             "proteinmpnn_bias_matrix: weights directory "
@@ -229,6 +230,7 @@ class ProteinmpnnBiasMatrixStep(Step):
                 f"proteinmpnn_bias_matrix: structure_path {structure} is not a file"
             )
         repo = Path(str(params.get("proteinmpnn_path", "")).strip()).expanduser()
+        repo = proteinmpnn_layout(repo)[0]
         if not (repo / "protein_mpnn_run.py").is_file():
             raise StepError(
                 f"proteinmpnn_bias_matrix: {repo}/protein_mpnn_run.py was not found; "

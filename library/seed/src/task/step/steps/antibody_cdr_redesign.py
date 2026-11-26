@@ -20,6 +20,7 @@ from src.task.context.base import Context
 from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
 from src.task.step.steps.antibody_cdr_kabat import kabat_regions
+from src.task.step.steps._protein_common import proteinmpnn_layout
 from src.task.step.steps.proteinmpnn_design import (
     MODELS,
     parse_design_fasta,
@@ -177,6 +178,7 @@ class AntibodyCdrRedesignStep(Step):
                 "official ProteinMPNN checkout"
             )
         repo_path = Path(repo)
+        repo_path, default_weights = proteinmpnn_layout(repo_path)
         runner = repo_path / "protein_mpnn_run.py"
         if not runner.is_file():
             raise StepError(
@@ -184,7 +186,7 @@ class AntibodyCdrRedesignStep(Step):
             )
         weights_text = str(params.get("weights_path", "")).strip()
         weights_path = (
-            Path(weights_text) if weights_text else repo_path / "vanilla_model_weights"
+            Path(weights_text) if weights_text else default_weights
         )
         if not weights_path.is_dir():
             raise StepError(
