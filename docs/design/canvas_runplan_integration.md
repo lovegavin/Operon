@@ -161,8 +161,6 @@ see the release acceptance record rather than inferring them from these tests.
 
 ## Tauri handoff
 
-Read [module inventory](tauri_module_inventory.md),
-[implementation contract](tauri_implementation_contract.md), and
-[coding instructions](tauri_coding_instructions.md). Tauri is a separate future
-experimental shell branch, not an alternative scheduler or compiler. It must not
-hide the automatic-export coverage boundaries above.
+Tauri was a separate experimental shell branch, not an alternative scheduler or
+compiler; its design notes are in the git history. It must not hide the
+automatic-export coverage boundaries above.

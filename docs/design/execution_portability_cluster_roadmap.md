@@ -13,7 +13,7 @@ implementation; the contract takes precedence over tentative sketches here.
 
 The refreshed upstream baseline is application **5.1.9**, commit
 `600eed6f53b6db01f7391f408ade1e950d8679b3` in `lovegavin/Operon`. It supersedes
-the 5.1.8 snapshot in [the upstream comparison](upstream_review_20261114.md).
+the 5.1.8 snapshot in the upstream comparison, which is in the git history.
 The local application checkout remains on `fix/3.0.1-installation`, committed
 HEAD `0f2c87cde64700ef1cbbc4a460884b81f19d4162`, with uncommitted Setup,
 admission-control and standalone-export work. Preserve those changes when
@@ -70,8 +70,7 @@ Source details that affect the design:
   5.0.0 build application. Do not infer a verified asset identity from either
   label alone. The library maintainer owns library metadata corrections.
 
-The previous [standalone export contract](standalone_workflow_export.md) remains
-useful. This roadmap extends it to current upstream, multiple environments and
+The previous standalone export contract (in the git history) remains useful. This roadmap extends it to current upstream, multiple environments and
 cluster deployment; it does not expand its existing acceptance claims.
 
 ## 3. Preserve the author's fixes and local repairs

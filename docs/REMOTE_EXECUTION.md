@@ -1,18 +1,17 @@
 # Windows editing and SSH execution
 
-Operon Studio v0.8.1 can prepare a Linux server and run a workflow over SSH. Choose an execution
+Operon can prepare a Linux server and run a workflow over SSH. Choose an execution
 target in the top toolbar, select server files in the input inspector, then use
-the existing **Check**, **Run**, **Stop**, results and log controls. This feature
-is included in both the full and Lite Windows desktop archives.
-The Windows/Linux execution results are recorded in [REMOTE_VALIDATION.md](REMOTE_VALIDATION.md),
-and automatic deployment results in [AUTO_DEPLOY_VALIDATION.md](AUTO_DEPLOY_VALIDATION.md).
+the **Check**, **Run**, **Stop**, results and log controls. Both the full and Lite
+Windows desktop archives include it. Earlier Windows/Linux and automatic
+deployment results were recorded in validation notes that are no longer in this
+tree; [verification/README.md](verification/README.md) says what evidence survives.
 For automatic input uploads, mixed local/SSH
 stages and concurrent task manager, see [execution environments](EXECUTION_ENVIRONMENTS.md).
 
 ## Connect or maintain the server
 
-Both v0.8.1 editions separate ordinary connection from installation.
-Older v0.7.1 packages retain the earlier automatic-deployment-on-connect flow.
+Connecting and installing are separate operations.
 See [the handshake contract](SERVER_HANDSHAKE.md) for compatibility and cache rules.
 
 For an installed server, supply the SSH endpoint and authentication, verify its

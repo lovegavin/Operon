@@ -57,8 +57,7 @@ Supported: 64-bit Windows 10 / 11.
 > `.biopipe-library.zip` archives, but installation routing is strict: only
 > `.operon-library.zip` bundles (`format: "operon.library"`) install end to end.
 > A legacy archive passes the picker and then fails installation, so use the
-> 5.0.2 asset above. That gap is recorded in
-> [docs/verification/operon-5.0.0-compatibility.md](docs/verification/operon-5.0.0-compatibility.md).
+> 5.0.2 asset above.
 
 From an installed Python environment:
 

@@ -28,13 +28,12 @@ Do not retroactively rename published versions or tags.
 
 ## Current application and historical backend labels
 
-The reconciled `main` application is Operon **4.0.8**, and the current library is
-**8.0.4** (minimum application 4.0.7). The library keeps its own version in `library/release.json`; its
+The reconciled `main` application is Operon **5.11.2**, and the current library is
+**2.1.3** (minimum application 5.11.2). The library keeps its own version in `library/release.json`; its
 expansion history does not determine the application version. Earlier backend
 3.0/4.0 labels used on the library development branch are historical labels, not
-newer Operon desktop builds. The original
-[backend 3.0 milestone notes](releases/backend-v3.0.0-historical.md) are retained
-separately from the [Operon 3.0 application notes](releases/v3.0.0.md).
+newer Operon desktop builds. The original backend 3.0 milestone notes and the Operon 3.0 application notes are
+in the git history; [releases/](releases/README.md) keeps only the current line.
 
 The application release tag and its tested library seed remain immutable. `main`
 can contain newer library sources and compatible maintenance fixes without

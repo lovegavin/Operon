@@ -71,8 +71,8 @@ remain available for repair.
 
 ## Scope of this repair
 
-This repair addresses the reported 2.2.2 final failure for seven newly registered
-external-tool adapters. It does not introduce package recipes for these tools or
+This repair addresses a reported final failure for newly registered external-tool
+adapters. It does not introduce package recipes for these tools or
 turn the current monolithic server bootstrap into a fully independent library
-installer. The remaining separation work is documented in
-[the main/library audit](MAIN_LIBRARY_SEPARATION_AUDIT.md).
+installer. The boundary that applies today is in
+[application_library_boundary.md](application_library_boundary.md).

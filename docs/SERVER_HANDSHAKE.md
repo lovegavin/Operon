@@ -1,11 +1,9 @@
 # Independent server lifecycle and manifest handshake
 
-Included in both v0.8.1 desktop editions. Operator SDK 3, graph pins and the
-framed SSH transport remain unchanged. Older v0.7.1 desktop packages retain the
-previous deployment-on-connect behavior.
-
-See [validation results](SERVER_HANDSHAKE_VALIDATION.md) for local regression and
-real-server acceptance evidence.
+Operator SDK 3, graph pins and the framed SSH transport are the contract this page
+describes. The layers that exercise it are defined in
+[verification/README.md](verification/README.md); earlier release validation is in
+the git history.
 
 ## Connection and maintenance actions
 

@@ -2,9 +2,14 @@
 
 **Contract-first bioinformatics workflows — visual, scriptable and agent-operable.**
 
+**One sentence. One platform. A few tokens.** Describe the analysis in plain
+language; an agent composes it from validated operators, Operon checks it before
+anything runs, and the same engine records what produced each result. Context
+goes to the steps in play, not to the catalogue.
+
 Operon Studio 5.11.2 · Operator Library 2.1.3 · Apache-2.0
 
-[中文快速开始](QUICKSTART.zh.md) · [Quick start (EN)](QUICKSTART.en.md) · [Documentation](docs/README.md) · [Releases](https://github.com/lovegavin/Operon/releases) · [License](LICENSE)
+[中文说明](README.zh.md) · [中文快速开始](QUICKSTART.zh.md) · [Quick start (EN)](QUICKSTART.en.md) · [Documentation](docs/README.md) · [Releases](https://github.com/lovegavin/Operon/releases) · [License](LICENSE)
 
 ---
 
@@ -19,7 +24,7 @@ with explicit inputs, outputs, parameters and runtime requirements. Each step co
 from a validated operator whose contract is declared once and checked when the library
 is built.
 
-That gives three properties that ad-hoc scripts do not have:
+That gives four properties that ad-hoc scripts do not have:
 
 - **Nothing generated to trust.** You compose declared operators; you do not review
   model-written code before it touches your data.
@@ -28,6 +33,9 @@ That gives three properties that ad-hoc scripts do not have:
 - **One engine, several surfaces.** The desktop canvas, the CLI, the HTTP API and the
   MCP server all drive the same workflow store, scheduler, memory admission and
   execution environment — not four reimplementations.
+- **Cheap to drive from an agent.** Discovery is three bounded layers — one guide
+  topic, operator summaries, then the schema of the operators actually chosen — so
+  the token cost of a request scales with the workflow, not with the library.
 
 The operator library is the product. The interface is how you reach it.
 
@@ -56,6 +64,11 @@ MCP is a protocol bridge, not an AI provider: Operon never calls a model. Connec
 MCP-capable client, grant `--allow-run` only when execution is intended, and use
 `--read-only` for inspection-only sessions.
 
+Discovery is deliberately cheapest for machines: `operon_guide` returns one topic
+and caches it by sha256, `operon_operator_search` returns summaries rather than
+implementations, and `operon_operator_describe` returns the schema of the
+operators in play.
+
 ## Install
 
 | Target | How |
@@ -63,7 +76,7 @@ MCP-capable client, grant `--allow-run` only when execution is intended, and use
 | Windows desktop | Run `Operon_Setup.exe`. It ships its own relocatable CPython runtime, isolates the app profile and uses a signature-verified WebView2 bootstrapper. |
 | Linux / headless server | Unpack `Operon-<version>-Server.zip` and run `install.sh --prefix <dir>` (see [command_line_installation.md](docs/command_line_installation.md#linux-server)), or `pip install . ./library`. |
 | Source checkout | `python -m pip install '.[agent]'` (Python 3.11+) — add the `agent` extra for MCP. |
-| Agent client | Start `operon mcp` from your MCP client configuration; see [agent_operations.md](docs/agent_operations.md). |
+| Agent client | Start `operon mcp` from your MCP client configuration; see [agent_operations.md](docs/agent_operations.md) and the paste-ready prompt in [docs/roles/agent.md](docs/roles/agent.md). |
 
 Verify any installation:
 
@@ -182,9 +195,9 @@ application / library split.
 | Control execution | [EXECUTION_ENVIRONMENTS.md](docs/EXECUTION_ENVIRONMENTS.md), [resource_runtime.md](docs/resource_runtime.md), [server_cli.md](docs/server_cli.md) |
 | Run remotely | [REMOTE_EXECUTION.md](docs/REMOTE_EXECUTION.md), [SERVER_HANDSHAKE.md](docs/SERVER_HANDSHAKE.md), [SERVER_INSTALL_REPAIR.md](docs/SERVER_INSTALL_REPAIR.md) |
 | Ship a result | [result_viewers.md](docs/result_viewers.md), [PUBLICATION_FIGURES.md](docs/PUBLICATION_FIGURES.md), [automatic_portable_export.md](docs/automatic_portable_export.md), [portable_packages_v3.md](docs/portable_packages_v3.md) |
-| Integrate or automate | [headless_api.md](docs/headless_api.md), [api_quickstart.md](docs/api_quickstart.md), [agent_operations.md](docs/agent_operations.md), [canvas_collaboration.md](docs/canvas_collaboration.md) |
+| Integrate or automate | [headless_api.md](docs/headless_api.md), [api_quickstart.md](docs/api_quickstart.md), [agent_operations.md](docs/agent_operations.md), [roles/agent.md](docs/roles/agent.md), [canvas_collaboration.md](docs/canvas_collaboration.md) |
 | Extend the library | [operator_protocol.md](docs/operator_protocol.md), [sdk_quickstart.md](docs/sdk_quickstart.md), [sdk_reference.md](docs/sdk_reference.md), [plugins.md](docs/plugins.md), [library_release_standard.md](docs/library_release_standard.md) |
-| Follow changes | [docs/releases/](docs/releases/), [updates-since-3.1.6.md](docs/updates-since-3.1.6.md) |
+| Follow changes | [docs/releases/](docs/releases/) |
 | Understand the design | [docs/design/](docs/design/), [five-layer-test-standard.md](docs/verification/five-layer-test-standard.md) |
 
 Full index: [docs/README.md](docs/README.md).

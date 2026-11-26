@@ -16,7 +16,7 @@ below are retained as history, not an outstanding-work list.
 | New branch | `backend/5.1.9-cluster` |
 | Fixed baseline | `600eed6f53b6db01f7391f408ade1e950d8679b3` (application 5.1.9) |
 | Library source | Baseline `library/seed`; not rewritten, re-versioned or merged from another branch |
-| Baseline manifest | [`verification/backend/k00-runtime.json`](../../verification/backend/k00-runtime.json) |
+| Baseline manifest | `verification/backend/k00-runtime.json` (produced with the run; not in this tree) |
 | 5.1.9 author fixes already present | UTF-8 probe decoding (`613bd696`), Windows-safe environment commit (`fd621422`), PDBFixer resource manifest/vendored files (`9592eab9`, `600eed6f`) |
 
 The baseline is pinned by commit and is not tracking moving `main`. Later upstream
