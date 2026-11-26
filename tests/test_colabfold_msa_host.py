@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 
 from src.core.errors import StepError
-from src.task.step.steps.colabfold_predict import msa_host_url, predict
+from src.task.step.steps.colabfold_predict import msa_databases, msa_host_url, predict
 
 STUB_RUNNER = '''#!/usr/bin/env python
 import json
@@ -110,3 +110,54 @@ def test_invalid_msa_host_never_runs_the_runner(tmp_path, monkeypatch) -> None:
         )
 
     assert not capture.exists()
+
+
+def test_local_databases_are_forwarded_as_db_flags(tmp_path, monkeypatch) -> None:
+    argv, _structure, _scores = _predict(
+        tmp_path,
+        monkeypatch,
+        db1="/data/msa/uniref30_2302/uniref30_2302_db",
+        db2="/data/msa/colabfold_envdb_202108/colabfold_envdb_202108_db",
+    )
+
+    assert argv[-6:] == [
+        "--db1",
+        "/data/msa/uniref30_2302/uniref30_2302_db",
+        "--db2",
+        "/data/msa/colabfold_envdb_202108/colabfold_envdb_202108_db",
+        "--use-env",
+        "1",
+    ]
+
+
+def test_single_sequence_runs_ignore_local_databases(tmp_path) -> None:
+    root = tmp_path / "msa"
+    (root / "uniref30_2302").mkdir(parents=True)
+    (root / "uniref30_2302" / "uniref30_2302_db.dbtype").write_text("0", encoding="utf-8")
+
+    assert msa_databases(root, "", "", "single_sequence") == ("", "")
+
+
+def test_msa_databases_resolves_the_resource_layout(tmp_path) -> None:
+    root = tmp_path / "msa"
+    uniref = root / "uniref30_2302"
+    envdb = root / "colabfold_envdb_202108"
+    uniref.mkdir(parents=True)
+    envdb.mkdir(parents=True)
+    (uniref / "uniref30_2302_db.dbtype").write_text("0", encoding="utf-8")
+    (envdb / "colabfold_envdb_202108_db.index").write_text("0", encoding="utf-8")
+
+    first, second = msa_databases(root, "", "", "mmseqs2_uniref_env")
+
+    assert first == str(uniref / "uniref30_2302_db")
+    assert second == str(envdb / "colabfold_envdb_202108_db")
+
+
+def test_msa_databases_explains_a_missing_index(tmp_path) -> None:
+    root = tmp_path / "msa"
+    (root / "uniref30_2302").mkdir(parents=True)
+
+    with pytest.raises(StepError) as caught:
+        msa_databases(root, "", "", "mmseqs2_uniref_env")
+
+    assert "has no .dbtype or .index file" in str(caught.value)

@@ -39,6 +39,36 @@ def msa_host_url(value) -> str:
     return host
 
 
+def msa_databases(root, db1_value, db2_value, msa_mode: str) -> tuple[str, str]:
+    """Return the MMseqs2 database prefixes ColabFold should search locally.
+
+    ``msa_databases`` points at the resource root that holds
+    ``uniref30_2302/uniref30_2302_db`` and, optionally,
+    ``colabfold_envdb_202108/colabfold_envdb_202108_db``.  Explicit ``msa_db1``
+    and ``msa_db2`` values win over the root.  Local databases are ignored for
+    ``single_sequence`` runs, which never search.
+    """
+
+    first = str(db1_value or "").strip()
+    second = str(db2_value or "").strip()
+    root_text = str(root or "").strip()
+    if msa_mode == "single_sequence" or not (first or second or root_text):
+        return first, second
+    base = Path(root_text).expanduser() if root_text else None
+    if base is not None and not first:
+        first = str(base / "uniref30_2302" / "uniref30_2302_db")
+    if base is not None and not second:
+        envdb = base / "colabfold_envdb_202108" / "colabfold_envdb_202108_db"
+        if envdb.with_suffix(".dbtype").exists() or envdb.with_suffix(".index").exists():
+            second = str(envdb)
+    if first and not (Path(first + ".dbtype").exists() or Path(first + ".index").exists()):
+        raise StepError(
+            "colabfold_predict: msa_databases must hold uniref30_2302/uniref30_2302_db "
+            f"with its MMseqs2 index; '{first}' has no .dbtype or .index file"
+        )
+    return first, second
+
+
 def sequence_for_colabfold(sequences, sequence_dim: str = "sequence", position_dim: str = "position") -> str:
     """Return the one sequence to fold, keeping ColabFold chain separators.
 
@@ -104,6 +134,8 @@ def predict(
     num_recycles: int = 3,
     msa_mode: str = "mmseqs2_uniref_env",
     msa_host: str = "",
+    db1: str = "",
+    db2: str = "",
     device: str = "cpu",
     timeout: int = 3600,
 ) -> tuple[Path, Path | None]:
@@ -132,6 +164,10 @@ def predict(
     host_url = msa_host_url(msa_host)
     if host_url:
         command += ["--host-url", host_url]
+    if db1:
+        command += ["--db1", db1]
+    if db2:
+        command += ["--db2", db2, "--use-env", "1"]
     environment = dict(os.environ)
     if device == "cpu":
         environment["CUDA_VISIBLE_DEVICES"] = ""
@@ -242,6 +278,12 @@ class ColabfoldPredictStep(Step):
         num_recycles = int(params.get("num_recycles") if params.get("num_recycles") is not None else 3)
         msa_mode = str(params.get("msa_mode") or "mmseqs2_uniref_env")
         msa_host = msa_host_url(params.get("msa_host"))
+        db1, db2 = msa_databases(
+            params.get("msa_databases"),
+            params.get("msa_db1"),
+            params.get("msa_db2"),
+            msa_mode,
+        )
         device = resolve_device(params.get("device"), "colabfold_predict")
         timeout = int(params.get("timeout_seconds") if params.get("timeout_seconds") is not None else 3600)
         if msa_mode not in _MSA_MODES:
@@ -259,6 +301,8 @@ class ColabfoldPredictStep(Step):
                 num_recycles=num_recycles,
                 msa_mode=msa_mode,
                 msa_host=msa_host,
+                db1=db1,
+                db2=db2,
                 device=device,
                 timeout=timeout,
             )
@@ -293,6 +337,8 @@ class ColabfoldPredictStep(Step):
                     "sequences": [sequence],
                     "msa_mode": msa_mode,
                     "msa_host": msa_host,
+                    "msa_db1": db1,
+                    "msa_db2": db2,
                 }
             )
         finally:

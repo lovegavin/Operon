@@ -90,6 +90,30 @@
       "title": "输出名",
       "x-ui-group": "basic",
       "x-ui-order": 10
+    },
+    "msa_databases": {
+      "type": "string",
+      "default": "",
+      "title": "本地 MSA 数据库根目录（可选）",
+      "description": "包含 uniref30_2302/uniref30_2302_db 与 colabfold_envdb_202108/colabfold_envdb_202108_db 的 MMseqs2 索引目录；留空则用 --host-url 的远程服务。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 56
+    },
+    "msa_db1": {
+      "type": "string",
+      "default": "",
+      "title": "UniRef30 数据库前缀（可选）",
+      "description": "显式指定 --db1 的路径前缀；设置后覆盖 msa_databases。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 57
+    },
+    "msa_db2": {
+      "type": "string",
+      "default": "",
+      "title": "环境序列数据库前缀（可选）",
+      "description": "显式指定 --db2 的路径前缀；设置后自动追加 --use-env 1。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 58
     }
   }
 }

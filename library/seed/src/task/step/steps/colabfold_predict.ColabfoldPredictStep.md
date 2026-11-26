@@ -36,6 +36,9 @@ native results 保留为 `structure` 和 `scores`。
 | `num_recycles` | `3` | `--num-recycle`，取值 1-48。 |
 | `msa_mode` | `mmseqs2_uniref_env` | `--msa-mode`，见下文。 |
 | `msa_host` | 空 | `--host-url`；MSA 服务器地址。留空时不传该参数，沿用 ColabFold 的默认值。 |
+| `msa_databases` | 空 | 本地 MMseqs2 数据库根目录；里面应有 `uniref30_2302/uniref30_2302_db`，并可带 `colabfold_envdb_202108/colabfold_envdb_202108_db`。设置后不再联网搜索。 |
+| `msa_db1` | 空 | 直接给 `--db1` 的数据库前缀（覆盖 `msa_databases`）。 |
+| `msa_db2` | 空 | 直接给 `--db2` 的数据库前缀；设置后自动追加 `--use-env 1`。 |
 | `device` | `auto` | `auto`、`cpu` 或 `cuda`；`cpu` 会清空 `CUDA_VISIBLE_DEVICES`。 |
 | `timeout_seconds` | `3600` | 整次运行的墙钟上限，包含 MSA 搜索。 |
 | `output` | `structure` | 输出端口名。 |
@@ -70,6 +73,25 @@ colabfold_batch query.fasta out --num-models 1 --num-recycle 3 --msa-mode mmseqs
 ```
 
 `colabfold_path` 指向 `.py` 时，命令行最前面还会多一个 `sys.executable`。
+
+## Local MSA databases
+
+想完全离线跑 `mmseqs2_uniref_env`，把 ColabFold 的两份 MMseqs2 数据库解压到
+`msa_databases` 指向的目录：
+
+```
+<msa_databases>/
+  uniref30_2302/uniref30_2302_db{,.dbtype,.index,...}
+  colabfold_envdb_202108/colabfold_envdb_202108_db{,.dbtype,.index,...}
+```
+
+算子会按上面的布局拼出 `--db1`（以及存在索引时的 `--db2 --use-env 1`）。
+`msa_db1` / `msa_db2` 可以直接覆盖前缀，用于数据库放在别处的情况。
+`uniref30_2302_db` 缺少 `.dbtype`/`.index` 时算子会直接报错并指出路径，而不是
+静默退回联网搜索。`single_sequence` 从不搜索比对，因此忽略这三个参数。
+
+数据库本身由 `colabfold_msa` 资源管理（UniRef30 2023_02 约 96 GiB、环境序列库
+约 110 GiB，解压后需要更大的磁盘），见 `docs/large_resources.md`。
 
 ## Runtime environment
 
