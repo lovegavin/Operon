@@ -112,22 +112,22 @@ def test_invalid_msa_host_never_runs_the_runner(tmp_path, monkeypatch) -> None:
     assert not capture.exists()
 
 
-def test_local_databases_are_forwarded_as_db_flags(tmp_path, monkeypatch) -> None:
-    argv, _structure, _scores = _predict(
-        tmp_path,
-        monkeypatch,
-        db1="/data/msa/uniref30_2302/uniref30_2302_db",
-        db2="/data/msa/colabfold_envdb_202108/colabfold_envdb_202108_db",
-    )
+def test_local_databases_are_refused_for_the_batch_runner(tmp_path, monkeypatch) -> None:
+    capture = tmp_path / "argv.json"
+    monkeypatch.setenv("OPERON_TEST_CAPTURE", str(capture))
+    workdir = tmp_path / "work"
+    workdir.mkdir()
 
-    assert argv[-6:] == [
-        "--db1",
-        "/data/msa/uniref30_2302/uniref30_2302_db",
-        "--db2",
-        "/data/msa/colabfold_envdb_202108/colabfold_envdb_202108_db",
-        "--use-env",
-        "1",
-    ]
+    with pytest.raises(StepError, match="colabfold_search"):
+        predict(
+            "ACDEFGHIK",
+            binary=str(_runner(tmp_path)),
+            workdir=workdir,
+            device="cpu",
+            db1="/data/msa/uniref30_2302/uniref30_2302_db",
+        )
+
+    assert not capture.exists()
 
 
 def test_single_sequence_runs_ignore_local_databases(tmp_path) -> None:

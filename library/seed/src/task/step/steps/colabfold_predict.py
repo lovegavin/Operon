@@ -52,8 +52,10 @@ def msa_databases(root, db1_value, db2_value, msa_mode: str) -> tuple[str, str]:
     first = str(db1_value or "").strip()
     second = str(db2_value or "").strip()
     root_text = str(root or "").strip()
-    if msa_mode == "single_sequence" or not (first or second or root_text):
-        return first, second
+    if msa_mode == "single_sequence":
+        return "", ""
+    if not (first or second or root_text):
+        return "", ""
     base = Path(root_text).expanduser() if root_text else None
     if base is not None and not first:
         first = str(base / "uniref30_2302" / "uniref30_2302_db")
@@ -169,10 +171,12 @@ def predict(
     host_url = msa_host_url(msa_host)
     if host_url:
         command += ["--host-url", host_url]
-    if db1:
-        command += ["--db1", db1]
-    if db2:
-        command += ["--db2", db2, "--use-env", "1"]
+    if db1 or db2:
+        raise StepError(
+            "colabfold_predict: colabfold_batch cannot search local MMseqs2 "
+            "databases; use msa_mode 'single_sequence' or msa_host, or run "
+            "colabfold_search before folding"
+        )
     environment = dict(os.environ)
     if device == "cpu":
         environment["CUDA_VISIBLE_DEVICES"] = ""
