@@ -256,6 +256,13 @@ def resolve(graph, candidates, bundled):
             return value
         missing = missing or unresolved(candidate, required)
     if conflict is not None:
-        raise type(conflict)(f'{conflict}{missing}') from conflict
+        text = f'{conflict}{missing}'
+        try:
+            rebuilt = type(conflict)(text)
+        except TypeError:
+            # CommandError takes (code, message, ...); keep the subclass and stamp the new text.
+            conflict.args = (text,)
+            rebuilt = conflict
+        raise rebuilt from conflict
     raise ValueError('Required plugin versions are unavailable; install the original packages. '
                      'Unknown or wheel pins are not automatically replaced.' + missing)
