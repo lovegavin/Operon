@@ -46,6 +46,16 @@
       "minimum": 1,
       "maximum": 100
     },
+    "design_index": {
+      "type": "integer",
+      "title": "设计序号",
+      "description": "0 返回全部设计并叠成 [design, atom, field]（要求各设计原子数一致）；N 只返回第 N 个设计，输出 [atom, field] 二维表，可直接接 ProteinMPNN。",
+      "default": 0,
+      "x-ui-group": "参数",
+      "x-ui-order": 2,
+      "minimum": 0,
+      "maximum": 100
+    },
     "device": {
       "type": "string",
       "title": "设备",
@@ -70,8 +80,8 @@
     "python_executable": {
       "type": "string",
       "title": "Python 解释器",
-      "description": "用于启动 run_inference.py 的解释器。",
-      "default": "python",
+      "description": "用于启动 run_inference.py 的解释器；留空使用 checkout 自带的 env/bin/python，只写 python 也视为留空。",
+      "default": "",
       "x-ui-group": "参数",
       "x-ui-order": 4
     },

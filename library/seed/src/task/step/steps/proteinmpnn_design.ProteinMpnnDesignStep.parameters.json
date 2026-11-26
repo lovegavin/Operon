@@ -111,6 +111,16 @@
       "x-ui-group": "advanced",
       "x-ui-order": 90
     },
+    "design_index": {
+      "type": "integer",
+      "title": "设计序号",
+      "description": "上游给出多个设计叠表时选第几个（1 起）；0 表示结构不是叠表。",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 100,
+      "x-ui-group": "advanced",
+      "x-ui-order": 95
+    },
     "device": {
       "type": "string",
       "enum": [

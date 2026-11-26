@@ -43,6 +43,7 @@ def structure_file(
     prefix: str,
     atom_dim: str = "atom",
     field_dim: str = "field",
+    design_index: int = 0,
 ) -> Path:
     """Return a PDB file for *form*.
 
@@ -59,7 +60,50 @@ def structure_file(
     import tempfile
 
     target = Path(tempfile.mkdtemp(prefix=prefix + "-")) / "structure.pdb"
-    return write_structure_pdb(form, atom_dim, field_dim, target, prefix)
+    return write_structure_pdb(form, atom_dim, field_dim, target, prefix, design_index=design_index)
+
+
+def design_frame(
+    form: Form,
+    atom_dim: str = "atom",
+    field_dim: str = "field",
+    prefix: str = "step",
+    design_index: int = 0,
+) -> Form:
+    """Return a single-design atom x field form for a stacked design table.
+
+    Backbone designers stack several designs into one ``[design, atom, field]`` table.  A PDB
+    file holds exactly one structure, so choosing the design is an explicit decision instead of
+    silently taking the first entry.
+    """
+
+    dims = list(form.dims)
+    if len(dims) != 3 or dims[1:] != [atom_dim, field_dim]:
+        return form
+    total = int(form.data.shape[0])
+    try:
+        chosen = int(design_index or 0)
+    except (TypeError, ValueError):
+        chosen = 0
+    if chosen == 0:
+        raise StepError(
+            f"{prefix}: the structure form carries {total} designs (dims {dims}); set "
+            "design_index to choose one design before this operator reads the structure"
+        )
+    if chosen < 1 or chosen > total:
+        raise StepError(f"{prefix}: design_index {chosen} is outside the {total} design(s) in the form")
+    labels = {}
+    for key in (atom_dim, field_dim):
+        value = form.labels.get(key)
+        if value is not None:
+            labels[key] = dict(value)
+    return Form(
+        data=np.asarray(form.data)[chosen - 1],
+        dims=[atom_dim, field_dim],
+        labels=labels,
+        info=dict(form.info or {}),
+        axis_info={},
+    )
 
 
 def write_structure_pdb(
@@ -68,9 +112,11 @@ def write_structure_pdb(
     field_dim: str,
     target: Path,
     prefix: str,
+    design_index: int = 0,
 ) -> Path:
     """Write one PDB file from an atom x field form."""
 
+    form = design_frame(form, atom_dim, field_dim, prefix, design_index)
     data = np.asarray(form.data, dtype=float)
     if data.ndim != 2 or list(form.dims) != [atom_dim, field_dim]:
         raise StepError(

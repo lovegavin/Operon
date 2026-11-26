@@ -46,12 +46,14 @@ def structure(
     operator: str = "step",
     atom_dim: str = "atom",
     field_dim: str = "field",
+    design_index: int = 0,
 ) -> str:
     """Return a PDB path for a structure port, or the legacy override path."""
     if isinstance(value, FileArtifact):
         return _artifact_path(value, operator, ("structure", "model", "pdb"), frozenset(_STRUCTURE_FORMATS))
     if isinstance(value, Form):
-        path = _protein_common.structure_file(value, fallback, operator, atom_dim, field_dim)
+        path = _protein_common.structure_file(value, fallback, operator, atom_dim, field_dim,
+                                              design_index=design_index)
         return Path(path).as_posix()
     if value is not None:
         raise StepError(

@@ -331,12 +331,65 @@ def _relocate_files(files, directory, outputs=None):
     return moved
 
 
+def _relocate_export(export, directory, outputs=None, artifacts_root=None):
+    """Copy the native files an export reports out of the throw-away bridge directory.
+
+    A step that publishes files without registering a ``FileArtifact`` (a designer returning
+    its result files, for example) otherwise hands the pipeline a path inside the directory
+    the bridge deletes on exit, so the next step finds nothing to export.  The files are
+    re-homed under the artifact root and the export keeps the new paths.
+    """
+    if not isinstance(export, (dict, list)):
+        return export
+    try:
+        root = Path(directory).resolve()
+    except OSError:
+        return export
+    state = {"target": None}
+
+    def target_for(name):
+        if state["target"] is None:
+            base = Path(outputs) if outputs else (Path(artifacts_root) if artifacts_root else _artifacts_root())
+            state["target"] = base / uuid.uuid4().hex
+            state["target"].mkdir(parents=True, exist_ok=True)
+        destination = state["target"] / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        return destination
+
+    def walk(value):
+        if isinstance(value, dict):
+            moved = {key: walk(item) for key, item in value.items()}
+            reported = moved.get("path")
+            if not isinstance(reported, str) or not reported:
+                return moved
+            try:
+                path = Path(reported)
+                resolved = (path if path.is_absolute() else Path.cwd() / path).resolve()
+            except OSError:
+                return moved
+            if not resolved.is_file() or root not in resolved.parents:
+                return moved
+            destination = target_for(resolved.name)
+            if destination != resolved:
+                shutil.copy2(resolved, destination)
+            moved["path"] = str(destination)
+            if "filename" in moved:
+                moved["filename"] = destination.name
+            return moved
+        if isinstance(value, list):
+            return [walk(item) for item in value]
+        return value
+
+    return walk(export)
+
+
 def run_step(descriptor: dict, inputs, params: dict, python: Path, *, timeout: int = 3600, paths=(),
-             outputs=None, lock=None, tools=None, cancel=None):
+             outputs=None, lock=None, tools=None, cancel=None, artifacts_root=None):
     """Execute one step in ``python`` and return (form, export, console tail)."""
     with tempfile.TemporaryDirectory(prefix="envbridge-") as temporary:
         return _run_step(Path(temporary), descriptor, inputs, params, python, timeout=timeout, paths=paths,
-                         outputs=outputs, lock=lock, tools=tools, cancel=cancel)
+                         outputs=outputs, lock=lock, tools=tools, cancel=cancel,
+                         artifacts_root=artifacts_root)
 
 
 def _execute(command, directory, python, paths, *, timeout, tools=None, cancel=None):
@@ -432,9 +485,13 @@ def worker_environment(python: Path, paths=(), tools=None) -> dict[str, str]:
     return env
 
 
-def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None, lock=None, tools=None, cancel=None):
+def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None, lock=None, tools=None, cancel=None, artifacts_root=None):
     from src.core.errors import StepError
     request = {"entry_point": descriptor["entry_point"], "params": params, "inputs": []}
+    if artifacts_root:
+        # Files the step publishes must outlive this temporary directory: the pipeline reads
+        # them again (export_results copies them out) after the bridge has returned.
+        request["artifacts_root"] = str(artifacts_root)
     for index, form in enumerate(inputs):
         request["inputs"].append(_write_form(directory, index, form))
     (directory / "request.json").write_text(json.dumps(request), encoding="utf-8")
@@ -468,7 +525,9 @@ def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(
     from src.core.forms import Form
     from operon.env_worker import _revive
     if message.get("kind") == "none":
-        return None, _revive(message.get("export", {})), "\n".join((completed.stderr or "").strip().splitlines()[-4:])
+        export = _relocate_export(_revive(message.get("export", {})), directory, outputs=outputs,
+                                  artifacts_root=artifacts_root)
+        return None, export, "\n".join((completed.stderr or "").strip().splitlines()[-4:])
     if message.get("kind") == "file":
         from src.core.files import FileArtifact
         placed = _relocate_files({str(key): str(value) for key, value in message["files"].items()},
@@ -522,9 +581,12 @@ def proxy_step(descriptor: dict, paths=(), lock=None):
 
                 def cancel(marker=marker):
                     return marker.exists()
+            out_dir = getattr(ctx, "out_dir", None)
+            artifacts_root = Path(out_dir) / "artifacts" if out_dir is not None else None
             form, export, tail = run_step(descriptor, inputs, dict(ctx.step_params), python,
                                           timeout=int(ctx.step_params.get("timeout_seconds", 3600)) + 60,
-                                          paths=_paths, lock=_lock, tools=_tools, cancel=cancel)
+                                          paths=_paths, lock=_lock, tools=_tools, cancel=cancel,
+                                          artifacts_root=artifacts_root)
             name = ctx.step_params.get("output")
             if name and form is not None:
                 ctx[name] = form

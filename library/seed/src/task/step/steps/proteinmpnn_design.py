@@ -190,7 +190,10 @@ class ProteinMpnnDesignStep(Step):
     def run(self, ctx: Context, inputs) -> None:
         params = dict(ctx.step_params)
         if inputs:
-            params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
+            params['structure_path'] = _port_inputs.structure(
+                inputs[0], params.get('structure_path'), self.name,
+                design_index=int(params.get('design_index') or 0),
+            )
         structure_path = Path(str(params.get("structure_path", "")).strip()).expanduser()
         proteinmpnn_path = Path(
             str(params.get("proteinmpnn_path", "")).strip()

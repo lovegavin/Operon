@@ -100,7 +100,8 @@ def stack_designs(paths: list[Path]) -> tuple[np.ndarray, dict, dict]:
         elif len(ordered) != len(atom_labels):
             raise StepError(
                 f"rfdiffusion_design: design {index + 1} has {len(ordered)} atoms, "
-                f"expected {len(atom_labels)}"
+                f"expected {len(atom_labels)}; the designs of one run must share an atom set, "
+                "or set design_index to keep a single design"
             )
         design_labels[f"design{index + 1}"] = index
         frames.append(np.asarray(form.data, dtype=np.float32))
@@ -135,7 +136,8 @@ class RfdiffusionDesignStep(Step):
         "title": "RFdiffusion backbone design",
         "description": (
             "Run the official RFdiffusion run_inference.py for a contig expression and "
-            "return the generated backbones as a [design, atom, field] all-atom table."
+            "return the generated backbones as an all-atom table: [design, atom, field] for "
+            "every design, or [atom, field] when design_index selects a single one."
         ),
         "category": "Machine Learning",
         "icon": "ShareNetwork",
@@ -145,8 +147,9 @@ class RfdiffusionDesignStep(Step):
     ],
             "output": {
                 "mode": "declare",
+                # One selected design is [atom, field] and a stacked set is
+                # [design, atom, field], so the declaration cannot pin a dimensionality.
                 "schema": {
-                    "ndim": 3,
                     "numeric": True,
                     "info_open": True,
                     "axis_info_open": True,
@@ -184,6 +187,12 @@ class RfdiffusionDesignStep(Step):
             raise StepError(f"rfdiffusion_design: {runner} is missing from the checkout")
 
         python = str(params.get("python_executable") or "").strip()
+        # A bare name ("python", the historical default) resolves against the bridge PATH and
+        # silently loses the checkout that ships the designer, so only an explicit path picks
+        # an interpreter of the operator's own.  Anything else falls back to the bundled one.
+        separators = [value for value in (os.sep, os.altsep) if value]
+        if python and not any(separator in python for separator in separators):
+            python = ""
         if not python:
             bundled = repo / "env" / "bin" / "python"
             python = str(bundled) if bundled.is_file() else sys.executable
@@ -235,6 +244,15 @@ class RfdiffusionDesignStep(Step):
                 raise StepError(
                     f"rfdiffusion_design: the designer produced no PDB under {outdir}"
                 )
+            produced = len(paths)
+            selected = int(params.get("design_index") or 0)
+            if selected:
+                if selected < 1 or selected > produced:
+                    raise StepError(
+                        f"rfdiffusion_design: design_index {selected} is outside the "
+                        f"{produced} design(s) the run produced"
+                    )
+                paths = [paths[selected - 1]]
             data, labels, extra = stack_designs(paths)
             saved_dir = output_directory(ctx, 'rfdiffusion')
             self._result_files = []
@@ -245,13 +263,22 @@ class RfdiffusionDesignStep(Step):
                                                        f'Backbone {index}'))
             remember_native(ctx, out_name, self._result_files)
 
+        if selected:
+            # A single design is a plain atom x field table so 2D consumers (ProteinMPNN and
+            # friends) accept it; the design axis only exists for a stacked set.
+            data = data[0]
+            labels = {key: value for key, value in labels.items() if key != "design"}
+            dims = ["atom", "field"]
+        else:
+            dims = ["design", "atom", "field"]
         form = Form(
             data,
-            dims=["design", "atom", "field"],
+            dims=dims,
             labels=labels,
             info={
                 "missing_code": np.nan,
-                "n_designs": len(paths),
+                "n_designs": produced,
+                "design_index": selected,
                 "n_atoms": extra["n_atoms"],
                 "designs": extra["designs"],
                 "contigs": str(params.get("contigs") or ""),
@@ -267,5 +294,6 @@ class RfdiffusionDesignStep(Step):
             "operator": "rfdiffusion_design",
             "result_files": self._result_files,
             "n_designs": int(form.info["n_designs"]),
+            "design_index": int(form.info.get("design_index") or 0),
             "designs": form.info["designs"],
         }

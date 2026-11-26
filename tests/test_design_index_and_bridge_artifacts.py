@@ -1,0 +1,122 @@
+"""Single-design reads and bridge artifact relocation for the design chain."""
+from __future__ import annotations
+
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+from operon import environments
+from operon.env_worker import Context as WorkerContext
+from src.core import StepError
+from src.core.forms import Form
+from src.reader import read_source
+from src.task.step.steps import _port_inputs
+from src.task.step.steps._protein_common import design_frame
+
+FIELDS = {"x": 0, "y": 1, "z": 2, "residue_number": 3}
+
+
+def _design_form() -> Form:
+    data = np.zeros((2, 3, 4), dtype=np.float32)
+    data[0, :, 0] = [0.0, 1.0, 2.0]
+    data[1, :, 0] = [9.0, 10.0, 11.0]
+    data[0, :, 1] = [0.0, 1.0, 2.0]
+    data[1, :, 1] = [9.0, 10.0, 11.0]
+    data[:, :, 3] = 17
+    labels = {
+        "design": {"design1": 0, "design2": 1},
+        "atom": {"atom1": 0, "atom2": 1, "atom3": 2},
+        "field": dict(FIELDS),
+    }
+    return Form(data=data, dims=["design", "atom", "field"], labels=labels, info={"n_designs": 2})
+
+
+def test_design_frame_selects_one_design() -> None:
+    form = _design_form()
+
+    chosen = design_frame(form, design_index=2)
+
+    assert chosen.dims == ["atom", "field"]
+    assert np.allclose(chosen.data, form.data[1])
+    assert set(chosen.labels) == {"atom", "field"}
+    assert chosen.info["n_designs"] == 2
+
+
+def test_design_frame_requires_an_explicit_design() -> None:
+    form = _design_form()
+
+    with pytest.raises(StepError, match="carries 2 designs"):
+        design_frame(form)
+    with pytest.raises(StepError, match="outside the 2 design"):
+        design_frame(form, design_index=3)
+
+
+def test_design_frame_leaves_a_single_structure_alone() -> None:
+    form = Form(data=np.zeros((3, 4), dtype=np.float32), dims=["atom", "field"],
+                labels={"atom": {"atom1": 0, "atom2": 1, "atom3": 2}, "field": dict(FIELDS)})
+
+    assert design_frame(form) is form
+
+
+_PDB = (
+    "ATOM      1  N   ALA A   1      11.104   6.134  -6.504  1.00  0.00           N\n"
+    "ATOM      2  CA  ALA A   1      11.639   6.071  -5.147  1.00  0.00           C\n"
+    "END\n"
+)
+
+
+def _stacked_form(tmp_path: Path) -> Form:
+    source = tmp_path / "design.pdb"
+    source.write_text(_PDB, encoding="utf-8")
+    one = read_source(source, ["atom", "field"], {})
+    second = np.array(one.data, dtype=float)
+    second[:, one.labels["field"]["x"]] += 50.0
+    labels = {"design": {"design1": 0, "design2": 1},
+              "atom": dict(one.labels["atom"]), "field": dict(one.labels["field"])}
+    return Form(data=np.stack([one.data, second], axis=0),
+                dims=["design", "atom", "field"], labels=labels, info=dict(one.info))
+
+
+def test_structure_port_writes_the_chosen_design(tmp_path: Path) -> None:
+    form = _stacked_form(tmp_path)
+
+    path = Path(_port_inputs.structure(form, "", "unit", design_index=2))
+
+    text = path.read_text(encoding="utf-8")
+    assert text.count("ATOM") == 2
+    assert "  61.104" in text and "  61.639" in text
+    assert "  11.104" not in text
+
+
+def test_bridge_export_relocates_native_files(tmp_path: Path) -> None:
+    bridge = tmp_path / "envbridge-abc"
+    native = bridge / "rfdiffusion" / "run" / "design_0.pdb"
+    native.parent.mkdir(parents=True)
+    native.write_text("END\n", encoding="utf-8")
+    outside = tmp_path / "elsewhere.pdb"
+    outside.write_text("END\n", encoding="utf-8")
+    export = {"result_files": [{"id": "design-0", "path": str(native),
+                                "filename": "design_0.pdb", "format": "pdb"},
+                               {"id": "keep", "path": str(outside), "format": "pdb"}]}
+
+    moved = environments._relocate_export(export, bridge, artifacts_root=tmp_path / "artifacts")
+
+    entry = moved["result_files"][0]
+    destination = Path(entry["path"])
+    assert destination.is_file()
+    assert (tmp_path / "artifacts") in destination.parents
+    assert entry["filename"] == destination.name
+    assert moved["result_files"][1]["path"] == str(outside)
+
+
+def test_worker_artifact_path_targets_the_task_artifact_root(tmp_path: Path) -> None:
+    context = WorkerContext({"output": "designs"}, str(tmp_path / "bridge"),
+                            str(tmp_path / "artifacts"))
+
+    target = context.artifact_path("rfdiffusion/run-1/design_0.pdb")
+
+    assert target.parent.is_dir()
+    assert (tmp_path / "artifacts") in target.parents
+    with pytest.raises(ValueError, match="escapes"):
+        context.artifact_path("../outside.txt")

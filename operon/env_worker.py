@@ -18,7 +18,7 @@ class _Memory:
 
 
 class Context:
-    def __init__(self, params, directory=None):
+    def __init__(self, params, directory=None, artifacts_root=None):
         self.step_params = params
         self.params = {}
         self.manifest = {}
@@ -31,10 +31,21 @@ class Context:
         self.task_dir = self.out_dir
         self.memory = _Memory(self.out_dir)
         self.values = {}
+        # The bridge directory disappears when the step returns, so files a step publishes for
+        # later steps are rooted in the task that owns it.  The parent hands that directory
+        # over; without it the run directory keeps the historical in-process behaviour.
+        self.artifacts_root = Path(artifacts_root).expanduser() if artifacts_root else self.out_dir / "artifacts"
 
     def artifact_path(self, relative: str) -> Path:
-        """Resolve a path inside this run's output directory, creating parents."""
-        target = self.out_dir / relative
+        """Resolve a path under the artifact root, creating parents."""
+        target = (self.artifacts_root / relative).expanduser()
+        base = self.artifacts_root.expanduser().resolve()
+        try:
+            resolved = target.resolve()
+        except OSError as exc:  # pragma: no cover - defensive
+            raise ValueError(f"artifact path {relative!r} cannot be resolved: {exc}") from exc
+        if resolved != base and base not in resolved.parents:
+            raise ValueError(f"artifact path {relative!r} escapes the artifact directory {base}")
         target.parent.mkdir(parents=True, exist_ok=True)
         return target
 
@@ -154,7 +165,7 @@ def main():
             data = np.load(directory / f"input{index}.npy", allow_pickle=False, mmap_mode='c')
             inputs.append(Form(data=data, dims=meta["dims"], labels=meta["labels"],
                                info=_revive(meta.get("info", {})), axis_info=meta.get("axis_info", {})))
-        ctx = Context(request["params"], directory)
+        ctx = Context(request["params"], directory, request.get("artifacts_root"))
         step = cls()
         step.run(ctx, inputs)
         export = step.export(ctx) or {}
