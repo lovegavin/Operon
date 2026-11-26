@@ -1,318 +1,239 @@
 # Operon
 
-**Open-source, contract-first bioinformatics workflows — visual, scriptable and agent-ready.**
+**Contract-first bioinformatics workflows — visual, scriptable and agent-operable.**
 
-[中文快速开始](QUICKSTART.zh.md) · [English quick start](QUICKSTART.en.md) ·
-[Documentation](docs/README.md) · [Releases](https://github.com/lovegavin/Operon/releases) ·
-[Apache-2.0](LICENSE)
+Operon Studio 5.11.2 · Operator Library 2.1.3 · Apache-2.0
 
-Operon turns raw omics data into reproducible results. Build a workflow on the
-canvas or in YAML, run it locally or on an SSH server, and inspect every saved
-parameter, log and artifact. The same engine is available through the desktop,
-CLI, HTTP API and MCP, so an agent can call validated tools instead of writing
-analysis code from scratch.
+[中文快速开始](QUICKSTART.zh.md) · [Quick start (EN)](QUICKSTART.en.md) · [Documentation](docs/README.md) · [Releases](https://github.com/lovegavin/Operon/releases) · [License](LICENSE)
 
-This source targets **Operon Studio 5.3.0**. The application and operator library
-are maintained and released independently; this application update does not
-change library sources or versions. Import a compatible library and route package
-separately. Operators and Readers retain protocol v3 / SDK 3.7 compatibility,
-independent parameter JSON and adjacent Markdown documentation.
+---
 
-The new RunPlan interface shares compilation, execution and portable export
-across desktop and headless clients. Environments are explicitly prepared and
-bound; configured file browsing preserves storage references in saved workflows.
-See the [backend quick start](docs/design/backend_cli_quickstart.md) and
-[5.3.0 release scope](docs/releases/v5.3.0.md). Multi-host placement and Slurm
-remain experimental; they are not required for ordinary local or single-server use.
+## Why Operon exists
 
-Operon does not bundle or require an AI model. Agent access is optional.
+Most bioinformatics analyses are assembled from shell scripts, notebooks and one-off
+Python. That works until someone has to re-run the pipeline a year later, hand it to a
+collaborator, or explain to a reviewer exactly which tool version produced a figure.
 
-## Why Operon
+Operon treats an analysis as **data, not code**. A workflow is a graph of typed steps
+with explicit inputs, outputs, parameters and runtime requirements. Each step comes
+from a validated operator whose contract is declared once and checked when the library
+is built.
 
-- **Call a validated method, not generated code.** Every operator has a typed
-  input/output contract, a parameter schema and scientific documentation.
-- **Reproducible by construction.** Workflow values are frozen independently of
-  later defaults; task records, logs and output artifacts stay inspectable.
-- **One engine, several surfaces.** Canvas, CLI, HTTP API and MCP share workflow
-  preparation, validation, execution and artifacts.
-- **Local or remote, same workflow.** Run on Windows, a Linux workstation or an
-  SSH server; move computation to the data when that is cheaper.
-- **Open and extensible.** Add an operator, Reader, provider package or route
-  without changing the engine. The full source and third-party notices ship with
-  the project.
+That gives three properties that ad-hoc scripts do not have:
+
+- **Nothing generated to trust.** You compose declared operators; you do not review
+  model-written code before it touches your data.
+- **Reproducible by construction.** Parameter values, library generation, environment
+  receipts and artifact hashes are snapshotted with every run.
+- **One engine, several surfaces.** The desktop canvas, the CLI, the HTTP API and the
+  MCP server all drive the same workflow store, scheduler, memory admission and
+  execution environment — not four reimplementations.
+
+The operator library is the product. The interface is how you reach it.
+
+## What you get
+
+| Area | What it does |
+| --- | --- |
+| **Visual canvas** | Compose workflows by connecting operator cards; edit parameters, inspect schemas, save revisions and undo as one transaction. |
+| **Operator library** | 1,000+ validated operators and 100+ Readers covering statistics, machine learning, sequences and omics, structures, genomes and epigenomes, quality control, phylogenetics, proteomics, metabolomics, single cell, Hi-C, microbiome, docking, causal inference and visualization. |
+| **Workflow routes** | 79 ready-made route templates (alignment QC, ATAC/ChIP pipelines, assembly QC, codon design and usage, annotation, ML baselines, and more) that you can open, adapt and save. |
+| **Execution** | Local environment, explicit dependency preparation, memory admission, disk/stream resource protocols, resumable transfers, SSH servers and Slurm clusters with capacity-aware node placement. |
+| **Results** | Run history, retained output tables, native result viewers, publication figures and static plots. |
+| **Portable export** | Freeze a run plan into a standalone package that runs on a machine without Operon installed. |
+| **Automation** | Versioned HTTP API, scriptable CLI and MCP tools with progressive documentation, workspace files and job reporting. |
+
+## Four surfaces, one service
+
+| Surface | Reach it with | Best for |
+| --- | --- | --- |
+| Desktop Studio | Windows installer or `operon serve` in a browser | Building, inspecting and debugging analyses |
+| CLI | `python -m operon …` | Batch jobs, servers, reproducible commands |
+| HTTP API | `operon serve`, `/api/v1/openapi.json` | Web front ends, LIMS and pipeline integration |
+| MCP | `operon mcp` | Agents that compose and run workflows |
+
+MCP is a protocol bridge, not an AI provider: Operon never calls a model. Connect any
+MCP-capable client, grant `--allow-run` only when execution is intended, and use
+`--read-only` for inspection-only sessions.
 
 ## Install
 
-| I want to… | Start here |
+| Target | How |
 | --- | --- |
-| Use the Windows desktop | Download **Operon_Setup.exe** from [Releases](https://github.com/lovegavin/Operon/releases/latest) |
-| Run a Linux server without a desktop | Download the versioned **Operon Server ZIP**, then follow the [server guide](docs/command_line_installation.md#linux-server) |
-| Develop the application from source | `python -m pip install '.[agent]'` with Python 3.11+; install a compatible operator library separately |
-| Connect an AI agent | Use the desktop **Agent** panel or `operon mcp`; see [agent operations](docs/agent_operations.md) |
+| Windows desktop | Run `Operon_Setup.exe`. It ships its own relocatable CPython runtime, isolates the app profile and uses a signature-verified WebView2 bootstrapper. |
+| Linux / headless server | Unpack `Operon-<version>-Server.zip` and run `install.sh --prefix <dir>` (see [command_line_installation.md](docs/command_line_installation.md#linux-server)), or `pip install . ./library`. |
+| Source checkout | `python -m pip install '.[agent]'` (Python 3.11+) — add the `agent` extra for MCP. |
+| Agent client | Start `operon mcp` from your MCP client configuration; see [agent_operations.md](docs/agent_operations.md). |
 
-Windows Setup includes a private management Python and creates an isolated
-profile. Scientific packages are installed only for the workflow and execution
-host you choose; they are not all bundled. If WebView2 is missing, Setup asks
-Microsoft's installer for it, which needs internet access.
+Verify any installation:
 
-A new 5.0.0 installation puts the working workspace under the installation root
-(for example, `workspace` under the installation root). Profile metadata, logs and browser
-state remain under `%USERPROFILE%\.operon`. Earlier installations keep their
-existing workspace. Uninstall removes the program but preserves the workspace
-and analysis results.
+```text
+operon --version        # Operon 5.11.2
+operon capabilities     # API version, protocol version and capability list
+operon registry check   # operator, Reader, package and route counts for this library
+```
 
-## First run
+Windows installs keep the workspace under the install directory and the shared
+profile in `%USERPROFILE%\.operon`; Linux and macOS use `~/.operon`. Large model
+weights, databases, external tools and dedicated environments are prepared on demand
+and are never implied by an installer.
 
-The two quick starts are deliberately short and use only synthetic data:
+## First run: desktop (5 minutes)
 
-- [中文：10 分钟跑通第一个流程](QUICKSTART.zh.md)
-- [English: run your first workflow in 10 minutes](QUICKSTART.en.md)
+1. Launch Operon and open the canvas.
+2. Drag in a Reader and point it at a table — for example `CsvReader` with
+   `matrix.csv`, dimensions `sample,feature`, sample labels `auto` and column labels
+   from the header row.
+3. Add an operator such as `PCA`, connect the Reader output to it, set the dimension
+   to `feature` and the component count to `2`.
+4. Open the execution settings, check the environment and prepare any missing
+   dependencies.
+5. Run. Follow the task in the task manager; an environment preparation step is
+   explicit, never implicit.
+6. Open the result viewer, then inspect the run history for parameters, logs and
+   retained outputs.
 
-In short: install, open **Operon Studio**, add a CSV, connect it to **PCA**, check
-the local environment, and press **Run**. Results appear under **Run history →
-View results**. The first dependency check may need internet access; Operon never
-installs scientific packages silently during a run.
+Viewers are configured under **Settings → Output and viewers**. Sub-graphs can be
+collapsed, single operators bypassed, and the whole canvas edited as one undoable
+transaction; starting a job is always a separate action.
 
-## What is new in 5.0.0
+## First run: headless
 
-- **The operator library is a separate download.** The application payload no
-  longer contains `library/seed`, its routes or the library release metadata.
-  Import `operon-library-v0.0.0.zip` from the **Library** page and
-  `operon-routes-v0.0.0.zip` from the **Routes** page; the application installs
-  the wheels, registers operators and prepares environments.
-- **Bundle format 1.** The library ZIP declares `format: operon.library`,
-  `bundle_format: 1`, `library_version`, `operator_protocol` and
-  `minimum_application`.
-- **Exact route pins are mandatory.** Every `plugin_lock` entry (`package`,
-  `version`, `code_sha`) must equal an installed library package. A missing or
-  different pin is an error; there is no fallback.
-- **Legacy bundles are rejected.** An 8.x library bundle is refused with a
-  message that points at an `operon-library-v0.0.x` bundle built for Operon
-  5.0.0.
+```text
+python -m pip install . ./library
+operon --version
+operon serve --port 8765     # then open http://127.0.0.1:8765
+```
 
-## What is new in 4.2.4
+Or drive the same service from the CLI without a browser:
 
-- **Binary workspace writes.** `operon_write_binary(path=..., content_base64=...)`
-  and `POST /api/v1/workspace/files/binary` write PNG, PDF, ZIP or any other
-  binary payload through the backend. Path rules match text writes; the decoded
-  payload is limited to 50 MiB, while UTF-8 text writes stay at 10 MiB.
-- **Remote library diagnostics.** A pinned-implementation failure against an SSH
-  target now names the host and points at `operon_remote_install(force=true)`,
-  and a missing input on an SSH target explains that only local source files are
-  uploaded.
-- **Operator library 8.0.10.** All 1,171 descriptors carry consistent `code_sha`
-  values in this release; Studio 4.2.4 requires library **8.0.10 or newer**.
+```text
+operon operators search "differential expression"
+operon operators describe pca --view schema
+operon workflow lint examples/workflows/script_pipeline/workflow.yaml
+operon environment check examples/workflows/script_pipeline/workflow.yaml --require-files
+operon run examples/workflows/script_pipeline/workflow.yaml --progress --request-id demo-001
+operon jobs list
+```
 
-## What is new in 4.2.3
+`environment check` validates declarations and input files; `environment prepare`
+explicitly authorizes installation. Preparation and validation never install.
 
-- Route archives now separate provable pin migrations from unprovable ones. `POST
-  /api/routes/import-archive` rewrites a pin only when the installed library proves the
-  source-to-wheel identity, reports it in `pin_migrations`, and rejects anything else with an
-  explicit error instead of guessing.
+## How a run is composed
 
-## What is new in 4.2.2
+1. **Graph** — steps, ports and tags define the computation; saved workflows carry
+   their own frozen parameter values.
+2. **Readiness** — contracts, parameters and input files are validated before
+   submission; a missing kernel or file fails early with a diagnostic.
+3. **Environment** — the declared environment is checked and prepared explicitly,
+   then recorded as a receipt with the run.
+4. **Execution** — the scheduler runs steps locally, over SSH or on a Slurm node,
+   enforcing memory admission, resource modes and spill limits.
+5. **Artifacts** — outputs are indexed with representation, size and SHA-256, then
+   displayed through result viewers or exported.
+6. **Export** — the frozen plan can be packaged with its verified environment to run
+   without Operon on the destination.
 
-- **Task folders, including scaffolds written by the backend.**
-  `operon_task(base_dir="task1")` creates `input`, `results`, `reports` and
-  `figures`, and `operon_write_text(path=..., content=...)` writes a file inside
-  the workspace even when the host shell cannot. Paths are workspace-relative;
-  `..`, absolute paths, symbolic links and internal state (`.studio`, `.operon`,
-  `.admission`) are rejected. Writes are UTF-8 and limited to 10 MiB.
-- **Exported files download as files.** `GET /api/v1/jobs/<job>/artifacts/<id>/file`
-  now returns the exported CSV/TSV when no `role` is given; the explicit
-  `?role=<name>` form is unchanged.
-- **Longer job waits.** `operon_job(wait_seconds=...)` accepts up to 120 seconds
-  and returns `wait_timed_out: true` instead of an error when the window closes.
-- **Clearer remote errors.** A missing SSH input environment now says the server
-  profile may be missing or disconnected, and points at `operon remote-status`
-  and `operon remote-ensure`.
-- **Operator library 8.0.9.** `interface_alanine_scan` flags Gly→Ala mutations
-  with `flag: "gly_to_ala"`, `excluded_reason` and `excluded_from_ranking`, and
-  reports `quality.gly_to_ala_excluded`. Both alanine-scan and MM/GBSA documents
-  gained a scientific-limitations section (single-point estimates, no entropy or
-  ensemble, manual Gly→Ala review, copy-reproducibility warnings).
+## Operator library
 
-## What is new in 4.1.9
+The bundled library is versioned separately from the application. This source tree
+declares application **5.11.2** and library **2.1.3** (minimum application 5.11.2).
 
-- **Exported tables are readable over MCP.** `operon_artifacts(preview=true)` and
-  `operon_artifact_table` now return CSV/TSV rows, not only file metadata, and
-  honor `offset`/`limit` on every kind of job.
-- **Stale canvas pins repair themselves.** Opening a canvas saved against an
-  older bundled library refreshes pins whose implementation is no longer
-  installed, records `runtime.pin_migrations`, and no longer fails with
-  `pinned implementation is unavailable`.
-- **`operon_job(wait_seconds=...)` is capped at 120 seconds.** A closed wait
-  window returns `status: running` with `wait_timed_out` instead of an MCP timeout.
-- **Isolated environments always bootstrap `setuptools>=68,<81`**, even when they
-  share the host interpreter, so `pkg_resources` is present for PDBFixer. The
-  environment repair guide and paths now use `<install root>/environments`.
-- 4.1.8 remains available in [its release notes](docs/releases/v4.1.8.md); full
-  replacement updates, pool control tools and the 8.0.7 library are unchanged.
+Operators and Readers use **SDK protocol v3**: a literal class declaration, a separate
+parameter schema, adjacent Markdown documentation, declared ports and a content-hashed
+implementation. The registry rejects a declaration that does not compile, that reads
+parameters it never declared, or whose route references a missing operator.
 
-## What is new in 4.1.0
+Inspect what you have instead of trusting a number in a README:
 
-- Shipped **Operon Operator Library 8.0.6** at release time. Current builds
-  require 8.0.9 or newer; earlier libraries use an environment model this
-  application does not load.
-- The library bundle now carries `operon/environments.json`. Imported libraries
-  can materialize their declared environments instead of reading only the
-  application seed.
-- The structure operators use the `openmm81` environment: OpenMM 8.1.1 and
-  PDBFixer 1.9 are installed together in an isolated Python 3.11 environment,
-  without downgrading the shared NumPy 2 runtime. The previous dependency range
-  could resolve PDBFixer 1.12 against an unavailable OpenMM 8.2 wheel.
-- All 4.0.10 installer, remote-pin and shared-pool fixes are included.
+```text
+operon registry check
+operon operators list --kind reader
+operon operators describe <id> --view docs
+```
 
-## What is new in 4.0.10
-
-- Windows Setup uses the exact folder selected, never appends `-2`, asks for
-  **强制重装** when an older installation is found, and records the root for the
-  uninstaller. Uninstall cleans that root except `workspace`.
-- Remote submissions discard plugin pins from an older canvas before preparing the
-  graph, then resolve implementations against the selected server. This corrects
-  the 4.0.9 attempt, which removed the re-overwrite but left the stale pin in place.
-- A forced server upgrade closes every remote workspace client before the new
-  application registers, and re-registration prunes sessions left by a process
-  that has already exited. A normal upgrade still stops without touching active
-  tasks or live clients.
-- operon_remote_status returns a compact build/library summary instead of the
-  full multi-megabyte remote catalog.
-
-## What is new in 4.0.8
-
-- Windows Setup now accepts a non-empty folder that is not an Operon installation; it preserves unrelated files and removes only Operon-managed versions on uninstall.
-- Uninstall disconnects every connected MCP client across local profiles before stopping processes, even when the frontend already exited.
-- Setup offers **强制重装** after a failed attempt and keeps the checkbox hidden after success.
-- FE-03: local files can be uploaded from the Inspector, staged to the selected remote workspace, and the UI explains the local data directory vs. remote path.
-- Library 8.0.3, protocol v3 and SDK 3.7 are unchanged.
-
-## What is new in 4.0.7
-
-- Jobs that fail remote admission now show **failed** with the admission reason and error instead of remaining queued. A resource-infeasible job explains how to lower the request or raise the server limit.
-- Readiness is tied to the graph digest. If the canvas changes after a readiness check, the run is rejected as stale and you are prompted to check again.
-- Turning memory management off no longer reserves the entire host pool; it disables the per-run memory ceiling while keeping CPU exclusivity.
-- Remote prepare now verifies that the saved server connection is still usable before launch, while offline bundle export and validation continue to work.
-- The remote status response no longer resends full job history, so polling stays small as history grows.
-- Library 8.0.2, protocol v3 and SDK 3.7 are unchanged.
-
-## What is new in 4.0.6
-
-- Artifact previews keep their row and column labels aligned with the displayed
-  values, including when a preview is truncated.
-- The canvas warns when a readiness check is older than the current graph, so a
-  stale "ready" result cannot silently lead to a failed run.
-- A run stops before submission if two nodes use the same output name, with the
-  conflicting nodes highlighted for correction.
-- Turning memory management off now shows that the run will reserve the whole
-  pool and may wait or fail when the pool is shared.
-- Library 8.0.2, protocol v3 and SDK 3.7 are unchanged.
-
-## What is new in 4.0.5
-
-- Setup hides **强制重装** after an installation completes. The option remains available while a reinstall is still being decided, or after a failed attempt leaves the old installation in place.
-- Route-package import errors now tell you to import the matching operator-library version before retrying.
-- This is a small installer/frontend patch. Library 8.0.3, protocol v3 and SDK 3.7 are unchanged from 4.0.4.
-
-## What is new in 4.0.4
-
-- Setup no longer crashes when you browse to or type a non-empty folder that is not an existing Operon installation. This is an installer-only fix; the application is unchanged from 4.0.3.
-- Windows Setup keeps the working workspace under the installation root
-  (`<install root>/workspace`), while profile metadata and logs stay in the user
-  profile. Uninstall preserves the workspace and analysis results.
-- Installing or upgrading a Linux server is one full action. Operators are not
-  uploaded package by package.
-- Reinstalling Windows detects the existing installation and asks first. A
-  normal reinstall refuses while old tasks are active; **强制重装** stops the old
-  processes and removes the old version while keeping the workspace and
-  analysis results.
-- **Force server upgrade** cancels every running Operon task on that server,
-  closes all sessions, then replaces the server build. The desktop asks for
-  confirmation first.
-- Uninstall now disconnects connected MCP clients automatically; the old
-  "disconnect DSH/MCP first" warning is gone.
-- Dependency readiness is reported as **install on demand**, not as a
-  startup-wide failure count.
-
-Existing 4.0.x installations keep their old profile workspace when upgraded.
-The old data remains under `%USERPROFILE%\.operon\profiles\<old-id>\workspace`;
-copy it into the new `<install root>/workspace` if you need it in the new
-installation.
-
-Application 4.1.9 and library 8.0.7 do not change the wire protocol (v3) or SDK
-(3.7). Published tags and release assets are immutable.
-
-## Open source
-
-Operon is licensed under the **Apache License, Version 2.0**. You may use, copy,
-modify and redistribute it, including commercially, under that license; no
-separate commercial permission is required. Retain [LICENSE](LICENSE) and
-[NOTICE](NOTICE), and identify modifications when redistributing.
-
-Third-party libraries, external tools, model weights and datasets keep their own
-licenses. Their notices are collected in [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES)
-and in the installed package. The Apache-2.0 grant does not replace those terms.
-Contributions are welcome under the same license; see [CONTRIBUTING.md](CONTRIBUTING.md).
+Third-party operators live in packages. Build one with `operon plugin init/check/test/build`,
+hot-load a single module through **Library Management → Refresh library**, or install a
+signed library with `operon library install`. See
+[library_extensions.md](docs/library_extensions.md) and
+[application_library_boundary.md](docs/application_library_boundary.md) for the
+application / library split.
 
 ## Repository layout
 
 | Path | Contents |
 | --- | --- |
-| `operon/`, `operon_sdk/` | Application package, CLI, MCP and SDK schemas |
-| `src/core/`, `src/task/`, `src/web/` | Engine, task runtime and HTTP service |
-| `library/seed/` | Reference operators, Readers, parameter JSON, routes and indexes |
-| `frontend/` | React canvas and desktop UI |
-| `desktop/`, `installer/` | Windows host and Setup/uninstaller |
-| `docs/` | Guides, design notes, release notes and verification evidence |
-| `tests/` | Python, frontend and integration tests |
-
-`main` is the integrated source branch for the current application and library.
-The application and the operator library remain **independently versioned
-products**: application releases use `vX.Y.Z`, library releases use
-`library-v<version>`, and an operator-only change does not require a new installer.
-See [application/library boundary](docs/application_library_boundary.md) and
-[independent library releases](docs/library_releases.md).
+| `operon/` | Application: service, CLI, HTTP API, MCP server, execution engine, environments, remote coordinator, storage and pool. |
+| `operon_sdk/` | Public SDK for protocol v3 Steps and Readers. |
+| `src/` | Implementation package the bundled library imports from: `src/task/step/steps/`, `src/reader/readers/`, shared contracts in `src/core/`, server helpers in `src/web/`. |
+| `library/seed/` | Generated library: registry indexes, documentation, route templates and package manifest. |
+| `frontend/` | React 19 + Vite canvas UI. |
+| `desktop/`, `installer/` | Windows desktop host and installer. |
+| `docs/` | Documentation; start at [docs/README.md](docs/README.md). |
+| `examples/` | Protocol v3 examples and an example workflow. |
+| `tests/`, `scripts/`, `verification/` | Test suite, build and release tooling, acceptance evidence. |
 
 ## Documentation
 
-- [Documentation index](docs/README.md)
-- [What changed since 3.1.6](docs/updates-since-3.1.6.md)
-- [Windows Setup and isolated installations](docs/windows_setup.md)
-- [Command-line and Linux server installation](docs/command_line_installation.md)
-- [Linux server and terminal guide](docs/server_cli.md)
-- [SSH remote execution](docs/REMOTE_EXECUTION.md) and [server handshake](docs/SERVER_HANDSHAKE.md)
-- [Public workflow YAML](docs/workflow_yaml_v3.md)
-- [SDK 3.7 data formats](docs/data_formats.md) and [format migration](docs/format_migration_v37.md)
-- [Operator documentation and retrieval](docs/operator_documentation.md)
-- [HTTP API, CLI and MCP](docs/headless_api.md)
-- [Application API tutorial](docs/api_quickstart.md)
-- [Library extensions](docs/library_extensions.md)
-- [Release notes](docs/releases/)
-- [Contributing](CONTRIBUTING.md)
+| I want to… | Read |
+| --- | --- |
+| Get running | [quickstart.md](docs/quickstart.md), [installation.md](docs/installation.md), [windows_setup.md](docs/windows_setup.md), [desktop.md](docs/desktop.md), [command_line_installation.md](docs/command_line_installation.md) |
+| Author workflows | [workflow_yaml_v3.md](docs/workflow_yaml_v3.md), [workflow_parameters.md](docs/workflow_parameters.md), [data_formats.md](docs/data_formats.md), [readiness.md](docs/readiness.md) |
+| Control execution | [EXECUTION_ENVIRONMENTS.md](docs/EXECUTION_ENVIRONMENTS.md), [resource_runtime.md](docs/resource_runtime.md), [server_cli.md](docs/server_cli.md) |
+| Run remotely | [REMOTE_EXECUTION.md](docs/REMOTE_EXECUTION.md), [SERVER_HANDSHAKE.md](docs/SERVER_HANDSHAKE.md), [SERVER_INSTALL_REPAIR.md](docs/SERVER_INSTALL_REPAIR.md) |
+| Ship a result | [result_viewers.md](docs/result_viewers.md), [PUBLICATION_FIGURES.md](docs/PUBLICATION_FIGURES.md), [automatic_portable_export.md](docs/automatic_portable_export.md), [portable_packages_v3.md](docs/portable_packages_v3.md) |
+| Integrate or automate | [headless_api.md](docs/headless_api.md), [api_quickstart.md](docs/api_quickstart.md), [agent_operations.md](docs/agent_operations.md), [canvas_collaboration.md](docs/canvas_collaboration.md) |
+| Extend the library | [operator_protocol.md](docs/operator_protocol.md), [sdk_quickstart.md](docs/sdk_quickstart.md), [sdk_reference.md](docs/sdk_reference.md), [plugins.md](docs/plugins.md), [library_release_standard.md](docs/library_release_standard.md) |
+| Follow changes | [docs/releases/](docs/releases/), [updates-since-3.1.6.md](docs/updates-since-3.1.6.md) |
+| Understand the design | [docs/design/](docs/design/), [five-layer-test-standard.md](docs/verification/five-layer-test-standard.md) |
 
-## Verification and status
+Full index: [docs/README.md](docs/README.md).
 
-The 8.0.4 evidence is recorded in
-[the operator audit](docs/verification/operator-audit-8.0.4.md):
+## Development
 
-- L1 static contracts: **1,063 PASS, 0 FAIL, 0 SKIP**.
-- L2 unit/oracle evidence: **11 oracle, 8 smoke, 1,044 referenced unit tests;
-  0 SKIP**.
-- L3 execution/routing: **223 local executions, 47 server executions, 789
-  compiled routes; 4 documented SKIP**.
-- L4 memory/determinism: **37 measured, 1,026 resource estimates; 0 SKIP**.
-- Focused 8.0.4 regression: **37 passed, 0 failed** (composition matrix,
-  interface contracts, release, and route parameters); this metadata-and-test
-  patch did not rerun the full 3,722-test suite from 8.0.3.
-- The 1,063 operator and 108 Reader counts are the shipped library totals.
+```text
+python -m pip install -e '.[dev]'
+python -m pytest -q                          # full suite
+python -m pytest tests/test_contracts.py -q  # focused
+cd frontend && npm ci && npm run build       # canvas bundle
+python -m operon registry check              # library consistency
+```
 
-Historical release notes, validation reports and design records keep the versions
-they tested; they are not current installation instructions. Current schemas,
-source declarations and CLI help take precedence.
+Rebuild the static registry and operator documentation whenever authoring metadata
+changes ([registry_maintenance.md](docs/registry_maintenance.md)):
 
-## License
+```text
+python -m operon registry build
+python scripts/build_operator_docs.py
+```
 
-Copyright (c) 2026 Haojian Li and Operon contributors.
+Documentation-only changes must not change execution identity or force users to
+re-pin workflows. Keep product paths portable and technical documentation in English.
 
-Licensed under the [Apache License, Version 2.0](LICENSE). See [NOTICE](NOTICE)
-for attribution and [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES) for bundled
-third-party terms.
+## Release model
+
+`main` integrates the application and the bundled library. They release on separate
+semantic versions and tags:
+
+- application releases use `v<major>.<minor>.<patch>`;
+- library releases use `library-v<major>.<minor>.<patch>`.
+
+Each application release records the exact library sources it was built with, and each
+library declares the minimum application that can load it. Published tags and installers
+are immutable. Rebuilding the library is a deliberate, versioned operation — a
+documentation or packaging fix in the application does not silently rewrite the seed.
+
+## Status
+
+Operon releases with acceptance evidence rather than claims here. The evidence
+standards live in [five-layer-test-standard.md](docs/verification/five-layer-test-standard.md)
+and the per-release audit reports in [docs/verification/](docs/verification/). Counts,
+platform support and coverage vary by release and by the library you have installed;
+`operon registry check` and `operon capabilities` report the truth for your tree.
+
+## Open source
+
+Operon is released under the [Apache License 2.0](LICENSE), Copyright 2026 Haojian Li.
+Keep `LICENSE` and `NOTICE` with any distribution and review
+[THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES) for bundled components. Contributions are
+welcome; see [CONTRIBUTING.md](CONTRIBUTING.md).
