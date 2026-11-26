@@ -225,13 +225,78 @@ def test_bridge_omits_the_lock_when_the_caller_has_none(monkeypatch, tmp_path):
     assert seen['readers'] is False
 
 
+
+def test_run_step_hands_the_parent_output_root_and_exports_to_the_bridge(tmp_path, monkeypatch):
+    """A consuming step reads the producer report from the parent task output, not the bridge."""
+    captured = {}
+
+    def fake_execute(command, directory, python, paths, *, timeout, tools=None, cancel=None):
+        from types import SimpleNamespace
+        captured["request"] = json.loads((Path(directory) / "request.json").read_text(encoding="utf-8"))
+        (Path(directory) / "result.json").write_text(json.dumps({"kind": "none", "export": {}}), encoding="utf-8")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr(environments, "_execute", fake_execute)
+    parent = tmp_path / "task"
+    parent.mkdir()
+    exports = [{"index": 1, "name": "colabfold_predict", "params": {"output": "folded_1"},
+                "export_path": "runs/run-1/steps/01_colabfold_predict.json"}]
+    environments.run_step(_descriptor(), [], {"output": "structure"}, Path("/usr/bin/python3"),
+                          artifacts_root=tmp_path / "artifacts", out_dir=parent, exports=exports)
+    assert captured["request"]["out_dir"] == str(parent)
+    assert captured["request"]["exports"] == exports
+
+
+def test_bridge_context_restores_the_export_registry(tmp_path, monkeypatch):
+    """Inside the bridge, native_results resolves a producer report written by the parent."""
+    from operon.env_worker import Context
+
+    from src.task import step as step_module
+    from src.task.step.steps.export_results import native_results
+
+    class Producer:
+        name = "colabfold_predict"
+        outputs = []
+        output_parameter = "output"
+
+    monkeypatch.setitem(step_module.STEPS, "colabfold_predict", Producer)
+    parent = tmp_path / "task"
+    report = parent / "runs" / "run-1" / "steps" / "01_colabfold_predict.json"
+    report.parent.mkdir(parents=True)
+    native = parent / "artifacts" / "colabfold" / "abc" / "prediction.pdb"
+    native.parent.mkdir(parents=True)
+    native.write_text("ATOM      1  CA  ALA A   1       0.000   0.000   0.000\n", encoding="utf-8")
+    report.write_text(json.dumps({"result_files": [
+        {"id": "structure", "path": str(native), "filename": "prediction.pdb", "format": "pdb"}]}),
+        encoding="utf-8")
+    bridge = tmp_path / "bridge"
+    bridge.mkdir()
+    exports = [{"index": 1, "name": "colabfold_predict", "params": {"output": "folded_1"},
+                "export_path": "runs/run-1/steps/01_colabfold_predict.json"}]
+    ctx = Context({"output": "structure"}, str(bridge), str(tmp_path / "artifacts"),
+                  out_dir=str(parent), exports=exports)
+    files = native_results(ctx, "folded_1")
+    assert [item["path"] for item in files] == [str(native)]
+    assert ctx.artifact_path("exports/one.pdb").parent.is_dir()
+
+
+def test_bridge_context_without_parent_keeps_the_old_behaviour(tmp_path):
+    from operon.env_worker import Context
+
+    bridge = tmp_path / "bridge"
+    bridge.mkdir()
+    ctx = Context({}, str(bridge), None)
+    assert ctx.out_dir == bridge
+    assert ctx.artifacts == {"exports": []}
+
+
 def test_proxy_step_forwards_the_lock_to_run_step(monkeypatch):
     from operon import environments
 
     seen = {}
 
     def fake_run_step(descriptor, inputs, params, python, *, timeout, paths, outputs=None, lock=None,
-                      tools=None, cancel=None, artifacts_root=None):
+                      tools=None, cancel=None, artifacts_root=None, out_dir=None, exports=None):
         seen['lock'] = lock
         seen['paths'] = paths
         return None, {}, ''

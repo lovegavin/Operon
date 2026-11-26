@@ -384,12 +384,13 @@ def _relocate_export(export, directory, outputs=None, artifacts_root=None):
 
 
 def run_step(descriptor: dict, inputs, params: dict, python: Path, *, timeout: int = 3600, paths=(),
-             outputs=None, lock=None, tools=None, cancel=None, artifacts_root=None):
+             outputs=None, lock=None, tools=None, cancel=None, artifacts_root=None, out_dir=None,
+             exports=None):
     """Execute one step in ``python`` and return (form, export, console tail)."""
     with tempfile.TemporaryDirectory(prefix="envbridge-") as temporary:
         return _run_step(Path(temporary), descriptor, inputs, params, python, timeout=timeout, paths=paths,
                          outputs=outputs, lock=lock, tools=tools, cancel=cancel,
-                         artifacts_root=artifacts_root)
+                         artifacts_root=artifacts_root, out_dir=out_dir, exports=exports)
 
 
 def _execute(command, directory, python, paths, *, timeout, tools=None, cancel=None):
@@ -485,13 +486,22 @@ def worker_environment(python: Path, paths=(), tools=None) -> dict[str, str]:
     return env
 
 
-def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None, lock=None, tools=None, cancel=None, artifacts_root=None):
+def _run_step(directory, descriptor, inputs, params, python, *, timeout, paths=(), outputs=None, lock=None, tools=None, cancel=None, artifacts_root=None, out_dir=None, exports=None):
     from src.core.errors import StepError
     request = {"entry_point": descriptor["entry_point"], "params": params, "inputs": []}
     if artifacts_root:
         # Files the step publishes must outlive this temporary directory: the pipeline reads
         # them again (export_results copies them out) after the bridge has returned.
         request["artifacts_root"] = str(artifacts_root)
+    if out_dir is not None:
+        # A step such as export_results resolves the native files an earlier step published
+        # from reports under the task output root. The bridge directory is a temporary one,
+        # so hand the real root over instead of letting the child guess.
+        request["out_dir"] = str(out_dir)
+    if exports:
+        # The export registry is the parent runner's list; a consuming step has to see it or
+        # native_results always answers "no matching original file".
+        request["exports"] = exports
     for index, form in enumerate(inputs):
         request["inputs"].append(_write_form(directory, index, form))
     (directory / "request.json").write_text(json.dumps(request), encoding="utf-8")
@@ -586,7 +596,8 @@ def proxy_step(descriptor: dict, paths=(), lock=None):
             form, export, tail = run_step(descriptor, inputs, dict(ctx.step_params), python,
                                           timeout=int(ctx.step_params.get("timeout_seconds", 3600)) + 60,
                                           paths=_paths, lock=_lock, tools=_tools, cancel=cancel,
-                                          artifacts_root=artifacts_root)
+                                          artifacts_root=artifacts_root, out_dir=out_dir,
+                                          exports=getattr(ctx, "artifacts", {}).get("exports"))
             name = ctx.step_params.get("output")
             if name and form is not None:
                 ctx[name] = form

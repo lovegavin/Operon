@@ -18,17 +18,21 @@ class _Memory:
 
 
 class Context:
-    def __init__(self, params, directory=None, artifacts_root=None):
+    def __init__(self, params, directory=None, artifacts_root=None, out_dir=None, exports=None):
         self.step_params = params
         self.params = {}
         self.manifest = {}
         self.metadata = {}
-        self.artifacts = {}
-        self.out_dir = Path(directory) if directory else Path.cwd()
+        bridge_dir = Path(directory) if directory else None
+        # The export registry belongs to the parent runner. A consuming step (export_results,
+        # concat) resolves a producer's native files from its report under the task output
+        # root, so both travel with the request instead of being recreated empty here.
+        self.artifacts = {"exports": list(exports or [])}
+        self.out_dir = Path(out_dir).expanduser() if out_dir else (bridge_dir or Path.cwd())
         # Steps use ``ctx.task_dir`` to look for the cancellation marker, exactly as they do
         # under the in-process worker where the task directory is the job directory.  Inside
         # the bridge the only directory that exists for the step is its run directory.
-        self.task_dir = self.out_dir
+        self.task_dir = bridge_dir or self.out_dir
         self.memory = _Memory(self.out_dir)
         self.values = {}
         # The bridge directory disappears when the step returns, so files a step publishes for
@@ -165,7 +169,8 @@ def main():
             data = np.load(directory / f"input{index}.npy", allow_pickle=False, mmap_mode='c')
             inputs.append(Form(data=data, dims=meta["dims"], labels=meta["labels"],
                                info=_revive(meta.get("info", {})), axis_info=meta.get("axis_info", {})))
-        ctx = Context(request["params"], directory, request.get("artifacts_root"))
+        ctx = Context(request["params"], directory, request.get("artifacts_root"),
+                     out_dir=request.get("out_dir"), exports=request.get("exports"))
         step = cls()
         step.run(ctx, inputs)
         export = step.export(ctx) or {}
