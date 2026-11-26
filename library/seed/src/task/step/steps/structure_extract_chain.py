@@ -15,6 +15,7 @@ from src.task.step.steps._native_results import output_directory, remember_nativ
 from src.task.step.steps._protein_common import column_index
 from src.task.step.steps.structure_convert_format import (
     _ALIASES,
+    hetero_rows,
     _column,
     _element,
     _fmt_atom,
@@ -122,6 +123,11 @@ class StructureExtractChainStep(Step):
         altlocs = column('altloc', [''] * len(chains))
         codes = column('insertion_code', [''] * len(chains))
         include_hetatm = bool(params.get('include_hetatm', False))
+        hetero = hetero_rows(form, field_dim, labels, len(chains))
+        if not include_hetatm:
+            selected = [index for index in selected if not bool(hetero[index])]
+        if not selected:
+            raise StepError('structure_extract_chain: the selected chains contain no polymer atoms')
         lines = []
         previous = None
         serial = 0
@@ -131,7 +137,7 @@ class StructureExtractChainStep(Step):
                 lines.append('TER\n')
             previous = chain
             resname = _text(resnames[index]) or 'UNK'
-            hetatm = include_hetatm and resname.upper() in ('HOH', 'WAT', 'SO4', 'GOL', 'EDO', 'LIG')
+            hetatm = include_hetatm and (bool(hetero[index]) or resname.upper() in ('HOH', 'WAT', 'DOD', 'SO4', 'GOL', 'EDO', 'LIG', 'ACT', 'MSE'))
             serial += 1
             lines.append(_fmt_atom(names[index], resname, chain, numbers[index], *coords[index], 1.0, 0.0,
                                    _element(names[index], elements[index]), altlocs[index], codes[index], serial, hetatm))

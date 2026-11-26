@@ -15,6 +15,7 @@ from src.task.step.steps._native_results import output_directory, remember_nativ
 from operon.bytecode import io_path
 
 _COORDINATES = ('x', 'y', 'z')
+_SOLVENT = frozenset({'HOH', 'WAT', 'DOD', 'SO4', 'GOL', 'EDO', 'LIG', 'ACT', 'MSE'})
 _ALIASES = {
     'x': ('x', 'cartn_x'),
     'y': ('y', 'cartn_y'),
@@ -55,6 +56,19 @@ def residue_numbers(values, start=1):
         except (TypeError, ValueError):
             numbers.append(start + index)
     return np.asarray(numbers, dtype=np.int64)
+
+
+def hetero_rows(form, field_dim, labels, count):
+    """Boolean mask marking HETATM rows (waters, ligands, ions, sugars)."""
+    values, name = _column_named(form, field_dim, labels, ('group_pdb', 'record'))
+    if values is not None:
+        text = _decode(values, _encoders(form, field_dim).get(name))
+        return np.asarray([_text(value).upper().startswith('HET') for value in text], dtype=bool)
+    values, name = _column_named(form, field_dim, labels, _ALIASES['resname'])
+    if values is not None:
+        text = _decode(values, _encoders(form, field_dim).get(name))
+        return np.asarray([_text(value).upper() in _SOLVENT for value in text], dtype=bool)
+    return np.zeros(count, dtype=bool)
 
 
 def _labels(form, field_dim):
@@ -196,6 +210,20 @@ class StructureConvertFormatStep(Step):
         altlocs = decoded['altloc'] if arrays['altloc'] is not None else [''] * len(coords)
         codes = decoded['insertion_code'] if arrays['insertion_code'] is not None else [''] * len(coords)
         include_hetatm = bool(params.get('include_hetatm', False))
+        hetero = hetero_rows(form, field_dim, labels, len(coords))
+        keep = np.arange(len(coords)) if include_hetatm else np.flatnonzero(~hetero)
+        if keep.size == 0:
+            raise StepError('structure_convert_format: the input contains no polymer atoms')
+        if keep.size != len(coords):
+            coords = coords[keep]
+            resnames = [resnames[index] for index in keep]
+            chains = [chains[index] for index in keep]
+            numbers = np.asarray(numbers)[keep]
+            names = [names[index] for index in keep]
+            elements = [elements[index] for index in keep]
+            altlocs = [altlocs[index] for index in keep]
+            codes = [codes[index] for index in keep]
+            hetero = hetero[keep]
         lines = []
         previous_chain = None
         for index in range(len(coords)):
@@ -204,7 +232,7 @@ class StructureConvertFormatStep(Step):
                 lines.append('TER\n')
             previous_chain = chain
             resname = _text(resnames[index]) or 'UNK'
-            hetatm = include_hetatm and resname.upper() in ('HOH', 'WAT', 'SO4', 'GOL', 'EDO', 'LIG')
+            hetatm = include_hetatm and (bool(hetero[index]) or resname.upper() in _SOLVENT)
             lines.append(_fmt_atom(names[index], resname, chain, numbers[index], *coords[index], 1.0, 0.0,
                                    _element(names[index], elements[index]), altlocs[index], codes[index], index + 1, hetatm))
         lines.append('END\n')

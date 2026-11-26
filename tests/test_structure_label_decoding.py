@@ -165,3 +165,45 @@ def test_extract_tolerates_null_residue_numbers(tmp_path, monkeypatch):
     lines = [line for line in path.read_text(encoding="ascii").splitlines() if line.startswith("ATOM")]
     assert len(lines) == 1
     assert lines[0][21] == "B"
+
+
+def _form_with_hetero_rows():
+    form = structure_form()
+    encoder = LabelEncoder()
+    codes = encoder.fit_transform(["ATOM", "HETATM", "ATOM"])
+    form.data = np.column_stack([form.data, np.asarray(codes, dtype=np.float32)])
+    form.labels["field"]["group_pdb"] = form.data.shape[1] - 1
+    form.info["encoders"]["field"]["group_pdb"] = encoder
+    return form
+
+
+def test_convert_skips_hetero_rows_by_default(tmp_path):
+    form = _form_with_hetero_rows()
+    ctx = Ctx({"output": "out"}, tmp_path)
+    converter.StructureConvertFormatStep().run(ctx, [form])
+    written = next((tmp_path / "artifacts").rglob("*.pdb")).read_text(encoding="ascii")
+    lines = [line for line in written.splitlines() if line.startswith(("ATOM", "HETATM"))]
+    assert len(lines) == 2
+    assert [line[21] for line in lines] == ["A", "B"]
+    assert "HETATM" not in written
+
+
+def test_convert_keeps_hetero_rows_when_asked(tmp_path, monkeypatch):
+    monkeypatch.setattr(converter, "read_source", _identity_reader)
+    form = _form_with_hetero_rows()
+    ctx = Ctx({"output": "out", "include_hetatm": True}, tmp_path)
+    converter.StructureConvertFormatStep().run(ctx, [form])
+    written = next((tmp_path / "artifacts").rglob("*.pdb")).read_text(encoding="ascii")
+    assert written.count("HETATM") == 1
+    assert written.count("ATOM  ") == 2
+
+
+def test_extract_skips_hetero_rows_by_default(tmp_path, monkeypatch):
+    monkeypatch.setattr(extractor, "read_source", _identity_reader)
+    form = _form_with_hetero_rows()
+    ctx = Ctx({"output": "out", "chains": "A"}, tmp_path)
+    extractor.StructureExtractChainStep().run(ctx, [form])
+    lines = [line for line in next((tmp_path / "artifacts").rglob("*.pdb")).read_text(encoding="ascii").splitlines()
+             if line.startswith(("ATOM", "HETATM"))]
+    assert len(lines) == 1
+    assert lines[0].startswith("ATOM")
