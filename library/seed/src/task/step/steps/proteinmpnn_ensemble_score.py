@@ -19,7 +19,7 @@ from src.task.context.base import Context
 from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
-from src.task.step.steps._protein_common import proteinmpnn_layout
+from src.task.step.steps._protein_common import proteinmpnn_layout, resolve_proteinmpnn_path
 from src.task.step.steps.proteinmpnn_score import (
     MODELS,
     parse_fasta,
@@ -115,10 +115,7 @@ class ProteinmpnnEnsembleScoreStep(Step):
         fasta_path = Path(
             str(params.get("fasta_path", "") or "").strip()
         ).expanduser()
-        proteinmpnn_path = Path(
-            str(params.get("proteinmpnn_path", "") or "").strip()
-            or os.environ.get("OPERON_PROTEINMPNN_PATH", "")
-        ).expanduser()
+        proteinmpnn_path = resolve_proteinmpnn_path(params.get("proteinmpnn_path", ""))
         weights_text = str(params.get("weights_path", "") or "").strip()
         python_executable = str(params.get("python_executable", "") or "").strip()
         chains = str(params.get("chains", "") or "").strip()

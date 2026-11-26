@@ -19,7 +19,7 @@ from src.task.context import Context
 from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
-from src.task.step.steps._protein_common import proteinmpnn_layout
+from src.task.step.steps._protein_common import proteinmpnn_layout, resolve_proteinmpnn_path
 
 from .proteinmpnn_design import (
     MODELS,
@@ -158,10 +158,7 @@ class ProteinmpnnInterfaceDesignStep(Step):
         if inputs:
             params['structure_path'] = _port_inputs.structure(inputs[0], params.get('structure_path'), self.name)
         structure_path = Path(str(params.get("structure_path", "") or "").strip()).expanduser()
-        proteinmpnn_path = Path(
-            str(params.get("proteinmpnn_path", "") or "").strip()
-            or os.environ.get("OPERON_PROTEINMPNN_PATH", "")
-        ).expanduser()
+        proteinmpnn_path = resolve_proteinmpnn_path(params.get("proteinmpnn_path", ""))
         weights_text = str(params.get("weights_path", "") or "").strip()
         python_executable = str(params.get("python_executable", "") or "").strip()
         model_name = str(params.get("model_name", "v_48_020") or "v_48_020").strip()

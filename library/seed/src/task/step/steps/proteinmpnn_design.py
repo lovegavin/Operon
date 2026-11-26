@@ -197,10 +197,7 @@ class ProteinMpnnDesignStep(Step):
                 design_index=int(params.get('design_index') or 0),
             )
         structure_path = Path(str(params.get("structure_path", "")).strip()).expanduser()
-        proteinmpnn_path = Path(
-            str(params.get("proteinmpnn_path", "")).strip()
-            or os.environ.get("OPERON_PROTEINMPNN_PATH", "")
-        ).expanduser()
+        proteinmpnn_path = resolve_proteinmpnn_path(params.get("proteinmpnn_path", ""))
         weights_path_text = str(params.get("weights_path", "")).strip()
         python_executable = str(params.get("python_executable", "")).strip()
         model_name = str(params.get("model_name", "v_48_020")).strip()

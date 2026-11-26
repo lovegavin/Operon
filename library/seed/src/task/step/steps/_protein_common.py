@@ -320,3 +320,38 @@ def proteinmpnn_layout(root: "Path | str") -> "tuple[Path, Path]":
         if (candidate / "protein_mpnn_run.py").is_file():
             return candidate, candidate / "vanilla_model_weights"
     return base, base / "vanilla_model_weights"
+
+
+def resolve_proteinmpnn_path(value: str, operator: str = "proteinmpnn") -> "Path":
+    """Resolve ProteinMPNN from the parameter, the environment, or the resource.
+
+    Operators used to require ``proteinmpnn_path`` (or ``OPERON_PROTEINMPNN_PATH``);
+    an install that downloaded the ``proteinmpnn`` resource already has the
+    checkout, so fall back to it instead of asking the user to repeat a path the
+    installer recorded.
+    """
+
+    text = str(value or "").strip() or os.environ.get("OPERON_PROTEINMPNN_PATH", "").strip()
+    if text:
+        return Path(text).expanduser()
+    from src.task.step.steps import _resources_common
+
+    try:
+        _, root = _resources_common.require(operator, "proteinmpnn")
+    except StepError:
+        return Path("")
+    return root
+
+
+def resolve_ligandmpnn_path(value: str, operator: str = "ligandmpnn") -> "Path":
+    """Resolve LigandMPNN from the parameter, the environment, or the resource."""
+
+    text = str(value or "").strip() or os.environ.get("OPERON_LIGANDMPNN_PATH", "").strip()
+    if text:
+        return Path(text).expanduser()
+    from src.task.step.steps import _resources_common
+
+    try:
+        _, root = _resources_common.require(operator, "ligandmpnn")
+    except StepError:
+        return Path("")
