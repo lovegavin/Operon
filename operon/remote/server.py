@@ -739,7 +739,14 @@ class RemoteService:
                     'build_id': self.handshake.build.get('build_id', '')}
         if method == 'host_capacity':
             from operon import nodes
-            return nodes.snapshot(self.workspace)
+            marker = None
+            try:
+                from operon import environment_install
+                candidate = Path(environment_install.root()) / 'core' / 'bin' / 'python'
+                marker = str(candidate) if candidate.is_file() else None
+            except Exception:  # noqa: BLE001 - capacity still answers without a marker
+                marker = None
+            return nodes.snapshot(self.workspace, ready_marker=marker)
         if method == 'build_info':
             from copy import deepcopy
             return {'build': deepcopy(self.handshake.build),

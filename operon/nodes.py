@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import os
 import platform
+import re
+import shlex
 import shutil
 import subprocess
 import threading
@@ -23,19 +25,115 @@ WEIGHT_CPU = 0.3
 WEIGHT_DISK = 0.2
 GPU_BONUS = 0.15
 SLURM_NODE_LIMIT = 256
+NODE_CAPACITY = WEIGHT_MEMORY + WEIGHT_CPU + GPU_BONUS
+READY_HALF = 0.5
+IDLE_FACTOR = 1.0
+MIXED_FACTOR = 0.8
 
 _CACHE: dict[int, tuple[float, list]] = {}
+_READY_CACHE: dict[tuple[str, str], tuple[float, bool]] = {}
 _LOCK = threading.Lock()
 
 
-def _slurm_nodes() -> dict:
+def _as_int(text) -> int:
+    text = str(text).strip()
+    return int(text) if text.isdigit() else 0
+
+
+def _cpu_counts(text) -> tuple[int, int, int, int]:
+    parts = [part.strip() for part in str(text).split('/')]
+    if len(parts) != 4 or not all(part.isdigit() for part in parts):
+        return (0, 0, 0, 0)
+    return tuple(int(part) for part in parts)
+
+
+def _node_gpus(gres) -> int:
+    text = str(gres or '')
+    if 'gpu' not in text.lower():
+        return 0
+    counts = [int(value) for value in re.findall(r'\d+', text)]
+    return max(counts) if counts else 1
+
+
+def _state_factor(state) -> float:
+    text = str(state or '').strip().lower()
+    if text.startswith('idle'):
+        return IDLE_FACTOR
+    if text.startswith('mix'):
+        return MIXED_FACTOR
+    if text.startswith(('alloc', 'drain', 'down', 'fail', 'maint', 'power')):
+        return 0.0
+    return MIXED_FACTOR
+
+
+def capacity(node: dict) -> float:
+    """Raw capacity of one batch node from its own idle CPU and free memory."""
+    total_memory = int(node.get('memory_mb') or 0)
+    free_memory = int(node.get('memory_free_mb') or 0)
+    memory_ratio = (free_memory / total_memory) if total_memory else 0.0
+    total_cpu = int(node.get('cpus') or 0)
+    idle_cpu = int(node.get('cpus_idle') or 0)
+    cpu_ratio = (idle_cpu / total_cpu) if total_cpu else 0.0
+    total = (WEIGHT_MEMORY * memory_ratio + WEIGHT_CPU * cpu_ratio) * _state_factor(node.get('state'))
+    if int(node.get('gpus') or 0) > 0:
+        total += GPU_BONUS
+    return round(min(total, NODE_CAPACITY), 4)
+
+
+def readiness_score(node: dict) -> float:
+    """Capacity folded into the readiness bands: unready nodes stay below 0.5."""
+    base = capacity(node) / NODE_CAPACITY if NODE_CAPACITY else 0.0
+    base = max(0.0, min(base, 1.0))
+    if node.get('env_ready') is False:
+        return round(READY_HALF * base, 4)
+    return round(READY_HALF + READY_HALF * base, 4)
+
+
+def _node_ready(name: str, marker: str) -> bool:
+    key = (str(name), str(marker))
+    now = time.monotonic()
+    cached = _READY_CACHE.get(key)
+    if cached and cached[0] > now:
+        return cached[1]
+    binary = shutil.which('srun')
+    ready = False
+    if binary:
+        try:
+            done = subprocess.run(
+                [binary, '-w', str(name), '-N1', '-n1', '-t', '15', 'bash', '-lc',
+                 f'test -x {shlex.quote(str(marker))}'],
+                check=False, capture_output=True, text=True, timeout=PROBE_TIMEOUT * 3)
+            ready = done.returncode == 0
+        except (OSError, subprocess.TimeoutExpired):
+            ready = False
+    _READY_CACHE[key] = (now + CACHE_SECONDS, ready)
+    return ready
+
+
+def rank_compute(items) -> list:
+    """Score batch nodes and return them best first; readiness lives in the score."""
+    ranked = []
+    for node in items:
+        item = dict(node)
+        item['capacity'] = capacity(item)
+        item['score'] = readiness_score(item)
+        item['selectable'] = True
+        item['reason'] = '' if item.get('env_ready') is not False else '环境未就绪'
+        ranked.append(item)
+    ranked.sort(key=lambda item: (-float(item['score']), str(item.get('name') or '')))
+    for index, item in enumerate(ranked, 1):
+        item['rank'] = index
+    return ranked
+
+
+def _slurm_nodes(ready_marker: str | None = None) -> dict:
     """Read the batch inventory when this host runs Slurm; empty otherwise."""
     binary = shutil.which('sinfo')
     if not binary:
         return {'available': False, 'nodes': [], 'idle': 0}
     try:
         output = subprocess.run(
-            [binary, '-h', '-N', '-o', '%N|%P|%a|%t|%c|%m|%G'],
+            [binary, '-h', '-N', '-o', '%N|%P|%a|%t|%C|%m|%e|%G'],
             check=False, capture_output=True, text=True,
             timeout=PROBE_TIMEOUT).stdout
     except (OSError, subprocess.TimeoutExpired):
@@ -43,17 +141,19 @@ def _slurm_nodes() -> dict:
     nodes = []
     for line in output.splitlines():
         parts = line.strip().split('|')
-        if len(parts) < 7:
+        if len(parts) < 8:
             continue
-        name, partition, availability, state, cpus, memory, gres = parts[:7]
+        name, partition, availability, state, cpu_states, memory, memory_free, gres = parts[:8]
+        _allocated, idle, _other, total = _cpu_counts(cpu_states)
         nodes.append({'name': name, 'partition': partition,
                       'available': availability.lower().startswith('up'),
-                      'state': state,
-                      'cpus': int(cpus) if cpus.strip().isdigit() else 0,
-                      'memory_mb': int(memory) if memory.strip().isdigit() else 0,
-                      'gres': gres})
+                      'state': state.split('+')[0].strip().lower(),
+                      'cpus': total, 'cpus_idle': idle,
+                      'memory_mb': _as_int(memory), 'memory_free_mb': _as_int(memory_free),
+                      'gpus': _node_gpus(gres),
+                      'env_ready': _node_ready(name, ready_marker) if ready_marker else None})
     idle = sum(1 for node in nodes if node['state'].startswith('idle'))
-    return {'available': True, 'nodes': nodes[:SLURM_NODE_LIMIT], 'idle': idle}
+    return {'available': True, 'nodes': rank_compute(nodes)[:SLURM_NODE_LIMIT], 'idle': idle}
 
 
 def _gpu_count() -> int:
@@ -63,7 +163,7 @@ def _gpu_count() -> int:
         return 0
 
 
-def snapshot(root='.') -> dict:
+def snapshot(root='.', ready_marker: str | None = None) -> dict:
     """Measure one host: CPU, load, memory, disk, GPUs and batch inventory."""
     cpu = os.cpu_count() or 1
     try:
@@ -85,7 +185,7 @@ def snapshot(root='.') -> dict:
         pass
     return {'host': platform.node(), 'platform': f'{platform.system().lower()}-{platform.machine()}',
             'cpu_count': cpu, 'load': load, 'memory': memory, 'disk': disk,
-            'gpus': _gpu_count(), 'slurm': _slurm_nodes()}
+            'gpus': _gpu_count(), 'slurm': _slurm_nodes(ready_marker)}
 
 
 def score(value: dict) -> float:
@@ -116,7 +216,8 @@ def _local(service) -> dict:
     node = {'target': 'local', 'kind': 'local', 'name': '本机', 'connected': True,
             'available': True, 'error': ''}
     try:
-        node.update(snapshot(root))
+        marker = Path(root).expanduser().parent / 'environments' / 'core' / 'bin' / 'python'
+        node.update(snapshot(root, ready_marker=str(marker) if marker.is_file() else None))
     except Exception as exc:  # noqa: BLE001 - keep the node visible when a probe fails
         node.update({'host': platform.node(), 'platform': platform.system().lower(),
                      'cpu_count': os.cpu_count() or 1, 'load': None,

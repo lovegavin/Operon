@@ -69,3 +69,56 @@ def test_disconnected_remote_stays_listed(tmp_path):
     assert items[1]['error'] == '服务器未连接'
     assert items[1]['score'] == 0.0
     assert remotes.calls == 0
+
+
+def _batch(name, state='idle', cpus=8, idle=8, memory=1000, free=800, gpus=0, ready=True):
+    return {'name': name, 'state': state, 'cpus': cpus, 'cpus_idle': idle,
+            'memory_mb': memory, 'memory_free_mb': free, 'gpus': gpus, 'env_ready': ready}
+
+
+def test_capacity_counts_idle_cpu_and_free_memory():
+    roomy = _batch('roomy', cpus=64, idle=64, memory=1000, free=1000)
+    busy = _batch('busy', state='mix', cpus=64, idle=4, memory=1000, free=100)
+    assert nodes.capacity(roomy) > nodes.capacity(busy)
+    assert nodes.capacity(busy) >= 0.0
+
+
+def test_readiness_lives_in_the_score():
+    ready = nodes.readiness_score(_batch('ready', ready=True))
+    waiting = nodes.readiness_score(_batch('waiting', ready=False))
+    assert 0.5 <= ready <= 1.0
+    assert 0.0 <= waiting < 0.5
+    assert waiting < ready
+
+
+def test_ready_small_node_ranks_above_unready_big_node():
+    ranked = nodes.rank_compute([
+        _batch('big', cpus=96, idle=96, memory=510000, free=500000, gpus=1, ready=False),
+        _batch('small', cpus=8, idle=8, memory=8000, free=4000, ready=True)])
+    assert [item['name'] for item in ranked] == ['small', 'big']
+    assert ranked[0]['rank'] == 1 and ranked[1]['rank'] == 2
+    assert ranked[1]['reason'] == '环境未就绪'
+
+
+def test_all_unready_nodes_keep_relative_capacity_order():
+    ranked = nodes.rank_compute([
+        _batch('busy', state='mix', cpus=64, idle=8, memory=1000, free=200, ready=False),
+        _batch('idle', cpus=64, idle=64, memory=1000, free=900, ready=False)])
+    assert [item['name'] for item in ranked] == ['idle', 'busy']
+    assert ranked[0]['score'] > ranked[1]['score']
+
+
+def test_slurm_parser_uses_cpu_states_and_free_memory(monkeypatch):
+    class _Done:
+        stdout = 'node80|all*|up|mix|16/80/0/96|510000|410000|gpu:1\n'
+
+    monkeypatch.setattr(nodes.shutil, 'which', lambda name: '/usr/bin/' + name)
+    monkeypatch.setattr(nodes.subprocess, 'run', lambda *args, **kwargs: _Done())
+    monkeypatch.setattr(nodes, '_node_ready', lambda name, marker: name != 'node80')
+    value = nodes._slurm_nodes(ready_marker='/tmp/python')
+    node = value['nodes'][0]
+    assert node['cpus'] == 96 and node['cpus_idle'] == 80
+    assert node['memory_mb'] == 510000 and node['memory_free_mb'] == 410000
+    assert node['gpus'] == 1 and node['env_ready'] is False
+    assert node['score'] < 0.5
+
