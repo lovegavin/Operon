@@ -279,6 +279,7 @@ class ColabfoldPredictStep(Step):
         sequence_dim = str(params.get("sequence_dim") or "sequence")
         position_dim = str(params.get("position_dim") or "position")
         out_name = str(params.get("output") or "structure")
+        sequence_index = int(params.get("sequence_index") if params.get("sequence_index") is not None else 0)
 
         sequence = sequence_for_colabfold(sequences, sequence_dim, position_dim, sequence_index)
         if not sequence:
@@ -295,7 +296,6 @@ class ColabfoldPredictStep(Step):
         num_models = int(params.get("num_models") if params.get("num_models") is not None else 1)
         num_recycles = int(params.get("num_recycles") if params.get("num_recycles") is not None else 3)
         msa_mode = str(params.get("msa_mode") or "mmseqs2_uniref_env")
-        sequence_index = int(params.get("sequence_index") if params.get("sequence_index") is not None else 0)
         msa_host = msa_host_url(params.get("msa_host"))
         db1, db2 = msa_databases(
             params.get("msa_databases"),

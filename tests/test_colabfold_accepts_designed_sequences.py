@@ -47,3 +47,15 @@ def test_sequence_index_picks_one_of_several_designs():
     assert sequence_for_colabfold(form, index=1) == "MSKGEELFA"
     with pytest.raises(StepError, match="outside the 2 sequences"):
         sequence_for_colabfold(form, index=2)
+
+class _Ctx:
+    def __init__(self, params):
+        self.step_params = params
+
+
+def test_run_reads_the_default_sequence_index(monkeypatch):
+    """run() must read sequence_index before it calls the resolver."""
+
+    monkeypatch.setattr("shutil.which", lambda name: None)
+    with pytest.raises(StepError, match="was not found on PATH"):
+        ColabfoldPredictStep().run(_Ctx({"output": "x"}), (designed_form(["MSKGEELFT", "MSKGEELFA"]),))
