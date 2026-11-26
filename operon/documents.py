@@ -218,13 +218,21 @@ class DocumentHub:
                             "edges": [e for e in analysis["edges"] if e["source"] in included and e["target"] in included]}
             except ValueError as error:
                 analysis = {"error": str(error)}
+            documents = [{"id": document["id"], "name": document["graph"].get("name"),
+                          "active": document["id"] == active}
+                         for document in state["workspace"]["documents"]]
+            document_count = len(documents)
+            if document_count > 20:
+                # Keep the payload bounded: the active document, then the first 19 others.
+                documents = ([document for document in documents if document["active"]][:1] +
+                             [document for document in documents if not document["active"]][:19])
             return {"protocol_version": 1, "session_id": session, "document_id": active,
                     "revision": state["revision"], "ui_revision": state["ui_revision"], "updated_at": state["updated_at"],
                     # `name` is the document title; the canvas window has its own name.
                     # Agents edit with `revision`; `ui_revision` only moves for selection.
-                    "session_name": state["name"], "document_name": graph["name"], "name": graph["name"], "scope": scope,
-                    "documents": [{"id": document["id"], "name": document["graph"].get("name"), "active": document["id"] == active}
-                                  for document in state["workspace"]["documents"]],
+                    "session_name": state.get("name"), "document_name": graph["name"], "name": graph["name"],
+                    "scope": scope, "document_count": document_count, "documents_truncated": document_count > 20,
+                    "documents": documents,
                     "nodes": [deepcopy(n) for n in graph["nodes"] if n["id"] in included],
                     "edges": [deepcopy(e) for e in graph["edges"] if e["source"] in included and e["target"] in included],
                     "memory": graph["memory"], "params": graph.get("params", {}),

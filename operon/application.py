@@ -3,6 +3,7 @@
 The scientific worker, host admission ledger, streaming store and SSH execution
 coordinator remain the single execution implementation. No canvas is required.
 """
+from copy import deepcopy
 from datetime import datetime, timezone
 import base64
 import hashlib
@@ -306,17 +307,19 @@ def brief_workflow(item):
     the saved-route payload. An agent choosing a route needs the labels, then
     asks for the picked one.
     """
-    interface = item.get('interface') or {}
+    value = deepcopy(item)
+    interface = value.get('interface') or {}
 
     def labels(section):
         return [entry.get('label') or entry.get('node_id')
                 for entry in interface.get(section) or [] if isinstance(entry, dict)]
 
-    return {'id': item.get('id'), 'version': item.get('version'), 'name': item.get('name'),
-            'nodes': item.get('nodes'), 'updated_at': item.get('updated_at'),
-            'registered_version': item.get('registered_version'),
-            'inputs': labels('inputs'), 'outputs': labels('outputs')}
-
+    nodes = value.pop('nodes', 0)
+    value['node_count'] = len(nodes) if isinstance(nodes, list) else nodes
+    value.pop('interface', None)
+    value['inputs'] = labels('inputs')
+    value['outputs'] = labels('outputs')
+    return value
 
 
 class WorkflowService:

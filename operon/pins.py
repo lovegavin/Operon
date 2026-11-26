@@ -256,6 +256,6 @@ def resolve(graph, candidates, bundled):
             return value
         missing = missing or unresolved(candidate, required)
     if conflict is not None:
-        raise ValueError(f'{conflict}{missing}') from conflict
+        raise type(conflict)(f'{conflict}{missing}') from conflict
     raise ValueError('Required plugin versions are unavailable; install the original packages. '
                      'Unknown or wheel pins are not automatically replaced.' + missing)

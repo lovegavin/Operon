@@ -105,11 +105,11 @@ def parameter_markdown(descriptor):
     return '\n'.join(lines)
 
 
-def _search_guidance(index, query=None, limit=8):
-    """Compact orientation for a search that would otherwise return nothing."""
+def _search_guidance(selected, query=None, limit=8):
+    """Compact orientation for a filtered search that would otherwise return nothing."""
     kinds = {}
     categories = {}
-    for item in index:
+    for item in selected:
         kinds[item['kind']] = kinds.get(item['kind'], 0) + 1
         name = item.get('category') or 'Uncategorised'
         categories[name] = categories.get(name, 0) + 1
@@ -119,11 +119,13 @@ def _search_guidance(index, query=None, limit=8):
                if query is None else
                f'No operator or Reader matched {query!r}. Try a shorter name, another spelling, '
                'or one of the categories below.')
+    examples = ['query="pca"', 'kind="reader"']
+    if top:
+        examples.append('category="' + top[0][0] + '"')
     return {'message': message,
             'counts': kinds,
             'categories': [{'name': name, 'count': count} for name, count in top],
-            'examples': ['query="pca"', 'kind="reader"',
-                         'category="' + (top[0][0] if top else 'Statistics') + '"']}
+            'examples': examples}
 
 
 class OperatorDocs:
@@ -202,11 +204,12 @@ class OperatorDocs:
 
         selected = [item for item in index
                     if (not kind or item['kind'] == kind) and (not category or item['category'] == category)]
-        if not terms and not kind and not category and offset == 0:
+        if not terms and not kind and not category:
             # An unfiltered empty query would return an arbitrary page of the whole
-            # catalog. Answer with the three bounded ways to narrow it instead.
+            # catalog. Answer with the three bounded ways to narrow it instead,
+            # whatever offset was requested.
             return {'items': [], 'total': 0, 'offset': 0, 'limit': limit, 'next_offset': None,
-                    'generation': state['generation'], 'guidance': _search_guidance(index)}
+                    'generation': state['generation'], 'guidance': _search_guidance(selected)}
         if not terms:
             # A kind or category alone browses that slice in a stable order.
             matches = sorted(selected, key=lambda item: item['id'])
@@ -226,7 +229,7 @@ class OperatorDocs:
             matches = [item for _, _, _, item in sorted(loose, key=lambda row: (-row[0], -row[1], row[2]))]
         if not matches:
             return {'items': [], 'total': 0, 'offset': offset, 'limit': limit, 'next_offset': None,
-                    'generation': state['generation'], 'guidance': _search_guidance(index, query)}
+                    'generation': state['generation'], 'guidance': _search_guidance(selected, query)}
         items = deepcopy(matches[offset:offset+limit])
         if view == 'brief':
             items = [{**{key: item[key] for key in ('id', 'kind', 'title', 'category', 'documentation_status')},

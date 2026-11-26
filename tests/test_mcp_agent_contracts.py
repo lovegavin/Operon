@@ -65,21 +65,44 @@ def test_workflows_default_to_labels_and_keep_the_full_view_reachable():
     asyncio.run(server.call_tool('operon_workflows', {'view': 'full'}))
     assert calls[-1] == (('/v1/workflows?view=full',), {})
 
+    before = len(calls)
+    with pytest.raises(Exception) as error:
+        asyncio.run(server.call_tool('operon_workflows', {'view': 'nonsense'}))
+    assert 'invalid_view' in str(error.value)
+    assert len(calls) == before
+
     asyncio.run(server.call_tool('operon_workflows', {'workflow_id': 'w 1'}))
     assert calls[-1] == (('/v1/workflows/w%201',), {})
 
 
 def test_brief_workflow_projection_drops_stored_contracts():
-    from operon.application import brief_workflow
-    interface = {'version': 1,
-                 'inputs': [{'node_id': 'csv', 'label': 'matrix.csv', 'contract': {'ndim': 2}}],
-                 'outputs': [{'node_id': 'pca', 'label': 'pcs', 'contract': {'ndim': 2}}]}
-    item = {'id': 'pca-demo', 'version': 3, 'name': 'PCA demo', 'nodes': 2,
-            'updated_at': '2026-11-26T00:00:00Z', 'interface': interface}
+    from operon.application import WorkflowService, brief_workflow
+    inputs = [{'node_id': f'in{i}', 'label': f'input-{i}.csv',
+               'contract': {'ndim': 2, 'columns': [f'c{j}' for j in range(20)]}}
+              for i in range(20)]
+    outputs = [{'node_id': 'pca', 'label': 'pcs', 'contract': {'ndim': 2}}]
+    item = {'id': 'pca-demo', 'version': 3, 'name': 'PCA demo', 'nodes': 21,
+            'updated_at': '2026-11-26T00:00:00Z',
+            'interface': {'version': 1, 'inputs': inputs, 'outputs': outputs}}
     brief = brief_workflow(item)
-    assert brief['inputs'] == ['matrix.csv'] and brief['outputs'] == ['pcs']
-    assert 'interface' not in brief and json.dumps(brief).find('ndim') == -1
-    assert brief['nodes'] == 2 and brief['version'] == 3
+    assert brief['inputs'][0] == 'input-0.csv' and len(brief['inputs']) == 20
+    assert brief['outputs'] == ['pcs']
+    assert brief['node_count'] == 21 and brief['version'] == 3
+    assert 'nodes' not in brief and 'interface' not in brief
+    assert json.dumps(brief).find('ndim') == -1
+    assert len(json.dumps(brief)) < len(json.dumps(item)) // 2
+
+    # The saved-route projection stores a count already; both shapes must work.
+    counted = brief_workflow({**item, 'nodes': [{'id': 'a'}, {'id': 'b'}]})
+    assert counted['node_count'] == 2
+
+    application = SimpleNamespace(service=SimpleNamespace(
+        routes=SimpleNamespace(list_saved=lambda: [item])))
+    rows = WorkflowService(application).list('brief')
+    assert rows[0]['node_count'] == 21 and 'interface' not in rows[0]
+    with pytest.raises(Exception) as error:
+        WorkflowService(application).list('nonsense')
+    assert getattr(error.value, 'code', None) == 'invalid_view'
 
 
 def test_empty_operator_search_explains_how_to_narrow(tmp_path, monkeypatch):
@@ -96,6 +119,26 @@ def test_empty_operator_search_explains_how_to_narrow(tmp_path, monkeypatch):
     assert 'returns nothing on purpose' in guidance['message']
 
 
+def test_empty_operator_search_guides_at_any_offset(tmp_path, monkeypatch):
+    docs = docs_with(tmp_path, monkeypatch,
+                     [descriptor('pca'), descriptor('FASTA', kind='reader', category='Data')])
+    first = docs.search()
+    paged = docs.search(offset=2)
+    assert paged['items'] == [] and paged['total'] == 0
+    assert paged['guidance'] == first['guidance']
+
+
+def test_search_guidance_counts_only_the_filtered_subset(tmp_path, monkeypatch):
+    docs = docs_with(tmp_path, monkeypatch,
+                     [descriptor('pca'), descriptor('tsne'),
+                      descriptor('FASTA', kind='reader', category='Data')])
+    miss = docs.search('nothing-matches-this', kind='reader')
+    assert miss['guidance']['counts'] == {'reader': 1}
+    assert miss['guidance']['categories'] == [{'name': 'Data', 'count': 1}]
+    assert 'category="Data"' in miss['guidance']['examples']
+    assert 'category="Statistics"' not in miss['guidance']['examples']
+
+
 def test_operator_search_browses_a_filter_and_answers_a_miss(tmp_path, monkeypatch):
     docs = docs_with(tmp_path, monkeypatch,
                      [descriptor('pca'), descriptor('tsne'),
@@ -105,6 +148,24 @@ def test_operator_search_browses_a_filter_and_answers_a_miss(tmp_path, monkeypat
     assert docs.search(category='Statistics')['total'] == 2
     miss = docs.search('nothing-matches-this')
     assert miss['items'] == [] and "nothing-matches-this" in miss['guidance']['message']
+
+
+def test_pin_conflicts_keep_their_exception_type(monkeypatch):
+    import operon.pins as pins
+
+    class TypedConflict(ValueError):
+        pass
+
+    def conflicting(*args, **kwargs):
+        raise TypedConflict('conflicting plugin versions')
+
+    monkeypatch.setattr(pins, 'requirements', conflicting)
+    graph = SimpleNamespace(nodes=[], plugin_lock={})
+    candidate = {'generation': 'g', 'packages': [], 'descriptors': []}
+    with pytest.raises(TypedConflict) as error:
+        pins.resolve(graph, [candidate], {'descriptors': [], 'packages': []})
+    assert type(error.value) is TypedConflict
+    assert 'conflicting plugin versions' in str(error.value)
 
 
 def test_canvas_context_names_the_window_and_the_document(tmp_path, monkeypatch):
@@ -122,3 +183,29 @@ def test_canvas_context_names_the_window_and_the_document(tmp_path, monkeypatch)
     assert context['document_name'] == 'IL-7RA design'
     assert context['name'] == context['document_name']  # kept for older clients
     assert context['documents'] == [{'id': 'main', 'name': 'IL-7RA design', 'active': True}]
+    assert context['document_count'] == 1 and context['documents_truncated'] is False
+
+
+def test_canvas_context_bounds_a_large_document_list(tmp_path, monkeypatch):
+    from operon.documents import DocumentHub
+    monkeypatch.setattr('operon.documents.analyze_graph', lambda *a, **k: {'nodes': {}, 'edges': []})
+    service = SimpleNamespace(directory=tmp_path, root=tmp_path, base_catalog={},
+        settings=SimpleNamespace(input_roots=[]), routes=SimpleNamespace(save_workspace=lambda *a: None),
+        plugins=SimpleNamespace(pin=lambda x: x, catalog_for=lambda *a: {}))
+    hub = DocumentHub(service)
+    documents = [{'id': f'doc-{i}', 'graph': {'name': f'doc-{i}', 'nodes': [], 'edges': []}}
+                 for i in range(20)]
+    session = hub.create({'schema_version': 1, 'active_id': 'doc-5', 'documents': documents},
+                         name='many tabs')
+    # The saved workspace model is capped at 20; older or externally written
+    # session files may exceed that, so append the extra documents directly.
+    state = hub.load(session['id'])
+    state['workspace']['documents'].extend(
+        {'id': f'doc-{i}', 'graph': {'name': f'doc-{i}', 'nodes': [], 'edges': []}}
+        for i in range(20, 25))
+    hub.save(state)
+    context = hub.context(session['id'])
+    assert context['document_count'] == 25 and context['documents_truncated'] is True
+    assert len(context['documents']) == 20
+    assert context['documents'][0] == {'id': 'doc-5', 'name': 'doc-5', 'active': True}
+    assert all(document['id'] != 'doc-5' for document in context['documents'][1:])

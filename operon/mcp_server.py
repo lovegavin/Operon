@@ -112,7 +112,10 @@ def create_server(client):
         """List saved workflows or retrieve one with its independent frozen parameters; no desktop session required.
 
         view=brief keeps ids, names, node counts and input/output labels; use view=full for every stored contract.
+        Retrieval by workflow_id always returns the full saved workflow; view only selects the list projection.
         """
+        if view not in ('brief', 'full'):
+            raise ValueError('invalid_view: view must be brief or full')
         if workflow_id:
             return client.request('/v1/workflows/' + quote(workflow_id, safe=''))
         value = client.request('/v1/workflows?view=' + quote(view, safe=''))
