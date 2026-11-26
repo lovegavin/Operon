@@ -46,3 +46,14 @@ def test_proteinmpnn_manifest_names_the_weights_it_resolves() -> None:
     entry = next(item for item in manifest["resources"] if item["id"] == "proteinmpnn")
     assert "vanilla_model_weights/v_48_020.pt" in [str(name) for name in entry["files"]]
     assert "protein_mpnn_run.py" in [str(name) for name in entry["files"]]
+
+def test_proteinmpnn_unit_files_are_root_relative() -> None:
+    manifest = json.loads((STEPS / "resources.json").read_text(encoding="utf-8"))
+    entry = next(item for item in manifest["resources"] if item["id"] == "proteinmpnn")
+    unit = next(item for item in entry["units"] if item["name"] == "ProteinMPNN")
+    files = [
+        str(item.get("path") or item.get("name")) if isinstance(item, dict) else str(item)
+        for item in unit["files"]
+    ]
+    assert files and all(not path.startswith("ProteinMPNN/") for path in files)
+    assert entry["link_root"] == ""

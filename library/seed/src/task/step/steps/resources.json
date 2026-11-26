@@ -24,7 +24,7 @@
         "vanilla_model_weights/v_48_020.pt"
       ],
       "link_unit": "tree",
-      "link_root": "ProteinMPNN",
+      "link_root": "",
       "envs": [
         "proteinmpnn",
         "esm3"
@@ -39,7 +39,7 @@
           "url": "https://github.com/dauparas/ProteinMPNN",
           "files": [
             "protein_mpnn_run.py",
-            "ProteinMPNN/vanilla_model_weights/v_48_020.pt"
+            "vanilla_model_weights/v_48_020.pt"
           ],
           "note": ""
         }
