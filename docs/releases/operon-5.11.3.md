@@ -64,6 +64,76 @@ the downloaded tree (`bfd-first_non_consensus_sequences.fasta`,
   the nine route test fixtures (`.gmt`, `.loom`, `.h5ad`, `.vcf`, `.biom`)
   stay out of the archive.
 
+## Running two minibinder campaigns through MCP
+
+The release was verified by driving two complete campaigns (IL-7Rα / 3DI3 and
+GLP-1R / 6X18) through the MCP surface only: read the structure, extract the
+target chain, design four backbones with RFdiffusion, redesign each backbone
+twice with ProteinMPNN, fold every sequence with ColabFold and export both the
+complex models and the FASTA records. Fourteen defects surfaced and are fixed
+here.
+
+- **D-20** — `remote_install` compared the build it computed during `provision`
+  with the build captured when the client connected, so a first MCP call that
+  refreshed the catalog made every install fail with "the local program changed
+  after connecting". Provision now recomputes the identity from the uploaded
+  archive and retries once when it drifts.
+- **D-21** — the RPC daemon counted only its own workers when deciding whether
+  it was busy, so a job running inside the shared pool looked idle and the
+  daemon exited after five minutes; a long RFdiffusion run then failed with
+  "the remote service could not be restarted". `alive()` now also treats a job
+  in `queued`, `preparing`, `uploading`, `running` or `waiting_connection` as
+  work, the idle default moved to 1800 s and the cold-start window to 150 s.
+- **D-22** — `export_results` only copied values that declared
+  `info.representation == "exported_files"`, so a normal design form failed
+  with "export_results requires a value with …". It now copies any form that
+  names a file on disk.
+- **D-23** — `operon_workflow_prepare` validated dry-run operators against the
+  local catalog, which cannot know the remote plugin lock; validation now runs
+  against the submitted route.
+- **D-24** — `operon_jobs` and `operon_artifacts` returned multi-megabyte JSON
+  that overflowed the model context. Text payloads are capped at 60 KB and
+  tables page at 50 rows.
+- **D-25** — the prepare view showed the overwritten parent graph instead of
+  the graph that was validated.
+- **D-26** — MCP text writes, binary writes and relative source paths were
+  joined against the host workspace even when the profile was remote, creating
+  files in the wrong place. `src/web/remote_api.py` now resolves those writes
+  against the remote workspace.
+- **D-27** — ColabFold's MSA options were placed in the environment dictionary
+  but never exported by the generated `env.sh`, so `msa_databases` and
+  `msa_host` were silently ignored. The wrapper now exports
+  `OPERON_COLABFOLD_MSA_DATABASES`, `OPERON_COLABFOLD_MSA_DB1`,
+  `OPERON_COLABFOLD_MSA_DB2` and `OPERON_COLABFOLD_MSA_HOST`.
+- **D-28** — deployed installs dropped PDBFixer's templates, `soft.xml` and
+  `LICENSE` because the archive whitelist only kept code and JSON; the
+  whitelist now carries every operator data file (see above).
+- **D-29** — `proteinmpnn_design` called `resolve_proteinmpnn_path` without
+  importing it, so every design step died with `NameError`; a test now checks
+  that each step imports the helpers it calls.
+- **D-30** — the ColabFold input contract demanded `sequence`/`position`
+  dimensions and `info.representation`, which no design step produces, so the
+  canonical RFdiffusion → ProteinMPNN → ColabFold edge was rejected before the
+  operator ran. The contract now accepts designed sequence lists and the
+  resolver raises a clear error when a design carries several sequences.
+- **D-31** — `colabfold_batch` has no `--db1/--db2`; passing them aborted with
+  "unrecognized arguments". The operator no longer forwards database flags to
+  the batch runner and explains that a local search needs `colabfold_search`.
+- **D-32** — a design with `num_seq_per_target > 1` could not be folded because
+  the operator always took the whole list. `colabfold_predict` gains
+  `sequence_index` (default 0) so a route can fold one chosen sequence.
+- **D-33** — `sequence_index` was read after it was used, raising
+  `UnboundLocalError` at the first fold; it is read once at the top of `run()`.
+- **Pool guard** — a crashed job stayed in `running`/`recovery_required` state
+  and every later build switch answered "finish tasks before changing its
+  application". Only jobs whose worker tree can still be reached now count as
+  active.
+
+Both campaigns finished 26/26: four backbones per target, two sequences per
+backbone, eight folds and twelve artifacts each. Binder-only folding (the
+offline MSA index was not ready) gave mean pLDDT 90.1–97.8 for 3DI3 and
+92.8–96.3 for 6X18.
+
 ## Compatibility
 
 - Application 5.11.3 requires Operator Library 2.1.4.
