@@ -165,3 +165,36 @@ def _open(url, token_env=""):
     import urllib.request
 
     return urllib.request.urlopen(url)
+
+def test_run_after_skips_an_optional_step_that_fails(tmp_path):
+    lines = []
+    resource_api._run_after(
+        [{"command": ["/bin/sh", "-c", "echo broke; exit 4"], "optional": True}],
+        root=tmp_path, event=threading.Event(), emit=lines.append, job={}, )
+    assert any("skipped (optional)" in line and "exited with 4" in line for line in lines)
+
+
+def test_run_after_skips_an_optional_step_without_its_tool(tmp_path, monkeypatch):
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.setenv("PATH", str(tmp_path / "empty"))
+    lines = []
+    resource_api._run_after(
+        [{"command": ["{tool:definitelymissing}", "press"], "optional": True}],
+        root=tmp_path, event=threading.Event(), emit=lines.append, job={}, )
+    assert any("skipped (optional)" in line and "is not installed" in line for line in lines)
+
+
+def test_manifest_presses_the_databases_it_declares(tmp_path):
+    path = Path(__file__).resolve().parents[1] / "library/seed/src/task/step/steps/resources.json"
+    entries = {item["id"]: item for item in json.loads(path.read_text(encoding="utf-8"))["resources"]}
+
+    def steps(resource, download):
+        entry = next(item for item in entries[resource]["downloads"] if item["path"] == download)
+        return entry["after"]
+
+    assert steps("pfam", "Pfam-A.hmm")[0]["command"][0] == "{tool:hmmpress}"
+    assert steps("rfam", "Rfam.cm")[0]["command"][0] == "{tool:cmpress}"
+    assert steps("antismash", "tigrfam/TIGRFam.hmm")[0]["command"][0] == "{tool:hmmpress}"
+    assert steps("antismash", "resfam/Resfams.hmm")[0]["command"][0] == "{tool:hmmpress}"
+    assert steps("vina", "vina_1.2.5_linux_x86_64")[0][:2] == ["/bin/chmod", "0755"]
+    assert steps("prodigal", "Makefile")[0]["optional"] is True

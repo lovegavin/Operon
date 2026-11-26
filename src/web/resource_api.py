@@ -744,10 +744,19 @@ def _run_after(commands: list, *, root: Path, event, emit, job: dict) -> None:
 
     import subprocess
 
-    for command in commands:
+    for step in commands:
         if event.is_set():
             raise _Cancelled("cancelled")
-        argv = _after_argv(command, root)
+        optional = isinstance(step, dict)
+        command = (step.get("command") or step.get("argv") or []) if optional else step
+        optional = optional and bool(step.get("optional"))
+        try:
+            argv = _after_argv(command, root)
+        except RuntimeError as error:
+            if not optional:
+                raise
+            emit(f"BUILD skipped (optional): {error}")
+            continue
         emit("BUILD " + " ".join(argv))
         process = subprocess.Popen(argv, cwd=str(root), stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT, text=True, bufsize=1)
@@ -764,7 +773,11 @@ def _run_after(commands: list, *, root: Path, event, emit, job: dict) -> None:
         code = process.wait()
         if code:
             detail = " / ".join(tail) or "no output"
-            raise RuntimeError(f"{argv[0]} exited with {code}: {detail}")
+            message = f"{argv[0]} exited with {code}: {detail}"
+            if optional:
+                emit(f"BUILD skipped (optional): {message}")
+                continue
+            raise RuntimeError(message)
 
 
 def _sha256(path: Path) -> str:

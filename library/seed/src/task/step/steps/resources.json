@@ -717,7 +717,17 @@
           },
           "path": "Makefile",
           "unit": "prodigal",
-          "note": "verified 2026-11-20: codeload zip of master is 631,098 bytes and contains the sources and Makefile"
+          "note": "verified 2026-11-20: codeload zip of master is 631,098 bytes and contains the sources and Makefile",
+          "after": [
+            {
+              "command": [
+                "{tool:make}",
+                "-C",
+                "{root}"
+              ],
+              "optional": true
+            }
+          ]
         }
       ],
       "notes": "Prodigal is a compiled binary; the writable resource root comes first so the UI can link it, and the two system directories remain as read-only fallbacks for a distro install."
@@ -765,7 +775,16 @@
           "path": "Pfam-A.hmm",
           "url": "https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz",
           "unit": "Pfam-A.hmm",
-          "archive": "gz"
+          "archive": "gz",
+          "after": [
+            {
+              "command": [
+                "{tool:hmmpress}",
+                "{root}/Pfam-A.hmm"
+              ],
+              "optional": true
+            }
+          ]
         }
       ],
       "notes": "Verified 2026-11-20: https://ftp.ebi.ac.uk/pub/databases/Pfam/current_release/Pfam-A.hmm.gz HTTP 200, 658,389,433 bytes; gunzip then 'hmmpress Pfam-A.hmm' creates the .h3* indexes locally."
@@ -879,7 +898,16 @@
           "unit": "Rfam.cm",
           "archive": "gz",
           "bytes": 45753387,
-          "note": "verified 2026-11-20: HTTP 200, 45,753,387 bytes (15.1 is the release CURRENT points at)"
+          "note": "verified 2026-11-20: HTTP 200, 45,753,387 bytes (15.1 is the release CURRENT points at)",
+          "after": [
+            {
+              "command": [
+                "{tool:cmpress}",
+                "{root}/Rfam.cm"
+              ],
+              "optional": true
+            }
+          ]
         }
       ],
       "notes": "Download Rfam.cm.gz (15.1: 45,753,387 bytes, verified 200 on 2026-11-20), gunzip it and run 'cmpress Rfam.cm'. The four .i1* files are cmpress output and therefore have no download source."
@@ -1025,14 +1053,32 @@
           "url": "https://dl.secondarymetabolites.org/releases/resfams/Resfams.hmm.gz",
           "archive": "gz",
           "unit": "antismash",
-          "note": "verified 2026-11-20: HTTP 200, 2,437,717-byte gzip (archive size; decompressed size not recorded because the downloader ignores bytes for gz); URL taken from antismash/download_databases.py"
+          "note": "verified 2026-11-20: HTTP 200, 2,437,717-byte gzip (archive size; decompressed size not recorded because the downloader ignores bytes for gz); URL taken from antismash/download_databases.py",
+          "after": [
+            {
+              "command": [
+                "{tool:hmmpress}",
+                "{root}/resfam/Resfams.hmm"
+              ],
+              "optional": true
+            }
+          ]
         },
         {
           "path": "tigrfam/TIGRFam.hmm",
           "url": "https://dl.secondarymetabolites.org/releases/tigrfam/TIGRFam.hmm.gz",
           "archive": "gz",
           "unit": "antismash",
-          "note": "verified 2026-11-20: HTTP 200, 112,512,178-byte gzip (archive size; decompressed size not recorded because the downloader ignores bytes for gz); URL taken from antismash/download_databases.py"
+          "note": "verified 2026-11-20: HTTP 200, 112,512,178-byte gzip (archive size; decompressed size not recorded because the downloader ignores bytes for gz); URL taken from antismash/download_databases.py",
+          "after": [
+            {
+              "command": [
+                "{tool:hmmpress}",
+                "{root}/tigrfam/TIGRFam.hmm"
+              ],
+              "optional": true
+            }
+          ]
         }
       ],
       "notes": "Database URLs mirror antismash/download_databases.py (MITE_URL, RESFAM_URL, TIGRFAM_URL) and were verified 2026-11-20 (40,648 / 2,437,717 / 112,512,178 bytes). The whole-database tarballs output/antismash-7-*.tar.gz and dl.secondarymetabolites.org/databases/ answer 404, so they are not declared. The previously listed source zip contained no databases and was removed."
@@ -1335,7 +1381,14 @@
           "path": "vina_1.2.5_linux_x86_64",
           "bytes": 4089576,
           "unit": "vina",
-          "note": "verified 2026-11-22 through the GitHub proxy: HTTP 200, 4,089,576 bytes. PyPI vina 1.2.5 ships cp36-cp39 wheels only, so the static build is the only source for the python 3.11 environments."
+          "note": "verified 2026-11-22 through the GitHub proxy: HTTP 200, 4,089,576 bytes. PyPI vina 1.2.5 ships cp36-cp39 wheels only, so the static build is the only source for the python 3.11 environments.",
+          "after": [
+            [
+              "/bin/chmod",
+              "0755",
+              "{root}/vina_1.2.5_linux_x86_64"
+            ]
+          ]
         }
       ],
       "link_unit": "items",
