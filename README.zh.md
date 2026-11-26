@@ -6,7 +6,7 @@
 
 Operon Studio 5.11.2 · Operator Library 2.1.3 · Apache-2.0
 
-[English](README.md) · [10 分钟上手](QUICKSTART.zh.md) · [Quick start (EN)](QUICKSTART.en.md) · [文档](docs/README.md) · [发布记录](https://github.com/lovegavin/Operon/releases) · [许可证](LICENSE)
+[English](README.md) · [10 分钟上手](QUICKSTART.zh.md) · [English quick start](QUICKSTART.md) · [文档](docs/README.md) · [发布记录](https://github.com/lovegavin/Operon/releases) · [许可证](LICENSE)
 
 ---
 

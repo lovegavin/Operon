@@ -1,8 +1,8 @@
 # Operator library extension forms
 
 This guide describes every supported way to extend the Operon operator library in
-Operon Studio 4.0.3 and later. The application ships the **8.0.3** library and
-requires **8.0.0 or newer**. It is written for library maintainers and for authors
+Operon 5.11.2 and later. This tree ships the **2.1.3** library and requires
+**2.1.3 or newer** (`library/release.json`). It is written for library maintainers and for authors
 who publish independent providers, routes, or complete libraries.
 
 ## Protocol and SDK status

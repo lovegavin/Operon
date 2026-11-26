@@ -1,113 +1,74 @@
-# 10 分钟跑通 Operon
+# Operon 快速开始
 
-这是一份“照着点就行”的说明。只做一件事：用一张很小的表格跑一次 PCA，确认软件能用。
+从一台干净机器到跑完一个分析：安装 Operon Studio 5.11.2 与自带的算子库 2.1.3，
+先跑通一个真实分析，再把同一份工作流搬到命令行。
 
-你不需要会 Python，不需要装 Conda，也不需要 AI 账号。示例数据是编造的，只用于检查流程，不代表任何生物学结论。
+安装包自带算子库，没有单独的导入步骤。
 
-本说明对应 **Operon Studio 5.3.0** 与单独安装的兼容算子库；本体安装包不再捆绑或更新算子。
+## 1. 安装
 
-## 你需要准备
+| 目标 | 做什么 |
+| --- | --- |
+| Windows 10/11 x64 | 运行 `Operon_Setup.exe`。它自带 Python 运行时，不需要系统 Python。 |
+| Linux 服务器 | 解压 `Operon-<version>-Server.zip`，执行 `./install.sh --prefix "$HOME/operon" --result` |
+| 源码仓库 | `python -m pip install . ./library`，然后 `operon serve --port 8765` |
 
-- Windows 10 或 11，最好有 8 GB 内存。
-- 能上网。第一次检查运行环境时，可能需要下载几个科学计算包。
-- 一个可写的安装位置，例如 `<your writable install folder>`。不要选 系统保护目录，也不要选需要管理员权限的目录。
+确认你手上到底是哪个构建：
 
-## 第 1 步：安装
-
-1. 打开 [Releases](https://github.com/lovegavin/Operon/releases/latest)。
-2. 下载 **Operon_Setup.exe**。不要下载名字里带 `Server` 或 `Library` 的文件。
-3. 双击安装包。如果 Windows 弹出蓝色提示，点“更多信息” → “仍要运行”。
-4. 安装目录填 `<your writable install folder>`，点“安装”。
-5. 安装完成后，勾选“打开 Operon”，点完成。
-
-第一次启动会慢一点，等窗口完全出来再操作。后端和前端都准备好后，窗口底部会显示已连接。
-
-先从独立算子库发行页下载包含 CsvReader 和 PCA 的算子库 ZIP，通过“添加算子”导入，并记录库版本。
-
-## 第 2 步：准备一张小表
-
-在桌面新建一个文本文件，名字改成 `matrix.csv`，内容完全照抄下面七行：
-
-```csv
-gene_a,gene_b,gene_c
-1,2,3
-2,3,4
-4,1,2
-3,4,1
-5,2,6
-6,5,3
+```bash
+operon --version
+operon capabilities
 ```
 
-注意：第一行是列名，后面六行是数字；逗号是英文逗号。
+`operon --version` 会打印 `Operon 5.11.2`。`operon capabilities` 列出这个构建真正
+能做的事；仓库里的页面如果和它不一致，以构建为准。
 
-## 第 3 步：把表读进来
+## 2. 在画布上跑第一个分析
 
-1. 在 Operon Studio 左侧点 **添加输入数据**。
-2. 选择刚才的 `matrix.csv`。
-3. Reader 选 **CsvReader**。
-4. 维度填 `sample, feature`（英文逗号，前后不要加空格）。
-5. 标签用默认的“自动”即可；勾选“首行是列名”。
-6. 点确认。画布上会出现一个输入节点。
+准备一个 CSV：行是样本，列是特征。
 
-## 第 4 步：加 PCA
-
-1. 在左侧算子库搜索框输入 **PCA**。
-2. 把 **PCA** 拖到画布上，放在输入节点右边。
-3. 用鼠标从输入节点右侧的小圆点拖一条线到 PCA 左侧的小圆点。
-4. 双击 PCA：
-   - 维度选 `feature`；
-   - 主成分数量填 `2`；
-   - 其他参数保持默认。
-5. 点确认。
-
-## 第 5 步：检查环境并运行
-
-1. 点右上角 **运行设置**。
-2. 执行位置选 **本地**。
-3. 点 **检查运行环境**。
-4. 如果提示缺少依赖，点 **准备环境/安装依赖**，等它完成，再检查一次。
-5. 回到画布，点 **运行**。
-6. 等任务变成“已完成”。打开 **运行历史** → **查看结果**。
-
-你应该能看到一个完成了的任务，里面有 PCA 结果和两个主成分。这个例子不会自动画散点图；需要图的话，再拖一个绘图算子接在 PCA 后面。
-
-## 第 6 步（可选）：在 Linux 服务器上跑
-
-只有当你确实有一台 Linux 服务器时才做这一步。Windows 本机用户可以直接跳过。
-
-1. 在 Releases 下载 **Operon-5.3.0-Server.zip**，上传到服务器。
-2. 在服务器上执行：
-
-```sh
-unzip Operon-5.3.0-Server.zip
-cd Operon-5.3.0-Server
-bash install.sh --prefix "$HOME/operon" --result "$PWD/server-install.json"
+```text
+sample,A,B,C
+s1,1.0,2.5,3.1
+s2,1.4,2.1,2.8
+s3,9.2,8.7,9.9
 ```
 
-3. 安装结果会给出 `install_dir`、`workspace` 和 `command`。用这些真实路径替换下面的示例：
+1. 在 Studio 里选一个工作区目录，把 CSV 放进去。
+2. 把 **CsvReader** 拖到画布上并指向该文件。它把表头读成特征名，把第一列读成样本标签。
+3. 把 **PCA** 拖到画布上，连接 CsvReader 的输出，把 `dimension` 设为 `feature`，
+   `components` 设为 `2`。
+4. 点 **运行**。Operon 会校验图、解析算子环境、执行，并把参数、环境与日志和结果一起留下。
+5. 用查看器打开结果。查看器在 **设置 → 输出与查看器** 里配置。
 
-```sh
-"$HOME/operon/bin/operon" --version
-"$HOME/operon/bin/operon" workflow lint "$HOME/operon/workspace/quickstart/workflow.yaml"
-"$HOME/operon/bin/operon" run "$HOME/operon/workspace/quickstart/workflow.yaml" --progress --brief
+编辑和运行是两件事：画布可以随便改，没有点运行就不会执行。
+
+## 3. 用命令行做同一件事
+
+CLI 和桌面、HTTP API 用的是同一个服务：
+
+```bash
+operon operators search pca
+operon operators describe pca --view schema
+operon workflow lint examples/workflows/script_pipeline/workflow.yaml
+operon environment check examples/workflows/script_pipeline/workflow.yaml --require-files
+operon run examples/workflows/script_pipeline/workflow.yaml --progress --request-id quickstart-001
+operon jobs list
 ```
 
-更完整的服务器说明见 [命令行安装](docs/command_line_installation.md#linux-server)。
+`environment check` 不会安装任何东西。准备环境是另一个显式步骤
+（`operon environment prepare`），因为它会改动这台机器。
 
-## 遇到问题先看这里
+## 4. 接下来看什么
 
-- **窗口一直白屏**：等 1–2 分钟；仍然不行就完全退出再开。不要同时开很多个 Operon。
-- **检查环境失败**：先确认能上网，再点“准备环境”。公司网络需要代理时，先在系统代理里配好。
-- **安装时提示目录不可写**：换到 `<your writable install folder>` 这类普通目录，不要用 系统保护目录。
-- **想卸载**：在 Windows“应用”里卸载，或运行安装目录里的 `Operon_Uninstall.exe`。5.3.0 会保留 `<安装目录>\workspace` 里的工作区和分析结果，确认不需要后再手动删除。
-- **日志在哪**：`%USERPROFILE%\.operon\profiles\<profile-id>\logs\desktop-YYYYMMDD.log`。
+| 想做的事 | 读什么 |
+| --- | --- |
+| 整体理解产品 | [README.zh.md](README.zh.md) |
+| 命令参考与日常使用 | [docs/roles/user.md](docs/roles/user.md) |
+| 让 Agent 驱动 Operon | [docs/roles/agent.md](docs/roles/agent.md) |
+| 用 YAML 写工作流 | [docs/workflow_yaml_v3.md](docs/workflow_yaml_v3.md) |
+| 在 Linux 服务器上运行 | [docs/REMOTE_EXECUTION.md](docs/REMOTE_EXECUTION.md) |
+| 把结果交付给没有 Operon 的人 | [docs/automatic_portable_export.md](docs/automatic_portable_export.md) |
+| 完整文档索引 | [docs/README.md](docs/README.md) |
 
-## 接下来
-
-- [完整文档](docs/README.md)
-- [Windows 安装与隔离目录](docs/windows_setup.md)
-- [命令行与 Linux 服务器](docs/command_line_installation.md)
-- [工作流 YAML](docs/workflow_yaml_v3.md)
-- [English quick start](QUICKSTART.en.md)
-
-Operon 使用 Apache-2.0 许可证，可自由使用、修改和再分发；见 [LICENSE](LICENSE) 与 [NOTICE](NOTICE)。
+English quick start: [QUICKSTART.md](QUICKSTART.md)

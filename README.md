@@ -9,7 +9,7 @@ goes to the steps in play, not to the catalogue.
 
 Operon Studio 5.11.2 · Operator Library 2.1.3 · Apache-2.0
 
-[中文说明](README.zh.md) · [中文快速开始](QUICKSTART.zh.md) · [Quick start (EN)](QUICKSTART.en.md) · [Documentation](docs/README.md) · [Releases](https://github.com/lovegavin/Operon/releases) · [License](LICENSE)
+[中文说明](README.zh.md) · [中文快速开始](QUICKSTART.zh.md) · [Quick start](QUICKSTART.md) · [Documentation](docs/README.md) · [Releases](https://github.com/lovegavin/Operon/releases) · [License](LICENSE)
 
 ---
 

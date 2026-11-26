@@ -164,6 +164,34 @@ def refresh_bundled(candidate, bundled):
     return value
 
 
+def unresolved(state, required, limit=5):
+    """Name the pins a candidate state cannot satisfy, plus the action that resolves them.
+
+    Returned as a trailing sentence so it can extend the historical message
+    without changing the wording existing callers already match on.
+    """
+    enabled = {p['name'] for p in state['packages'] if p.get('enabled', True)}
+    available = {d['id']: d for d in state['descriptors'] if d['distribution'] in enabled}
+    names = []
+    for key in sorted(required):
+        pin = required[key]
+        descriptor = available.get(key)
+        package = pin.get('package') or (descriptor or {}).get('distribution') or 'unknown package'
+        version = pin.get('version') or (descriptor or {}).get('implementation', {}).get('version')
+        if descriptor is None:
+            names.append(f'{key} ({package}, not installed)')
+        elif not equivalent(descriptor['implementation'], pin, bundled=descriptor.get('origin') == 'bundled'):
+            names.append(f'{key} ({package}, pinned {version})')
+    if not names:
+        return ''
+    shown = ', '.join(names[:limit])
+    if len(names) > limit:
+        shown += f', and {len(names) - limit} more'
+    return (' Unresolved pins: ' + shown +
+            '. Install the library bundle that declares them ' +
+            '(`operon library install <bundle.zip>`) or refresh it in Library Management, then retry.')
+
+
 def resolve(graph, candidates, bundled):
     # Prefer an exact retained executable generation before any source bridge.
     for candidate in candidates:
@@ -194,6 +222,7 @@ def resolve(graph, candidates, bundled):
                                if (key, identity(before)) in released else
                                'Bundled source was updated; historical registry retained metadata only')}
     conflict = None
+    missing = ''
     for raw in candidates:
         candidate = refresh_bundled(raw, bundled)
         from operon.library_pins import replacements as library_replacements
@@ -225,7 +254,8 @@ def resolve(graph, candidates, bundled):
             if updates:
                 value['bundled_updates'] = list(updates.values())
             return value
+        missing = missing or unresolved(candidate, required)
     if conflict is not None:
-        raise conflict
+        raise ValueError(f'{conflict}{missing}') from conflict
     raise ValueError('Required plugin versions are unavailable; install the original packages. '
-                     'Unknown or wheel pins are not automatically replaced.')
+                     'Unknown or wheel pins are not automatically replaced.' + missing)

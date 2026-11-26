@@ -6,7 +6,7 @@ is optional. The examples below use synthetic data, not biological findings.
 
 For a deliberately short, click-by-click version, use
 [中文快速开始](../QUICKSTART.zh.md) or
-[English quick start](../QUICKSTART.en.md). The rest of this page explains the
+[English quick start](../QUICKSTART.md). The rest of this page explains the
 same flow with more detail.
 
 ## 1. Choose your installation

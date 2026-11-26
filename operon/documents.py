@@ -220,7 +220,11 @@ class DocumentHub:
                 analysis = {"error": str(error)}
             return {"protocol_version": 1, "session_id": session, "document_id": active,
                     "revision": state["revision"], "ui_revision": state["ui_revision"], "updated_at": state["updated_at"],
-                    "selection": presence, "name": graph["name"], "scope": scope,
+                    # `name` is the document title; the canvas window has its own name.
+                    # Agents edit with `revision`; `ui_revision` only moves for selection.
+                    "session_name": state["name"], "document_name": graph["name"], "name": graph["name"], "scope": scope,
+                    "documents": [{"id": document["id"], "name": document["graph"].get("name"), "active": document["id"] == active}
+                                  for document in state["workspace"]["documents"]],
                     "nodes": [deepcopy(n) for n in graph["nodes"] if n["id"] in included],
                     "edges": [deepcopy(e) for e in graph["edges"] if e["source"] in included and e["target"] in included],
                     "memory": graph["memory"], "params": graph.get("params", {}),

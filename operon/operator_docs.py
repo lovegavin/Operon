@@ -105,6 +105,27 @@ def parameter_markdown(descriptor):
     return '\n'.join(lines)
 
 
+def _search_guidance(index, query=None, limit=8):
+    """Compact orientation for a search that would otherwise return nothing."""
+    kinds = {}
+    categories = {}
+    for item in index:
+        kinds[item['kind']] = kinds.get(item['kind'], 0) + 1
+        name = item.get('category') or 'Uncategorised'
+        categories[name] = categories.get(name, 0) + 1
+    top = sorted(categories.items(), key=lambda pair: (-pair[1], pair[0]))[:limit]
+    message = ('An empty query returns nothing on purpose. Narrow with query (a name, in any language), '
+               'kind (operator or reader) or category, then request the ids you keep.'
+               if query is None else
+               f'No operator or Reader matched {query!r}. Try a shorter name, another spelling, '
+               'or one of the categories below.')
+    return {'message': message,
+            'counts': kinds,
+            'categories': [{'name': name, 'count': count} for name, count in top],
+            'examples': ['query="pca"', 'kind="reader"',
+                         'category="' + (top[0][0] if top else 'Statistics') + '"']}
+
+
 class OperatorDocs:
     def __init__(self, manager):
         self.manager = manager
@@ -181,9 +202,18 @@ class OperatorDocs:
 
         selected = [item for item in index
                     if (not kind or item['kind'] == kind) and (not category or item['category'] == category)]
-        ranked = [(score(item), item) for item in selected]
-        matches = [item for rank, item in sorted(ranked, key=lambda pair: (-pair[0], pair[1]['id'])) if rank >= 0]
-        if not matches and len(terms) > 1:
+        if not terms and not kind and not category and offset == 0:
+            # An unfiltered empty query would return an arbitrary page of the whole
+            # catalog. Answer with the three bounded ways to narrow it instead.
+            return {'items': [], 'total': 0, 'offset': 0, 'limit': limit, 'next_offset': None,
+                    'generation': state['generation'], 'guidance': _search_guidance(index)}
+        if not terms:
+            # A kind or category alone browses that slice in a stable order.
+            matches = sorted(selected, key=lambda item: item['id'])
+        else:
+            ranked = [(score(item), item) for item in selected]
+            matches = [item for rank, item in sorted(ranked, key=lambda pair: (-pair[0], pair[1]['id'])) if rank >= 0]
+        if terms and not matches and len(terms) > 1:
             # A query that combines a name with descriptive words rarely matches
             # every term in one record. Fall back to ranking by how many terms a
             # record covers so a named operator stays discoverable.
@@ -194,6 +224,9 @@ class OperatorDocs:
                 if covered:
                     loose.append((covered, sum(values), item['id'], item))
             matches = [item for _, _, _, item in sorted(loose, key=lambda row: (-row[0], -row[1], row[2]))]
+        if not matches:
+            return {'items': [], 'total': 0, 'offset': offset, 'limit': limit, 'next_offset': None,
+                    'generation': state['generation'], 'guidance': _search_guidance(index, query)}
         items = deepcopy(matches[offset:offset+limit])
         if view == 'brief':
             items = [{**{key: item[key] for key in ('id', 'kind', 'title', 'category', 'documentation_status')},

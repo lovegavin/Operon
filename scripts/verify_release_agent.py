@@ -26,6 +26,15 @@ def write(path, value):
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding='utf-8')
 
 
+def _session_items(value):
+    """The tool returns {'items': [...], 'total': n}; the harness needs the list."""
+    if isinstance(value, dict) and isinstance(value.get('items'), list):
+        return value['items']
+    if isinstance(value, list):
+        return value
+    return [value] if isinstance(value, dict) and 'id' in value else []
+
+
 class Acceptance:
     def __init__(self, args):
         self.args = args
@@ -104,8 +113,14 @@ class Acceptance:
             structured = getattr(result, 'structuredContent', None)
             if isinstance(structured, dict) and isinstance(structured.get('result'), list):
                 return structured['result']
+            if isinstance(structured, dict) and isinstance(structured.get('result'), dict):
+                return _session_items(structured['result'])
             values = [json.loads(item.text) for item in result.content if hasattr(item, 'text')]
-            return values[0] if len(values) == 1 and isinstance(values[0], list) else values
+            if len(values) == 1 and isinstance(values[0], list):
+                return values[0]
+            if len(values) == 1 and isinstance(values[0], dict):
+                return _session_items(values[0])
+            return values
         return json.loads(text)
 
     def fixture(self):

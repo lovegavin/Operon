@@ -73,9 +73,12 @@ def create_server(client):
         return guide(topic, if_sha256=if_sha256)
 
     @server.tool()
-    def operon_sessions() -> list[dict]:
+    def operon_sessions() -> dict:
         """List canvas windows and their activity/selection revision."""
-        return client.sessions()
+        value = client.sessions()
+        items = value.get('items') if isinstance(value, dict) else value
+        items = list(items or [])
+        return {'items': items, 'total': len(items)}
 
     @server.tool()
     def operon_context(session_id: str | None = None, scope: str = "selection") -> dict:
@@ -105,10 +108,15 @@ def create_server(client):
         return client.request('/v1/operators/describe', {'ids': ids, 'sections': sections, 'generation': generation, 'view': view})
 
     @server.tool()
-    def operon_workflows(workflow_id: str | None = None) -> dict:
-        """List saved workflows or retrieve one with its independent frozen parameters; no desktop session required."""
-        value = client.request('/v1/workflows' + ('/' + quote(workflow_id, safe='') if workflow_id else ''))
-        return value if workflow_id else {'items': value}
+    def operon_workflows(workflow_id: str | None = None, view: str = 'brief') -> dict:
+        """List saved workflows or retrieve one with its independent frozen parameters; no desktop session required.
+
+        view=brief keeps ids, names, node counts and input/output labels; use view=full for every stored contract.
+        """
+        if workflow_id:
+            return client.request('/v1/workflows/' + quote(workflow_id, safe=''))
+        value = client.request('/v1/workflows?view=' + quote(view, safe=''))
+        return {'items': value, 'total': len(value)}
 
     @server.tool()
     def operon_workflow_save(graph: dict, workflow_id: str | None = None, expected_version: int | None = None) -> dict:

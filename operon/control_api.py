@@ -345,9 +345,9 @@ def mount_control(app, application, bridge):
         return schema
 
     @app.get('/api/v1/workflows')
-    def workflows(request: Request):
+    def workflows(request: Request, view: str = 'full'):
         authorize(request)
-        return application.workflows.list()
+        return application.workflows.list(view)
 
     @app.post('/api/v1/workflows/prepare')
     def prepare(request: Request, payload: GraphRequest):

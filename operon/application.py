@@ -299,13 +299,38 @@ class Application:
         return {**page.to_json(), 'available': True}
 
 
+def brief_workflow(item):
+    """Describe a saved workflow without its full interface contracts.
+
+    `interface` carries one contract per input and output; that is the bulk of
+    the saved-route payload. An agent choosing a route needs the labels, then
+    asks for the picked one.
+    """
+    interface = item.get('interface') or {}
+
+    def labels(section):
+        return [entry.get('label') or entry.get('node_id')
+                for entry in interface.get(section) or [] if isinstance(entry, dict)]
+
+    return {'id': item.get('id'), 'version': item.get('version'), 'name': item.get('name'),
+            'nodes': item.get('nodes'), 'updated_at': item.get('updated_at'),
+            'registered_version': item.get('registered_version'),
+            'inputs': labels('inputs'), 'outputs': labels('outputs')}
+
+
+
 class WorkflowService:
     def __init__(self, application):
         self.app = application
         self.library = application.service.routes
 
-    def list(self):
-        return self.library.list_saved()
+    def list(self, view='full'):
+        items = self.library.list_saved()
+        if view == 'full':
+            return items
+        if view != 'brief':
+            raise CommandError('invalid_view', 'view must be brief or full')
+        return [brief_workflow(item) for item in items]
 
     def get(self, key):
         return self.library.get(key)

@@ -219,6 +219,8 @@ def parser():
     workflow.add_argument('--output', type=Path)
     workflow.add_argument('--check', action='store_true', help='Check canonical formatting without writing')
     workflow.add_argument('--format', choices=['bundle', 'yaml', 'portable'], default='bundle')
+    workflow.add_argument('--view', choices=['brief', 'full'], default='brief',
+                           help='Saved-workflow detail for list: labels only, or every stored contract')
     workflow.add_argument('--template', choices=['csv-pca'], default='csv-pca')
     workflow.add_argument('--runtime-dir', type=Path, help='Prepared relocatable runtime for portable export')
     environment = commands.add_parser('environment', help='Inspect, prepare, repair and cancel isolated environments')
@@ -782,7 +784,7 @@ def execute(args):
                                   urlencode({'request_id': request_id}))
         if args.command == 'workflow':
             if args.action == 'list':
-                return client.request('/v1/workflows')
+                return client.request('/v1/workflows?' + urlencode({'view': args.view}))
             if args.action == 'get':
                 return client.request('/v1/workflows/' + quote(args.value or '', safe=''))
             graph = graph_value
