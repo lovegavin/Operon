@@ -78,8 +78,13 @@ def sequence_for_colabfold(sequences, sequence_dim: str = "sequence", position_d
     """
     info = getattr(sequences, "info", None) or {}
     raw = info.get("sequences")
-    if isinstance(raw, list) and len(raw) == 1 and isinstance(raw[0], str) and raw[0].strip():
-        return raw[0].strip()
+    if isinstance(raw, list) and raw and all(isinstance(item, str) for item in raw):
+        if len(raw) == 1 and raw[0].strip():
+            return raw[0].strip()
+        if len(raw) != 1:
+            raise StepError(
+                f"colabfold_predict: expected exactly one sequence, got {len(raw)}"
+            )
     sequences_list = decode_sequences(sequences, sequence_dim, position_dim)
     if len(sequences_list) != 1:
         raise StepError(
@@ -230,16 +235,16 @@ class ColabfoldPredictStep(Step):
             "version": 1,
             "inputs": [
                 {
+                    # A designed sequence (ProteinMPNN) and a FASTA reader deliver
+                    # the same thing in different Forms: the reader as sequence
+                    # codes, the design step as one row per design with the raw
+                    # strings in ``info["sequences"]``.  Both are accepted here;
+                    # ``sequence_for_colabfold`` picks the one the form carries.
                     "version": 1,
                     "numeric": True,
-                    "dims": [{"param": "sequence_dim"}, {"param": "position_dim"}],
+                    "dims": [],
                     "labels": [],
                     "parallel": [],
-                    "ndim": 2,
-                    "info": {
-                        "representation": {"type": "string", "const": "sequence_codes"},
-                        "alphabet_map": {"type": "object", "optional": True},
-                    },
                 },
             ],
             "output": {
