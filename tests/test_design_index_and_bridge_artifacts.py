@@ -120,3 +120,26 @@ def test_worker_artifact_path_targets_the_task_artifact_root(tmp_path: Path) -> 
     assert (tmp_path / "artifacts") in target.parents
     with pytest.raises(ValueError, match="escapes"):
         context.artifact_path("../outside.txt")
+
+
+def test_structure_writer_keeps_blank_pdb_markers(tmp_path):
+    """PDB markers such as altloc and insertion code must stay blank."""
+
+    from src.task.step.steps import _protein_common
+
+    source = tmp_path / "markers.pdb"
+    source.write_text(
+        "ATOM      1  N   ALA A   1      11.104   6.134  -6.504  1.00  0.00           N\n"
+        "ATOM      2  CA  ALA A   1      11.639   6.071  -5.147  1.00  0.00           C\n"
+        "END\n"
+    )
+    form = read_source(source, ["atom", "field"], {"atom": "auto", "field": "builtin"})
+    target = tmp_path / "rewritten.pdb"
+    _protein_common.write_structure_pdb(form, "atom", "field", target, "unit")
+    lines = [line for line in target.read_text().splitlines() if line.startswith("ATOM")]
+    assert lines, "the writer produced no ATOM lines"
+    for line in lines:
+        assert line[16] != "_", line
+        assert line[26] != "_", line
+        assert line[21] == "A", line
+        assert line[22:26].strip().isdigit(), line

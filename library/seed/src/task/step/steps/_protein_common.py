@@ -148,6 +148,12 @@ def write_structure_pdb(
             value = str(column[index]).strip()
             return value or default
 
+        def marker(name, default=" "):
+            # Readers use "_" (and sometimes "." or "?") for a blank PDB marker;
+            # writing those characters shifts the columns external tools parse.
+            value = text(name, default)
+            return default if str(value).strip() in {"_", ".", "?"} else value
+
         name = text("atom_name")[:4]
         residue_name = text("resname").strip().upper()
         if not name.strip():
@@ -155,7 +161,7 @@ def write_structure_pdb(
         if residue_name in {"HOH", "WAT", "DOD", "H2O"}:
             continue
         resname = (residue_name or "UNK")[:3].rjust(3)
-        chain = text("chain", " ")[:1] or " "
+        chain = marker("chain")[:1] or " "
         element = text("element")[:2].rjust(2)
         number = int(round(float(columns["residue_number"][index])))
         occupancy = float(columns["occupancy"][index]) if "occupancy" in columns else 1.0
@@ -165,11 +171,11 @@ def write_structure_pdb(
             "{x:>8.3f}{y:>8.3f}{z:>8.3f}{occupancy:>6.2f}{bfactor:>6.2f}          {element:>2}".format(
                 serial=(index % 100000) + 1,
                 name=name,
-                alt=text("altloc", " ")[:1] or " ",
+                alt=marker("altloc")[:1] or " ",
                 res=resname,
                 chain=chain,
                 number=number,
-                icode=text("insertion_code", " ")[:1] or " ",
+                icode=marker("insertion_code")[:1] or " ",
                 x=float(columns["x"][index]),
                 y=float(columns["y"][index]),
                 z=float(columns["z"][index]),
