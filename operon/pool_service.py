@@ -207,6 +207,39 @@ def _registration_binding(*, explicit_library, library_root, previous_library, r
     return library_root, bool(requested_manifest and not library_root)
 
 
+
+def _active_jobs(service):
+    """Jobs that still own a worker tree, ignoring jobs left behind by a crash.
+
+    A pool restart keeps the previous jobs on disk.  Those entries may still
+    read ``running`` or ``recovery_required`` even though their worker process
+    died with the pool, and counting them as active makes every later attempt
+    to switch the application (a new build) fail with "Finish tasks before
+    changing its application".  Only jobs whose tree can still be reached are
+    treated as active.
+    """
+    from .engine.executor import identity_alive, identity_for_job
+
+    active = []
+    for job_id, job in list(getattr(service, "jobs", {}).items()):
+        status = job.get("status")
+        if job.get("logs_complete") is False and status in ("failed", "cancelled", "complete"):
+            active.append(job)
+            continue
+        if status in ("queued", "preparing"):
+            active.append(job)
+            continue
+        if status != "running":
+            continue
+        try:
+            identity = identity_for_job(service, job_id)
+        except Exception:  # noqa: BLE001 - unverifiable work stays active
+            active.append(job)
+            continue
+        if identity is None or identity_alive(identity):
+            active.append(job)
+    return active
+
 class PoolService:
     """One authoritative allocator for registered workspaces in one pool."""
 
@@ -369,8 +402,7 @@ class PoolService:
             selected_python = str(Path(worker_python).absolute()) if worker_python else service.plugins.python
             changed_policy = manifest_only_registry != service.settings.manifest_only_registry
             if changed_code or changed_library or selected_python != service.plugins.python or changed_policy:
-                active = any(job.get('status') in ('queued', 'preparing', 'running', 'recovery_required')
-                             or job.get('logs_complete') is False for job in service.jobs.values())
+                active = bool(_active_jobs(service))
                 if active:
                     raise PoolError('Finish tasks before changing its application, interpreter or catalog policy')
                 if force:
