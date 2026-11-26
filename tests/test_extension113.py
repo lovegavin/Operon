@@ -180,3 +180,18 @@ def test_pdb_errors(tmp_path):
     empty.write_text("HEADER    NOTHING\nEND\n", encoding="utf-8")
     with pytest.raises(ReaderError, match="no ATOM/HETATM"):
         PdbReader().read(empty, ["atom", "field"], FIELD_LABELS)
+
+
+def test_protein_fasta_keeps_the_multimer_separator(tmp_path):
+    path = _fasta(tmp_path, ">complex\nACDE:FG\n")
+    form = FastaReader().read(path, DIMS, LABELS, alphabet="protein")
+    colon = form.info["alphabet_map"][":"]
+    assert form.info["unknown_code"] == 21
+    np.testing.assert_allclose(
+        form.data[0, :7],
+        [PROTEIN_MAP[c] for c in "ACDE"] + [colon, PROTEIN_MAP["F"], PROTEIN_MAP["G"]],
+    )
+    assert form.info["sequences"] == ["ACDE:FG"]
+
+    from src.task.step.steps._sequence_common import decode_sequences
+    assert decode_sequences(form, "sequence", "position") == ["ACDE:FG"]

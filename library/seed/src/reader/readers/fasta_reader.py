@@ -139,7 +139,11 @@ class FastaReader(Reader):
 
         alphabet = _infer_alphabet(seqs) if requested == "auto" else requested
         if alphabet == "protein":
-            codes = _PROTEIN_MAP
+            codes = dict(_PROTEIN_MAP)
+            # ColabFold's multimer syntax separates chains with ':'; keep the
+            # character in the alphabet so decode_sequences restores it.  Use a
+            # code above the unknown code so existing encodings keep their value.
+            codes[":"] = _PROTEIN_UNKNOWN + 1
             unknown = _PROTEIN_UNKNOWN
         else:
             codes = _CHAR_MAP

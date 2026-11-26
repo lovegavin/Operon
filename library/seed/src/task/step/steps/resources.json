@@ -394,9 +394,14 @@
             "params_model_4.npz",
             "params_model_4_ptm.npz",
             "params_model_5.npz",
-            "params_model_5_ptm.npz"
+            "params_model_5_ptm.npz",
+            "params_model_1_multimer_v3.npz",
+            "params_model_2_multimer_v3.npz",
+            "params_model_3_multimer_v3.npz",
+            "params_model_4_multimer_v3.npz",
+            "params_model_5_multimer_v3.npz"
           ],
-          "note": "official 2022-12-06 parameters"
+          "note": "official 2022-12-06 parameters (monomer, pTM and multimer_v3)"
         },
         {
           "name": "uniref90",

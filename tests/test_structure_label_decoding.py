@@ -136,3 +136,32 @@ def test_selected_indices_names_the_chains_it_found():
 def test_fmt_atom_prints_the_decoded_chain():
     line = converter._fmt_atom("CA", "ALA", "A", 1, 0.0, 0.0, 0.0, 1.0, 0.0, " C", "", "", 1, False)
     assert line[21] == "A"
+
+
+def _form_with_null_residues():
+    form = structure_form()
+    encoder = LabelEncoder()
+    codes = encoder.fit_transform([".", "2", "."])
+    form.data[:, 3] = np.asarray(codes, dtype=np.float32)
+    form.info["encoders"]["field"]["residue_number"] = encoder
+    return form
+
+
+def test_convert_tolerates_null_residue_numbers(tmp_path):
+    form = _form_with_null_residues()
+    ctx = Ctx({"output": "out"}, tmp_path)
+    converter.StructureConvertFormatStep().run(ctx, [form])
+    path = next((tmp_path / "artifacts").rglob("*.pdb"))
+    lines = [line for line in path.read_text(encoding="ascii").splitlines() if line.startswith("ATOM")]
+    assert len(lines) == 3
+
+
+def test_extract_tolerates_null_residue_numbers(tmp_path, monkeypatch):
+    monkeypatch.setattr(extractor, "read_source", _identity_reader)
+    form = _form_with_null_residues()
+    ctx = Ctx({"output": "out", "chains": "B"}, tmp_path)
+    extractor.StructureExtractChainStep().run(ctx, [form])
+    path = next((tmp_path / "artifacts").rglob("*.pdb"))
+    lines = [line for line in path.read_text(encoding="ascii").splitlines() if line.startswith("ATOM")]
+    assert len(lines) == 1
+    assert lines[0][21] == "B"

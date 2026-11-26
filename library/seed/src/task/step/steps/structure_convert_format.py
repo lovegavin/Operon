@@ -39,6 +39,24 @@ _TEXT_COLUMNS = (
 )
 
 
+def residue_numbers(values, start=1):
+    """Coerce residue identifiers to integers, tolerating mmCIF null markers.
+
+    ``label_seq_id`` is ``.`` for HETATM groups (waters, ligands, sugars) in
+    many mmCIF files; those rows must not abort the whole structure.
+    """
+    numbers = []
+    for index, value in enumerate(values):
+        try:
+            text = str(value).strip()
+            if not text or text in ('.', '?'):
+                raise ValueError(text)
+            numbers.append(int(round(float(text))))
+        except (TypeError, ValueError):
+            numbers.append(start + index)
+    return np.asarray(numbers, dtype=np.int64)
+
+
 def _labels(form, field_dim):
     return {str(k).lower(): int(v) for k, v in (form.labels.get(field_dim) or {}).items()}
 
@@ -171,7 +189,8 @@ class StructureConvertFormatStep(Step):
             raise StepError('structure_convert_format: coordinates contain NaN/inf')
         resnames = decoded['resname'] if arrays['resname'] is not None else [params.get('resname', 'UNK')] * len(coords)
         chains = decoded['chain'] if arrays['chain'] is not None else [params.get('chain', 'A')] * len(coords)
-        numbers = decoded['residue_number'] if arrays['residue_number'] is not None else np.arange(1, len(coords) + 1)
+        numbers = (residue_numbers(decoded['residue_number'])
+                   if arrays['residue_number'] is not None else np.arange(1, len(coords) + 1))
         names = decoded['atom_name'] if arrays['atom_name'] is not None else ['C'] * len(coords)
         elements = decoded['element'] if arrays['element'] is not None else [None] * len(coords)
         altlocs = decoded['altloc'] if arrays['altloc'] is not None else [''] * len(coords)

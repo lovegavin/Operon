@@ -21,6 +21,7 @@ from src.task.step.steps.structure_convert_format import (
     _labels,
     _text,
     decoded_columns,
+    residue_numbers,
 )
 from operon.bytecode import io_path
 
@@ -115,10 +116,7 @@ class StructureExtractChainStep(Step):
             return [str(v) for v in values] if values is not None else fallback
 
         resnames = column('resname', ['UNK'] * len(chains))
-        numbers = np.rint(np.asarray(
-            [float(v) for v in column('residue_number', range(1, len(chains) + 1))],
-            dtype=np.float64,
-        )).astype(np.int64)
+        numbers = residue_numbers(column('residue_number', range(1, len(chains) + 1)))
         names = column('atom_name', ['C'] * len(chains))
         elements = column('element', [''] * len(chains))
         altlocs = column('altloc', [''] * len(chains))

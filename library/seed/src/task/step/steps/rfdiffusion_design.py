@@ -7,6 +7,7 @@ import re
 import subprocess
 import tempfile
 import shutil
+import sys
 try:
     from operon.bytecode import io_path
 except ImportError:  # legacy application (<=3.1.0)
@@ -182,7 +183,11 @@ class RfdiffusionDesignStep(Step):
         if not runner.is_file():
             raise StepError(f"rfdiffusion_design: {runner} is missing from the checkout")
 
-        python = str(params.get("python_executable") or "python")
+        python = str(params.get("python_executable") or "").strip()
+        if not python:
+            bundled = repo / "env" / "bin" / "python"
+            python = str(bundled) if bundled.is_file() else sys.executable
+        params["python_executable"] = python
         timeout = int(params.get("timeout_seconds") or 3600)
         with tempfile.TemporaryDirectory(prefix="rfdiffusion_") as work:
             outdir = Path(work) / "out"
@@ -191,9 +196,17 @@ class RfdiffusionDesignStep(Step):
             environment = os.environ.copy()
             environment['PYTHONPATH'] = str(repo) + (os.pathsep + environment['PYTHONPATH'] if environment.get('PYTHONPATH') else '')
             interpreter = Path(python)
-            if interpreter.is_file() and interpreter.parent.parent.joinpath('lib').is_dir():
-                lib = str(interpreter.parent.parent / 'lib')
-                environment['LD_LIBRARY_PATH'] = lib + (os.pathsep + environment['LD_LIBRARY_PATH'] if environment.get('LD_LIBRARY_PATH') else '')
+            lib_dirs: list[str] = []
+            for prefix in (Path(sys.prefix), interpreter.parent.parent):
+                for name in ('lib', 'lib64'):
+                    candidate = prefix / name
+                    if candidate.is_dir():
+                        lib_dirs.append(str(candidate))
+            if lib_dirs:
+                existing = environment.get('LD_LIBRARY_PATH')
+                if existing:
+                    lib_dirs.append(existing)
+                environment['LD_LIBRARY_PATH'] = os.pathsep.join(lib_dirs)
             try:
                 completed = subprocess.run(
                     command,

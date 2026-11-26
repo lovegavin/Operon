@@ -2,7 +2,7 @@
 
 ## Automated
 
-- `PYTHONPATH=/home/gavin/Operon python3 -m pytest tests/test_nodes.py tests/test_execution_plan.py -q`
+- `PYTHONPATH=. python3 -m pytest tests/test_nodes.py tests/test_execution_plan.py -q`
   -> 74 passed.
 - `python3 -m pytest tests/test_nodes.py` covers capacity from idle CPUs/free
   memory, readiness bands, ready-small above unready-big, all-unready order and

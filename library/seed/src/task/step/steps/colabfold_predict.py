@@ -23,6 +23,25 @@ from src.task.step.steps._native_results import output_directory, remember_nativ
 _MSA_MODES = ("mmseqs2_uniref_env", "mmseqs2_uniref", "single_sequence")
 
 
+def sequence_for_colabfold(sequences, sequence_dim: str = "sequence", position_dim: str = "position") -> str:
+    """Return the one sequence to fold, keeping ColabFold chain separators.
+
+    The FASTA reader keeps the raw text in ``info["sequences"]``.  Decoding the
+    integer codes would turn the ``:`` multimer separator into an unknown
+    residue, so the raw text wins whenever it exists.
+    """
+    info = getattr(sequences, "info", None) or {}
+    raw = info.get("sequences")
+    if isinstance(raw, list) and len(raw) == 1 and isinstance(raw[0], str) and raw[0].strip():
+        return raw[0].strip()
+    sequences_list = decode_sequences(sequences, sequence_dim, position_dim)
+    if len(sequences_list) != 1:
+        raise StepError(
+            f"colabfold_predict: expected exactly one sequence, got {len(sequences_list)}"
+        )
+    return sequences_list[0]
+
+
 def write_fasta(sequence: str, path: Path, header: str = "query") -> Path:
     """Write a single-sequence FASTA file and return its path."""
 
@@ -187,12 +206,7 @@ class ColabfoldPredictStep(Step):
         position_dim = str(params.get("position_dim") or "position")
         out_name = str(params.get("output") or "structure")
 
-        sequences_list = decode_sequences(sequences, sequence_dim, position_dim)
-        if len(sequences_list) != 1:
-            raise StepError(
-                f"colabfold_predict: expected exactly one sequence, got {len(sequences_list)}"
-            )
-        sequence = sequences_list[0]
+        sequence = sequence_for_colabfold(sequences, sequence_dim, position_dim)
         if not sequence:
             raise StepError("colabfold_predict: the input sequence is empty")
 
