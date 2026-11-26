@@ -35,6 +35,15 @@ def test_sequence_for_colabfold_reads_the_design_form():
     assert sequence_for_colabfold(designed_form(["MSKGEELFT"])) == "MSKGEELFT"
 
 
-def test_sequence_for_colabfold_still_rejects_several_designs():
-    with pytest.raises(StepError, match="expected exactly one sequence"):
-        sequence_for_colabfold(designed_form(["MSKGEELFT", "MSKGEELFA"]))
+def test_sequence_for_colabfold_names_the_requested_index():
+    with pytest.raises(StepError, match="outside the 1 sequences"):
+        sequence_for_colabfold(designed_form(["MSKGEELFT"]), index=1)
+
+
+def test_sequence_index_picks_one_of_several_designs():
+    from src.core.errors import StepError
+
+    form = designed_form(["MSKGEELFT", "MSKGEELFA"])
+    assert sequence_for_colabfold(form, index=1) == "MSKGEELFA"
+    with pytest.raises(StepError, match="outside the 2 sequences"):
+        sequence_for_colabfold(form, index=2)

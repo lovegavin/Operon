@@ -114,6 +114,15 @@
       "description": "显式指定 --db2 的路径前缀；设置后自动追加 --use-env 1。",
       "x-ui-group": "advanced",
       "x-ui-order": 58
+    },
+    "sequence_index": {
+      "type": "integer",
+      "default": 0,
+      "minimum": 0,
+      "title": "第几条序列（多序列设计时使用）",
+      "description": "ProteinMPNN 一次给出多条序列时，折叠其中第几条（0 起）。每个设计配一条折叠分支时留 0。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 57
     }
   }
 }

@@ -71,22 +71,31 @@ def msa_databases(root, db1_value, db2_value, msa_mode: str) -> tuple[str, str]:
     return first, second
 
 
-def sequence_for_colabfold(sequences, sequence_dim: str = "sequence", position_dim: str = "position") -> str:
-    """Return the one sequence to fold, keeping ColabFold chain separators.
+def sequence_for_colabfold(
+    sequences,
+    sequence_dim: str = "sequence",
+    position_dim: str = "position",
+    index: int = 0,
+) -> str:
+    """Return the sequence to fold, keeping ColabFold chain separators.
 
     The FASTA reader keeps the raw text in ``info["sequences"]``.  Decoding the
     integer codes would turn the ``:`` multimer separator into an unknown
-    residue, so the raw text wins whenever it exists.
+    residue, so the raw text wins whenever it exists.  ``index`` selects one
+    entry of a multi-sequence design, which lets several predictors fold the
+    sequences ProteinMPNN wrote for the same structure.
     """
     info = getattr(sequences, "info", None) or {}
     raw = info.get("sequences")
     if isinstance(raw, list) and raw and all(isinstance(item, str) for item in raw):
-        if len(raw) == 1 and raw[0].strip():
-            return raw[0].strip()
-        if len(raw) != 1:
+        if index < 0 or index >= len(raw):
             raise StepError(
-                f"colabfold_predict: expected exactly one sequence, got {len(raw)}"
+                f"colabfold_predict: sequence_index {index} is outside the "
+                f"{len(raw)} sequences this design carries"
             )
+        if raw[index].strip():
+            return raw[index].strip()
+        raise StepError(f"colabfold_predict: sequence {index} is empty")
     sequences_list = decode_sequences(sequences, sequence_dim, position_dim)
     if len(sequences_list) != 1:
         raise StepError(
@@ -271,7 +280,7 @@ class ColabfoldPredictStep(Step):
         position_dim = str(params.get("position_dim") or "position")
         out_name = str(params.get("output") or "structure")
 
-        sequence = sequence_for_colabfold(sequences, sequence_dim, position_dim)
+        sequence = sequence_for_colabfold(sequences, sequence_dim, position_dim, sequence_index)
         if not sequence:
             raise StepError("colabfold_predict: the input sequence is empty")
 
@@ -286,6 +295,7 @@ class ColabfoldPredictStep(Step):
         num_models = int(params.get("num_models") if params.get("num_models") is not None else 1)
         num_recycles = int(params.get("num_recycles") if params.get("num_recycles") is not None else 3)
         msa_mode = str(params.get("msa_mode") or "mmseqs2_uniref_env")
+        sequence_index = int(params.get("sequence_index") if params.get("sequence_index") is not None else 0)
         msa_host = msa_host_url(params.get("msa_host"))
         db1, db2 = msa_databases(
             params.get("msa_databases"),
