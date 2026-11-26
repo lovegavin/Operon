@@ -263,6 +263,7 @@ class RemoteManager:
                     # into a failed connection. It is retryable in Settings.
                     info['library_check'] = {'error': str(exc)}
                     atomic_json(self.directory/(key+'.catalog.json'), info)
+            self._prime_nodes()
             return info
         except HostKeyRequired as exc:
             with self.lock:
@@ -353,6 +354,16 @@ class RemoteManager:
         finally:
             with self.lock:
                 self.installing.pop(key, None)
+
+    def _prime_nodes(self):
+        """Warm the node list right after connecting so scores are ready when asked."""
+        def run():
+            try:
+                from operon import nodes
+                nodes.inventory(self.service, refresh=True)
+            except Exception:  # noqa: BLE001 - a warm-up must never fail the connect
+                pass
+        threading.Thread(target=run, name='node-prime', daemon=True).start()
 
     def setup_status(self, key):
         with self.lock:
