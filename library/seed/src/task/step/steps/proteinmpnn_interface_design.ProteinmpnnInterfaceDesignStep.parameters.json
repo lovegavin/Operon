@@ -18,7 +18,6 @@
     "structure_path": {
       "x-operon-path": "workflow",
       "type": "string",
-      "minLength": 1,
       "default": "",
       "title": "PDB 结构路径",
       "description": "Path to a complex PDB file (needs atom names, so it cannot come from a PdbReader table form).",

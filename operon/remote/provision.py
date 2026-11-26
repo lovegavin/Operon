@@ -22,6 +22,24 @@ MAMBA_ARCHIVE_SHA = '9a97976244929bbae28fb1fae504e74a3e7e6d1932870e3a03321f01b7f
 MAMBA_SHA = '701f39c06f8e6a670a0e186c8479b9e5c0502a2f0cda6cef65d83bdd2875e8bd'
 # Fixed ordinary epoch retains reproducible archives without old-timestamp warnings.
 SOURCE_EPOCH = 946684800  # 2000-01-01 UTC
+# Mirrors scripts/package_release.py: the shipped payload carries code and
+# metadata from the operator seed, never datasets, lock files or .gitignore
+# entries. Both sides must agree or a source checkout and the packaged tree
+# would compute different source digests for the same application.
+SEED_SUFFIXES = frozenset({'.py', '.json', '.md', '.sql', '.png', '.jpg',
+                           '.jpeg', '.webp', '.gif', '.svg'})
+ROUTE_SUFFIXES = frozenset({'.json', '.yaml', '.yml'})
+
+
+def _seed_member(path, seed):
+    """Whether the packaged operator seed carries this file."""
+    if '__pycache__' in path.parts or path.suffix == '.pyc':
+        return False
+    suffix = path.suffix.lower()
+    if suffix in SEED_SUFFIXES:
+        return True
+    parts = path.relative_to(seed).parts
+    return bool(parts) and parts[0] == 'routes' and suffix in ROUTE_SUFFIXES
 
 
 def source_archive(root):
@@ -44,7 +62,7 @@ def source_archive(root):
     seed = library / 'seed'
     if seed.is_dir():
         files += [p for p in seed.rglob('*') if p.is_file()
-                  and p.suffix != '.pyc' and '__pycache__' not in p.parts]
+                  and _seed_member(p, seed)]
     for directory in ('operon', 'operon_sdk', 'operon', 'src'):
         files += [p for p in (root / directory).rglob('*') if p.is_file()
                   and p.suffix in ('.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif', '.yaml', '.yml')

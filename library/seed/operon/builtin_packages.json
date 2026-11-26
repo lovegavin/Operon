@@ -98104,7 +98104,7 @@
           "kind": "operator",
           "entry_point": "src.task.step.steps.proteinmpnn_design:ProteinMpnnDesignStep",
           "code_sha": "1e27b94feb1389ce059dd426ddb8b3ae126a4b726dfeca1fdd9d4f90a9e4e968",
-          "declaration_sha": "e7bcb5c942a1f3e4e82af5537c87e479a205c0b89ff2deb3f3c3de63e7e0a0d2",
+          "declaration_sha": "5b3199d3f0341d6329801ee9f30e52984fa716a53573f383fe877ce97952c230",
           "title": "ProteinMPNN design",
           "description": "Run the official ProteinMPNN protein_mpnn_run.py entry point on a PDB structure and return the designed sequences with their model scores.  Design ranges restrict which residues are redesigned.",
           "documentation": {
@@ -98147,10 +98147,9 @@
               "structure_path": {
                 "x-operon-path": "workflow",
                 "type": "string",
-                "minLength": 1,
                 "default": "",
                 "title": "PDB 结构路径",
-                "description": "Path to the PDB file passed to ProteinMPNN (needs atom names, so it cannot come from a PdbReader table form).",
+                "description": "Optional. Wire a structure port, or give a path to a PDB file on the run host. A design form with a design axis needs design_index to pick one.",
                 "x-ui-group": "basic",
                 "x-ui-order": 0
               },
@@ -99624,7 +99623,7 @@
           "kind": "operator",
           "entry_point": "src.task.step.steps.proteinmpnn_interface_design:ProteinmpnnInterfaceDesignStep",
           "code_sha": "1e27b94feb1389ce059dd426ddb8b3ae126a4b726dfeca1fdd9d4f90a9e4e968",
-          "declaration_sha": "5ede28524d0adfbf808b4001cea21c0d68e801eb42744f37d8796003e69c9dde",
+          "declaration_sha": "1c3b73eb3df9e6821733881d1b00650051f25f61e7a809a513881980c828de58",
           "title": "ProteinMPNN interface design",
           "description": "Design a binder chain against a fixed partner with the official ProteinMPNN runner, including amino-acid bias, omission and tied positions.",
           "documentation": {
@@ -99668,7 +99667,6 @@
               "structure_path": {
                 "x-operon-path": "workflow",
                 "type": "string",
-                "minLength": 1,
                 "default": "",
                 "title": "PDB 结构路径",
                 "description": "Path to a complex PDB file (needs atom names, so it cannot come from a PdbReader table form).",

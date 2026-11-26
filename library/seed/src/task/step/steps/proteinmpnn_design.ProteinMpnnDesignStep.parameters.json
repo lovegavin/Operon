@@ -18,10 +18,9 @@
     "structure_path": {
       "x-operon-path": "workflow",
       "type": "string",
-      "minLength": 1,
       "default": "",
       "title": "PDB 结构路径",
-      "description": "Path to the PDB file passed to ProteinMPNN (needs atom names, so it cannot come from a PdbReader table form).",
+      "description": "Optional. Wire a structure port, or give a path to a PDB file on the run host. A design form with a design axis needs design_index to pick one.",
       "x-ui-group": "basic",
       "x-ui-order": 0
     },

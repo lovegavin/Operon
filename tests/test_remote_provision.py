@@ -48,7 +48,9 @@ def test_archive_carries_the_library_seed_for_managed_installs(tmp_path):
         (library / name).write_text('{"library_version": "2.0.0"}' if name == 'release.json' else 'lib')
     seed = library / 'seed'
     for name in ('operon/environments.json', 'operon/builtin_packages.json',
-                 'src/task/step/steps/a.py', 'routes/r/route.json', '__pycache__/a.pyc'):
+                 'src/task/step/steps/a.py', 'routes/r/route.json', 'routes/r/.gitignore',
+                 'routes/r/input/fixture.fastq', 'routes/r/input/notes.yaml',
+                 '.registry-maintenance.lock', '__pycache__/a.pyc'):
         path = seed / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text('seed')
@@ -57,7 +59,11 @@ def test_archive_carries_the_library_seed_for_managed_installs(tmp_path):
     assert {'library/pyproject.toml', 'library/release.json',
             'library/seed/operon/environments.json', 'library/seed/operon/builtin_packages.json',
             'library/seed/src/task/step/steps/a.py', 'library/seed/routes/r/route.json'} <= names
-    assert 'library/seed/__pycache__/a.pyc' not in names
+    assert 'library/seed/routes/r/input/notes.yaml' in names  # route metadata ships
+    for absent in ('library/seed/__pycache__/a.pyc', 'library/seed/routes/r/.gitignore',
+                   'library/seed/routes/r/input/fixture.fastq',
+                   'library/seed/.registry-maintenance.lock'):
+        assert absent not in names  # test fixtures never ship
 
 
 def test_managed_profile_needs_no_python_paths_and_keeps_existing_profiles_manual():
