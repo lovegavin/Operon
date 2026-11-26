@@ -163,7 +163,8 @@ class ProteinMpnnDesignStep(Step):
         'icon': 'Brain',
         'contracts': {
             'version': 1,
-            'inputs': [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': [], 'ndim': 2},
+            # A design form carries a design axis; design_index selects one.
+            'inputs': [{'version': 1, 'numeric': True, 'dims': [{'param': 'atom_dim', 'default': 'atom'}, {'param': 'field_dim', 'default': 'field'}], 'labels': [], 'parallel': []},
     ],
             'output': {
                 'mode': 'declare',
