@@ -17,6 +17,7 @@ from src.task.context.base import Context
 from src.core.errors import StepError
 from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
+from src.task.step.steps._protein_common import resolve_ligandmpnn_path
 
 _AA_ALPHABET = "ACDEFGHIKLMNPQRSTVWYX"
 _MODEL_TYPES = ("ligand_mpnn", "protein_mpnn", "soluble_mpnn")
@@ -31,13 +32,13 @@ _HEADER_FIELD = re.compile(r"([A-Za-z_]+)=([^,]+)")
 
 
 def _repo_path(value: str) -> Path:
-    text = value or os.environ.get("OPERON_LIGANDMPNN_PATH", "")
-    if not text:
+    path = resolve_ligandmpnn_path(value)
+    if not path.is_dir():
         raise StepError(
-            "ligandmpnn_design: ligandmpnn_path is required; point it at a LigandMPNN checkout "
-            "or set OPERON_LIGANDMPNN_PATH"
+            "ligandmpnn_design: ligandmpnn_path is required; point it at a LigandMPNN checkout, "
+            "set OPERON_LIGANDMPNN_PATH, or install the ligandmpnn resource"
         )
-    return Path(text).expanduser()
+    return path
 
 
 def _python(value: str) -> str:
@@ -188,15 +189,17 @@ class LigandMpnnDesignStep(Step):
         runner = repo / "run.py"
         if not runner.is_file():
             raise StepError(f"ligandmpnn_design: '{runner}' does not look like a LigandMPNN checkout")
-        weights = Path(str(params.get("weights_path", ""))).expanduser()
-        if not str(params.get("weights_path", "")).strip():
-            raise StepError("ligandmpnn_design: weights_path is required")
-        if not weights.is_file():
-            raise StepError(f"ligandmpnn_design: weights_path '{weights}' is not a file")
+        weights_text = str(params.get("weights_path", "")).strip()
 
         model_type = str(params.get("model_type", "ligand_mpnn"))
         if model_type not in _MODEL_TYPES:
             raise StepError(f"ligandmpnn_design: model_type must be one of {list(_MODEL_TYPES)}")
+        weights = Path(weights_text).expanduser() if weights_text else repo / "model_params" / f"{model_type}.pt"
+        if not weights.is_file():
+            raise StepError(
+                f"ligandmpnn_design: weights '{weights}' not found; pass weights_path or install the "
+                "LigandMPNN weights beside the checkout"
+            )
         device = resolve_device(params.get("device"), "ligandmpnn_design", python=str(params.get("python_executable") or ""))
         if device not in ("cpu", "cuda"):
             raise StepError("ligandmpnn_design: device must be 'cpu' or 'cuda'")

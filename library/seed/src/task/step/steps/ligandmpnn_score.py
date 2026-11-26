@@ -17,6 +17,7 @@ from src.task.context.base import Context
 from src.core.errors import StepError
 from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
+from src.task.step.steps._protein_common import resolve_ligandmpnn_path
 
 _MODEL_TYPES = ("ligand_mpnn", "protein_mpnn", "soluble_mpnn")
 _CHECKPOINT_FLAG = {
@@ -28,13 +29,13 @@ _STATISTICS = ("mean_log_prob", "std_log_prob")
 
 
 def _repo_path(value: str) -> Path:
-    text = value or os.environ.get("OPERON_LIGANDMPNN_PATH", "")
-    if not text:
+    path = resolve_ligandmpnn_path(value)
+    if not path.is_dir():
         raise StepError(
-            "ligandmpnn_score: ligandmpnn_path is required; point it at a LigandMPNN checkout "
-            "or set OPERON_LIGANDMPNN_PATH"
+            "ligandmpnn_score: ligandmpnn_path is required; point it at a LigandMPNN checkout, "
+            "set OPERON_LIGANDMPNN_PATH, or install the ligandmpnn resource"
         )
-    return Path(text).expanduser()
+    return path
 
 
 def _python(value: str) -> str:
@@ -153,11 +154,15 @@ class LigandMpnnScoreStep(Step):
         if not scorer.is_file():
             raise StepError(f"ligandmpnn_score: '{scorer}' does not look like a LigandMPNN checkout")
         weights_text = str(params.get("weights_path", "")).strip()
-        if not weights_text:
-            raise StepError("ligandmpnn_score: weights_path is required")
-        weights = Path(weights_text).expanduser()
+        if weights_text:
+            weights = Path(weights_text).expanduser()
+        else:
+            weights = repo / "model_params" / f"{model_type}.pt"
         if not weights.is_file():
-            raise StepError(f"ligandmpnn_score: weights_path '{weights}' is not a file")
+            raise StepError(
+                f"ligandmpnn_score: weights '{weights}' not found; pass weights_path or install the "
+                "LigandMPNN weights beside the checkout"
+            )
 
         model_type = str(params.get("model_type", "ligand_mpnn"))
         if model_type not in _MODEL_TYPES:
