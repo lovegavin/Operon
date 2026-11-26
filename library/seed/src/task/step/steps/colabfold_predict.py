@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from urllib.parse import urlparse
 
 import numpy as np
 
@@ -21,6 +22,21 @@ from src.task.step.steps._sequence_common import decode_sequences
 from src.task.step.steps._native_results import output_directory, remember_native, result_file
 
 _MSA_MODES = ("mmseqs2_uniref_env", "mmseqs2_uniref", "single_sequence")
+
+
+def msa_host_url(value) -> str:
+    """Return a validated MSA server URL, or ``""`` when none was requested."""
+
+    host = str(value or "").strip()
+    if not host:
+        return ""
+    parsed = urlparse(host)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise StepError(
+            "colabfold_predict: msa_host must be an http(s) URL such as "
+            f"'https://api.colabfold.com', got '{host}'"
+        )
+    return host
 
 
 def sequence_for_colabfold(sequences, sequence_dim: str = "sequence", position_dim: str = "position") -> str:
@@ -87,6 +103,7 @@ def predict(
     num_models: int = 1,
     num_recycles: int = 3,
     msa_mode: str = "mmseqs2_uniref_env",
+    msa_host: str = "",
     device: str = "cpu",
     timeout: int = 3600,
 ) -> tuple[Path, Path | None]:
@@ -112,6 +129,9 @@ def predict(
         msa_mode,
         "--overwrite",
     ]
+    host_url = msa_host_url(msa_host)
+    if host_url:
+        command += ["--host-url", host_url]
     environment = dict(os.environ)
     if device == "cpu":
         environment["CUDA_VISIBLE_DEVICES"] = ""
@@ -221,6 +241,7 @@ class ColabfoldPredictStep(Step):
         num_models = int(params.get("num_models") if params.get("num_models") is not None else 1)
         num_recycles = int(params.get("num_recycles") if params.get("num_recycles") is not None else 3)
         msa_mode = str(params.get("msa_mode") or "mmseqs2_uniref_env")
+        msa_host = msa_host_url(params.get("msa_host"))
         device = resolve_device(params.get("device"), "colabfold_predict")
         timeout = int(params.get("timeout_seconds") if params.get("timeout_seconds") is not None else 3600)
         if msa_mode not in _MSA_MODES:
@@ -237,6 +258,7 @@ class ColabfoldPredictStep(Step):
                 num_models=num_models,
                 num_recycles=num_recycles,
                 msa_mode=msa_mode,
+                msa_host=msa_host,
                 device=device,
                 timeout=timeout,
             )
@@ -270,6 +292,7 @@ class ColabfoldPredictStep(Step):
                     "scores_path": str(scores_path) if scores_path is not None else "",
                     "sequences": [sequence],
                     "msa_mode": msa_mode,
+                    "msa_host": msa_host,
                 }
             )
         finally:

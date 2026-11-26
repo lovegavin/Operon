@@ -56,6 +56,13 @@
         "single_sequence"
       ]
     },
+    "msa_host": {
+      "type": "string",
+      "default": "",
+      "title": "MSA 服务器地址（留空用 ColabFold 默认）",
+      "x-ui-group": "advanced",
+      "x-ui-order": 55
+    },
     "device": {
       "type": "string",
       "default": "auto",
