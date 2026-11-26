@@ -25,7 +25,7 @@ from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
 from src.task.step.steps._native_results import output_directory, result_file, remember_native
-from src.task.step.steps._protein_common import proteinmpnn_layout
+from src.task.step.steps._protein_common import proteinmpnn_layout, resolve_proteinmpnn_path
 
 _NUMBER = r"-?(?:\d+(?:\.\d*)?|\.\d+|[nN][aA][nN]|[iI][nN][fF])"
 _HEADER = re.compile(
