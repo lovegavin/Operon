@@ -1,6 +1,7 @@
 """Shared helpers for protein sequence and structure operators."""
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import numpy as np

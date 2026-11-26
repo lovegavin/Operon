@@ -57,3 +57,15 @@ def test_proteinmpnn_unit_files_are_root_relative() -> None:
     ]
     assert files and all(not path.startswith("ProteinMPNN/") for path in files)
     assert entry["link_root"] == ""
+
+def test_proteinmpnn_falls_back_to_the_installed_resource(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.delenv("OPERON_PROTEINMPNN_PATH", raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))
+    root = tmp_path / ".local" / "share" / "operon" / "resources" / "proteinmpnn"
+    (root / "vanilla_model_weights").mkdir(parents=True)
+    (root / "protein_mpnn_run.py").write_text("", encoding="utf-8")
+    (root / "vanilla_model_weights" / "v_48_020.pt").write_text("", encoding="utf-8")
+    from src.task.step.steps._protein_common import resolve_proteinmpnn_path
+
+    assert resolve_proteinmpnn_path("") == root
+    assert resolve_proteinmpnn_path(str(tmp_path / "explicit")) == tmp_path / "explicit"
