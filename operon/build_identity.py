@@ -34,9 +34,14 @@ def application_version(root):
 
 
 def source_digest(root):
-    """Hash the exact deterministic archive that a managed server receives."""
-    from operon.remote.provision import source_archive
-    return hashlib.sha256(source_archive(Path(root))).hexdigest()
+    """Hash the deterministic tar inside the archive a managed server receives.
+
+    The gzip container is not portable: zlib and the gzip OS byte differ between
+    platforms, so two hosts would hash the same tree differently.  The tar bytes
+    are canonical, so the digest is taken over them.
+    """
+    from operon.remote.provision import archive_digest, source_archive
+    return archive_digest(source_archive(Path(root)))
 
 
 def _installed_library_document(root):

@@ -42,6 +42,17 @@ def _seed_member(path, seed):
     return bool(parts) and parts[0] == 'routes' and suffix in ROUTE_SUFFIXES
 
 
+def archive_digest(data):
+    """Hash the canonical tar inside an archive payload.
+
+    The gzip container is not portable: zlib and the gzip OS byte differ between
+    platforms, so two hosts would hash the same tree differently.  The tar bytes
+    are canonical; plain (already decompressed) payloads hash as they are.
+    """
+    payload = gzip.decompress(data) if data[:2] == b'\x1f\x8b' else data
+    return hashlib.sha256(payload).hexdigest()
+
+
 def source_archive(root):
     """Explicit code allowlist. Never includes profiles, datasets, SSH or git files."""
     root = Path(root)
@@ -68,12 +79,16 @@ def source_archive(root):
                   and p.suffix in ('.py', '.json', '.md', '.png', '.jpg', '.jpeg', '.svg', '.webp', '.gif', '.yaml', '.yml')
                   and '__pycache__' not in p.parts]
     stream = io.BytesIO()
+    # Sort by archive member name, not by Path: PurePath ordering folds case on
+    # Windows, which would permute the tar and change the digest on that host.
+    entries = sorted(((named.get(path, path.relative_to(root).as_posix()), path) for path in files),
+                     key=lambda item: item[0])
     with tarfile.open(fileobj=stream, mode='w') as archive:
-        for path in sorted(files):
+        for name, path in entries:
             if path.is_symlink() or not path.resolve().is_relative_to(root.resolve()):
                 raise ValueError('Deployment source cannot contain symlinks outside its code root')
             data = path.read_bytes()
-            member = tarfile.TarInfo(named.get(path, path.relative_to(root).as_posix()))
+            member = tarfile.TarInfo(name)
             member.size = len(data); member.mode = 0o644; member.mtime = SOURCE_EPOCH
             archive.addfile(member, io.BytesIO(data))
     return gzip.compress(stream.getvalue(), mtime=0)
@@ -485,7 +500,7 @@ def provision(connection, profile, progress, cancel, root=None, expected=None, f
     shell.run('umask 077; mkdir -p -- ' + q(managed))
     _retire_old_servers(shell, home[1].rstrip('/'), managed, progress, force=force)
     data = source_archive(root or application_root())
-    digest = hashlib.sha256(data).hexdigest()
+    digest = archive_digest(data)
     from operon.build_identity import build_identity
     identity = build_identity(root or application_root(), source_sha256=digest)
     if expected is not None and expected.get('build_id') != identity['build_id']:
