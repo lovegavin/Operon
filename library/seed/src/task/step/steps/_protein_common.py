@@ -304,3 +304,19 @@ def contact_stats(
     counts = tree.query_ball_point(query, r=cutoff, return_length=True)
     distances, _ = tree.query(query, k=1)
     return np.asarray(counts, dtype=np.int64), np.asarray(distances, dtype=np.float64)
+
+
+def proteinmpnn_layout(root: "Path | str") -> "tuple[Path, Path]":
+    """Return the checkout and weight directory inside a resource root.
+
+    A linked official checkout lands under ``<root>/ProteinMPNN`` while a
+    copied one sits directly at ``<root>``; both carry ``vanilla_model_weights``
+    beside ``protein_mpnn_run.py``.  Operators ask this helper so a fresh
+    resource install resolves the same files a hand-linked tree does.
+    """
+
+    base = Path(root).expanduser()
+    for candidate in (base, base / "ProteinMPNN"):
+        if (candidate / "protein_mpnn_run.py").is_file():
+            return candidate, candidate / "vanilla_model_weights"
+    return base, base / "vanilla_model_weights"

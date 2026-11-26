@@ -25,6 +25,7 @@ from src.task.step.base import Step
 from src.task.step.steps import _port_inputs
 from src.task.step.steps._envpython import environment_python
 from src.task.step.steps._native_results import output_directory, result_file, remember_native
+from src.task.step.steps._protein_common import proteinmpnn_layout
 
 _NUMBER = r"-?(?:\d+(?:\.\d*)?|\.\d+|[nN][aA][nN]|[iI][nN][fF])"
 _HEADER = re.compile(
@@ -231,14 +232,15 @@ class ProteinMpnnDesignStep(Step):
                 "not a directory (set OPERON_PROTEINMPNN_PATH or the "
                 "proteinmpnn_path parameter)"
             )
-        runner = proteinmpnn_path / "protein_mpnn_run.py"
+        layout_root, default_weights = proteinmpnn_layout(proteinmpnn_path)
+        runner = layout_root / "protein_mpnn_run.py"
         if not runner.is_file():
             raise StepError(
                 f"proteinmpnn_design: '{runner}' does not exist; point "
                 "proteinmpnn_path at the official ProteinMPNN checkout"
             )
-        weights_path = Path(weights_path_text).expanduser() if weights_path_text else (
-            proteinmpnn_path / "vanilla_model_weights"
+        weights_path = (
+            Path(weights_path_text).expanduser() if weights_path_text else default_weights
         )
         weight_file = weights_path / f"{model_name}.pt"
         if model_name not in MODELS:
