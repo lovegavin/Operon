@@ -1,0 +1,860 @@
+{
+ "schema_version": 2,
+ "name": "task2-minibinder-design",
+ "base_dir": ".",
+ "nodes": [
+  {
+   "id": "read",
+   "kind": "source",
+   "title": "mmCIF source: 3DI3.cif",
+   "position": {
+    "x": 40,
+    "y": 40
+   },
+   "params": {},
+   "input_count": 0,
+   "source": {
+    "reader": "MmcifReader",
+    "path": "tasks/T01-structure-design/input/3DI3.cif",
+    "dims": [
+     "atom",
+     "field"
+    ],
+    "labels": {
+     "atom": "auto"
+    },
+    "args": {},
+    "location": {
+     "kind": "ssh",
+     "profile_id": "93d9ed000f3349f3a3496f0d712ca29a"
+    }
+   }
+  },
+  {
+   "id": "ext",
+   "kind": "operator",
+   "title": "keep chain B only (drops HETATM)",
+   "position": {
+    "x": 40,
+    "y": 220
+   },
+   "params": {
+    "atom_dim": "atom",
+    "field_dim": "field",
+    "output": "chain",
+    "filename": "task2_chainB.pdb",
+    "chains": "B",
+    "include_hetatm": false
+   },
+   "input_count": 1,
+   "operator": "structure_extract_chain"
+  },
+  {
+   "id": "rf",
+   "kind": "operator",
+   "title": "RFdiffusion binder, contig B21-213/0 58, 4 designs",
+   "position": {
+    "x": 40,
+    "y": 400
+   },
+   "params": {
+    "atom_dim": "atom",
+    "field_dim": "field",
+    "structure_path": "",
+    "contigs": "B21-213/0 58",
+    "num_designs": 4,
+    "design_index": 0,
+    "device": "cuda",
+    "rfdiffusion_path": "",
+    "python_executable": "/public/home/lihj/.local/share/operon/resources/rfdiffusion/env/bin/python",
+    "timeout_seconds": 3600,
+    "output": "designs"
+   },
+   "input_count": 1,
+   "operator": "rfdiffusion_design"
+  },
+  {
+   "id": "mpnn0",
+   "kind": "operator",
+   "title": "ProteinMPNN design 0 (design_index 1, binder chain A)",
+   "position": {
+    "x": 40,
+    "y": 620
+   },
+   "params": {
+    "atom_dim": "atom",
+    "field_dim": "field",
+    "structure_path": "",
+    "proteinmpnn_path": "",
+    "weights_path": "",
+    "model_name": "v_48_020",
+    "ca_only": false,
+    "num_seq_per_target": 2,
+    "sampling_temp": "0.1",
+    "seed": 7,
+    "chains": "A",
+    "fixed_positions": "",
+    "design_ranges": "",
+    "design_index": 1,
+    "device": "cuda",
+    "python_executable": "",
+    "timeout_seconds": 1800,
+    "output": "sequences_0"
+   },
+   "input_count": 1,
+   "operator": "proteinmpnn_design"
+  },
+  {
+   "id": "fa0",
+   "kind": "operator",
+   "title": "export fasta design 0",
+   "position": {
+    "x": 190,
+    "y": 840
+   },
+   "params": {
+    "format": "fasta",
+    "filename": "task2_mpnn0.fasta",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "fold0s0",
+   "kind": "operator",
+   "title": "ColabFold design 0 sequence 1",
+   "position": {
+    "x": 40,
+    "y": 840
+   },
+   "params": {
+    "sequence_dim": "sequence",
+    "position_dim": "position",
+    "colabfold_path": "/public/home/lihj/Operon/managed-v1/environments/colabfold/bin/colabfold_batch",
+    "num_models": 1,
+    "num_recycles": 1,
+    "msa_mode": "single_sequence",
+    "msa_host": "",
+    "device": "cuda",
+    "timeout_seconds": 2400,
+    "output": "folded_0s0",
+    "msa_databases": "",
+    "msa_db1": "",
+    "msa_db2": "",
+    "sequence_index": 0
+   },
+   "input_count": 1,
+   "operator": "colabfold_predict"
+  },
+  {
+   "id": "exp0s0",
+   "kind": "operator",
+   "title": "export pdb design 0 sequence 1",
+   "position": {
+    "x": 40,
+    "y": 1060
+   },
+   "params": {
+    "format": "pdb",
+    "filename": "task2_design0_seq0.pdb",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "fold0s1",
+   "kind": "operator",
+   "title": "ColabFold design 0 sequence 2",
+   "position": {
+    "x": 40,
+    "y": 840
+   },
+   "params": {
+    "sequence_dim": "sequence",
+    "position_dim": "position",
+    "colabfold_path": "/public/home/lihj/Operon/managed-v1/environments/colabfold/bin/colabfold_batch",
+    "num_models": 1,
+    "num_recycles": 1,
+    "msa_mode": "single_sequence",
+    "msa_host": "",
+    "device": "cuda",
+    "timeout_seconds": 2400,
+    "output": "folded_0s1",
+    "msa_databases": "",
+    "msa_db1": "",
+    "msa_db2": "",
+    "sequence_index": 1
+   },
+   "input_count": 1,
+   "operator": "colabfold_predict"
+  },
+  {
+   "id": "exp0s1",
+   "kind": "operator",
+   "title": "export pdb design 0 sequence 2",
+   "position": {
+    "x": 40,
+    "y": 1060
+   },
+   "params": {
+    "format": "pdb",
+    "filename": "task2_design0_seq1.pdb",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "mpnn1",
+   "kind": "operator",
+   "title": "ProteinMPNN design 1 (design_index 2, binder chain A)",
+   "position": {
+    "x": 340,
+    "y": 620
+   },
+   "params": {
+    "atom_dim": "atom",
+    "field_dim": "field",
+    "structure_path": "",
+    "proteinmpnn_path": "",
+    "weights_path": "",
+    "model_name": "v_48_020",
+    "ca_only": false,
+    "num_seq_per_target": 2,
+    "sampling_temp": "0.1",
+    "seed": 14,
+    "chains": "A",
+    "fixed_positions": "",
+    "design_ranges": "",
+    "design_index": 2,
+    "device": "cuda",
+    "python_executable": "",
+    "timeout_seconds": 1800,
+    "output": "sequences_1"
+   },
+   "input_count": 1,
+   "operator": "proteinmpnn_design"
+  },
+  {
+   "id": "fa1",
+   "kind": "operator",
+   "title": "export fasta design 1",
+   "position": {
+    "x": 190,
+    "y": 840
+   },
+   "params": {
+    "format": "fasta",
+    "filename": "task2_mpnn1.fasta",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "fold1s0",
+   "kind": "operator",
+   "title": "ColabFold design 1 sequence 1",
+   "position": {
+    "x": 40,
+    "y": 840
+   },
+   "params": {
+    "sequence_dim": "sequence",
+    "position_dim": "position",
+    "colabfold_path": "/public/home/lihj/Operon/managed-v1/environments/colabfold/bin/colabfold_batch",
+    "num_models": 1,
+    "num_recycles": 1,
+    "msa_mode": "single_sequence",
+    "msa_host": "",
+    "device": "cuda",
+    "timeout_seconds": 2400,
+    "output": "folded_1s0",
+    "msa_databases": "",
+    "msa_db1": "",
+    "msa_db2": "",
+    "sequence_index": 0
+   },
+   "input_count": 1,
+   "operator": "colabfold_predict"
+  },
+  {
+   "id": "exp1s0",
+   "kind": "operator",
+   "title": "export pdb design 1 sequence 1",
+   "position": {
+    "x": 40,
+    "y": 1060
+   },
+   "params": {
+    "format": "pdb",
+    "filename": "task2_design1_seq0.pdb",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "fold1s1",
+   "kind": "operator",
+   "title": "ColabFold design 1 sequence 2",
+   "position": {
+    "x": 40,
+    "y": 840
+   },
+   "params": {
+    "sequence_dim": "sequence",
+    "position_dim": "position",
+    "colabfold_path": "/public/home/lihj/Operon/managed-v1/environments/colabfold/bin/colabfold_batch",
+    "num_models": 1,
+    "num_recycles": 1,
+    "msa_mode": "single_sequence",
+    "msa_host": "",
+    "device": "cuda",
+    "timeout_seconds": 2400,
+    "output": "folded_1s1",
+    "msa_databases": "",
+    "msa_db1": "",
+    "msa_db2": "",
+    "sequence_index": 1
+   },
+   "input_count": 1,
+   "operator": "colabfold_predict"
+  },
+  {
+   "id": "exp1s1",
+   "kind": "operator",
+   "title": "export pdb design 1 sequence 2",
+   "position": {
+    "x": 40,
+    "y": 1060
+   },
+   "params": {
+    "format": "pdb",
+    "filename": "task2_design1_seq1.pdb",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "mpnn2",
+   "kind": "operator",
+   "title": "ProteinMPNN design 2 (design_index 3, binder chain A)",
+   "position": {
+    "x": 640,
+    "y": 620
+   },
+   "params": {
+    "atom_dim": "atom",
+    "field_dim": "field",
+    "structure_path": "",
+    "proteinmpnn_path": "",
+    "weights_path": "",
+    "model_name": "v_48_020",
+    "ca_only": false,
+    "num_seq_per_target": 2,
+    "sampling_temp": "0.1",
+    "seed": 21,
+    "chains": "A",
+    "fixed_positions": "",
+    "design_ranges": "",
+    "design_index": 3,
+    "device": "cuda",
+    "python_executable": "",
+    "timeout_seconds": 1800,
+    "output": "sequences_2"
+   },
+   "input_count": 1,
+   "operator": "proteinmpnn_design"
+  },
+  {
+   "id": "fa2",
+   "kind": "operator",
+   "title": "export fasta design 2",
+   "position": {
+    "x": 190,
+    "y": 840
+   },
+   "params": {
+    "format": "fasta",
+    "filename": "task2_mpnn2.fasta",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "fold2s0",
+   "kind": "operator",
+   "title": "ColabFold design 2 sequence 1",
+   "position": {
+    "x": 40,
+    "y": 840
+   },
+   "params": {
+    "sequence_dim": "sequence",
+    "position_dim": "position",
+    "colabfold_path": "/public/home/lihj/Operon/managed-v1/environments/colabfold/bin/colabfold_batch",
+    "num_models": 1,
+    "num_recycles": 1,
+    "msa_mode": "single_sequence",
+    "msa_host": "",
+    "device": "cuda",
+    "timeout_seconds": 2400,
+    "output": "folded_2s0",
+    "msa_databases": "",
+    "msa_db1": "",
+    "msa_db2": "",
+    "sequence_index": 0
+   },
+   "input_count": 1,
+   "operator": "colabfold_predict"
+  },
+  {
+   "id": "exp2s0",
+   "kind": "operator",
+   "title": "export pdb design 2 sequence 1",
+   "position": {
+    "x": 40,
+    "y": 1060
+   },
+   "params": {
+    "format": "pdb",
+    "filename": "task2_design2_seq0.pdb",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "fold2s1",
+   "kind": "operator",
+   "title": "ColabFold design 2 sequence 2",
+   "position": {
+    "x": 40,
+    "y": 840
+   },
+   "params": {
+    "sequence_dim": "sequence",
+    "position_dim": "position",
+    "colabfold_path": "/public/home/lihj/Operon/managed-v1/environments/colabfold/bin/colabfold_batch",
+    "num_models": 1,
+    "num_recycles": 1,
+    "msa_mode": "single_sequence",
+    "msa_host": "",
+    "device": "cuda",
+    "timeout_seconds": 2400,
+    "output": "folded_2s1",
+    "msa_databases": "",
+    "msa_db1": "",
+    "msa_db2": "",
+    "sequence_index": 1
+   },
+   "input_count": 1,
+   "operator": "colabfold_predict"
+  },
+  {
+   "id": "exp2s1",
+   "kind": "operator",
+   "title": "export pdb design 2 sequence 2",
+   "position": {
+    "x": 40,
+    "y": 1060
+   },
+   "params": {
+    "format": "pdb",
+    "filename": "task2_design2_seq1.pdb",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "mpnn3",
+   "kind": "operator",
+   "title": "ProteinMPNN design 3 (design_index 4, binder chain A)",
+   "position": {
+    "x": 940,
+    "y": 620
+   },
+   "params": {
+    "atom_dim": "atom",
+    "field_dim": "field",
+    "structure_path": "",
+    "proteinmpnn_path": "",
+    "weights_path": "",
+    "model_name": "v_48_020",
+    "ca_only": false,
+    "num_seq_per_target": 2,
+    "sampling_temp": "0.1",
+    "seed": 28,
+    "chains": "A",
+    "fixed_positions": "",
+    "design_ranges": "",
+    "design_index": 4,
+    "device": "cuda",
+    "python_executable": "",
+    "timeout_seconds": 1800,
+    "output": "sequences_3"
+   },
+   "input_count": 1,
+   "operator": "proteinmpnn_design"
+  },
+  {
+   "id": "fa3",
+   "kind": "operator",
+   "title": "export fasta design 3",
+   "position": {
+    "x": 190,
+    "y": 840
+   },
+   "params": {
+    "format": "fasta",
+    "filename": "task2_mpnn3.fasta",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "fold3s0",
+   "kind": "operator",
+   "title": "ColabFold design 3 sequence 1",
+   "position": {
+    "x": 40,
+    "y": 840
+   },
+   "params": {
+    "sequence_dim": "sequence",
+    "position_dim": "position",
+    "colabfold_path": "/public/home/lihj/Operon/managed-v1/environments/colabfold/bin/colabfold_batch",
+    "num_models": 1,
+    "num_recycles": 1,
+    "msa_mode": "single_sequence",
+    "msa_host": "",
+    "device": "cuda",
+    "timeout_seconds": 2400,
+    "output": "folded_3s0",
+    "msa_databases": "",
+    "msa_db1": "",
+    "msa_db2": "",
+    "sequence_index": 0
+   },
+   "input_count": 1,
+   "operator": "colabfold_predict"
+  },
+  {
+   "id": "exp3s0",
+   "kind": "operator",
+   "title": "export pdb design 3 sequence 1",
+   "position": {
+    "x": 40,
+    "y": 1060
+   },
+   "params": {
+    "format": "pdb",
+    "filename": "task2_design3_seq0.pdb",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  },
+  {
+   "id": "fold3s1",
+   "kind": "operator",
+   "title": "ColabFold design 3 sequence 2",
+   "position": {
+    "x": 40,
+    "y": 840
+   },
+   "params": {
+    "sequence_dim": "sequence",
+    "position_dim": "position",
+    "colabfold_path": "/public/home/lihj/Operon/managed-v1/environments/colabfold/bin/colabfold_batch",
+    "num_models": 1,
+    "num_recycles": 1,
+    "msa_mode": "single_sequence",
+    "msa_host": "",
+    "device": "cuda",
+    "timeout_seconds": 2400,
+    "output": "folded_3s1",
+    "msa_databases": "",
+    "msa_db1": "",
+    "msa_db2": "",
+    "sequence_index": 1
+   },
+   "input_count": 1,
+   "operator": "colabfold_predict"
+  },
+  {
+   "id": "exp3s1",
+   "kind": "operator",
+   "title": "export pdb design 3 sequence 2",
+   "position": {
+    "x": 40,
+    "y": 1060
+   },
+   "params": {
+    "format": "pdb",
+    "filename": "task2_design3_seq1.pdb",
+    "include_labels": true,
+    "buffer_mb": 1,
+    "assembly": "",
+    "topology": "linear",
+    "value_column": 0,
+    "directed": false
+   },
+   "input_count": 1,
+   "operator": "export_results"
+  }
+ ],
+ "edges": [
+  {
+   "id": "e1",
+   "source": "read",
+   "target": "ext",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e2",
+   "source": "ext",
+   "target": "rf",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e3",
+   "source": "rf",
+   "target": "mpnn0",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e4",
+   "source": "mpnn0",
+   "target": "fa0",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e5",
+   "source": "mpnn0",
+   "target": "fold0s0",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e6",
+   "source": "fold0s0",
+   "target": "exp0s0",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e7",
+   "source": "mpnn0",
+   "target": "fold0s1",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e8",
+   "source": "fold0s1",
+   "target": "exp0s1",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e9",
+   "source": "rf",
+   "target": "mpnn1",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e10",
+   "source": "mpnn1",
+   "target": "fa1",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e11",
+   "source": "mpnn1",
+   "target": "fold1s0",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e12",
+   "source": "fold1s0",
+   "target": "exp1s0",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e13",
+   "source": "mpnn1",
+   "target": "fold1s1",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e14",
+   "source": "fold1s1",
+   "target": "exp1s1",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e15",
+   "source": "rf",
+   "target": "mpnn2",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e16",
+   "source": "mpnn2",
+   "target": "fa2",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e17",
+   "source": "mpnn2",
+   "target": "fold2s0",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e18",
+   "source": "fold2s0",
+   "target": "exp2s0",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e19",
+   "source": "mpnn2",
+   "target": "fold2s1",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e20",
+   "source": "fold2s1",
+   "target": "exp2s1",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e21",
+   "source": "rf",
+   "target": "mpnn3",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e22",
+   "source": "mpnn3",
+   "target": "fa3",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e23",
+   "source": "mpnn3",
+   "target": "fold3s0",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e24",
+   "source": "fold3s0",
+   "target": "exp3s0",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e25",
+   "source": "mpnn3",
+   "target": "fold3s1",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  },
+  {
+   "id": "e26",
+   "source": "fold3s1",
+   "target": "exp3s1",
+   "sourceHandle": "out-0",
+   "targetHandle": "in-0"
+  }
+ ],
+ "runtime": {
+  "execution": {
+   "kind": "ssh",
+   "profile_id": "93d9ed000f3349f3a3496f0d712ca29a",
+   "max_parallel_tasks": 3
+  }
+ }
+}
