@@ -231,6 +231,7 @@ def predict(
     db2: str = "",
     mmseqs_path: str = "",
     msa_threads: int = 8,
+    msa_a3m: str = "",
     device: str = "cpu",
     timeout: int = 3600,
 ) -> tuple[Path, Path | None]:
@@ -240,7 +241,12 @@ def predict(
     outdir = workdir / "out"
     outdir.mkdir(parents=True, exist_ok=True)
     query = fasta
-    if db1 or db2:
+    if msa_a3m:
+        # A multiple-sequence alignment produced elsewhere (for example by
+        # ``alphafold2_msa_search``) is handed to colabfold_batch as-is: the
+        # runner reads the a3m and skips its own search.
+        query = Path(msa_a3m)
+    elif db1 or db2:
         query = search_database(
             fasta,
             binary=binary,
@@ -265,10 +271,10 @@ def predict(
         str(num_models),
         "--num-recycle",
         str(num_recycles),
-        "--msa-mode",
-        msa_mode,
-        "--overwrite",
     ]
+    if not msa_a3m:
+        command += ["--msa-mode", msa_mode]
+    command += ["--overwrite"]
     host_url = msa_host_url(msa_host)
     if host_url:
         command += ["--host-url", host_url]
@@ -389,6 +395,15 @@ class ColabfoldPredictStep(Step):
             params.get("msa_db2"),
             msa_mode,
         )
+        msa_a3m = str(params.get("msa_a3m") or "")
+        if msa_a3m:
+            alignment = Path(msa_a3m).expanduser()
+            if not alignment.is_file():
+                raise StepError(
+                    f"colabfold_predict: msa_a3m '{msa_a3m}' does not exist; point it at an "
+                    "a3m file produced by an MSA step such as alphafold2_msa_search"
+                )
+            msa_a3m = str(alignment)
         device = resolve_device(params.get("device"), "colabfold_predict")
         timeout = int(params.get("timeout_seconds") if params.get("timeout_seconds") is not None else 3600)
         if msa_mode not in _MSA_MODES:
@@ -410,6 +425,7 @@ class ColabfoldPredictStep(Step):
                 db2=db2,
                 mmseqs_path=str(params.get("mmseqs_path") or ""),
                 msa_threads=int(params.get("msa_threads") if params.get("msa_threads") is not None else 8),
+                msa_a3m=msa_a3m,
                 device=device,
                 timeout=timeout,
             )
@@ -446,6 +462,7 @@ class ColabfoldPredictStep(Step):
                     "msa_host": msa_host,
                     "msa_db1": db1,
                     "msa_db2": db2,
+                    "msa_a3m": msa_a3m,
                 }
             )
         finally:

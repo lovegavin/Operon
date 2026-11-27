@@ -140,6 +140,14 @@
       "description": "Threads for the local MMseqs2 search.",
       "x-ui-group": "advanced",
       "x-ui-order": 59
+    },
+    "msa_a3m": {
+      "type": "string",
+      "default": "",
+      "title": "Alignment (a3m)",
+      "description": "直接用已有的 a3m 比对折叠（例如 alphafold2_msa_search 的原生 MSA 输出），设置后跳过 ColabFold 自身的 MSA 搜索，也不再使用 msa_host/msa_db1/msa_db2。",
+      "x-ui-group": "advanced",
+      "x-ui-order": 60
     }
   }
 }
