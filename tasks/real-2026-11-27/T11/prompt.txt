@@ -1,0 +1,41 @@
+# T11 · ABL 激酶虚拟筛选：ZINC 到对接
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+以 1IEP（含伊马替尼）为靶点，从 ZINC 分子库出发，描述符/指纹筛选与对接能否把已知抑制剂排在合理分位？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| PDB 1IEP | PDB | 435 KB | PDB CC0 | https://files.rcsb.org/download/1IEP.pdb |
+| ZINC250k | SMILES | 20 MB | ZINC academic | https://raw.githubusercontent.com/aspuru-guzik-group/chemical_vae/master/models/zinc/250k_rndm_zinc_drugs_clean_5.txt |
+| RDKit 5k | SMILES | 190 KB | BSD-3 | https://raw.githubusercontent.com/rdkit/rdkit/master/Data/NCI/first_5K.smi |
+
+引用：
+- PDB 1IEP: Nagar 2002
+- ZINC250k: Irwin 2005
+- RDKit 5k: RDKit
+
+## 你必须交付
+- 图：描述符与 RO5 通过率
+- 图：相似性/骨架聚类
+- 图：对接打分分布
+- 表：类药性表
+- 表：对接 top 命中
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（分子库/描述符/对接）· Results（类药性/多样性/对接）· Discussion（局限）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

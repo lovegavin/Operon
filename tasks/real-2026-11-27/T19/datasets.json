@@ -1,0 +1,10 @@
+[
+ {
+  "name": "ENA ONT 读段",
+  "url": "https://ftp.sra.ebi.ac.uk/vol1/fastq/ERR/0/ERR/ERR10141077.fastq.gz",
+  "format": "FASTQ",
+  "size": "500 MB",
+  "license": "ENA open",
+  "citation": "EBI"
+ }
+]

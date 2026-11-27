@@ -1,0 +1,10 @@
+[
+ {
+  "name": "MNI152 T1 2mm",
+  "url": "https://raw.githubusercontent.com/neurospin/brainomics_data/master/MNI152_T1_2mm.nii.gz",
+  "format": "NIfTI",
+  "size": "10 MB",
+  "license": "FSL academic",
+  "citation": "Mazziotta 2001"
+ }
+]

@@ -1,0 +1,41 @@
+# T27 · NHANES 调查数据的完整统计工作流：从原始 XPT 到可发表表格
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+真实 NHANES 2017-2018 多文件（人口学、体测、问卷）合并后，描述统计、分布诊断、关联检验与加权回归能否形成可复现的流行病学分析表？表格操作在真实调查数据上的坑是什么？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| NHANES DEMO_J | XPT | 3 MB | public domain | https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/DEMO_J.xpt |
+| NHANES BMX_J | XPT | 3 MB | public domain | https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/BMX_J.xpt |
+| NHANES PAQ_J | XPT | 5 MB | public domain | https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/PAQ_J.xpt |
+
+引用：
+- NHANES DEMO_J: CDC
+- NHANES BMX_J: CDC
+- NHANES PAQ_J: CDC
+
+## 你必须交付
+- 图：样本流程图
+- 图：关键变量分布
+- 图：Table 1
+- 表：Table 1
+- 表：关联检验表
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（权重/合并）· Results（基线/关联）· Discussion（调查数据特殊性）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

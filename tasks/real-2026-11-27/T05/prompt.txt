@@ -1,0 +1,43 @@
+# T05 · 乳腺癌复发与肺腺癌的差异表达：真实 GEO 复现
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+GSE2034 与 GSE10072 上差异表达、通路富集与生存关联能否复现原文？批次校正会改变多少结论？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| GEO GSE2034 | matrix | 5 MB | GEO public | https://ftp.ncbi.nlm.nih.gov/geo/series/GSE2nnn/GSE2034/matrix/GSE2034_series_matrix.txt.gz |
+| GEO GSE10072 | matrix | 10 MB | GEO public | https://ftp.ncbi.nlm.nih.gov/geo/series/GSE10nnn/GSE10072/matrix/GSE10072_series_matrix.txt.gz |
+| MSigDB Hallmark | GMT | 180 KB | CC BY 4.0 | https://data.broadinstitute.org/gsea-msigdb/msigdb/release/2024.1.Hs/h.all.v2024.1.Hs.symbols.gmt |
+
+引用：
+- GEO GSE2034: Wang 2005
+- GEO GSE10072: Landi 2008
+- MSigDB Hallmark: Liberzon 2015
+
+## 你必须交付
+- 图：PCA 与聚类
+- 图：火山图与 top50 热图
+- 图：GSEA 富集
+- 图：KM 与 Cox 森林图
+- 表：DE top 表
+- 表：富集通路表
+- 表：Cox 系数表
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（队列/预处理/统计）· Results（DE/富集/生存）· Discussion（复现性与批次效应）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

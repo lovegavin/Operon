@@ -1,0 +1,18 @@
+[
+ {
+  "name": "UCI Adult",
+  "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data",
+  "format": "CSV",
+  "size": "4 MB",
+  "license": "CC BY 4.0",
+  "citation": "Dua 2019"
+ },
+ {
+  "name": "UCI Wine",
+  "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data",
+  "format": "CSV",
+  "size": "20 KB",
+  "license": "CC BY 4.0",
+  "citation": "Dua 2019"
+ }
+]

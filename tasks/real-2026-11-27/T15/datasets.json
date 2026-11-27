@@ -1,0 +1,18 @@
+[
+ {
+  "name": "PDB 1HZH",
+  "url": "https://files.rcsb.org/download/1HZH.pdb",
+  "format": "PDB",
+  "size": "1.1 MB",
+  "license": "PDB CC0",
+  "citation": "Saphire 2001"
+ },
+ {
+  "name": "SAbDab summary",
+  "url": "https://opig.stats.ox.ac.uk/webapps/newsabdab/sabdab/summary/all",
+  "format": "CSV",
+  "size": "20 MB",
+  "license": "academic",
+  "citation": "Dunbar 2014"
+ }
+]

@@ -1,0 +1,26 @@
+[
+ {
+  "name": "Pfam PF00042 seed",
+  "url": "https://www.ebi.ac.uk/interpro/wwwapi/entry/pfam/PF00042/?annotation=alignment:seed&download",
+  "format": "Stockholm",
+  "size": "8 KB",
+  "license": "Pfam CC0",
+  "citation": "Mistry 2021"
+ },
+ {
+  "name": "Pfam PF00001 seed",
+  "url": "https://www.ebi.ac.uk/interpro/wwwapi/entry/pfam/PF00001/?annotation=alignment:seed&download",
+  "format": "Stockholm",
+  "size": "1 MB",
+  "license": "Pfam CC0",
+  "citation": "Mistry 2021"
+ },
+ {
+  "name": "PDB 1UBQ",
+  "url": "https://files.rcsb.org/download/1UBQ.pdb",
+  "format": "PDB",
+  "size": "80 KB",
+  "license": "PDB CC0",
+  "citation": "Vijay-Kumar 1987"
+ }
+]

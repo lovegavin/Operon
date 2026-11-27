@@ -1,0 +1,10 @@
+[
+ {
+  "name": "ENCODE ATAC BAM",
+  "url": "https://www.encodeproject.org/files/ENCFF356LFX/@@download/ENCFF356LFX.bam",
+  "format": "BAM",
+  "size": "300 MB",
+  "license": "ENCODE open",
+  "citation": "ENCODE 2012"
+ }
+]

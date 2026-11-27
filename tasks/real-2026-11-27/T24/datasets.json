@@ -1,0 +1,18 @@
+[
+ {
+  "name": "FlowRepository FCS",
+  "url": "https://flowrepository.org/fcs/FR-FCM-ZY3P/example.fcs",
+  "format": "FCS",
+  "size": "20 MB",
+  "license": "CC BY 4.0",
+  "citation": "FlowRepository"
+ },
+ {
+  "name": "PhysioNet EEG",
+  "url": "https://physionet.org/files/eegmmidb/1.0.0/S001/S001R01.edf",
+  "format": "EDF",
+  "size": "10 MB",
+  "license": "ODC-BY",
+  "citation": "Schalk 2009"
+ }
+]

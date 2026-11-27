@@ -1,0 +1,11 @@
+antibody_cdr_graft
+antibody_cdr_hydrophobicity
+antibody_cdr_kabat
+antibody_cdr_length_profile
+antibody_cdr_motifs
+antibody_cdr_physchem
+antibody_developability
+antibody_numbering_imgt
+antibody_numbering_kabat
+bcr_clonotype
+cdr3_properties

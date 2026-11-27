@@ -1,0 +1,26 @@
+[
+ {
+  "name": "PDB 1UBQ",
+  "url": "https://files.rcsb.org/download/1UBQ.pdb",
+  "format": "PDB",
+  "size": "80 KB",
+  "license": "PDB CC0",
+  "citation": "Vijay-Kumar 1987"
+ },
+ {
+  "name": "PDB 1L2Y",
+  "url": "https://files.rcsb.org/download/1L2Y.pdb",
+  "format": "PDB",
+  "size": "960 KB",
+  "license": "PDB CC0",
+  "citation": "Neidigh 2002"
+ },
+ {
+  "name": "PDB 3DI3",
+  "url": "https://files.rcsb.org/download/3DI3.cif",
+  "format": "mmCIF",
+  "size": "313 KB",
+  "license": "PDB CC0",
+  "citation": "RCSB"
+ }
+]

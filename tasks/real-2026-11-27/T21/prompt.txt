@@ -1,0 +1,40 @@
+# T21 · 真实表格数据上的机器学习基准
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+在真实公开表格数据（UCI Adult、Wine、MNIST 子集）上，分类/回归/聚类/降维/异常检测的多种实现能否给出可复现的基准排序？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| UCI Adult | CSV | 4 MB | CC BY 4.0 | https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data |
+| UCI Wine | CSV | 20 KB | CC BY 4.0 | https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data |
+
+引用：
+- UCI Adult: Dua 2019
+- UCI Wine: Dua 2019
+
+## 你必须交付
+- 图：模型准确率/耗时对比
+- 图：ROC/PR 曲线
+- 图：聚类轮廓与 ARI
+- 图：降维可视化
+- 表：基准结果表
+- 表：超参数与复现命令
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（数据/模型/交叉验证）· Results（排序）· Discussion（偏差与稳健性）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

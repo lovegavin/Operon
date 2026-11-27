@@ -1,0 +1,37 @@
+# T17 · 测序数据 QC：真实 BAM 与 ATAC/ChIP 峰
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+在真实比对文件（1000G chr22 BAM 子集、ENCODE ATAC BAM）上，flagstat/覆盖/峰识别与 FRiP 能否复现公共 QC 指标？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| ENCODE ATAC BAM | BAM | 300 MB | ENCODE open | https://www.encodeproject.org/files/ENCFF356LFX/@@download/ENCFF356LFX.bam |
+
+引用：
+- ENCODE ATAC BAM: ENCODE 2012
+
+## 你必须交付
+- 图：flagstat 汇总
+- 图：覆盖曲线
+- 图：峰数与 FRiP
+- 表：QC 指标表
+- 表：峰表
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（比对/峰识别）· Results（QC/峰）· Discussion（批次）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

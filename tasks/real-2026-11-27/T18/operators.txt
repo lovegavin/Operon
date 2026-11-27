@@ -1,0 +1,7 @@
+allele_specific_methylation
+bisulfite_conversion_rate
+crispr_array_detect
+dfbetas
+dmr_window_scan
+methylation_beta_value
+methylation_m_value

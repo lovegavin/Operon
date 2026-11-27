@@ -1,0 +1,26 @@
+[
+ {
+  "name": "GENCODE v49 GTF",
+  "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/gencode.v49.annotation.gtf.gz",
+  "format": "GTF",
+  "size": "50 MB",
+  "license": "GENCODE open",
+  "citation": "Frankish 2019"
+ },
+ {
+  "name": "RefSeq GFF3",
+  "url": "https://ftp.ncbi.nlm.nih.gov/refseq/H_sapiens/annotation/GRCh38_latest_genomic.gff.gz",
+  "format": "GFF3",
+  "size": "90 MB",
+  "license": "NCBI public domain",
+  "citation": "O'Leary 2016"
+ },
+ {
+  "name": "GO basic OBO",
+  "url": "https://release.geneontology.org/2024-11-01/ontology/go-basic.obo",
+  "format": "OBO",
+  "size": "35 MB",
+  "license": "CC BY 4.0",
+  "citation": "GO Consortium"
+ }
+]

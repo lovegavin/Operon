@@ -1,0 +1,10 @@
+[
+ {
+  "name": "AIRR example",
+  "url": "https://raw.githubusercontent.com/airr-community/airr-standards/master/examples/AIRR-seq/PBMC_IgG.tsv",
+  "format": "TSV",
+  "size": "2 MB",
+  "license": "CC BY 4.0",
+  "citation": "AIRR Community"
+ }
+]

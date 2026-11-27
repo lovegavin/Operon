@@ -1,0 +1,10 @@
+[
+ {
+  "name": "NHANES PAQ",
+  "url": "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/PAQ_J.xpt",
+  "format": "XPT",
+  "size": "5 MB",
+  "license": "public domain",
+  "citation": "CDC NHANES"
+ }
+]

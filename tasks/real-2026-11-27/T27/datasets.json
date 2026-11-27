@@ -1,0 +1,26 @@
+[
+ {
+  "name": "NHANES DEMO_J",
+  "url": "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/DEMO_J.xpt",
+  "format": "XPT",
+  "size": "3 MB",
+  "license": "public domain",
+  "citation": "CDC"
+ },
+ {
+  "name": "NHANES BMX_J",
+  "url": "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/BMX_J.xpt",
+  "format": "XPT",
+  "size": "3 MB",
+  "license": "public domain",
+  "citation": "CDC"
+ },
+ {
+  "name": "NHANES PAQ_J",
+  "url": "https://wwwn.cdc.gov/Nchs/Data/Nhanes/Public/2017/DataFiles/PAQ_J.xpt",
+  "format": "XPT",
+  "size": "5 MB",
+  "license": "public domain",
+  "citation": "CDC"
+ }
+]

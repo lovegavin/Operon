@@ -1,0 +1,42 @@
+# T03 · AlphaFold2 置信度到底能信多少：pLDDT 与实验结构
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+AF2/ColabFold 的 pLDDT 与实验结构（1UBQ、1L2Y、3DI3）偏差多大？单序列与 MSA 两种模式是否改变结论？隐式溶剂 MD 能否重现实验 B-factor 高的柔性区？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| PDB 1UBQ | PDB | 80 KB | PDB CC0 | https://files.rcsb.org/download/1UBQ.pdb |
+| PDB 1L2Y | PDB | 960 KB | PDB CC0 | https://files.rcsb.org/download/1L2Y.pdb |
+| PDB 3DI3 | mmCIF | 313 KB | PDB CC0 | https://files.rcsb.org/download/3DI3.cif |
+
+引用：
+- PDB 1UBQ: Vijay-Kumar 1987
+- PDB 1L2Y: Neidigh 2002
+- PDB 3DI3: RCSB
+
+## 你必须交付
+- 图：逐残基 pLDDT vs B-factor
+- 图：预测-实验叠合与 RMSD/TM
+- 图：单序列 vs MSA
+- 图：MD RMSD/Rg/RMSF
+- 表：结构基准表（RMSD/TM/pLDDT/PAE）
+- 表：MD 与柔性残基表
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（预测/评估/MD）· Results（置信度-精度）· Discussion（pLDDT 不是结合判据）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

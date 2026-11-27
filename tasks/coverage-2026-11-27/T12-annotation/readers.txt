@@ -1,5 +1,0 @@
-GffReader
-GtfReader
-BedReader
-NarrowPeakReader
-OboReader

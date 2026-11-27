@@ -1,0 +1,26 @@
+[
+ {
+  "name": "1000G chr22 VCF",
+  "url": "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz",
+  "format": "VCF",
+  "size": "1.1 GB",
+  "license": "1000G open",
+  "citation": "Auton 2015"
+ },
+ {
+  "name": "GIANT height",
+  "url": "https://portals.broadinstitute.org/collaboration/giant/images/c/c8/GIANT_HEIGHT_Wood_et_al_2014_publicrelease_HapMapCeuFreq.txt.gz",
+  "format": "TSV",
+  "size": "10 MB",
+  "license": "academic use",
+  "citation": "Wood 2014"
+ },
+ {
+  "name": "1000G panel",
+  "url": "https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel",
+  "format": "TSV",
+  "size": "100 KB",
+  "license": "1000G open",
+  "citation": "1000G"
+ }
+]

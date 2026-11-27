@@ -1,0 +1,41 @@
+# T07 · 千人基因组 chr22 与身高 GWAS：QC、LD 与 PRS
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+1000G chr22 与 GIANT 身高汇总统计上，质控、LD 剪枝与 PRS 能否复现常见变异的多基因信号？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| 1000G chr22 VCF | VCF | 1.1 GB | 1000G open | https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5b.20130502.genotypes.vcf.gz |
+| GIANT height | TSV | 10 MB | academic use | https://portals.broadinstitute.org/collaboration/giant/images/c/c8/GIANT_HEIGHT_Wood_et_al_2014_publicrelease_HapMapCeuFreq.txt.gz |
+| 1000G panel | TSV | 100 KB | 1000G open | https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/integrated_call_samples_v3.20130502.ALL.panel |
+
+引用：
+- 1000G chr22 VCF: Auton 2015
+- GIANT height: Wood 2014
+- 1000G panel: 1000G
+
+## 你必须交付
+- 图：MAF/缺失率与保留数
+- 图：LD 衰减
+- 图：PRS 十分位
+- 表：质控表
+- 表：PRS 系数与 R²
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（数据/QC/LD/PRS）· Results（保留率/LD/PRS）· Discussion（分层与样本量）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

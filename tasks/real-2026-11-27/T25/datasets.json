@@ -1,0 +1,10 @@
+[
+ {
+  "name": "10x Visium 样本",
+  "url": "https://cf.10xgenomics.com/samples/spatial-exp/2.0.0/Visium_Human_Breast_Cancer/Visium_Human_Breast_Cancer_filtered_feature_bc_matrix.h5",
+  "format": "h5",
+  "size": "200 MB",
+  "license": "10x public",
+  "citation": "10x Genomics"
+ }
+]

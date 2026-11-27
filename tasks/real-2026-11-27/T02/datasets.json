@@ -1,0 +1,18 @@
+[
+ {
+  "name": "RCSB 6X18",
+  "url": "https://files.rcsb.org/download/6X18.cif",
+  "format": "mmCIF",
+  "size": "1.2 MB",
+  "license": "PDB CC0",
+  "citation": "RCSB PDB"
+ },
+ {
+  "name": "UniProt P43220",
+  "url": "https://rest.uniprot.org/uniprotkb/P43220.fasta",
+  "format": "FASTA",
+  "size": "1 KB",
+  "license": "CC BY 4.0",
+  "citation": "UniProt"
+ }
+]

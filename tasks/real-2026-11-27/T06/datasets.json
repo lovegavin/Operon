@@ -1,0 +1,18 @@
+[
+ {
+  "name": "10x PBMC 4k h5",
+  "url": "https://cf.10xgenomics.com/samples/cell-exp/2.1.0/pbmc4k/pbmc4k_filtered_gene_bc_matrices_h5.h5",
+  "format": "h5",
+  "size": "30 MB",
+  "license": "10x public",
+  "citation": "Zheng 2017"
+ },
+ {
+  "name": "CellMarker 2.0",
+  "url": "http://117.50.127.228/CellMarker/CellMarker_download_files/file/Cell_marker_Human.xlsx",
+  "format": "xlsx",
+  "size": "2 MB",
+  "license": "academic use",
+  "citation": "Hu 2023"
+ }
+]

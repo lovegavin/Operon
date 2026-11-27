@@ -1,0 +1,40 @@
+# T01 · IL-7Rα 的 de novo minibinder：设计-验证闭环
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+针对 IL-7Rα（PDB 3DI3 链 B）设计 58 aa α 螺旋 minibinder，并用计算证据决定哪些候选值得合成；同时回答：常见 RFdiffusion+ProteinMPNN 配方里哪些失败是几何/坐标造成的、哪些是序列退化造成的。
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| RCSB 3DI3 | mmCIF | 313 KB | PDB CC0 | https://files.rcsb.org/download/3DI3.cif |
+| UniProt P16871 | FASTA | 1 KB | CC BY 4.0 | https://rest.uniprot.org/uniprotkb/P16871.fasta |
+
+引用：
+- RCSB 3DI3: RCSB PDB
+- UniProt P16871: UniProt
+
+## 你必须交付
+- 图：设计几何：binder-靶标最小距离、Rg、端到端距离（修复前后）
+- 图：序列复杂度与 MPNN score
+- 图：pLDDT×界面×instability 排序散点
+- 图：MD RMSD/Rg 轨迹
+- 表：候选表（design/seq、min-distance、Rg、pLDDT、界面、GRAVY、instability）
+- 表：缺陷对照表（坐标坍缩/MPNN 退化/单序列 vs MSA）
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（配方与判废阈值）· Results（几何-序列-置信度三层筛选）· Discussion（单链 pLDDT 的局限）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

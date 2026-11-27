@@ -1,5 +1,0 @@
-MgfReader
-MzmlReader
-MzxmlReader
-PepxmlReader
-MzidReader

@@ -1,0 +1,37 @@
+# T20 · 免疫组库：真实 AIRR 数据的克隆型与多样性
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+真实 AIRR 重排数据上，CDR3 克隆型、多样性与 V/J 使用能否复现原文？不同深度下多样性估计偏差多大？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| AIRR example | TSV | 2 MB | CC BY 4.0 | https://raw.githubusercontent.com/airr-community/airr-standards/master/examples/AIRR-seq/PBMC_IgG.tsv |
+
+引用：
+- AIRR example: AIRR Community
+
+## 你必须交付
+- 图：克隆型大小分布
+- 图：多样性稀释曲线
+- 图：V/J 使用热图
+- 表：克隆型表
+- 表：多样性汇总
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（AIRR/克隆型）· Results（多样性/使用）· Discussion（深度偏差）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

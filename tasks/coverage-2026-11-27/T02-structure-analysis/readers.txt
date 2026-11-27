@@ -1,3 +1,0 @@
-PdbReader
-MmcifReader
-FastaReader

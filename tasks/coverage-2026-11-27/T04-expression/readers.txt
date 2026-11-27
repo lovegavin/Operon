@@ -1,4 +1,0 @@
-CsvReader
-TsvReader
-GctReader
-ParquetReader

@@ -1,0 +1,38 @@
+# T24 · 流式细胞术与电生理：真实 FCS/EDF 信号处理
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+真实流式数据（FlowRepository）与 EEG（PhysioNet）上，门控/补偿与滤波/事件检测能否复现原文结论？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| FlowRepository FCS | FCS | 20 MB | CC BY 4.0 | https://flowrepository.org/fcs/FR-FCM-ZY3P/example.fcs |
+| PhysioNet EEG | EDF | 10 MB | ODC-BY | https://physionet.org/files/eegmmidb/1.0.0/S001/S001R01.edf |
+
+引用：
+- FlowRepository FCS: FlowRepository
+- PhysioNet EEG: Schalk 2009
+
+## 你必须交付
+- 图：FSC/SSC 门控图
+- 图：EEG 功率谱/事件检测
+- 表：门控统计表
+- 表：信号 QC 表
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（门控/滤波）· Results（分群/事件）· Discussion（阈值敏感）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

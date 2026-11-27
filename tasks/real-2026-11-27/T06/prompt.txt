@@ -1,0 +1,40 @@
+# T06 · 10x PBMC 单细胞图谱：分群、标记与轨迹
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+10x PBMC 4k 上标准 QC-降维-聚类能否复现经典免疫分群？标记基因是否与 CellMarker 一致？轨迹是否重现单核/淋巴连续性？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| 10x PBMC 4k h5 | h5 | 30 MB | 10x public | https://cf.10xgenomics.com/samples/cell-exp/2.1.0/pbmc4k/pbmc4k_filtered_gene_bc_matrices_h5.h5 |
+| CellMarker 2.0 | xlsx | 2 MB | academic use | http://117.50.127.228/CellMarker/CellMarker_download_files/file/Cell_marker_Human.xlsx |
+
+引用：
+- 10x PBMC 4k h5: Zheng 2017
+- CellMarker 2.0: Hu 2023
+
+## 你必须交付
+- 图：QC 小提琴与双细胞得分
+- 图：UMAP 与 marker 点图
+- 图：细胞比例与 marker 热图
+- 图：伪时间轨迹
+- 表：分群统计表
+- 表：QC 汇总
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（10x/QC/聚类）· Results（分群/marker/轨迹）· Discussion（文献对照）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

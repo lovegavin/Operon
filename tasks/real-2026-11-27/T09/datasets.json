@@ -1,0 +1,10 @@
+[
+ {
+  "name": "MicrobiomeHD",
+  "url": "https://raw.githubusercontent.com/cduvallet/microbiomeHD/master/data.zip",
+  "format": "zip/TSV",
+  "size": "20 MB",
+  "license": "MIT",
+  "citation": "Duvallet 2017"
+ }
+]

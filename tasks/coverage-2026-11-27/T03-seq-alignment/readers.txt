@@ -1,5 +1,0 @@
-FastaReader
-StockholmReader
-NewickReader
-HmmReader
-ClustalReader

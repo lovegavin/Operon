@@ -1,0 +1,26 @@
+[
+ {
+  "name": "PDB 1IEP",
+  "url": "https://files.rcsb.org/download/1IEP.pdb",
+  "format": "PDB",
+  "size": "435 KB",
+  "license": "PDB CC0",
+  "citation": "Nagar 2002"
+ },
+ {
+  "name": "ZINC250k",
+  "url": "https://raw.githubusercontent.com/aspuru-guzik-group/chemical_vae/master/models/zinc/250k_rndm_zinc_drugs_clean_5.txt",
+  "format": "SMILES",
+  "size": "20 MB",
+  "license": "ZINC academic",
+  "citation": "Irwin 2005"
+ },
+ {
+  "name": "RDKit 5k",
+  "url": "https://raw.githubusercontent.com/rdkit/rdkit/master/Data/NCI/first_5K.smi",
+  "format": "SMILES",
+  "size": "190 KB",
+  "license": "BSD-3",
+  "citation": "RDKit"
+ }
+]

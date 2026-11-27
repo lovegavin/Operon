@@ -1,0 +1,18 @@
+[
+ {
+  "name": "GEO 甲基化矩阵",
+  "url": "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE1nnn/GSE111629/matrix/GSE111629_series_matrix.txt.gz",
+  "format": "matrix",
+  "size": "5 MB",
+  "license": "GEO public",
+  "citation": "GEO"
+ },
+ {
+  "name": "Illumina 450K manifest",
+  "url": "https://webdata.illumina.com/downloads/productfiles/humanmethylation450/humanmethylation450_15017482_v1-2.csv",
+  "format": "CSV",
+  "size": "100 MB",
+  "license": "Illumina",
+  "citation": "Illumina"
+ }
+]

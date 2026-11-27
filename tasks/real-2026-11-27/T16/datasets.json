@@ -1,0 +1,10 @@
+[
+ {
+  "name": "GRCh38 chr21",
+  "url": "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/GRCh38.p14.genome.fa.gz",
+  "format": "FASTA",
+  "size": "900 MB",
+  "license": "GENCODE open",
+  "citation": "Frankish 2019"
+ }
+]

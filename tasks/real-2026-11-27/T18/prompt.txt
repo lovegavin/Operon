@@ -1,0 +1,39 @@
+# T18 · 表观遗传学：甲基化芯片与差异甲基化
+
+## 你的角色
+你是这个课题的研究员。下面的科学问题来自真实项目需求。
+
+## 科学问题
+真实 450K 甲基化数据（GEO）上，β 值归一化、差异甲基化与 CpG 岛注释能否复现原文？批次与细胞组成如何影响结论？
+
+## 数据（必须是这些真实开源数据）
+| 数据集 | 格式 | 规模 | 许可 | URL |
+| --- | --- | --- | --- | --- |
+| GEO 甲基化矩阵 | matrix | 5 MB | GEO public | https://ftp.ncbi.nlm.nih.gov/geo/series/GSE1nnn/GSE111629/matrix/GSE111629_series_matrix.txt.gz |
+| Illumina 450K manifest | CSV | 100 MB | Illumina | https://webdata.illumina.com/downloads/productfiles/humanmethylation450/humanmethylation450_15017482_v1-2.csv |
+
+引用：
+- GEO 甲基化矩阵: GEO
+- Illumina 450K manifest: Illumina
+
+## 你必须交付
+- 图：β 分布
+- 图：差异甲基化火山图
+- 图：CpG 岛注释
+- 表：差异甲基化表
+- 表：注释汇总
+- 报告：`evidence/report.md`（数据/方法/结果/限制）
+- 论文小节：Methods（芯片/归一化）· Results（DMP/DMR）· Discussion（细胞组成）
+
+## 验收标准
+- 数据：全部来自上面列出的真实数据源；用 `fetch_data.py` 下载，禁止合成/随机替代。
+- 分析：完成上面的路线；失败必须报原文（算子、步骤、错误）。
+- 结果：每个数字能追溯到 job id；图可复现。
+- 覆盖：在 `coverage.json` 登记实际调用的算子与 reader（评估副产物）。
+
+## 汇报格式
+1. 结论（3 句内回答科学问题）
+2. 数据与方法（版本、样本量、参数）
+3. 结果（关键数字→图表编号）
+4. 失败与限制（原文错误、缺依赖、未完成）
+5. 覆盖：算子 N / reader M（列出未成功者）

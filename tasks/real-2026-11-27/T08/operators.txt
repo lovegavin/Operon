@@ -1,0 +1,16 @@
+analyze_contacts
+betadisper
+build_contacts
+confusion_matrix
+distance_matrix
+hic_contact_matrix
+hic_distance_decay
+hic_pair_stats
+ligand_contact_profile
+pair_confusion_matrix
+pangenome_matrix
+peak_overlap_matrix
+structure_ca_distance_matrix
+structure_contact_order
+structure_contacts
+structure_md_contact_occupancy

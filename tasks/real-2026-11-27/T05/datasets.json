@@ -1,0 +1,26 @@
+[
+ {
+  "name": "GEO GSE2034",
+  "url": "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE2nnn/GSE2034/matrix/GSE2034_series_matrix.txt.gz",
+  "format": "matrix",
+  "size": "5 MB",
+  "license": "GEO public",
+  "citation": "Wang 2005"
+ },
+ {
+  "name": "GEO GSE10072",
+  "url": "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE10nnn/GSE10072/matrix/GSE10072_series_matrix.txt.gz",
+  "format": "matrix",
+  "size": "10 MB",
+  "license": "GEO public",
+  "citation": "Landi 2008"
+ },
+ {
+  "name": "MSigDB Hallmark",
+  "url": "https://data.broadinstitute.org/gsea-msigdb/msigdb/release/2024.1.Hs/h.all.v2024.1.Hs.symbols.gmt",
+  "format": "GMT",
+  "size": "180 KB",
+  "license": "CC BY 4.0",
+  "citation": "Liberzon 2015"
+ }
+]
