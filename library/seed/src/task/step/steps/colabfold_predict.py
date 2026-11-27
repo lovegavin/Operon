@@ -141,7 +141,69 @@ def parse_scores(path: Path) -> dict:
     }
 
 
+def search_database(
+    fasta: Path,
+    *,
+    binary: str,
+    workdir: Path,
+    db1: str,
+    db2: str = "",
+    mmseqs_path: str = "",
+    threads: int = 8,
+    timeout: int = 3600,
+    device: str = "cpu",
+) -> Path:
+    """Search a local MMseqs2 database and return the directory of MSA files.
+
+    ``colabfold_batch`` only folds; the local-database entry point is the
+    ``colabfold_search`` script shipped beside it.  The search writes one
+    ``a3m`` file per query and ``colabfold_batch`` then folds from those files,
+    which is the supported offline path (``--db1`` is never a batch flag).
+    """
+
+    search_binary = Path(binary).with_name("colabfold_search")
+    resolved = shutil.which(str(search_binary)) or (str(search_binary) if search_binary.is_file() else None)
+    if resolved is None:
+        raise StepError(
+            f"colabfold_predict: '{search_binary.name}' was not found beside '{binary}'; "
+            "install ColabFold with 'pip install colabfold[alphafold]' so the local search "
+            "entry point is available, or leave msa_db1 empty to use msa_host"
+        )
+    database = Path(str(db1)).expanduser()
+    if not (database.with_suffix(database.suffix + ".dbtype") if False else Path(str(db1) + ".dbtype")).is_file():
+        raise StepError(
+            f"colabfold_predict: '{db1}' has no .dbtype file; build the MMseqs2 index first "
+            "(see the colabfold_msa resource build steps)"
+        )
+    mmseqs = str(mmseqs_path or "").strip() or str(search_binary.with_name("mmseqs"))
+    outdir = workdir / "search"
+    outdir.mkdir(parents=True, exist_ok=True)
+    command = [resolved, "--mmseqs", mmseqs, "-s", "7.5", "--threads", str(int(threads)),
+               "--db-load-mode", "2", "--db1", str(db1)]
+    if db2:
+        command += ["--db3", str(db2)]
+    command += [fasta.as_posix(), outdir.as_posix()]
+    environment = dict(os.environ)
+    if device == "cpu":
+        environment["CUDA_VISIBLE_DEVICES"] = ""
+    try:
+        completed = subprocess.run(command, cwd=workdir, capture_output=True, text=True,
+                                   timeout=timeout, env=environment)
+    except FileNotFoundError as exc:
+        raise StepError(f"colabfold_predict: '{resolved}' is not executable") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise StepError(f"colabfold_predict: the MMseqs2 search timed out after {timeout} s") from exc
+    if completed.returncode != 0:
+        tail = (completed.stderr or completed.stdout or "").strip()[-1500:]
+        raise StepError(
+            f"colabfold_predict: colabfold_search failed with exit code "
+            f"{completed.returncode}: {tail}"
+        )
+    return outdir
+
+
 def predict(
+
     sequence: str,
     *,
     binary: str,
@@ -152,6 +214,8 @@ def predict(
     msa_host: str = "",
     db1: str = "",
     db2: str = "",
+    mmseqs_path: str = "",
+    msa_threads: int = 8,
     device: str = "cpu",
     timeout: int = 3600,
 ) -> tuple[Path, Path | None]:
@@ -160,6 +224,19 @@ def predict(
     fasta = write_fasta(sequence, workdir / "query.fasta")
     outdir = workdir / "out"
     outdir.mkdir(parents=True, exist_ok=True)
+    query = fasta
+    if db1 or db2:
+        query = search_database(
+            fasta,
+            binary=binary,
+            workdir=workdir,
+            db1=db1,
+            db2=db2,
+            mmseqs_path=mmseqs_path,
+            threads=msa_threads,
+            timeout=timeout,
+            device=device,
+        )
     if binary.lower().endswith(".py"):
         # A script runner (for example a conda entry point or a test double)
         # cannot be executed directly on Windows; start it through Python.
@@ -167,7 +244,7 @@ def predict(
     else:
         command = [binary]
     command += [
-        fasta.as_posix(),
+        query.as_posix(),
         outdir.as_posix(),
         "--num-models",
         str(num_models),
@@ -180,12 +257,6 @@ def predict(
     host_url = msa_host_url(msa_host)
     if host_url:
         command += ["--host-url", host_url]
-    if db1 or db2:
-        raise StepError(
-            "colabfold_predict: colabfold_batch cannot search local MMseqs2 "
-            "databases; use msa_mode 'single_sequence' or msa_host, or run "
-            "colabfold_search before folding"
-        )
     environment = dict(os.environ)
     if device == "cpu":
         environment["CUDA_VISIBLE_DEVICES"] = ""
@@ -322,6 +393,8 @@ class ColabfoldPredictStep(Step):
                 msa_host=msa_host,
                 db1=db1,
                 db2=db2,
+                mmseqs_path=str(params.get("mmseqs_path") or ""),
+                msa_threads=int(params.get("msa_threads") if params.get("msa_threads") is not None else 8),
                 device=device,
                 timeout=timeout,
             )

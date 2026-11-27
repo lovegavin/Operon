@@ -123,6 +123,23 @@
       "description": "ProteinMPNN 一次给出多条序列时，折叠其中第几条（0 起）。每个设计配一条折叠分支时留 0。",
       "x-ui-group": "advanced",
       "x-ui-order": 57
+    },
+    "mmseqs_path": {
+      "type": "string",
+      "default": "",
+      "title": "MMseqs2 binary",
+      "description": "Optional MMseqs2 executable used by colabfold_search; defaults to the mmseqs shipped beside colabfold_batch.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 58
+    },
+    "msa_threads": {
+      "type": "integer",
+      "default": 8,
+      "minimum": 1,
+      "title": "MSA threads",
+      "description": "Threads for the local MMseqs2 search.",
+      "x-ui-group": "advanced",
+      "x-ui-order": 59
     }
   }
 }

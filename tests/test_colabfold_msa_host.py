@@ -112,23 +112,23 @@ def test_invalid_msa_host_never_runs_the_runner(tmp_path, monkeypatch) -> None:
     assert not capture.exists()
 
 
-def test_local_databases_are_refused_for_the_batch_runner(tmp_path, monkeypatch) -> None:
-    capture = tmp_path / "argv.json"
-    monkeypatch.setenv("OPERON_TEST_CAPTURE", str(capture))
-    workdir = tmp_path / "work"
-    workdir.mkdir()
+def test_local_databases_run_the_search_entry_point(tmp_path):
+    from src.core.errors import StepError
+    from src.task.step.steps import colabfold_predict as mod
 
-    with pytest.raises(StepError, match="colabfold_search"):
-        predict(
-            "ACDEFGHIK",
-            binary=str(_runner(tmp_path)),
-            workdir=workdir,
-            device="cpu",
-            db1="/data/msa/uniref30_2302/uniref30_2302_db",
-        )
+    batch = tmp_path / "colabfold_batch"
+    batch.write_text("#!/bin/sh\n")
+    batch.chmod(0o755)
+    db = tmp_path / "uniref30_2302_db"
+    db.write_text("")
+    fasta = tmp_path / "query.fasta"
+    fasta.write_text(">q\nMKTAYIAKQRQISFVKSHFSRQ\n")
 
-    assert not capture.exists()
-
+    # No colabfold_search next to the batch binary: the step must say so
+    # instead of forwarding --db1 to a runner that cannot search.
+    with pytest.raises(StepError) as info:
+        mod.search_database(fasta, binary=str(batch), workdir=tmp_path, db1=str(db))
+    assert "colabfold_search" in str(info.value)
 
 def test_single_sequence_runs_ignore_local_databases(tmp_path) -> None:
     root = tmp_path / "msa"
