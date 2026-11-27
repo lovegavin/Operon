@@ -1,0 +1,40 @@
+# Operon 真实任务评估 · 续作提示词（REAL-TEST-WORK）
+
+## 0. 你是谁、做什么
+你是本工作区的主控。目标：用真实科研任务（当前范围为 T01-IL7Ra 与 T02-GLP1R-ACTIVATE-VHH）评估 Operon 平台，
+**只通过 MCP（mcp__operon__* 工具）完成计算**，把发现的缺陷汇总、修复、重新打包安装，再重跑，形成闭环。
+
+## 1. 两条路径（务必区分）
+- 仓库（开发与归档）：`/home/gavin/Operon`（WSL）。任务目录 `workspace/<TASK>/`。
+- 安装版（执行与 MCP）：`D:\Operon Studio\Operon`，MCP workspace 为 `D:\Operon Studio\Operon\workspace`。
+- 每次开始一个任务时，把仓库任务目录里的 `prompt.txt` 与 `input/` 复制到安装版 workspace：
+  `D:\Operon Studio\Operon\workspace\<TASK>\{prompt.txt,input\}`，子智能体只在该目录下工作。
+- 任务执行完，把结果（`results/ figures/ tables/ papers/ logs/`）复制回仓库 `workspace/<TASK>/`，再提交 git。
+
+## 2. 一次完整循环
+1. 从仓库 `workspace/<TASK>/README.md`、`prompt.txt` 读规格；确认输入已复制到安装版 workspace。
+2. 起一个独立子智能体（`subagent`），唯一任务 = 读 `D:\Operon Studio\Operon\workspace\<TASK>\prompt.txt` 并执行。
+   - 子智能体规则：只用 `mcp__operon__*`；禁止 ssh、禁止 HTTP、禁止改仓库代码、禁止编造数字；报错原文记录。
+   - 轮询用 `operon_job(wait_seconds<=45)`；不要用 `operon_jobs`（载荷过大）。
+   - `sampling_temp` 等字符串参数要用字符串；MPNN 用 `device=cpu`。
+3. 子智能体回报后，核对产物（`operon_artifacts`）与验收门槛；把结果复制回仓库并更新 `workspace/<TASK>/coverage.json`（实际调用算子、job id、status）。
+4. 把异常按类别记入 `tmp/DEFECTS-<date>.md`：算子/契约、环境与资源、打包与安装、MCP 与远端、文档。
+5. 积累到一批后：改代码 → `sync_tree.sh` → `rebuild_registry.sh` → 打包 → 装到 `D:\Operon Studio` →
+   部署远端（`run_deploy_chain2.ps1`）→ 重启桌面/MCP → 对失败任务重开子智能体重跑。
+
+## 3. 验收门槛（T01/T02）
+- ≥4 条非低复杂度设计（单残基占比 ≤35% 且无 ≥8 连重复）；
+- ≥2 条单链 ColabFold pLDDT ≥70（`single_sequence`）；
+- ≥1 条复合物 ipTM ≥0.4（`boltz_complex_confidence` 双链；若不可用，明确写“无 ipTM”，不得编造）；
+- T02 额外：4 条骨架 binder–靶标最小重原子距离 <6 Å。
+
+## 4. 已知缺陷与坑（不要重复踩）
+- D-35 坐标坍缩（已修 `ade4f7c78`）：`structure_extract_chain` 曾写出全 1.000 坐标，导致 binder 远离靶标、MPNN 退化。
+- D-36 run RPC 超时（已修 `e76711c51`）：长任务需 1800 s 超时。
+- MPNN 在共享 GPU 上可能 CUDA OOM → 用 `device=cpu`。
+- 远端 `.jobs.lock` 残留：旧 code root 的 `operon.managed_pool` 会占锁；`pkill -f 'operon[.]remote[.]server --serve'` 与清 `~/.operon/admission/master/managed-pool` 后再连。
+- MCP `stale_build`：重启 MCP 进程即可；`operon_remote_connect` 会返回 8 MB catalog，用 `operon_remote_status(brief=true)`。
+- 离线 MSA：`uniref30` 索引不可行（磁盘/时间），MSA 走公共 `api.colabfold.com`（`msa_host`），或 AF2 原生 MSA（远端缺 `alphafold2` 隔离环境）。
+
+## 5. 交付
+每个任务交付：`results/`（PDB/FASTA/CSV）、`figures/`（出版级图）、`tables/`（指标表）、`papers/draft.md`（论文草稿：问题/数据/方法/结果/限制/图表引用）、`logs/jobs.jsonl`、更新后的 `coverage.json`。
