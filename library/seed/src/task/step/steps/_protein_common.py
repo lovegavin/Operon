@@ -9,14 +9,33 @@ import numpy as np
 from src.core import Form, StepError
 
 
+_COLUMN_ALIASES = {
+    "x": ("x", "cartn_x"),
+    "y": ("y", "cartn_y"),
+    "z": ("z", "cartn_z"),
+    "atom_name": ("atom_name", "label_atom_id", "auth_atom_id"),
+    "resname": ("resname", "label_comp_id", "auth_comp_id"),
+    "chain": ("chain", "label_asym_id", "auth_asym_id"),
+    "residue_number": ("residue_number", "label_seq_id", "auth_seq_id"),
+    "element": ("element", "type_symbol"),
+    "occupancy": ("occupancy",),
+    "bfactor": ("bfactor", "b_iso_or_equiv"),
+}
+
+
 def column_index(form: Form, field_dim: str, name: str) -> int:
-    """Return the position of a named field column, or -1 when absent."""
+    """Return the position of a named field column, or -1 when absent.
+
+    Reads accept the mmCIF spelling too, so a structure read from ``.cif`` keeps
+    its ``Cartn_x``/``label_atom_id`` columns usable as ``x``/``atom_name``.
+    """
     labels = form.labels.get(field_dim)
     if not labels:
         return -1
-    for label, position in labels.items():
-        if label == name:
-            return int(position)
+    lowered = {str(label).lower(): int(position) for label, position in labels.items()}
+    for alias in _COLUMN_ALIASES.get(name, (name,)):
+        if alias in lowered:
+            return lowered[alias]
     return -1
 
 
