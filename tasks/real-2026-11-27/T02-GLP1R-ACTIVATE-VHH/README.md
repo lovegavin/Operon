@@ -1,4 +1,4 @@
-# T02 · GLP-1R 的 de novo minibinder：跨靶标可迁移性
+# GLP-1R-ACTIVATE-VHH · de novo VHH-style binder for GLP-1R：跨靶标可迁移性
 
 ## 科学问题
 同一设计配方换到 GLP-1R（PDB 6X18 链 F）是否成立？几何校验与序列质量阈值是通用规则还是靶标特异？

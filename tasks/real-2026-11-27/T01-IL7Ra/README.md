@@ -1,4 +1,4 @@
-# T01 · IL-7Rα 的 de novo minibinder：设计-验证闭环
+# IL7-Rα · de novo minibinder for IL-7Rα：设计-验证闭环
 
 ## 科学问题
 针对 IL-7Rα（PDB 3DI3 链 B）设计 58 aa α 螺旋 minibinder，并用计算证据决定哪些候选值得合成；同时回答：常见 RFdiffusion+ProteinMPNN 配方里哪些失败是几何/坐标造成的、哪些是序列退化造成的。

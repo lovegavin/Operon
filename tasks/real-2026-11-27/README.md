@@ -3,8 +3,8 @@
 每个任务是一个完整的真实科研课题：真实开源数据 + 完整分析路线 + 论文级图表。
 算子/reader 覆盖是副产物：| 任务 | 主题 | 数据规模 | 归属算子 |
 | --- | --- | --- | ---: |
-| T01 | IL-7Rα 的 de novo minibinder：设计-验证闭环 | 313 KB / 1 KB | 52 |
-| T02 | GLP-1R 的 de novo minibinder：跨靶标可迁移性 | 1.2 MB / 1 KB | 0 |
+| T01-IL7Ra | IL7-Rα 的 de novo minibinder：设计-验证闭环 | 313 KB / 1 KB | 52 |
+| T02-GLP1R-ACTIVATE-VHH | GLP-1R-ACTIVATE-VHH：跨靶标可迁移性 | 1.2 MB / 1 KB | 0 |
 | T03 | AlphaFold2 置信度到底能信多少：pLDDT 与实验结构 | 80 KB / 960 KB / 313 KB | 28 |
 | T04 | 球蛋白与 GPCR 家族的保守性与选择压力 | 8 KB / 1 MB / 80 KB | 47 |
 | T05 | 乳腺癌复发与肺腺癌的差异表达：真实 GEO 复现 | 5 MB / 10 MB / 180 KB | 50 |

@@ -1,0 +1,62 @@
+# T02 · GLP-1R-ACTIVATE-VHH —— 用 MCP 完成一次 de novo VHH 风格 binder 的序列设计与验证
+
+## 你的角色
+你是本任务的执行智能体。全程**只允许**使用 `mcp__operon__*` 工具（MCP）与本地文件读取。
+禁止：ssh/命令行操作远端、直接调用后端 HTTP API、手改仓库源码、删除任何数据、编造未跑出的数字。
+遇到 MCP 工具报错：把**原文错误**记下来，继续推进能推进的部分，最后在报告里单列“阻塞项”。
+
+## 环境
+- 远端执行环境：profile `93d9ed000f3349f3a3496f0d712ca29a`（licai-srv，Linux，56 核 / RTX 3090）。
+  远端 workspace：`/public/home/lihj/Operon/workspace`
+- 本仓库（结果落盘处）：`/home/gavin/Operon/workspace/T02-GLP1R-ACTIVATE-VHH/`
+  子目录：`input/ results/ figures/ tables/ papers/ logs/`
+
+## 科学问题
+针对 GLP-1R（PDB 6X18 链 F，残基 38–138）设计 VHH 风格的 58 aa binder，
+回答：同一套设计与验证配方能否从一个靶标迁移到另一个靶标；
+跨靶标时哪些失败来自骨架几何、哪些来自序列退化、哪些来自靶标片段本身的柔性。
+
+## 输入（已就位）
+- `/public/home/lihj/Operon/workspace/task3/input/6X18.cif`
+- `/public/home/lihj/Operon/workspace/task3/input/P43220.fasta`
+- 无预生成骨架，需要自己跑 RFdiffusion。
+
+## 路线（按顺序）
+1. **读入**：`operon_operator_describe` 确认 `MmcifReader`、`structure_extract_chain`、
+   `rfdiffusion_design`、`proteinmpnn_design`、`colabfold_predict`、`export_results`、
+   `protein_properties`、`protein_instability` 的参数与端口。
+2. **靶标准备**：`MmcifReader` 读 6X18 → `structure_extract_chain`(chains=`F`) → 校验坐标离散度
+   （不得全为 1.0），导出 PDB；随后把该 PDB 中的坐标统计（最小/最大值、CA-CA 距离均值）写进日志。
+3. **骨架生成**：`rfdiffusion_design`，`contigs="F38-138/0 58"`、`num_designs=4`、`design_index=0`，
+   等待作业完成后导出 4 个 design PDB，并检查每条 binder 与靶标的最小重原子距离（应 < 6 Å）。
+4. **序列设计**：对 4 条骨架各跑 `proteinmpnn_design`：
+   `device=cpu`、`chains=A`、`num_seq_per_target=2`、`sampling_temp` 分别 0.1 与 0.2、`seed` 7/14/21/28。
+   期望 8 条 58 aa 序列。
+5. **复杂度筛查**：任一残基占比 >35% 或 ≥8 连续相同残基 → 判废并记录原因。
+6. **单链折叠**：`colabfold_predict`（`msa_mode=single_sequence`、`num_models=1`、`num_recycles=1`），
+   记录 pLDDT（PDB 的 CA B-factor 均值）。
+7. **复合物折叠（必做）**：把 binder 序列与 6X18 链 F 38–138 序列写成两记录 FASTA，
+   折成复合物，记录 ipTM、界面残基、界面面积（8 Å 内重原子对，注明计算方法）。
+8. **理化与排序**：`protein_properties` + `protein_instability`；候选表字段同 T01：
+   design / seq / 长度 / 最大残基占比 / pLDDT / ipTM / 界面残基 / GRAVY / instability / 判定。
+9. **交付**：FASTA、PDB、`candidates.csv`、图（pLDDT vs ipTM、复杂度、Top 候选界面）、中文报告，
+   写入仓库 `workspace/T02-GLP1R-ACTIVATE-VHH/`。
+
+## 验收门槛
+- 4 条 design PDB 的 binder–靶标最小距离均 < 6 Å；
+- 至少 4 条非低复杂度序列；至少 2 条 `pLDDT ≥ 70`；至少 1 条 `ipTM ≥ 0.4`。
+- 未达到时：写清失败层级（骨架/序列/折叠），不要伪造。
+
+## 汇报格式
+```
+job_id / 状态 / 起止时间 / 实际调用算子数
+骨架：4 条，binder–靶标最小距离 [..]
+候选数：通过复杂度 N / 通过折叠 M / 通过复合物 K
+最好候选：design-seq, pLDDT, ipTM, 界面残基
+产物路径：workspace/T02-GLP1R-ACTIVATE-VHH/...
+阻塞项：<工具原文错误，逐条>
+```
+
+## 记录
+- `request_id` 用 `T02-<n>`；在 `workspace/T02-GLP1R-ACTIVATE-VHH/logs/jobs.jsonl` 追加作业记录。
+- 最后更新 `tasks/real-2026-11-27/T02-GLP1R-ACTIVATE-VHH/coverage.json` 的 `status`、`actual_operators`、`job_id`。
