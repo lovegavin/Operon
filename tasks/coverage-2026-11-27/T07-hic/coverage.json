@@ -1,0 +1,30 @@
+{
+ "task": "T07-hic",
+ "title": "Hi-C 与三维基因组",
+ "operators": {
+  "total": 10,
+  "ids": [
+   "analyze_contacts",
+   "betadisper",
+   "betadiver",
+   "chromatin_state_segmentation",
+   "fba_flux_balance",
+   "hic_contact_matrix",
+   "hic_distance_decay",
+   "hic_pair_stats",
+   "ligand_contact_profile",
+   "psm_balance"
+  ]
+ },
+ "readers": {
+  "total": 3,
+  "ids": [
+   "CoolerReader",
+   "PairsReader",
+   "BedpeReader"
+  ]
+ },
+ "pipeline": "接触矩阵 → 平衡/校正 → 区室 → TAD/绝缘 → 环 table",
+ "gates": "1) 矩阵统计输出；2) 区室/TAD 表非空；3) 图落盘",
+ "status": "planned"
+}

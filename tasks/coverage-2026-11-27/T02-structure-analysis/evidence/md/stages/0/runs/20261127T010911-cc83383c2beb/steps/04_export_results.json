@@ -1,0 +1,13 @@
+{
+  "format": "csv",
+  "files": {
+    "data": "/public/home/lihj/Operon/workspace/results/req-8fcc6531af0c9abe3692872e/artifacts/exports/36962146ecac4803acf6958e9b74995d/rmsf_d4s2_v2.csv"
+  },
+  "formats": {
+    "data": "csv"
+  },
+  "reused_roles": [],
+  "bytes": 2854,
+  "source": "flexibility",
+  "conversion": {}
+}

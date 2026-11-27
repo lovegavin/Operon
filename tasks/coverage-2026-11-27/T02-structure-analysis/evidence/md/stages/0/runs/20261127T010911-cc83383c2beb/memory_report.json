@@ -1,0 +1,105 @@
+{
+  "run_id": "20261127T010911-cc83383c2beb",
+  "status": "complete",
+  "error": null,
+  "pipeline_sha256": "3a70a83e673d87365d42070589c5e78b1f2bcd7bfd3bf0b2aee095757d6e72eb",
+  "budget_bytes": 88640852787,
+  "available_at_start_bytes": 197576196096,
+  "process_limit_bytes": 88909288243,
+  "managed_peak_bytes": 134590,
+  "admitted_peak_estimate_bytes": 53256699,
+  "sampled_rss_peak_bytes": 378552320,
+  "disk_bytes": 861,
+  "event_counts": {
+    "run_started": 1,
+    "source_registered": 1,
+    "plan_compiled": 1,
+    "step_started": 4,
+    "source_loaded": 1,
+    "size_observed": 1,
+    "step_plan": 4,
+    "conversion_started": 4,
+    "conversion_finished": 4,
+    "artifact_registered": 4,
+    "contract_checked": 4,
+    "step_finished": 4,
+    "last_use_release": 3,
+    "disk_commit": 2,
+    "spill": 2,
+    "run_finished": 1
+  },
+  "plans": [
+    {
+      "index": 1,
+      "name": "structure_openmm_md_stability",
+      "mode": "full",
+      "workspace_estimate_bytes": 98688,
+      "output_estimate_bytes": 99840,
+      "planning_seconds": 1.8515718840062618
+    },
+    {
+      "index": 2,
+      "name": "structure_openmm_md_rmsf",
+      "mode": "full",
+      "workspace_estimate_bytes": 98688,
+      "output_estimate_bytes": 99840,
+      "planning_seconds": 0.03150506317615509
+    },
+    {
+      "index": 3,
+      "name": "export_results",
+      "mode": "full",
+      "workspace_estimate_bytes": 2040,
+      "output_estimate_bytes": 6396,
+      "planning_seconds": 0.08255064859986305
+    },
+    {
+      "index": 4,
+      "name": "export_results",
+      "mode": "full",
+      "workspace_estimate_bytes": 53235712,
+      "output_estimate_bytes": 6224,
+      "planning_seconds": 0.03879516012966633
+    }
+  ],
+  "event_log": "/public/home/lihj/Operon/workspace/results/req-8fcc6531af0c9abe3692872e/runs/20261127T010911-cc83383c2beb/events.jsonl",
+  "artifacts": [
+    {
+      "name": "md_csv",
+      "artifact_id": "999c5f7a4ccf40da96a5ddeddb5b3934",
+      "kind": "file",
+      "external_file_bytes": 4951,
+      "producer_step": 3,
+      "next_use_step": null,
+      "shape": [],
+      "dtype": "None",
+      "contract_version": 1,
+      "ram_estimate_bytes": 2707,
+      "disk_bytes": 432,
+      "cached_source_bytes": 0,
+      "storage": "disk",
+      "disk_uri": "/public/home/lihj/Operon/workspace/results/req-8fcc6531af0c9abe3692872e/runs/20261127T010911-cc83383c2beb/cache/999c5f7a4ccf40da96a5ddeddb5b3934",
+      "source_uri": null,
+      "pins": 0
+    },
+    {
+      "name": "rmsf_csv",
+      "artifact_id": "a56fdc96560040f881a03b2dcd5375f7",
+      "kind": "file",
+      "external_file_bytes": 2854,
+      "producer_step": 4,
+      "next_use_step": null,
+      "shape": [],
+      "dtype": "None",
+      "contract_version": 1,
+      "ram_estimate_bytes": 2696,
+      "disk_bytes": 429,
+      "cached_source_bytes": 0,
+      "storage": "disk",
+      "disk_uri": "/public/home/lihj/Operon/workspace/results/req-8fcc6531af0c9abe3692872e/runs/20261127T010911-cc83383c2beb/cache/a56fdc96560040f881a03b2dcd5375f7",
+      "source_uri": null,
+      "pins": 0
+    }
+  ],
+  "guarantee": "estimated admission and sampled feedback; no hard RSS guarantee"
+}

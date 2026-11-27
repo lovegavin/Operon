@@ -1,0 +1,62 @@
+{
+ "task": "T12-annotation",
+ "title": "基因组注释与区间运算",
+ "operators": {
+  "total": 40,
+  "ids": [
+   "annotation_completeness",
+   "annotation_gaps",
+   "annotation_gene_length",
+   "annotation_overlap_check",
+   "antismash_bgc",
+   "bam_gene_bias",
+   "chain_coverage_summary",
+   "conserved_gene_order",
+   "esm3_embedding",
+   "esm_embedding",
+   "esm_embedding_autoencoder",
+   "esm_embedding_isolation_forest",
+   "esm_embedding_kmeans_silhouette",
+   "esm_embedding_knn_density",
+   "esm_embedding_linear_probe",
+   "esm_embedding_mlp_probe",
+   "esm_embedding_neighbors",
+   "esm_embedding_outlier_scan",
+   "esm_embedding_ridge_probe",
+   "exon_skipping",
+   "fba_gene_knockout",
+   "gene_list_to_hits",
+   "genome_gene_density",
+   "gff_feature_stats",
+   "go_ic_profile",
+   "humann_pathway_abundance",
+   "humann_pathway_collapse",
+   "interpro_domain_summary",
+   "interval_annotate",
+   "interval_censored_regression",
+   "interval_coverage",
+   "interval_jaccard",
+   "interval_merge",
+   "interval_overlap",
+   "interval_stats",
+   "liftover_intervals",
+   "locally_linear_embedding",
+   "metabolite_adduct_annotation",
+   "nucleotide_transformer_embedding",
+   "qtl_interval_mapping"
+  ]
+ },
+ "readers": {
+  "total": 5,
+  "ids": [
+   "GffReader",
+   "GtfReader",
+   "BedReader",
+   "NarrowPeakReader",
+   "OboReader"
+  ]
+ },
+ "pipeline": "GFF/GTF/BED → 区间合并/重叠/统计 → 注释完整性 → GO/OBO/KEGG",
+ "gates": "1) 区间统计表非空；2) 注释完整性指标输出；3) 图落盘",
+ "status": "planned"
+}

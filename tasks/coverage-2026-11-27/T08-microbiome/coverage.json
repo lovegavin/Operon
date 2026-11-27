@@ -1,0 +1,40 @@
+{
+ "task": "T08-microbiome",
+ "title": "微生物组与宏基因组",
+ "operators": {
+  "total": 21,
+  "ids": [
+   "amrfinder_plus",
+   "ancom_bc",
+   "assembly_contig_stats",
+   "assembly_contiguity",
+   "assembly_gap_stats",
+   "assembly_length_bins",
+   "assembly_ngx_curve",
+   "assembly_ngx_metrics",
+   "assembly_stats",
+   "bracken_reestimate",
+   "checkm_quality_parse",
+   "diversity",
+   "diversity_simpson",
+   "kraken_kreport_parse",
+   "nmds",
+   "nucleotide_diversity",
+   "pcoa",
+   "plasmid_contig_filter",
+   "tcr_diversity",
+   "vhh_humanization_mutations",
+   "vhh_humanization_score"
+  ]
+ },
+ "readers": {
+  "total": 2,
+  "ids": [
+   "BiomReader",
+   "TsvReader"
+  ]
+ },
+ "pipeline": "OTU/ASV 表 → α/β 多样性 → PCoA/NMDS → 差异丰度 → 分类/AMR",
+ "gates": "1) 多样性表非空；2) 差异丰度表非空；3) PCoA 图落盘",
+ "status": "planned"
+}

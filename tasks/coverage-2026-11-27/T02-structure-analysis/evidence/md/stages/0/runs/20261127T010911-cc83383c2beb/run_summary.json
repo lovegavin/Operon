@@ -1,0 +1,104 @@
+{
+  "task_dir": "/public/home/lihj/Operon/workspace/.studio/jobs/req-8fcc6531af0c9abe3692872e",
+  "generated_at": "2026-11-27T01:10:19.097802+00:00",
+  "n_steps": 4,
+  "total_elapsed": 63.0449,
+  "steps": [
+    {
+      "index": 1,
+      "name": "structure_openmm_md_stability",
+      "elapsed": 37.0095,
+      "inputs": [
+        "read"
+      ],
+      "params": {
+        "atom_dim": "atom",
+        "field_dim": "field",
+        "ph": 7,
+        "temperature": 300,
+        "friction": 1.0,
+        "step_size_fs": 2,
+        "steps": 5000,
+        "sample_every": 100,
+        "minimize_iterations": 500,
+        "seed": 271127,
+        "platform": "auto",
+        "threads": 0,
+        "forcefield": "amber14-all.xml,implicit/gbn2.xml",
+        "frame_dim": "frame",
+        "output": "md_frames",
+        "remove_water": true,
+        "equilibrate_steps": 500
+      },
+      "export_path": "runs/20261127T010911-cc83383c2beb/steps/01_structure_openmm_md_stability.json"
+    },
+    {
+      "index": 2,
+      "name": "structure_openmm_md_rmsf",
+      "elapsed": 24.4531,
+      "inputs": [
+        "read"
+      ],
+      "params": {
+        "atom_dim": "atom",
+        "field_dim": "field",
+        "chains": "",
+        "temperature": 300,
+        "timestep_fs": 2,
+        "steps": 5000,
+        "report_interval": 100,
+        "platform": "auto",
+        "threads": 0,
+        "residue_dim": "residue",
+        "output": "flexibility"
+      },
+      "export_path": "runs/20261127T010911-cc83383c2beb/steps/02_structure_openmm_md_rmsf.json"
+    },
+    {
+      "index": 3,
+      "name": "export_results",
+      "elapsed": 0.8448,
+      "inputs": [
+        "md_frames"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "md_frames_d4s2_v2",
+        "include_labels": true,
+        "buffer_mb": 1,
+        "assembly": "",
+        "topology": "linear",
+        "value_column": 0,
+        "directed": false,
+        "output": "md_csv"
+      },
+      "export_path": "runs/20261127T010911-cc83383c2beb/steps/03_export_results.json"
+    },
+    {
+      "index": 4,
+      "name": "export_results",
+      "elapsed": 0.7375,
+      "inputs": [
+        "flexibility"
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "rmsf_d4s2_v2",
+        "include_labels": true,
+        "buffer_mb": 1,
+        "assembly": "",
+        "topology": "linear",
+        "value_column": 0,
+        "directed": false,
+        "output": "rmsf_csv"
+      },
+      "export_path": "runs/20261127T010911-cc83383c2beb/steps/04_export_results.json"
+    }
+  ],
+  "status": "complete",
+  "error": null,
+  "run_id": "20261127T010911-cc83383c2beb",
+  "event_log": "/public/home/lihj/Operon/workspace/results/req-8fcc6531af0c9abe3692872e/runs/20261127T010911-cc83383c2beb/events.jsonl",
+  "memory_report": "/public/home/lihj/Operon/workspace/results/req-8fcc6531af0c9abe3692872e/runs/20261127T010911-cc83383c2beb/memory_report.json",
+  "managed_peak_bytes": 134590
+}

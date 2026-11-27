@@ -1,0 +1,6 @@
+>structure, score=1.9561, global_score=3.1110, fixed_chains=['B'], designed_chains=['A'], model_name=v_48_020, git_hash=unknown, seed=28
+GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+>T=0.1, sample=1, score=0.9266, global_score=2.8878, seq_recovery=0.0000
+AARAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAALAA
+>T=0.1, sample=2, score=1.1799, global_score=2.9312, seq_recovery=0.0000
+EEEEKKKKEKEAEEEKKKKEEEEKKKKEEEEEKKKKEEEEKKKKEEEKKKAEKKKKEE

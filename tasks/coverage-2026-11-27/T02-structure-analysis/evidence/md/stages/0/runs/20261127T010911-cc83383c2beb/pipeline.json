@@ -1,0 +1,222 @@
+{
+  "name": "task2-md-mcp",
+  "sources": {
+    "read": {
+      "reader": "PdbReader",
+      "path": "../../../task2/input/d4s2_binder.pdb",
+      "dims": [
+        "atom",
+        "field"
+      ],
+      "labels": {
+        "atom": "auto"
+      },
+      "args": {
+        "model": 0,
+        "records": "all",
+        "exclude_solvent": false
+      }
+    }
+  },
+  "steps": [
+    {
+      "name": "structure_openmm_md_stability",
+      "inputs": [
+        "read"
+      ],
+      "conversions": [
+        {
+          "port": 0,
+          "edge_id": "e0",
+          "plan": {
+            "logical_type": "form",
+            "source": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "target": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "representation": "form",
+            "converters": []
+          }
+        }
+      ],
+      "params": {
+        "atom_dim": "atom",
+        "field_dim": "field",
+        "ph": 7,
+        "temperature": 300,
+        "friction": 1.0,
+        "step_size_fs": 2,
+        "steps": 5000,
+        "sample_every": 100,
+        "minimize_iterations": 500,
+        "seed": 271127,
+        "platform": "auto",
+        "threads": 0,
+        "forcefield": "amber14-all.xml,implicit/gbn2.xml",
+        "frame_dim": "frame",
+        "output": "md_frames",
+        "remove_water": true,
+        "equilibrate_steps": 500
+      }
+    },
+    {
+      "name": "structure_openmm_md_rmsf",
+      "inputs": [
+        "read"
+      ],
+      "conversions": [
+        {
+          "port": 0,
+          "edge_id": "e2",
+          "plan": {
+            "logical_type": "form",
+            "source": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "target": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "representation": "form",
+            "converters": []
+          }
+        }
+      ],
+      "params": {
+        "atom_dim": "atom",
+        "field_dim": "field",
+        "chains": "",
+        "temperature": 300,
+        "timestep_fs": 2,
+        "steps": 5000,
+        "report_interval": 100,
+        "platform": "auto",
+        "threads": 0,
+        "residue_dim": "residue",
+        "output": "flexibility"
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "md_frames"
+      ],
+      "conversions": [
+        {
+          "port": 0,
+          "edge_id": "e1",
+          "plan": {
+            "logical_type": "form",
+            "source": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "target": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "representation": "form",
+            "converters": []
+          }
+        }
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "md_frames_d4s2_v2",
+        "include_labels": true,
+        "buffer_mb": 1,
+        "assembly": "",
+        "topology": "linear",
+        "value_column": 0,
+        "directed": false,
+        "output": "md_csv"
+      }
+    },
+    {
+      "name": "export_results",
+      "inputs": [
+        "flexibility"
+      ],
+      "conversions": [
+        {
+          "port": 0,
+          "edge_id": "e3",
+          "plan": {
+            "logical_type": "form",
+            "source": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "target": {
+              "logical_type": "form",
+              "representations": [
+                "form"
+              ],
+              "metadata": {}
+            },
+            "representation": "form",
+            "converters": []
+          }
+        }
+      ],
+      "params": {
+        "format": "csv",
+        "filename": "rmsf_d4s2_v2",
+        "include_labels": true,
+        "buffer_mb": 1,
+        "assembly": "",
+        "topology": "linear",
+        "value_column": 0,
+        "directed": false,
+        "output": "rmsf_csv"
+      }
+    }
+  ],
+  "runtime": {
+    "execution": {
+      "kind": "local",
+      "max_parallel_tasks": 2
+    },
+    "submission_key": "c6fb0d6f9751d5301a4311873a4464f15a80776b7d68dd00aadb08f16c94f847",
+    "exchange_inputs": [],
+    "exchange_contracts": {},
+    "exchange_outputs": [],
+    "execution_parent_id": "exec-11e6ac1c07c74ffdb2e397efb0638b94",
+    "remote_request_id": "80a65bd4f7cb9875b4af2ebddfc44926",
+    "remote_request_digest": "907afe1ee5376fa78af6de072647648828972e7f3b7e10fb516e41155cb702ac",
+    "memory": {
+      "enabled": true,
+      "auto_spill": true,
+      "keep": [],
+      "budget_mb": 84534.50468730927,
+      "process_limit_mb": 84790.50468730927
+    }
+  },
+  "params": {}
+}

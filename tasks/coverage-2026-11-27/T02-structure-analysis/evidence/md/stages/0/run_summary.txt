@@ -1,0 +1,20 @@
+============================================================
+Run summary
+============================================================
+task      : /public/home/lihj/Operon/workspace/.studio/jobs/req-8fcc6531af0c9abe3692872e
+generated : 2026-11-27T01:10:19.097802+00:00
+steps     : 4
+elapsed   : 63.045s
+status    : complete
+
+------------------------------------------------------------
+#   step                   elapsed   export
+------------------------------------------------------------
+1   structure_openmm_md_stability   37.010s   runs/20261127T010911-cc83383c2beb/steps/01_structure_openmm_md_stability.json
+2   structure_openmm_md_rmsf   24.453s   runs/20261127T010911-cc83383c2beb/steps/02_structure_openmm_md_rmsf.json
+3   export_results          0.845s   runs/20261127T010911-cc83383c2beb/steps/03_export_results.json
+4   export_results          0.738s   runs/20261127T010911-cc83383c2beb/steps/04_export_results.json
+
+============================================================
+Per-step details are at the export paths above. This file is an index only.
+============================================================

@@ -1,0 +1,23 @@
+# 任务提示词 · T07-hic · Hi-C 与三维基因组
+
+你只能通过 MCP（mcp__operon__* 工具）操作 Operon：不要 ssh、不要直接读写远端目录、不要调用内部 HTTP 接口。
+目标：接触矩阵 → 平衡/校正 → 区室 → TAD/绝缘 → 环 table
+
+## 输入
+工作区 `workspace/tasks/T07-hic/input/`（如为空先运行 `gen_inputs.py` 生成最小样例）。
+
+## 必须完成的动作
+1. `operon_status` 确认 connected=true、workspace 正确；
+2. 用 `operon_submit` 提交 `graphs/` 中准备好的路线（或按上面 pipeline 自己组织同样语义的路线），`request_id` 用 `T07-hic-run-<n>`；
+3. 用 `operon_job` 轮询到 complete/failed（等待用 ≤45 s 的 wait_seconds），失败时把完整 error 与 reports 里对应步骤日志抓下来；
+4. 用 `operon_artifacts` / `operon_download_*` 把产物取回本地，登记到 `evidence/`；
+5. 更新 `coverage.json`：status、job id、实际用到的算子（operator 名）、reader、产物路径、失败原因。
+
+## 验收
+1) 矩阵统计输出；2) 区室/TAD 表非空；3) 图落盘
+
+## 汇报格式（必须）
+- job id / 状态 / 起止时间
+- 覆盖：算子 N 个（列出未被实际调用的）、reader M 个
+- 产物：路径 + 行数/大小
+- 失败：算子名 + 错误原文 + 你的判断（缺依赖/契约/环境/参数）
