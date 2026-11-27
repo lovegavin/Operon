@@ -14,7 +14,7 @@ TOOL = frozenset({
     "foldseek_path", "rnafold_path", "rnasubopt_path", "rnaduplex_path", "rnacofold_path",
     "hmmscan_path", "cmscan_path", "minimap2_path", "fpocket_path", "pdb2pqr_path",
     "prodigal_path", "amrfinder_path", "antismash_path", "colabfold_path", "openfold_path",
-    "rfdiffusion_path", "flye_path", "trnascan_path", "quast_path", "minced_path", "runner_path",
+    "rfdiffusion_path", "mmseqs_path", "flye_path", "trnascan_path", "quast_path", "minced_path", "runner_path",
 })
 # Model weights or parameter files shipped as resources.
 WEIGHTS = frozenset({"weights_path", "model_path", "params_path"})
