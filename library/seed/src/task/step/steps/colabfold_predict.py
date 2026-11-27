@@ -5,6 +5,7 @@ from ._device_common import resolve_device
 
 import json
 import os
+import pathlib
 import shutil
 import subprocess
 import sys
@@ -175,14 +176,27 @@ def search_database(
             f"colabfold_predict: '{db1}' has no .dbtype file; build the MMseqs2 index first "
             "(see the colabfold_msa resource build steps)"
         )
+    missing = [
+        Path(str(db1) + suffix).name
+        for suffix in ("_h.dbtype", "_seq.dbtype", "_aln.dbtype")
+        if not (Path(str(db1) + suffix) if False else Path(str(db1) + suffix)).is_file()
+    ]
+    if missing:
+        raise StepError(
+            f"colabfold_predict: '{db1}' is not a ColabFold database; missing "
+            + ", ".join(missing)
+            + ". Use the tsv2db output for the header, sequence and alignment parts"
+        )
     mmseqs = str(mmseqs_path or "").strip() or str(search_binary.with_name("mmseqs"))
     outdir = workdir / "search"
     outdir.mkdir(parents=True, exist_ok=True)
-    command = [resolved, "--mmseqs", mmseqs, "-s", "7.5", "--threads", str(int(threads)),
-               "--db-load-mode", "2", "--db1", str(db1)]
+    command = [resolved, pathlib.Path(fasta).as_posix(), database.parent.as_posix(), outdir.as_posix(),
+               "--mmseqs", mmseqs, "-s", "7.5", "--threads", str(int(threads)),
+               "--db-load-mode", "2", "--db1", str(database)]
     if db2:
         command += ["--db3", str(db2)]
-    command += [fasta.as_posix(), outdir.as_posix()]
+    else:
+        command += ["--use-env", "0"]
     environment = dict(os.environ)
     if device == "cpu":
         environment["CUDA_VISIBLE_DEVICES"] = ""
@@ -199,7 +213,8 @@ def search_database(
             f"colabfold_predict: colabfold_search failed with exit code "
             f"{completed.returncode}: {tail}"
         )
-    return outdir
+    matches = sorted(Path(outdir).rglob("*.a3m"))
+    return matches[0].parent if matches else Path(outdir)
 
 
 def predict(
